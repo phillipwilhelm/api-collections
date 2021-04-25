@@ -1,0 +1,54 @@
+#!/usr/bin/env dothttp
+
+# {{baseUrl=api.github.com}}
+
+@name("Get branch protection")
+GET "https://{{baseUrl}}/repos/{{owner}}/{{repo/branches/{{branch}}/protection}}/"
+
+
+@name("Update branch protection")
+PUT "https://{{baseUrl}}/repos/{{owner}}/{{repo/branches/{{branch}}/protection}}/"
+"Content-Type": "application/json"
+json({
+    "required_status_checks": {
+        "strict": true,
+        "contexts": [
+            "continuous-integration/travis-ci"
+        ]
+    },
+    "enforce_admins": true,
+    "required_pull_request_reviews": {
+        "dismissal_restrictions": {
+            "users": [
+                "octocat"
+            ],
+            "teams": [
+                "justice-league"
+            ]
+        },
+        "dismiss_stale_reviews": true,
+        "require_code_owner_reviews": true,
+        "required_approving_review_count": 2
+    },
+    "restrictions": {
+        "users": [
+            "octocat"
+        ],
+        "teams": [
+            "justice-league"
+        ],
+        "apps": [
+            "super-ci"
+        ]
+    },
+    "required_linear_history": true,
+    "allow_force_pushes": true,
+    "allow_deletions": true
+})
+
+
+@name("Delete branch protection")
+DELETE "https://{{baseUrl}}/repos/{{owner}}/{{repo/branches/{{branch}}/protection}}/"
+
+
+

@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+# {{baseUrl=api.github.com}}
+
+@name("Get SCIM provisioning information for an enterprise user")
+GET "https://{{baseUrl}}/scim/v2/enterprises/{{enterprise}}/Users/{{scim_user_id}}/"
+
+
+@name("Set SCIM information for a provisioned enterprise user")
+PUT "https://{{baseUrl}}/scim/v2/enterprises/{{enterprise}}/Users/{{scim_user_id}}/"
+"Content-Type": "application/json"
+json({
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "userName": "mona.octocat@okta.example.com",
+    "name": {
+        "familyName": "Octocat",
+        "givenName": "Mona"
+    },
+    "emails": [
+        {
+            "value": "mona.octocat@okta.example.com",
+            "type": "work",
+            "primary": true
+        }
+    ],
+    "groups": [
+        {
+            "value": "468dd3fa-a1d6-11ea-9031-15a1f0d7811d"
+        }
+    ]
+})
+
+
+@name("Update an attribute for a SCIM enterprise user")
+PATCH "https://{{baseUrl}}/scim/v2/enterprises/{{enterprise}}/Users/{{scim_user_id}}/"
+"Content-Type": "application/json"
+json({
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+    ],
+    "Operations": [
+        {
+            "op": "add",
+            "path": "emails",
+            "value": [
+                {
+                    "value": "monalisa@octocat.github.com",
+                    "type": "home"
+                }
+            ]
+        },
+        {
+            "op": "replace",
+            "path": "name.givenName",
+            "value": "Monalisa"
+        }
+    ]
+})
+
+
+@name("Delete a SCIM user from an enterprise")
+DELETE "https://{{baseUrl}}/scim/v2/enterprises/{{enterprise}}/Users/{{scim_user_id}}/"
+
+
+
