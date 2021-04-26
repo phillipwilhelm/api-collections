@@ -1,6 +1,9 @@
 # Github apis in dothttp
 
+clone this repo, open repo in vscode and open a `.http` file.
 
-try in playground [here](https://ghpage.dothttp.dev/)
+for information on dothttp visit [here](http://docs.dothttp.dev/)
 
-unofficial, for official api def look [here](https://docs.github.com/en/rest/reference/actions) 
+try dothttp on browser via playground [here](https://ghpage.dothttp.dev/)
+
+It is an unofficial repo, for official api docs look [here](https://docs.github.com/en/rest/) 
