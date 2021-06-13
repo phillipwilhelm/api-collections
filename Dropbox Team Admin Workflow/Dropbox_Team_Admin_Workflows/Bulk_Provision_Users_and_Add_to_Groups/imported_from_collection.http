@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+@name("Add Member To Team")
+POST "https://api.dropboxapi.com/2/team/members/add"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "new_members": [
+        {
+            "member_email": "{{email}}",
+            "member_given_name": "{{first_name}}",
+            "member_surname": "{{last_name}}",
+            "member_external_id": "{{external_id}}",
+            "send_welcome_email": {{welcome_email}},
+            "role": "{{member_role}}"
+        }
+    ],
+    "force_async": false
+}')
+
+
+@name("Get Groups")
+POST "https://api.dropboxapi.com/2/team/groups/list"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "limit": 100
+}')
+
+
+@name("Get More Groups")
+POST "https://api.dropboxapi.com/2/team/groups/list/continue"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "cursor": "{{cursor_bulk_provision}}"
+}')
+
+
+@name("Add Member To Group")
+POST "https://api.dropboxapi.com/2/team/groups/members/add"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+json({
+    "group": {
+        ".tag": "group_id",
+        "group_id": "{{group_id_bulk_provision}}"
+    },
+    "members": [
+        {
+            "user": {
+                ".tag": "team_member_id",
+                "team_member_id": "{{team_member_id_bulk_provision}}"
+            },
+            "access_type": "member"
+        }
+    ],
+    "return_members": true
+})
+
+
+

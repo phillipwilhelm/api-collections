@@ -1,0 +1,128 @@
+#!/usr/bin/env dothttp
+
+@name("Create deployment (feature update)")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/deployments"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    }
+})
+
+
+@name("Create deployment (expedited security update)")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/deployments"
+json({
+    "content": {
+        "@odata.type": "microsoft.graph.windowsUpdates.expeditedQualityUpdateReference",
+        "releaseDate": "{{QualityUpdateReleaseDate}}"
+    }
+})
+
+
+@name("Create deployment (rate-based gradual rollout)")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/deployments"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    },
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "rollout": {
+            "devicesPerOffer": 100,
+            "durationBetweenOffers": "P7D"
+        },
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "@odata.type": "#microsoft.graph.windowsUpdates.monitoringRule",
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("Create deployment (date-based gradual rollout)")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/deployments"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    },
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "rollout": {
+            "startDateTime": "{{DeploymentStartDateTime}}",
+            "endDateTime": "{{DeploymentEndDateTime}}",
+            "durationBetweenOffers": "P7D"
+        },
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "@odata.type": "#microsoft.graph.windowsUpdates.monitoringRule",
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("List deployments")
+GET "https://graph.microsoft.com/beta/admin/windows/updates/deployments"
+
+
+@name("Get deployment")
+GET "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{DeploymentId}}"
+
+
+@name("Update deployment (replace monitoring rules)")
+PATCH "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{DeploymentId}}"
+json({
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("Update deployment (request paused state)")
+PATCH "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{DeploymentId}}"
+json({
+    "state": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.deploymentState",
+        "requestedValue": "paused"
+    }
+})
+
+
+@name("Update deployment (clear requested state)")
+PATCH "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{DeploymentId}}"
+json({
+    "state": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.deploymentState",
+        "requestedValue": "none"
+    }
+})
+
+
+@name("Delete deployment")
+DELETE "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{DeploymentId}}"
+
+
+

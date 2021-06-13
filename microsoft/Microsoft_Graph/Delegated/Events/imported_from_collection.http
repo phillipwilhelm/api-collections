@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+@name("Get Rooms")
+GET "https://graph.microsoft.com/beta/me/findRooms"
+"Content-Type": "application/json"
+
+
+@name("Get My Events for next week")
+GET "https://graph.microsoft.com/v1.0/me/calendarview"
+"Content-Type": "application/json"
+? "startdatetime"= "{{Today}}"
+? "enddatetime"= "{{NextWeek}}"
+
+
+@name("Get My Calendars")
+GET "https://graph.microsoft.com/v1.0/me/calendars"
+"Content-Type": "application/json"
+
+
+@name("Add Microsoft Graph Community Call event")
+POST "https://graph.microsoft.com/v1.0/me/events"
+"Content-Type": "application/json"
+data('{
+  "subject": "Microsoft Graph Community call",
+  "body": {
+    "contentType": "HTML",
+    "content": "Call link: https://aka.ms/mmkv1b Submit a question: https://aka.ms/ybuw2i"
+  },
+  "start": {
+    "dateTime": "2018-09-04T08:00:00",
+    "timeZone": "Pacific Standard Time"
+  },
+  "end": {
+    "dateTime": "2018-09-04T09:00:00",
+    "timeZone": "Pacific Standard Time"
+  },
+  "location": {
+    "displayName": "Skype for Business"
+  },
+  "recurrence": {
+    "pattern": {
+      "type": "relativeMonthly",
+      "interval": 1,
+      "daysOfWeek": [
+        "Tuesday"
+      ],
+      "index": "first"
+    },
+    "range": {
+      "type": "noEnd",
+      "startDate": "2017-08-29"
+    }
+  }
+}')
+
+
+@name("Get My Microsoft Graph Community call events")
+GET "https://graph.microsoft.com/v1.0/me/events"
+"Content-Type": "application/json"
+? "$filter"= "subject eq 'Microsoft Graph Community call'"
+
+
+

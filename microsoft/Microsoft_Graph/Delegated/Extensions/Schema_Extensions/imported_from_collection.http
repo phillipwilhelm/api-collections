@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+@name("Get avaiable schema extensions")
+GET "https://graph.microsoft.com/v1.0/schemaExtensions"
+
+
+@name("Create a group with extension")
+POST "https://graph.microsoft.com/v1.0/groups"
+"Content-Type": "application/json"
+data('{
+  "displayName": "Extensions sample group",
+  "description": "Extensions sample group",
+  "groupTypes": [
+    "Unified"
+  ],
+  "mailEnabled": true,
+  "mailNickname": "extSample123",
+  "securityEnabled": false,
+  "adatumisv_courses": {
+    "id": "123",
+    "name": "New Managers",
+    "type": "Online"
+  }
+}')
+
+
+@name("Filter groups by extensions")
+GET "https://graph.microsoft.com/v1.0/groups"
+? "$filter"= "adatumisv_courses/id eq '123'"
+? "$select"= "id,displayName,adatumisv_courses"
+
+
+@name("Update a group with extension")
+PATCH "https://graph.microsoft.com/v1.0/groups/{{GroupId}}"
+"SdkVersion": "postman-graph/v2.0"
+"Content-Type": "application/json"
+data('{
+  "adatumisv_courses": {
+    "id": "123",
+    "name": "More Managers",
+    "type": "Online"
+  }
+}')
+
+
+

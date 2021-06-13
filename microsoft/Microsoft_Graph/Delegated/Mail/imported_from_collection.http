@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+@name("Get my messages")
+GET "https://graph.microsoft.com/v1.0/me/messages"
+"Content-Type": "application/json"
+
+
+@name("Get my important messages")
+GET "https://graph.microsoft.com/v1.0/me/messages"
+"Content-Type": "application/json"
+? "$filter"= "importance eq 'high'"
+
+
+@name("Get my messages from an address")
+GET "https://graph.microsoft.com/v1.0/me/messages"
+"Content-Type": "application/json"
+? "$filter"= "(from/emailAddress/address) eq '{{UserName}}'"
+
+
+@name("Get my messages that has "Weekly Digest"")
+GET "https://graph.microsoft.com/v1.0/me/messages"
+"Content-Type": "application/json"
+? "$search"= ""Weekly Digest""
+
+
+@name("Get my messages that at mentioned in")
+GET "https://graph.microsoft.com/beta/me/messages"
+"Content-Type": "application/json"
+? "$filter"= "mentionsPreview/isMentioned eq true"
+? "$select"= "subject,sender,receivedDateTime"
+
+
+@name("Get a users message")
+GET "https://graph.microsoft.com/v1.0/me/messages/{{MessageId}}"
+"Content-Type": "application/json"
+
+
+@name("Get my mailbox rules")
+GET "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messagerules"
+"Content-Type": "application/json"
+
+
+@name("Get my categories")
+GET "https://graph.microsoft.com/v1.0/me/outlook/masterCategories"
+"Content-Type": "application/json"
+
+
+@name("Get email headers")
+GET "https://graph.microsoft.com/v1.0/me/messages"
+"Content-Type": "application/json"
+? "$select"= "internetMessageHeaders"
+? "$top"= "1"
+
+
+@name("SendMail")
+POST "https://graph.microsoft.com/v1.0/me/sendMail"
+"Content-Type": "application/json"
+data('{
+  "message": {
+    "subject": "Meet for lunch?",
+    "body": {
+      "contentType": "Text",
+      "content": "The new cafeteria is open."
+    },
+    "toRecipients": [
+      {
+        "emailAddress": {
+          "address": "{{UserName}}"
+        }
+      }
+    ],
+    "ccRecipients": [
+      {
+        "emailAddress": {
+          "address": "{{UserName}}"
+        }
+      }
+    ]
+  },
+  "saveToSentItems": "false"
+}')
+
+
+@name("Get mailbox settings")
+GET "https://graph.microsoft.com/v1.0/me/mailboxSettings"
+"Content-Type": "application/json"
+
+
+@name("Set automatic replies")
+PATCH "https://graph.microsoft.com/v1.0/me/mailboxSettings"
+"Content-Type": "application/json"
+data('{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Me/mailboxSettings",
+"automaticRepliesSetting": {
+        "status": "scheduled",
+        "externalAudience": "contactsOnly",
+        "internalReplyMessage": "<html>\n<body>\n<div>I\'m on vacation!</div>\n<div><br>\n</div>\n<div>Kindly regards</div>\n<div></div>\n</body>\n</html>\n",
+        "externalReplyMessage": "<html>\n<body>\n<div></div>\n<div>I\'m on vacation.</div>\n<div><br>\n</div>\n<div>Kindly regards</div>\n</body>\n</html>\n",
+        "scheduledStartDateTime": {
+            "dateTime": "2019-07-15T08:00:00.0000000",
+            "timeZone": "Europe/Berlin"
+        },
+        "scheduledEndDateTime": {
+            "dateTime": "2019-08-09T16:00:00.0000000",
+            "timeZone": "Europe/Berlin"
+        }
+    }
+}')
+
+
+
