@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+# imported from http://localhost:8000/Microsoft%20Graph.postman_collection.json
+
+@name("Perform parallel GETS")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c83b790>"
+"Content-Type": "application/json"
+data('{
+  "requests": [
+    {
+      "url": "/me?$select=displayName,jobTitle,userPrincipalName",
+      "method": "GET",
+      "id": "1"
+    },
+    {
+      "url": "/me/messages?$filter=importance eq \'high\'&$select=from,subject,receivedDateTime,bodyPreview",
+      "method": "GET",
+      "id": "2"
+    },
+    {
+      "url": "/me/events",
+      "method": "GET",
+      "id": "3"
+    }
+  ]
+}')
+
+
+@name("Combine a POST and a GET")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c83b970>"
+"Content-Type": "application/json"
+data('{
+  "requests": [
+    {
+      "url": "/me/drive/root/children",
+      "method": "POST",
+      "id": "1",
+      "body": {
+        "name": "TestBatchingFolder",
+        "folder": {}
+      },
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "url": "/me/drive/root/children/TestBatchingFolder ",
+      "method": "GET",
+      "id": "2",
+      "DependsOn": [
+        "1"
+      ]
+    }
+  ]
+}')
+
+
+

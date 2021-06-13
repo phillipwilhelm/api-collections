@@ -1,0 +1,130 @@
+#!/usr/bin/env dothttp
+
+# imported from http://localhost:8000/Microsoft%20Graph.postman_collection.json
+
+@name("Create deployment (feature update)")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6940>"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    }
+})
+
+
+@name("Create deployment (expedited security update)")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6a00>"
+json({
+    "content": {
+        "@odata.type": "microsoft.graph.windowsUpdates.expeditedQualityUpdateReference",
+        "releaseDate": "{{QualityUpdateReleaseDate}}"
+    }
+})
+
+
+@name("Create deployment (rate-based gradual rollout)")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6ac0>"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    },
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "rollout": {
+            "devicesPerOffer": 100,
+            "durationBetweenOffers": "P7D"
+        },
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "@odata.type": "#microsoft.graph.windowsUpdates.monitoringRule",
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("Create deployment (date-based gradual rollout)")
+POST "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6b80>"
+json({
+    "content": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.featureUpdateReference",
+        "version": "{{FeatureUpdateVersion}}"
+    },
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "rollout": {
+            "startDateTime": "{{DeploymentStartDateTime}}",
+            "endDateTime": "{{DeploymentEndDateTime}}",
+            "durationBetweenOffers": "P7D"
+        },
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "@odata.type": "#microsoft.graph.windowsUpdates.monitoringRule",
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("List deployments")
+GET "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6c10>"
+
+
+@name("Get deployment")
+GET "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6ca0>"
+
+
+@name("Update deployment (replace monitoring rules)")
+PATCH "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6d60>"
+json({
+    "settings": {
+        "@odata.type": "microsoft.graph.windowsUpdates.windowsDeploymentSettings",
+        "monitoring": {
+            "monitoringRules": [
+                {
+                    "signal": "rollback",
+                    "threshold": 5,
+                    "action": "pauseDeployment"
+                }
+            ]
+        }
+    }
+})
+
+
+@name("Update deployment (request paused state)")
+PATCH "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6e20>"
+json({
+    "state": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.deploymentState",
+        "requestedValue": "paused"
+    }
+})
+
+
+@name("Update deployment (clear requested state)")
+PATCH "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6ee0>"
+json({
+    "state": {
+        "@odata.type": "#microsoft.graph.windowsUpdates.deploymentState",
+        "requestedValue": "none"
+    }
+})
+
+
+@name("Delete deployment")
+DELETE "<dotextensions.server.postman2_1.URLClass object at 0x7f028c9b6f70>"
+
+
+
