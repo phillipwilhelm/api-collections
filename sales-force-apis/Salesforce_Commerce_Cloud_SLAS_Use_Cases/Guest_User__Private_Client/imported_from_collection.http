@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Commerce_Cloud_SLAS_Use_cases.postman_collection.json
+
+@name("SLAS - Private Client - Guest Access Token")
+POST "{{host}}{{base_uri}}{{tenant_id}}/oauth2/token"
+basicauth("{{private_client_id}}", "{{private_client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"x-request-id": "111111"
+"x-b3-traceid": "{{B3_TRACE_ID}}"
+"x-b3-parentspanid": "{{B3_PARENT_SPAN_ID}}"
+"x-b3-spanid": "{{B3_SPAN_ID}}"
+data({
+    "grant_type": [
+        "client_credentials"
+    ],
+    "redirect_uri": [
+        "{{redirect_url}}"
+    ]
+})
+
+
+@name("Create Basket with Private Client Guest")
+POST "None://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets"
+"Authorization": "{{slas_guest_jwt}}"
+"Content-Type": "application/json"
+? "siteId"= "RefArch"
+? "client_id"= "{{private_client_id}}"
+data('{}')
+
+
+@name("Add item to basket with Private Client Guest")
+POST "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}/items"
+"Content-Type": "application/json"
+data('[{
+  "product_id" : "nikon-d90-wlensM",
+  "quantity" : 1.00
+}]')
+
+
+@name("Get Basket with Private Client Guest User")
+GET "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+@name("Delete Basket with Private Client Guest")
+DELETE "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+

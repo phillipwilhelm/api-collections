@@ -1,0 +1,64 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Commerce_Cloud_SLAS_Use_cases.postman_collection.json
+
+@name("SLAS- Private Client - Ecom User - Auth Code")
+POST "None://{{host}}{{base_uri}}{{tenant_id}}/oauth2/login"
+basicauth("{{ecom_customer_id}}", "{{ecom_customer_pw}}")
+"Content-Type": "application/x-www-form-urlencoded"
+? "client_id"= "{{private_client_id}}"
+? "channel_id"= "RefArch"
+? "redirect_uri"= "{{redirect_url}}"
+? "code_challenge"= "{{ECOM_USER_CODE_CHALLENGE}}"
+
+
+@name("SLAS- Private Client - Ecom User - Access Token")
+POST "{{host}}{{base_uri}}{{tenant_id}}/oauth2/token"
+basicauth("{{private_client_id}}", "{{private_client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "code": [
+        "{{private_ecom_auth_code}}"
+    ],
+    "grant_type": [
+        "authorization_code_pkce"
+    ],
+    "redirect_uri": [
+        "{{redirect_url}}"
+    ],
+    "code_verifier": [
+        "{{ECOM_USER_CODE_VERIFIER}}"
+    ],
+    "channel_id": [
+        "SiteGenesis"
+    ]
+})
+
+
+@name("Create Basket with Private Client Ecom User")
+POST "None://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets"
+"Authorization": "{{slas_guest_jwt}}"
+"Content-Type": "application/json"
+? "siteId"= "SiteGenesis"
+? "client_id"= "{{private_client_id}}"
+data('{}')
+
+
+@name("Add item to basket with Private Client Ecom User")
+POST "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}/items"
+"Content-Type": "application/json"
+data('[{
+  "product_id" : "nikon-d60-wlensM",
+  "quantity" : 2.00
+}]')
+
+
+@name("Get Basket with Private Client Ecom User")
+GET "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+@name("Delete Basket with Private Client Ecom User")
+DELETE "{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+

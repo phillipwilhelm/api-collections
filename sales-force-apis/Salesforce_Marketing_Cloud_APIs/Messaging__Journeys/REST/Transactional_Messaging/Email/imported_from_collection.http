@@ -1,0 +1,129 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Marketing_Cloud_APIs.postman_collection.json
+
+@name("Email - Create Send Definiton")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions"
+json({
+    "definitionKey": "tapi-demo-postman",
+    "status": "Active",
+    "name": "Postman Demo",
+    "description": "Created via REST",
+    "classification": "Default Transactional",
+    "content": {
+        "customerKey": "a128e1f4-0c53-4232-be79-7e2f9f13a7ce"
+    },
+    "subscriptions": {
+        "list": "All Subscribers - 653241",
+        "dataExtension": "CF2F5C60-65C3-43E7-8ACD-AD68667F133C",
+        "autoAddSubscriber": true,
+        "updateSubscriber": false
+    },
+    "options": {
+        "trackLinks": true,
+        "cc": [
+            "cc_address@example.com"
+        ],
+        "bcc": [
+            "bcc_address@example.com"
+        ],
+        "createJourney": true
+    }
+})
+
+
+@name("Email - Get a List of Definitions")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions"
+
+
+@name("Email - Get Queue Metrics for a Definition")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}/queue"
+
+
+@name("Email - Get Message Send Status for Recipient")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com//messaging/v1/email/messages/{{messageKey}}"
+
+
+@name("Email - Get List of Messages Not Sent to Recipients")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages/"
+? "type"= "notSent"
+
+
+@name("Email - Get Send Definition by Key")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+
+
+@name("Email - Update Message Definition")
+PATCH "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+json({
+    "status": "Active",
+    "name": "Postman Demo - Updated Name",
+    "description": "Updated Description",
+    "classification": "Default Transactional",
+    "content": {
+        "customerKey": "a128e1f4-0c53-4232-be79-7e2f9f13a7ce"
+    },
+    "subscriptions": {
+        "list": "All Subscribers - 515987",
+        "dataExtension": "CF2F5C60-65C3-43E7-8ACD-AD68667F133C",
+        "autoAddSubscriber": true,
+        "updateSubscriber": false
+    },
+    "options": {
+        "trackLinks": true
+    }
+})
+
+
+@name("Email - Delete Message Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+
+
+
+@name("Email - Send a Message to a Single Recipient")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages/{{$guid}}"
+json({
+    "definitionKey": "tapi-ena-welcome",
+    "recipient": {
+        "contactKey": "aaron.cates@salesforce.com",
+        "to": "aaron.cates@salesforce.com",
+        "attributes": {
+            "FirstName": "Aaron",
+            "Plan": "PPO"
+        }
+    }
+})
+
+
+@name("Email - Send a Message to Multiple Recipients")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages"
+json({
+    "definitionKey": "tapi-ena-appointment",
+    "recipients": [
+        {
+            "contactKey": "aaron.cates@salesforce.com",
+            "to": "aaron.cates@salesforce.com",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Aaron",
+                "Doctor": "Smith"
+            }
+        },
+        {
+            "contactKey": "aaron.cates@salesforce.com",
+            "to": "aaron.cates@salesforce.com",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Billy",
+                "Doctor": "McNew"
+            }
+        }
+    ],
+    "attributes": {
+        "GlobalAttribute1": "value_a",
+        "GlobalAttribute2": "value_b"
+    }
+})
+
+
+

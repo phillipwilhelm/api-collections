@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_APIs.postman_collection.json
+
+@name("List of Groups")
+GET "{{_endpoint}}/services/data/v{{version}}/chatter/groups"
+
+
+@name("Group Members—Private")
+GET "None://{{_endpoint}}/services/data/v{{version}}/chatter/groups/:GROUP_ID/members/requests"
+? "status"= "Accepted"
+
+
+@name("List of Groups - POST")
+POST "None://{{_endpoint}}/services/data/v{{version}}/chatter/groups"
+? "name"= "New Chatter Group  (Private Access)"
+? "visibility"= "PrivateAccess"
+? "description"= "Created via API"
+? "information"= "Private Information"
+? "isArchived"= "false"
+? "isAutoArchiveDisabled"= "false"
+? "isBroadcast"= "false"
+? "canHaveChatterGuests	"= "true"
+
+
+@name("Group Invites")
+POST "None://{{_endpoint}}/services/data/v{{version}}/chatter/groups/group/:GROUP_ID/invite"
+"Content-Type": "application/json"
+json({
+    "invitees": {
+        "emails": [
+            "testemail1@sfdcpostman.com",
+            "testemail2@sfdcpostman.com"
+        ]
+    },
+    "message": "Join this group to participate in the discussion about your favorite feature."
+})
+
+
+@name("Group Members")
+POST "None://{{_endpoint}}/services/data/v{{version}}/chatter/groups/:GROUP_ID/members"
+? "userId"= "<USER1_ID>"
+
+
+@name("Group Members—Private - POST")
+POST "None://{{_endpoint}}/services/data/v{{version}}/chatter/groups/:GROUP_ID/members/requests"
+
+
+@name("Group Membership Requests—Private")
+PATCH "None://{{_endpoint}}/services/data/v{{version}}/chatter/group-membership-requests/:CHATTER_GROUP_REQUEST_ID"
+? "status"= "Accepted"
+? "responseMessage"= "Welcome to the group!"
+
+
+

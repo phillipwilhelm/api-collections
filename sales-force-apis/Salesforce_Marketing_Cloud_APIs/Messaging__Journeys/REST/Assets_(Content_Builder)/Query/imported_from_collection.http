@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Marketing_Cloud_APIs.postman_collection.json
+
+@name("Simple Query - All Assets")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets"
+
+
+@name("Simple Query - By ID")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets/{{assetId}}"
+
+
+@name("Simple Query - With Filter")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets"
+? "$page"= "1"
+? "$pagesize"= "10"
+? "$orderBy"= "name asc"
+? "$filter"= "assetType.name=png"
+? "$fields"= "id,customerKey,fileProperties"
+
+
+@name("Simple Query - Binary File")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets/{{assetId}}/file"
+
+
+@name("Simple Query - Salutations")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets/salutations"
+
+
+@name("Simple Query - Salutations - By ID")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets/{{emailId}}/salutations"
+
+
+@name("Advanced Query")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/asset/v1/content/assets/query"
+json({
+    "page": {
+        "page": 1,
+        "pageSize": 50
+    },
+    "query": {
+        "leftOperand": {
+            "property": "createdDate",
+            "simpleOperator": "greaterThan",
+            "value": "2019-07-18T13:35:27.327-06:00"
+        },
+        "logicalOperator": "AND",
+        "rightOperand": {
+            "property": "assetType.name",
+            "simpleOperator": "equal",
+            "value": "png"
+        }
+    },
+    "sort": [
+        {
+            "property": "id",
+            "direction": "ASC"
+        }
+    ],
+    "fields": [
+        "enterpriseId",
+        "memberId",
+        "thumbnail",
+        "category",
+        "content",
+        "data"
+    ]
+})
+
+
+

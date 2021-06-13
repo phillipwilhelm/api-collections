@@ -1,0 +1,75 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_APIs.postman_collection.json
+
+@name("Bulk Create Job")
+POST "{{_endpoint}}/services/async/{{version}}/job"
+"X-SFDC-Session": "{{_accessToken}}"
+"Content-Type": "application/json"
+"charset": "UTF-8"
+"Sforce-Disable-Batch-Retry": "FALSE"
+"Sforce-Line-Ending": "CRLF"
+"Sforce-Enable-PKChunking": "FALSE"
+"chunkSize": "10000"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+data('{
+  "operation" : "insert",
+  "object" : "Account",
+  "contentType" : "CSV"
+}')
+
+
+@name("Bulk Spec")
+POST "{{_endpoint}}/services/async/{{version}}/job/{{_jobId}}/spec"
+"X-SFDC-Session": "{{_accessToken}}"
+"Content-Type": "text/csv"
+"charset": "UTF-8"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+data('Salesforce Field,Csv Header,Value,Hint
+Name,Full Name,,
+Title,Job Title,,
+LeadSource,Lead Source,Import,
+Description,,Imported from XYZ.csv,
+Birthdate,Date of Birth,,dd MM yy')
+
+
+@name("Bulk Create Batch")
+POST "{{_endpoint}}/services/async/{{version}}/job/{{_jobId}}/batch"
+"X-SFDC-Session": "{{_accessToken}}"
+"Content-Type": "text/csv"
+"Content-Type": "zip/csv"
+"charset": "UTF-8"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+
+
+
+@name("Bulk Close Job")
+POST "{{_endpoint}}/services/async/{{version}}/job/{{_jobId}}"
+"X-SFDC-Session": "{{_accessToken}}"
+"Content-Type": "application/json"
+"charset": "UTF-8"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+data('{
+   "state" : "UploadComplete"
+}')
+
+
+@name("Bulk Check Batch Status")
+GET "{{_endpoint}}/services/async/{{version}}/job/{{_jobId}}/batch"
+"X-SFDC-Session": "{{_accessToken}}"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+
+
+@name("Bulk Retrieve Batch Result")
+GET "{{_endpoint}}/services/async/{{version}}/job/{{_jobId}}/batch/{{_batchId}}/result"
+"X-SFDC-Session": "{{_accessToken}}"
+"Accept-Encoding": "gzip"
+"Content-Encoding": "gzip"
+
+
+

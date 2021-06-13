@@ -1,0 +1,210 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_APIs.postman_collection.json
+
+@name("JWT Bearer Token Flow")
+POST "{{url}}{{site}}/services/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    ],
+    "assertion": [
+        ""
+    ]
+})
+
+
+@name("User Agent Flow")
+GET "None://{{url}}{{site}}/services/oauth2/authorize"
+? "response_type"= "token"
+? "client_id"= "{{clientId}}"
+? "redirect_uri"= "{{redirectUrl}}"
+? "display"= "touch"
+? "nonce"= "awesome"
+
+
+@name("Web Server Flow 1")
+GET "None://{{url}}{{site}}/services/oauth2/authorize"
+? "response_type"= "code"
+? "client_id"= "{{clientId}}"
+? "redirect_uri"= "{{redirectUrl}}"
+? "scope"= "full refresh_token"
+
+
+@name("Web Server Flow 2")
+POST "{{url}}{{site}}/services/oauth2/token"
+files(
+	("code", ""),
+	("grant_type", "authorization_code"),
+	("client_id", "{{clientId}}"),
+	("client_secret", "{{clientSecret}}"),
+	("redirect_uri", "{{redirectUrl}}"),
+	("format", "json")
+)
+
+
+@name("OAuth Username Password")
+POST "{{url}}{{site}}/services/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data({
+    "grant_type": [
+        "password"
+    ],
+    "client_id": [
+        "{{clientId}}"
+    ],
+    "client_secret": [
+        "{{clientSecret}}"
+    ],
+    "username": [
+        "{{username}}"
+    ],
+    "password": [
+        "{{password}}{{secretToken}}"
+    ]
+})
+
+
+@name("Asset Token Flow")
+POST "{{url}}{{site}}/services/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:token-exchange"
+    ],
+    "subject_token_type": [
+        "urn:ietf:params:oauth:token-type:access_token"
+    ],
+    "subject_token": [
+        "{{_accessToken}}"
+    ],
+    "actor_token_type": [
+        "urn:ietf:params:oauth:token-type:jwt"
+    ],
+    "actor_token": [
+        ""
+    ]
+})
+
+
+@name("Refresh Token")
+POST "{{url}}{{site}}/services/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "client_id": [
+        "{{clientId}}"
+    ],
+    "client_secret": [
+        "{{clientSecret}}"
+    ],
+    "refresh_token": [
+        "{{_refreshToken}}"
+    ]
+})
+
+
+@name("Revoke Token")
+POST "{{url}}{{site}}/services/oauth2/revoke"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{_accessToken}}"
+    ]
+})
+
+
+@name("OpenID Connect Discovery Endpoint")
+GET "{{url}}{{site}}/.well-known/openid-configuration"
+
+
+@name("Authentication Configuration Endpoint")
+GET "{{url}}{{site}}/.well-known/auth-configuration"
+
+
+@name("User Info")
+GET "{{url}}{{site}}/services/oauth2/userinfo"
+"Content-Type": "application/json"
+
+
+@name("OpenID Connect Token Introspection Endpoint")
+POST "{{url}}{{site}}/services/oauth2/introspect"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data({
+    "token": [
+        "{{_accessToken}}"
+    ],
+    "token_type_hint": [
+        "access_token"
+    ],
+    "client_id": [
+        "{{clientId}}"
+    ],
+    "client_secret": [
+        "{{clientSecret}}"
+    ]
+})
+
+
+@name("OpenID Connect Dynamic Client Registration Endpoint")
+POST "{{url}}{{site}}/services/oauth2/register"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"Authorization": "Bearer {{init_access_token}}"
+data('{
+    "redirect_uris": [
+        "http://localhost"
+    ],
+    "response_types": [
+        "code",
+        "token",
+        "id_token"
+    ],
+    "grant_types": [
+        "authorization_code",
+        "implicit",
+        "refresh_token"
+    ],
+    "application_type": "web",
+    "contacts": [
+        "abc@sf.com",
+        "ve7jtb@example.org"
+    ],
+    "client_name": "Example Olivier"
+}')
+
+
+@name("SOAP Login")
+POST "{{url}}{{site}}/services/Soap/u/{{version}}"
+"Content-Type": "text/xml"
+"SOAPAction": "login"
+"charset": "UTF-8"
+"Accept": "text/xml"
+data('<?xml version="1.0" encoding="utf-8" ?>
+<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+  <env:Body>
+    <n1:login xmlns:n1="urn:partner.soap.sforce.com">
+      <n1:username><![CDATA[{{username}}]]></n1:username>
+      <n1:password><![CDATA[{{password}}{{secretToken}}]]></n1:password>
+    </n1:login>
+  </env:Body>
+</env:Envelope>')
+
+
+@name("Salesforce Keys")
+GET "{{url}}/id/keys"
+
+
+@name("ID Token")
+GET "{{_endpoint}}/id/{{_orgId}}/{{_userId}}"
+"Content-Type": "application/json"
+
+
+

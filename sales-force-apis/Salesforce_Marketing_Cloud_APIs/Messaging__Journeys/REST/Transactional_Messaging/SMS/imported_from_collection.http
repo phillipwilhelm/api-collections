@@ -1,0 +1,120 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Marketing_Cloud_APIs.postman_collection.json
+
+@name("SMS - Create Send Definiton")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "status": "Active",
+    "name": "SMS Postman Demo",
+    "description": "Created via REST",
+    "content": {
+        "message": "My SMS Message Text"
+    },
+    "subscriptions": {
+        "shortCode": "59545",
+        "countryCode": "US",
+        "keyword": "TXNSMS",
+        "autoAddSubscriber": true
+    }
+})
+
+
+@name("SMS - Send a Message to a Single Recipient")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/{{$guid}}"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "recipient": {
+        "to": "15015553119",
+        "contactKey": "DD301",
+        "attributes": {
+            "FirstName": "Aaron",
+            "password": "1234567890ab"
+        }
+    },
+    "subscriptions": {
+        "resubscribe": true
+    },
+    "content": {
+        "message": "Override Text: %%FirstName%% Here is your new password: %%password%%"
+    }
+})
+
+
+@name("SMS - Send a Message to Multiple Recipients")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "recipients": [
+        {
+            "contactKey": "DD301",
+            "to": "15559083119",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Aaron",
+                "Password": "1234567"
+            }
+        },
+        {
+            "contactKey": "DD302",
+            "to": "15015553119",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "William",
+                "Password": "2345678"
+            }
+        }
+    ],
+    "attributes": {
+        "CommonAttributeExample": "2"
+    }
+})
+
+
+@name("SMS - Update Message Definiton")
+PATCH "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}"
+json({
+    "status": "Active",
+    "name": "SMS Postman Demo",
+    "description": "Updating Description...",
+    "content": {
+        "message": "%%FirstName%% Here is your new password: %%password%%"
+    },
+    "subscriptions": {
+        "shortCode": "59545",
+        "countryCode": "US",
+        "keyword": "TXNSMS",
+        "autoAddSubscriber": true
+    }
+})
+
+
+@name("SMS - Get a List of Definitions")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/"
+
+
+@name("SMS - Get Message Send Status for Recipient")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/{{messageKey}}"
+
+
+@name("SMS - Get List of Messages Not Sent to Recipients")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/"
+? "type"= "notSent"
+
+
+@name("SMS - Get Queue Metrics for a Definition")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}/queue"
+
+
+@name("SMS - Delete Messages Queued for a Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}/queue"
+
+
+
+@name("SMS - Delete Message Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}"
+
+
+
+

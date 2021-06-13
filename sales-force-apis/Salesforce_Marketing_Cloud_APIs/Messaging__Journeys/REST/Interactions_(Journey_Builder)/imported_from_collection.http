@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_Marketing_Cloud_APIs.postman_collection.json
+
+@name("Get Discovery Document")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/rest"
+
+
+@name("Fire Entry Event")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/events"
+json({
+    "ContactKey": "DD301",
+    "EventDefinitionKey": "APIEvent-0dbe46de-74f9-a309-7778-298c0a565f93",
+    "Data": {
+        "SubscriberKey": "DD301",
+        "Email": "aaron.cates@salesforce.com",
+        "First_Name": "Aaron",
+        "Last_Name": "Cates"
+    }
+})
+
+
+@name("Get Interaction (Journey) Audit Log")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/{{journeyId}}/audit/all"
+
+
+@name("Remove Contact From Journey")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/contactexit"
+json([
+    {
+        "ContactKey": "DD301",
+        "DefinitionKey": "postman-demo1",
+        "Versions": [
+            2
+        ]
+    }
+])
+
+
+@name("Get Contact Journey Exit Status")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/contactexit/status"
+json([
+    {
+        "ContactKey": "DD301",
+        "DefinitionKey": "postman-demo1",
+        "Versions": [
+            2
+        ]
+    }
+])
+
+
+@name("Get List Of Journeys Contact Is In")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/contactMembership"
+json({
+    "ContactKeyList": [
+        "DD301",
+        "0036A000002FDbFQAW"
+    ]
+})
+
+
+

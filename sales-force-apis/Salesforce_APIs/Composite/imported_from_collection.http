@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+# imported from http://0.0.0.0:8000/Salesforce_APIs.postman_collection.json
+
+@name("Composite")
+POST "{{_endpoint}}/services/data/v{{version}}/composite/"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "collateSubrequests": "Boolean",
+    "compositeRequest": "Composite Subrequest[]"
+}')
+
+
+@name("Composite Graph")
+POST "{{_endpoint}}/services/data/v{{version}}/composite/graph"
+"Content-Type": "application/json"
+data('{
+    "graphs": [
+        {
+            "graphId": "graph1",
+            "compositeRequest": [
+                {
+                    "method": "POST",
+                    "url": "/services/data/v{{version}}/sobjects/Account/",
+                    "referenceId": "newAccount",
+                    "body": {
+                        "Name": "ACME Inc."
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "/services/data/v{{version}}/sobjects/Contact/",
+                    "referenceId": "newContact",
+                    "body": {
+                        "FirstName": "John",
+                        "LastName": "Doe",
+                        "AccountId": "@{newAccount.id}"
+                    }
+                }
+            ]
+        }
+    ]
+}')
+
+
+@name("Batch")
+POST "{{_endpoint}}/services/data/v{{version}}/composite/batch"
+"Content-Type": "application/json"
+data('{
+    "haltOnError": "Boolean",
+    "batchRequests": "Subrequest[]"
+}')
+
+
+@name("SObject Tree")
+POST "None://{{_endpoint}}/services/data/v{{version}}/composite/tree/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+data('{
+    "records":"SObject Tree Input[]"
+}')
+
+
+@name("SObject Collections Create")
+POST "{{_endpoint}}/services/data/v{{version}}/composite/sobjects"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "records":"SObject[]"
+}')
+
+
+@name("SObject Collections Retrieve")
+GET "None://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+
+
+
+@name("SObject Collections Update")
+PATCH "None://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "records":"SObject[]"
+}')
+
+
+@name("SObject Collections Delete")
+DELETE "None://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+
+
+
+
