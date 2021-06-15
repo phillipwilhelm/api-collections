@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+// An `AWS Auth Signature` verified `GET` request to fetch all RDS instances under the Postman organization.
+@name("Describe RDS Instances")
+GET "https://rds.{{awsRegion}}.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170420T144512Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170420/us-east-1/rds/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=ebd34fffe1f5137e13831362cd9f151b222301ebc0c74948eb32b2ceabbba1ca"
+"Accept": "application/json"
+? "Operation"= "DescribeDBInstances"
+? "Version"= "2014-10-31"
+? "MaxRecords"= "{{maxRecords}}"
+? "Marker"= "{{marker}}"
+
+
+// An `AWS Auth Signature` verified `GET` request to fetch the available free storage space (in bytes) for the current database instance. A threshold of > 20% is enforced for best results.
+@name("Get Metric Statistics: FreeStorageSpace")
+GET "https://monitoring.{{awsRegion}}.amazonaws.com/"
+"Accept": "application/json"
+? "Dimensions.member.1.Name"= "DBInstanceIdentifier"
+? "Dimensions.member.1.Value"= "{{dbIdentifier}}"
+? "MetricName"= "FreeStorageSpace"
+? "Namespace"= "AWS/RDS"
+? "Operation"= "GetMetricStatistics"
+? "Period"= "{{secPerDay}}"
+? "Statistics.member.1"= "Average"
+? "Unit"= "Bytes"
+? "Version"= "2010-08-01"
+? "StartTime"= "{{startTime}}"
+? "EndTime"= "{{endTime}}"
+
+
+// An `AWS Auth Signature` verified `GET` request to check all RDS instance tags under the Postman organization.
+@name("Check RDS Instance tags")
+GET "https://rds.{{awsRegion}}.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170410T102349Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170410/us-east-1/rds/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=8c2697df4051204e79c2fc126caf0d6165d1df297a187503feccd993676279e0"
+"Accept": "application/json"
+? "Operation"= "ListTagsForResource"
+? "Version"= "2014-10-31"
+? "ResourceName"= "{{arn}}"
+
+
+

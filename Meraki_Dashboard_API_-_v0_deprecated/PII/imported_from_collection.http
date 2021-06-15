@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// List the keys required to access Personally Identifiable Information (PII) for a given identifier. Exactly one identifier will be accepted. If the organization contains org-wide Systems Manager users matching the key provided then there will be an entry with the key "0" containing the applicable keys.// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/piiKeys// ```
+@name("getNetworkPiiPiiKeys")
+GET "https://{{baseUrl}}/networks/:networkId/pii/piiKeys"
+"Accept": "*/*"
+? "username"= "{{username}}"
+? "email"= "{{email}}"
+? "mac"= "{{mac}}"
+? "serial"= "{{serial}}"
+? "imei"= "{{imei}}"
+? "bluetoothMac"= "{{bluetoothMac}}"
+
+
+
+// List the PII requests for this network or organization// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/requests// ```
+@name("getNetworkPiiRequests")
+GET "https://{{baseUrl}}/networks/:networkId/pii/requests"
+"Accept": "*/*"
+
+
+
+// Submit a new delete or restrict processing PII request// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/requests// ```//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // type| string| One of "delete" or "restrict processing"// datasets| array| The datasets related to the provided key that should be deleted. Only applies to "delete" requests. The value "all" will be expanded to all datasets applicable to this type. The datasets by applicable to each type are: mac (usage, events, traffic), email (users, loginAttempts), username (users, loginAttempts), bluetoothMac (client, connectivity), smDeviceId (device), smUserId (user)// username| string| The username of a network log in. Only applies to "delete" requests.// email| string| The email of a network user account. Only applies to "delete" requests.// mac| string| The MAC of a network client device. Applies to both "restrict processing" and "delete" requests.// smDeviceId| string| The sm_device_id of a Systems Manager device. The only way to "restrict processing" or "delete" a Systems Manager device. Must include "device" in the dataset for a "delete" request to destroy the device.// smUserId| string| The sm_user_id of a Systems Manager user. The only way to "restrict processing" or "delete" a Systems Manager user. Must include "user" in the dataset for a "delete" request to destroy the user.
+@name("createNetworkPiiRequest")
+POST "https://{{baseUrl}}/networks/:networkId/pii/requests"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "type": "delete",
+  "datasets": [
+    "usage",
+    "events"
+  ],
+  "mac": "00:77:00:77:00:77"
+}')
+
+
+// Return a PII request// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/requests/{requestId}// ```
+@name("getNetworkPiiRequest")
+GET "https://{{baseUrl}}/networks/:networkId/pii/requests/:requestId"
+"Accept": "*/*"
+
+
+
+// Delete a restrict processing PII request// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/requests/{requestId}// ```
+@name("deleteNetworkPiiRequest")
+DELETE "https://{{baseUrl}}/networks/:networkId/pii/requests/:requestId"
+"Accept": "*/*"
+
+
+
+// Given a piece of Personally Identifiable Information (PII), return the Systems Manager device ID(s) associated with that identifier. These device IDs can be used with the Systems Manager API endpoints to retrieve device details. Exactly one identifier will be accepted.// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/smDevicesForKey// ```
+@name("getNetworkPiiSmDevicesForKey")
+GET "https://{{baseUrl}}/networks/:networkId/pii/smDevicesForKey"
+"Accept": "*/*"
+? "username"= "{{username}}"
+? "email"= "{{email}}"
+? "mac"= "{{mac}}"
+? "serial"= "{{serial}}"
+? "imei"= "{{imei}}"
+? "bluetoothMac"= "{{bluetoothMac}}"
+
+
+
+// Given a piece of Personally Identifiable Information (PII), return the Systems Manager owner ID(s) associated with that identifier. These owner IDs can be used with the Systems Manager API endpoints to retrieve owner details. Exactly one identifier will be accepted.// // ## ALTERNATE PATH// // ```// /organizations/{organizationId}/pii/smOwnersForKey// ```
+@name("getNetworkPiiSmOwnersForKey")
+GET "https://{{baseUrl}}/networks/:networkId/pii/smOwnersForKey"
+"Accept": "*/*"
+? "username"= "{{username}}"
+? "email"= "{{email}}"
+? "mac"= "{{mac}}"
+? "serial"= "{{serial}}"
+? "imei"= "{{imei}}"
+? "bluetoothMac"= "{{bluetoothMac}}"
+
+
+
+

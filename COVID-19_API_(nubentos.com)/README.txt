@@ -1,0 +1,3 @@
+The COVID-19 API provides information related with the case of pneumonia associated with the COVID-19 coronavirus.  The data we provide is collected from World Health Organization (WHO), the US Centers for Disease Control and Prevention (CDC), the Chinese Centre for Disease Control and Prevention (ECDC), China’s National Health Commission, and Chinese website DXY which provides regional case estimates faster than the national level reporting organizations.
+
+- [Website](https://www.nubentos.com/covid-19-information/)

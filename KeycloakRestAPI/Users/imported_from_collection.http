@@ -1,0 +1,235 @@
+#!/usr/bin/env dothttp
+
+// Get users Returns a list of users, filtered according to query parameters
+@name("Get users  [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users"
+"Content-Type": "application/json"
+
+
+// Create a new user Username must be unique.
+@name("Create user [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users"
+"Content-Type": "application/json"
+data('{
+        "createdTimestamp": 1588880747548,
+        "username": "Strange",
+        "enabled": true,
+        "totp": false,
+        "emailVerified": true,
+        "firstName": "Stephen",
+        "lastName": "Strange",
+        "email": "drstranger@marvel.com",
+        "disableableCredentialTypes": [],
+        "requiredActions": [],
+        "notBefore": 0,
+        "access": {
+            "manageGroupMembership": true,
+            "view": true,
+            "mapRoles": true,
+            "impersonate": true,
+            "manage": true
+        },
+        "realmRoles": [	"mb-user" ]
+    }')
+
+
+// It can be called in three different ways. 1. Don’t specify any criteria and pass {@code null}. The number of all users within that realm will be returned. <p> 2. If {@code search} is specified other criteria such as {@code last} will be ignored even though you set them. The {@code search} string will be matched against the first and last name, the username and the email of a user. <p> 3. If {@code search} is unspecified but any of {@code last}, {@code first}, {@code email} or {@code username} those criteria are matched against their respective fields on a user entity. Combined with a logical and.
+@name("Returns the number of users that match the given criteria [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/count"
+"Content-Type": "application/json"
+
+
+// Get representation of the user
+@name("Get representation of the user [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}"
+"Content-Type": "application/json"
+
+
+// Update the user
+@name("Update the user [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}"
+"Content-Type": "application/json"
+data('{
+    "id": "56f6c53f-5150-4b42-9757-4c3dd4e7d947",
+    "createdTimestamp": 1588881160516,
+    "username": "Superman",
+    "enabled": true,
+    "totp": false,
+    "emailVerified": true,
+    "firstName": "Clark",
+    "lastName": "Kent",
+    "email": "superman@kael.com",
+    "disableableCredentialTypes": [],
+    "requiredActions": [],
+    "federatedIdentities": [],
+    "notBefore": 0,
+    "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+    }
+}')
+
+
+// Delete the user
+@name("Delete the user [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}"
+"Content-Type": "application/json"
+
+
+// Return credential types, which are provided by the user storage where user is stored// // Returned values can contain for example "password", "otp" etc. This will always return empty list for "local" users, which are not backed by any user storage
+@name("Return credential types  [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/configured-user-storage-credential-types"
+"Content-Type": "application/json"
+
+
+// Get consents granted by the user
+@name("Get consents granted by the user  [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/consents"
+"Content-Type": "application/json"
+
+
+// Delete consents granted by the user
+@name("Delete consents granted by the user  [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/consents/{{clientId}}"
+"Content-Type": "application/json"
+
+
+// Get credentials 
+@name("Get credentials  [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/credentials"
+"Content-Type": "application/json"
+
+
+// Remove a credential for a user
+@name("Remove a credential for a user  [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/credentials/{{credentialsId}}"
+"Content-Type": "application/json"
+
+
+// Move a credential to a position behind another credential
+@name("Move a credential to a position behind another credential  [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/credentials/{{credentialsId}}/moveAfter/{{newPreviousCredentialId}}"
+"Content-Type": "application/json"
+
+
+// Move a credential to a first position in the credentials list of the user
+@name("Move a credential to a first position in the credentials list of the user [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/credentials/{{credentialsId}}/moveToFirst"
+"Content-Type": "application/json"
+
+
+// Update a credential label for a user
+@name("Update a credential label for a user [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/credentials/{{credentialsId}}/userLabel"
+"Content-Type": "text/plain"
+data('"label"')
+
+
+// Disable all credentials for a user of a specific type
+@name("Disable all credentials for a user of a specific type [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/disable-credential-types"
+"Content-Type": "application/json"
+data('[]')
+
+
+// Send a update account email to the user An email contains a link the user can click to perform a set of required actions.
+@name("Send an update account email to the user [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/execute-actions-email"
+"Content-Type": "application/json"
+data('["UPDATE_PASSWORD"]')
+
+
+// Reset password email (with only client ID)
+@name("Deprecated: Reset password email [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/reset-password-email"
+"Content-Type": "application/json"
+? "client_id"= "Mb-kcng-app"
+
+
+// Get social logins associated with the user
+@name("Get social logins associated with the user [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/federated-identity"
+"Content-Type": "application/json"
+
+
+// Add a social login provider to the user
+@name("Add a social login provider to the user [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/federated-identity/{{socialProvider}}"
+"Content-Type": "application/json"
+data('{
+	"userId": "56f6c53f-5150-4b42-9757-4c3dd4e7d947",
+	"userName": "superman"
+}')
+
+
+// Remove a social login provider from user
+@name("Remove a social login provider from user [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/federated-identity/{{socialProvider}}"
+"Content-Type": "application/json"
+
+
+// Get groups
+@name("Get groups [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/groups"
+"Content-Type": "application/json"
+
+
+// Get groups count
+@name("Get groups count [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/groups/count"
+"Content-Type": "application/json"
+
+
+// Add group
+@name("Add group [SAT] ")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/groups/{{groupId}}"
+"Content-Type": "application/json"
+
+
+// Delete group
+@name("Delete group [SAT] ")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/groups/{{groupId}}"
+"Content-Type": "application/json"
+
+
+// Impersonate the user
+@name("Impersonate the user [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/impersonation"
+"Content-Type": "application/json"
+
+
+// Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
+@name("Logout user [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/logout"
+"Content-Type": "application/json"
+
+
+// Get offline sessions associated with the user and client
+@name("Get offline sessions associated with the user and client [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/offline-sessions/{{clientId}}"
+"Content-Type": "application/json"
+
+
+// Set up a new password for the user.
+@name("Set up a new password for the user [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/reset-password"
+"Content-Type": "application/json"
+data('{"type":"password","value":"test","temporary":false}')
+
+
+// Send an email-verification email to the user An email contains a link the user can click to verify their email address.
+@name("Send an email-verification email  [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/send-verify-email"
+"Content-Type": "application/json"
+
+
+// Get sessions associated with the user
+@name("Get sessions associated with the user  [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/users/{{userId}}/sessions"
+"Content-Type": "application/json"
+
+
+

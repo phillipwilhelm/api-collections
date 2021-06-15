@@ -1,0 +1,13 @@
+#!/usr/bin/env dothttp
+
+// This `GET` request fetches the latest version of the specified dependency from the npm respository and compares it with the current version of the dependency. // // If an update is not required, it moves to the next dependency. // // If an update is required, it moves on to creating a pull request.// // > This currently works on the public packages only.
+@name("Get latest versions of dependencies")
+GET "http://registry.npmjs.org/-/package/{{dependencyName}}/dist-tags"
+
+
+// If a branch already exists, the dependency version is checked in the branch.// // If the `latestVersion` is same as dependency version in branch/PR, it moves to next dependency.// // If the `latestVersion` is recent than dependency version in branch/PR, it adds a new commit to the same branch.// 
+@name("Check existing branch / PR")
+GET "http://api.bitbucket.org/2.0/repositories/{{owner}}/{{repo}}/refs/branches/updates/{{dependencyName}}"
+
+
+

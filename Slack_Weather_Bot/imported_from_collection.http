@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// This request calls the Google Maps API to fetch the coordinates (latitude and longitude) of the specified place.
+@name("Get Latitude and Longitude")
+GET "https://maps.googleapis.com/maps/api/geocode/json"
+? "address"= "{{location}}"
+? "key"= "{{GeocodingAPIKey}}"
+
+
+@name("Get Weather")
+GET "https://api.darksky.net/forecast/{{ForecastAPIKey}}/{{latLong}}"
+
+
+@name("Send weather to Slack")
+POST "https://{{slackWebhookUrl}}/"
+"Content-Type": "application/json"
+data('{
+  "username": "weatherbot",
+  "icon_emoji": ":earth_africa:",
+  "attachments": [
+        {
+            "fallback": "{{title}}",
+            "title": "{{title}}",
+            "text": "{{body}}",
+            "thumb_url": "{{imageUrl}}",
+            "color": "#7CD197"
+        }
+    ]
+}')
+
+
+

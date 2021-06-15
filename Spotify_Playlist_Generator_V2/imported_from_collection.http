@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+@name("Get Auth Key")
+POST "https://accounts.spotify.com/api/token"
+"Authorization": "Basic {{client_credentials}}"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "refresh_token": [
+        "{{refresh_token}}"
+    ]
+})
+
+
+@name("Get Artist")
+GET "https://api.spotify.com/v1/artists/{{id}}"
+"Accept": "application/json"
+"Authorization": "Bearer {{authorization}}"
+
+
+
+@name("Get Related Artists")
+GET "https://api.spotify.com/v1/artists/{{id}}/related-artists"
+"Accept": "application/json"
+"Authorization": "Bearer {{authorization}}"
+
+
+
+@name("Create a Playlist")
+POST "https://api.spotify.com/v1/users/{{user_id}}/playlists"
+"Accept": "application/json"
+"Authorization": "Bearer {{authorization}}"
+"Content-Type": "application/json"
+data('{
+  "name": "{{artist_name}} Mix",
+  "public": false
+}')
+
+
+@name("Get Artist Top Tracks")
+GET "https://api.spotify.com/v1/artists/{{artist_id}}/top-tracks"
+"Accept": "application/json"
+"Authorization": "Bearer {{authorization}}"
+? "country"= "{{country_code}}"
+
+
+
+@name("Add Tracks to Playlist")
+POST "https://api.spotify.com/v1/users/{{user_id}}/playlists/{{playlist_id}}/tracks"
+"Accept": "application/json"
+"Authorization": "Bearer {{authorization}}"
+"Content-Type": "application/json"
+? "uris"= "{{uris}}"
+
+
+
+@name("Update environment")
+PUT "https://api.getpostman.com/environments/{{environment_id}}"
+"X-Api-Key": "{{postman_api_key}}"
+"Content-Type": "application/json"
+data('{
+    "environment": {
+        "values": {{updated_environment}}
+    }
+}')
+
+
+

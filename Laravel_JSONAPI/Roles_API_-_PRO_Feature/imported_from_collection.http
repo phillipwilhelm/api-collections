@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+// Lists all roles.
+@name("List Roles")
+GET "https://{{api_url}}/roles"
+"Accept": "application/vnd.api+json"
+? "page[number]"= "1"
+? "page[size]"= "50"
+? "filter[name]"= "admin"
+? "include"= "permissions"
+? "sort"= "name"
+? "fields[roles]"= "name"
+? "fields[permissions]"= "name"
+
+
+// Adds a new role.
+@name("Create Role")
+POST "https://{{api_url}}/roles"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+data('{
+    "data": {
+        "type": "roles",
+        "attributes": {
+            "name": "new_role_name"
+        },
+        "relationships": {
+            "permissions": {
+                "data": [
+                    {
+                        "id": "1",
+                        "type": "permissions"
+                    }
+                ]
+            }
+        }
+    }
+}')
+
+
+// Returns a single queried role.
+@name("Show Role")
+GET "https://{{api_url}}/roles/1"
+"Accept": "application/vnd.api+json"
+? "include"= "permissions"
+? "fields[roles]"= "name"
+? "fields[permissions]"= "name"
+
+
+@name("Edit Role")
+PATCH "https://{{api_url}}/roles/2"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+data('{
+    "data": {
+        "id": "2",
+        "type": "roles",
+        "relationships": {
+            "permissions": {
+                "data": [
+                    {
+                        "type": "permissions",
+                        "id": "1"
+                    }
+                ]
+            }
+        }
+    }
+}')
+
+
+@name("Remove Role")
+DELETE "https://{{api_url}}/roles/1"
+"Accept": "application/vnd.api+json"
+
+
+

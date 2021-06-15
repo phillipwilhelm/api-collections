@@ -1,0 +1,31 @@
+#!/usr/bin/env dothttp
+
+// Return the firewall rules for an organization's site-to-site VPN
+@name("getOrganizationVpnFirewallRules")
+GET "https://{{baseUrl}}/organizations/:organizationId/vpnFirewallRules"
+"Accept": "*/*"
+
+
+
+// Update the firewall rules of an organization's site-to-site VPN//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // rules| array| An ordered array of the firewall rules (not including the default rule)// syslogDefaultRule| boolean| Log the special default rule (boolean value - enable only if you've configured a syslog server) (optional)
+@name("updateOrganizationVpnFirewallRules")
+PUT "https://{{baseUrl}}/organizations/:organizationId/vpnFirewallRules"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "rules": [
+    {
+      "comment": "Allow TCP traffic to subnet with HTTP servers.",
+      "policy": "allow",
+      "protocol": "tcp",
+      "destPort": 443,
+      "destCidr": "192.168.1.0/24",
+      "srcPort": "Any",
+      "srcCidr": "Any",
+      "syslogEnabled": false
+    }
+  ]
+}')
+
+
+

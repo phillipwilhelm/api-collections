@@ -1,0 +1,110 @@
+#!/usr/bin/env dothttp
+
+// Get the list of holidays in ascending order of date from the airtable database. The response list contains all the holidays coming in-between the range of dates passed.
+@name("Get List of Holidays")
+GET "https://{{airtable_url}}/"
+? "sort%5B0%5D%5Bfield%5D"= "date"
+? "sort%5B0%5D%5Bdirection%5D"= "asc"
+? "filterByFormula"= "AND(IS_AFTER({date},+DATETIME_PARSE('{{from_date}}')),+IS_BEFORE({date},+DATETIME_PARSE('{{to_date}}')))"
+
+
+// Use the slack hook to post the best available dates on slack channel. In this case it's being sent to slackbot.// After getting the list of holidays.// - Create a window of size `num_of_days`// - Slide the window to check if the new window will have different number of leaves.// - At the end, the window having minimum number of leaves is sent the the user on slack.
+@name("Send Dates")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+	"attachments": [
+		{
+			"title": "Best Leave Options",
+			"fields":[
+				{
+					"title": "Minimum Leaves",
+					"value" : "{{min_leaves}}"
+				},
+				{
+					"title": "Dates",
+					"value": "{{message}}"
+				}
+			],
+			"actions": [
+				{
+		        	"type": "button",
+		        	"text": "Book flights 🛫",
+		        	"url": "{{flights_url}}",
+		        	"style": "primary"
+		        }
+			],
+			"color": "#7CD197"
+		}
+	]
+}')
+
+
+// It uses the [goibibo's](https://goibibo.com) flight listing API to look for the available flights between given dates([`from_date`, `to_date`]). The list of flights are stored in a environment variable.
+@name("Search Available Flights")
+GET "http://developer.goibibo.com/api/search/"
+? "app_id"= "{{goibibio_app_id}}"
+? "app_key"= "{{goibibio_app_key}}"
+? "source"= "{{src}}"
+? "destination"= "{{dest}}"
+? "dateofdeparture"= "{{flight_dep_date}}"
+? "seatingclass"= "E"
+? "adults"= "1"
+? "children"= "0"
+? "infants"= "0"
+? "counter"= "100"
+
+
+// Get the list of flights stored in environment and fliter out the direct flights. From the flitered flights only first 4 are posted on slack. If there are no direct flights, then 'No direct flights available' is posted on slack.
+@name("Send flight details")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+	"attachments": [
+		{
+			"title": "Flight Status",
+			"fields": [
+				{
+					"title": "Source",
+					"value": "{{src}}",
+					"short": true
+				},
+				{
+					"title": "Destination",
+					"value": "{{dest}}",
+					"short": true
+				},
+				{
+					"value": "{{message}}"
+				}
+			],
+			"color": "#00bcd4",
+			"actions": [
+				{
+		        	"type": "button",
+		        	"text": "Book flights 🛫",
+		        	"url": "{{flights_url}}",
+		        	"style": "primary"
+		        }
+			]
+		}
+	]
+}')
+
+
+// if an error occurs in the collection, post the error emessage to slack. _This request is not processed in a normal execution_, it is only triggered when any error has occurred.
+@name("Handle Error")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+	"attachments": [
+		{
+			"title": "Sorry, that didn\'t work. Please try again.",
+			"color": "danger",
+			"text": "{{error_message}}"
+		}
+	]
+}')
+
+
+

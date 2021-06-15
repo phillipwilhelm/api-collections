@@ -1,0 +1,120 @@
+#!/usr/bin/env dothttp
+
+@name("Begin")
+GET "http://example.com/"
+
+
+@name("Search show")
+GET "https://{{trakt_base_url}}/search/show"
+? "fields"= "title"
+? "query"= "{{search_show_query}}"
+? "extended"= "full"
+
+
+@name("Send search result")
+POST "https://{{response_url}}/"
+data('{
+	"blocks": [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Please specify which of these shows are you interested in",
+				"emoji": true
+			}
+		},
+		{
+			"type": "actions",
+			"elements": {{actions}}
+		}
+	]
+}')
+
+
+@name("Send no search result")
+POST "https://{{response_url}}/"
+json({
+    "blocks": [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "Show {{search_show_query}} not found",
+                "emoji": true
+            }
+        }
+    ]
+})
+
+
+@name("Get show next episode")
+GET "https://{{trakt_base_url}}/shows/{{show_slug}}/next_episode"
+? "extended"= "full"
+
+
+@name("Send next episode")
+POST "https://{{response_url}}/"
+json({
+    "blocks": [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "{{show_title}}",
+                "emoji": true
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Season:*
+{{show_season}}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Episode:*
+{{show_number}}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*When:*
+{{show_when}}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Overview:*
+{{show_overview}}"
+            }
+        }
+    ]
+})
+
+
+@name("Send no next episode")
+POST "https://{{response_url}}/"
+json({
+    "blocks": [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "Future episodes haven't been announced for {{show_title}}",
+                "emoji": true
+            }
+        }
+    ]
+})
+
+
+

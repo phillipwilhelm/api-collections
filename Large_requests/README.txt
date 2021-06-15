@@ -1,0 +1,1 @@
+This is a collection of large requests based in the Postman Echo API that you can use to stress test your client.

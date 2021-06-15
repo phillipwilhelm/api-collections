@@ -1,0 +1,22 @@
+#!/usr/bin/env dothttp
+
+// This is the XHR request required to get all the extensions from chrome web-store. // // The response is not a valid JSON response, but a string with an array like structure. That's why we used the function called "parse" in the test-script, which converts and return response body in an array.// // We create an object having the title, developer, ratings, and description of all extensions and push into an array called allResemblingApps. This array has all the extensions that show up on the chrome web-store when someone searches `Your app name`.// // In order to identify fake extensions from this array, in the test script we define the characteristics.// // The characteristics are the check that compares each extension from allResemblingApps with `Your app name` related keywords.// // These checks involved,// 1. whether an extension title or developer name is, or contain `Your app name` or `Your name` related keywords.// 2. identifying other keywords in the app/extension description, mentioned inside `app_keywords` environment variable.// // If an extension inside allResemblingApps array matches this keywords, its then pushed to the possibleFakeApps array.// // All possible fake apps are reported to security team via Slack.
+@name("Get Web Store Extensions")
+POST "https://chrome.google.com/webstore/ajax/item"
+? "pv"= "{{pv}}"
+? "count"= "{{count}}"
+? "category"= "{{category}}"
+? "searchTerm"= "{{app_title}}"
+? "sortBy"= "{{sort}}"
+? "rt"= "{{rt}}"
+
+
+
+// The previous request found all the possible fake applications, which requires a review from the security team. // // This request uses Slack webhook to send the list of possible fake apps in a Slack channel.
+@name("Alert on Slack")
+POST "https://{{slack_webhook_url}}/"
+"Content-Type": "application/json"
+data('{{slackBody}}')
+
+
+

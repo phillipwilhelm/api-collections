@@ -1,0 +1,1 @@
+All API calls should have $Level and $API headers. The $Level header should always be -1 and $API header is your API Key which can be obtained in your SpotPlayer dashboard.

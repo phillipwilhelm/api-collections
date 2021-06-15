@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+// Return the 1:1 NAT mapping rules for an MX network
+@name("getNetworkOneToOneNatRules")
+GET "https://{{baseUrl}}/networks/:networkId/oneToOneNatRules"
+"Accept": "*/*"
+
+
+
+// Set the 1:1 NAT mapping rules for an MX network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // rules| array| An array of 1:1 nat rules
+@name("updateNetworkOneToOneNatRules")
+PUT "https://{{baseUrl}}/networks/:networkId/oneToOneNatRules"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "rules": [
+    {
+      "name": "Service behind NAT",
+      "lanIp": "192.168.128.22",
+      "publicIp": "146.12.3.33",
+      "uplink": "internet1",
+      "allowedInbound": [
+        {
+          "protocol": "tcp",
+          "destinationPorts": [
+            "80"
+          ],
+          "allowedIps": [
+            "10.82.112.0/24",
+            "10.82.0.0/16"
+          ]
+        },
+        {
+          "protocol": "udp",
+          "destinationPorts": [
+            "8080"
+          ],
+          "allowedIps": [
+            "10.81.110.5",
+            "10.81.0.0/16"
+          ]
+        }
+      ]
+    }
+  ]
+}')
+
+
+

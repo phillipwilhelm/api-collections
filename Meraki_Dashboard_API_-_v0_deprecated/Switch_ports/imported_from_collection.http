@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Return the status for all the ports of a switch
+@name("getDeviceSwitchPortStatuses")
+GET "https://{{baseUrl}}/devices/:serial/switchPortStatuses"
+"Accept": "*/*"
+? "t0"= "{{t0}}"
+? "timespan"= "{{timespan}}"
+
+
+
+// Return the packet counters for all the ports of a switch
+@name("getDeviceSwitchPortStatusesPackets")
+GET "https://{{baseUrl}}/devices/:serial/switchPortStatuses/packets"
+"Accept": "*/*"
+? "t0"= "{{t0}}"
+? "timespan"= "{{timespan}}"
+
+
+
+// List the switch ports for a switch
+@name("getDeviceSwitchPorts")
+GET "https://{{baseUrl}}/devices/:serial/switchPorts"
+"Accept": "*/*"
+
+
+
+// Return a switch port
+@name("getDeviceSwitchPort")
+GET "https://{{baseUrl}}/devices/:serial/switchPorts/:number"
+"Accept": "*/*"
+
+
+
+// Update a switch port//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the switch port// tags| string| The tags of the switch port// enabled| boolean| The status of the switch port// type| string| The type of the switch port ('trunk' or 'access')// vlan| integer| The VLAN of the switch port. A null value will clear the value set for trunk ports.// voiceVlan| integer| The voice VLAN of the switch port. Only applicable to access ports.// allowedVlans| string| The VLANs allowed on the switch port. Only applicable to trunk ports.// poeEnabled| boolean| The PoE status of the switch port// isolationEnabled| boolean| The isolation status of the switch port// rstpEnabled| boolean| The rapid spanning tree protocol status// stpGuard| string| The state of the STP guard ('disabled', 'root guard', 'bpdu guard' or 'loop guard')// accessPolicyNumber| integer| The number of the access policy of the switch port. Only applicable to access ports.// linkNegotiation| string| The link speed for the switch port// portScheduleId| string| The ID of the port schedule. A value of null will clear the port schedule.// udld| string| The action to take when Unidirectional Link is detected (Alert only, Enforce). Default configuration is Alert only.// macWhitelist| array| Only devices with MAC addresses specified in this list will have access to this port. Up to 20 MAC addresses can be defined. To disable MAC whitelist, set accessPolicyNumber to null.// stickyMacWhitelist| array| The initial list of MAC addresses for sticky Mac whitelist. To reset Sticky MAC whitelist, set accessPolicyNumber to null.// stickyMacWhitelistLimit| integer| The maximum number of MAC addresses for sticky MAC whitelist.// stormControlEnabled| boolean| The storm control status of the switch port
+@name("updateDeviceSwitchPort")
+PUT "https://{{baseUrl}}/devices/:serial/switchPorts/:number"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My switch port",
+  "tags": "tag1 tag2",
+  "enabled": true,
+  "poeEnabled": true,
+  "type": "access",
+  "vlan": 10,
+  "voiceVlan": 20,
+  "isolationEnabled": false,
+  "rstpEnabled": true,
+  "stpGuard": "disabled",
+  "accessPolicyNumber": "1234",
+  "linkNegotiation": "Auto negotiate",
+  "portScheduleId": "1234",
+  "udld": "Alert only",
+  "macWhitelist": [
+    "34:56:fe:ce:8e:a0",
+    "34:56:fe:ce:8e:a1"
+  ],
+  "stickyMacWhitelist": [
+    "34:56:fe:ce:8e:b0",
+    "34:56:fe:ce:8e:b1"
+  ],
+  "stickyMacWhitelistLimit": 5,
+  "stormControlEnabled": true
+}')
+
+
+

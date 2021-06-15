@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+@name("Create a non-schedulned report for a tenant")
+POST "https://{{base_url}}/api/2/reports"
+"Content-Type": "application/json"
+data('{
+    "parameters": {
+        "kind": "usage_current",
+        "tenant_id": "{{my_tenant_id}}",
+        "level": "accounts",
+        "formats": [
+           "csv_v2_0"
+        ]
+    },
+    "schedule": {
+        "type": "once"
+    },
+    "result_action": "save"
+}')
+
+
+@name("Create a schedulned report for a tenant")
+POST "https://{{base_url}}/api/2/reports"
+"Content-Type": "application/json"
+data('{
+     "recipients": [
+    	"{{user_id}}"
+    	],
+    "parameters": {
+        "kind": "usage_current",
+        "tenant_id": "{{my_tenant_id}}",
+        "level": "accounts",
+        "formats": [
+            "html"
+        ]
+    },
+    "schedule": {
+    	"enabled": true,
+        "type": "monthly"
+    },
+    "result_action": "send"
+}')
+
+
+@name("Update a schedulned report for a tenant")
+PUT "https://{{base_url}}/api/2/reports/{{report_id}}"
+"Content-Type": "application/json"
+data('{
+    "recipients": [
+    	"{{user_id}}"
+    	],
+    "result_action": "send",
+    "generation_date": "2020-05-02",
+    "parameters": {
+        "period": {
+            "start": "2020-04-01",
+            "end": "2020-04-30"
+        },
+        "level": "accounts",
+        "formats": [
+            "csv_v2_0"
+        ],
+        "kind": "usage_current"
+    },
+    "schedule": {
+        "enabled": false,
+        "type": "monthly"
+    }
+}')
+
+
+@name("Get a report info")
+GET "https://{{base_url}}/api/2/reports/{{report_id}}"
+"Content-Type": "application/json"
+data('{
+    "recipients": [],
+    "result_action": "save",
+    "generation_date": "2020-05-01",
+    "parameters": {
+        "period": {
+            "start": "2020-04-01",
+            "end": "2020-04-30"
+        },
+        "level": "accounts",
+        "formats": [
+            "html",
+            "csv_v2_0",
+            "json_v2_0"
+        ],
+        "kind": "usage_current"
+    },
+    "version": 1,
+    "schedule": {
+        "enabled": true,
+        "type": "once"
+    }
+}')
+
+
+@name("Get stored reports list")
+GET "https://{{base_url}}/api/2/reports/{{report_id}}/stored"
+
+
+@name("Download stored reports")
+GET "https://{{base_url}}/api/2/reports/{{report_id}}/stored/{{stored_report_id}}"
+
+
+@name("Get repotrs for a tenant")
+GET "https://{{base_url}}/api/2/tenants/{{my_tenant_id}}/reports"
+"Content-Type": "application/json"
+data('{
+    "parameters": {
+        "kind": "usage_current",
+        "tenant_id": "{{my_tenant_id}}",
+        "level": "accounts",
+        "formats": [
+            "csv_v2_0"
+        ]
+    },
+    "schedule": {
+        "type": "once"
+    },
+    "result_action": "save"
+}')
+
+
+

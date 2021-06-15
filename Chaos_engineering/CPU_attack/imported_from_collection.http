@@ -1,0 +1,28 @@
+#!/usr/bin/env dothttp
+
+// Get all active containers.// // Review Gremlin API docs about [getting all active containers](https://www.gremlin.com/docs/api-reference/overview/#/containers). To attack a specific container, you will need its `id`.// // This sample application has a service called `cartservice` that stores the items in the user's shipping cart in Redis and retrieves it. Under the **Tests** tab, we will look for the container responsible for cartservice, and then initialize an environment variable called `containerId`, in order to pass this info to any subsequent requests.
+@name("Get active containers")
+GET "https://{{gremlin_api}}/containers"
+"Authorization": "Key {{gremlin_api_key}}"
+
+
+// Create a new attack.// // Review Gremlin API docs about [creating, halting, and listing](https://www.gremlin.com/docs/api-reference/overview/#/attacks/create) attacks, [examples of creating](https://www.gremlin.com/docs/api-reference/examples/#creating-attacks) attacks, and [attack parameters that can be included](https://www.gremlin.com/docs/infrastructure-layer/attacks/#parameter-reference).// // Under the request **Body** tab, we will configure our attack and include the `containerId` environment variable initialized in the previous request. Additionally we will pass parameters to attack a single core for the duration of 60 seconds. // // Under the **Tests** tab, we will initialize a new environment variable called `guid` to identify the attack, in order to pass this info to any subsequent requests.// // > [By default, each container’s access to the host machine’s CPU cycles is unlimited. You can set various constraints to limit a given container’s access to the host machine’s CPU cycles.](https://docs.docker.com/v17.09/engine/admin/resource_constraints/#cpu)// // You may need to view the effects of your attack in Grafana, or another preferred monitoring tool.
+@name("Create CPU attack")
+POST "https://{{gremlin_api}}/attacks/new"
+"Authorization": "Key {{gremlin_api_key}}"
+"Content-Type": "application/json"
+data('{
+  "command": {
+    "type": "cpu",
+    "args": ["-c", "2", "--length", "60"]
+  },
+  "target": {
+  	"type": "Exact",
+  	"containers": {
+  		"ids": ["{{containerId}}"]
+  		}
+  }
+}')
+
+
+

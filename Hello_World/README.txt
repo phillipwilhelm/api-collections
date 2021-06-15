@@ -1,0 +1,1 @@
+A simple collection with one request that has tests to validate response. You can use this collection as a entry-levle example to demonstrate Postman's debugging capabilities.

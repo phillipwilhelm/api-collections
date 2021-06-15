@@ -1,0 +1,3 @@
+This collection uses the [Open Brewery DB endpoint](https://www.openbrewerydb.org/ "read more about the Open Brewery DB") and its filter and search parameters to demonstrate the visualizer.
+
+This demo is an extension of my original brewery search project using the Open Brewery DB, Axios promise based HTTP client and Bootstrap. [See my GitHub repo for details.](https://github.com/tristandenyer/brewery-search)

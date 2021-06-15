@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// GET /api/job// Get a list of defined jobs// // Method: GET// // https://github.com/agenda/agenda-rest#apis// // // Example Output// // [//     {//         "_id": "5e0feb619ffb331200728389",//         "name": "Test",//         "url": "https://httpbin.org/get",//         "method": "GET",//         "callback": {//             "url": "https://1a8fd920.ngrok.io/doesntExist",//             "method": "POST",//             "headers": ""//         }//     },//     {//         "_id": "5e0ff3519ffb331200728390",//         "name": "Test2",//         "url": "https://httpbin.org/post",//         "method": "POST",//         "callback": {//             "url": "https://1a8fd920.ngrok.io/doesntExistPOST",//             "method": "POST",//             "headers": ""//         }//     }// ]
+@name("Agenda-REST: GET Job List")
+GET "https://{{root}}/job"
+
+
+// OST /api/job/once & POST /api/job/every// Schedule a job for single or multiple occurrences// // Method: POST// Data:// {//     name,           // Name of the type to create the instance from//     interval,       // Interval in which job should be invoked (human-interval, can also be a date string for 'once')//     data: {         // (optional) default: {}//         headers,    // Http headers, e.g. { Authorization: '<token>' }//         params,     // Path parameters, to replace `:param` notations in job definition's url//         query,      // Query parameters (?foo=bar&baz=qux)//         body        // Accompanying data sent along the request//     }// }// Callback, if present, would be invoked by the following object:// // {//     data: {//         // passed data object, same as above//     },//     response        // response from invocation// }// // https://github.com/agenda/agenda-rest#post-apijobonce--post-apijobevery// // Stored SChedule - before run// // {"_id":{"$oid":"5e0fed929ffb33120072838a"},"name":"Test","data":{"headers":{"X-Nothing-None":"NoNoNoNoNo"},"params":"whatParam","query":"foo=bar&baz=qux","body":{"someBodyParam":"somethingintheBody"}},"type":"normal","priority":{"$numberInt":"0"},"nextRunAt":{"$date":{"$numberLong":"1578102282916"}},"lastModifiedBy":null}// // Stored Schedule - after run // {"_id":{"$oid":"5e0fed929ffb33120072838a"},"name":"Test","data":{"headers":{"X-Nothing-None":"NoNoNoNoNo"},"params":"whatParam","query":"foo=bar&baz=qux","body":{"someBodyParam":"somethingintheBody"}},"type":"normal","priority":{"$numberInt":"0"},"nextRunAt":null,"lastModifiedBy":null,"lockedAt":null,"lastRunAt":{"$date":{"$numberLong":"1578102282924"}},"failCount":{"$numberInt":"1"},"failReason":"failure in callback: 502 -....","failedAt":{"$date":{"$numberLong":"1578102284039"}},"lastFinishedAt":{"$date":{"$numberLong":"1578102284039"}}}// // // CallBack Url is called with following parameters// // POST /doesntExist HTTP/1.1// host: 1a8fd920.ngrok.io// accept: application/json// content-type: application/json// content-length: 387// Connection: close// X-Forwarded-Proto: https// X-Forwarded-For: 46.69.247.135// // {//     "data": {//         "headers": {//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "params": "whatParam",//         "query": "foo=bar&baz=qux",//         "body": {//             "someBodyParam": "somethingintheBody"//         }//     },//     "response": {//         "args": {},//         "headers": {//             "Accept": "application/json",//             "Content-Length": "38",//             "Content-Type": "application/json",//             "Host": "httpbin.org",//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "origin": "34.225.44.147, 34.225.44.147",//         "url": "https://httpbin.org/get"//     }// }// // // https://github.com/agenda/agenda-rest#post-apijob
+@name("Agenda-REST: POST Job Schedule Once")
+POST "https://{{root}}/job/once"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test",           
+    "interval" : "two minutes",       
+    "data": {         
+        "headers" : { "X-Nothing-None": "NoNoNoNoNo" },
+        "params" : "whatParam",     
+        "query" : "foo=bar&baz=qux",      
+        "body" :   {"someBodyParam" : "somethingintheBody"}      
+    }
+}')
+
+
+// POST /api/job// Defines a new category of jobs// // Method: POST// Data:// {//     name,           // New job type's name//     url,            // koa-router style url//     method,         // (optional) Request type, default: POST//     callback: {     // (optional) to call with response after invocation//         url,//         method,//         headers//     }// }// // // https://github.com/agenda/agenda-rest#post-apijob// // // Entity Stored// // {"_id":{"$oid":"5e0feb619ffb331200728389"},"name":"Test","url":"https://httpbin.org/get","method":"GET","callback":{"url":"https://1a8fd920.ngrok.io/doesntExist","method":"POST","headers":""}}// // CallBack Url is called with following // // POST /doesntExist HTTP/1.1// host: 1a8fd920.ngrok.io// accept: application/json// content-type: application/json// content-length: 387// Connection: close// X-Forwarded-Proto: https// X-Forwarded-For: 46.69.247.135// // {//     "data": {//         "headers": {//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "params": "whatParam",//         "query": "foo=bar&baz=qux",//         "body": {//             "someBodyParam": "somethingintheBody"//         }//     },//     "response": {//         "args": {},//         "headers": {//             "Accept": "application/json",//             "Content-Length": "38",//             "Content-Type": "application/json",//             "Host": "httpbin.org",//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "origin": "34.225.44.147, 34.225.44.147",//         "url": "https://httpbin.org/get"//     }// }
+@name("Agenda-REST: POST Job(Define)")
+POST "https://{{root}}/job"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test2",          
+    "url" : "https://httpbin.org/post",           
+    "method" : "POST",        
+    "callback": {     
+        "url": "https://1a8fd920.ngrok.io/doesntExistPOST",
+        "method" : "POST", 
+        "headers" : ""
+    }
+}')
+
+
+// POST /api/job/once & POST /api/job/every// Schedule a job for single or multiple occurrences// // Method: POST// Data:// {//     name,           // Name of the type to create the instance from//     interval,       // Interval in which job should be invoked (human-interval, can also be a date string for 'once')//     data: {         // (optional) default: {}//         headers,    // Http headers, e.g. { Authorization: '<token>' }//         params,     // Path parameters, to replace `:param` notations in job definition's url//         query,      // Query parameters (?foo=bar&baz=qux)//         body        // Accompanying data sent along the request//     }// }// Callback, if present, would be invoked by the following object:// // {//     data: {//         // passed data object, same as above//     },//     response        // response from invocation// }// // // https://github.com/agenda/agenda-rest#post-apijobonce--post-apijobevery// // // Entity Stored // // {"_id":{"$oid":"5e0ff2110f11161e4399992d"},"name":"Test","type":"single","data":{"headers":{"X-Nothing-None":"NoNoNoNoNo"},"params":"whatParam","query":"foo=bar&baz=qux","body":{"someBodyParam":"somethingintheBody"}},"lastModifiedBy":null,"nextRunAt":{"$date":{"$numberLong":"1578103433883"}},"priority":{"$numberInt":"0"},"repeatInterval":"two minutes","repeatTimezone":null,"lockedAt":null,"lastRunAt":{"$date":{"$numberLong":"1578103313883"}},"failCount":{"$numberInt":"1"},"failReason":"failure in callback: 502 - ","failedAt":{"$date":{"$numberLong":"1578103314923"}},"lastFinishedAt":{"$date":{"$numberLong":"1578103314923"}}}// // // // // // CallBack is called with following parameters// // // Accept	application/json// Connection	close// Content-Length	387// Content-Type	application/json// Host	1a8fd920.ngrok.io// X-Forwarded-For	46.69.247.135// X-Forwarded-Proto	https// // {//     "data": {//         "headers": {//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "params": "whatParam",//         "query": "foo=bar&baz=qux",//         "body": {//             "someBodyParam": "somethingintheBody"//         }//     },//     "response": {//         "args": {},//         "headers": {//             "Accept": "application/json",//             "Content-Length": "38",//             "Content-Type": "application/json",//             "Host": "httpbin.org",//             "X-Nothing-None": "NoNoNoNoNo"//         },//         "origin": "34.225.44.147, 34.225.44.147",//         "url": "https://httpbin.org/get"//     }// }
+@name("Agenda-REST: POST Job Schedule every ")
+POST "https://{{root}}/job/every"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test",           
+    "interval" : "two minutes",       
+    "data": {         
+        "headers" : { "X-Nothing-None": "NoNoNoNoNo" },
+        "params" : "whatParam",     
+        "query" : "foo=bar&baz=qux",      
+        "body" :   {"someBodyParam" : "somethingintheBody"}      
+    }
+}')
+
+
+// POST /api/job/now// // // Schedule and execute job right now.Like once and every, though without interval. Executes the job now.// // // // Method: POST// Data:// {//     name,           // Name of the type to create the instance from//     data: {         // (optional) default: {}//         headers,    // Http headers, e.g. { Authorization: '<token>' }//         params,     // Path parameters, to replace `:param` notations in job definition's url//         query,      // Query parameters (?foo=bar&baz=qux)//         body        // Accompanying data sent along the request//     }// }// Callback, if present, would be invoked by the following object:// // {//     data: {//         // passed data object, same as above//     },//     response        // response from invocation// }// // // // CallBack Url is called with following Params // POST /doesntExist HTTP/1.1// host: 1a8fd920.ngrok.io// accept: application/json// content-type: application/json// content-length: 399// Connection: close// X-Forwarded-Proto: https// X-Forwarded-For: 46.69.247.135// // {//     "data": {//         "headers": {//             "X-Nothing-None": "NoNoNoNoNo-Now"//         },//         "params": "whatParam",//         "query": "foo=bar&baz=qux",//         "body": {//             "someBodyParam": "somethingintheBody-Now"//         }//     },//     "response": {//         "args": {},//         "headers": {//             "Accept": "application/json",//             "Content-Length": "42",//             "Content-Type": "application/json",//             "Host": "httpbin.org",//             "X-Nothing-None": "NoNoNoNoNo-Now"//         },//         "origin": "34.225.44.147, 34.225.44.147",//         "url": "https://httpbin.org/get"//     }// }
+@name("Agenda-REST: POST Job Schedule now")
+POST "https://{{root}}/job/now"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test",           
+    "data": {         
+        "headers" : { "X-Nothing-None": "NoNoNoNoNo" },
+        "params" : "whatParam",     
+        "query" : "foo=bar&baz=qux",      
+        "body" :   {"someBodyParam" : "somethingintheBody"}      
+    }
+}')
+
+
+// POST /api/job/cancel// // Cancels (not to be confused with 'delete') any jobs matching the query.Deletes all schedules of the name, but the Job definition still exists// // Method: POST// Data: Mongo query// {//     name: "Test"// }// // // https://github.com/agenda/agenda-rest#post-apijobcancel// // Output-// 5 jobs canceled
+@name("Agenda-REST: POST Job Schedule cancel")
+POST "https://{{root}}/job/cancel"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test"
+}')
+
+
+// DELETE /api/job/:jobName// Deletes job definition and cancels occurrences// // Method: DELETE// // https://github.com/agenda/agenda-rest#delete-apijobjobname// // // Example Output // // removed 1 job definitions and 0 job instances.
+@name("Agenda-REST: DELETE Job")
+DELETE "https://{{root}}/job/:jobName"
+
+
+// PUT /api/job/:jobName// Updates definition of a job category// // Method: PUT// Data: same as POST /api/job// Example// // {//     "name" : "Test",          //     "url" : "https://httpbin.org/get",           //     "method" : "GET",        //     "callback": {     //         "url": "https://1a8fd920.ngrok.io/doesntExistPOST",//         "method" : "POST", //         "headers" : ""//     }// }// // // https://github.com/agenda/agenda-rest#put-apijobjobname
+@name("Agenda-REST: Update  Job")
+PUT "https://{{root}}/job/:jobName"
+"Content-Type": "application/json"
+data('{
+    "name" : "Test",          
+    "url" : "https://httpbin.org/get",           
+    "method" : "GET",        
+    "callback": {     
+        "url": "https://1a8fd920.ngrok.io/doesntExistPOST",
+        "method" : "POST", 
+        "headers" : ""
+    }
+}')
+
+
+

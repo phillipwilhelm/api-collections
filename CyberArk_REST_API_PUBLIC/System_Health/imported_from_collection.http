@@ -1,0 +1,25 @@
+#!/usr/bin/env dothttp
+
+// This method returns Prometheus monitor metrics about the PTA Server and database. When you run the API for the first time, you are redirected to the PTA Login screen.// // 1. Log in to the PTA Server using **monitor** as the user and **DiamondMonitor** (case sensitive) as the password. You are then prompted to change the password.// 2. After you change the password, encode the user (**monitor**) and the new password in BASE 64.// * Enter the data in the format **username:password**.// * The encoded result is entered in the **Authorization** header parameter in the format **Basic <encoded result>**. _In this Postman collection, we use the **Authorization** tab to automatically do this for us instead._// // You can use Grafana or similar tools to display the results in a user-friendly format.
+@name("Get PTA System Health")
+GET "https://{{PTABaseURL}}/monitoring/federate"
+basicauth("{{apiUsername}}", "{{apiPassword}}")
+"Content-Type": "application/json"
+? 'match[]'= '{job=~"ptaaa_.+"}'
+
+
+// This method returns details about specific components and all their installed instances, and system health information for each one.// // _Valid ComponentsID values: PVWA/SessionManagement/CPM/AIM_
+@name("System Details")
+GET "https://{{BaseURL}}/PasswordVault/API/ComponentsMonitoringDetails/{{ComponentsID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method returns consolidated information about the Vault, PVWA, CPM, PSM/PSMP, and AIM, including all clients that are relevant to each specific component.
+@name("System Summary")
+GET "https://{{BaseURL}}/PasswordVault/API/ComponentsMonitoringSummary"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+

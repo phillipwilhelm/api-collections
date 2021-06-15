@@ -1,0 +1,98 @@
+#!/usr/bin/env dothttp
+
+// Gets a list of all projects defined on the controller
+@name("https://{dnac}}:{{port}}/api/v1/pnp-project")
+GET "https://{{dnac}}/api/v1/pnp-project"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+
+
+// Creates a new project
+@name("https://{{dnac}}:{{port}}/api/v1/pnp-project")
+POST "https://{{dnac}}/api/v1/pnp-project"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+data('[{"siteName": "Sydney"}]')
+
+
+// Gets a task status.// uses environment variable for the taskId// // Also parse the progress field to find the ID of the project that was created// // this is stored in the projectId environment variable.
+@name("https://{{dnac}}:{{port}}/api/v1/task/{{taskId}}")
+GET "https://{{dnac}}/api/v1/task/{{taskId}}"
+"x-auth-token": "{{token}}"
+
+
+// Creates a rule for a device in a project.// // uses the projectId from the project we created earlier
+@name("https://{{dnac}}:{{port}}/api/v1/pnp-project/{{projectId}}/device")
+POST "https://{{dnac}}/api/v1/pnp-project/{{projectId}}/device"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+data('[{
+        "serialNumber": "12345678901",
+        "platformId": "C2960X",
+        "hostName": "syd-sw1",
+        "pkiEnabled": true
+}]')
+
+
+// Gets a task status.// uses environment variable for the taskId
+@name("https://{{dnac}}:{{port}}/api/v1/task/{{taskId}}")
+GET "https://{{dnac}}/api/v1/task/{{taskId}}"
+"x-auth-token": "{{token}}"
+
+
+// Gets all of the devices for a project// Uses the projectId environment variable
+@name("https://{{dnac}}:{{port}}/api/v1/pnp-project/{{projectId}}/device")
+GET "https://{{dnac}}/api/v1/pnp-project/{{projectId}}/device"
+"x-auth-token": "{{token}}"
+
+
+// Updates a parameter of the device// Uses the projectNetworkDevice variable from the environment// Also needs projectId environment variable
+@name("https://{{dnac}}:{{port}}/api/v1/pnp-project/{{projectId}}/device")
+PUT "https://{{dnac}}/api/v1/pnp-project/{{projectId}}/device"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+data('[{
+        "serialNumber": "12345678901",
+        "platformId": "C2960X",
+        "hostName": "syd-sw2",
+        "pkiEnabled": true,
+        "id" : "{{projectDeviceId}}"
+}]')
+
+
+// Delete the project and all rules/devices contained in it
+@name("https://{{dnac}}:{{port}}/api/v1/pnp-project/{{projectId}}?deleteRule=1&deleteDevice=1")
+DELETE "https://{{dnac}}/api/v1/pnp-project/{{projectId}}"
+"x-auth-token": "{{token}}"
+? "deleteRule"= "1"
+? "deleteDevice"= "1"
+
+
+// Gets a task status.// uses environment variable for the taskId
+@name("https://{{dnac}}:{{port}}/api/v1/task/{{taskId}}")
+GET "https://{{dnac}}/api/v1/task/{{taskId}}"
+"x-auth-token": "{{token}}"
+
+
+// Lists all of the config files on the controller.// You can all do the same thing for image files
+@name("https://{{dnac}}:{{port}}/api/v1/file/namespace/config")
+GET "https://{{dnac}}/api/v1/file/namespace/config"
+"x-auth-token": "{{token}}"
+
+
+// This uploads a configuration file to the controller.// // NOTE: You need to select a file to be uploaded.  CLick on the "body" tab to select a file// // NOTENOTE:  This call is synchronous... there is no task
+@name("https://{{dnac}}:{{port}}/api/v1/file/config")
+POST "https://{{dnac}}/api/v1/file/config"
+"x-auth-token": "{{token}}"
+files(
+	("fileUpload", "None")
+)
+
+
+// Deletes a configuration file from the controller.// // Uses the fileId from the previous POST to delete
+@name("https://{{dnac}}:{{port}}/api/v1/file/{{fileId}}")
+DELETE "https://{{dnac}}/api/v1/file/{{fileId}}"
+"x-auth-token": "{{token}}"
+
+
+

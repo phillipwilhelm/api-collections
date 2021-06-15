@@ -1,0 +1,158 @@
+#!/usr/bin/env dothttp
+
+// | Key       | Required | Value                                                                                             |// |-----------|----------|---------------------------------------------------------------------------------------------------|// | section   | optional | `hot` &#124; `top` &#124; `user`. Defaults to `hot`// | sort      | optional | `viral` &#124; `top` &#124; `time` &#124; `rising` (only available with `user` section). Defaults to `viral` |// | page      | optional | integer - the data paging number                                                                  |// | window    | optional | Change the date range of the request if the section is `top`. Accepted values are `day` &#124; `week` &#124; `month` &#124; `year` &#124; `all`. Defaults to `day` |
+@name("Gallery")
+GET "https://api.imgur.com/3/gallery/{{section}}/{{sort}}/{{window}}/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+? "showViral"= "{{showViral}}"
+? "mature"= "{{showMature}}"
+? "album_previews"= "{{albumPreviews}}"
+
+
+// View gallery images for a subreddit// // | Key       | Required | Value                                                                                                        |// |-----------|----------|--------------------------------------------------------------------------------------------------------------|// | subreddit | required | pics - A valid subreddit name                                                                                |// | sort      | optional | `time` &#124; `top` - defaults to time                                                                                |// | page      | optional | integer - the data paging number                                                                             |// | window    | optional | Change the date range of the request if the sort is "top". Options are  `day` &#124; `week` &#124; `month` &#124; `year` &#124; `all`. Defaults to week |
+@name("Subreddit Galleries")
+GET "https://api.imgur.com/3/gallery/r/{{subreddit}}/{{sort}}/{{window}}/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// View a single image in the subreddit// // | Key       | Required | Value                         |// |-----------|----------|-------------------------------|// | subreddit | required | A valid subreddit name, ie `earthporn` |// | image_id  | required | The ID for the image.         |
+@name("Subreddit Image")
+GET "https://api.imgur.com/3/gallery/r/{{subreddit}}/{{subredditImageId}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Returns tag metadata, and posts tagged with the `tagName` provided
+@name("Gallery Tag")
+GET "https://api.imgur.com/3/gallery/t/{{tagName}}/{{sort}}/{{window}}/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Gets a list of default tags
+@name("Gallery Tags")
+GET "https://api.imgur.com/3/tags"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Gets metadata about a tag
+@name("Gallery Tag Info")
+GET "https://api.imgur.com/3/gallery/tag_info/{{tagName}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// | Key | Required | Value                  |// |-----|----------|------------------------|// | id  | required | ID of the gallery item |
+@name("Gallery Item Tags")
+GET "https://api.imgur.com/3/gallery/{{galleryHash}}/tags"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Update the tags for a post in the gallery
+@name("Update Gallery Item Tags")
+POST "https://api.imgur.com/3/gallery/tags/{{galleryHash}}"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("id", "{{galleryHash}}"),
+	("tags", "funny,cats")
+)
+
+
+// Search the gallery with a given query string.// // // #### Parameters// | Key    | Required | Value                                                                                                        |// |--------|----------|--------------------------------------------------------------------------------------------------------------|// | sort   | optional | time &#124; viral &#124; top - defaults to time                                                                        |// | window | optional | Change the date range of the request if the sort is 'top', day &#124; week &#124; month &#124; year &#124; all, defaults to all. |// | page   | optional | integer - the data paging number                                                                             |// // // #### Simple Search Query Parameters// // | Key | Value                                                                                                                                                                                                                                                                                    |// |-----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | q   | Query string (note: if advanced search parameters are set, this query string is ignored). This parameter also supports boolean operators (AND, OR, NOT) and indices (tag: user: title: ext: subreddit: album: meme:). An example compound query would be 'title: cats AND dogs ext: gif' |// // // // #### Advanced Search Query Parameters// // | Key       | Value                                                                                                                                                                                                |// |-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | q_all     | Search for all of these words (and)                                                                                                                                                                  |// | q_any     | Search for any of these words (or)                                                                                                                                                                   |// | q_exactly | Search for exactly this word or phrase                                                                                                                                                               |// | q_not     | Exclude results matching this                                                                                                                                                                        |// | q_type    | Show results for any file type, jpg  &#124; png  &#124; gif  &#124; anigif (animated gif)  &#124; album                                                                                                                      |// | q_size_px | Size ranges, small (500 pixels square or less)  &#124; med (500 to 2,000 pixels square)  &#124; big (2,000 to 5,000 pixels square)  &#124; lrg (5,000 to 10,000 pixels square)  &#124; huge (10,000 square pixels and above) |
+@name("Gallery Search")
+GET "https://api.imgur.com/3/gallery/search/{{sort}}/{{window}}/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+? "q"= "cats"
+
+
+// *DEPRECATED* Returns a random set of gallery images.
+@name("Random Gallery Images")
+GET "https://{{host}}/"
+
+
+// Share an Album or Image to the Gallery.
+@name("Share with Community (Image)")
+POST "https://api.imgur.com/3/gallery/image/{{imageHash}}"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("title", "Get this cat to the front page"),
+	("topic", "Funny"),
+	("terms", "1"),
+	("mature", "0"),
+	("tags", "funny,cat")
+)
+
+
+// Share an Album or Image to the Gallery.
+@name("Share with Community (Album)")
+POST "https://api.imgur.com/3/gallery/album/{{albumHash}}"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("title", "Get this cat to the front page"),
+	("topic", "Funny"),
+	("terms", "1"),
+	("mature", "0"),
+	("tags", "funny,cat")
+)
+
+
+// Remove an image from the public gallery. You must be logged in as the owner of the item to do this action.
+@name("Remove from Gallery")
+DELETE "https://api.imgur.com/3/gallery/{{galleryHash}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Get additional information about an album in the gallery.// // #### Response Model: [Gallery Album](https://api.imgur.com/models/gallery_album)
+@name("Gallery Album")
+GET "https://api.imgur.com/3/gallery/album/{{galleryHash}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Get additional information about an image in the gallery.
+@name("Gallery Image")
+GET "https://api.imgur.com/3/gallery/image/{{galleryImageHash}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Report an Image in the gallery// // #### Response Model: [Basic](https://api.imgur.com/models/basic)// // #### Parameters// // | Key    | Required | Description                                       |// |--------|----------|---------------------------------------------------|// | reason | optional | An integer representing the reason for the report (see codes below) |// // // #### Report Reason Codes// // | Value | Description                         |// |-------|-------------------------------------|// | 1     | Doesn't belong on Imgur             |// | 2     | Spam                                |// | 3     | Abusive                             |// | 4     | Mature content not marked as mature |// | 5     | Pornography                         |
+@name("Album / Image Reporting")
+POST "https://api.imgur.com/3/gallery/image/{{galleryHash}}/report"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("reason", "1")
+)
+
+
+// Get the vote information about an image// // #### Response Model: [Vote](https://api.imgur.com/models/vote)
+@name("Album / Image Votes")
+GET "https://api.imgur.com/3/gallery/{{galleryHash}}/votes"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Vote for an image, `up` or `down` vote. Send `veto` to undo a vote.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Album / Image Voting")
+POST "https://api.imgur.com/3/gallery/{{galleryHash}}/vote/{{vote}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Get comments on an image or album in the gallery.// // `galleryHash` is the unique identifier of an album or image in the gallery.// // `commentSort` is one of `best` | `top` | `new` - defaults to `best`.
+@name("Album / Image Comments")
+GET "https://api.imgur.com/3/gallery/{{galleryHash}}/comments/{{commentSort}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Information about a specific comment. This action also allows any of the additional actions provided in the [Comment Endpoint](https://api.imgur.com/endpoints/comment).
+@name("Album / Image Comment")
+GET "https://api.imgur.com/3/gallery/{{galleryHash}}/comment/{{commentId}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)// // #### Parameters// // | Key     | Required | Value                    |// |---------|----------|--------------------------|// | comment | required | The text of the comment. |
+@name("Album / Image Comment Creation")
+POST "https://api.imgur.com/3/gallery/{{galleryHash}}/comment"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("comment", "{{commentText}}")
+)
+
+
+

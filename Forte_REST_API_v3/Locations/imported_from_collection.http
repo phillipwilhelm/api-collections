@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+// This URI returns all the locations that belong to an Organization. To narrow your search data using specific criteria, use the following parameters to filter your results:// // <ul>// <li> dba_name</li>// <li> start_created_date / end_created_date</li>// <li> status</li>// <li> region</li>// <li> country</li>// <li> postal_code</li>// </ul>
+@name("All Locations")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations"
+basicauth("352b1fcd5fc49590755a3f78c3dd973d", "0c8ede0196f7a16a41aef40465fc6952")
+
+
+
+// This URI returns detailed location data using the `location_id`.
+@name("Location by ID")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// **NOTE:** The processing limits that display in the `card` and `echeck` sub-objects require Payfac permissions. For more information, contact Forte Technical Support at 888-235-4635 option 3. // // This URI returns detailed location data using the `location_id`.
+@name("Location by ID (Payfac)")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// **NOTE:** This action must be performed using API credentials at the Partner level.// // This URI assigns the bank account to the specified merchant `location_id`.
+@name("Assign Bank Account")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+   "bankaccount_credits_token": "bac_GH55ZQmcfkaWYHc69OVbAQ",
+   "bankaccount_debits_token": "bac_sxyAiFdVgky5_redzHY3fg",
+   "bankaccount_billing_token": "bac_s5-hLStW3kWtlz8CGJS5_Q",
+   "bankaccount_ccfee_token": "bac_XyVwL7f3iUa5ZxVgicBeQA",
+   "bankaccount_ecfee_token": "bac_5QsdYSmcxUGKVuCeXMF97Q"
+}')
+
+
+// **NOTE:** Only partners with special permissions can change processing limits on their merchant's account. For more information, contact Forte Customer Support at 800-337-3060 option 1.// // This URI enables partners to change the daily processing limits for echeck and credit card transactions for a merchant account.
+@name("Change Processing Limits (Payfac)")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+ "services": {
+    "echeck": {
+        "daily_debit" : 1000,
+        "daily_credit" : 1000,
+        "monthly_debit" : 50000,
+        "monthly_credit" : 50000,
+        "per_trans_debit" : 500.00,
+        "per_trans_credit" : 500.00
+    },
+    "card": {
+        "daily_debit" : 10000,
+        "daily_credit" : 10000,
+        "monthly_debit" : 100000,
+        "monthly_credit" : 100000,
+        "per_trans_debit" : 500.00,
+        "per_trans_credit" : 500.00
+    }
+ }
+}')
+
+
+// Use this URI to update the following address parameters associated with a location: <ul><li>`street_address1`</li><li>`street_address2`</li><li>`locality`</li><li>`region`</li><li>`postal_code`</li><li>`country`</li></ul> // When a location's address is successfully updated, Forte sends an email notification to the location's primary contact informing him/her of the update.
+@name("Update a Location's Address")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+json({
+    "street_address1": "1200 Clock Tower Lane",
+    "street_address2": "Suite 500",
+    "locality": "Hill Valley",
+    "region": "CA",
+    "postal_code": "90214",
+    "country": "US"
+})
+
+
+

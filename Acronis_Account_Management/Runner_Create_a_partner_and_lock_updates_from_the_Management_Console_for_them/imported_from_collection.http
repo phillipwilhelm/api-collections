@@ -1,0 +1,48 @@
+#!/usr/bin/env dothttp
+
+@name("Issue a JWT token")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Create a partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Runner Partner Lock 3",
+    "parent_id": "{{my_tenant_id}}",
+    "kind": "partner"
+}')
+
+
+@name("Lock a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+"Content-Type": "application/json"
+data('{
+     "update_lock": {
+        "owner_id": "{{my_tenant_id}}",
+        "enabled": true
+    },
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Get available offering items for a partner tenant")
+GET "https://{{base_url}}/api/2/tenants/{{my_tenant_id}}/offering_items/available_for_child"
+? "edition"= "*"
+? "kind"= "partner"
+
+
+@name("Set offering items for a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/offering_items"
+"Content-Type": "application/json"
+data('{{offering_items}}')
+
+
+

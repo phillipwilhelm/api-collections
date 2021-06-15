@@ -1,0 +1,284 @@
+#!/usr/bin/env dothttp
+
+// Returns the switch network settings
+@name("getNetworkSwitchSettings")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings"
+"Accept": "*/*"
+
+
+
+// Update switch network settings//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // vlan| integer| Management VLAN// useCombinedPower| boolean| The use Combined Power as the default behavior of secondary power supplies on supported devices.// powerExceptions| array| Exceptions on a per switch basis to "useCombinedPower"
+@name("updateNetworkSwitchSettings")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "vlan": 100,
+  "useCombinedPower": false,
+  "powerExceptions": [
+    {
+      "serial": "Q234-ABCD-0001",
+      "powerType": "redundant"
+    },
+    {
+      "serial": "Q234-ABCD-0002",
+      "powerType": "combined"
+    },
+    {
+      "serial": "Q234-ABCD-0003",
+      "powerType": "redundant"
+    },
+    {
+      "serial": "Q234-ABCD-0004",
+      "powerType": "useNetworkSetting"
+    }
+  ]
+}')
+
+
+// Return the DHCP server policy
+@name("getNetworkSwitchSettingsDhcpServerPolicy")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/dhcpServerPolicy"
+"Accept": "*/*"
+
+
+
+// Update the DHCP server policy//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // defaultPolicy| string| 'allow' or 'block' new DHCP servers. Default value is 'allow'.// allowedServers| array| List the MAC addresses of DHCP servers to permit on the network. Applicable only if defaultPolicy is set to block. An empty array will clear the entries.// blockedServers| array| List the MAC addresses of DHCP servers to block on the network. Applicable only if defaultPolicy is set to allow. An empty array will clear the entries.
+@name("updateNetworkSwitchSettingsDhcpServerPolicy")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/dhcpServerPolicy"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "defaultPolicy": "block",
+  "allowedServers": [
+    "00:50:56:00:00:01",
+    "00:50:56:00:00:02"
+  ]
+}')
+
+
+// Return the DSCP to CoS mappings
+@name("getNetworkSwitchSettingsDscpToCosMappings")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/dscpToCosMappings"
+"Accept": "*/*"
+
+
+
+// Update the DSCP to CoS mappings//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // mappings| array| An array of DSCP to CoS mappings. An empty array will reset the mappings to default.
+@name("updateNetworkSwitchSettingsDscpToCosMappings")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/dscpToCosMappings"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "mappings": [
+    {
+      "dscp": 1,
+      "cos": 1,
+      "title": "Video"
+    }
+  ]
+}')
+
+
+// Return the MTU configuration
+@name("getNetworkSwitchSettingsMtu")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/mtu"
+"Accept": "*/*"
+
+
+
+// Update the MTU configuration//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // defaultMtuSize| integer| MTU size for the entire network. Default value is 9578.// overrides| array| Override MTU size for individual switches or switch profiles. An empty array will clear overrides.
+@name("updateNetworkSwitchSettingsMtu")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/mtu"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "defaultMtuSize": 9578,
+  "overrides": [
+    {
+      "switches": [
+        "Q234-ABCD-0001",
+        "Q234-ABCD-0002",
+        "Q234-ABCD-0003"
+      ],
+      "mtuSize": 1500
+    },
+    {
+      "switchProfiles": [
+        "1284392014819",
+        "2983092129865"
+      ],
+      "mtuSize": 1600
+    }
+  ]
+}')
+
+
+// Return multicast settings for a network
+@name("getNetworkSwitchSettingsMulticast")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/multicast"
+"Accept": "*/*"
+
+
+
+// Update multicast settings for a network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // defaultSettings| object| Default multicast setting for entire network. IGMP snooping and Flood unknown multicast traffic settings are enabled by default.// overrides| array| Array of paired switches/stacks/profiles and corresponding multicast settings. An empty array will clear the multicast settings.
+@name("updateNetworkSwitchSettingsMulticast")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/multicast"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "defaultSettings": {
+    "igmpSnoopingEnabled": true,
+    "floodUnknownMulticastTrafficEnabled": true
+  },
+  "overrides": [
+    {
+      "switches": [
+        "Q234-ABCD-0001",
+        "Q234-ABCD-0002",
+        "Q234-ABCD-0003"
+      ],
+      "igmpSnoopingEnabled": true,
+      "floodUnknownMulticastTrafficEnabled": true
+    },
+    {
+      "stacks": [
+        "789102",
+        "123456",
+        "129102"
+      ],
+      "igmpSnoopingEnabled": true,
+      "floodUnknownMulticastTrafficEnabled": true
+    }
+  ]
+}')
+
+
+// List quality of service rules
+@name("getNetworkSwitchSettingsQosRules")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules"
+"Accept": "*/*"
+
+
+
+// Add a quality of service rule//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // vlan| integer| The VLAN of the incoming packet. A null value will match any VLAN.// protocol| string| The protocol of the incoming packet. Can be one of "ANY", "TCP" or "UDP". Default value is "ANY"// srcPort| integer| The source port of the incoming packet. Applicable only if protocol is TCP or UDP.// srcPortRange| string| The source port range of the incoming packet. Applicable only if protocol is set to TCP or UDP. Example: 70-80// dstPort| integer| The destination port of the incoming packet. Applicable only if protocol is TCP or UDP.// dstPortRange| string| The destination port range of the incoming packet. Applicable only if protocol is set to TCP or UDP. Example: 70-80// dscp| integer| DSCP tag. Set this to -1 to trust incoming DSCP. Default value is 0
+@name("createNetworkSwitchSettingsQosRule")
+POST "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "vlan": 100,
+  "protocol": "TCP",
+  "srcPort": 2000,
+  "srcPortRange": null,
+  "dstPort": null,
+  "dstPortRange": "3000-3100",
+  "dscp": 0
+}')
+
+
+// Return the quality of service rule IDs by order in which they will be processed by the switch
+@name("getNetworkSwitchSettingsQosRulesOrder")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules/order"
+"Accept": "*/*"
+
+
+
+// Update the order in which the rules should be processed by the switch//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // ruleIds| array| A list of quality of service rule IDs arranged in order in which they should be processed by the switch.
+@name("updateNetworkSwitchSettingsQosRulesOrder")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules/order"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "ruleIds": [
+    "1284392014819",
+    "2983092129865"
+  ]
+}')
+
+
+// Return a quality of service rule
+@name("getNetworkSwitchSettingsQosRule")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules/:qosRuleId"
+"Accept": "*/*"
+
+
+
+// Delete a quality of service rule
+@name("deleteNetworkSwitchSettingsQosRule")
+DELETE "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules/:qosRuleId"
+"Accept": "*/*"
+
+
+
+// Update a quality of service rule//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // vlan| integer| The VLAN of the incoming packet. A null value will match any VLAN.// protocol| string| The protocol of the incoming packet. Can be one of "ANY", "TCP" or "UDP". Default value is "ANY".// srcPort| integer| The source port of the incoming packet. Applicable only if protocol is TCP or UDP.// srcPortRange| string| The source port range of the incoming packet. Applicable only if protocol is set to TCP or UDP. Example: 70-80// dstPort| integer| The destination port of the incoming packet. Applicable only if protocol is TCP or UDP.// dstPortRange| string| The destination port range of the incoming packet. Applicable only if protocol is set to TCP or UDP. Example: 70-80// dscp| integer| DSCP tag that should be assigned to incoming packet. Set this to -1 to trust incoming DSCP. Default value is 0.
+@name("updateNetworkSwitchSettingsQosRule")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/qosRules/:qosRuleId"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "vlan": 100,
+  "protocol": "TCP",
+  "srcPort": 2000,
+  "srcPortRange": null,
+  "dstPort": null,
+  "dstPortRange": "3000-3100",
+  "dscp": 0
+}')
+
+
+// Return the storm control configuration for a switch network
+@name("getNetworkSwitchSettingsStormControl")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/stormControl"
+"Accept": "*/*"
+
+
+
+// Update the storm control configuration for a switch network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // broadcastThreshold| integer| Percentage (1 to 99) of total available port bandwidth for broadcast traffic type. Default value 100 percent rate is to clear the configuration.// multicastThreshold| integer| Percentage (1 to 99) of total available port bandwidth for multicast traffic type. Default value 100 percent rate is to clear the configuration.// unknownUnicastThreshold| integer| Percentage (1 to 99) of total available port bandwidth for unknown unicast (dlf-destination lookup failure) traffic type. Default value 100 percent rate is to clear the configuration.
+@name("updateNetworkSwitchSettingsStormControl")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/stormControl"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "broadcastThreshold": 30,
+  "multicastThreshold": 30,
+  "unknownUnicastThreshold": 30
+}')
+
+
+// Returns STP settings
+@name("getNetworkSwitchSettingsStp")
+GET "https://{{baseUrl}}/networks/:networkId/switch/settings/stp"
+"Accept": "*/*"
+
+
+
+// Updates STP settings//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // rstpEnabled| boolean| The spanning tree protocol status in network// stpBridgePriority| array| STP bridge priority for switches/stacks or switch profiles. An empty array will clear the STP bridge priority settings.
+@name("updateNetworkSwitchSettingsStp")
+PUT "https://{{baseUrl}}/networks/:networkId/switch/settings/stp"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "rstpEnabled": true,
+  "stpBridgePriority": [
+    {
+      "switches": [
+        "Q234-ABCD-0001",
+        "Q234-ABCD-0002",
+        "Q234-ABCD-0003"
+      ],
+      "stpPriority": 4096
+    },
+    {
+      "stacks": [
+        "789102",
+        "123456",
+        "129102"
+      ],
+      "stpPriority": 28672
+    }
+  ]
+}')
+
+
+

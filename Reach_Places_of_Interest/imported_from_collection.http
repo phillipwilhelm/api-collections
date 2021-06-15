@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// This request takes the name of the place as inputs(since, it is usually difficult to remember co-ordinates) and gives out the coordinates of the place.
+@name("Get Place Coordinates")
+GET "https://maps.googleapis.com/maps/api/place/textsearch/json"
+? "query"= "{{Place}}"
+? "key"= "{{googleAPIKey}}"
+
+
+// This request takes in a city/town name, the radius and gets the POI's nearby.
+@name("Get Points Of Interest")
+GET "https://maps.googleapis.com/maps/api/place/textsearch/json"
+"": "12.9715987,77.5945627"
+? "query"= "{{query}}"
+? "key"= "{{googleAPIKey}}"
+
+
+// This request takes in the starting and ending coordinates of points A and B and fetches the currently available Uber(TM) rides between the said points.
+@name("Get Uber Ride Estimate")
+GET "https://api.uber.com/v1.2/estimates/price"
+"Authorization": "{{uberAPIKey}}"
+"Accept-Language": "en_US"
+"Content-Type": "application/json"
+? "start_latitude"= "{{latitude}}"
+? "start_longitude"= "{{longitude}}"
+? "end_latitude"= "{{end_latitude}}"
+? "end_longitude"= "{{end_longitude}}"
+
+
+// This request posts the results of the places found, distance to them and the fares to slack.// 
+@name("Post to Slack")
+POST "https://hooks.slack.com/services/{{slackWebHookURL}}"
+"Content-Type": "application/json"
+data('{
+	"channel" : "#channelname",
+	"username" : "username",
+    "attachments": {{messageBody}}
+}')
+
+
+

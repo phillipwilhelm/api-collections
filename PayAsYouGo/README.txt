@@ -1,0 +1,1 @@
+By using the PayAsYouGo collection, you can onboard a retail customer into your system.

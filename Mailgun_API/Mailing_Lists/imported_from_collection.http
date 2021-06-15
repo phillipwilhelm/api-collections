@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+@name("Get mailing lists")
+GET "https://{{BASE_URL}}/lists"
+"Authorization": "Basic {{token}}"
+
+
+@name("Get single mailing list by address")
+GET "https://{{BASE_URL}}/lists/{{mailinglist_address}}"
+"Authorization": "Basic {{token}}"
+
+
+@name("Create mailing list")
+POST "https://{{BASE_URL}}/lists"
+"Authorization": "Basic {{token}}"
+files(
+	("address", ""),
+	("name", ""),
+	("description", ""),
+	("access_level", "")
+)
+
+
+@name("Update mailing list")
+PUT "https://{{BASE_URL}}/lists"
+"Authorization": "Basic {{token}}"
+files(
+	("address", ""),
+	("description", ""),
+	("access_level", "")
+)
+
+
+// Deletes a mailing list.
+@name("Delete mailing list")
+DELETE "https://{{BASE_URL}}/lists/{{mailinglist_address}}"
+"Authorization": "Basic {{token}}"
+
+
+// Paginate over list members in the given mailing list
+@name("Get mailing list members")
+GET "https://{{BASE_URL}}/lists/{{mailinglist_address}}}/members/pages"
+"Authorization": "Basic {{token}}"
+? "limit"= "100"
+
+
+// Retrieves a mailing list member.
+@name("Get mailing list member")
+GET "https://{{BASE_URL}}/lists/{{mailinglist_address}}/members/{{address}}"
+"Authorization": "Basic {{token}}"
+
+
+// Adds a member to the mailing list.
+@name("Add member to mailing list")
+POST "https://{{BASE_URL}}/lists/{{mailinglist_address}}/members"
+"Authorization": "Basic {{token}}"
+files(
+	("address", ""),
+	("name", ""),
+	("vars", ""),
+	("subscribed", ""),
+	("upsert", "")
+)
+
+
+// Updates a mailing list member with given properties. Won’t touch the property if it’s not passed in.
+@name("Update mailing list member")
+PUT "https://{{BASE_URL}}/lists/{{mailinglist_address}}/members/{{address}}"
+"Authorization": "Basic {{token}}"
+files(
+	("address", ""),
+	("name", ""),
+	("vars", ""),
+	("subscribed", "")
+)
+
+
+// Adds multiple members, up to 1,000 per call, to a Mailing List.
+@name("Add multiple members to mailing list")
+POST "https://{{BASE_URL}}/lists/{{mailinglist_address}}/members.json"
+"Authorization": "Basic {{token}}"
+files(
+	("members", ""),
+	("upsert", "")
+)
+
+
+// Delete a mailing list member.
+@name("Delete member from mailing list")
+DELETE "https://{{BASE_URL}}/lists/{{mailinglist_address}}/members/{{address}}"
+"Authorization": "Basic {{token}}"
+
+
+

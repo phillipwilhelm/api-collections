@@ -1,0 +1,26 @@
+#!/usr/bin/env dothttp
+
+// Load the RSA-Sign Crypto Library into a global environment variable. Required to sign the Pure1 OAuth Token.// // Source: http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js// // Github: https://github.com/kjur/jsrsasign
+@name("INIT: Load Crypto Library for RS256")
+GET "http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js"
+
+
+// Exchanges an ID token for an access token.// // Run the INIT: Load Crypto Library for RS256 request first to load the required crypto library
+@name("Get an OAuth token")
+POST "https://{{host_url}}/oauth2/1.0/token"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:token-exchange"
+    ],
+    "subject_token": [
+        "{{id_token}}"
+    ],
+    "subject_token_type": [
+        "urn:ietf:params:oauth:token-type:jwt"
+    ]
+})
+
+
+

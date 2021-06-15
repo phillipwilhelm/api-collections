@@ -1,0 +1,238 @@
+#!/usr/bin/env dothttp
+
+// Retrieves a list of invoices for the account. If the from date or to date queries are not specified, the response returns invoices for the last 365 days.// // Privileges required: account administrator 
+@name("Get a List of Billing Invoices")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_invoices"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+? "from_date"= "{{from_date}}"
+? "to_date"= "{{to_date}}"
+
+
+// Retrieves the specified invoice. // // ###### Note: If the `pdfAvailable` property in the response is set to *true*, you can download a PDF version of the invoice. To download the PDF, make the call again and change the value of the `Accept` property in the header to `Accept: application/pdf`.// // Privileges required: account administrator// // The response returns a list of charges and information about the charges. Quantities are usually shown as 'unlimited' or an integer. Amounts are shown in the currency set for the account.// // **Response**// The following table provides a description of the different `chargeName` property values. The information will grow as more chargeable items are added to the system.// // | chargeName | Description |// | --- | --- |// | id_check | IDÃÂÃÂÃÂÃÂ Check Charge |// | in_person_signing | In Person Signing charge |// | envelopes Included | Sent Envelopes for the account |// | age_verify | Age verification check |// | ofac | OFAC Check |// | id_confirm | ID confirmation check |// | student_authentication | STAN PIN authentication check |// | wet_sign_fax | Pages for returning signed documents by fax |// | attachment_fax | Pages for returning attachments by fax |// | phone_authentication | Phone authentication charge |// | powerforms | PowerForm envelopes sent |// | signer_payments | Payment processing charge |// | outbound_fax | Send by fax charge |// | bulk_recipient_envelopes | Bulk Recipient Envelopes sent |// | sms_authentications | SMS authentication charge |// | saml_authentications | SAML authentication charge |// | express_signer_certificate | DocuSign Express Certificate charge |// | personal_signer_certificate | Personal Signer Certificate charge |// | safe_certificate | SAFE BioPharma Signer Certificate charge |// | seats | Included active seats charge |// | open_trust_certificate | OpenTrust Signer Certificate charge | 
+@name("Retrieves a billing invoice.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_invoices/{{invoiceId}}"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Returns a list past due invoices for the account and notes if payment can be made through the REST API. // // Privileges Required: account administrator
+@name("Get a list of past due invoices.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_invoices_past_due"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Retrieves a list containing information about one or more payments. If the from date or to date queries are not used, the response returns payment information for the last 365 days. // // Privileges required: account administrator 
+@name("Gets payment information for one or more payments.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_payments"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+? "from_date"= "{{from_date}}"
+? "to_date"= "{{to_date}}"
+
+
+// Posts a payment to a past due invoice. // // ###### Note: This can only be used if the `paymentAllowed` value for a past due invoice is true. This can be determined calling [ML:GetBillingInvoicesPastDue].// // The response returns information for a single payment, if a payment ID was used in the endpoint, or a list of payments. If the from date or to date queries or payment ID are not used, the response returns payment information for the last 365 days. If the request was for a single payment ID, the `nextUri` and `previousUri` properties are not returned.// // Privileges required: account administrator
+@name("Posts a payment to a past due invoice.")
+POST "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_payments"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "paymentAmount": "sample string 1"
+}')
+
+
+// Retrieves the information for a specified payment. // // Privileges required: account administrator 
+@name("Gets billing payment information for a specific payment.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_payments/{{paymentId}}"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Retrieves the billing plan information for the specified account, including the current billing plan, successor plans, billing address, and billing credit card.// // By default the successor plan and credit card information is included in the response. This information can be excluded from the response by adding the appropriate optional query string with the `setting` set to **false**. // // Response// // The response returns the billing plan information, including the currency code, for the plan. The `billingPlan` and `succesorPlans` property values are the same as those shown in the [ML:Get Billing Plan Details] reference. the `billingAddress` and `creditCardInformation` property values are the same as those shown in the [ML:Update Billing Plan] reference.// // ###### Note: When credit card number information is shown, a mask is applied to the response so that only the last 4 digits of the card number are visible. 
+@name("Get Account Billing Plan")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+? "include_credit_card_information"= "{{include_credit_card_information}}"
+? "include_metadata"= "{{include_metadata}}"
+? "include_successor_plans"= "{{include_successor_plans}}"
+
+
+// Updates the billing plan information, billing address, and credit card information for the specified account.
+@name("Updates the account billing plan.")
+PUT "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+? "preview_billing_plan"= "{{preview_billing_plan}}"
+data('{
+  "planInformation": {
+    "planId": "sample string 1",
+    "planFeatureSets": [
+      {
+        "featureSetId": "sample string 1",
+        "isActive": "sample string 2",
+        "name": "sample string 3",
+        "fixedFee": "sample string 4",
+        "envelopeFee": "sample string 5",
+        "seatFee": "sample string 6",
+        "isEnabled": "sample string 7",
+        "is21CFRPart11": "sample string 8",
+        "currencyFeatureSetPrices": [
+          {
+            "currencyCode": "sample string 1",
+            "fixedFee": "sample string 2",
+            "seatFee": "sample string 3",
+            "envelopeFee": "sample string 4",
+            "currencySymbol": "sample string 5"
+          }
+        ]
+      }
+    ],
+    "addOns": [
+      {
+        "id": "sample string 1",
+        "addOnId": "sample string 2",
+        "name": "sample string 3",
+        "active": "sample string 4"
+      }
+    ],
+    "recipientDomains": [
+      {
+        "recipientDomainId": "sample string 1",
+        "domainCode": "sample string 2",
+        "domainName": "sample string 3",
+        "active": "sample string 4"
+      }
+    ],
+    "currencyCode": "sample string 2",
+    "freeTrialDaysOverride": "sample string 3"
+  },
+  "enableSupport": "sample string 1",
+  "includedSeats": "sample string 2",
+  "incrementalSeats": "sample string 3",
+  "saleDiscountPercent": "sample string 4",
+  "saleDiscountAmount": "sample string 5",
+  "saleDiscountFixedAmount": "sample string 6",
+  "saleDiscountPeriods": "sample string 7",
+  "saleDiscountSeatPriceOverride": "sample string 8",
+  "renewalStatus": "sample string 9",
+  "downgradeReason": "sample string 10",
+  "creditCardInformation": {
+    "cardNumber": "sample string 1",
+    "expirationMonth": "sample string 2",
+    "expirationYear": "sample string 3",
+    "nameOnCard": "sample string 4",
+    "cardType": "sample string 5",
+    "address": {
+      "street1": "sample string 1",
+      "street2": "sample string 2",
+      "city": "sample string 3",
+      "state": "sample string 4",
+      "zip": "sample string 5",
+      "phone": "sample string 6",
+      "fax": "sample string 7",
+      "country": "sample string 8",
+      "zipPlus4": "sample string 9"
+    }
+  },
+  "appStoreReceipt": {
+    "productId": "sample string 1",
+    "receiptData": "sample string 2"
+  },
+  "billingAddress": {
+    "address1": "sample string 1",
+    "address2": "sample string 2",
+    "city": "sample string 3",
+    "state": "sample string 4",
+    "postalCode": "sample string 5",
+    "phone": "sample string 6",
+    "fax": "sample string 7",
+    "country": "sample string 8",
+    "firstName": "sample string 9",
+    "lastName": "sample string 10",
+    "email": "sample string 11",
+    "supportedCountries": [
+      {
+        "isoCode": "sample string 1",
+        "provinceValidated": "sample string 2",
+        "name": "sample string 3",
+        "provinces": [
+          {
+            "isoCode": "sample string 1",
+            "name": "sample string 2"
+          }
+        ]
+      }
+    ]
+  },
+  "referralInformation": {
+    "enableSupport": "sample string 1",
+    "includedSeats": "sample string 2",
+    "saleDiscountPercent": "sample string 3",
+    "saleDiscountAmount": "sample string 4",
+    "saleDiscountFixedAmount": "sample string 5",
+    "saleDiscountPeriods": "sample string 6",
+    "saleDiscountSeatPriceOverride": "sample string 7",
+    "planStartMonth": "sample string 8",
+    "referralCode": "sample string 9",
+    "referrerName": "sample string 10",
+    "advertisementId": "sample string 11",
+    "publisherId": "sample string 12",
+    "shopperId": "sample string 13",
+    "promoCode": "sample string 14",
+    "groupMemberId": "sample string 15",
+    "idType": "sample string 16",
+    "industry": "sample string 17",
+    "externalOrgId": "sample string 18"
+  },
+  "paymentProcessorInformation": {
+    "billingAgreementId": "sample string 1",
+    "email": "sample string 2",
+    "address": {}
+  }
+}')
+
+
+@name("Get metadata for a given credit card.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan/credit_card"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+@name("Returns downgrade plan information for the specified account.")
+GET "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan/downgrade"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+@name("Queues downgrade billing plan request for an account.")
+PUT "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan/downgrade"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+data('{}')
+
+
+// Reserved: At this time, this endpoint is limited to DocuSign internal use only. Completes the purchase of envelopes for your account. The actual purchase is done as part of an internal workflow interaction with an envelope vendor.
+@name("Reserverd: Purchase additional envelopes.")
+PUT "https://{{baseUrl}}/v2.1/accounts/{{accountId}}/billing_plan/purchased_envelopes"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Retrieves a list of the billing plans associated with a distributor.
+@name("Gets the list of available billing plans.")
+GET "https://{{baseUrl}}/v2.1/billing_plans"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Retrieves the billing plan details for the specified billing plan ID.
+@name("Get the billing plan details.")
+GET "https://{{baseUrl}}/v2.1/billing_plans/{{billingPlanId}}"
+"Accept": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+

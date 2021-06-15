@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSubscription.htm// // Retrieves details for a subscription.
+@name("Get Subscription")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/platform/v1/ens-subscriptions/{{subscriptionId}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getAllSubscriptionsForCallback.htm// // Retrieves details for all subscriptions associated with a callback.
+@name("Get All Subscriptions for a Callback")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/platform/v1/ens-subscriptions-by-cb/{{callbackId}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/createSubscription.htm// // Creates a single subscription. A subscription indicates which event types to receive notifications for and which callback, or webhook, to receive them on. A new subscription can take up to two minutes to become active. You can create a subscription only for a verified callback.
+@name("Create Subscription")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/platform/v1/ens-subscriptions"
+json([
+    {
+        "callbackId": "0ddf4895-c8f6-4b8b-8b31-32cfd62df35b",
+        "subscriptionName": "postman-demo-subscription",
+        "eventCategoryTypes": [
+            "TransactionalSendEvents.EmailNotSent",
+            "TransactionalSendEvents.EmailSent",
+            "TransactionalSendEvents.EmailBounced"
+        ],
+        "filters": [
+            "definitionKey=tapi-demo-postman"
+        ]
+    }
+])
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/updateSubscription.htm// // Updates a single subscription. To pause an active subscription, set the status request parameter to paused. To unpause a paused subscription, set the status request parameter to active. Always supply a status reason in the request when you update the subscription status. Changes made to a subscription can take up to two minutes to become active.
+@name("Update Subscription")
+PUT "https://{{et_subdomain}}.rest.marketingcloudapis.com/platform/v1/ens-subscriptions"
+json([
+    {
+        "subscriptionName": "postman-demo-subscription-updated",
+        "eventCategoryTypes": [
+            "TransactionalSendEvents.EmailNotSent",
+            "TransactionalSendEvents.EmailSent",
+            "TransactionalSendEvents.EmailBounced"
+        ],
+        "subscriptionId": "38977859-87c6-48ae-91c8-b292863bb054",
+        "filters": [
+            "definitionKey=tapi-demo-postman"
+        ],
+        "status": "paused",
+        "statusReason": "demo pause update"
+    }
+])
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/deleteSubscription.htm// // Deletes a subscription.
+@name("Delete Subscription")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/platform/v1/ens-subscriptions/{{subscriptionId}}"
+
+
+
+

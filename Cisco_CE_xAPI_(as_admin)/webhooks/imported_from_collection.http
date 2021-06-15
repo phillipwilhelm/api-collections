@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+@name("Add HTTP Feedback (webhook)")
+POST "https://{{endpoint}}/putxml"
+"Content-Type": "text/xml"
+"Authorization": "Basic {{credentials}}"
+data('<Command>
+   <HttpFeedback>
+      <Register>
+         <FeedbackSlot>1</FeedbackSlot>
+         <ServerUrl>http://127.0.0.1/myhttppostscripturl</ServerUrl>
+         <Format>JSON</Format>
+         <Expression item="1">/Status/RoomAnalytics/PeopleCount</Expression>
+         <Expression item="2">/Status/RoomAnalytics/PeoplePresence</Expression>
+      </Register>
+   </HttpFeedback>
+</Command>')
+
+
+@name("Status HttpFeedback")
+GET "https://{{endpoint}}/getxml"
+"Authorization": "Basic {{credentials}}"
+? "location"= "/Status/HttpFeedback"
+
+
+
+@name("Delete HTTP Feedback Slot")
+POST "https://{{endpoint}}/putxml"
+"Content-Type": "text/xml"
+"Authorization": "Basic {{credentials}}"
+data('<Command>
+   <HttpFeedback>
+      <Deregister>
+         <FeedbackSlot>1</FeedbackSlot>
+      </Deregister>
+   </HttpFeedback>
+</Command>')
+
+
+

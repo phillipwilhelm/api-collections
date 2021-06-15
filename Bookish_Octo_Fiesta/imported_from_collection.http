@@ -1,0 +1,36 @@
+#!/usr/bin/env dothttp
+
+// Gets the Goodreads User ID based on the oauthtoken and the oauthsecret.
+@name("Get user ID")
+GET "https://www.goodreads.com/api/auth_user"
+
+
+// Get the Goodreads users detail that the user is following. // // In case if the user not following any Goodreads user, the collection will stop here.
+@name("Get following users")
+GET "https://www.goodreads.com/user/{{userId}}/following.xml"
+
+
+// Fetches all the reviews of the user which is being followed by the authenticated user, 
+@name("Get user reviews")
+GET "https://www.goodreads.com/review/list"
+? "key"= "{{key}}"
+? "v"= "2"
+? "id"= "{{followingUserId}}"
+
+
+// A Shelf is a collection of books on Goodreads. This request makes a new shelf on Goodreads to which all books recommended will be added.
+@name("Create a shelf")
+POST "https://www.goodreads.com/user_shelves.xml"
+"": ""
+? "user_shelf[name]"= "reading-list-{{timestamp}}"
+? "user_shelf[exclusive]"= "true"
+
+
+// Adds a book reviewed by a followed user to the shelf created in the previous request.
+@name("Add a book to shelf")
+POST "https://www.goodreads.com/shelf/add_to_shelf.xml"
+? "name"= "{{shelfName}}"
+? "book_id"= "{{bookId}}"
+
+
+

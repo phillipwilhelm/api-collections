@@ -1,0 +1,1961 @@
+#!/usr/bin/env dothttp
+
+// Creates a temp space that will be used to add a user, post a card, have the user submit actions and retrieve the submitted data via a webhook
+@name("[bot] Create a room (for test purpose)")
+POST "https://{{WEBEXAPI}}/rooms"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "Testing Cards"
+}')
+
+
+@name("[user] Read userId")
+GET "https://{{WEBEXAPI}}/people/me"
+"Authorization": "Bearer {{access_token}}"
+
+
+@name("[bot] Create membership (add user)")
+POST "https://{{WEBEXAPI}}/memberships"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+  "roomId" : "{{_room}}",
+  "personId": "{{_user}}",
+  "isModerator": false
+}')
+
+
+@name("[bot] Create a card (minheight)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "minHeight": "100px",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "wrap": true,
+                        "text": "This card has a minHeight of 100px"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (container)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "This is some text"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "http://adaptivecards.io/content/cats/1.png"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (container with selectAction) - fails")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.1",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "This is some text"
+                            }
+                        ],
+                        "selectAction": {
+                            "type": "Action.OpenUrl",
+                            "title": "cool link",
+                            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (container with selectAction) - fails")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "This is some text"
+                            }
+                        ],
+                        "selectAction": {
+                            "type": "Action.OpenUrl",
+                            "title": "cool link",
+                            "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        }
+                    },
+                    {
+                        "type": "Container",
+                        "style": "emphasis",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "Emphasis container"
+                            }
+                        ],
+                        "selectAction": {
+                            "type": "Action.OpenUrl",
+                            "title": "cool link 2",
+                            "url": "https://msn.com"
+                        }
+                    },
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "Default container again, using ShowCard",
+                                "wrap": true
+                            }
+                        ],
+                        "selectAction": {
+                            "type": "Action.Submit",
+                            "title": "Submit action",
+                            "data": "Submitted!"
+                        }
+                    },
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "Submit action"
+                            }
+                        ],
+                        "selectAction": {
+                            "type": "Action.Submit",
+                            "title": "Submit action",
+                            "data": {
+                                "info": "My submit action data"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// Posts a plain text or markdown message, and optionally, a media content attachment, to a room.// // https://developer.webex.com/endpoint-messages-post.html
+@name("[bot] Create a card (simple form)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Please enter your name:"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "id": "name",
+                        "title": "New Input.Toggle",
+                        "placeholder": "name"
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (richer form)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": 2,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Tell us about yourself",
+                                        "weight": "Bolder",
+                                        "size": "Medium"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "We just need a few more details to get you booked for the trip of a lifetime!",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Don\'t worry, we\'ll never share or sell your information.",
+                                        "isSubtle": true,
+                                        "wrap": true,
+                                        "size": "Small"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Your name",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "Input.Text",
+                                        "id": "myName",
+                                        "placeholder": "Last, First"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Your email",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "Input.Text",
+                                        "id": "myEmail",
+                                        "placeholder": "youremail@example.com",
+                                        "style": "Email"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Phone Number"
+                                    },
+                                    {
+                                        "type": "Input.Text",
+                                        "id": "myTel",
+                                        "placeholder": "xxx.xxx.xxxx",
+                                        "style": "Tel"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Diver_Silhouette%2C_Great_Barrier_Reef.jpg",
+                                        "size": "auto"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// https://adaptivecards.io/designer/
+@name("[bot] Create a card (form with inputs)")
+POST "https://{{WEBEXAPI}}/v1/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "size": "medium",
+                        "weight": "bolder",
+                        "text": "Input.Text elements",
+                        "horizontalAlignment": "center"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "placeholder": "Name",
+                        "style": "text",
+                        "maxLength": 0,
+                        "id": "SimpleVal"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "placeholder": "Homepage",
+                        "style": "url",
+                        "maxLength": 0,
+                        "id": "UrlVal"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "placeholder": "Email",
+                        "style": "email",
+                        "maxLength": 0,
+                        "id": "EmailVal"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "placeholder": "Phone",
+                        "style": "tel",
+                        "maxLength": 0,
+                        "id": "TelVal"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "placeholder": "Comments",
+                        "style": "text",
+                        "isMultiline": true,
+                        "maxLength": 0,
+                        "id": "MultiLineVal"
+                    },
+                    {
+                        "type": "Input.Number",
+                        "placeholder": "Quantity",
+                        "min": -5,
+                        "max": 5,
+                        "value": 1,
+                        "id": "NumVal"
+                    },
+                    {
+                        "type": "Input.Date",
+                        "placeholder": "Due Date",
+                        "id": "DateVal",
+                        "value": "2017-09-20"
+                    },
+                    {
+                        "type": "Input.Time",
+                        "placeholder": "Start time",
+                        "id": "TimeVal",
+                        "value": "16:59"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "size": "medium",
+                        "weight": "bolder",
+                        "text": "Input.ChoiceSet",
+                        "horizontalAlignment": "center"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "What color do you want? (compact)"
+                    },
+                    {
+                        "type": "Input.ChoiceSet",
+                        "id": "CompactSelectVal",
+                        "style": "compact",
+                        "value": "1",
+                        "choices": [
+                            {
+                                "title": "Red",
+                                "value": "1"
+                            },
+                            {
+                                "title": "Green",
+                                "value": "2"
+                            },
+                            {
+                                "title": "Blue",
+                                "value": "3"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "What color do you want? (expanded)"
+                    },
+                    {
+                        "type": "Input.ChoiceSet",
+                        "id": "SingleSelectVal",
+                        "style": "expanded",
+                        "value": "1",
+                        "choices": [
+                            {
+                                "title": "Red",
+                                "value": "1"
+                            },
+                            {
+                                "title": "Green",
+                                "value": "2"
+                            },
+                            {
+                                "title": "Blue",
+                                "value": "3"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "What colors do you want? (multiselect)"
+                    },
+                    {
+                        "type": "Input.ChoiceSet",
+                        "id": "MultiSelectVal",
+                        "isMultiSelect": true,
+                        "value": "1,3",
+                        "choices": [
+                            {
+                                "title": "Red",
+                                "value": "1"
+                            },
+                            {
+                                "title": "Green",
+                                "value": "2"
+                            },
+                            {
+                                "title": "Blue",
+                                "value": "3"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "size": "medium",
+                        "weight": "bolder",
+                        "text": "Input.Toggle",
+                        "horizontalAlignment": "center"
+                    },
+                    {
+                        "type": "Input.Toggle",
+                        "title": "I accept the terms and conditions (True/False)",
+                        "valueOn": "true",
+                        "valueOff": "false",
+                        "id": "AcceptsTerms"
+                    },
+                    {
+                        "type": "Input.Toggle",
+                        "title": "Red cars are better than other cars",
+                        "valueOn": "RedCars",
+                        "valueOff": "NotRedCars",
+                        "id": "ColorPreference"
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit",
+                        "data": {
+                            "id": "1234567890"
+                        }
+                    },
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Show Card",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "Input.Text",
+                                    "placeholder": "enter comment",
+                                    "style": "text",
+                                    "maxLength": 0,
+                                    "id": "CommentVal"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// https://adaptivecards.io/designer/
+@name("[bot] Create a card (flight itinerary)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "speak": "<s>Flight KL0605 to San Fransisco has been delayed.</s><s>It will not leave until 10:10 AM.</s>",
+                "body": [
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "size": "Small",
+                                        "url": "http://adaptivecards.io/content/airplane.png"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Flight Status",
+                                        "horizontalAlignment": "Right",
+                                        "isSubtle": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "DELAYED",
+                                        "horizontalAlignment": "Right",
+                                        "spacing": "None",
+                                        "size": "Large",
+                                        "color": "Attention"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "separator": true,
+                        "spacing": "Medium",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Passengers",
+                                        "isSubtle": true,
+                                        "weight": "Bolder"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Sarah Hum",
+                                        "spacing": "Small"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Jeremy Goldberg",
+                                        "spacing": "Small"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Evan Litvak",
+                                        "spacing": "Small"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Seat",
+                                        "horizontalAlignment": "Right",
+                                        "isSubtle": true,
+                                        "weight": "Bolder"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "14A",
+                                        "horizontalAlignment": "Right",
+                                        "spacing": "Small"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "14B",
+                                        "horizontalAlignment": "Right",
+                                        "spacing": "Small"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "14C",
+                                        "horizontalAlignment": "Right",
+                                        "spacing": "Small"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "spacing": "Medium",
+                        "separator": true,
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Flight",
+                                        "isSubtle": true,
+                                        "weight": "Bolder"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "KL0605",
+                                        "spacing": "Small"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Departs",
+                                        "isSubtle": true,
+                                        "horizontalAlignment": "Center",
+                                        "weight": "Bolder"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "10:10 AM",
+                                        "color": "Attention",
+                                        "weight": "Bolder",
+                                        "horizontalAlignment": "Center",
+                                        "spacing": "Small"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Arrives",
+                                        "isSubtle": true,
+                                        "horizontalAlignment": "Right",
+                                        "weight": "Bolder"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "12:00 AM",
+                                        "color": "Attention",
+                                        "horizontalAlignment": "Right",
+                                        "weight": "Bolder",
+                                        "spacing": "Small"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "spacing": "Medium",
+                        "separator": true,
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Amsterdam",
+                                        "isSubtle": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "AMS",
+                                        "size": "ExtraLarge",
+                                        "color": "Accent",
+                                        "spacing": "None"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": " "
+                                    },
+                                    {
+                                        "type": "Image",
+                                        "url": "http://adaptivecards.io/content/airplane.png",
+                                        "size": "Small"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "San Francisco",
+                                        "isSubtle": true,
+                                        "horizontalAlignment": "Right"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "SFO",
+                                        "horizontalAlignment": "Right",
+                                        "size": "ExtraLarge",
+                                        "color": "Accent",
+                                        "spacing": "None"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (activity update)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Publish Adaptive Card schema",
+                        "weight": "Bolder",
+                        "size": "Medium"
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "auto",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "url": "https://pbs.twimg.com/profile_images/3647943215/d7f12830b3c17a5a9e4afcc370e3a37e_400x400.jpeg",
+                                        "size": "Small",
+                                        "style": "Person"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": "stretch",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Matt Hidinger",
+                                        "weight": "Bolder",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "Created {{DATE(2017-02-14T06:08:39Z, SHORT)}}",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "Now that we have defined the main rules and features of the format, we need to produce a schema and publish it to GitHub. The schema will be the starting point of our reference documentation.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "FactSet",
+                        "facts": [
+                            {
+                                "title": "Board:",
+                                "value": "Adaptive Card"
+                            },
+                            {
+                                "title": "List:",
+                                "value": "Backlog"
+                            },
+                            {
+                                "title": "Assigned to:",
+                                "value": "Matt Hidinger"
+                            },
+                            {
+                                "title": "Due date:",
+                                "value": "Not set"
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Set due date",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "Input.Date",
+                                    "id": "dueDate"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK"
+                                }
+                            ],
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                        }
+                    },
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Comment",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "Input.Text",
+                                    "id": "comment",
+                                    "isMultiline": true,
+                                    "placeholder": "Enter your comment"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK"
+                                }
+                            ],
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (food order)")
+POST "https://api.ciscospark.com/v1/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Your registration is almost complete",
+                        "size": "Medium",
+                        "weight": "Bolder"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "What type of food do you prefer?",
+                        "wrap": true
+                    },
+                    {
+                        "type": "ImageSet",
+                        "imageSize": "medium",
+                        "images": [
+                            {
+                                "type": "Image",
+                                "url": "http://contososcubademo.azurewebsites.net/assets/steak.jpg",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "http://contososcubademo.azurewebsites.net/assets/chicken.jpg",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "http://contososcubademo.azurewebsites.net/assets/tofu.jpg",
+                                "size": "Medium"
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Steak",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "How would you like your steak prepared?",
+                                    "size": "Medium",
+                                    "wrap": true
+                                },
+                                {
+                                    "type": "Input.ChoiceSet",
+                                    "id": "SteakTemp",
+                                    "style": "expanded",
+                                    "choices": [
+                                        {
+                                            "title": "Rare",
+                                            "value": "rare"
+                                        },
+                                        {
+                                            "title": "Medium-Rare",
+                                            "value": "medium-rare"
+                                        },
+                                        {
+                                            "title": "Well-done",
+                                            "value": "well-done"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Input.Text",
+                                    "id": "SteakOther",
+                                    "isMultiline": true,
+                                    "placeholder": "Any other preparation requests?"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK",
+                                    "data": {
+                                        "FoodChoice": "Steak"
+                                    }
+                                }
+                            ],
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                        }
+                    },
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Chicken",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Do you have any allergies?",
+                                    "size": "Medium",
+                                    "wrap": true
+                                },
+                                {
+                                    "type": "Input.ChoiceSet",
+                                    "id": "ChickenAllergy",
+                                    "style": "expanded",
+                                    "isMultiSelect": true,
+                                    "choices": [
+                                        {
+                                            "title": "I\'m allergic to peanuts",
+                                            "value": "peanut"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Input.Text",
+                                    "id": "ChickenOther",
+                                    "isMultiline": true,
+                                    "placeholder": "Any other preparation requests?"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK",
+                                    "data": {
+                                        "FoodChoice": "Chicken"
+                                    }
+                                }
+                            ],
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                        }
+                    },
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Tofu",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "Would you like it prepared vegan?",
+                                    "size": "Medium",
+                                    "wrap": true
+                                },
+                                {
+                                    "type": "Input.Toggle",
+                                    "id": "Vegetarian",
+                                    "title": "Please prepare it vegan",
+                                    "valueOn": "vegan",
+                                    "valueOff": "notVegan",
+                                    "wrap": false
+                                },
+                                {
+                                    "type": "Input.Text",
+                                    "id": "VegOther",
+                                    "isMultiline": true,
+                                    "placeholder": "Any other preparation requests?"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "OK",
+                                    "data": {
+                                        "FoodChoice": "Vegetarian"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (image galery)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Here are some cool photos",
+                        "size": "Large"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "Sorry some of them are repeats",
+                        "size": "Medium",
+                        "weight": "Lighter"
+                    },
+                    {
+                        "type": "ImageSet",
+                        "imageSize": "medium",
+                        "images": [
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/200/200?image=100",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=200",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=301",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/200/200?image=400",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=500",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/200/200?image=600",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=700",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=800",
+                                "size": "Medium"
+                            },
+                            {
+                                "type": "Image",
+                                "url": "https://picsum.photos/300/200?image=900",
+                                "size": "Medium"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (restaurant)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": 2,
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "PIZZA"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "Tom\'s Pie",
+                                        "weight": "Bolder",
+                                        "size": "ExtraLarge",
+                                        "spacing": "None"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "4.2 ★★★☆ (93) · $$",
+                                        "isSubtle": true,
+                                        "spacing": "None"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "**Matt H. said** \"I\'m compelled to give this place 5 stars due to the number of times I\'ve chosen to eat here this past year!\"",
+                                        "size": "Small",
+                                        "wrap": true
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Column",
+                                "width": 1,
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "url": "https://picsum.photos/300?image=882",
+                                        "size": "auto"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "More Info",
+                        "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[bot] Create a card (stock)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "speak": "Microsoft stock is trading at $62.30 a share, which is down .32%",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "Microsoft Corp (NASDAQ: MSFT)",
+                                "size": "Medium",
+                                "isSubtle": true
+                            },
+                            {
+                                "type": "TextBlock",
+                                "text": "September 19, 4:00 PM EST",
+                                "isSubtle": true
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Container",
+                        "spacing": "None",
+                        "items": [
+                            {
+                                "type": "ColumnSet",
+                                "columns": [
+                                    {
+                                        "type": "Column",
+                                        "width": "stretch",
+                                        "items": [
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "75.30",
+                                                "size": "ExtraLarge"
+                                            },
+                                            {
+                                                "type": "TextBlock",
+                                                "text": "▼ 0.20 (0.32%)",
+                                                "size": "Small",
+                                                "color": "Attention",
+                                                "spacing": "None"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Column",
+                                        "width": "auto",
+                                        "items": [
+                                            {
+                                                "type": "FactSet",
+                                                "facts": [
+                                                    {
+                                                        "title": "Open",
+                                                        "value": "62.24"
+                                                    },
+                                                    {
+                                                        "title": "High",
+                                                        "value": "62.98"
+                                                    },
+                                                    {
+                                                        "title": "Low",
+                                                        "value": "62.20"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// Warning: takes about 30 seconds to be processed by Webex// // https://adaptivecards.io/samples/
+@name("[bot] Create a card (agenda)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "body": [
+                    {
+                        "type": "ColumnSet",
+                        "horizontalAlignment": "Center",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "ColumnSet",
+                                        "horizontalAlignment": "Center",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/LocationGreen_A.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "**Redmond**"
+                                                    },
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "spacing": "None",
+                                                        "text": "8a - 12:30p"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "width": 1
+                            },
+                            {
+                                "type": "Column",
+                                "spacing": "Large",
+                                "separator": true,
+                                "items": [
+                                    {
+                                        "type": "ColumnSet",
+                                        "horizontalAlignment": "Center",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/LocationBlue_B.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "**Bellevue**"
+                                                    },
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "spacing": "None",
+                                                        "text": "12:30p - 3p"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "width": 1
+                            },
+                            {
+                                "type": "Column",
+                                "spacing": "Large",
+                                "separator": true,
+                                "items": [
+                                    {
+                                        "type": "ColumnSet",
+                                        "horizontalAlignment": "Center",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/LocationRed_C.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "**Seattle**"
+                                                    },
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "spacing": "None",
+                                                        "text": "8p"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "width": 1
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "ColumnSet",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "horizontalAlignment": "Left",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/Conflict.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "spacing": "None",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "2:00 PM"
+                                                    }
+                                                ],
+                                                "width": "stretch"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "1hr",
+                                        "isSubtle": true
+                                    }
+                                ],
+                                "width": "110px"
+                            },
+                            {
+                                "type": "Column",
+                                "backgroundImage": {
+                                    "url": "http://messagecardplayground.azurewebsites.net/assets/SmallVerticalLineGray.png",
+                                    "fillMode": "RepeatVertically",
+                                    "horizontalAlignment": "Center"
+                                },
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "horizontalAlignment": "Center",
+                                        "url": "http://messagecardplayground.azurewebsites.net/assets/CircleGreen_coffee.png"
+                                    }
+                                ],
+                                "width": "auto",
+                                "spacing": "None"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "**Contoso Campaign Status Meeting**"
+                                    },
+                                    {
+                                        "type": "ColumnSet",
+                                        "spacing": "None",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/location_gray.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "Conf Room Bravern-2/9050"
+                                                    }
+                                                ],
+                                                "width": "stretch"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "ImageSet",
+                                        "spacing": "Small",
+                                        "imageSize": "Small",
+                                        "images": [
+                                            {
+                                                "type": "Image",
+                                                "url": "http://messagecardplayground.azurewebsites.net/assets/person_w1.png",
+                                                "size": "Small"
+                                            },
+                                            {
+                                                "type": "Image",
+                                                "url": "http://messagecardplayground.azurewebsites.net/assets/person_m1.png",
+                                                "size": "Small"
+                                            },
+                                            {
+                                                "type": "Image",
+                                                "url": "http://messagecardplayground.azurewebsites.net/assets/person_w2.png",
+                                                "size": "Small"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "ColumnSet",
+                                        "spacing": "Small",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/power_point.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "**Contoso Brand Guidelines** shared by **Susan Metters**"
+                                                    }
+                                                ],
+                                                "width": "stretch"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "width": 40
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "spacing": "None",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "width": "110px"
+                            },
+                            {
+                                "type": "Column",
+                                "backgroundImage": {
+                                    "url": "http://messagecardplayground.azurewebsites.net/assets/SmallVerticalLineGray.png",
+                                    "fillMode": "RepeatVertically",
+                                    "horizontalAlignment": "Center"
+                                },
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "horizontalAlignment": "Center",
+                                        "url": "http://messagecardplayground.azurewebsites.net/assets/Gray_Dot.png"
+                                    }
+                                ],
+                                "width": "auto",
+                                "spacing": "None"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "ColumnSet",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/car.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "about 45 minutes",
+                                                        "isSubtle": true
+                                                    }
+                                                ],
+                                                "width": "stretch"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "width": 40
+                            }
+                        ]
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "spacing": "None",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "8:00 PM"
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "1hr",
+                                        "isSubtle": true
+                                    }
+                                ],
+                                "width": "110px"
+                            },
+                            {
+                                "type": "Column",
+                                "backgroundImage": {
+                                    "url": "http://messagecardplayground.azurewebsites.net/assets/SmallVerticalLineGray.png",
+                                    "fillMode": "RepeatVertically",
+                                    "horizontalAlignment": "Center"
+                                },
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "horizontalAlignment": "Center",
+                                        "url": "http://messagecardplayground.azurewebsites.net/assets/CircleBlue_flight.png"
+                                    }
+                                ],
+                                "width": "auto",
+                                "spacing": "None"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "text": "**Alaska Airlines AS1021 flight to Chicago**"
+                                    },
+                                    {
+                                        "type": "ColumnSet",
+                                        "spacing": "None",
+                                        "columns": [
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "Image",
+                                                        "url": "http://messagecardplayground.azurewebsites.net/assets/location_gray.png"
+                                                    }
+                                                ],
+                                                "width": "auto"
+                                            },
+                                            {
+                                                "type": "Column",
+                                                "items": [
+                                                    {
+                                                        "type": "TextBlock",
+                                                        "text": "Seattle Tacoma International Airport (17801 International Blvd, Seattle, WA, United States)",
+                                                        "wrap": true
+                                                    }
+                                                ],
+                                                "width": "stretch"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Image",
+                                        "url": "http://messagecardplayground.azurewebsites.net/assets/SeaTacMap.png",
+                                        "size": "Stretch"
+                                    }
+                                ],
+                                "width": 40
+                            }
+                        ]
+                    }
+                ],
+                "version": "1.0"
+            }
+        }
+    ]
+}')
+
+
+// https://adaptivecards.io/samples/
+@name("[bot] Create a card (POSTCON)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Stève at Post/Con](https://www.getpostman.com/post-con-2019/)",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "text": "API Emulators as an emerging Best Practice"
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "style": "Person",
+                                        "url": "https://www.getpostman.com/img/pages/post-con-2019/_post-con-speakers/steve-sfartz.jpg",
+                                        "size": "Small"
+                                    }
+                                ],
+                                "width": "auto"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "weight": "Bolder",
+                                        "text": "Stève Sfartz",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "API Architect at Cisco DevNet",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                    }
+                                ],
+                                "width": "stretch"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "Modern applications are highly distributed. We face challenges related to the use of internal and external APIs and how to build APIs with agility in the face of software that can evolve and change at any time. The API industry proposes two common strategies to circumvent these challenges: API Mocking and Service Virtualization. At Cisco, we came up with the idea of API emulators has a third strategy.\nIn this talk, I\'ll explain the motivation behind API emulators in the perspective of DevOps, CI/CD, Software Development, and serverless/microservices architectures.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "FactSet",
+                        "facts": [
+                            {
+                                "title": "Track:",
+                                "value": "Design and Architecture"
+                            },
+                            {
+                                "title": "When:",
+                                "value": "Thursday, 11:45AM"
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Take survey",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "What are you familiar with?"
+                                },
+                                {
+                                    "type": "Input.ChoiceSet",
+                                    "id": "survey",
+                                    "isMultiSelect": true,
+                                    "value": "1",
+                                    "choices": [
+                                        {
+                                            "title": "API Mocks",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "title": "API Emulators",
+                                            "value": "2"
+                                        },
+                                        {
+                                            "title": "Service Virtualization",
+                                            "value": "3"
+                                        }
+                                    ]
+                                },
+
+                                {
+                                    "type": "Input.Text",
+                                    "placeholder": "enter comment",
+                                    "style": "text",
+                                    "maxLength": 0,
+                                    "id": "comment"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "send",
+                                    "data": {
+                                        "id": "POST/CON 2019"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Check jobs",
+                        "url": "https://jobs.cisco.com/jobs/SearchJobs/DevNet?3_109_3=%5B%22169482%22%5D&3_143_3=%5B%2212229389%22%5D"
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Join DevNet",
+                        "url": "https://developer.cisco.com/appdev/"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// Deletes a room, by ID.// // Specify the room ID in the roomId parameter in the URI.// // https://developer.webex.com/endpoint-rooms-roomId-delete.html
+@name("[bot] Delete room")
+DELETE "https://{{WEBEXAPI}}/rooms/{{_room}}"
+"Authorization": "Bearer {{bot_token}}"
+
+
+
+

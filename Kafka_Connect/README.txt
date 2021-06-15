@@ -1,0 +1,1 @@
+Kafka Connect requests for my playground: https://github.com/imankulov/kafka-playground. More about REST API: http://kafka.apache.org/documentation/#connect_rest

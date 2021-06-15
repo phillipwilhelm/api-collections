@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// This method allows you to connect through PSM without using an existing account, by returning settings that can be used with an RDP client application or for the HTML5 gateway.// // You must enable Privileged Session Monitoring and ad-hoc connection via PVWA configuration. For more details, see [Ad Hoc Connections](https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/Latest/en/Content/PASIMP/Configuring-Secure-Connect.htm).
+@name("Ad-Hoc Connect through PSM")
+POST "https://{{BaseURL}}/PasswordVault/api/Accounts/AdHocConnect"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"UserName":"<User Name>",
+	"Secret":"<password>",
+	"Address":"<Address>",
+	"PlatformId":"<Secure Connect Platform>",
+	"extraFields":{},
+	"PSMConnectPrerequisites": {
+		"ConnectionComponent":"<Connection Component ID>",
+		"ConnectionType":"<RDPFile or PSMGW>"
+	}
+}')
+
+
+// This method marks an account for an immediate credentials change by the CPM to a new random value.// // The user who runs this web service requires the following permission in the Safe where the privileged account is stored:// // * Initiate CPM password management operations
+@name("Change Password Immediately")
+POST "https://{{BaseURL}}/PasswordVault/API/Accounts/{{AccountID}}/Change"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"ChangeEntireGroup" : true
+}')
+
+
+// This method enables users to set account credentials and change them in the Vault. This will not affect credentials on the target device.// // The user who runs this web service requires **Update password value** permission in the Safe where the privileged account is stored.
+@name("Change Password in the Vault Only")
+POST "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}/Password/Update"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"ChangeEntireGroup": false,
+	"NewCredentials": "<string>"
+}')
+
+
+// This method enables users to set the account's credentials to use for the next CPM change.// // The user who runs this web service requires the following permissions in the Safe where the privileged account is stored:// // * Initiate CPM password management operations// * Specify next password value
+@name("Change Password, Set Next Password")
+POST "https://{{BaseURL}}/passwordvault/api/Accounts/{{AccountID}}/SetNextPassword"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"ChangeImmediately" : true,
+	"NewCredentials": "<credentials>"
+}')
+
+
+// This method checks an exclusive account into the Vault.// // * If the account is managed automatically by the CPM, after it is checked in, the password is changed immediately.// * If the account is managed manually, a notification is sent to a user who is authorized to change the password. The account is checked in automatically after it has been changed.// // The user who runs this web service requires the following permission in the Safe where the privileged account is stored:// // * Initiate CPM password management operations
+@name("Check In an Exclusive Account")
+POST "https://{{BaseURL}}/PasswordVault/API/Accounts/{{AccountID}}/CheckIn"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method enables you to connect to an account through PSM (PSMConnect) using a connection method defined in the PVWA.// // A response header defines which connection method is returned.// // For more information, refer to [Privileged Session Management Interface](https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/Latest/en/Content/PASIMP/Configuring-the-Privileged-Session-Management-Interface.htm).// // ## Header Parameter// // Parameter: Accept// // Type: String// // Description: The table below describes the expected response format depending on the value of the Accept header in the request, per connection method configuration (RDP File or PSM Gateway).// // | PVWA configuration | Optional values | Connection method |// | --- | --- | --- |// | RDP | application/json, application/octet-stream (default), `*/ *` | RDPFile (JSON), RDPFile (octet-stream raw) |// | PSMGW | `* / *` | PSMGW (JSON) - Returns the HTML5 connection data. |// // **Note:** To use PSMGW, PSMGW must be configured before using this REST API in order to receive a PSMGW response.
+@name("Connect Using PSM")
+POST "https://{{BaseURL}}/PasswordVault/API/Accounts/{{AccountID}}/PSMConnect"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+"Accept": "RDP"
+data('{
+	"reason":"<Reason>",
+	"TicketingSystemName":"<Ticketing system>",
+	"TicketId":"<Ticketid>",
+	"ConnectionComponent":"<Connection component id>",
+	"ConnectionParams": {
+		"<Connection parameter name>": {
+			"value":"<Connection parameter value>",
+			"ShouldSave":<true\false>
+		},
+		"<Connection parameter name>": {
+			"value":"<Connection parameter value>",
+			"ShouldSave":<true\false>
+		}
+	}
+}')
+
+
+// This method requests and receives access to a target Windows machine with administrative rights. The domain user who runs this web service will be added to the local Administrators group of the target machine.// // ## Supported target machine environments// // Just in Time access is supported on the following end user machine environments:// // * Windows Server 2012/2012R2/2016// * Windows 8, Windows 10// // ## Configuration// // Configure Just in Time access as described in [Configure Just in Time Access](https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/11.3/en/Content/PASIMP/adhoc_access_admin.htm).// // ## User permissions// // Make sure that all users who want to request access to the target Windows machine must have the following permission in the Safe:// // * List accounts
+@name("Get Just in Time Access")
+POST "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}/grantAdministrativeAccess"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method enables users to retrieve the password or SSH key of an existing account that is identified by its Account ID. It enables users to specify a reason and ticket ID, if required.// // **Note:** The ability to retrieve credentials using this REST API is intended for human use only and is not recommended for applications or automated processes, where application-based authentication is required.// // For application or automated processes use cases, refer to the [AAM Credential Providers Online Help](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-CP/Latest/en/Default.htm).
+@name("Get Password Value")
+POST "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}/Password/Retrieve"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"reason":"<Reason>",
+	"TicketingSystemName": "<Ticketing system>",
+	"TicketId": "<Ticketid>",
+	"Version": <version number>,
+	"ActionType": "<action type - show\copy\connect>
+	"isUse": <true\false>,
+	"Machine": "<my remote machine address>"
+}')
+
+
+// This method marks an account for automatic reconciliation by the CPM.// // The user who runs this web service requires the following permission in the Safe where the privileged account is stored:// // * Initiate CPM password management operations
+@name("Reconcile Password")
+POST "https://{{BaseURL}}/PasswordVault/API/Accounts/{{AccountID}}/Reconcile"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method marks an account for verification by the CPM, and can be used in versions from v9.10.// // The user who runs this web service requires the following permission in the Safe where the privileged account is stored:// // * Initiate CPM password management operations
+@name("Verify Password")
+POST "https://{{BaseURL}}/PasswordVault/API/Accounts/{{AccountID}}/Verify"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method marks the account for an immediate password change by the CPM to a new random password.// // The user who runs this web service requires the following permission in the Safe where the privileged account is stored:// // * Initiate CPM password management operations
+@name("Change Password")
+PUT "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Accounts/{{AccountID}}/ChangeCredentials"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"ImmediateChangeByCPM": <true/false>,
+	"ChangeCredsForGroup": <true/false>
+}')
+
+
+

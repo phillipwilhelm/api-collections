@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// Get client scopes belonging to the realm Returns a list of client scopes belonging to the realm
+@name("Get client scopes belonging [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/client-scopes"
+"Content-Type": "application/json"
+
+
+// Get representation of the client scope
+@name("Get representation of the client scope [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Delete the client scope
+@name("Delete the client scope[SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Update the client scope
+@name("Update the client scope [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+data('{
+    "id": "4f841085-b7be-4596-b99b-15422e16bf0b",
+    "name": "email",
+    "description": "OpenID Connect built-in scope: email +",
+    "protocol": "openid-connect",
+    "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "${emailScopeConsentText}"
+    },
+    "protocolMappers": [
+        {
+            "id": "62224d4c-7181-4790-a3c9-71cdbf1516a5",
+            "name": "email",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-property-mapper",
+            "consentRequired": false,
+            "config": {
+                "userinfo.token.claim": "true",
+                "user.attribute": "email",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "claim.name": "email",
+                "jsonType.label": "String"
+            }
+        },
+        {
+            "id": "e7b52fef-f525-4314-abf3-267d9f48082e",
+            "name": "email verified",
+            "protocol": "openid-connect",
+            "protocolMapper": "oidc-usermodel-property-mapper",
+            "consentRequired": false,
+            "config": {
+                "userinfo.token.claim": "true",
+                "user.attribute": "emailVerified",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "claim.name": "email_verified",
+                "jsonType.label": "boolean"
+            }
+        }
+    ]
+}')
+
+
+// Create a new client scope Client Scope’s name must be unique!
+@name("Create a new client scope [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/client-scopes"
+"Content-Type": "application/json"
+data('    {
+        "name": "test_scope",
+        "description": "OpenID Connect built-in scope: offline_access",
+        "protocol": "openid-connect",
+        "attributes": {
+            "consent.screen.text": "${offlineAccessScopeConsentText}",
+            "display.on.consent.screen": "true"
+        }
+    }')
+
+
+

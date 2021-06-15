@@ -1,0 +1,66 @@
+#!/usr/bin/env dothttp
+
+// Another way to see if data are being persisted is to check if a `table_schema`// has been created. This can be done by making a request to the **CrateDB** HTTP// endpoint as shown below.// // Schema names are formed with the `mt` prefix followed by `fiware-service` header// in lower case. The IoT Agent is forwarding measurements from the dummy IoT// devices, with the `FIWARE-Service` header `openiot`. These are being persisted// under the `mtopeniot` schema.// // If the `mtopeniot` does not exist, then the subscription to **QuantumLeap** has// not been set up correctly. Check that the subscription exists, and has been// configured to send data to the correct location.
+@name("Read Schemas")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SHOW SCHEMAS"}')
+
+
+// **Quantum Leap** will persist data into separate tables within the Crate-DB database based on the entity type. Table names are formed with the `et` prefix and the entity type name in lowercase.// // The response shows that both **Motion Sensor** data and **Smart Lamp** data are being persisted in the database.
+@name("Read Tables")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SHOW TABLES"}')
+
+
+// This example shows the first 3 sampled `luminosity` values from `Lamp:001`. // // The SQL statement uses `ORDER BY` and `LIMIT` clauses to sort the data. More details can be found under within the Crate-DB [documentation](https://crate.io/docs/crate/reference/en/latest/sql/statements/select.html)
+@name("List the first N Sampled Values")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT * FROM mtopeniot.etlamp WHERE entity_id = \'Lamp:001\'  ORDER BY time_index ASC LIMIT 3"}')
+
+
+// This example shows the fourth, fifth and sixth sampled count values from Motion:001.// // The SQL statement uses an `OFFSET` clause to retrieve the required rows. // More details can be found under within the Crate-DB [documentation](https://crate.io/docs/crate/reference/en/latest/sql/statements/select.html)
+@name("List N Sampled Values at an Offset")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT * FROM mtopeniot.etmotion WHERE entity_id = \'Motion:001\' ORDER BY time_index ASC  LIMIT 3 OFFSET 3"}')
+
+
+// This example shows latest three sampled `count` values from `Motion:001`. // // The SQL statement uses an `ORDER BY ... DESC` clause combined with a `LIMIT` clause to retrieve // the last N rows. More details can be found under within the Crate-DB [documentation](https://crate.io/docs/crate/reference/en/latest/sql/statements/select.html)
+@name("List the latest N Sampled Values")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT * FROM mtopeniot.etmotion WHERE entity_id = \'Motion:001\'  ORDER BY time_index DESC LIMIT 3"}')
+
+
+// This example shows total `count` values from `Motion:001` over each minute.// // The SQL statement uses a `SUM` function and `GROUP BY` clause to retrieve the relevant data.// Crate-DB offers a range of [Date-Time Function](https://crate.io/docs/crate/reference/en/latest/general/builtins/scalar.html#date-and-time-functions) to truncate and convert the timestamps into data which can be grouped.
+@name("List the Sum of values over a time period")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT DATE_FORMAT (DATE_TRUNC (\'minute\', time_index)) AS minute, SUM (count) AS sum FROM mtopeniot.etmotion WHERE entity_id = \'Motion:001\' GROUP BY minute ORDER BY minute"}')
+
+
+// This example shows minimum `luminosity` values from `Lamp:001` over each minute.// // The SQL statement uses a `MIN` function and `GROUP BY` clause to retrieve the relevant data.// Crate-DB offers a range of [Date-Time Function](https://crate.io/docs/crate/reference/en/latest/general/builtins/scalar.html#date-and-time-functions) to truncate and convert the timestamps into data which can be grouped.
+@name("List the Minimum Values over a Time Period")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT DATE_FORMAT (DATE_TRUNC (\'minute\', time_index)) AS minute, MIN (luminosity) AS min FROM mtopeniot.etlamp WHERE entity_id = \'Lamp:001\' GROUP BY minute ORDER BY minute"}')
+
+
+// This example shows maximum `luminosity` values from `Lamp:001` over each minute.// // The SQL statement uses a `MAX` function and `GROUP BY` clause to retrieve the relevant data.// Crate-DB offers a range of [Date-Time Function](https://crate.io/docs/crate/reference/en/latest/general/builtins/scalar.html#date-and-time-functions) to truncate and convert the timestamps into data which can be grouped.
+@name("List the Maximum Values over a Time Period")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT DATE_FORMAT (DATE_TRUNC (\'minute\', time_index)) AS minute, MAX (luminosity) AS max FROM mtopeniot.etlamp WHERE entity_id = \'Lamp:001\' GROUP BY minute ORDER BY minute"}')
+
+
+// This example shows the average of `luminosity` values from `Lamp:001` over each minute.// // The SQL statement uses a `AVG` function and `GROUP BY` clause to retrieve the relevant data.// Crate-DB offers a range of [Date-Time Function](https://crate.io/docs/crate/reference/en/latest/general/builtins/scalar.html#date-and-time-functions) to truncate and convert the timestamps into data which can be grouped.
+@name("List the Average Values over a Time Period")
+POST "http://{{crate}}/_sql"
+"Content-Type": "application/json"
+data('{"stmt":"SELECT DATE_FORMAT (DATE_TRUNC (\'minute\', time_index)) AS minute, AVG (luminosity) AS average FROM mtopeniot.etlamp WHERE entity_id = \'Lamp:001\' GROUP BY minute ORDER BY minute"}')
+
+
+

@@ -1,0 +1,19 @@
+#!/usr/bin/env dothttp
+
+// This request is triggered by the monitor run from the Discord Bot making a POST request. It captures the data from the POST request (like the Fortnite username) and sets it as an environment variable, then makes a request to the Fortnite API to actually get that user's stats.
+@name("Get Fortnite user stats")
+GET "https://{{base_url}}/stats/br/v2"
+? "name"= "{{query_name}}"
+
+
+// With the user stats now captured in an environment variable, this request sends a POST request to the Discord Webhook where the body is the content of the message you want displayed in your Discord server.
+@name("Post message to Discord")
+POST "https://discord.com/api/webhooks/{{discord_webhook_id}}"
+json({
+    "content": "{{contentString}}",
+    "username": "{{fornite_discord_bot_name}}",
+    "avatar_url": "{{discord_avatar_url}}"
+})
+
+
+

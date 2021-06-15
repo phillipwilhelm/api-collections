@@ -1,0 +1,65 @@
+#!/usr/bin/env dothttp
+
+// It searches amazon for the book with the name provided in the environment variable `book name`
+@name("Search Amazon.in")
+GET "https://www.amazon.in/s"
+? "k"= "electronics+under+300"
+? "ref"= "nb_sb_noss_1"
+
+
+// It query and scrape the book's amazon page for the price and compares it with previous price
+@name("Amazon Price Request")
+GET "https://{{product_url}}/"
+
+
+// Sends notification to slack if the price of the book has reduced
+@name("Send Notification to Slack")
+POST "https://{{slack_webhook_url}}/"
+"Content-Type": "application/json"
+data('{
+    "attachments": [
+        {
+            "fallback": "price reduced to {{price}} for the book {{book name}} find it at {{product_url}}",
+            "color": "#111",
+            "pretext": "The price has reduced for the book ",
+            "author_name" : "Amazon",
+            "author_icon" : "https://www.amazon.com/favicon.ico",
+            "text": "by {{author}}",
+            "title": "{{title}}",
+            "title_link": "{{product_url}}",
+            "fields": [
+                {
+                    "title": "price: ₹{{price}}",
+                    "value": "",
+                    "short": false
+                }
+            ],
+            "thumb_url": "{{thumb_url}}"
+        }
+    ]
+}')
+
+
+// Updates the environment to persist the price and other details about the book
+@name("Update Environment")
+PUT "https://api.getpostman.com/environments/{{env uid}}"
+"x-api-key": "{{apikey}}"
+"Content-Type": "application/json"
+data('{
+	"environment" : {
+		"values" : [
+			{"key" : "price", "value" : "{{price}}" },
+			{"key" : "product_url", "value" : "{{product_url}}"},
+			{"key" : "slack_webhook_url", "value" : "{{slack_webhook_url}}"},
+			{"key" : "title", "value" : "{{title}}"},
+			{"key" : "book name", "value" : "{{book name}}"},
+			{"key" : "env uid", "value" : "{{env uid}}"},
+			{"key" : "apikey", "value" : "{{apikey}}"},
+			{"key" : "author", "value" : "{{author}}"},
+			{"key" : "thumb_url", "value" : "{{thumb_url}}"}
+		]
+	}
+}')
+
+
+

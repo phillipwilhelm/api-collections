@@ -1,0 +1,179 @@
+#!/usr/bin/env dothttp
+
+@name("Create a partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Partner v.3",
+    "parent_id": "{{my_tenant_id}}",
+    "kind": "partner"
+}')
+
+
+@name("Create a folder underneath partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Folder",
+    "parent_id": "{{partner_tenant_id}}",
+    "kind": "folder"
+}')
+
+
+@name("Enable 2FA for a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/mfa/status"
+"Content-Type": "application/json"
+data('{
+  "enabled": true
+}')
+
+
+@name("Create a locked partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Partner Locked",
+    "parent_id": "{{my_tenant_id}}",
+    "kind": "partner",
+     "update_lock": {
+        "owner_id": "{{my_tenant_id}}",
+        "enabled": true
+    }
+}')
+
+
+@name("Update a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+"Content-Type": "application/json"
+data('{
+    "enabled": false,
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Unlock a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+"Content-Type": "application/json"
+data('{
+     "update_lock": {
+        "enabled": false
+    },
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Lock a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+"Content-Type": "application/json"
+data('{
+     "update_lock": {
+        "owner_id": "{{my_tenant_id}}",
+        "enabled": true
+    },
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Delete a partner tenant")
+DELETE "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+"Content-Type": "application/json"
+? "version"= "{{current_tenant_version}}"
+
+
+
+@name("Create a customer tenant underneath a partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Customer",
+    "parent_id": "{{partner_tenant_id}}",
+    "kind": "customer"
+  }')
+
+
+@name("Create a customer tenant underneath a folder tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Customer in Folder",
+    "parent_id": "{{folder_tenant_id}}",
+    "kind": "customer"
+  }')
+
+
+@name("Create a unit tenant underneath customer")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Unit",
+    "parent_id": "{{customer_tenant_id}}",
+    "kind": "unit"
+  }')
+
+
+@name("Get a customer pricing model")
+GET "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/pricing"
+
+
+@name("Set a customer pricing model to production")
+PUT "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/pricing"
+"Content-Type": "application/json"
+data('{
+    "version": 1582804549005,
+    "mode": "production",
+    "currency": null
+}')
+
+
+@name("Get a partner pricing model")
+GET "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/pricing"
+
+
+@name("Set a partner pricing model to trial")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/pricing"
+json({
+    "mode": "trial",
+    "version": 1604576450030
+})
+
+
+@name("Get a partner tenant info")
+GET "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}"
+
+
+@name("Get a customer tenant info")
+GET "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}"
+
+
+@name("Get a tenant usage")
+GET "https://{{base_url}}/api/2/tenants/{{my_tenant_id}}/usages"
+
+
+@name("Get a tenant batch usage for UI purposes")
+GET "https://{{base_url}}/api/2/tenants/usages"
+? "tenants"= "{{tenant_ids}}"
+? "editions"= "standard,advanced,disaster_recovery,cyber_protect_std,cyber_protect_adv,cyber_protect_dre"
+? "usage_names"= "local_storage,total_storage,storage,fc_total_storage,fc_child_storages,fc_seats,drives_shipped_to_cloud,notary_storage,notarizations,esignatures"
+
+
+@name("Get APIv1 group id by API2 tenant id")
+GET "https://{{base_url}}/api/1/groups/{{customer_tenant_id}}"
+
+
+@name("Get tenant childs using APIv1 to find tenant id (uuid) by group id (int)")
+GET "https://{{base_url}}/api/1/groups/{{my_tenant_id}}/children"
+
+
+@name("Resolve tetant big int IDs to UUIDs")
+POST "https://{{base_url}}/api/2/tenants:resolve_ids"
+data('{
+  "items": [
+    {
+      "id": {{tenant_id_int}}
+    }
+  ]
+}
+')
+
+
+

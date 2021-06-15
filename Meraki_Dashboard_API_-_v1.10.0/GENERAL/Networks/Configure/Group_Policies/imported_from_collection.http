@@ -1,0 +1,475 @@
+#!/usr/bin/env dothttp
+
+// List the group policies in a network
+@name("List The Group Policies In A Network")
+GET "https://{{baseUrl}}/networks/:networkId/groupPolicies"
+"X-Cisco-Meraki-API-Key": ""
+
+
+// Create a group policy//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name for your group policy. Required.// scheduling| object|     The schedule for the group policy. Schedules are applied to days of the week.// // bandwidth| object|     The bandwidth settings for clients bound to your group policy.// // firewallAndTrafficShaping| object|     The firewall and traffic shaping rules and settings for your policy.// // contentFiltering| object| The content filtering settings for your group policy// splashAuthSettings| string| Whether clients bound to your policy will bypass splash authorization or behave according to the network's rules. Can be one of 'network default' or 'bypass'. Only available if your network has a wireless configuration.// vlanTagging| object| The VLAN tagging settings for your group policy. Only available if your network has a wireless configuration.// bonjourForwarding| object| The Bonjour settings for your group policy. Only valid if your network has a wireless configuration.// // #### Supports Action Batches// // **Resource**|**Operation**// :-------------: |:-------------:// `/networks/{networkId}/groupPolicies` | create// 
+@name("Create A Group Policy")
+POST "https://{{baseUrl}}/networks/:networkId/groupPolicies"
+"X-Cisco-Meraki-API-Key": ""
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "scheduling": {
+        "enabled": "<boolean>",
+        "monday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "tuesday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "wednesday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "thursday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "friday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "saturday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "sunday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        }
+    },
+    "bandwidth": {
+        "settings": "<string>",
+        "bandwidthLimits": {
+            "limitUp": "<integer>",
+            "limitDown": "<integer>"
+        }
+    },
+    "firewallAndTrafficShaping": {
+        "settings": "<string>",
+        "trafficShapingRules": [
+            {
+                "definitions": {
+                    "type": "array",
+                    "description": "    A list of objects describing the definitions of your traffic shaping rule. At least one definition is required.\n",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "value"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "application",
+                                    "applicationCategory",
+                                    "host",
+                                    "port",
+                                    "ipRange",
+                                    "localNet"
+                                ],
+                                "description": "The type of definition. Can be one of \'application\', \'applicationCategory\', \'host\', \'port\', \'ipRange\' or \'localNet\'.",
+                                "default": "<string>"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "    If \"type\" is \'host\', \'port\', \'ipRange\' or \'localNet\', then \"value\" must be a string, matching either\n    a hostname (e.g. \"somesite.com\"), a port (e.g. 8080), or an IP range (\"192.1.0.0\",\n    \"192.1.0.0/16\", or \"10.1.0.0/16:80\"). \'localNet\' also supports CIDR notation, excluding\n    custom ports.\n     If \"type\" is \'application\' or \'applicationCategory\', then \"value\" must be an object\n    with the structure { \"id\": \"meraki:layer7/...\" }, where \"id\" is the application category or\n    application ID (for a list of IDs for your network, use the trafficShaping/applicationCategories\n    endpoint).\n",
+                                "default": "<string>"
+                            }
+                        }
+                    }
+                },
+                "perClientBandwidthLimits": {
+                    "settings": "<string>",
+                    "bandwidthLimits": {
+                        "limitUp": "<integer>",
+                        "limitDown": "<integer>"
+                    }
+                },
+                "dscpTagValue": "<integer>",
+                "pcpTagValue": "<integer>",
+                "priority": "<string>"
+            },
+            {
+                "definitions": {
+                    "type": "array",
+                    "description": "    A list of objects describing the definitions of your traffic shaping rule. At least one definition is required.\n",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "value"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "application",
+                                    "applicationCategory",
+                                    "host",
+                                    "port",
+                                    "ipRange",
+                                    "localNet"
+                                ],
+                                "description": "The type of definition. Can be one of \'application\', \'applicationCategory\', \'host\', \'port\', \'ipRange\' or \'localNet\'.",
+                                "default": "<string>"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "    If \"type\" is \'host\', \'port\', \'ipRange\' or \'localNet\', then \"value\" must be a string, matching either\n    a hostname (e.g. \"somesite.com\"), a port (e.g. 8080), or an IP range (\"192.1.0.0\",\n    \"192.1.0.0/16\", or \"10.1.0.0/16:80\"). \'localNet\' also supports CIDR notation, excluding\n    custom ports.\n     If \"type\" is \'application\' or \'applicationCategory\', then \"value\" must be an object\n    with the structure { \"id\": \"meraki:layer7/...\" }, where \"id\" is the application category or\n    application ID (for a list of IDs for your network, use the trafficShaping/applicationCategories\n    endpoint).\n",
+                                "default": "<string>"
+                            }
+                        }
+                    }
+                },
+                "perClientBandwidthLimits": {
+                    "settings": "<string>",
+                    "bandwidthLimits": {
+                        "limitUp": "<integer>",
+                        "limitDown": "<integer>"
+                    }
+                },
+                "dscpTagValue": "<integer>",
+                "pcpTagValue": "<integer>",
+                "priority": "<string>"
+            }
+        ],
+        "l3FirewallRules": [
+            {
+                "policy": "<string>",
+                "protocol": "<string>",
+                "destCidr": "<string>",
+                "comment": "<string>",
+                "destPort": "<string>"
+            },
+            {
+                "policy": "<string>",
+                "protocol": "<string>",
+                "destCidr": "<string>",
+                "comment": "<string>",
+                "destPort": "<string>"
+            }
+        ],
+        "l7FirewallRules": [
+            {
+                "policy": "<string>",
+                "type": "<string>",
+                "value": "<string>"
+            },
+            {
+                "policy": "<string>",
+                "type": "<string>",
+                "value": "<string>"
+            }
+        ]
+    },
+    "contentFiltering": {
+        "allowedUrlPatterns": {
+            "settings": "<string>",
+            "patterns": [
+                "<string>",
+                "<string>"
+            ]
+        },
+        "blockedUrlPatterns": {
+            "settings": "<string>",
+            "patterns": [
+                "<string>",
+                "<string>"
+            ]
+        },
+        "blockedUrlCategories": {
+            "settings": "<string>",
+            "categories": [
+                "<string>",
+                "<string>"
+            ]
+        }
+    },
+    "splashAuthSettings": "<string>",
+    "vlanTagging": {
+        "settings": "<string>",
+        "vlanId": "<string>"
+    },
+    "bonjourForwarding": {
+        "settings": "<string>",
+        "rules": [
+            {
+                "vlanId": "<string>",
+                "services": [
+                    "<string>",
+                    "<string>"
+                ],
+                "description": "<string>"
+            },
+            {
+                "vlanId": "<string>",
+                "services": [
+                    "<string>",
+                    "<string>"
+                ],
+                "description": "<string>"
+            }
+        ]
+    }
+}')
+
+
+// Display a group policy
+@name("Display A Group Policy")
+GET "https://{{baseUrl}}/networks/:networkId/groupPolicies/:groupPolicyId"
+"X-Cisco-Meraki-API-Key": ""
+
+
+// Update a group policy//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name for your group policy.// scheduling| object|     The schedule for the group policy. Schedules are applied to days of the week.// // bandwidth| object|     The bandwidth settings for clients bound to your group policy.// // firewallAndTrafficShaping| object|     The firewall and traffic shaping rules and settings for your policy.// // contentFiltering| object| The content filtering settings for your group policy// splashAuthSettings| string| Whether clients bound to your policy will bypass splash authorization or behave according to the network's rules. Can be one of 'network default' or 'bypass'. Only available if your network has a wireless configuration.// vlanTagging| object| The VLAN tagging settings for your group policy. Only available if your network has a wireless configuration.// bonjourForwarding| object| The Bonjour settings for your group policy. Only valid if your network has a wireless configuration.// // #### Supports Action Batches// // **Resource**|**Operation**// :-------------: |:-------------:// `/networks/{networkId}/groupPolicies/{groupPolicyId}` | update// 
+@name("Update A Group Policy")
+PUT "https://{{baseUrl}}/networks/:networkId/groupPolicies/:groupPolicyId"
+"X-Cisco-Meraki-API-Key": ""
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "scheduling": {
+        "enabled": "<boolean>",
+        "monday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "tuesday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "wednesday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "thursday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "friday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "saturday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        },
+        "sunday": {
+            "active": "<boolean>",
+            "from": "<string>",
+            "to": "<string>"
+        }
+    },
+    "bandwidth": {
+        "settings": "<string>",
+        "bandwidthLimits": {
+            "limitUp": "<integer>",
+            "limitDown": "<integer>"
+        }
+    },
+    "firewallAndTrafficShaping": {
+        "settings": "<string>",
+        "trafficShapingRules": [
+            {
+                "definitions": {
+                    "type": "array",
+                    "description": "    A list of objects describing the definitions of your traffic shaping rule. At least one definition is required.\n",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "value"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "application",
+                                    "applicationCategory",
+                                    "host",
+                                    "port",
+                                    "ipRange",
+                                    "localNet"
+                                ],
+                                "description": "The type of definition. Can be one of \'application\', \'applicationCategory\', \'host\', \'port\', \'ipRange\' or \'localNet\'.",
+                                "default": "<string>"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "    If \"type\" is \'host\', \'port\', \'ipRange\' or \'localNet\', then \"value\" must be a string, matching either\n    a hostname (e.g. \"somesite.com\"), a port (e.g. 8080), or an IP range (\"192.1.0.0\",\n    \"192.1.0.0/16\", or \"10.1.0.0/16:80\"). \'localNet\' also supports CIDR notation, excluding\n    custom ports.\n     If \"type\" is \'application\' or \'applicationCategory\', then \"value\" must be an object\n    with the structure { \"id\": \"meraki:layer7/...\" }, where \"id\" is the application category or\n    application ID (for a list of IDs for your network, use the trafficShaping/applicationCategories\n    endpoint).\n",
+                                "default": "<string>"
+                            }
+                        }
+                    }
+                },
+                "perClientBandwidthLimits": {
+                    "settings": "<string>",
+                    "bandwidthLimits": {
+                        "limitUp": "<integer>",
+                        "limitDown": "<integer>"
+                    }
+                },
+                "dscpTagValue": "<integer>",
+                "pcpTagValue": "<integer>",
+                "priority": "<string>"
+            },
+            {
+                "definitions": {
+                    "type": "array",
+                    "description": "    A list of objects describing the definitions of your traffic shaping rule. At least one definition is required.\n",
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "value"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "application",
+                                    "applicationCategory",
+                                    "host",
+                                    "port",
+                                    "ipRange",
+                                    "localNet"
+                                ],
+                                "description": "The type of definition. Can be one of \'application\', \'applicationCategory\', \'host\', \'port\', \'ipRange\' or \'localNet\'.",
+                                "default": "<string>"
+                            },
+                            "value": {
+                                "type": "string",
+                                "description": "    If \"type\" is \'host\', \'port\', \'ipRange\' or \'localNet\', then \"value\" must be a string, matching either\n    a hostname (e.g. \"somesite.com\"), a port (e.g. 8080), or an IP range (\"192.1.0.0\",\n    \"192.1.0.0/16\", or \"10.1.0.0/16:80\"). \'localNet\' also supports CIDR notation, excluding\n    custom ports.\n     If \"type\" is \'application\' or \'applicationCategory\', then \"value\" must be an object\n    with the structure { \"id\": \"meraki:layer7/...\" }, where \"id\" is the application category or\n    application ID (for a list of IDs for your network, use the trafficShaping/applicationCategories\n    endpoint).\n",
+                                "default": "<string>"
+                            }
+                        }
+                    }
+                },
+                "perClientBandwidthLimits": {
+                    "settings": "<string>",
+                    "bandwidthLimits": {
+                        "limitUp": "<integer>",
+                        "limitDown": "<integer>"
+                    }
+                },
+                "dscpTagValue": "<integer>",
+                "pcpTagValue": "<integer>",
+                "priority": "<string>"
+            }
+        ],
+        "l3FirewallRules": [
+            {
+                "policy": "<string>",
+                "protocol": "<string>",
+                "destCidr": "<string>",
+                "comment": "<string>",
+                "destPort": "<string>"
+            },
+            {
+                "policy": "<string>",
+                "protocol": "<string>",
+                "destCidr": "<string>",
+                "comment": "<string>",
+                "destPort": "<string>"
+            }
+        ],
+        "l7FirewallRules": [
+            {
+                "policy": "<string>",
+                "type": "<string>",
+                "value": "<string>"
+            },
+            {
+                "policy": "<string>",
+                "type": "<string>",
+                "value": "<string>"
+            }
+        ]
+    },
+    "contentFiltering": {
+        "allowedUrlPatterns": {
+            "settings": "<string>",
+            "patterns": [
+                "<string>",
+                "<string>"
+            ]
+        },
+        "blockedUrlPatterns": {
+            "settings": "<string>",
+            "patterns": [
+                "<string>",
+                "<string>"
+            ]
+        },
+        "blockedUrlCategories": {
+            "settings": "<string>",
+            "categories": [
+                "<string>",
+                "<string>"
+            ]
+        }
+    },
+    "splashAuthSettings": "<string>",
+    "vlanTagging": {
+        "settings": "<string>",
+        "vlanId": "<string>"
+    },
+    "bonjourForwarding": {
+        "settings": "<string>",
+        "rules": [
+            {
+                "vlanId": "<string>",
+                "services": [
+                    "<string>",
+                    "<string>"
+                ],
+                "description": "<string>"
+            },
+            {
+                "vlanId": "<string>",
+                "services": [
+                    "<string>",
+                    "<string>"
+                ],
+                "description": "<string>"
+            }
+        ]
+    }
+}')
+
+
+// Delete a group policy// #### Supports Action Batches// // **Resource**|**Operation**// :-------------: |:-------------:// `/networks/{networkId}/groupPolicies/{groupPolicyId}` | destroy// 
+@name("Delete A Group Policy")
+DELETE "https://{{baseUrl}}/networks/:networkId/groupPolicies/:groupPolicyId"
+"X-Cisco-Meraki-API-Key": ""
+
+
+

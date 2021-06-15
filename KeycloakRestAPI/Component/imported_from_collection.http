@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Add components
+@name("Add components [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/components"
+"Content-Type": "application/json"
+data('{
+	"name": "test",
+    "providerId": "max-clients",
+    "providerType": "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy",
+    "parentId": "heroes",
+    "subType": "anonymous",
+    "config": {
+        "max-clients": [
+            "200"
+        ]
+    }
+}')
+
+
+// Get components
+@name("Get components [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/components"
+"Content-Type": "application/json"
+
+
+// Get component from id
+@name("Get a specific component [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/components/{{componentId}}"
+"Content-Type": "application/json"
+
+
+// List of subcomponent types that are available to configure for a particular parent component.
+@name("Get subcomponents [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/components/{{componentId}}/sub-component-types"
+"Content-Type": "application/json"
+? "type"= "org.keycloak.keys.KeyProvider"
+
+
+// Update a component from id
+@name("Update a specific component [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/components/{{componentId}}"
+"Content-Type": "application/json"
+data('{
+    "id": "7a084caa-36f4-4ea4-8dcb-56b1b189c2fa",
+    "name": "Trusted Hosts",
+    "providerId": "trusted-hosts",
+    "providerType": "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy",
+    "parentId": "heroes",
+    "subType": "anonymous",
+    "config": {
+        "host-sending-registration-request-must-match": [
+            "true"
+        ],
+        "client-uris-must-match": [
+            "true"
+        ]
+    }
+}')
+
+
+// Update a component from id
+@name("Update a specific component [SAT] Copy")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/components/{{componentId}}"
+"Content-Type": "application/json"
+
+
+

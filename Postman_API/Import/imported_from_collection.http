@@ -1,0 +1,81 @@
+#!/usr/bin/env dothttp
+
+// This endpoint allows you to import external API specifications into Postman.// // Currently, this endpoint only supports the <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md">OpenAPI</a> specification, for which the `importType` will be `openapi`.// // On a successful import, the response will be an array with each element contaning `id`, `name` and `uid` of entities created.// // Supported `type`s:// // - string// - json// - file// // The `input` parameter should be defined based on the `type`.// // > To import a file, request body must be form-data with `type` param set to `file`.// // **Note**: Refer to examples for different scenarios.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header.
+@name("Import external API specification")
+POST "https://api.getpostman.com/import/openapi"
+"Content-Type": "application/json"
+data('{
+  "type" : "json",
+  "input": {
+    "openapi": "3.0.0",
+    "info": {
+  	  "version": "1.0.0",
+  	  "title": "Swagger Petstore",
+  	  "license": {
+  	    "name": "MIT"
+  	  }
+    },
+    "servers": [
+      {
+        "url": "http://petstore.swagger.io/v1"
+      }
+    ],
+    "paths": {
+  	  "/pets": {
+        "get": {
+          "summary": "List all pets",
+          "operationId": "listPets",
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "limit",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "unexpected error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "required": [
+                        "code",
+                        "message"
+                    ],
+                    "properties": {
+                        "code": {
+                        "type": "integer",
+                        "format": "int32"
+                        },
+                        "message": {
+                        "type": "string"
+                        }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}')
+
+
+// This endpoint allows you to import your exported Postman data.// For more information about how you can export your data, refer <a href="https://go.postman.co/me/export">Export your Postman data.</a>// // On successful imports, the response will be an array with Each element contaning `id`, `name` and `uid` of entities created.// // **Note**: Refer to examples for different scenarios.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header.
+@name("Import exported data")
+POST "https://api.getpostman.com/import/exported"
+"Content-Type": "multipart/form-data"
+files(
+	("type", "file"),
+	("file", "None")
+)
+
+
+

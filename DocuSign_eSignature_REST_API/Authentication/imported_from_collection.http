@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+@name("01 Authorize Code Grant Access Token")
+POST "https://{{hostenv}}/oauth/token"
+"Authorization": "Basic {{encodedKeys}}"
+data({
+    "code": [
+        "{{codeFromUrl}}"
+    ],
+    "grant_type": [
+        "authorization_code"
+    ]
+})
+
+
+@name("02 JWT Access Token")
+POST "https://{{hostenv}}/oauth/token"
+"Authorization": "Basic {{encodedKeys}}"
+data({
+    "assertion": [
+        "{{assertionHere}}"
+    ],
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    ]
+})
+
+
+@name("03 Refresh Access Token")
+POST "https://{{hostenv}}/oauth/token"
+"Authorization": "Basic {{encodedKeys}}"
+data({
+    "refresh_token": [
+        "{{refreshToken}}"
+    ]
+})
+
+
+@name("04 Get User Info")
+GET "https://{{hostenv}}/oauth/userinfo"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+

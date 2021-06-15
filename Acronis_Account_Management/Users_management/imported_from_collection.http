@@ -1,0 +1,258 @@
+#!/usr/bin/env dothttp
+
+@name("Check login availiability")
+GET "https://{{base_url}}/api/2/users/check_login"
+? "username"= "{{login}}"
+
+
+@name("Check password")
+POST "https://{{base_url}}/api/2/users/check_password"
+"Content-Type": "application/json"
+data('{
+    "password": "{{password_hash}}"
+}')
+
+
+@name("Create a new user for a customer")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{customer_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com"
+  }
+}')
+
+
+@name("Create a new user for a customer unit")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{unit_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com"
+  }
+}')
+
+
+@name("Create a new user for a partner")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{partner_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com"
+  }
+}')
+
+
+@name("Create a new user for a root tenant")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{my_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com"
+  }
+}')
+
+
+@name("Update a user for a partner")
+PUT "https://{{base_url}}/api/2/users/{{user_id}}"
+"Content-Type": "application/json"
+data('{
+      "contact": {
+        "lastname": "Stas",
+        "firstname": "Pavlov"
+       
+    },
+	"version": 1
+}')
+
+
+@name("Activate a user by setting a password")
+POST "https://{{base_url}}/api/2/users/{{user_id}}/password"
+"Content-Type": "application/json"
+data('{
+  "password": "MyStrongP@ssw0rd"
+}')
+
+
+@name("Activate a user by e-mail")
+POST "https://{{base_url}}/api/2/users/{{user_id}}/send-activation-email"
+"Content-Type": "application/json"
+
+
+
+@name("Update a user for a customer")
+PUT "https://{{base_url}}/api/2/users/{{user_id}}"
+"Content-Type": "application/json"
+data('{
+	"notifications": [
+        "quota"
+    ],
+	"version": 2
+}')
+
+
+@name("Get a partner tenant availiable roles")
+GET "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/applications/roles"
+"Content-Type": "application/json"
+data('{
+    "enabled": false,
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Get a customer tenant availiable roles")
+GET "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/applications/roles"
+"Content-Type": "application/json"
+data('{
+    "enabled": false,
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Get a usre personal tenant availiable roles")
+GET "https://{{base_url}}/api/2/tenants/{{user_personal_tenant_id}}/applications/roles"
+"Content-Type": "application/json"
+data('{
+    "enabled": false,
+    "version": "{{current_tenant_version}}"
+}')
+
+
+@name("Get a user info")
+GET "https://{{base_url}}/api/2/users/{{user_id}}"
+"Content-Type": "application/json"
+
+
+
+@name("Get a user roles")
+GET "https://{{base_url}}/api/2/users/{{user_id}}/access_policies"
+"Content-Type": "application/json"
+
+
+
+@name("Get a user offering items")
+GET "https://{{base_url}}/api/2/tenants/{{user_personal_tenant_id}}/offering_items"
+"Content-Type": "application/json"
+? "edition"= "{{edition}}"
+
+
+
+@name("Set a user role of a customer admin")
+PUT "https://{{base_url}}/api/2/users/{{user_id}}/access_policies"
+"Content-Type": "application/json"
+data('{
+    "items": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "issuer_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "company_admin",
+            "tenant_id": "{{customer_tenant_id}}",
+            "trustee_id": "{{user_id}}",
+            "trustee_type": "user",
+            "version": 0
+        }
+    ]
+}')
+
+
+@name("Set a user role of a partner admin")
+PUT "https://{{base_url}}/api/2/users/{{user_id}}/access_policies"
+"Content-Type": "application/json"
+data('{
+    "items": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "issuer_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "partner_admin",
+            "tenant_id": "{{partner_tenant_id}}",
+            "trustee_id": "{{user_id}}",
+            "trustee_type": "user",
+            "version": 0
+        }
+    ]
+}')
+
+
+@name("Set a user offering items quota")
+PUT "https://{{base_url}}/api/2/tenants/{{user_personal_tenant_id}}/offering_items"
+"Content-Type": "application/json"
+data('{
+    "offering_items": [
+        {
+            "name": "storage",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "edition": "standard",
+            "usage_name": "storage",
+            "tenant_id": "d089f5fd-c9bf-44b9-80d8-5dcc67fc8ba1",
+            "updated_at": "2021-06-10T15:26:03Z",
+            "deleted_at": null,
+            "status": 1,
+            "locked": false,
+            "quota": {
+                "value": null,
+                "overage": null,
+                "version": 0
+            },
+            "type": "infra",
+            "infra_id": "019097a6-114f-4418-bd54-e01ef049f209",
+            "measurement_unit": "bytes"
+        },
+        {
+            "name": "servers",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "edition": "standard",
+            "usage_name": "servers",
+            "tenant_id": "d089f5fd-c9bf-44b9-80d8-5dcc67fc8ba1",
+            "updated_at": "2021-06-10T15:41:04Z",
+            "deleted_at": null,
+            "status": 1,
+            "locked": false,
+            "quota": {
+                "value": 0,
+                "overage": 0,
+                "version": 2
+            },
+            "type": "count",
+            "infra_id": null,
+            "measurement_unit": "quantity"
+        },
+        {
+            "name": "mobiles",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "edition": "standard",
+            "usage_name": "mobiles",
+            "tenant_id": "d089f5fd-c9bf-44b9-80d8-5dcc67fc8ba1",
+            "updated_at": "2021-06-10T15:41:04Z",
+            "deleted_at": null,
+            "status": 1,
+            "locked": false,
+            "quota": {
+                "value": 0,
+                "overage": 0,
+                "version": 2
+            },
+            "type": "count",
+            "infra_id": null,
+            "measurement_unit": "quantity"
+        }
+    ]
+}')
+
+
+@name("Get my users info with access polices updated since specifieid datetime UTC")
+GET "https://{{base_url}}/api/2/users"
+? "with_access_policies"= "true"
+? "updated_since"= "2021-04-07T23:59:59Z"
+? "lod"= "full"
+? "subtree_root_tenant_id"= "{{my_tenant_id}}"
+
+
+

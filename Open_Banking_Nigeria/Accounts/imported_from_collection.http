@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// This endpoint retrieves all accounts belonging to a customer.// // `This endpoint supports paging`// // #### URL Parameters// | Parameter |Type |Description |// |--|--|--|// | customerId|string |`Required` A unique identifier for the customer as defined by the bank|
+@name("Get All Accounts")
+GET "https://{{url}}/v1/accounts/customer/{customerId}"
+
+
+// This endpoint retrieves a specific account.// // #### URL Parameters// // | Parameter |Type |Description |// |--|--|--|// | accountNumber|string |`Required` Customer's account number in `NUBAN` format|// |// 
+@name("Get Specific Account")
+GET "https://{{url}}/v1/accounts/{accountNumber}"
+
+
+// This endpoint gets the balance of a specified account.// // #### URL Parameters// // | Parameter |Type |Description |// |--|--|--|// | accountNumber|string |`Required` Customer's account number in `NUBAN` format|// // ## Response Body Fields// | Field |Type |Description |// | ----------- | ----------- | ----------- |// |accountNumber| string |`Required` NUBAN account number of the customer |// |currency| string |`Required` 3 character code representing the currency of the account|// |availableBalance| number |`Required` The amount that a customer can spend|// |clearedBalance| number |`Optional` The amount that has been cleared into the account|// |unclearBalance| number |` Optional ` The amount that is yet to be cleared into the account|// |holdBalance| number |` Optional ` The amount that has been held in the account. For example, for a POS or web transaction that is yet to be debited|// |minimumBalance| number |` Optional ` The minimum balance that the account must hold|// 
+@name("Get Account Balance")
+GET "https://{{url}}/v1/accounts/balance/{accountNumber}"
+
+
+// This endpoint retrieves all the account types and products as defined by the bank. May be restricted to certain accounts. Internal accounts may not be returned.// // `This endpoint supports paging`// // ## Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |accountTypeId| string | `Required` The type of the account|// |accountTypeName|string | `Required` The name of the account type|// |minimumBalance| number| `Required` The minimum balance the account can hold// |maximumBalance| number| `Required` The maximum balance the account can hold |// |maximumOutflowLimit| number|`Required` The maximum amount that can be debited |// |maximumInflowLimit| number| `Required` The maximum amount that can be credited |// |currency| string| `Required` A 3 character code that represents the currency |// |documentationRequired| |`Required` A collection of documents required for this operation |// |type|string |`Required` The type of identity |// |description|string|`Required` The description given to the type of identification. |// |value|string|`Required` The value of the document|// |digitalService|||// |service|string|`Required` The type of service `USSD`, `Mobile`|// |description|string|`Required` Description of the digital product or service|// |available|boolean|`Required` Whether the service is available or not|// |cardProducts|||// |id|string|`Required` A unique identification for the card product `MC`, `VS`, `VR`|// |description|string|`Required` Description of the product card product id `Mastercard`, `Visa`, `Verve`|// |available|boolean|`Required` Whether the service is available or not|
+@name("All Accounts or Product Types")
+GET "https://{{url}}/v1/accounts/types"
+
+
+// This endpoint retrieves a specific account or product type.// // #### URL Parameters// | Parameter |Type |Description  |// |--|--|--|// | accountTypeId|string |`Required`Unique identifier of the account or product type to be retrieved `current`|
+@name("Get a Specific Accounts or Product Types")
+GET "https://{{url}}/v1/accounts/types/{accountTypeId}"
+
+
+// This endpoint is used to open an account with the bank. // // #### Request Parameter// // | Parameter|Type |Description  |// |--|--|--|// |requestId|string |`Required` The unique identifier for the request |// |accountTypeId |string |`Required` A unique identifier for the account |// |firstName |String |`Required` First name |   |// |otherName |String |`Required` Other names |// |surname |String |`Required` Surname |// |email |String |`Required` Email address |// |salutation |String |`Required` Formal title |// |gender |String |`Required` Gender |// |dateOfBirth |String |`Required` Date of birth |// |bvn |String |`Required` Bank verification number// |street |String |`Required` Street|// |localGovernment |String |`Optional` local government |// |country |String |`Required` Country|// |nationality |String |`Required` Nationality code|// |customerId |String |`Required` A unique costumer id|// |phone |String |`Required` Phone number|// // // #### Response Body Fields// // | Parameter|Type |Description  |// |--|--|--|// |requestId|string |`Required` The unique identifier for the request |// |accountNumber |String |`Required` customer account number|// |customerId |String |`Required` A unique costumer id |// |accountOpeningDate |String |`Required` A unique costumer id |// |Process |String |`Required` A process type `Batch`|// |ProcessCode |String |`Required` A processing code `00`|// |processMessage |String |`Required` Response message from the server|// |linkedCard||`Optional` card linked to the account|// |agency||`Optional` agency linked to the account|
+@name("Open Account")
+POST "https://{{url}}/v1/accounts"
+"Content-Type": "application/json"
+data('{  
+	"requestId":"SUPERAGENT0013456",
+	"accountTypeId":"SBA123",
+	"firstName":"Ado",
+	"otherName":"John",
+	"surname":"Sule",
+	"salutation":"Mr.",
+	"gender":"Male",
+	"dateOfBirth":"1990-09-30",   
+	"bvn":"22112345678",
+	"street":"456 Johnson Street",
+	"city":"Ilesa",
+	"localGovernment":"Ilesa West",
+	"country":"NGN",
+	"nationality":"NGN",
+	"customerId":"string",
+	"phone":"string",
+	"email":"adojohn@example.com",
+	"nextOfKin":{  
+	   "name":"Ada Joanne Sule",
+	   "gender":"Female",
+	   "street":"456 Somewhere",
+	   "city":"Ado Ekiti",
+	   "state":"Ekiti State",
+	   "country":"NG",
+	   "email":"adajoanne@example.com",
+	   "phone":"+2347031234567",
+	   "relationship":"Sibling"
+	},
+	"linkedCard":{  
+	   "type":"MC",
+	   "description":"Mastercard",
+	   "serial":"MC123445678XXG"
+	},
+	"agency":{  
+	   "superAgent":"SANEF Super Agent",
+	   "agentId":"agent1234",
+	   "agentName":"Uncle Tayo Supermarket",
+	   "agentPhone":"+234 803 405 6789",
+	   "agentAddress":"Somewhere in  Kaura Namoda, Zamfara State",
+	   "longitue":1234456.78,
+	   "latitude":4567890.99
+	},
+ }')
+
+
+

@@ -1,0 +1,36 @@
+#!/usr/bin/env dothttp
+
+// Overwatering is the number one killer of houseplants. When leaves look brown/yellow/wilting and the soil is wet, you might have overwatered your plants.// // This request retrieves a soil moisture level from a hygrometer. An additional check of what day of the week it is will determine whether to skip or run the remainder of the collection.// // This request will `GET` information from the hygrometer. If you don't have a hygrometer, you can update the code under the **Tests** tab to only check if the current day is a day to skip watering, or do some additional logic. // // If you've set up and deployed your own watering endpoint, enter the value in the Postman environment. The current value directs this request to an example endpoint that returns a simulated moisture level. The more you water this virtual plant, the more moist the soil will become.
+@name("Should I water the plants?")
+GET "https://{{wateringEndpoint}}/hygrometer"
+
+
+
+// I should water my rooftop plants to make sure they don't die. Hitting this endpoint will deliver water to their thirsty roots. The duration of the watering depends on the moisture levels retrieved in the first request. If you're running the collection in its entirety and the soil is too wet, this `POST` request will not run. Wait a few minutes for the soil to dry, and try again.// // This `POST` request will water your plants (if you're using an actual endpoint).// // If you've set up and deployed your own watering endpoint, enter the value in the Postman environment. The current value directs this request to an example endpoint that returns a simulated moisture level. The more you water this virtual plant, the more moist the soil will become.
+@name("Water the plants")
+POST "https://{{wateringEndpoint}}/water"
+files(
+	("duration", "{{waterDuration}}"),
+	("password", "")
+)
+
+
+// If rooftop plants have been watered AND you've provided the webhook, this request will post a confirmation message to Slack.// // If you have your own Slack webhook, enter it as a value in the Postman environment. If you don't have a webhook, this request will not execute.
+@name("Post confirmation message to Slack")
+POST "https://{{slackWebhook}}/"
+"Content-Type": "application/json"
+data('{
+  "username": "Postman-watered-my-rooftop-plants",
+  "icon_emoji": ":corn:",
+  
+  "attachments": [
+        {
+            "text": "Plants have been watered for {{waterDuration}} seconds",
+            "color": "#389f59"
+        }
+    ]
+}
+')
+
+
+

@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+// Get systemwide service advisories for BART system.
+@name("Service Advisories")
+GET "https://{{bartBaseUrl}}/bsa.aspx"
+? "cmd"= "bsa"
+? "json"= "y"
+
+
+@name("Stations")
+GET "https://{{bartBaseUrl}}/stn.aspx"
+? "cmd"= "stns"
+? "json"= "y"
+
+
+@name("Station Information - Origin")
+GET "https://{{bartBaseUrl}}/stn.aspx"
+? "cmd"= "stninfo"
+? "orig"= "{{originStation}}"
+? "json"= "y"
+
+
+@name("Station Information - Destinatation")
+GET "https://{{bartBaseUrl}}/stn.aspx"
+? "cmd"= "stninfo"
+? "orig"= "{{destinationStation}}"
+? "json"= "y"
+
+
+@name("Fare")
+GET "https://{{bartBaseUrl}}/sched.aspx"
+? "cmd"= "fare"
+? "orig"= "{{originStation}}"
+? "dest"= "{{destinationStation}}"
+? "date"= "today"
+? "json"= "y"
+
+
+@name("Schedule - Departure")
+GET "https://{{bartBaseUrl}}/sched.aspx"
+? "cmd"= "depart"
+? "orig"= "{{originStation}}"
+? "dest"= "{{destinationStation}}"
+? "date"= "now"
+? "b"= "0"
+? "a"= "4"
+? "l"= "1"
+? "json"= "y"
+
+
+@name("Real-Time Estimate - Departure")
+GET "https://{{bartBaseUrl}}/etd.aspx"
+? "cmd"= "etd"
+? "orig"= "{{originStation}}"
+? "json"= "y"
+
+
+@name("MapQuest - Route")
+GET "http://open.mapquestapi.com/directions/v2/route"
+? "from"= "{{tripStartAddress}}"
+? "to"= "{{tripEndCoordinates}}"
+? "routeType"= "{{routeType}}"
+
+
+// Request configured to be ran as a part of a collection run. Running by it self will generate a truncated message.
+@name("Slack Message")
+POST "https://slack.com/api/chat.postMessage"
+data('{
+	"channel": "{{slackMemberID}}",
+	"pretext": "test",
+	"blocks": [{
+    	"type": "section",
+    	"text": {
+        	"type": "mrkdwn",
+        	"text": "{{advisoriesStr}}"
+    	 }
+    },
+    {
+    	"type": "section",
+    	"text": {
+        	"type": "mrkdwn",
+        	"text": "{{delayStr}}"
+    	}
+    },
+    {
+    	"type": "section",
+    	"text": {
+    		"type": "mrkdwn",
+    		"text": "*Fare:* ${{fare}}"
+    	}
+    },{
+     	"type": "section",
+    	"text": {
+    		"type": "mrkdwn",
+    		"text": "{{timeToStationStr}}"
+    	}   	
+    }],
+    "attachments": {{attachments}}
+}')
+
+
+

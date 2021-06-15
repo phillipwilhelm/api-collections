@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+@name("QuantumLeap - Obtain version information")
+GET "http://{{quantumleap}}/v2/version"
+
+
+// This example shows the first 3 sampled `luminosity` values from `Lamp:001`. // // Note the use of `Fiware-Service` and `Fiware-ServicePath` headers. These are// required only when data are pushed to orion using such headers (in multitenancy// scenarios). Failing to align these headers will result in no data being// returned.
+@name("List the first N Sampled Values")
+GET "http://{{quantumleap}}/v2/entities/Lamp:001/attrs/luminosity"
+"Accept": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "limit"= "3"
+
+
+
+// This example shows the fourth, fifth and sixth sampled count values from Motion:001.
+@name("List N Sampled Values at an Offset")
+GET "http://{{quantumleap}}/v2/entities/Motion:001/attrs/count"
+"Accept": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "offset"= "3"
+? "limit"= "3"
+
+
+
+// This example shows latest three sampled `count` values from `Motion:001`.
+@name("List the latest N Sampled Values")
+GET "http://{{quantumleap}}/v2/entities/Motion:001/attrs/count"
+"Accept": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "lastN"= "3"
+
+
+
+// This example shows total `count` values from `Motion:001` over each minute.// // You need QuantumLeap **version >= 0.4.1**. You can check your version with a// simple GET like:// // ```// curl -X GET \//   'http://localhost:8668/v2/version' \//   -H 'Accept: application/json'// ```
+@name("List the Sum of values over a time period")
+GET "http://{{quantumleap}}/v2/entities/Motion:001/attrs/count"
+"Accept": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "aggrMethod"= "count"
+? "aggrPeriod"= "minute"
+? "lastN"= "3"
+
+
+
+// This example shows minimum `luminosity` values from `Lamp:001` over each minute.// // You need QuantumLeap **version >= 0.4.1**. You can check your version with a// simple GET like:// // ```console// curl -X GET \//   'http://localhost:8668/v2/version' \//   -H 'Accept: application/json'// ```
+@name("List the Minimum Values over a Time Period")
+GET "http://{{quantumleap}}/v2/entities/Lamp:001/attrs/luminosity"
+"Accept": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "aggrMethod"= "min"
+? "aggrPeriod"= "minute"
+? "lastN"= "3"
+
+
+
+// This example shows maximum `luminosity` value of `Lamp:001` that occurred// between from `2018-06-27T09:00:00` to `2018-06-30T23:59:59`.// // Alter the `fromDate` and `toDate` parameters to retrieve your current data
+@name("List the Maximum Values over a Time Period")
+GET "http://{{quantumleap}}/v2/entities/Lamp:001/attrs/luminosity"
+"Content-Type": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "aggrMethod"= "max"
+? "fromDate"= "2018-06-27T09:00:00"
+? "toDate"= "2018-06-30T23:59:59"
+
+
+
+// This example shows the latest four sampled `luminosity` values of lamps that// are within a 5 km radius from `52°33'16.9"N 13°23'55.0"E` (Bornholmer Straße// 65, Berlin, Germany). If you have turned on all the lamps available on the// device monitor page, you should be able to see data for `Lamp:001` and// `Lamp:004`.// // > **Note:** Geographical queries are only available// > starting from version `0.5` of QuantumLeap which implements the full// > set of queries detailed in the Geographical Queries section of the// > [NGSI v2 specification](http://fiware.github.io/specifications/ngsiv2/stable/).
+@name("List the latest N Sampled Values of Devices near a Point")
+GET "http://{{quantumleap}}/v2/types/Lamp/attrs/luminosity"
+"Content-Type": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "lastN"= "4"
+? "georel"= "near;maxDistance:5000"
+? "geometry"= "point"
+? "coords"= "52.5547,13.3986
+"
+
+
+
+// This example shows the latest four sampled `luminosity` values of lamps that// are inside a square of side 200 m centred at `52°33'16.9"N 13°23'55.0"E`// (Bornholmer Straße 65, Berlin, Germany). Even if you have turned on all the// lamps available on the device monitor page, you should only see data for// `Lamp:001`.// // > **Note:** Geographical queries are only available// > starting from version `0.5` of QuantumLeap which implements the full// > set of queries detailed in the Geographical Queries section of the// > [NGSI v2 specification](http://fiware.github.io/specifications/ngsiv2/stable/).
+@name("List the latest N Sampled Values of Devices in an Area")
+GET "http://{{quantumleap}}/v2/types/Lamp/attrs/luminosity"
+"Content-Type": "application/json"
+"Fiware-Service": "openiot"
+"Fiware-ServicePath": "/"
+? "lastN"= "4"
+? "georel"= "coveredBy"
+? "geometry"= "polygon"
+? "coords"= "52.5537,13.3996;52.5557,13.3996;52.5557,13.3976;52.5537,13.3976;52.5537,13.3996"
+
+
+
+

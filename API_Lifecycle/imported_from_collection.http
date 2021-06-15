@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+// It enables us to Create a New Workspace programmatically on our Postman team using the Postman API
+@name("Create My Workspace")
+POST "https://api.getpostman.com/workspaces"
+? "apikey"= "{{api_key}}"
+json({
+    "workspace": {
+        "name": "API Lifecycle Workspace",
+        "type": "team",
+        "description": "Creating a Team Workspace using the Postman API"
+    }
+})
+
+
+// It enables us to Create a New API on the API builder for the appropriate workspace on our Postman team
+@name("Create API")
+POST "https://api.getpostman.com/apis"
+? "workspace"= "{{workspace_id}}"
+? "apikey"= "{{api_key}}"
+json({
+    "api": {
+        "name": "My New API",
+        "summary": "This is supposed to be a short summary.",
+        "description": "This is description."
+    }
+})
+
+
+// It enables us to Version the API programmatically on our Postman team using the Postman API
+@name("Create API Version")
+POST "https://api.getpostman.com/apis/{{api_id}}/versions"
+? "apikey"= "{{api_key}}"
+json({
+    "version": {
+        "name": "1.0.0"
+    }
+})
+
+
+// It enables us to Create a Schema programmatically on our Postman team using the Postman API
+@name("Create Schema")
+POST "https://api.getpostman.com/apis/{{api_id}}/versions/{{api_version_id}}/schemas"
+? "apikey"= "{{api_key}}"
+json({
+    "schema": {
+        "language": "json",
+        "schema": "{{string_schema}}",
+        "type": "openapi3"
+    }
+})
+
+
+// It enables us to Fetch the Schema programmatically on our Postman team using the Postman API
+@name("FInd My Schema")
+GET "https://api.getpostman.com/apis/{{api_id}}/versions/{{api_version_id}}/schemas/{{schema_id}}"
+? "apikey"= "{{api_key}}"
+
+
+// It enables us to Generate a Collection from the given Schema programmatically on our Postman team using the Postman API
+@name("Generate Collection from My Schema")
+POST "https://api.getpostman.com/apis/{{api_id}}/versions/{{api_version_id}}/schemas/{{schema_id}}/collections"
+? "apikey"= "{{api_key}}"
+? "workspace"= "{{workspace_id}}"
+json({
+    "name": "My New collection",
+    "relations": [
+        {
+            "type": "contracttest"
+        }
+    ]
+})
+
+
+// It enables us to Create an Environment for the given Workspace programmatically on our Postman team using the Postman API
+@name("Create Environment")
+POST "https://api.getpostman.com/environments"
+? "apikey"= "{{api_key}}"
+? "workspace"= "{{workspace_id}}"
+json({
+    "environment": {
+        "name": "Mock Env"
+    }
+})
+
+
+// It enables us to Create a Mock for the given collection on our Postman team using the Postman API
+@name("Create Mock")
+POST "https://api.getpostman.com/mocks"
+? "apikey"= "{{api_key}}"
+? "workspace"= "{{workspace_id}}"
+json({
+    "mock": {
+        "name": "My Mock Server",
+        "description": "example describing update mock description",
+        "private": false,
+        "collection": "{{collection_id}}",
+        "environment": "{{environment_id}}"
+    }
+})
+
+
+// It enables us to Create a Monitor for the given collection on our Postman team using the Postman API
+@name("Create a Monitor")
+POST "https://api.getpostman.com/monitors"
+? "apikey"= "{{api_key}}"
+? "workspace"= "{{workspace_id}}"
+json({
+    "monitor": {
+        "name": "My API Lifecycle Monitor",
+        "schedule": {
+            "cron": "0 6 * * MON-FRI",
+            "timezone": "Asia/Kolkata"
+        },
+        "collection": "{{collection_id}}",
+        "environment": "{{environment_id}}"
+    }
+})
+
+
+// It enables us to Run the Monitor for the given collection on our Postman team using the Postman API
+@name("Run a Monitor")
+POST "https://api.getpostman.com/monitors/{{monitor_id}}/run"
+? "apikey"= "{{api_key}}"
+
+
+

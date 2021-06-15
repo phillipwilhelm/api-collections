@@ -1,0 +1,39 @@
+#!/usr/bin/env dothttp
+
+// This method returns a list of all the requests for the confirmer to respond to.
+@name("Get Incoming Request List")
+GET "https://{{BaseURL}}/PasswordVault/API/IncomingRequests"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "onlywaiting"= "false"
+? "expired"= "false"
+
+
+// This method returns details of a specific request in the Incoming Requests list.
+@name("Get Details of a Request for Confirmation")
+GET "https://{{BaseURL}}/PasswordVault/API/IncomingRequests/{{RequestID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method enables a request confirmer to confirm a single request, identified by its request ID.
+@name("Confirm Request")
+POST "https://{{BaseURL}}/PasswordVault/API/IncomingRequests/{{RequestID}}/Confirm"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "Reason":"Automatically accepted via CyberArk Web Services on {{$timestamp}}"
+}')
+
+
+// This method enables a request confirmer to reject a single request, identified by its request ID.
+@name("Reject Request")
+POST "https://{{BaseURL}}/PasswordVault/API/IncomingRequests/{{RequestID}}/Reject"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "Reason":"Rejected automatically by CyberArk Web Services on {{$timestamp}}"
+}')
+
+
+

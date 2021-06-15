@@ -1,0 +1,1 @@
+Person Profile manages a person's demographic info, such as names, addresses, phones, emails, etc.

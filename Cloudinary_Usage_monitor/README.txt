@@ -1,0 +1,1 @@
+A collection used to monitor our Cloudinary usage quota. Cloudinary tracks usage in 4 different categories. This collection checks to see whether or not we've crossed a particular threshold for usage in any of these categories, and notifies on a Slack channel if we have.

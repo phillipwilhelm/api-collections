@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// This method returns a list of all existing user groups.// // The user performing this task:// // * Must have **Audit users** permissions in the Safe.// * Can see groups either **only** on the **same** level, or **lower** in the Vault hierarchy.// // This depends on the HideVaultUsersTree parameter defined in the dbparam.ini. If HideVaultUsersTree is set to **No**, all groups will be returned (not only those in the same level or lower in the Vault hierarchy). If this parameter is set to **Yes**, only auditors and managers will be allowed to get all groups.//  	// **Note:**// * Filtering for this task is supported only from Vault v10.5.// * Retrieving more than 1,000 groups may cause a slowdown in response.
+@name("Get Groups")
+GET "https://{{BaseURL}}/PasswordVault/api/UserGroups"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "filter"= "groupType eq <Directory|Vault>"
+
+
+// This method adds a user as a member to an existing Vault group. This is relevant for regular Vault users, LDAP mapped groups or LDAP users.// // The user who runs this web service requires the **Add/Update users** permissions in the Vault.
+@name("Add Member to Group")
+POST "https://{{BaseURL}}/PasswordVault/api/UserGroups/{{GroupID}}/Members/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "memberId": "string",
+    "memberType": "<domain|vault>",
+    "domainName": "string"
+}')
+
+
+// This method adds a new Vault group.// // To run this Web service, you must have the following permissions:// // * Add Users// * Update Users
+@name("Create Group")
+POST "https://{{BaseURL}}/PasswordVault/api/UserGroups"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "groupName": "unique-group-name",
+    "description": "The users in this group all have the same authorizations",
+    "location": "\\"
+}')
+
+
+// This method updates a Vault group. The user who runs this web service requires the following permissions:// // * Add\Update users
+@name("Update Group")
+PUT "https://{{BaseURL}}/PasswordVault/api/UserGroups/{{GroupID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "groupName": "UnixAdmins"
+}')
+
+
+// his method deletes a user group.// // In order to delete a user group, the following authorizations are required:// // * Add/Update Users
+@name("Delete Group")
+DELETE "https://{{BaseURL}}/PasswordVault/api/UserGroups/{{GroupID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method removes a specific user from a user group in the Vault.
+@name("Remove User from Group")
+DELETE "https://{{BaseURL}}/PasswordVault/api/UserGroups/{{GroupID}}/Members/{{Member}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+

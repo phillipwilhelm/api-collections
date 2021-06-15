@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// Creates a temp space that will be used to add a user, post a card, have the user submit actions and retrieve the submitted data via a webhook
+@name("Create a room (for test run purpose)")
+POST "https://{{WEBEXAPI}}/rooms"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "Testing Cards"
+}')
+
+
+// Posts a plain text or markdown message, and optionally, a media content attachment, to a room.// // https://developer.webex.com/endpoint-messages-post.html
+@name("Create a message (with card attached)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Learn more](https://adaptivecards.io) about Adaptive Cards.",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Please enter your name:"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "id": "name",
+                        "title": "New Input.Toggle",
+                        "placeholder": "name"
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// Create a new attachment action.// // https://developer.webex.com/docs/api/v1/attachment-actions/create-an-attachment-action
+@name("Create an attachmentAction (submit)")
+POST "https://{{WEBEXAPI}}/attachment/actions"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "type": "submit",
+  "messageId": "{{_message}}",
+  "inputs": {
+    "name": "John Doe"
+  }
+}')
+
+
+// Shows details for a attachment action, by ID.// // Specify the attachment action ID in the id URI parameter.// // https://developer.webex.com/docs/api/v1/attachment-actions/get-attachment-action-details
+@name("Get attachmentAction details")
+GET "https://{{WEBEXAPI}}/attachment/actions/{{_action}}"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+
+
+// Deletes a message, by message ID.// // Specify the message ID in the messageId parameter in the URI.// // https://developer.webex.com/endpoint-messages-messageId-delete.html
+@name("Delete a message")
+DELETE "https://{{WEBEXAPI}}/messages/{{_message}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+// Deletes a room, by ID.// // Specify the room ID in the roomId parameter in the URI.// // https://developer.webex.com/endpoint-rooms-roomId-delete.html
+@name("Delete room")
+DELETE "https://{{WEBEXAPI}}/rooms/{{_room}}"
+"Authorization": "Bearer {{bot_token}}"
+
+
+
+

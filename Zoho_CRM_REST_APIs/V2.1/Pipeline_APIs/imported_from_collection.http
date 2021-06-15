@@ -1,0 +1,96 @@
+#!/usr/bin/env dothttp
+
+@name("Pipeline")
+GET "https://{{api-domain}}/crm/v2.1/settings/pipeline"
+? "layout_id"= "{{layout_id}}"
+
+
+// To create a pipeline with various stages that a deal passes through.
+@name("Create Pipeline")
+POST "https://{{api-domain}}/crm/v2.1/settings/pipeline"
+? "layout_id"= "{{layout_id}}"
+data('{
+    "pipeline": [
+        {
+            "display_value": {{pipeline_name}},
+            "default": true,
+            "maps": [
+                {
+                    "sequence_number": {{order}},
+                    "id": {{stage_id}},
+                    "display_value": {{stage_name}}
+                },
+                {
+                    "sequence_number": {{order}},
+                    "id": {{stage_id}},
+                    "display_value": {{stage_name}}
+                }
+            ]
+        }
+    ]
+}')
+
+
+// To update a pipeline in a layout.
+@name("Update Pipeline")
+PUT "https://{{api-domain}}/crm/v2.1/settings/pipeline/{{pipeline_id}}"
+? "layout_id"= "{{layout_id}}"
+data('{
+    "pipeline": [
+        {
+            "display_value": {{pipeline_name}},
+            "default": false,
+            "maps": [
+                {
+                    "display_value": {{stage_display_name}},
+                    "sequence_number": {{order}},
+                    "actual_value": {{stage_api_name}},
+                    "id": {{stage_id}}
+                },
+                {
+                    "display_value": {{stage_display_name}},
+                    "sequence_number": {{order}},
+                    "actual_value": {{stage_api_name}},
+                    "id": {{stage_id}}
+                },
+                {
+                    "display_value": {{stage_display_name}},
+                    "sequence_number": {{order}},
+                    "actual_value": {{stage_api_name}},
+                    "id": {{stage_id}}
+                },
+                {
+                    "display_value": {{stage_display_name}},
+                    "sequence_number": {{order}},
+                    "actual_value": {{stage_api_name}},
+                    "id": {{stage_id}}
+                }
+            ]
+        }
+    ]
+}')
+
+
+// To delete a pipeline and transfer the associated stages to another pipeline.
+@name("Transfer and Delete Pipeline")
+POST "https://{{api-domain}}/crm/v2.1/settings/pipeline/actions/transfer"
+? "layout_id"= "{{layout_id}}"
+data('{
+    "transfer_pipeline": [
+        {
+            "pipeline": {
+                "from": {{pipeline_id_to_transfer}},
+                "to": {{pipeline_id_to_be_transferred_to}}
+            },
+            "stages": [
+                {
+                    "from": {{pipeline_id_to_transfer}},
+                    "to": {{pipeline_id_to_be_transferred_to}}
+                }
+            ]
+        }
+    ]
+}')
+
+
+

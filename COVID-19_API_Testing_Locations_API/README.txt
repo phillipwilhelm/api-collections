@@ -1,0 +1,3 @@
+This is a collection for managing the crowdsourced COVID-19 virus testing locations for 12 US states. It uses a Google Sheet as the data source, publishes a standardized API on a refular basis using Postman, and utilizes GitHub as a website for displaying the locations.
+
+To browse testing locations across the available U.S. states, and submit new testing locations please visit [https://covid-19-apis.postman.com/covid-19-testing-sites/](the COVID-19 Testing Site website).

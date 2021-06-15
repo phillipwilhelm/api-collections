@@ -1,0 +1,26 @@
+#!/usr/bin/env dothttp
+
+@name("Get npm package info")
+GET "https://registry.npmjs.org/{{project_name}}"
+
+
+@name("Get GitHub repo")
+GET "https://api.github.com/repos/{{project_owner}}/{{project_repo}}"
+
+
+@name("Get open GitHub issues")
+GET "https://api.github.com/repos/{{project_owner}}/{{project_repo}}/issues"
+? "state"= "open"
+
+
+@name("Check for outdated dependencies")
+GET "https://david-dm.org/{{project_owner}}/{{project_repo}}/info.json"
+
+
+@name("Send results to Slack")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{{response_body}}')
+
+
+

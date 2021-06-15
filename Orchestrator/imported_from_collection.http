@@ -1,0 +1,363 @@
+#!/usr/bin/env dothttp
+
+// Retrieves an access token using the User Key found in your Cloud RPA console. This token lasts for 24 hours and is made available to authenticate all other calls.
+@name("Authenticate (Cloud)")
+POST "https://account.uipath.com/oauth/token"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+data('{
+    "grant_type": "refresh_token",
+    "client_id": "{{clientId}}",
+    "refresh_token": "{{userKey}}"
+}')
+
+
+// A method for manually retrieving an authentication token using the login credentials supplied in the Body. This token is then made available to all other calls.
+@name("Authenticate (On-Premise)")
+POST "https://{{url}}/api/Account/Authenticate"
+"Content-Type": "application/json"
+"User-Agent": ""
+data('{
+	"tenancyName": "{{tenantName}}",
+	"usernameOrEmailAddress": "{{usernameOrEmailAddress}}",
+	"password": "{{password}}"
+}')
+
+
+// Create a new Asset// // ValueScope: Global or PerRobot// // ValueType: Text, Bool, Integer, or Credential
+@name("Assets - Create")
+POST "https://{{url}}/odata/Assets"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+	"Name": "Caesar",
+	"ValueScope": "Global",
+	"ValueType": "Text",
+	"StringValue": "Et tu Asset 2"
+}')
+
+
+// Change any characteristic of an Asset--name, scope, type, value...
+@name("Assets - Edit")
+PUT "https://{{url}}/odata/Assets(38364)"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+	"Name": "Caesar",
+	"ValueScope": "Global",
+	"ValueType": "Text",
+	"StringValue": "Et tu Asset 2",
+	"Id": 38364
+}')
+
+
+// Get all Assets. Use query params to narrow the response group.
+@name("Assets - Get all")
+GET "https://{{url}}/odata/Assets"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+// Get all Assets and display Per Robot values in the response. For global Assets, this call provides no extra features.
+@name("Assets - Get all + Per Robot Values")
+GET "https://{{url}}/odata/Assets"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$expand"= "RobotValues"
+
+
+// Get a single Asset with the name specified in the $filter param.
+@name("Assets - Get by name")
+GET "https://{{url}}/odata/Assets"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$filter"= "Name eq 'Caesar'"
+
+
+// Get all Assets. Use query params to narrow the response group.
+@name("Environments - Get all")
+GET "https://{{url}}/odata/Environments"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$expand"= "Robots"
+
+
+// Experimental Feature: Retrieves all Organization Units.
+@name("Folders - Get all")
+GET "https://{{url}}/odata/Folders"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+
+
+@name("Jobs - Get")
+GET "https://{{url}}/odata/Jobs"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Jobs - Start job")
+POST "https://{{url}}/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{ "startInfo":
+   { "ReleaseKey": "f689e02d-f968-494f-8b37-409a1bd85534",
+     "Strategy": "Specific",
+     "RobotIds": [ 9826 ],
+     "JobsCount": 0,
+     "Source": "Manual" 
+   } 
+}')
+
+
+// Starting in v2018.3, jobs can accept input parameters.
+@name("Jobs - Start job with inputs")
+POST "https://{{url}}/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{ "startInfo":
+   { "ReleaseKey": "5b754c63-5d1a-4c37-bb9b-74b69e4934bf",
+     "Strategy": "Specific",
+     "RobotIds": [ 1553 ],
+     "NoOfRobots": 0,
+     "Source": "Manual",
+     "InputArguments": "{\"greeting\":\"Aloha\"}"
+   } 
+}')
+
+
+// Stops a running job.// // The *jobId* path parameter is retrieved from the **Jobs - Start Job** or **Jobs - Get** calls.// The *strategy* body parameter may have a value of either 1 (meaning Soft Stop) or 2 (meaning Kill).
+@name("Jobs - Stop Job")
+POST "https://{{url}}/odata/Jobs(/:jobId)/UiPath.Server.Configuration.OData.StopJob"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+	"strategy": "2"
+}')
+
+
+// A method for manually retrieving an authentication token using the login credentials supplied in the Body. This token is then made available to all other calls.
+@name("License - Upload file")
+POST "https://{{url}}/odata/Settings/UiPath.Server.Configuration.OData.UploadLicense"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+files(
+	("", "None")
+)
+
+
+@name("Logs - Create")
+POST "https://{{url}}/api/Logs/SubmitLogs"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('["{\"message\":\"Postman Log\",\"level\":\"Information\",\"logType\":\"Default\",\"timeStamp\":\"{{currDate}}\",\"machineName\":\"DEANSLAPTOP\",\"robotName\":\"joe\"}"]')
+
+
+@name("Machines - Get All")
+GET "https://{{url}}/odata/Machines"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Machines - Create")
+POST "https://{{url}}/odata/Machines"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+  "Name": "SomeMachine",
+  "Type": "Standard"
+}')
+
+
+@name("Machine/License Mappings - Get all")
+GET "https://{{url}}/odata/Robots/UiPath.Server.Configuration.OData.GetMachineNameToLicenseKeyMappings()"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Processes - Get all")
+GET "https://{{url}}/odata/Processes"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Process Versions - Get single")
+GET "https://{{url}}/odata/Processes/UiPath.Server.Configuration.OData.GetProcessVersions(processId='Heyyo')"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Queues - Create")
+POST "https://{{url}}/odata/QueueDefinitions"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+  "Name": "NewQueue",
+  "Description": "A queue created with the Orchestrator API",
+  "MaxNumberOfRetries": 1,
+  "AcceptAutomaticallyRetry": true,
+  "EnforceUniqueReference": false
+}')
+
+
+@name("Queues - Get All")
+GET "https://{{url}}/odata/QueueDefinitions"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+// Add an item to a Queue
+@name("Queue Items - Create")
+POST "https://{{url}}/odata/Queues/UiPathODataSvc.AddQueueItem"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+    "itemData": {
+        "Name": "TestQueue",
+        "Priority": "Normal",
+        "SpecificContent": {
+            "First": "Some String Value Here",
+    		"First@odata.type": "#String",
+            "Second": 516,
+            "Fourth": "Did I skip the Third value?",
+            "AnotherKey": true
+        }
+    }
+}')
+
+
+@name("Queues Items- Get all by queue id")
+GET "https://{{url}}/odata/QueueItems"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$filter"= "QueueDefinitionId eq 33196"
+
+
+@name("Releases - Get all")
+GET "https://{{url}}/odata/Releases"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Releases - Get by name")
+GET "https://{{url}}/odata/Releases"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$filter"= "ProcessKey eq 'Heyyo'"
+
+
+@name("Roles - Get all")
+GET "https://{{url}}/odata/Roles"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Robots - Create")
+POST "https://{{url}}/odata/Robots"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+    "LicenseKey": "123abc",
+    "MachineName": "FAKEMACHINE",
+    "Name": "joe",
+    "Username": "someone",
+    "Type": "Development",
+    "Password": null,
+    "RobotEnvironments": "playground",
+    "ExecutionSettings": null
+}')
+
+
+@name("Robots - Get all")
+GET "https://{{url}}/odata/Robots"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Robots - Get by ID")
+GET "https://{{url}}/odata/Robots(33420)"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+@name("Robots - Get by name")
+GET "https://{{url}}/odata/Robots"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "$top"= "1"
+? "$filter"= "Name eq 'Cassius'"
+
+
+@name("Robots - Edit")
+PUT "https://{{url}}/odata/Robots(33428)"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+data('{
+  "LicenseKey": "123abc",
+  "MachineName": "FAKEMACHINE",
+  "Name": "joe",
+  "Type": "Development",
+  "Id": 33428,
+  "Username": "joe"
+}')
+
+
+@name("Robot Service - Get Robot Mappings")
+GET "https://{{url}}/api/RobotsService/GetRobotMappings"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+? "licenseKey"= "86753095683"
+? "machineName"= "TESTLAPTOP"
+
+
+@name("Sessions - Get all")
+GET "https://{{url}}/odata/Sessions"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+// A template for future calls. You can ignore this one.
+@name("Settings - Get all")
+GET "https://{{url}}/odata/Settings"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+// A template for future calls. You can ignore this one.
+@name("TEMPLATE")
+GET "https://{{url}}/"
+"Content-Type": "application/json"
+"X-UIPATH-TenantName": "{{tenantName}}"
+"X-UIPATH-OrganizationUnitId": "{{folderId}}"
+
+
+

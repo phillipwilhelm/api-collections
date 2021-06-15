@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+// Lists all users.
+@name("List Users")
+GET "https://{{api_url}}/users"
+"Accept": "application/vnd.api+json"
+? "page[number]"= "1"
+? "page[size]"= "50"
+? "filter[name]"= "User Name"
+? "filter[email]"= "user@email.com"
+? "filter[roles]"= "creator"
+? "include"= "roles"
+? "sort"= "-roles.name"
+? "fields[users]"= "name,email,profile_image"
+? "fields[roles]"= "name"
+? "fields[permissions]"= "name"
+? "page[size]"= "5"
+
+
+// Creates a new user.
+@name("Create User")
+POST "https://{{api_url}}/users"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+data('{
+    "data": {
+        "type": "users",
+        "attributes": {
+            "name": "New User",
+            "email": "new_user@email.com",
+            "profile_image": "https://laravel-json-api-v2.test/uploads/users/profile-image/image.jpeg",
+            "password": "some_password",
+            "password_confirmation": "some_password"
+        },
+        "relationships": {
+            "roles": {
+                "data": [
+                    {
+                        "id": "1",
+                        "type": "roles"
+                    }
+                ]
+            }
+        }
+    }
+}')
+
+
+// Returns a single queried user.
+@name("Show User")
+GET "https://{{api_url}}/users/1"
+"Accept": "application/vnd.api+json"
+? "include"= "roles,roles.permissions"
+? "fields[users]"= "name,email,profile_image"
+? "fields[roles]"= "name"
+? "fields[permissions]"= "name"
+
+
+// Updates a single user.
+@name("Update User")
+PATCH "https://{{api_url}}/users/1"
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+? "include"= "roles.permissions"
+json({
+    "data": {
+        "id": "1",
+        "type": "users",
+        "attributes": {
+            "name": "New User Name",
+            "profile_image": "https://laravel-json-api-v2.test/uploads/users/profile-image/new-image.jpeg"
+        },
+        "relationships": {
+            "roles": {
+                "data": [
+                    {
+                        "id": "1",
+                        "type": "roles"
+                    }
+                ]
+            }
+        }
+    }
+})
+
+
+// Deletes a single user.
+@name("Delete User")
+DELETE "https://{{api_url}}/users/2"
+"Accept": "application/vnd.api+json"
+
+
+// Uploads and returns the url of the uploaded user profile image.
+@name("Upload Profile Image - Pro Feature")
+POST "https://{{api_url}}/uploads/users/1/profile-image"
+"Accept": "application/vnd.api+json"
+files(
+	("attachment", "None")
+)
+
+
+

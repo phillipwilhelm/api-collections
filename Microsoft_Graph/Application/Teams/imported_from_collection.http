@@ -1,0 +1,89 @@
+#!/usr/bin/env dothttp
+
+@name("Users Joined Teams")
+GET "https://graph.microsoft.com/v1.0/users/{{UserId}}/joinedTeams"
+
+
+@name("Get Primary Channel")
+GET "https://graph.microsoft.com/v1.0/teams/{{GroupId}}/primaryChannel"
+
+
+@name("Get Team Channels")
+GET "https://graph.microsoft.com/v1.0/teams/{{GroupId}}/channels"
+
+
+@name("Get Team")
+GET "https://graph.microsoft.com/v1.0/teams/{{TeamId}}"
+
+
+@name("Delete Team")
+DELETE "https://graph.microsoft.com/v1.0/groups/{{GroupId}}"
+
+
+@name("Create Team From Group")
+PUT "https://graph.microsoft.com/v1.0/groups/{{GroupId}}/team"
+json({
+    "memberSettings": {
+        "allowCreatePrivateChannels": true,
+        "allowCreateUpdateChannels": true
+    },
+    "messagingSettings": {
+        "allowUserEditMessages": true,
+        "allowUserDeleteMessages": true
+    },
+    "funSettings": {
+        "allowGiphy": true,
+        "giphyContentRating": "strict"
+    }
+})
+
+
+@name("Update Team")
+PATCH "https://graph.microsoft.com/v1.0/teams/{{TeamId}}"
+json({
+    "memberSettings": {
+        "allowCreateUpdateChannels": true
+    },
+    "messagingSettings": {
+        "allowUserEditMessages": true,
+        "allowUserDeleteMessages": true
+    },
+    "funSettings": {
+        "allowGiphy": true,
+        "giphyContentRating": "strict"
+    }
+})
+
+
+@name("Create Team")
+POST "https://graph.microsoft.com/v1.0/teams/{{TeamId}}/channels/{{ChannelId}}/members"
+json({
+    "template@odata.bind": "https://graph.microsoft.com/v1.0/teamsTemplates('standard')",
+    "displayName": "My Sample Team",
+    "description": "My Sample Team’s Description"
+})
+
+
+@name("Archive Team")
+POST "https://graph.microsoft.com/v1.0/teams/{{TeamId}}/archive"
+json({
+    "shouldSetSpoSiteReadOnlyForMembers": true
+})
+
+
+@name("Clone Team")
+POST "https://graph.microsoft.com/v1.0/teams/{{TeamId}}/clone"
+json({
+    "displayName": "Library Assist",
+    "description": "Self help community for library",
+    "mailNickname": "libassist",
+    "partsToClone": "apps,tabs,settings,channels,members",
+    "visibility": "public"
+})
+
+
+@name("UnArchive Team")
+POST "https://graph.microsoft.com/v1.0/teams/{{TeamId}}/unarchive"
+
+
+

@@ -1,0 +1,234 @@
+#!/usr/bin/env dothttp
+
+// When things are going smoothly, you can expect to get a 'StartNextChallenge' or 'LoginSuccess' response, however the system may (at any time)//             return a new Mfa Package which may add, remove or change challenges. Failure cases typically result in an 'Undefined' error message when things are//             misconfigured and a "LoginFailure' message when incorrect answers have terminated the session (which may have been sent in previous calls to this API).
+@name("{{baseUrl}}/Security/AdvanceAuthentication")
+POST "https://{{baseUrl}}/Security/AdvanceAuthentication"
+"Content-Type": "application/json"
+data('{
+    "Action": "<string>",
+    "SessionId": "<string>",
+    "MechanismId": "<string>",
+    "TenantId": "<string>",
+    "PersistentLogin": "<boolean>",
+    "Answer": "<string>"
+}')
+
+
+// Handles and mfa-like package with a single challenge (special case 'ForgotUsername' package).
+@name("{{baseUrl}}/Security/AdvanceForgotUsername")
+POST "https://{{baseUrl}}/Security/AdvanceForgotUsername"
+"Content-Type": "application/json"
+data('{
+    "TenantId": "<string>",
+    "Action": "<string>",
+    "Answer": "<string>"
+}')
+
+
+// Please use WhoAmI.
+@name("{{baseUrl}}/Security/AmIAuthenticated")
+POST "https://{{baseUrl}}/Security/AmIAuthenticated"
+"Content-Type": "application/json"
+data('{}')
+
+
+// Invoked by 3rd party services for answering out of band challenges.//             (text messages or email, not PhoneFactor)//             Supports the click on link scenario.
+@name("{{baseUrl}}/Security/AnswerOOBChallenge")
+POST "https://{{baseUrl}}/Security/AnswerOOBChallenge"
+"Content-Type": "application/json"
+? "answer"= "<string>"
+data('{}')
+
+
+// ie. a challenge based on the passed authentication profile.//             Pattern: Allow AuthChallengeHelper to check challenge and throw an AuthChallengeException if challenge is needed//             JsonRest.StandardJsonResult will catch the exception and transform it to a challenge response.
+@name("{{baseUrl}}/Security/ChallengeUser")
+POST "https://{{baseUrl}}/Security/ChallengeUser"
+? "profileName"= "<string>"
+
+
+// Does not affect completed authentication sessions.
+@name("{{baseUrl}}/Security/CleanupAuthentication")
+POST "https://{{baseUrl}}/Security/CleanupAuthentication"
+"Content-Type": "application/json"
+data('{
+    "TenantId": "<string>",
+    "SessionId": "<string>"
+}')
+
+
+// Keeping this API for backward compatibility.//             Please use TaskCheck.
+@name("{{baseUrl}}/Security/DoIHaveRight")
+POST "https://{{baseUrl}}/Security/DoIHaveRight"
+
+
+// The request must be made using a tenant-specific URL.
+@name("{{baseUrl}}/Security/ForgotUsername")
+POST "https://{{baseUrl}}/Security/ForgotUsername"
+"Content-Type": "application/json"
+data('{
+    "SearchKey": "<string>"
+}')
+
+
+@name("{{baseUrl}}/Security/GetOneTimePassword")
+POST "https://{{baseUrl}}/Security/GetOneTimePassword"
+? "use"= "<string>"
+
+
+@name("{{baseUrl}}/Security/GetRiskAnalysisLevels")
+POST "https://{{baseUrl}}/Security/GetRiskAnalysisLevels"
+
+
+// Please use StartAuthentication/AdvanceAuthentication.
+@name("{{baseUrl}}/Security/Login")
+POST "https://{{baseUrl}}/Security/Login"
+"Content-Type": "application/json"
+? "systemID"= "<string>"
+? "user"= "<string>"
+? "password"= "<string>"
+? "persist"= "<string>"
+data('{}')
+
+
+// The user will be redirected to redirectUrl if it is present.//             RedirectUrl can be external or relative.
+@name("{{baseUrl}}/Security/Logout")
+POST "https://{{baseUrl}}/Security/Logout"
+"Content-Type": "application/json"
+? "redirectUrl"= "<string>"
+? "allowIWA"= "<string>"
+data('{}')
+
+
+// Please use StartAuthentication/AdvanceAuthentication.
+@name("{{baseUrl}}/Security/MultiAuthLogin")
+POST "https://{{baseUrl}}/Security/MultiAuthLogin"
+"Content-Type": "application/json"
+? "user"= "<string>"
+? "customerId"= "<string>"
+? "persist"= "<string>"
+? "elevate"= "<string>"
+data('{
+    "nextMechId": "<string>",
+    "RecId": "<string>",
+    "PFType": "<string>"
+}')
+
+
+// Uses custom policy key modifiers to choose auth rules and profiles.
+@name("{{baseUrl}}/Security/OnDemandChallenge")
+POST "https://{{baseUrl}}/Security/OnDemandChallenge"
+"Content-Type": "application/json"
+data('{
+    "User": "<string>",
+    "PolicyModifier": "<string>"
+}')
+
+
+// User cached identity in the cloud is reloaded from their directory service.  Useful when user details have changed in their remote directory service, but have not yet been pushed to the cloud.
+@name("{{baseUrl}}/Security/RefreshToken")
+POST "https://{{baseUrl}}/Security/RefreshToken"
+
+
+// Continued after receiving authentication results from the identity provider.
+@name("{{baseUrl}}/Security/ResumeFromExtIdpAuth")
+POST "https://{{baseUrl}}/Security/ResumeFromExtIdpAuth"
+"Content-Type": "application/json"
+? "ExtIdpAuthChallengeState"= "<string>"
+data('{
+    "ExtIdpAuthChallengeState": "<string>"
+}')
+
+
+// The authentication package returned is a complex structure that guides the caller through the authentication process. Multiple calls to AdvanceAuthentication//             may be required to complete the process.
+@name("{{baseUrl}}/Security/StartAuthentication")
+POST "https://{{baseUrl}}/Security/StartAuthentication"
+"Content-Type": "application/json"
+data('{
+    "Version": "<string>",
+    "User": "<string>",
+    "TenantId": "<string>",
+    "ApplicationId": "<string>",
+    "MfaRequestor": "<string>"
+}')
+
+
+// The authentication package returned is a complex structure that guides the caller through the authentication process. Multiple calls to AdvanceAuthentication//             may be required to complete the process.
+@name("{{baseUrl}}/Security/StartChallenge")
+POST "https://{{baseUrl}}/Security/StartChallenge"
+"Content-Type": "application/json"
+data('{
+    "Version": "<string>",
+    "ChallengeStateId": "<string>"
+}')
+
+
+// Returns an mfa package with a single challenge (special case 'ForgotUsername' package). The tenant Id is derived from the URL - there is no way to specify it otherwise.
+@name("{{baseUrl}}/Security/StartForgotUsername")
+POST "https://{{baseUrl}}/Security/StartForgotUsername"
+"Content-Type": "application/json"
+data('{
+    "Version": "<string>"
+}')
+
+
+@name("{{baseUrl}}/Security/StartSocialAuthentication")
+POST "https://{{baseUrl}}/Security/StartSocialAuthentication"
+"Content-Type": "application/json"
+data('{
+    "PostExtIdpAuthCallbackUrl": "<string>",
+    "IdpName": "<string>"
+}')
+
+
+// The request must be made using a tenant-specific URL.
+@name("{{baseUrl}}/Security/SubmitOathOtpCode")
+POST "https://{{baseUrl}}/Security/SubmitOathOtpCode"
+"Content-Type": "application/json"
+? "otpCode"= "<string>"
+? "userUuid"= "<string>"
+data('{
+    "otpCode": "<string>",
+    "userUuid": "<string>"
+}')
+
+
+@name("{{baseUrl}}/Security/TaskCheck")
+POST "https://{{baseUrl}}/Security/TaskCheck"
+? "Task"= "<string>"
+
+
+@name("{{baseUrl}}/Security/TaskChecks")
+POST "https://{{baseUrl}}/Security/TaskChecks"
+"Content-Type": "application/json"
+data('{
+    "tasks": [
+        "<string>",
+        "<string>"
+    ]
+}')
+
+
+// Invoked by 3rd party services answering twilio messages.
+@name("{{baseUrl}}/Security/TwilioPhoneChallengeCompleted")
+POST "https://{{baseUrl}}/Security/TwilioPhoneChallengeCompleted"
+"Content-Type": "application/json"
+data('{
+    "ResponseXml": "<string>"
+}')
+
+
+// Invoked by 3rd party services answering twilio messages.
+@name("{{baseUrl}}/Security/TwilioPhoneChallengeNotAnswered")
+POST "https://{{baseUrl}}/Security/TwilioPhoneChallengeNotAnswered"
+"Content-Type": "application/json"
+data('{
+    "ResponseXml": "<string>"
+}')
+
+
+@name("{{baseUrl}}/Security/WhoAmI")
+POST "https://{{baseUrl}}/Security/WhoAmI"
+? "challenge"= "<string>"
+
+
+

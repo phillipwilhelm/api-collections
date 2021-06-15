@@ -1,0 +1,28 @@
+#!/usr/bin/env dothttp
+
+// Get a listing of all the computers in the network, looking specifically for what we want
+@name("All Computers")
+GET "https://{{amp4e_host}}/v1/computers"
+
+
+// Get a listing of all the events for a specific computer when the quarantine failed
+@name("All Events for a specific Computer")
+GET "https://{{amp4e_host}}/v1/events"
+? "connector_guid[]"= "{{amp4e_computer}}"
+? "event_type[]"= "1107296272"
+
+
+@name("Move Computer to new Group")
+PATCH "https://{{amp4e_host}}/v1/computers/{{amp4e_computer}}"
+files(
+	("group_guid", "{{amp4e_new_group}}"),
+	("active", "false")
+)
+
+
+// Get a listing of all the groups in AMP for Endpoints
+@name("All Groups")
+GET "https://{{amp4e_host}}/v1/groups"
+
+
+

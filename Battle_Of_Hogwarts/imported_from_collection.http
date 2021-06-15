@@ -1,0 +1,356 @@
+#!/usr/bin/env dothttp
+
+// ## Spell Database// The best reference for all things Harry Potter is the [Harry Potter Lexicon](https://www.hp-lexicon.org). From this page on [Harry Potter Offensive/Defensive Magic](https://www.hp-lexicon.org/magic/offensivedefensive-magic/), I created a Airtable base with name, power and mode as the fields of the table. // // ![Image of airtable base](https://i.imgur.com/LhAqLzL.png)// // **Pre-Request Script:** `Gateway` is responsible to pick a question and to decide the workflow which the request needs to follow. // // The distinguishing factor between a user starting a new game and user request returning with an answer is the presence of payload. // // ![Image of Gateway pre-request script](https://i.imgur.com/epkvy22.png)// // Within the request, we are accessing the [Airtable API](https://airtable.com/api) to get all the spells stored in the table.// // **Test Script:** // With spells in the response// - We'll clean the response// - Pick a question// - Check if an answer exists// - Pick 3 more random answers// - Alphabetically sort the answers// - Store everything into respective environment variables
+@name("Gateway")
+GET "https://{{airtable_url}}/"
+"Authorization": "{{airtable_api_key}}"
+
+
+// ## Persisting Environment Variables // Increasing level of player after every run was easy to persist locally with a setting in the preferences of the desktop app. No such setting is present to sync environment variables between runs in the Postman cloud. // // One way to get around this is to manually update the environment on cloud with a `PUT` request. 
+@name("Update level")
+PUT "https://api.postman.com/environments/{{environment_id}}"
+"x-api-key": "{{postman_api_key}}"
+json({
+    "environment": {
+        "id": "{{environment_id}}",
+        "name": "{{environment_name}}",
+        "values": [
+            {
+                "key": "airtable_url",
+                "value": "{{airtable_url}}",
+                "enabled": true
+            },
+            {
+                "key": "postman_api_key",
+                "value": "{{postman_api_key}}",
+                "enabled": true
+            },
+            {
+                "key": "airtable_api_key",
+                "value": "{{airtable_api_key}}",
+                "enabled": true
+            },
+            {
+                "key": "environment_id",
+                "value": "{{environment_id}}",
+                "enabled": true
+            },
+            {
+                "key": "environment_name",
+                "value": "{{environment_name}}",
+                "enabled": true
+            },
+            {
+                "key": "top_scorer",
+                "value": "{{top_scorer}}",
+                "enabled": true
+            },
+            {
+                "key": "user_name",
+                "value": "{{user_name}}",
+                "enabled": true
+            },
+            {
+                "key": "response_url",
+                "value": "{{response_url}}",
+                "enabled": true
+            },
+            {
+                "key": "check_answer",
+                "value": "{{check_answer}}",
+                "enabled": true
+            },
+            {
+                "key": "question",
+                "value": "{{question}}",
+                "enabled": true
+            },
+            {
+                "key": "answer1",
+                "value": "{{answer1}}",
+                "enabled": true
+            },
+            {
+                "key": "answer2",
+                "value": "{{answer2}}",
+                "enabled": true
+            },
+            {
+                "key": "answer3",
+                "value": "{{answer3}}",
+                "enabled": true
+            },
+            {
+                "key": "answer4",
+                "value": "{{answer4}}",
+                "enabled": true
+            },
+            {
+                "key": "old_question",
+                "value": "{{old_question}}",
+                "enabled": true
+            },
+            {
+                "key": "level",
+                "value": "{{level}}",
+                "enabled": true
+            },
+            {
+                "key": "spells",
+                "value": "{{spells}}",
+                "enabled": true
+            },
+            {
+                "key": "reason",
+                "value": "{{reason}}",
+                "enabled": true
+            }
+        ]
+    }
+})
+
+
+// ![Image of POST request](https://i.imgur.com/4aKszRu.png)// // **Tests:**// ```// postman.setNextRequest(null);// ```
+@name("First question")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Welcome to the Hogwarts battle arena. Voldemort has managed to get his hands on the Elder Wand and now it\'s your responsibility as a Gryffindor to make sure it\'s in safe hands. As Voldemort is not the true master of the wand (and he doesn\'t know that yet), you still have a chance to win it. \n \n TLDR : Have a one-on-one battle with Voldemort and win the Elder wand \n {{top_scorer}} is our top-scorer for now. Let\'s see if you can get your name here. \n *Voldemort has attacked you with {{question}}* \n \n Choose one spell that you think is the right one."
+			}
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "{{answer1}}",
+						"emoji": true
+					},
+					"value": "{{question}}"
+				},
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "{{answer2}}",
+						"emoji": true
+					},
+					"value": "{{question}}"
+				},
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "{{answer3}}",
+						"emoji": true
+					},
+					"value": "{{question}}"
+				},
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "{{answer4}}",
+						"emoji": true
+					},
+					"value": "{{question}}"
+				}
+			]
+		}
+	]
+}')
+
+
+// **Pre-request script:** Retrieve spells from the environment variable and look for `question` and `user_answer`. Redirect the flow accordingly. // // - If Voldemort spell overpowered the user one, go to `Goodbye`// - If user overpowered Voldemort, check level and send another question if level < 6 // - Send winner message if user cleared level 6
+@name("Check answer")
+GET "https://google.com/"
+
+
+
+// Similar to `First Question`// // **Tests:**// ```// postman.setNextRequest(null);// ```
+@name("Send Question")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+json({
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "That was awesome. You've made your opponent weaker! Voldemort is now attacking you with {{question}}! 
+ You are on level: {{level}}"
+            }
+        },
+        {
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "{{answer1}}",
+                        "emoji": true
+                    },
+                    "value": "{{question}}"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "{{answer2}}",
+                        "emoji": true
+                    },
+                    "value": "{{question}}"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "{{answer3}}",
+                        "emoji": true
+                    },
+                    "value": "{{question}}"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "{{answer4}}",
+                        "emoji": true
+                    },
+                    "value": "{{question}}"
+                }
+            ]
+        }
+    ]
+})
+
+
+@name("Goodbye")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+json({
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "{{reason}}"
+            }
+        }
+    ]
+})
+
+
+// Resetting all necessary environment variables to prepare for the next player.
+@name("Reset game")
+PUT "https://api.postman.com/environments/{{environment_id}}"
+"x-api-key": "{{postman_api_key}}"
+json({
+    "environment": {
+        "id": "{{environment_id}}",
+        "name": "{{environment_name}}",
+        "values": [
+            {
+                "key": "airtable_url",
+                "value": "{{airtable_url}}",
+                "enabled": true
+            },
+            {
+                "key": "postman_api_key",
+                "value": "{{postman_api_key}}",
+                "enabled": true
+            },
+            {
+                "key": "airtable_api_key",
+                "value": "{{airtable_api_key}}",
+                "enabled": true
+            },
+            {
+                "key": "environment_id",
+                "value": "{{environment_id}}",
+                "enabled": true
+            },
+            {
+                "key": "environment_name",
+                "value": "{{environment_name}}",
+                "enabled": true
+            },
+            {
+                "key": "top_scorer",
+                "value": "{{top_scorer}}",
+                "enabled": true
+            },
+            {
+                "key": "user_name",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "response_url",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "check_answer",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "question",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "answer1",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "answer2",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "answer3",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "answer4",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "old_question",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "level",
+                "value": "0",
+                "enabled": true
+            },
+            {
+                "key": "spells",
+                "value": "",
+                "enabled": true
+            },
+            {
+                "key": "reason",
+                "value": "",
+                "enabled": true
+            }
+        ]
+    }
+})
+
+
+

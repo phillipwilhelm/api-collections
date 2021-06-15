@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// This method returns a list of all Safes in the Vault that the user has permissions for. To run this web user, the user must be a member of the Safes in the Vault that are returned in the list.
+@name("Get All Safes")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Safes"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method returns information about a specific Safe in the Vault.
+@name("Get Safe Details")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Safes/{{Safe}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method returns information about the Safes in the Vault that meet the criteria specified in the search query.
+@name("Search for a Safe")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Safes"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "query"= "{{Query}}"
+
+
+// This method adds a new Safe to the Vault.// // The user who runs this web service requires **Add Safes** permissions in the Vault.
+@name("Add Safe")
+POST "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Safes"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"safe": {
+		"SafeName":"<Safe name>",
+		"Description":"<Description>",
+		"OLACEnabled":<true/false>,
+		"ManagingCPM":"<CPM user>",
+		"NumberOfVersionsRetention":<1-999>,
+		"NumberOfDaysRetention":<1-3650>
+	}
+}')
+
+
+// This method updates a single Safe in the Vault. The user who runs this web service requires the following permissions:// // In the Vault:// * Manage Safes// // In the Safe:// * View Safe Members
+@name("Update Safe")
+PUT "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Safes/{{Safe}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"safe": {
+		"SafeName":"<The name of the Safe>",
+		"Description":"<Description of the Safe>",
+		"OLACEnabled":<true/false>,
+		"ManagingCPM":"<Name of CPM user managing the Safe>",
+		"NumberOfVersionsRetention":<1-999>,
+		"NumberOfDaysRetention":<1-3650>
+	}
+}')
+
+
+

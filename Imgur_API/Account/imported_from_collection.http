@@ -1,0 +1,260 @@
+#!/usr/bin/env dothttp
+
+// Given a user's refresh token, this endpoint generates an access token.
+@name("Generate Access Token")
+POST "https://api.imgur.com/oauth2/token"
+files(
+	("refresh_token", "{{refreshToken}}"),
+	("client_id", "{{clientId}}"),
+	("client_secret", "{{clientSecret}}"),
+	("grant_type", "refresh_token")
+)
+
+
+// Request standard user information. If you need the username for the account that is logged in, it is returned in the request for an [access token](/account/current_account). Note: This endpoint also supports the ability to lookup account base info by account ID. To do so, pass the query parameter `account_id`.// // #### Response Model: [Account](https://api.imgur.com/models/account)
+@name("Account Base")
+GET "https://api.imgur.com/3/account/{{username}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Determine if the user making the request has blocked a username.// // #### Response:// ```// {//   "data": {//     "blocked": boolean//   }// }// // ```
+@name("Account Block Status")
+GET "https://api.imgur.com/account/v1/{{username}}/block"
+"Authorization": "Bearer {{accessToken}}"
+"Accept": "application/vnd.api+json"
+
+
+// List all accounts being blocked,// // #### Response:// ```// {//   "data": {//     "items": [//       {//         "url": "officialimguraffe"//       }//     ],//     "next": null//   },//   "success": true,//   "status": 200// }// // ```
+@name("Account Blocks")
+GET "https://api.imgur.com/3/account/me/block"
+"Authorization": "Bearer {{accessToken}}"
+"Accept": "application/vnd.api+json"
+
+
+// Block a user.// // #### Response:// ```// {//   "data": {//     "blocked": boolean//   }// }// // ```
+@name("Account Block Create")
+POST "https://api.imgur.com/account/v1/{{username}}/block"
+"Authorization": "Bearer {{accessToken}}"
+"Accept": "application/vnd.api+json"
+
+
+
+// Unblock a user.// // #### Response:// ```// {//   "data": {//     "blocked": boolean//   }// }// // ```
+@name("Account Block Delete")
+DELETE "https://api.imgur.com/account/v1/{{username}}/block"
+"Authorization": "Bearer {{accessToken}}"
+"Accept": "application/vnd.api+json"
+
+
+
+// To make requests for the current account, you may use `me` as the `{{username}}` parameter. For example, `https://api.imgur.com/3/account/me/images` will request all the images for the account that is currently authenticated.
+@name("Account Images")
+GET "https://api.imgur.com/3/account/me/images"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return the images the user has favorited in the gallery.// // #### Response Model: [Gallery Image](https://api.imgur.com/models/gallery_image) OR [Gallery Album](https://api.imgur.com/models/gallery_album)// // // #### Parameters// // | Key  | Required | Description                                                                                     |// |------|----------|-------------------------------------------------------------------------------------------------|// | page | optional | integer - allows you to set the page number so you don't have to retrieve all the data at once. |// | favoriteSort | optional | `oldest`, or `newest`. Defaults to `newest`.                                                    |
+@name("Account Gallery Favorites")
+GET "https://api.imgur.com/3/account/{{username}}/gallery_favorites/{{page}}/{{favoritesSort}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Returns the users favorited images, only accessible if you're logged in as the user.// // #### Response Model: [Gallery Image](https://api.imgur.com/models/gallery_image) OR [Gallery Album](https://api.imgur.com/models/gallery_album)// // *Note:* vote data ('ups', 'downs', and 'score') may be null if the favorited item hasn't been submitted to gallery// // // #### Parameters// // | Key  | Required | Description                                                                                     |// |------|----------|-------------------------------------------------------------------------------------------------|// | page | optional | integer - allows you to set the page number so you don't have to retrieve all the data at once. |// | sort | optional | 'oldest', or 'newest'. Defaults to 'newest'.                                                    |
+@name("Account Favorites")
+GET "https://api.imgur.com/3/account/{{username}}/favorites/{{page}}/{{favoritesSort}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return the images a user has submitted to the gallery. You can add sorting as well after paging. Sorts can be: newest (default), oldest, worst, best. // // #### Response Model: [Gallery Image](https://api.imgur.com/models/gallery_image) OR [Gallery Album](https://api.imgur.com/models/gallery_album)
+@name("Account Submissions")
+GET "https://api.imgur.com/3/account/{{username}}/submissions/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// If unauthentiated, get list of default trophies a user can select from. The username need not exist to get the listing.// // If authenticated, get the list of available avatars for the given user.
+@name("Account Available Avatars (Un-authed / Authed)")
+GET "https://api.imgur.com/3/account/{{username}}/available_avatars"
+"Authorization": "Client-ID {{clientId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Get the current account's avatar URL and avatar name.
+@name("Account Avatar (Authed)")
+GET "https://api.imgur.com/3/account/{{username}}/avatar"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Returns the account settings, only accessible if you're logged in as the user.// 
+@name("Account Settings")
+GET "https://api.imgur.com/3/account/me/settings"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Updates the account settings for a given user, the user must be logged in.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)// // #### Parameters// // | Key                    | Required | Description                                                                           |// |------------------------|----------|---------------------------------------------------------------------------------------|// | bio                    | optional | The biography of the user, is displayed in the gallery profile page.                  |// | public_images          | optional | Set the users images to private or public by default                                  |// | messaging_enabled      | optional | true &#124; false - Allows the user to enable / disable private messages                   |// | album_privacy          | optional | public &#124; hidden &#124; secret - Sets the default privacy level of albums the users creates |// | accepted_gallery_terms | optional | true &#124; false - The user agreement to the Imgur Gallery terms.                         |// | username               | optional | A valid Imgur username (between 4 and 63 alphanumeric characters)                     |// | show_mature            | optional | true &#124; false - Toggle display of mature images in gallery list endpoints.             |// | newsletter_subscribed  | optional | true &#124; false - Toggle subscription to email newsletter.                               |
+@name("Change Account Settings")
+PUT "https://api.imgur.com/3/account/{{username}}/settings"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("bio", "Long time lurker..."),
+	("public_images", "false"),
+	("messaging_enabled", "true"),
+	("album_privacy", "public"),
+	("accepted_gallery_terms", "true"),
+	("username", "ImgurUser"),
+	("show_mature", "true"),
+	("newsletter_subscribed", "true"),
+	("avatar", "flavor/taco")
+)
+
+
+// Returns the totals for the gallery profile.// // #### Response Model: [Gallery Profile](https://api.imgur.com/models/gallery_profile)
+@name("Account Gallery Profile")
+GET "https://api.imgur.com/3/account/{{username}}/settings"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Checks to see if user has verified their email address.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Verify User's E-mail")
+GET "https://api.imgur.com/3/account/{{username}}/verifyemail"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Sends an email to the user to verify that their email is valid to upload to gallery. Must be logged in as the user to send.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Send Verification E-mail")
+POST "https://api.imgur.com/3/account/{{username}}/verifyemail"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Get all the albums associated with the account. Must be logged in as the user to see secret and hidden albums.// // #### Response Model: [Album](https://api.imgur.com/models/album)// // #### Parameters// | Key  | Required | Description                                                                                     |// |------|----------|-------------------------------------------------------------------------------------------------|// | page | optional | integer - allows you to set the page number so you don't have to retrieve all the data at once. |
+@name("Albums (Un-Authed / Authed)")
+GET "https://api.imgur.com/3/account/{{username}}/albums/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Get additional information about an album, this endpoint works the same as the [Album Endpoint](). You can also use any of the additional routes that are used on an album in the album endpoint.// // #### Response Model: [Album](https://api.imgur.com/models/album)
+@name("Album")
+GET "https://api.imgur.com/3/account/{{username}}/album/{{albumHash}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return an array of all of the album IDs (hashes).// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Album IDs (Un-Authed / Authed)")
+GET "https://api.imgur.com/3/account/{{username}}/albums/ids/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return the total number of albums associated with the account.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Album Count (Un-Authed / Authed)")
+GET "https://api.imgur.com/3/account/{{username}}/albums/count"
+"Authorization": "Client-ID {{clientId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Delete an Album with a given id.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Album Deletion")
+DELETE "https://api.imgur.com/3/account/{{username}}/album/{{albumHash}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Return the comments the user has created.// // #### Response Model: [Comment](https://api.imgur.com/models/comment)// // #### Parameters// // | Key  | Required | Value                                                         |// |------|----------|---------------------------------------------------------------|// | commentSort | optional | `best`, `worst`, `oldest`, or `newest`. Defaults to `newest`. |// | page | optional | Page number (50 items per page). Defaults to `0`.               |
+@name("Comments")
+GET "https://api.imgur.com/3/account/{{username}}/comments/{{commentSort}}/{{page}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return information about a specific comment. This endpoint works the same as the [Comment Endpoint](https://api.imgur.com/endpoint/comment/). You can use any of the additional actions that the comment endpoint allows on this end point.
+@name("Comment")
+GET "https://api.imgur.com/3/account/{{username}}/comment/{{commentId}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Return an array of all of the comment IDs.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)// // #### Parameters// // | Key  | Required | Value                                                         |// |------|----------|---------------------------------------------------------------|// | commentSort | optional | `best`, `worst`, `oldest`, or `newest`. Defaults to `newest`. |// | page | optional | Page number (50 items per page). Defaults to `0`.               |
+@name("Comment IDs")
+GET "https://api.imgur.com/3/account/{{username}}/comments/ids/{{sort}}/{{page}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Return a count of all of the comments associated with the account.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Comment Count")
+GET "https://api.imgur.com/3/account/{{username}}/comments/count"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Delete a comment. You are required to be logged in as the user whom created the comment.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Comment Deletion")
+DELETE "https://api.imgur.com/3/account/{{username}}/comment/{{commentId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Return all of the images associated with the account. You can page through the images by setting the page, this defaults to 0.// // #### Response Model: [Image](https://api.imgur.com/models/image)
+@name("Images")
+GET "https://api.imgur.com/3/account/{{username}}/images/{{page}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Return information about a specific image. This endpoint works the same as the [Image Endpoint](https://api.imgur.com/endpoints/image/). You can use any of the additional actions that the image endpoint with this endpoint.// // #### Response Model: [Image](https://api.imgur.com/models/image)
+@name("Image")
+GET "https://api.imgur.com/3/account/{{username}}/image/{{imageId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Returns an array of Image IDs that are associated with the account.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Image IDs")
+GET "https://api.imgur.com/3/account/{{username}}/images/ids/{{page}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Returns the total number of images associated with the account.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Image Count")
+GET "https://api.imgur.com/3/account/{{username}}/images/count"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Deletes an Image. This requires a delete hash rather than an ID.// // #### Response Model: [Basic](https://api.imgur.com/models/basic)
+@name("Image Deletion")
+DELETE "https://api.imgur.com/3/account/{{username}}/image/{{deleteHash}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Returns all of the reply notifications for the user. Required to be logged in as that user.// // #### Response Model: [Notification](https://api.imgur.com/models/notification)// // #### Parameters// // | Key | Required | Value                                                                                          |// |-----|----------|------------------------------------------------------------------------------------------------|// | new | optional | boolean - `false` for all notifications, `true` for only non-viewed notification. Default is `true`. |
+@name("Replies")
+GET "https://api.imgur.com/3/account/{{username}}/notifications/replies"
+
+
+// Follows the {{tagName}} specified for the currently logged in user.
+@name("Follow Tag")
+POST "https://api.imgur.com/3/account/me/follow/tag/{{tagName}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Unfollows the {{tagName}} specified for the currently logged in user.
+@name("Unfollow tag")
+DELETE "https://api.imgur.com/3/account/me/follow/tag/{{tagName}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+// Delete the account of the auth'd user with delete feedback.// // note: password is left blank to avoid accidental account deletion, to delete account you must add account password to body.
+@name("Account Delete (me)")
+POST "https://{{hostname}}/3/account/me/delete"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+? "client_id"= "{{clientId}}"
+data('{
+	"password": "",
+	"reasons": [
+		"Reason #1",
+		"Reason #2"
+	],
+	"feedback": "MOAR CATGIFS"
+}')
+
+
+

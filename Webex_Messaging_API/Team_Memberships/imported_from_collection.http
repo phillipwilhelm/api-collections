@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// Create a new team.// // https://developer.webex.com/endpoint-teams-post.html
+@name("Create a team (for test run purpose)")
+POST "https://{{WEBEXAPI}}/teams"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Tour de France"
+}')
+
+
+// Lists all team memberships. By default, lists memberships for teams to which the authenticated user belongs.// // Use query parameters to filter the response.// // Use teamId to list memberships for a team, by ID.// // Use either personId or personEmail to filter the results.// // https://developer.webex.com/endpoint-teammemberships-get.html
+@name("List team memberships")
+GET "https://{{WEBEXAPI}}/team/memberships"
+"Authorization": "Bearer {{access_token}}"
+? "teamId"= "{{_team}}"
+
+
+// Add someone to a team by Person ID or email address; optionally making them a moderator.// // https://developer.webex.com/endpoint-teammemberships-post.html
+@name("Create a team membership")
+POST "https://{{WEBEXAPI}}/team/memberships"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "teamId" : "{{_team}}",
+  "personEmail": "steve.sfartz@gmail.com",
+  "isModerator": "false"
+}')
+
+
+// Get details for a membership by ID.// // Specify the membership ID in the membershipId URI parameter.// // https://developer.webex.com/endpoint-teammemberships-membershipId-get.html
+@name("Get team membership details")
+GET "https://{{WEBEXAPI}}/team/memberships/{{_membership}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Updates properties for a membership by ID.// // Specify the membership ID in the membershipId URI parameter.// // https://developer.webex.com/endpoint-teammemberships-membershipId-put.html
+@name("Update a team membership")
+PUT "https://{{WEBEXAPI}}/team/memberships/{{_membership}}"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "isModerator": true
+}')
+
+
+// Deletes a membership by ID.// // Specify the membership ID in the membershipId URI parameter.// // https://developer.webex.com/endpoint-teammemberships-membershipId-delete.html
+@name("Delete a team membership")
+DELETE "https://{{WEBEXAPI}}/team/memberships/{{_membership}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+// Delete a team.// // https://developer.webex.com/endpoint-teams-teamId-delete.html
+@name("Delete a team (cleanup)")
+DELETE "https://{{WEBEXAPI}}/teams/{{_team}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+

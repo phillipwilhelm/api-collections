@@ -1,0 +1,29 @@
+#!/usr/bin/env dothttp
+
+// Using Dropbox's list_folder endpoint, retrieve all image id's inside my dropbox folder.// Storing the ID's in a hash table helps for lookups to prevent duplication.// // `POST https://api.dropboxapi.com/2/files/list_folder`// // // ### Body Parameters// `// 	// 	{// 	    "path": "/postman-collection",// 	    "recursive": true// 	}// // `
+@name("fetch images IDs in dropbox")
+POST "https://api.dropboxapi.com/2/files/list_folder"
+"Content-Type": "application/json"
+data('{
+    "path": "/postman-collection",
+    "recursive": true
+}')
+
+
+// Fetches all the profile picture CDN links and stores them in a sources array.// // Makes a GET request to Facebook's Graph API.// // `GET https://graph.facebook.com/v3.2/me/?fields=albums{name,photo_count,photos{images}}`// // This gives us a JSON response with the albums of authenticated user. In this case our own profile. // Albums will contain name, photo_count, and the photos object.// The photos object contains photos of different sizes.
+@name("fetch pics from facebook")
+GET "https://graph.facebook.com/v3.2/me/"
+? "fields"= "albums{name,photo_count,photos{images}}"
+
+
+// Save the data from a specified URL into a file in user's Dropbox.// The transfer from the URL must complete within 5 minutes, or the operation will time out and the job will fail.// If the given path already exists, the file will be renamed to avoid the conflict (e.g. myfile (1).txt).// // `POST https://api.dropboxapi.com/2/files/save_url`// // ### parameters// // `// // 	{// 	    "path": "/a.txt",// 	    "url": "http://example.com/a.txt"// 	}// // `
+@name("upload to dropbox")
+POST "https://api.dropboxapi.com/2/files/save_url"
+"Content-Type": "application/json"
+data('{
+    "path": "/postman-collection/{{album_name}}/{{image_id}}.jpg",
+    "url": "{{url}}"
+}')
+
+
+

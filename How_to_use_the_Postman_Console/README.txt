@@ -1,0 +1,5 @@
+This collection contains examples of how you can use the [Postman console](https://learning.getpostman.com/docs/postman/sending-api-requests/debugging-and-logs/#network-calls-with-postman-console) for more visibility when debugging.
+
+To open the Postman console, head to "View" in the application menu, and click on "Show Postman Console" or use the keyboard shortcut **(CMD/CTRL + ALT + C)**.
+
+Every network call along with its headers, network information, and payloads will be logged to the Postman Console. Additionally, the console will display `console.log()`, `console.info()`, `console.warn()`, and `console.error()` messages from inside [the Postman scripts](https://learning.getpostman.com/docs/postman/scripts/intro-to-scripts/). Log statements can be written from either the pre-request or tests script tabs.

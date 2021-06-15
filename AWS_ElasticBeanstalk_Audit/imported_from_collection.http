@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// An `AWS Auth Signature` verified `GET` request to fetch all elastic beanstalk environments under the Posmtan namepsace. All production environments are filtered and saved for all future operations within the collection run.
+@name("Describe Environments")
+GET "https://elasticbeanstalk.{{awsRegion}}.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170425T091719Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170425/us-east-1/elasticbeanstalk/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=62709d15c6ec8c5aa0ac67c8411f421b41c78b0994dcabca836e2ca0a7c3b3aa"
+"Accept": "application/json"
+? "Operation"= "DescribeEnvironments"
+? "Version"= "2010-12-01"
+? "MaxRecords"= "{{maxRecords}}"
+? "NextToken"= "{{nextToken}}"
+
+
+// An `AWS Auth Signature` verified `GET` request to fetch environment configuration for each production environment obtained from the previous request i.e., `Describe Environments`.// // The values of environment variables are also fetched within this request.
+@name("Describe Configuration Settings")
+GET "https://elasticbeanstalk.{{awsRegion}}.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170425T100114Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170425/us-east-1/elasticbeanstalk/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=b352ec8a78738cdb3cf2d17c551327aaf53ce96d57596de4d1c93dd2206069fe"
+"Accept": "application/json"
+? "Operation"= "DescribeConfigurationSettings"
+? "Version"= "2010-12-01"
+? "EnvironmentName"= "{{envName}}"
+? "ApplicationName"= "{{appName}}"
+
+
+// An `AWS Auth Signature` verified `GET` request to fetch `C`ost `A`llocation `T`ags for the current environment `ARN`. A full fledged audit of the current environment configuration set is also performed in this request, after which flow passes on to the next environment.
+@name("List tags for resource")
+GET "https://elasticbeanstalk.{{awsRegion}}.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170425T102550Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170425/us-east-1/ec2/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=e45ce4d3f72bb476c4e09e39b9806e5154c01a5c5fce035a1fd051f8a10b054c"
+"Accept": "application/json"
+? "Action"= "ListTagsForResource"
+? "Version"= "2010-12-01"
+? "ResourceArn"= "{{envArn}}"
+
+
+

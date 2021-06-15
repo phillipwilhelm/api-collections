@@ -1,0 +1,96 @@
+#!/usr/bin/env dothttp
+
+// This method returns information about a discovered account and its dependencies from the Pending Accounts list. The discovered account is identified by its ID.// // To run this web service, the user must be a member of the Vault admins group.// // **Note:** Discovered accounts that were onboarded either manually or automatically, according to predefined rules, won't be returned using this method.
+@name("Get Discovered Account Details")
+GET "https://{{BaseURL}}/passwordvault/api/DiscoveredAccounts/{{AccountID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method returns a list of all the discovered accounts from the Pending Accounts list. To run this web service, the user must be a member of the Vault admins group.//   	// **Note:** Discovered accounts that were onboarded either manually or automatically, according to predefined rules, won't be returned using this method.// // For more information on available filters, please visit [Filter Parameters](https://docs.cyberark.com/Product-Doc/OnlineHelp/PAS/11.6/en/Content/WebServices/Get-discovered-accounts.htm#filter-parameters) in the CyberArk API Documentation.
+@name("Get Discovered Accounts")
+GET "https://{{BaseURL}}/passwordvault/api/DiscoveredAccounts"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "filter"= "platformType eq Windows Server Local AND privileged eq true AND accountEnabled eq true"
+? "search"= "admin"
+? "searchType"= "contains"
+? "offset"= "0"
+? "limit"= "100"
+
+
+// This method adds newly discovered accounts and their dependencies.// // | Action | Description |// | --- | --- |// | Discovered account | Discovered accounts are added to the Pending Accounts list. |// | Discovered dependency | Discovered dependencies are added to the Pending Accounts list or are automatically added to the corresponding master account that has already been onboarded. |// | Automatic onboarding | Discovered accounts are onboarded according to matching onboarding rules. If automatic onboarding fails for any reason, the account is added to the Pending Accounts list. |// // Currently, Private SSH Keys are not supported.// // The user who runs this web service requires the following users and permissions:// // To add pending accounts:// // * **User:** Owner of PasswordManager_Pending Safe// * **Permissions:**//   * Add account//   * List files//   * Update account properties// // To onboard the account:// // * **User:** Owner of the target Safe of the onboarding rule.// * **Permissions:**//   * Add account//   * Update account properties//   * Initiate CPM account management operations
+@name("Add Discovered Accounts (v10.8+)")
+POST "https://{{BaseURL}}/PasswordVault/api/DiscoveredAccounts"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('[
+    {
+        "userName": "{{Username}}",
+        "address": "{{Address}}",
+        "platformTypeAccountProperties": {
+            "SID": "S-1-5-21-304654729-3147011263-1431158397-3154"
+        },
+        "accountEnabled": true,
+        "osGroups": "Backup Operators,IIS_IUSRS,Network Configuration Operators",
+        "platformType": "{{PlatformName}}",
+        "domain": "example.com",
+        "lastLogonDateTime": "1530635686",
+        "lastPasswordSetDateTime": "1530635786",
+        "passwordNeverExpires": false,
+        "osVersion": "Windows Server 2012 R2 Standard",
+        "privileged": false,
+        "userDisplayName": "User Display Name",
+        "description": "User Description",
+        "passwordExpirationDateTime": "1530645686",
+        "osFamily": "Server",
+        "OrganizationalUnit": "CN=Users,DC=example,DC=com",
+        "additionalProperties": {
+            "Port": 445,
+            "UserDN": "CN=user1,CN=Users,DC=example,DC=com"
+        },
+        "Dependencies": [
+            {
+                "name": "ServiceDep",
+                "address": "{{Address}}",
+                "type": "Windows Service"
+            }
+        ]
+    },
+    {
+        "userName": "amazon_accesskey_user",
+        "address": "aws.com",
+        "discoveryDate": "2018-05-03T13:00:00Z",
+        "platformType": "AWS Access Keys",
+        "privileged": true,
+        "platformTypeAccountProperties": {
+            "awsAccessKeyID": "ASASASASSA",
+            "awsAccountID": "123123123123"
+        }
+    },
+    {
+        "userName": "amazon_dashboard_user",
+        "address": "aws.com",
+        "discoveryDate": "2018-05-03T13:00:00Z",
+        "platformType": "AWS",
+        "privileged": true,
+        "platformTypeAccountProperties": {
+            "awsAccountID": "123123123123"
+        }
+    },
+    {
+        "userName": string,
+        "address": string,
+        "discoveryDate": "1530635689",
+        "platformType": "Azure Password Management",
+        "accountEnabled": true,
+        "privileged": true,
+        "privilegedCriteria": string,
+        "platformTypeAccountProperties": {
+            "activeDirectoryID": string
+        }
+    }
+]')
+
+
+

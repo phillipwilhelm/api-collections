@@ -1,0 +1,1 @@
+The Mock CEO API simulates what Postman's CEO typically does. One day this will probably not just be a simulation.

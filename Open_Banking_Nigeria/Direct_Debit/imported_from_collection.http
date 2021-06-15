@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// This endpoint creates a direct debit mandate on a customer's account.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|number|`Required` Unique reference ID of the direct debit mandate. This is SP's external reference|// |description|string|`Required` Description of the mandate. This would be displayed to the customer|// |sourceAccount|string|`Required` Account number of the accountholder in NUBAN format|// |sourceAccountName|string|`Required` Accountholder's name |// |maximumAmount|number|`Optional` The maximum amount that can be debited using the specific mandate |// |maximumTransaction|number|`Optional` The maximum number of debits that can be done with the specific mandate |// |sourceCurrency|string|`Required` A 3-character code that represents the currency of source account|// |startDate|date|`Required` The start date of the mandate |// |endDate|date|`Optional` The date at which the mandate expires. Transactions called on the mandate after expiration would fail |// |merchantAccount|string|`Required` Account number of the merchant in NUBAN format|// |merchantAccountName|string|`Required` Merchant's name |// |merchantCurrency|string|`Required` A 3-character code that represents the currency of the merchant's account|// |statusWebHook|string|`Optional` The URL that the FI would call to notify of the Service Provider the status of the transaction. Usually in the format https://{url}/reference/|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |mandateStatus|string|`Required` current mandate status `pending` ,`cancelled`, `valid`, `expired`|  // |mandateID|string|`Required` The unique reference for the mandate created|// |transactionRef |string|`Required` A unique reference provided by the system for the specific transaction| // |validTill|string|`Required` The time in which the authorization token is valid before it is expired| // |expiryMinutes|number|`Required` The number of minutes by which the authorization would expire| // |authDetails| |`Required` Collection of authorization payload| // |type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // |label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // |Message|string|`Required` The message that Service Provider should display when rendering input to the customer|
+@name("Create Direct Debit")
+POST "https://{{url}}/v1/directdebit"
+"Content-Type": "application/json"
+data('{
+  "referenceId": "ABCD12345678901234567890",
+  "description":"Monthly Subscription for Super Movie",
+  "sourceAccount": "9876543210",
+  "sourceAccountName": "Solomon Grundy",
+  "maximumAmount": 10000,
+  "maximumTransactions": 10,
+  "sourceCurrency": "NGN",
+  "sourceNarration": "Transfer to Ado",
+  "startDate": "2018-12-13",
+  "endDate": "2019-12-13",
+  "frequency":"daily|weekly|monthly",
+  "merchantCurrency":"NGN",
+  "merchantAccount": "0123456789",
+  "merchantAccountName": "Some Services Limited",
+  "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}')
+
+
+// This endpoint modifies direct debit mandate on a customer's account.// // #### URL Parameters// | Parameter |Type |Description |// | ----------- | ----------- | ----------- |// |mandateId|string|`Required` Unique reference ID of the direct debit mandate. This is the mandate ID provided by the FI|// // ----// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|number|`Required` Unique reference ID of the direct debit mandate. This is SP's external reference|// |description|string|`Required` Description of the mandate. This would be displayed to the customer|// |sourceAccount|string|`Required` Account number of the accountholder in NUBAN format|// |sourceAccountName|string|`Required` Accountholder's name |// |maximumAmount|number|`Optional` The maximum amount that can be debited using the specific mandate |// |maximumTransaction|number|`Optional` The maximum number of debits that can be done with the specific mandate |// |sourceCurrency|string|`Required` A 3-character code that represents the currency of source account|// |startDate|date|`Required` The start date of the mandate |// |endDate|date|`Optional` The date at which the mandate expires. Transactions called on the mandate after expiration would fail |// |merchantAccount|string|`Required` Account number of the merchant in NUBAN format|// |merchantAccountName|string|`Required` Merchant's name |// |merchantCurrency|string|`Required` A 3-character code that represents the currency of the merchant's account|// |statusWebHook|string|`Optional` The URL that the FI would call to notify of the Service Provider the status of the transaction. Usually in the format https://{url}/reference/|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |mandate_status|string|`Required` current mandate status `pending` ,`cancelled`, `valid`, `expired`|  // |next_possible_charge_date|string|`Required` The earliest date a newly created payment for this mandate could be charged|// |mandateID|string|`Required` The unique reference for the mandate created|// |transactionRef |string|`Required` A unique reference provided by the system for the specific transaction| // |validTill|string|`Required` The time in which the authorization token is valid before it is expired| // |expiryMinutes|number|`Required` The number of minutes by which the authorization would expire| // |authDetails| |`Required` Collection of authorization payload| // |type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // |label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // |Message|string|`Required` The message that Service Provider should display when rendering input to the customer|
+@name("Update Direct Debit")
+PUT "https://{{url}}/v1/directdebit/{{mandateId}}"
+"Content-Type": "application/json"
+data('{
+  "description":"Monthly Subscription for Netflix",
+  "sourceAccount": "9876544510",
+  "sourceAccountName": "Solomon Grundy",
+  "maximumAmount": 10000,
+  "maximumTransactions": 10,
+  "sourceCurrency": "NGN",
+  "sourceNarration": "Transfer to Ado",
+  "startDate": "2018-12-13",
+  "endDate": "2019-12-13",
+  "frequency":"daily|weekly|monthly",
+  "merchantCurrency":"NGN",
+  "merchantAccount": "0123456789",
+  "merchantAccountName": "Some Services Limited",
+  "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}')
+
+
+// This endpoint retrieves direct debit mandate on a customer's account. // // `This endpoint supports paging`// // #### URL Parameters// | Parameter |Type |Description |// | ----------- | ----------- | ----------- |// |account|number|`Required` Account number of the customer in NUBAN format|// |mandateId|string|`Required` Unique reference ID of the direct debit mandate. This is the mandate ID provided by the FI|// // #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|number|`Required` Unique reference ID of the direct debit mandate. This is SP's external reference|// |mandate_status|string|`Required` current mandate status `pending` ,`cancelled`, `valid`, `expired`|  // |next_possible_charge_date|string|`Required` The earliest date a newly created payment for this mandate could be charged|// |mandateId|number|`Required` Unique reference ID of the direct debit mandate. This is the mandate ID provided by the FI|// |description|string|`Required` Description of the mandate. This would be displayed to the customer|// |sourceAccount|string|`Required` Account number of the accountholder in NUBAN format|// |sourceAccountName|string|`Required` Accountholder's name |// |maximumAmount|number|`Optional` The maximum amount that can be debited using the specific mandate |// |maximumTransaction|number|`Optional` The maximum number of debits that can be done with the specific mandate |// |sourceCurrency|string|`Required` A 3-character code that represents the currency of source account|// |startDate|date|`Required` The start date of the mandate |// |endDate|date|`Optional` The date at which the mandate expires. Transactions called on the mandate after expiration would fail |// |merchantAccount|string|`Required` Account number of the merchant in NUBAN format|// |merchantAccountName|string|`Required` Merchant's name |// |merchantCurrency|string|`Required` A 3-character code that represents the currency of the merchant's account|// |statusWebHook|string|`Optional` The URL that the FI would call to notify of the Service Provider the status of the transaction. Usually in the format https://{url}/reference/|
+@name("Get Direct Debit")
+GET "https://{{url}}/v1/directdebit/{{account}}/{{mandateId}}"
+
+
+// This endpoint cancels the direct debit mandate on a customer's account.// // #### URL Parameters// | Parameter |Type |Description |// | ----------- | ----------- | ----------- |// |mandateId|string|`Required` Unique reference ID of the direct debit mandate. This is the mandate ID provided by the FI|// // // ----// // #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |mandate_status|string|`Required` current mandate status `pending` ,`cancelled`, `active`|// |next_possible_charge_date|string|`Required` The earliest date a newly created payment for this mandate could be charged|// |referenceId|number|`Required` Unique reference ID of the direct debit mandate. This is SP's external reference|// |statusWebHook|string|`Optional` The URL that the FI would call to notify of the Service Provider the status of the transaction. Usually in the format https://{url}/reference/|
+@name("Cancel Direct Debit")
+POST "https://{{url}}/v1/directdebit/{{mandateId}}/cancel"
+"Content-Type": "application/json"
+
+
+
+// This endpoints fires a transaction against a previously set direct debit mandate on a customer's account// // #### URL Parameters// // | Parameter |Type |Description |// | ----------- | ----------- | ----------- |// |mandateId|string|`Required` Unique reference ID of the direct debit mandate. This is the mandate ID provided by the FI|// // ----// #### Request Parameters// // | Parameter |Type |Description |// | ----------- | ----------- | ----------- |// |amount|string|`Required` Amount to be debited from the customer|// // ----// // #### Response Body Field// | Field |Type |Description |// | ----------- | ----------- | ----------- |// |amountDebitted|number|`Required` Amount debited from the customer account|// |mandate_status|string|`Required` current mandate status `pending` ,`cancelled`, `valid`, `expired`|  // |next_possible_charge_date|string|`Required` The earliest date a newly created payment for this mandate could be charged|// |transactionRef|number|`Required` A unique reference provided by the system for the specific transaction|// |statusWebHook|string|`Optional` The URL that the FI would call to notify of the Service Provider the status of the transaction. Usually in the format https://{url}/reference/|
+@name("Pay Direct Debit")
+POST "https://{{url}}/v1/directdebit/{{mandateId}}/pay"
+"Content-Type": "application/json"
+data('{
+	"amount": "2000"
+}')
+
+
+

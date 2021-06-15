@@ -1,0 +1,174 @@
+#!/usr/bin/env dothttp
+
+// This method returns information about a specific user in the Vault.// // To run this Web service, you must have the following permissions:// // * Audit users
+@name("Get User Details")
+GET "https://{{BaseURL}}/PasswordVault/api/Users/{{UserID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method returns a list of all existing users in the Vault except for the Master and the Batch built-in users.// // To run this Web service, you must have the following permissions:// // * **Audit users**// // You can retrieve only users on the same level as you or lower in the Vault hierarchy.// // **Note:** This Web service returns up to 6000 users in up to 20 seconds. If the number of users is higher, the response time may be higher.
+@name("Get Users")
+GET "https://{{BaseURL}}/PasswordVault/api/Users"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "filter"= "userType"
+? "search"= "jgarcia"
+? "extendedDetails"= "false"
+
+
+// This method adds a new user to the Vault.// // To run this Web service, you must have the following permissions:// // * Add Users// * Update Users
+@name("Add User")
+POST "https://{{BaseURL}}/PasswordVault/api/Users"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "username": "newUser",
+    "userType": "EPVUser",
+    "initialPassword": "123Cyber",
+    "authenticationMethod": [
+        "AuthTypePass"
+    ],
+    "location": "\\",
+    "unAuthorizedInterfaces": [
+        "PSM",
+        "PSMP"
+    ],
+    "expiryDate": 1577836800,
+    "vaultAuthorization": [
+        "AddSafes",
+        "AuditUsers"
+    ],
+    "enableUser": true,
+    "changePassOnNextLogon": true,
+    "passwordNeverExpires": true,
+    "distinguishedName": "newUser@cyberark",
+    "description": "This user is privileged",
+    "businessAddress": {
+        "workStreet": "Hapssagot 9",
+        "workCity": "Petah Tikva",
+        "workState": "Israel",
+        "workZip": "9999999",
+        "workCountry": "Israel"
+    },
+    "internet": {
+        "homePage": "Cyberark.com",
+        "homeEmail": "user@gmail.com",
+        "businessEmail": "user@cyberark.com",
+        "otherEmail": "user2@gmail.com"
+    },
+    "phones": {
+        "homeNumber": "555123456",
+        "businessNumber": "555456789",
+        "cellularNumber": "555789789",
+        "faxNumber": "999999",
+        "pagerNumber": "111111"
+    },
+    "personalDetails": {
+        "street": "Dizzengof 56",
+        "city": "Tel Aviv",
+        "state": "Israel",
+        "zip": "123456",
+        "country": "Israel",
+        "title": "Mr. VIP",
+        "organization": "Cyber ark",
+        "department": "R&D",
+        "profession": "software development",
+        "firstName": "John",
+        "middleName": "Doe",
+        "lastName": "Smith"
+    }
+}')
+
+
+// This method resets an existing Vault user's password.// // To run this Web service, you must have the following permissions:// // * **Audit users**// * **Reset Users' Passwords**// // The user who runs this Web service must be in the same Vault Location or higher as the user whose password is being reset.
+@name("Reset User Password")
+POST "https://{{BaseURL}}/PasswordVault/api/Users/{{UserID}}/ResetPassword"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"id": "<integer>",
+	"newPassword": "<string>"
+}')
+
+
+// This method updates an existing Vault user.
+@name("Update User")
+PUT "https://{{BaseURL}}/PasswordVault/api/Users/{{UserID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "enableUser": true,
+    "changePassOnNextLogon": false,
+    "expiryDate": 1577836800,
+    "suspended": false,
+    "unAuthorizedInterfaces": [
+        "GUI"
+    ],
+    "authenticationMethod": [
+        "AuthTypePass"
+    ],
+    "passwordNeverExpires": true,
+    "distinguishedName": "JohnDoeRoe",
+    "description": "John Doe Roe",
+    "businessAddress": {
+        "workStreet": "Kuritania street",
+        "workCity": "Curitania",
+        "workState": "Suritania",
+        "workZip": "90211",
+        "workCountry": "Ruritania"
+    },
+    "internet": {
+        "homePage": "example.com",
+        "homeEmail": "John@example.net",
+        "businessEmail": "John@example.com",
+        "otherEmail": "John@example.org"
+    },
+    "phones": {
+        "homeNumber": "555-0100",
+        "businessNumber": "555-0101",
+        "cellularNumber": "0491 570 156",
+        "faxNumber": "555-0102",
+        "pagerNumber": "555-0103"
+    },
+    "personalDetails": {
+        "street": "Main street",
+        "city": "Curitania",
+        "state": "Suritania",
+        "zip": "90210",
+        "country": "Ruritania",
+        "title": "Mr. John",
+        "organization": "Acme",
+        "department": "newco",
+        "profession": "Doing Job",
+        "firstName": "John",
+        "middleName": "Doe",
+        "lastName": "Roe"
+    },
+    "id": 24,
+    "username": "JohnDR",
+    "source": "CyberArk",
+    "userType": "EPVUser",
+    "componentUser": false,
+    "vaultAuthorization": [
+        "AuditUsers"
+    ],
+    "location": "\\"
+}')
+
+
+// This method deletes a specific user in the Vault.
+@name("Delete User")
+DELETE "https://{{BaseURL}}/PasswordVault/api/Users/{{UserID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method activates an existing Vault user who was suspended after entering incorrect credentials multiple times.// // **Note:** This method activates a suspended user. It does not activate an inactive user.
+@name("Activate User")
+POST "https://{{BaseURL}}/PasswordVault/api/Users/{{UserID}}/Activate"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+

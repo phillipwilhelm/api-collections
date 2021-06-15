@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+// Let's check the request body for this request. // // **Selectors**: The selectors help the service map to the pods that have the matching label. // // **Exposing**: Services can be exposed within the cluster for other services(frontend) to access the pods or outside the cluster for the public to access the service. By default a service would be of ClusterIP type (this would expose the service inside the cluster). We want to expose this externally, so we chose the *LoadBalancer* type. // // *Send* and view the *Visualization* tab. You should see a congratulations message 👏🏻// // ![service created](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/service%20created.png?raw=true)
+@name("Creating a Service")
+POST "https://{{kube-api-server}}/api/v1/namespaces/default/services"
+? "fieldManager"= "kubectl-client-side-apply"
+json({
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "name": "{{project-name}}-service"
+    },
+    "spec": {
+        "type": "LoadBalancer",
+        "selector": {
+            "app": "{{project-name}}-pod"
+        },
+        "ports": [
+            {
+                "protocol": "TCP",
+                "port": 4444,
+                "targetPort": 4444
+            }
+        ]
+    }
+})
+
+
+// This request will list the service created. You should see the following in *Visualize*// // ![list service](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/list-service.png?raw=true)// // // // // The snippet in the *Tests* tab will save the external IP for the service to the collection.// // ```// const service = pm.response.json().items.filter((item) => item.metadata.name === pm.variables.get("project-name")+"-service")[0]// pm.collectionVariables.set("service-ip", service.status.loadBalancer.ingress[0].hostname)// pm.collectionVariables.set("service-port", service.spec.ports[0].port)// ```
+@name("List Services")
+GET "https://{{kube-api-server}}/api/v1/namespaces/default/services"
+? "limit"= "500"
+
+
+// We must access an endpoint on the Dobby app now to check if the app is running. It might take a while though before the service starts serving requests. Once the service is ready, click on the Say Hello to Dobby request. If you hover over the *service-ip* and *service-port* variables you should be able to see their value that was set by the tests in the previous request. // // Click on *Visualize*// // ![say hi to dobby](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/dobby-is-up.png?raw=true)
+@name("Say Hello to Dobby")
+GET "https://{{service-ip}}/health"
+
+
+

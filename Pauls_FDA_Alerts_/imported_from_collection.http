@@ -1,0 +1,84 @@
+#!/usr/bin/env dothttp
+
+// After setting up context.io, queries for FDA alerts since last run
+@name("Check Emails With Context.io")
+GET "https://api.context.io/lite/users/{{userId}}/email_accounts/0/folders/{{folder}}/messages"
+? "include_body"= "1"
+? "date_after"= "{{timestamp}}"
+
+
+// If an FDA alert is reported, sends a text alert
+@name("Send Text With Twilio")
+POST "https://api.twilio.com/2010-04-01/Accounts/{{twilioAccount}}/Messages.json"
+basicauth("ACc49bd85d009f2f03be66d3d5842df2cd", "19298d8caed83c8e1c7770a62732ac08")
+"Content-Type": "application/x-www-form-urlencoded"
+"Cache-Control": "no-cache"
+"Host": "api.twilio.com"
+data({
+    "Body": [
+        "{{AlertMessage}}"
+    ],
+    "From": [
+        "{{fromPhone}}"
+    ],
+    "To": [
+        "{{toPhone}}"
+    ]
+})
+
+
+// updates environment after run
+@name("Update Environment")
+PUT "https://api.getpostman.com/environments/{{environment_uid}}"
+"Content-Type": "application/json"
+"X-Api-Key": "{{PostmanAPIKey}}"
+data('{  
+   "environment":{  
+      "name":"FDA POC Text",
+      "values":[  
+         {  
+            "key":"userId",
+            "value":"{{userId}}"
+
+         },
+         {  
+            "key":"folder",
+            "value":"{{folder}}"
+
+         },
+         {  
+            "key":"AlertText",
+            "value":"{{AlertText}}"
+         },
+         {  
+            "key":"lastCheckTime",
+            "value":"{{lastCheckTime}}"
+
+         },
+         {  
+            "key":"twilioAccount",
+            "value":"{{twilioAccount}}"
+         },
+         {  
+            "key":"fromPhone",
+            "value":"{{fromPhone}}"
+         },
+         {  
+            "key":"toPhone",
+            "value":"{{toPhone}}"
+         },
+         {  
+            "key":"AlertMessage",
+            "value":""
+         },
+         {  
+            "key":"environment_uid",
+            "value":"{{environment_uid}}",
+            "description":""
+         }
+      ]
+   }
+}')
+
+
+

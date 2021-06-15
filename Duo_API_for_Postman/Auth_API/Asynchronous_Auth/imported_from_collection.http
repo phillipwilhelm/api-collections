@@ -1,0 +1,28 @@
+#!/usr/bin/env dothttp
+
+// This is an example of a manual, synchronous push to a user ("example.user") with custom headers, context and fields. This functionality has potential to be used in a lot of different cases when it comes to verifying behaviour: not just log-ins!
+@name("/auth/v2/auth")
+POST "https://{{duo-API-HOST}}/auth/v2/auth"
+basicauth("{{auth-ikey}}", "{{duo-auth-HMAC}}")
+"Date": "{{duo-DATE}}"
+"Content-Type": "application/x-www-form-urlencoded"
+? "async"= "1"
+? "device"= "auto"
+? "display_username"= "John Smith"
+? "factor"= "push"
+? "pushinfo"= "ALERT=New Domain account created&ACTION=If this was you, please confirm this prompt. Otherwise, please deny.&INFO=Account Name: @d4n_tweets"
+? "type"= "Domain Account Created"
+? "username"= "dan.nash"
+
+
+
+@name("/auth/v2/auth_status")
+GET "https://{{duo-API-HOST}}/auth/v2/auth_status"
+basicauth("{{auth-ikey}}", "{{duo-auth-HMAC}}")
+"Date": "{{duo-DATE}}"
+"Content-Type": "application/x-www-form-urlencoded"
+? "txid"= "{{duo-auth-ASYNC-ID}}"
+? "txid"= "4e6c7e6e-932c-4494-86ce-49e973b2790b"
+
+
+

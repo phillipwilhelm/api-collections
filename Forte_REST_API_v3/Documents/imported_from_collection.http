@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+// To successfully upload a document that supports a merchant application or dispute, your request must include a `multipart/form-data` content type. A `multipart/form-data` message contains a series of sections separated by boundary strings. Boundary strings can be any combination of letters or numbers up to 70 characters as long as the string does not appear in the request body of the message. Each instance of a boundary string must be preceded by at least two dashes (`--boundarystring`), while the last boundary string must be preceded and followed by two dashes (`--boundarystring--`).// </br></br>// The section of a multipart/form-data message that contains the upload file must include a `Content-Disposition` header that indicates whether the file should be displayed as inline or, in our case, as an attachment. You must also add a field name (i.e., `file`) and a default filename to the attachment by using the `name="file"; filename="filename.jpg"` directives within the `Content-Disposition` header. // </br></br>// In curl, POST requests to upload documents use the `-F` or `-form` command as in the following example:// // ```JSON// curl //     -H "Authorization: Basic {encoded APIAccessID:APISecureKey string}" //     -H "X-Forte-Auth-Organization-Id: org_300005" //     -F document={"resource":"application","resource_id":"app_103448","description":"receipt"};type=application/json //     -F file:@filename.jpg  // "/organizations/org_300005/documents"// ```// // This request would generate a HTTP request to Forte similar to the following:// // ```HTTP// POST /api/v3/organizations/org_300005/documents HTTP/1.1// Host: sandbox.forte.net// User-Agent: curl/7.46.0// Accept: application/json; charset=utf-8// Content-Type: multipart/mixed; boundary=--abcdefghijklmnopqrstuvwxyz// Content-Length: 8469// Authorization: Basic {encoded APIAccessID:APISecureKey string} // X-Forte-Auth-Organization-Id: org_300005// --abcdefghijklmnopqrstuvwxyz// Content-Disposition:form-data; filename="filename.jpg"// Content-Type: image/jpeg// <binary content of filename.jpg>// --abcdefghijklmnopqrstuvwxyz// Content-Type: application/json // {"resource":"application","resource_id":"app_103448","description":"receipt"}// --abcdefghijklmnopqrstuvwxyz--// ```// </br>// The following URI uploads the document to the Forte database. Documents must be under 8MB, must not be password protected or encrypted, and must be in one of the following formats: <ul><li>jpeg</li><li>png</li><li>tiff</li><li> txt</li><li>bmp</li><li>pdf</li><li>wav</li><li>mp3</li></ul>
+@name("Text Document")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/documents/"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('--5ff9ef78-b4d7-4fb2-b179-1ff0b553b581
+Content-Type: application/json; charset=utf-8
+Content-Disposition: form-data
+
+{"resource":"application","resource_id":"app_132416","description":"This is a test file."}
+--5ff9ef78-b4d7-4fb2-b179-1ff0b553b581
+Content-Type: text/plain
+Content-Disposition: form-data; filename=exampleTextFile.txt
+
+
+Example content of text file
+
+--5ff9ef78-b4d7-4fb2-b179-1ff0b553b581--
+')
+
+
+// This URI returns all documents associated with an organization. To narrow your search data using specific criteria, use the following filter parameters.// <ul>// <li> start_received_date / end_received_date</li>// <li> type</li>// <li> resource</li>// </ul>// // **NOTE**: All date filter parameters are time aware.
+@name("All Documents for an Organization")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/documents"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+? "filter"= "start_received_date+eq+'2015-01-01'+and+end_received_date+eq+'2015-01-31'"
+
+
+
+// This URI returns the details of the document record specified in the route by the `document_id` parameter.
+@name("Documents by ID")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/documents/doc_{{documentID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI deletes the document record specified in the route by the `document_id` parameter.
+@name("Documents")
+DELETE "https://{{baseURI}}/organizations/org_{{organizationID}}/documents/doc_{{documentID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+

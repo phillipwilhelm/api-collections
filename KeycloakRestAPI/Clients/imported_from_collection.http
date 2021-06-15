@@ -1,0 +1,247 @@
+#!/usr/bin/env dothttp
+
+// Get clients belonging to the realm Returns a list of clients belonging to the realm
+@name("Get clients [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients"
+"Content-Type": "application/json"
+
+
+// Get representation of the client
+@name("Get representation of the client [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}"
+"Content-Type": "application/json"
+
+
+// Generate a new secret for the client
+@name("Generate a new secret for the client [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/client-secret"
+"Content-Type": "application/json"
+
+
+// Get the client secret
+@name("Get secret for the client [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/client-secret"
+"Content-Type": "application/json"
+
+
+// Get the client providers
+@name("Get the client providers [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/installation/providers/keycloak-oidc"
+"Content-Type": "application/json"
+
+
+// Register a cluster node with the client Manually register cluster node to this client - usually it’s not needed to call this directly as adapter should handle by sending registration request to Keycloak
+@name("Register a cluster node with the client  [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/nodes"
+"Content-Type": "application/json"
+data('{
+	"formParams": []
+}')
+
+
+// Register a cluster node with the client Manually register cluster node to this client - usually it’s not needed to call this directly as adapter should handle by sending registration request to Keycloak
+@name("Register a cluster node with the client  [SAT] Copy")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/nodes/{{node}}"
+"Content-Type": "application/json"
+
+
+// Has client authorization permissions initialized?
+@name("Get client authorization permissions [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/management/permissions"
+"Content-Type": "application/json"
+
+
+// Return object stating whether client Authorization permissions have been initialized or not and a reference
+@name("Update client authorization permissions [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/management/permissions"
+"Content-Type": "application/json"
+data('{
+	"enabled": "false"
+}')
+
+
+// Get representation of the client
+@name("Get representation of the client [SAT] Copy")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}"
+"Content-Type": "application/json"
+
+
+// Create a new client Client’s client_id must be unique!
+@name("Create a new client [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients"
+"Content-Type": "application/json"
+data('    {
+        "clientId": "new-client-from-rest-api",
+        "name": "new-client-from-rest-api",
+        "adminUrl": "http://localhost:4200",
+        "alwaysDisplayInConsole": false,
+        "access": {
+            "view": true,
+            "configure": true,
+            "manage": true
+        },
+        "attributes": {},
+        "authenticationFlowBindingOverrides" : {},
+        "authorizationServicesEnabled": false,
+        "bearerOnly": false,
+        "directAccessGrantsEnabled": true,
+        "enabled": true,
+        "protocol": "openid-connect",
+        "description": "rest-api",
+
+        "rootUrl": "${authBaseUrl}",
+        "baseUrl": "/realms/heroes/account/",
+        "surrogateAuthRequired": false,
+        "clientAuthenticatorType": "client-secret",
+        "defaultRoles": [
+            "manage-account",
+            "view-profile"
+        ],
+        "redirectUris": [
+            "/realms/heroes/account/*"
+        ],
+        "webOrigins": [],
+        "notBefore": 0,
+        "consentRequired": false,
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false,
+        "serviceAccountsEnabled": false,
+        "publicClient": false,
+        "frontchannelLogout": false,
+        "fullScopeAllowed": false,
+        "nodeReRegistrationTimeout": 0,
+        "defaultClientScopes": [
+            "web-origins",
+            "role_list",
+            "profile",
+            "roles",
+            "email"
+        ],
+        "optionalClientScopes": [
+            "address",
+            "phone",
+            "offline_access",
+            "microprofile-jwt"
+        ]
+    }')
+
+
+// Create a new client Client’s client_id must be unique!
+@name("Create a new client [SAT] Copy")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}"
+"Content-Type": "application/json"
+data('{
+    "enabled": false
+}')
+
+
+// Get default client scopes from a client.
+@name("Get default client scopes [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/default-client-scopes"
+"Content-Type": "application/json"
+
+
+// Create JSON with payload of example access token
+@name("Create JSON with payload of example access token [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/evaluate-scopes/generate-example-access-token"
+"Content-Type": "application/json"
+? "userId"= "{{userId}}"
+
+
+// Get effective scope mapping of all roles of particular role container, which this client is defacto allowed to have in the accessToken issued for him.
+@name("Get effective scope mapping of all roles [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/evaluate-scopes/scope-mappings/{{containerId}}/granted"
+"Content-Type": "application/json"
+
+
+// Get roles, which this client doesn’t have scope for and can’t have them in the accessToken issued for him.
+@name("Get roles without scope and access token [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/evaluate-scopes/scope-mappings/{{containerId}}/not-granted"
+"Content-Type": "application/json"
+
+
+// Return list of all protocol mappers, which will be used when generating tokens issued for particular client.
+@name("Get all protocol mappers [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/evaluate-scopes/protocol-mappers"
+"Content-Type": "application/json"
+
+
+// Get application offline session count Returns a number of offline user sessions associated with this client { "count": number }
+@name("Get application offline session count [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/offline-session-count"
+"Content-Type": "application/json"
+
+
+// Get offline sessions for client Returns a list of offline user sessions associated with this client
+@name("Get application offline sessions [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/offline-sessions"
+"Content-Type": "application/json"
+
+
+// Get optional client scopes.
+@name("Get optional client scopes[SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/optional-client-scopes"
+"Content-Type": "application/json"
+
+
+// Add optional client scope to client
+@name("Add optional client scope to client [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/optional-client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Delete optional client scope to client
+@name("Delete optional client scope to client [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/optional-client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Add default client scope to client
+@name("Add default client scope to client [SAT]")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/default-client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Delete default client scope to client
+@name("Delete default client scope to client [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/default-client-scopes/{{clientScopeId}}"
+"Content-Type": "application/json"
+
+
+// Push the client’s revocation policy to its admin URL If the client has an admin URL, push revocation policy to it.
+@name("Push the client’s revocation policy to its admin URL [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/push-revocation"
+"Content-Type": "application/json"
+
+
+// Generate a new registration access token for the client
+@name("Generate a new registration access token for the client [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/registration-access-token"
+"Content-Type": "application/json"
+
+
+// Get a user dedicated to the service account
+@name("Get a user dedicated to the service account [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientIdServiceAccount}}/service-account-user"
+"Content-Type": "application/json"
+
+
+// Get application session count Returns a number of user sessions associated with this client { "count": number }
+@name("Get application session count associated with this client [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientIdServiceAccount}}/session-count"
+"Content-Type": "application/json"
+
+
+// Test if registered cluster nodes are available Tests availability by sending 'ping' request to all cluster nodes
+@name("Test if registered cluster nodes are available [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientIdServiceAccount}}/test-nodes-available"
+"Content-Type": "application/json"
+
+
+// Get user sessions for client Returns a list of user sessions associated with this client
+@name("Get user sessions associated with this client [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientIdServiceAccount}}/user-sessions"
+"Content-Type": "application/json"
+
+
+

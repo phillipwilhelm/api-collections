@@ -1,0 +1,117 @@
+#!/usr/bin/env dothttp
+
+// Posts a message in MIME format. Note: you will need to build a MIME string yourself. Use a MIME library for your programming language to do this. Pass the resulting MIME string as `message` parameter.// // // | Parameter         | Description                                                                                                                                                                              |// |-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | to                | Email address of the recipient(s). Example: `"Bob <bob@host.com>"`. You can use commas to separate multiple recipients. Make sure to include all `To`, `Cc` and `Bcc` recipients of the message. |// | message           | MIME string of the message. Make sure to use `multipart/form-data` to send this as a file upload.                                                                                          |// | o:tag             | Tag string. See [Tagging](https://documentation.mailgun.com/en/latest/user_manual.html#tagging) for more information.                                                                                                                                            |// | o:deliverytime    | Desired time of delivery. See [Date Format](https://documentation.mailgun.com/en/latest/api-intro.html#date-format). Note: Messages can be scheduled for a maximum of 3 days in the future.                                                                        |// | o:dkim            | Enables/disabled DKIM signatures on per-message basis. Pass `yes` or `no`                                                                                                                    |// | o:testmode        | Enables sending in test mode. Pass `yes` if needed. See [Sending in Test Mode](https://documentation.mailgun.com/en/latest/user_manual.html#manual-testmode)                                                                                                               |// | o:tracking        | Toggles tracking on a per-message basis, see [Tracking Messages](https://documentation.mailgun.com/en/latest/user_manual.html#tracking-messages) for details. Pass `yes` or `no`.                                                                                              |// | o:tracking-clicks | Toggles clicks tracking on a per-message basis. Has higher priority than domain-level setting. Pass `yes`, `no` or `htmlonly`.                                                                 |// | o:tracking-opens  | Toggles opens tracking on a per-message basis. Has higher priority than domain-level setting. Pass `yes` or `no`.                                                                            |// | h:X-My-Header     | `h:` prefix followed by an arbitrary value allows to append a custom MIME header to the message (`X-My-Header` in this case). For example, `h:Reply-To` to specify Reply-To address.           |// | v:my-var          | `v:` prefix followed by an arbitrary name allows to attach a custom JSON data to the message. See [Attaching Data to Messages](https://documentation.mailgun.com/en/latest/user_manual.html#manual-customdata) for more information.                                         |
+@name("Send message with MIME")
+POST "https://{{BASE_URL}}/{{mydomain}}/messages.mime"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "{{token}}"
+files(
+	("to", ""),
+	("message", ""),
+	("o:tag", ""),
+	("o:deliverytime", ""),
+	("o:dkim", ""),
+	("o:testmode", ""),
+	("o:tracking", ""),
+	("o:tracking-clicks", ""),
+	("o:tracking-opens", ""),
+	("h:X-My-Header", ""),
+	("v:my-var", "")
+)
+
+
+// Sends a message by assembling it from the components. Note that you can specify most parameters multiple times, HTTP supports this out of the box. This makes sense for parameters like `cc`, `to` or `attachment`.// // | Parameter           | Description                                                                                                                                                                                                                                                                                                                                      |// |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | from                | Email address for `From` header                                                                                                                                                                                                                                                                                                                    |// | to                  | Email address of the recipient(s). Example: `"Bob <bob@host.com>"`. You can use commas to separate multiple recipients.                                                                                                                                                                                                                            |// | cc                  | Same as `To` but for `Cc`                                                                                                                                                                                                                                                                                                                            |// | bcc                 | Same as `To` but for `Bcc`                                                                                                                                                                                                                                                                                                                           |// | subject             | Message subject                                                                                                                                                                                                                                                                                                                                  |// | text                | Body of the message. (text version)                                                                                                                                                                                                                                                                                                              |// | html                | Body of the message. (HTML version)                                                                                                                                                                                                                                                                                                              |// | attachment          | File attachment. You can post multiple `attachment` values. Important: You must use `multipart/form-data` encoding when sending attachments.                                                                                                                                                                                                         |// | inline              | Attachment with `inline` disposition. Can be used to send inline images (see example). You can post multiple `inline` values.                                                                                                                                                                                                                        |// | o:tag               | Tag string. See [Tagging](https://documentation.mailgun.com/en/latest/user_manual.html#tagging) for more information.                                                                                                                                                                                                                                                                                                    |// | o:dkim              | Enables/disables DKIM signatures on per-message basis. Pass `yes` or `no`                                                                                                                                                                                                                                                                            |// | o:deliverytime      | Desired time of delivery. See [Date Format](https://documentation.mailgun.com/en/latest/api-intro.html#date-format). Note: Messages can be scheduled for a maximum of 3 days in the future.                                                                                                                                                                                                                                |// | o:testmode          | Enables sending in test mode. Pass `yes` if needed. See [Sending in Test Mode](https://documentation.mailgun.com/en/latest/user_manual.html#manual-testmode)                                                                                                                                                                                                                                                                       |// | o:tracking          | Toggles tracking on a per-message basis, see [Tracking Messages](https://documentation.mailgun.com/en/latest/user_manual.html#tracking-messages) for details. Pass `yes` or `no`.                                                                                                                                                                                                                                                      |// | o:tracking-clicks   | Toggles clicks tracking on a per-message basis. Has higher priority than domain-level setting. Pass `yes`, `no` or `htmlonly`.                                                                                                                                                                                                                         |// | o:tracking-opens    | Toggles opens tracking on a per-message basis. Has higher priority than domain-level setting. Pass `yes` or `no`.                                                                                                                                                                                                                                    |// | o:require-tls       | If set to True this requires the message only be sent over a TLS connection. If a TLS connection can not be established, Mailgun will not deliver the message. If set to False, Mailgun will still try and upgrade the connection, but if Mailgun can not, the message will be delivered over a plaintext SMTP connection. The default is False. |// | o:skip-verification | If set to True, the certificate and hostname will not be verified when trying to establish a TLS connection and Mailgun will accept any certificate during delivery. If set to False, Mailgun will verify the certificate and hostname. If either one can not be verified, a TLS connection will not be established. The default is False.       |// | h:X-My-Header       | `h:` prefix followed by an arbitrary value allows to append a custom MIME header to the message (`X-My-Header` in this case). For example, `h:Reply-To` to specify Reply-To address.                                                                                                                                                                   |// | v:my-var            | `v:` prefix followed by an arbitrary name allows to attach a custom JSON data to the message. See [Attaching Data to Messages](https://documentation.mailgun.com/en/latest/user_manual.html#manual-customdata) for more information.                                                                                                                                                                                                 |
+@name("Send message")
+POST "https://{{BASE_URL}}/{{mydomain}}/messages"
+"Authorization": "Basic {{token}}"
+files(
+	("from", "postmaster@{{mydomain}}"),
+	("to", "mkane@mailgun.com"),
+	("subject", "Tracking test"),
+	("text", "Hello World"),
+	("html", "You have requested to create a new account. Please use the following link to do that (link will expire in 6 hours):<br><br><a href="https://doublelist.com/create_account/?id=79495170&cd=70ca57b1102eb417f3f22ebefd7bbb84">https://doublelist.com/create_account/?id=79495170&cd=70ca57b1102eb417f3f22ebefd7bbb84</a><br><br>DO NOT SHARE THIS EMAIL WITH ANYONE ELSE. Any attempt to get this email from you is a scam and will compromise your account.
+--bf15cccb9c424a55bb590daa37c3fedd--"),
+	("amp-html", "<!--
+  ## Introduction
+
+  The [`amp-image-lightbox`](/content/amp-dev/documentation/components/reference/amp-image-lightbox-v0.1.md) component allows the user to expand an image to fill the viewport.
+--><!-- -->
+<!doctype html>
+<html ⚡4email>
+<head>
+<meta charset="utf-8">
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <!-- ## Setup -->
+  <!-- Import the amp-image-lightbox component in the header -->
+  <script async custom-element="amp-image-lightbox" src="https://cdn.ampproject.org/v0/amp-image-lightbox-0.1.js"></script>
+  <style amp4email-boilerplate>body{visibility:hidden}</style>
+</head>
+<body>
+  <!-- ## Basic usage -->
+  <!--
+    The `amp-image-lightbox` is activated using the `on` action on an `amp-img` element referencing the lightbox element's ID.
+  -->
+  <div>
+    <amp-img on="tap:lightbox1" role="button" tabindex="0" src="https://amp.dev/static/samples/img/Border_Collie.jpg" alt="Picture of a dog" title="Picture of a dog, view in lightbox" layout="responsive" width="300" height="246"></amp-img>
+    <amp-image-lightbox id="lightbox1" layout="nodisplay"></amp-image-lightbox>
+  </div>
+
+  <!-- ## Multi image support -->
+  <!--
+    It is even possible to show different images in the same `amp-image-lightbox`. Here is another image using the same lightbox.
+  -->
+  <amp-img on="tap:lightbox1" role="button" tabindex="0" src="https://amp.dev/static/samples/img/Hovawart.jpg" alt="Picture of a dog" title="Picture of a dog, view in lightbox" layout="responsive" width="600" height="400"></amp-img>
+
+  <!-- ## Caption: figcaption -->
+  <!--
+    The amp-image-lightbox also can optionally display a caption for the image at the bottom of the viewport. This can either be the contents of the `<figcaption>` element when the image is in the figure tag...
+  -->
+  <figure>
+    <amp-img on="tap:lightbox1" role="button" tabindex="0" src="https://amp.dev/static/samples/img/Border_Collie.jpg" alt="Picture of a dog" title="Picture of a dog, view in lightbox" layout="responsive" width="300" height="246"></amp-img>
+    <figcaption>Border Collie.</figcaption>
+  </figure>
+
+  <!-- ## Caption: aria-describedby -->
+  <!--
+    ... or the contents of the element whose ID is specified by the image's <code>aria-describedby</code> attribute.
+  -->
+  <div>
+    <amp-img on="tap:lightbox1" role="button" tabindex="0" aria-describedby="imageDescription" alt="Picture of a dog" title="Picture of a dog, view in lightbox" src="https://amp.dev/static/samples/img/Border_Collie.jpg" width="300" height="246"></amp-img>
+    <div id="imageDescription">
+      This is a border collie.
+    </div>
+  </div>
+</body></html>"),
+	("cc", ""),
+	("bcc", ""),
+	("attachment", "None"),
+	("inline", ""),
+	("template", "{{template}}"),
+	("v:first_name", ""),
+	("t:version", ""),
+	("t:text", ""),
+	("o:tag", "tracking_test"),
+	("o:tag", "training"),
+	("o:dkim", ""),
+	("o:deliverytime", ""),
+	("o:testmode", ""),
+	("o:tracking", "yes"),
+	("o:tracking-clicks", ""),
+	("o:tracking-opens", ""),
+	("o:require-tls", ""),
+	("o:skip-verification", ""),
+	("h:X-My-Header", ""),
+	("cc", ""),
+	("X-Mailgun-Variables", ""),
+	("v:last_name", ""),
+	("v:my_message_id", "")
+)
+
+
+// To retrieve an inbound message that has been stored via the `store()` action, use the URL found in the stored event (which you can find through the Events API, or in the notify webhook set when creating the store action (`store(notify="http://mydomain.com/callback")`).// // * By default the message will be returned in JSON form with parsed parts. Links to the attachments will be included.// * You can also retrieve the full raw mime message (attachments and all) if you make the request to the URL with the `Accept` header set to `message/rfc2822`.// * Stored messages are encoded with [Quoted-printable](https://en.wikipedia.org/wiki/Quoted-printable) encoding. Decoding samples are available in the examples section below.// // // These are the parameters of the JSON returned from a GET request to a stored message url.// // | Parameter          | Type   | Description                                                                                                                                                                                                      |// |--------------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | recipients         | string | recipient of the message as reported by `MAIL` `TO` during SMTP chat.                                                                                                                                                |// | sender             | string | sender of the message as reported by `MAIL` `FROM` during SMTP chat. Note: this value may differ from `From` MIME header.                                                                                              |// | from               | string | sender of the message as reported by `From` message header, for example “Bob Lee <blee@mailgun.net>”.                                                                                                              |// | subject            | string | subject string.                                                                                                                                                                                                  |// | body-plain         | string | text version of the email. This field is always present. If the incoming message only has HTML body, Mailgun will create a text representation for you.                                                          |// | stripped-text      | string | text version of the message without quoted parts and signature block (if found).                                                                                                                                 |// | stripped-signature | string | the signature block stripped from the plain text message (if found).                                                                                                                                             |// | body-html          | string | HTML version of the message, if message was multipart. Note that all parts of the message will be posted, not just text/html. For instance if a message arrives with “foo” part it will be posted as “body-foo”. |// | stripped-html      | string | HTML version of the message, without quoted parts.                                                                                                                                                               |// | attachments        | string | contains a json list of metadata objects, one for each attachment, see below.                                                                                                                                    |// | message-headers    | string | list of all MIME headers dumped to a json string (order of headers preserved).                                                                                                                                   |// | content-id-map     | string | JSON-encoded dictionary which maps Content-ID (CID) of each attachment to the corresponding `attachment-x` parameter. This allows you to map posted attachments to tags like `<img src='cid'>` in the message body.  |// // // > Note Do not rely on the `body-plain`, `stripped-text`, and `stripped-signature` fields for HTML sanitization. These fields merely provide content from the text/plain portion of an incoming message. This content may contain unescaped HTML.// // The attachments JSON contains the following items.// // | Parameter    | Type    | Description                                                                       |// |--------------|---------|-----------------------------------------------------------------------------------|// | size         | integer | indicates the size of the attachment in bytes.                                    |// | url          | string  | contains the url where the attachment can be found. This does not support DELETE. |// | name         | string  | the name of the attachment                                                        |// | content-type | string  | the content type of the attachment                                                |// // // These are the parameters when the `Accept` header is set to `message/rfc2822`// // | Parameter | Type   | Description                                                                                    |// |-----------|--------|------------------------------------------------------------------------------------------------|// | recipient | string | recipient of the message.                                                                      |// | sender    | string | sender of the message as reported by SMTP MAIL FROM.                                           |// | from      | string | sender of the message as reported by `From` message header, for example “Bob <bob@example.com>”. |// | subject   | string | subject string.                                                                                |// | body-mime | string | full MIME envelope. You will need a MIME parsing library to process this data.                 |
+@name("Retrieving Stored Messages")
+GET "https://{{STORAGE_URL}}/domains/{{mydomain}}/messages/{{messagekey}}"
+"Authorization": "Basic {{token}}"
+
+
+

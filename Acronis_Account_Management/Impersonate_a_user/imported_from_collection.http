@@ -1,0 +1,37 @@
+#!/usr/bin/env dothttp
+
+// Issue a OTT for a user. You need to create a user before issue a token for a user.
+@name("Issue a One Time Token (OTT)")
+POST "https://{{base_url}}/api/2/idp/ott"
+"Content-Type": "application/json"
+data('{
+  "purpose": "user_login",
+  "login": "{{login}}"
+}')
+
+
+@name("Logins into system using One-Time Token and get IDP session cookie")
+POST "https://{{base_url}}/api/2/idp/ott/login"
+"Content-Type": "application/json"
+"X-Acronis-API": "1"
+data('{
+    "ott": "T1RUAQAAAEvIAQAAAAAA-UKEFtYUSVCTx0WSJFYOoA=="
+}')
+
+
+@name("Logins into system using  external login URL")
+GET "https://{{base_url}}/api/2/idp/external-login"
+"Content-Type": "application/json"
+
+
+@name("Test that you login as a user (impersonate)")
+GET "https://{{base_url}}/api/2/users/me"
+"Accept": "application/json"
+
+
+@name("Logout from an impersonated user")
+GET "https://{{base_url}}/api/2/idp/logout"
+"Accept": "application/json"
+
+
+

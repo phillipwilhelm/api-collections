@@ -1,0 +1,5 @@
+This is collection of twitter accounts for California television, providing updates on what is happening in each state when it comes to COVID-19 across the state.
+
+Before you can use, you will have to setup your own [Twitter application and configure Postman before you can use](https://community.postman.com/t/twitter-api-authorization/9512.
+
+All tweets and accounts pulled are also stored in the environment for the collection, allowing them to be aggregated, downloaded, or published to some other location.

@@ -1,0 +1,137 @@
+#!/usr/bin/env dothttp
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/createSendDefinition.htm// // Creates a send definition.
+@name("Email - Create Send Definiton")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions"
+json({
+    "definitionKey": "tapi-demo-postman",
+    "status": "Active",
+    "name": "Postman Demo",
+    "description": "Created via REST",
+    "classification": "Default Transactional",
+    "content": {
+        "customerKey": "a128e1f4-0c53-4232-be79-7e2f9f13a7ce"
+    },
+    "subscriptions": {
+        "list": "All Subscribers - 653241",
+        "dataExtension": "CF2F5C60-65C3-43E7-8ACD-AD68667F133C",
+        "autoAddSubscriber": true,
+        "updateSubscriber": false
+    },
+    "options": {
+        "trackLinks": true,
+        "cc": [
+            "cc_address@example.com"
+        ],
+        "bcc": [
+            "bcc_address@example.com"
+        ],
+        "createJourney": true
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getDefinitions.htm// // Gets a list of send definitions.
+@name("Email - Get a List of Definitions")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getQueueMetricsForDefinition.htm// // Gets metrics for the messages of a send definition. Applies to messages that are accepted but not yet processed.
+@name("Email - Get Queue Metrics for a Definition")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}/queue"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSendStatusForRecipient.htm// // Gets the send status for a message. Because this route is rate-limited, use it for infrequent verification of a messageKey. To collect send status at scale, subscribe to transactional send events using the Event Notification Service.
+@name("Email - Get Message Send Status for Recipient")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com//messaging/v1/email/messages/{{messageKey}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getMessagesNotSent.htm// // Gets a paginated list of messages that were not sent, ordered from oldest to newest.
+@name("Email - Get List of Messages Not Sent to Recipients")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages/"
+? "type"= "notSent"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSendDefinition.htm// // Gets send definition configuration details for a definition key.
+@name("Email - Get Send Definition by Key")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/updateMessageDefinition.htm// // Updates a specific message definition.
+@name("Email - Update Message Definition")
+PATCH "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+json({
+    "status": "Active",
+    "name": "Postman Demo - Updated Name",
+    "description": "Updated Description",
+    "classification": "Default Transactional",
+    "content": {
+        "customerKey": "a128e1f4-0c53-4232-be79-7e2f9f13a7ce"
+    },
+    "subscriptions": {
+        "list": "All Subscribers - 515987",
+        "dataExtension": "CF2F5C60-65C3-43E7-8ACD-AD68667F133C",
+        "autoAddSubscriber": true,
+        "updateSubscriber": false
+    },
+    "options": {
+        "trackLinks": true
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/deleteMessageDefinition.htm// // Deletes a message definition. You can't restore a deleted definition. The deleted definition is archived, and a delete location of the definition key is provided in the response for reference. You can reuse a deleted definition key because the information associated with it is copied to a new unique identifier.
+@name("Email - Delete Message Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/definitions/{{definitionKey}}"
+
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/sendMessageSingleRecipient.htm// // Sends a message to a single recipient via a send definition using a messageKey path parameter.
+@name("Email - Send a Message to a Single Recipient")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages/{{$guid}}"
+json({
+    "definitionKey": "tapi-ena-welcome",
+    "recipient": {
+        "contactKey": "aaron.cates@salesforce.com",
+        "to": "aaron.cates@salesforce.com",
+        "attributes": {
+            "FirstName": "Aaron",
+            "Plan": "PPO"
+        }
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/sendMessageMultipleRecipients.htm// // Sends a message to multiple recipients using a send definition. You can provide a messageKey in the request; otherwise, the messageKey is automatically generated in the response.
+@name("Email - Send a Message to Multiple Recipients")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/email/messages"
+json({
+    "definitionKey": "tapi-ena-appointment",
+    "recipients": [
+        {
+            "contactKey": "aaron.cates@salesforce.com",
+            "to": "aaron.cates@salesforce.com",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Aaron",
+                "Doctor": "Smith"
+            }
+        },
+        {
+            "contactKey": "aaron.cates@salesforce.com",
+            "to": "aaron.cates@salesforce.com",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Billy",
+                "Doctor": "McNew"
+            }
+        }
+    ],
+    "attributes": {
+        "GlobalAttribute1": "value_a",
+        "GlobalAttribute2": "value_b"
+    }
+})
+
+
+

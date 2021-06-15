@@ -1,0 +1,128 @@
+#!/usr/bin/env dothttp
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/createSMSSendDefinition.htm// // Creates a send definition.
+@name("SMS - Create Send Definiton")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "status": "Active",
+    "name": "SMS Postman Demo",
+    "description": "Created via REST",
+    "content": {
+        "message": "My SMS Message Text"
+    },
+    "subscriptions": {
+        "shortCode": "59545",
+        "countryCode": "US",
+        "keyword": "TXNSMS",
+        "autoAddSubscriber": true
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/sendSMSMessageSingleRecipient.htm// // Sends a message to a single recipient via a send definition using a messageKey path parameter.
+@name("SMS - Send a Message to a Single Recipient")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/{{$guid}}"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "recipient": {
+        "to": "15015553119",
+        "contactKey": "DD301",
+        "attributes": {
+            "FirstName": "Aaron",
+            "password": "1234567890ab"
+        }
+    },
+    "subscriptions": {
+        "resubscribe": true
+    },
+    "content": {
+        "message": "Override Text: %%FirstName%% Here is your new password: %%password%%"
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/sendSMSMessageMultipleRecipients.htm// // Sends a message to multiple recipients using a send definition. You can provide a messageKey in the request; otherwise, the messageKey is automatically generated in the response.
+@name("SMS - Send a Message to Multiple Recipients")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages"
+json({
+    "definitionKey": "tapi-sms-demo-postman",
+    "recipients": [
+        {
+            "contactKey": "DD301",
+            "to": "15559083119",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "Aaron",
+                "Password": "1234567"
+            }
+        },
+        {
+            "contactKey": "DD302",
+            "to": "15015553119",
+            "messageKey": "{{$guid}}",
+            "attributes": {
+                "FirstName": "William",
+                "Password": "2345678"
+            }
+        }
+    ],
+    "attributes": {
+        "CommonAttributeExample": "2"
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/updateSMSMessageDefinition.htm// // Updates a specific message definition.
+@name("SMS - Update Message Definiton")
+PATCH "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}"
+json({
+    "status": "Active",
+    "name": "SMS Postman Demo",
+    "description": "Updating Description...",
+    "content": {
+        "message": "%%FirstName%% Here is your new password: %%password%%"
+    },
+    "subscriptions": {
+        "shortCode": "59545",
+        "countryCode": "US",
+        "keyword": "TXNSMS",
+        "autoAddSubscriber": true
+    }
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSMSDefinitions.htm// // Gets a list of send definitions.
+@name("SMS - Get a List of Definitions")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSMSSendStatusForRecipient.htm// // Gets the send status for a message. Because this route is rate-limited, use it for infrequent verification of a messageKey. To collect send status at scale, subscribe to transactional send events using the Event Notification Service.
+@name("SMS - Get Message Send Status for Recipient")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/{{messageKey}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSMSMessagesNotSent.htm// // Gets a paginated list of messages that were not sent, ordered from oldest to newest.
+@name("SMS - Get List of Messages Not Sent to Recipients")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/messages/"
+? "type"= "notSent"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/getSMSQueueMetricsForDefinition.htm// // Gets metrics for the messages of a send definition. Applies to messages that are accepted but not yet processed.
+@name("SMS - Get Queue Metrics for a Definition")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}/queue"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/deleteQueuedSMSMessagesForDefinition.htm
+@name("SMS - Delete Messages Queued for a Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}/queue"
+
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/deleteSMSMessageDefinition.htm// // Deletes a message definition. You can't restore a deleted definition. The deleted definition is archived, and a delete location of the definition key is provided in the response for reference. You can reuse a deleted definition key because the information associated with it is copied to a new unique identifier.
+@name("SMS - Delete Message Definition")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/messaging/v1/sms/definitions/{{definitionKey}}"
+
+
+
+

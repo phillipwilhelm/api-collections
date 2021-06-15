@@ -1,0 +1,3 @@
+This is a Postman collection for pulling the number of total cases and deaths from COVID-19 on [the Center for Disease Contral and Prevention (CDC) website](https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/cases-in-us.html). It is designed to pull the HTML from the CDC web page, and parse the content to pull the specific count for the total cases and deaths published on the page.
+
+If you have any questions about how this collection works, or how it can be used for pulling other data from web page syou can email [mailto:COVID-19@postman.com](COVID-19@postman.com) or [submit a GitHub issue for the project](https://github.com/postmanlabs/covid-19-apis/issues).

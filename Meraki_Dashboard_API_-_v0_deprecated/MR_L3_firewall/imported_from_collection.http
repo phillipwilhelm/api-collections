@@ -1,0 +1,28 @@
+#!/usr/bin/env dothttp
+
+// Return the L3 firewall rules for an SSID on an MR network
+@name("getNetworkSsidL3FirewallRules")
+GET "https://{{baseUrl}}/networks/:networkId/ssids/:number/l3FirewallRules"
+"Accept": "*/*"
+
+
+
+// Update the L3 firewall rules of an SSID on an MR network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // rules| array| An ordered array of the firewall rules for this SSID (not including the local LAN access rule or the default rule)// allowLanAccess| boolean| Allow wireless client access to local LAN (boolean value - true allows access and false denies access) (optional)
+@name("updateNetworkSsidL3FirewallRules")
+PUT "https://{{baseUrl}}/networks/:networkId/ssids/:number/l3FirewallRules"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "rules": [
+    {
+      "comment": "Allow TCP traffic to subnet with HTTP servers.",
+      "policy": "allow",
+      "protocol": "tcp",
+      "destPort": 443,
+      "destCidr": "192.168.1.0/24"
+    }
+  ]
+}')
+
+
+

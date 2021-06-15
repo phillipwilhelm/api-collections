@@ -1,0 +1,3 @@
+The downloadable data file is updated daily and contains the latest available public data on COVID-19. Public-use data files allows users to manipulate the data in a format appropriate for their analyses. Users of ECDC public-use data files must comply with data use restrictions to ensure that the information will be used solely for statistical analysis or reporting purposes.
+
+Website: ECDC COVID-19 main page: https://www.ecdc.europa.eu/en/novel-coronavirus-china

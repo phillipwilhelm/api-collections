@@ -1,0 +1,123 @@
+#!/usr/bin/env dothttp
+
+// ## Pod// In Kubernetes, pods are a group of containers and also the smallest deployable unit. Pod will define the configuration that is required to create the app container. // // ![Kubernetes Pod](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/k8s-pod.png?raw=true)// // Let's create a pod for dobby now. You should find the configuration as json in the request body. We have created a collection variable called *project-name*, this variable is going to be used throughout the collection while creating resources, so it made perfect sense to extract it. // // <collection variables>// // Feel free to rename the variable, if you like. Let's head over to the request body again. // You will find fields like metadata name - name of the pod, and labels. We'll discuss how labels are useful in the subsequent requests. If you scroll below to the spec you will also find the image that we are using for the containers and the port the app is supposed to run on. // // Press *Send*! There will be a lot of details in the response body, keep an eye on the *Visualization* tab for a sneak peek. You should see a message like in the picture.// // ![Pod created](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/Pod-created-sucessfully.png?raw=true)
+@name("Creating a Pod")
+POST "https://{{kube-api-server}}/api/v1/namespaces/default/pods"
+? "fieldManager"= "kubectl-client-side-apply"
+json({
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "name": "{{project-name}}-pod",
+        "labels": {
+            "app": "{{project-name}}-pod"
+        }
+    },
+    "spec": {
+        "containers": [
+            {
+                "name": "{{project-name}}-container",
+                "image": "thecasualcoder/dobby",
+                "ports": [
+                    {
+                        "containerPort": 4444
+                    }
+                ]
+            }
+        ]
+    }
+})
+
+
+// This request will list all pods created. Let results in the *Visualization* tab guide you to the next steps.// // ![List pods](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/list-pods.png?raw=true)// // Head over to Delete the pod created
+@name("List Pods")
+GET "https://{{kube-api-server}}/api/v1/namespaces/default/pods"
+"Authorization": ""
+? "limit"= "500"
+
+
+// ## Deployment// In the previous section, we created a pod and deleted it. That means our app is no longer running. In a real world scenario though, we would want to have multiple instances of our app running so that the requests could be load balanced across them. We want to ensure that at least a minimum amount of instances are running. Deployments can help us manage it all. // // ![Kubernetes Deployment](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/K8s-Deployment.png?raw=true)// // Inside the request body, we have the configuration for the deployment. // // **Replicas**: Refer to the number of pods that should be running for a deployment. We are assigning the pods that get created via this deployment a label of -pod, based on the details in the spec, the pods will be created. // **Labels**: Pods are matched to the respective deployments by these labels.The body also contains a definition for a readiness probe and a liveness probe. <br>// **Readiness Probe**: Based on the readiness probe containers are assigned traffic in Kubernetes. This can be used when the container is not ready to serve traffic due to other services it depends on, or if it is loading any data/configuration. <br>// **Liveness probe**: It is a check based on which the containers restart. So to check if the dobby app is up, the /health endpoint will be hit, if it returns a 500 then the containers are restarted.// Press *Send* to create a deployment and look into the *Visualization* tab for the next steps.// // ![create deployment](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/deployment-created.png?raw=true)
+@name("Creating a Deployment")
+POST "https://{{kube-api-server}}/apis/apps/v1/namespaces/default/deployments"
+? "fieldManager"= "kubectl-client-side-apply"
+json({
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+        "name": "{{project-name}}-deployment",
+        "labels": {
+            "app": "{{project-name}}-pod"
+        }
+    },
+    "spec": {
+        "replicas": 2,
+        "selector": {
+            "matchLabels": {
+                "app": "{{project-name}}-pod"
+            }
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app": "{{project-name}}-pod"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "{{project-name}}-container",
+                        "image": "thecasualcoder/dobby",
+                        "env": [
+                            {
+                                "name": "VERSION",
+                                "value": "2.0"
+                            },
+                            {
+                                "name": "INITIAL_DELAY",
+                                "value": "0"
+                            },
+                            {
+                                "name": "INITIAL_HEALTH",
+                                "value": "TRUE"
+                            },
+                            {
+                                "name": "INITIAL_READINESS",
+                                "value": "TRUE"
+                            }
+                        ],
+                        "ports": [
+                            {
+                                "containerPort": 4444
+                            }
+                        ],
+                        "readinessProbe": {
+                            "httpGet": {
+                                "path": "/readiness",
+                                "port": 4444
+                            },
+                            "initialDelaySeconds": 20,
+                            "periodSeconds": 3
+                        },
+                        "livenessProbe": {
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 4444
+                            },
+                            "initialDelaySeconds": 20,
+                            "periodSeconds": 3
+                        }
+                    }
+                ]
+            }
+        }
+    }
+})
+
+
+// This will list all deployments created. Click on *Visualize*// // You should also list pods again to understand the effect the creation of the deployment had on the pod.// // For instance, I have the following pods created:// // ![list pods](https://github.com/meenakshi-dhanani/k8s-postman-tutorial/blob/main/images/list-pods-replicas.png?raw=true)
+@name("List Deployments")
+GET "https://{{kube-api-server}}/apis/apps/v1/namespaces/default/deployments"
+? "limit"= "500"
+
+
+

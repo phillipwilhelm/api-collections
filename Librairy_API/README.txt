@@ -1,0 +1,3 @@
+An open web service to identify drugs mentioned in a text and classify them according to the Anatomical Therapeutic Chemical (ATC) classification system and the Concept Unique Identifiers (CUI) described in the Unified Medical Language System (UMLS).
+
+It has a web interface: https://librairy.github.io/bio-nlp/ , and the source code and usage information are available at: https://github.com/librairy/bio-nlp

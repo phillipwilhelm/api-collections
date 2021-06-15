@@ -1,0 +1,209 @@
+#!/usr/bin/env dothttp
+
+// Products are the physically fulfillable entities in the partner system that may be sold and shipped. If the partner system distinguishes between logical/sellable and physical products, the product entity here must solely reference the physical product records.// // Deliverr does not support kit components, bundles, virtual or digital items in any form. Products are entities that support physical warehouse inventories and have physical attributes like weight, dimensions and barcodes.// // Products will be created before an ASN is created. Only one product will be created in each request. // // Weight is in lbs // // Dimensions are all in inches// // ### Request// // | Property | Definition | Type | Required |// | -------| ------|--------|--------|//   sku || string|Yes|//   name||string|Yes|//   description|nullable|string|no|//   cost|nullable, can be zero|number (with up to 3 decimal places)|Yes|//   countryOfOrigin|nullable|ISO 3166|No|//   weight|nullable, can be zero|number|No|//   length|nullable, can be zero|number|No|//   width|nullable, can be zero|number|No|//   height|nullable, can be zero|number|No|//   hsTariffCode|nullable|string||//   caseQty|nullable|number||//   barcodes|We need to be able to support a maximum of 5 barcodes. Supported types are  UPC/EAN with UPCA and EAN13 format, and DSKU/FNSKU with CODE128 format|string[]|Yes|//   hazmat|Whether this is a hazmat item or not|boolean||  //   hazmatMsg|A string for UnId (`UN3481`, or `UN3091`)|string||  //   // ### Errors// Deliverr can expect the following error codes:// // | code | message |// |--|--|// |DUPLICATE_SKU|product with sku ${sku} already exists|// |MISSING_BARCODE|product cannot be created without a barcode|// |DUPLICATE_BARCODE|product {existingSku} already exists with barcode {barcode}|// |WAREHOUSE_ERR|{error message from warehouse}|
+@name("Create Product")
+POST "https://{{tbd.partnerapi.com}}/product"
+basicauth("", "")
+"Content-Type": "application/json"
+data('{"product": {
+  "sku": "D1234",
+  "name": "Red Socks Size M",
+  "description": "This is a great product that everyone should try",
+  "cost": "10.50",
+  "countryOfOrigin": "US",
+  "weight": "0.12",
+  "length": "4",
+  "width": "0.12",
+  "height": "2",
+  "hsTariffCode": "H2938",
+  "caseQty": 1,
+  "barcodes": ["ABCD1234"],
+  "hazamatIds": ["UN3481"]
+}}')
+
+
+// Products are the physically fulfillable entities in the partner system that may be sold and shipped. If the partner system distinguishes between logical/sellable and physical products, the product entity here must solely reference the physical product records.// // Deliverr does not support kit components, bundles, virtual or digital items in any form. Products are entities that support physical warehouse inventories and have physical attributes like weight, dimensions and barcodes.// // Products will be created before an ASN is created. Only one product will be created in each request. // // Weight is in lbs // // Dimensions are all in inches// // ### Request// // | Property | Definition | Type | Required |// | -------| ------|--------|--------|//   sku || string|Yes|//   name||string|Yes|//   description||string||//   cost||number|Yes|//   countryOfOrigin||ISO 3166| |//   weight||number|Yes|//   length||number|Yes|//   width||number|Yes|//   height||number|Yes|//   hsTariffCode||string||//   caseQty||number||//   barcodes| Supported types are  UPC/EAN with UPCA and EAN13 format, and DSKU/FNSKU with CODE128 format|string[]|Yes|//   hazmat|Whether this is a hazmat item or not|boolean||  //   hazmatMsg|A string for UnId (`UN3481`, or `UN3091`)|string||  //   //   // ### Errors// Deliverr can expect the following error codes:// // | code | message |// |--|--|// |DUPLICATE_SKU|product with sku ${sku} already exists|// |MISSING_BARCODE|product cannot be created without a barcode|// |DUPLICATE_BARCODE|product {existingSku} already exists with barcode {barcode}|// |WAREHOUSE_ERR|{error message from warehouse}|
+@name("Update Product")
+PUT "https://{{tbd.partnerapi.com}}/product"
+basicauth("deliverrprod@norampartners.com", "HYp3rw3aSEL45s=Leekt0r")
+"Content-Type": "application/json"
+data('{"product":{
+  "sku": "D1234",
+  "name": "Red Socks Size M",
+  "description": "This is a great product that everyone should try",
+  "cost": "10.50",
+  "countryOfOrigin": "US",
+  "weight": "0.12",
+  "length": "4",
+  "width": "0.12",
+  "height": "2",
+  "hsTariffCode": "H2938",
+  "caseQty": 1,
+  "barcodes": ["ABCD1234"]
+}}')
+
+
+// ### Request// | Url Property | Definition | Type | Required |// | -------| ------|--------|--------|// | sku | The item to pull details for | string | Yes |// // ### Response// // | Property | Definition | Type | Required |// | -------| ------|--------|--------|//   sku || string|Yes|//   name||string|Yes|//   description||string||//   cost||number|Yes|//   countryOfOrigin||ISO 3166| |//   weight||number|Yes|//   length||number|Yes|//   width||number|Yes|//   height||number|Yes|//   hsTariffCode||string||//   caseQty||number||//   barcodes| Supported types are  UPC/EAN with UPCA and EAN13 format, and DSKU/FNSKU with CODE128 format|string[]|Yes|//   hazmat|Whether this is a hazmat item or not|boolean||  //   hazmatMsg|A string for UnId (`UN3481`, or `UN3091`)|string||  //   //   // ### Errors// Deliverr can expect the following error codes:// // | code | message | HTTP status |// |--|--|--|// |SKU_NOT_FOUND|product with sku ${sku} does not exist|404|
+@name("Product Details")
+GET "https://{{tbd.partnerapi.com}}/product/:sku"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+
+
+// ASNs are created every thirty minutes for any pending inbounds in the Deliverr system. // // Deliverr will send one ASN per request. // ASNs are created for a specific warehouse in the 3PL's network. // Products in the ASN, if not already created at the warehouse will be created at the warehouse just prior to sending the ASN.// // The maximum number of line items Deliverr can send is 5000 asn items.// // ### Request// // | Property | Definition | Type | Required |// | -------| ------|--------| ----- |// |deliverrAsnId|Unique identifier created for the ASN by Deliverr|string| Yes |// |expectedDate|The estimated date the ASN should arrive at the warehouse by|ISO 8601 string in UTC| Yes |// |trackingNumbers|carrier specific tracking number(s) for the inbound shipment|string[]|  |// |shipToWarehouse|The warehouse the inbound shipment is arriving at|string| Yes |// |asnItems|See Asn Items|Array of Asn Item Objects| Yes |// // ### Asn Items ###// | Property | Definition | Type | // | -------| ------|--------|// |sku|Unique identifier for an item|string| Yes |// |quantityExpected|The quantity of a given sku in the inbound shipment|number| Yes|// //   // ### Errors// Deliverr can expect the following error codes:// // |code|message|// |-|-|// |VALIDATION_ERROR|expected date cannot be in the past|// |VALIDATION_ERROR|`shipToWarehouse` does not exist|// |SKU_NOT_FOUND|{sku} does not exist|// |WAREHOUSE_ERR|{error message from warehouse}|
+@name("Create ASN")
+POST "https://{{tbd.partnerapi.com}}/asn"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+	"deliverrAsnId": "123",
+	"expectedDate": "2018-11-14T08:43:28Z", 
+	"trackingNumbers": "Z123456",
+	"shipToWarehouse": "3PL_CODE",
+	"asnItems": [ 
+  		{ 
+  			"sku": "D123", 
+  			"quantityExpected": 100 
+  			
+  		},
+    	{ 
+    		"sku": "D456", 
+    		"quantityExpected": 100 
+    		
+    	} 
+	]
+}
+')
+
+
+// Deliverr will send this receive ASN request to the warehouse when the warehouse receives (scans) ASNs via Deliverr's receive app.// The requestId is a unique identifier that the WMS should retain for a specified amount of time (~7 days) so that if future requests come in with the same requestId value, the request should be ignored.// // Inventory movements for these receives should contain the ASN id value in the `asnId` field and the requestId in the `notes` field - this is how Deliverr will be able to link the movement to the receive via the Deliverr Receive app.// // ### Request// // | Property | Definition | Type | Required |// | -------| ------|--------| ----- |// |requestId|A unique UUIDv4 string that represents the receive action|string| Yes |// |asnId|The Deliverr ASN Id| Yes |// |dsku|The Deliverr product dsku|string|Yes |// |receivedQty|The number units of dsku to be received|number| Yes |//   // ### Errors// Deliverr can expect the following error codes:// // |code|message|// |-|-|// |SKU_NOT_FOUND|{sku} does not exist|// |WAREHOUSE_ERR|{error message from warehouse}|
+@name("Receive ASN")
+POST "https://{{tbd.partnerapi.com}}/asn/receive"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+  "requestId": "49db53e4-e0d6-42c7-adee-28d7c2f15615",
+  "asnId": "100",
+  "sku": "D123",
+  "receivedDelta": 3
+  "warehouseId": "WMS_CODE"
+}')
+
+
+// Deliverr will poll for an ASN status every 30 minutes.// // The list of skus returned in asnItems need to be unique skus, and the expectedQuantity should equal the expectedQuantity the ASN was originally created with.// // ### Request// | Param | Description | type | Require |// | ----- | ----- | ----- | ----- |// | asnId | Unique Identifier for an ASN that has been sent to the warehouse | string | Yes// // ### Response // // | Property | Description | type | Require |// | ----- | ----- | ----- | ----- |// | deliverrAsnId | The original ASN id created by Deliverr |string | Yes|// | asnItems | See Item Object| Array of Item Objects | Yes|// | status | Can be one of `UNRECEIVED`, `RECEIVING`, `COMPLETED` | string | Yes | // // ### Item ###// // | Property | Description | type | Required |// | ----- | ----- | ----- | ----- |// | sku | Unique identifier for an item in an ASN|string|Yes|// | quantityExpected |The quantity of a SKU the warehouse is expecting.|number|Yes|// | quantityReceived |The quantity of a SKU that the warehouse actually received in a shipment. The delta between Quantity Expected and Quantity Received tells us if there was a discrepency in the original ASN request.|number|Yes|// | quantityStocked |The quantity of a SKU that can be fulfilled. The delta between Quantity Received and Quantity Stocked tells us how many damaged items there are. |number|Yes|
+@name("Asn Status")
+GET "https://{{tbd.partnerapi.com}}/asn/{asnId}"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+
+
+
+// This endpoint should return skus that have been created via the POST /product endpoint. Skus that no longer have inventory should still be returned in the response with a 0 inventoryOnHand value.// // ### Request// | Param | Description | type | Required |// | ------ | ------ | ----- | ------ |// | sku | | string | Yes |// | warehouse | A code used to identify the warehouse the inventory is at.|string|Yes|// // ### Response // | Property | Description | type | Required |// | ------ | ------ | ----- | ------ |// |sku|Unique identifier for an item|string|Yes|// |warehouse|A code used to identify the warehouse the inventory is at.|string|Yes|// |inventoryOnHand|The number of available inventory to sell. This does not include on hold units or damaged units|number|Yes|
+@name("Available Inventory")
+GET "https://{{tbd.partinerapi.com}}/inventory"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+? "sku"= "{{sku}}"
+? "warehouse"= "{{3pl_code}}"
+
+
+// This endpoint should return all skus that have been created via the POST /product endpoint. Skus that no longer have inventory should still be returned in the response with a 0 inventoryOnHand value.// // ### Request// | Param | Description | type | Required |// | ------ | ------ | ----- | ------ |// | warehouse | A code used to identify the warehouse the inventory is at.|string|Yes|// | page | The page to return for paginated response. If not specified, should return inventory for all skus at warehouse.|number|No|// | pageSize | The number of entries to return for a page if a page number is specified|number|No|// // ### Response // // A list of all active skus and their inventoyOnHand:// // | Property | Description | type | Required |// | ------ | ------ | ----- | ------ |// |sku|Unique identifier for an item|string|Yes|// |warehouse|A code used to identify the warehouse the inventory is at.|string|Yes|// |inventoryOnHand|The number of available inventory to sell. This does not include on hold units or damaged units|number|Yes|
+@name("All Available Inventory")
+GET "https://{{tbd.partinerapi.com}}/inventory"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+? "warehouse"= "{{3pl_code}}"
+
+
+// ### Request// |Param | Description | type | Required|// |----- | ----- | ----- | -----|// |warehouse| A unique code that identifies which facility we are requesting available inventory from. | string | Yes// | fromTime | lower bound of when to return movements data from |ISO 8601 string in UTC | Yes// | toTime | upper bound of when to return movements ata from | ISO 8601 string in UTC | Yes// // ### Response// // Response should be a list of movement entities (defined below). In the event there are no movements during the specified time range, return an empty list.// // |Param | Description | type | Required|// |----- | ----- | ----- | -----|// | movementId | a id unique to the movement. ie `delta-sku-warehouse-timestamp` |string | Yes |// | sku | | string | Yes |// | warehouse | The facility code where the movement took place | string | Yes |// |timestamp | The date and time of the recorded change | ISO 8601 in UTC | Yes |// |movementType | Can be one of four types: "RECEIVE" (an ASN receive; "ADJUSTMENT" (damages, lost or found items); "RETURN" (items that were returned to the warehouse); "OTHER" (changes in inventory due to other reasons than the other options)； "OUTBOUND" (any outbound orders from the warehouse) | enum ("RECEIVE", "ADJUSTMENT", "RETURN", "DAMAGE", "OTHER", "QUARANTINE") | Yes |// | delta | The number of units the available inventory is changing by | positive or negative integer | Yes |// | notes | | string | No |// | asnId | The asnId the inventory was received against, only valid of `"RECEIVE"` movementTypes | string | Yes, for `"RECEIVE"` movement types|// // ######NOTE: Deliverr will filter out movements from Shipments. Those will be tracked internally by the shipments we send to a 3PL.
+@name("Inventory Movements")
+GET "https://{{tbd.partinerapi.com}}/inventory/movements"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+? "warehouse"= "{3pl_code}"
+? "fromTime"= "{dateTime}"
+? "toTime"= "{dateTime}"
+
+
+// Shipment requests are sent as soon as an order is ready to be sent to a warehouse. One shipment will be sent per request. A Shipment will be for a specific warehouse in the 3PL's network. It will specify the ship to address, a shipping method, packaging, and items to ship. // // ### Stockouts and Backorders ###// Deliverr does not utilze backorders of inventory. If a shipment is unable to be fulfilled due to a stockout of an item, then the whole order should be voided. // // ### Request // // |Property|Definition|type|Required|// |----|----|----|----|// |deliverrShipmentId|The warehouse should only accept unique deliverrShipmentIds|string|Yes|// |purchaseOrder|used to communicate priority (HIGH_PRIORITY, MEDIUM_PRIORITY, LOW_PRIORITY)|string| Yes |// |shippingAddress|See Shipping Address|object|Yes|// |shippingMethod|pre-determined code that represents a carrier and shipping method type. See Shipping Method values for more info.|string|Yes|// |warehouse|a pre-determined code that represents a facility in the 3PL's network|string|Yes|// |boxName|The type of box the packer should put the shipment. See Box Name Values for more info. in|string||// |useDeliverrLabel|A boolean to indicate whether to use the [Deliverr shipping label API](https://documenter.getpostman.com/view/5508192/S11ByMoM) | boolean| Yes|// |carrierAccount|The account to charge the shipment to|string||// |lineItems|See Shipment Items|An Array of Shipment Items|Yes|// |notes|Additional shipment notes (hazmat item,...)|string||// |shipByTime|The datetime that the warehouse should have this shipment shipped, in UTC, in the format `YYYY-MM-DDTHH:mm:ssZ`|Datetime| No |// // ### Shipping Address// |Property|Definition|type|Required|// |----|----|----|----|// |name| The first and last name of the shipment recepient | string | Yes |// | street1 | | string | Yes |// | street2 | Apt, Unit, Floor, Suite #| string | |// |city | | string | Yes |// |state| | string | Yes |// |zip | | string | Yes |// |country | | ISO 3166, 2 character codes | Yes |// | email | | string| |// | phone | | string| no|// // ### Shipment Items ###// |Property|Definition|type|Required|// |----|----|----|----|// | sku | | string | Yes |// | quantity | |number | Yes |// // ### Box Name values// 3PLs are required to share all of their box types and box dimensions during the data collection phase. Deliverr will select a Box for a shipment, and will send the box name with the shipment details for the packer to reference. In addition to the list of box names the warehouse provides, the API will also need to be able to accept the box names: `SHIP IN OWN CONTAINER` and `none`// // ### Shipping Method values ###// Deliverr only uses the following shipping methods. Each shipping method represents a carrier and an associated shipping method. The 3PL needs to use the following codes or provide a mapping for each code Deliverr uses. // // USPS.PRIORITY,// USPS.EXPRESS.MAIL,// USPS.FIRST.CLASS.MAIL,// USPS.PARCEL.SELECT.NONPRESORT,// USPS.MEDIA.MAIL.SINGLEPIECE,// USPS.FIRST.CLASS.MAIL.INTERNATIONAL,// USPS.PRIORITY.MAIL.INTERNATIONAL,// USPS.EXPRESS.MAIL.INTERNATIONAL,// // FEDEX.GROUND,// FEDEX.HOME.DELIVERY,// FEDEX.SMARTPOST.STANDARD,// FEDEX.2DAY.SHIPPING,// FEDEX.EXPRESS.SAVER.ECONOMY,// FEDEX.OVERNIGHT.STANDARD,// FEDEX.PRIORITY.OVERNIGHT,// FEDEX.INTERNATIONAL.ECONOMY,// FEDEX.INTERNATIONAL.PRIORITY,// FEDEX.FREIGHT.ECONOMY,// // UPS.STANDARD,// UPS.GROUND,// UPS.3.DAY.SELECT,// UPS.2ND.DAY.AIR,// UPS.2ND.DAY.AIR.AM,// UPS.NEXT.DAY.AIR,// UPS.NEXT.DAY.AIR.SAVER,// UPS.NEXT.DAY.AIR.AM,// UPS.MAIL.INNOVATIONS,// UPS.SUREPOST,// UPS.WORLDWIDE.EXPRESS,// UPS.WORLDWIDE.EXPRESS.PLUS,// UPS.WORLDWIDE.EXPEDITED,// // DHL.PARCEL.EXP.MAX,// DHL.PARCEL.PLUS.EXP.MAX,// DHL.PARCEL.EXP,// DHL.PARCEL.PLUS.EXP,// // ONTRAC.GROUND, // Please use a hub specific OnTrac method instead// ONTRAC.GROUND.BEN,// ONTRAC.GROUND.LAS,// ONTRAC.GROUND.LAX,// ONTRAC.GROUND.RNO,// // LASERSHIP.ROUTED.DELIVERY, // Please use a hub specific Lasership method instead// LASERSHIP.ROUTED.DELIVERY.CLT,// LASERSHIP.ROUTED.DELIVERY.MCO,// LASERSHIP.ROUTED.DELIVERY.EWR,// LASERSHIP.ROUTED.DELIVERY.LCK,// // LSO.GROUND, // Please use a hub specific LSO method instead// LSO.GROUND.DFW,// LSO.ECOMM,// // PCF.STANDARD,// PCF.2ND.DAY,// // AXLEHIRE.NEXT.DAY,// // FREIGHT.LTL// // ### Shipping Methods with Flat Rate Packaging// Deliverr will occasionally request USPS Express Mail or USPS Priority mail to be sent with flat rate packaging (USPS padded envelope or USPS Small Box). The 3PL will need a designated code for the following shipping method and packaging combinations, or a way to designate the flat rate packaging. // // USPS.EXPRESS.MAIL with USPS_PADDED_ENVELOPE  // USPS.EXPRESS.MAIL with USPS_SMALL_BOX  // USPS.PRIORITY with USPS_PADDED_ENVELOPE  // USPS.PRIORITY with USPS_SMALL_BOX
+@name("Create Shipment")
+POST "https://{{tbd.partinerapi.com}}/shipment"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+	"deliverrShipmentId": "4567",
+    "purchaseOrder": "LOW_PRIORITY",
+	"shippingAddress": {
+    	"name": "John Doe",
+    	"street1": "1500 Pine Street",
+    	"street2": "Apt 3",
+    	"city": "San Francisco",
+    	"state": "CA",
+    	"zip": "94520",
+    	"country": "US",
+    	"email": "john.doe@deliverr.com"
+	},
+	"shippingMethod": "USPS.PRIORITY",
+	"warehouse": "DSD_LYN",
+	"boxName": "USPS_PADDED_ENVELOPE",
+	"carrierAccount": "866479232",
+	"useDeliverrLabel": true,
+	"lineItems": [
+    	{ 
+    		"sku": "D1234567890", 
+    		"quantity": 1 
+    	}
+	],
+    "shipByTime":"2021-05-01T14:00:00Z"
+}')
+
+
+// ### Request// | Url Property       | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | deliverrShipmentId | | string | Yes |
+@name("Cancel Shipment")
+DELETE "https://{{tbd.partnerapi.com}}/shipment/:deliverrShipmentId"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+
+
+
+// Deliverr will poll for a shipment's status every 15 minutes. A shipment can be in PROCESSING, SHIPPED, OR CANCELLED status. // Freight orders should also return a valid shipment status that includes the PRO# or BOL.// // ### Backorders ###// Deliverr does not utilze backorders of inventory. If a shipment is unable to be fulfilled due to a stockout of an item, then the whole order should be voided.  // // ### Packages ###// All packages for a shipment should be returned for a shipment. See Response for Package properties to include. // // ### Request// | Url Property       | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | shipmentId | | string | Yes |// // ### Response// | Property        | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | deliverrShipmentId | | string | Yes |// | status | | enum ("PROCESSING", "SHIPPED", "CANCELLED") | Yes |// | cancellationReason | The reason why the shipment was cancelled | enum (listed below) or `undefined` | Yes, if status = "CANCELLED", otherwise `undefined` |// | shippedPackages | packages shipped for the complete shipment. If cancelled or processing status, return an empty array `[]` | Array of Packages | Yes // // ### Cancellation Reasons// |Reason Codes	|Description|// |---|----|// |STOCKOUT|	When the picker went to pick, there was no product to fulfill the shipment// |WEATHER|	Weather conditions forcing the warehouse to cancel// |CAPACITY|	FC did not have enough time/labor to ship same day// |LABEL_ERROR|	FC picked/packed but was unable to generate a shipping label due to an error// |DAMAGED|	Damaged during receiving but the status not known until it is ready to be shipped out// |DELIVERR_CANCELLED|	Shipment cancelled by Deliverr// |PACKAGING|	No suitable packaging available// |INTERNATIONAL_ORDER|	FC cannot ship international orders// |OTHER|	Needs further explanation from warehouse// // ### Packages (Click to expand)// | Property        | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | trackingNumber      | The unique carrier-specific tracking id for the pacakge, or a PRO#/BOL for freights | string | Yes |// | shippingMethod      | a code representing what carrier *and* shipping method was used to send the package      |   string | Yes |// | shipTime | a date and time of when the shipment was shipped     |    ISO 8601 string in UTC | Yes |// | costInUSD | the cost to ship the package in US Dollars| number | |// | actualWeight | the weight of the package, in lb. If no weight available, please pass 0 instead of null | number | Yes |// | width | measurement inches or centimeters, in inches | number | |// | length| measurement inches or centimeters, in inches | number | |// | height| measurement inches or centimeters, in inches | number | |// | boxName | The box the package was packed in | string | |// | lineItems| see Packages Items |Array of Package Item objects | Yes |// // // // // // ### Package Items ###// | Property        | Definitation | Type  | Require |// | ------------- |-------------| -----| ----- |// | sku | the unique sku identifier in the package | string | Yes |// | quantity | the number of a given sku in the package | number| Yes |
+@name("Shipment Status")
+GET "https://{{tbd.partnerapi.com}}/shipment/:shipmentId"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+
+
+// The warehouse should push any changes in the shipment status, namely SHIPPED or CANCELLED// // Deliverr will provide the production and staging credentials to access this endpoint.// // ### Backorders ###// Deliverr does not utilze backorders of inventory. If a shipment is unable to be fulfilled due to a stockout of an item, then the whole order should be voided/CANCELLED// // ### Packages ###// All packages for a shipment should be returned for a shipment. See Response for Package properties to include. // // ### Request// | Property        | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | warehouseId | The code in the WMS for the warehouse | string | Yes |// | deliverrShipmentId | | string | Yes |// | status | | enum ("SHIPPED", "CANCELLED") | Yes |// | cancellationReason | The reason why the shipment was cancelled | enum (listed below) or `undefined` | Yes, if status = "CANCELLED", otherwise `undefined` |// // | shippedPackages | packages shipped for the complete shipment | Array of Packages | Yes // // ### Packages (Click to expand)// | Property        | Definition          | Type  | Required |// | ------------- |-------------| -----| ------ |// | trackingNumber      | The unique carrier-specific tracking id for the pacakge | string | Yes |// | shippingMethod      | the warehouse code that represents the carrier and shipping method used to ship the package (ie FEDEX.GROUND)    |   string | Yes |// | shipTime | a date and time of when the shipment was shipped     |    ISO 8601 string in UTC | Yes |// | costInUSD | the cost to ship the package in US Dollars| number | Yes |// | actualWeight | weight of the package, in lb | number | Yes |// | width | width of package in inches | number | Yes |// | length| length of package in inches | number | Yes |// | height| height of package in inches | number | Yes |// | boxName | The box the package was packed in | string | Yes |// | lineItems| see Packages Items |Array of Package Item objects | Yes |// // // ### Cancellation Reasons// |Reason Codes	|Description|// |---|----|// |STOCKOUT|	When the picker went to pick, there was no product to fulfill the shipment// |WEATHER|	Weather conditions forcing the warehouse to cancel// |CAPACITY|	FC did not have enough time/labor to ship same day// |LABEL_ERROR|	FC picked/packed but was unable to generate a shipping label due to an error// |DAMAGED|	Damaged during receiving but the status not known until it is ready to be shipped out// |DELIVERR_CANCELLED|	Shipment cancelled by Deliverr// |PACKAGING|	No suitable packaging available// |INTERNATIONAL_ORDER|	FC cannot ship international orders// |OTHER|	Needs further explanation from warehouse// // ### Package Items ###// | Property        | Definitation | Type  | Require |// | ------------- |-------------| -----| ----- |// | sku | the unique sku identifier in the package | string | Yes |// | quantity | the number of a given sku in the package | number| Yes |
+@name("Push Shipment Status")
+POST "https://{{warehouseUrl}}/partner/v1/update-order"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+json({
+    "warehouseId": "WHS123",
+    "deliverrShipmentId": "1234",
+    "status": "SHIPPED",
+    "shippedPackages": [
+        {
+            "trackingNumber": "Z45678987654",
+            "shippingMethod": "UPS.GROUND",
+            "shipTime": "2020-11-03T08:35:00Z",
+            "costInUSD": 1.2,
+            "actualWeight": 1.9,
+            "width": 4,
+            "length": 3.5,
+            "height": 4,
+            "weightUnit": "lbs",
+            "lengthUnit": "in",
+            "boxName": "bubble-2",
+            "lineItems": [
+                {
+                    "sku": "D87654DSG9",
+                    "quantity": 1
+                }
+            ]
+        }
+    ]
+})
+
+
+

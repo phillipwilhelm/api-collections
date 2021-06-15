@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+@name("Get registration token list")
+GET "https://{{base_url}}/bc/api/account_server/registration_tokens"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+@name("Create registration token")
+POST "https://{{base_url}}/bc/api/account_server/registration_tokens"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "tenant_id": "{{user_personal_tenant_id}}",
+    "expires_in": 3600,
+    "scopes": [
+        "urn:acronis.com:tenant-id::backup_agent_admin"
+    ]
+}')
+
+
+@name("Delete registration token")
+DELETE "https://{{base_url}}/bc/api/account_server/registration_tokens/{{registration_token_id}}"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{user_personal_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}/{{user_personal_tenant_id}}"
+
+
+@name("Exchange an agent registration token to authentication token")
+POST "https://{{base_url}}/bc/idp/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    ],
+    "assertion": [
+        "{{registration_token}}"
+    ]
+})
+
+
+

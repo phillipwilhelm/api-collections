@@ -1,0 +1,57 @@
+#!/usr/bin/env dothttp
+
+// Returns information about your Team as well as a list of its members. If you do not belong to a Team, a 404 error with an `error_name` of `"not_found"` will be returned.// // Additional information can be found [here](https://app.hellosign.com/api/reference#get_team).
+@name("Get Team")
+GET "https://api.hellosign.com/v3/team"
+basicauth("{{api_key}}", "")
+
+
+// Creates a new Team and makes you a member. You must not currently belong to a Team to invoke. Additional information can be found [here](https://app.hellosign.com/api/reference#create_team).
+@name("Create Team")
+POST "https://api.hellosign.com/v3/team/create"
+basicauth("{{api_key}}", "")
+files(
+	("name", "Example Team Name")
+)
+
+
+// Updates the name of your Team. Additional information can be found [here](https://app.hellosign.com/api/reference#update_team).
+@name("Update Team")
+POST "https://api.hellosign.com/v3/team"
+basicauth("{{api_key}}", "")
+files(
+	("name", "New Team Name")
+)
+
+
+// Deletes your Team. Can only be invoked when you have a Team with only one member (yourself). Additional information can be found [here](https://app.hellosign.com/api/reference#delete_team).
+@name("Delete Team")
+POST "https://api.hellosign.com/v3/team/destroy"
+basicauth("{{api_key}}", "")
+files(
+	("name", "New Team Name")
+)
+
+
+// Invites a user (specified using the `email_address` or `account_id` parameters) to your Team. If the user does not currently have a HelloSign Account, a new one will be created for them. If a user is already a part of another Team, a `"team_invite_failed"` error will be returned.// // Additional information can be found [here](https://app.hellosign.com/api/reference#add_user_to_team).
+@name("Add User to Team")
+POST "https://api.hellosign.com/v3/team/add_member"
+basicauth("{{api_key}}", "")
+files(
+	("account_id", "1234567"),
+	("email_address", "alice@example.com")
+)
+
+
+// Removes the provided user Account from your Team. If the Account had an outstanding invitation to your Team, the invitation will be expired. If you choose to transfer documents from the removed Account to an Account provided in the `new_owner_email_address` parameter (available only for Enterprise plans), the response status code will be 201, which indicates that your request has been queued but not fully executed.// // Additional information can be found [here](https://app.hellosign.com/api/reference#remove_user_from_team).
+@name("Remove User from Team")
+POST "https://api.hellosign.com/v3/team/remove_member"
+basicauth("{{api_key}}", "")
+files(
+	("account_id", "1234567"),
+	("email_address", "bob@example.com"),
+	("new_owner_email_address", "alice@example.com")
+)
+
+
+

@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// This method returns all PTA Security Events.
+@name("Get Security Events")
+GET "https://{{BaseURL}}/PasswordVault/API/pta/API/Events/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+"lastUpdatedEventDate": "1309737600"
+
+
+// This method returns risky activities rules and automatic remediation settings of the PTA Server configuration.
+@name("Get Security Settings")
+GET "https://{{BaseURL}}/PasswordVault/API/pta/API/Settings"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method adds a new Risky Activity rule in the PTA server configuration.
+@name("Add Risky Commands Rule")
+POST "https://{{BaseURL}}/PasswordVault/API/pta/API/Settings/RiskyActivity/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"category": "KEYSTROKES",
+	"regex": "(.*)netsh(.*)wlan(.*)key=clear(.*)", 
+	"score": 40, 
+	"description": "Indication of a privileged user using a decoding command in clear text to retrieve a WIFI password.", 
+	"response": "NONE", 
+	"active": true,
+	"scope": { 
+		"vaultUsers": {
+			"mode":"EXCLUDE",
+			"list":["john*"]
+		}, 
+		"machines":{
+			"mode":"INCLUDE",
+			"list":["*"]
+		} 
+	}
+}')
+
+
+// This method updates an existing Risky Activity rule in the PTA server configuration.
+@name("Update Risky Commands Rule")
+PUT "https://{{BaseURL}}/PasswordVault/API/pta/API/Settings/RiskyActivity/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+	"id": "0", 
+	"category": "KEYSTROKES",
+	"regex": "(.*)netsh(.*)wlan(.*)key=clear(.*)", 
+	"score": 40, 
+	"description": "Indication of a privileged user using a decoding command in clear text to retrieve a WIFI password.", 
+	"response": "NONE", 
+	"active": true
+	"scope": { 
+		"vaultUsers": {
+			"mode":"EXCLUDE",
+			"list":["anna"]
+		}, 
+		"machines": {
+			"mode":"include",
+			"list":["*"]
+		} 
+	}
+}')
+
+
+// This method updates the automatic remediation properties in the PTA server configuration.
+@name("Update Security Remediation Settings")
+PATCH "https://{{BaseURL}}/PasswordVault/API/pta/API/Settings/AutomaticRemediations/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method updates the status of a security event to open or closed.
+@name("Update Security Event")
+PATCH "https://{{BaseURL}}/PasswordVault/API/pta/API/Events/{{ptaSecurityEventID}}"
+"Authorization": "{{PTAAuthToken}}"
+"Content-Type": "application/json"
+data('{
+	"mStatus": "<OPEN/CLOSED>"
+}')
+
+
+

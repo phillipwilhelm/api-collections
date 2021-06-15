@@ -1,0 +1,128 @@
+#!/usr/bin/env dothttp
+
+// Here we query info about the Webex user you configured in the OTHER_USERS_EMAIL collection variable.   We will use this to get their display name which we can set when inviting them to the meeting.
+@name("Get potential invitee details")
+GET "https://{{MEETINGS_API_URL}}/people"
+? "email"= "{{OTHER_USERS_EMAIL}}"
+
+
+// We call this in order to get our own email used in subsequent requests.
+@name("Get my details")
+GET "https://{{MEETINGS_API_URL}}/people/me"
+
+
+// We'll use this meeting to manage Invitees
+@name("Create a non recurring meeting for tommorow")
+POST "https://{{MEETINGS_API_URL}}/meetings"
+"Content-Type": "application/json"
+data('{
+    "title": "Sample Title",
+    "agenda": "Sample Agenda",
+    "password": "A@ssword123",
+    "start": "{{_start_time}}",
+    "end": "{{_end_time}}",
+    "timezone": "{{TIMEZONE_STRING}}", 
+    "enabledAutoRecordMeeting": false,
+    "allowAnyUserToBeCoHost": false
+}')
+
+
+// We did not set any invitees when we first created the meeting, so we expect this API to return an empty list.
+@name("Get meeting invitees")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
+? "meetingId"= "{{_singleMeetingId}}"
+
+
+// Now lets add the user you configured in the OTHER_USERS_EMAIL collection variable.
+@name("Add a meeting invitee by email")
+POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
+"Content-Type": "application/json"
+data('{
+	"meetingId": "{{_singleMeetingId}}",
+	"email": "{{OTHER_USERS_EMAIL}}",
+	"displayName": "{{_otherUsersDisplayName}}",
+	"coHost": false
+}')
+
+
+// If we try to add somone who is already invited (based on the email), we will get a 409 conflict error.
+@name("Add a duplicate invitee")
+POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
+"Content-Type": "application/json"
+? "meetingId"= "{{_singleMeetingId}}"
+data('{
+	"meetingId": "{{_singleMeetingId}}",
+	"email": "{{OTHER_USERS_EMAIL}}",
+	"displayName": "{{OTHER_USERS_DISPLAYNAME}}",
+	"alternateHost": false
+}')
+
+
+// There should now be one user in the invitee list
+@name("Get meeting invitee Info")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_meetingInvitee}}"
+
+
+// We can add ourselves as an invitee as well.  (As the meeting organizer this is not strictly necessary, but it allows us to further exercise this API)
+@name("Invite myself via email")
+POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
+"Content-Type": "application/json"
+data('{
+	"meetingId": "{{_singleMeetingId}}",
+	"email": "{{_myEmail}}"
+}')
+
+
+@name("Get meeting invitees --now 2")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
+? "meetingId"= "{{_singleMeetingId}}"
+
+
+// The meetingInvitees api supports a `max` query filter parameter.
+@name("Get meeting invitees - test max")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
+? "meetingId"= "{{_singleMeetingId}}"
+? "max"= "1"
+
+
+// In the prerequest script we will fetch the saved object that was created when we invited the user with OTHER_USERS_EMAIL collection variable.   By default meeting invitees are not cohosts, but we can modify their meetingInvitee object and use the PUT request to make them one.
+@name("Change Meeting Invitee")
+PUT "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_meetingInvitee}}"
+"Content-Type": "application/json"
+data('{{_meetingInviteeBody}}')
+
+
+@name("Delete meeting invitee")
+DELETE "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_meetingInvitee}}"
+
+
+@name("Get meeting invitees --now 1")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
+? "meetingId"= "{{_singleMeetingId}}"
+
+
+@name("Delete second meeting Invitee")
+DELETE "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_secondMeetingInvitee}}"
+
+
+@name("Delete non valid invitee - should fail")
+DELETE "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_meetingInvitee}}"
+
+
+@name("Get meeting invitees --now 0")
+GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
+? "meetingId"= "{{_singleMeetingId}}"
+
+
+@name("Delete the non recurring meeting")
+DELETE "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+"Content-Type": "application/json"
+
+
+
+// This request will run a pre-request script that will delete all the temporary environment variables that have been set.
+@name("Cleanup")
+GET "https://postman-echo.com/"
+
+
+

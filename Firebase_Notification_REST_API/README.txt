@@ -1,0 +1,1 @@
+Firebase collections to send a notification messages during development

@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+@name("Input: Product Name")
+GET "https://postman-echo.com/get"
+? "productName"= "Dell KB216"
+
+
+@name("Amazon India")
+GET "https://www.amazon.in/s"
+? "k"= "{{productName}}"
+
+
+@name("Flipkart Test")
+GET "https://www.Flipkart Test.com/search"
+? "q"= "{{productName}}"
+? "otracker"= "search"
+? "marketplace"= "FLIPKART"
+? "as-show"= "on"
+? "as"= "off"
+
+
+@name("Snapdeal")
+GET "https://www.snapdeal.com/search"
+? "keyword"= "{{productName}}"
+? "categoryId"= "0"
+? "suggested"= "false"
+? "noOfResults"= "20"
+? "clickSrc"= "go_header"
+? "changeBackToAll"= "false"
+? "foundInAll"= "false"
+? "sort"= "rlvncy"
+
+
+@name("Shopclues")
+GET "https://www.shopclues.com/search"
+? "q"= "{{productName}}"
+? "z"= "0"
+? "rc"= "1"
+
+
+@name("eBay India")
+GET "https://www.ebay.com/sch/i.html"
+? "_from"= "R40"
+? "_trksid"= "m570.l1313"
+? "_nkw"= "{{productName}}"
+? "_sacat"= "0"
+
+
+@name("Output: Best Price")
+GET "https://postman-echo.com/get"
+
+
+@name("Send Slack Notification")
+POST "https://hooks.slack.com/services/{{secret}}"
+"Content-type": "application/json"
+data('{
+    "text": "Here\'s your daily price alert for {{productName}}\nAmazon: ₹{{amazon_price}}\nFlipkart Test: ₹{{Flipkart Test_price}}\nSnapdeal: ₹{{snapdeal_price}}\nShopclues: ₹{{shopclues_price}}\neBay: ₹{{ebay_price}}\n\nThe lowest price was ₹{{lowestPrice}} on {{lowestSite}}."
+}')
+
+
+

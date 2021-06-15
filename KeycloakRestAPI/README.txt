@@ -1,0 +1,1 @@
+Keycloak Admin Rest API v10 (https://www.keycloak.org/docs-api/10.0/rest-api/index.html)

@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// To create a bulk read job to export records.
+@name("Create Bulk Read Job (ICS)")
+POST "https://{{api-domain}}/crm/bulk/v2/read"
+"Authorization": "Bearer {{access-token}}"
+"Content-Type": "application/json"
+data('{
+  "callback": {
+    "url": "https://www.example.com/callback",
+    "method": "post"
+  },
+  "query": {
+    "module": "Contacts",
+    "fields": [
+      "Last_Name",
+      "Owner",
+      "Owner.last_name",
+      "Account_Name.Account_Name",
+      "Account_Name.Phone",
+      "Lead_Source",
+      "Created_Time"
+    ],
+    "criteria": {
+      "group_operator": "or",
+      "group": [
+        {
+          "api_name": "Lead_Source",
+          "comparator": "equal",
+          "value": "Advertisement"
+        },
+        {
+          "api_name": "Owner.last_name",
+          "comparator": "equal",
+          "value": "Boyle"
+        },
+        {
+          "api_name": "Account_Name.Phone",
+          "comparator": "contains",
+          "value": "5"
+        }
+      ]
+    },
+    "page": 1
+  }
+}')
+
+
+// To get the details of a bulk read job performed previously.// 
+@name("Get Bulk Read Job Details")
+GET "https://www.zohoapis.com/crm/bulk/v2/read/{{job_id}}"
+"Authorization": "Bearer {{access-token}}"
+
+
+@name("Download Bulk Read Result")
+GET "https://www.zohoapis.com/crm/bulk/v2/read/{{job_id}}/result"
+"Authorization": "Bearer {{access-token}}"
+
+
+

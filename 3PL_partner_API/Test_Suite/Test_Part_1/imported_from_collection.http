@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+@name("Product - 404 Not Found")
+GET "https://{{warehouseUrl}}/product/:dsku"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+
+
+@name("Create Product - missing barcode")
+POST "https://{{warehouseUrl}}/product"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+    "sku": "{{warehouseId}}{{testRun}}",
+    "description": "HELLOKITTY likes apples",
+    "cost": 13,
+    "weight": 5.2,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "caseQty": 0,
+    "weightUnit": "lb",
+    "lengthUnit": "in",
+    "hsTariffCode": "123-456",
+    "countryOfOrigin":"US"
+}')
+
+
+@name("Create Product - success")
+POST "https://{{warehouseUrl}}/product"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+    "sku": "{{warehouseId}}{{testRun}}",
+    "name": "HELLOKITTY",
+    "description": "HELLOKITTY likes apples",
+    "cost": 13,
+    "weight": 5.2,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "caseQty": 0,
+    "weightUnit": "lb",
+    "lengthUnit": "in",
+    "hsTariffCode": "123-456",
+    "countryOfOrigin":"US",
+    "barcodes": ["{{warehouseId}}{{testRun}}"]
+}')
+
+
+@name("Product - Found")
+GET "https://{{warehouseUrl}}/product/:dsku"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+
+
+@name("Create Product - success #2")
+POST "https://{{warehouseUrl}}/product"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+    "sku": "{{warehouseId}}{{testRun}}_#2",
+    "name": "HELLOKITTY",
+    "description": "HELLOKITTY likes apples",
+    "cost": 13,
+    "weight": 5.2,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "caseQty": 0,
+    "weightUnit": "lb",
+    "lengthUnit": "in",
+    "hsTariffCode": "123-456",
+    "countryOfOrigin":"US",
+    "barcodes": ["{{warehouseId}}{{testRun}}_#2"]
+}')
+
+
+@name("Create Product - duplicate barcode")
+POST "https://{{warehouseUrl}}/product"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+    "sku": "{{warehouseId}}-DUPEBARCODE{{testRun}}",
+    "name": "HELLOKITTY",
+    "description": "HELLOKITTY likes apples",
+    "cost": 13,
+    "weight": 5.2,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "caseQty": 0,
+    "weightUnit": "lb",
+    "lengthUnit": "in",
+    "hsTariffCode": "123-456",
+    "countryOfOrigin":"US",
+    "barcodes": ["{{warehouseId}}{{testRun}}"]
+}')
+
+
+@name("Update Product Detail - update barcodes")
+PUT "https://{{warehouseUrl}}/product"
+basicauth("{username_provided_by_3PL_partner}", "{password_provided_by_3PL_partner}")
+"Content-Type": "application/json"
+data('{
+    "sku": "{{warehouseId}}{{testRun}}",
+    "name": "HELLOKITTY",
+    "description": "HELLOKITTY likes apples",
+    "cost": 13,
+    "weight": 5.2,
+    "length": 3,
+    "width": 2,
+    "height": 1,
+    "caseQty": 0,
+    "weightUnit": "lb",
+    "lengthUnit": "in",
+    "hsTariffCode": "123-456",
+    "countryOfOrigin":"US",
+    "barcodes": ["{{warehouseId}}{{testRun}}", "APPLES{{testRun}}"]
+}')
+
+
+

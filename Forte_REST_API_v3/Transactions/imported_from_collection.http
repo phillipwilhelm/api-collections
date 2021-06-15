@@ -1,0 +1,508 @@
+#!/usr/bin/env dothttp
+
+// This URI can perform the following tasks while returning a new `transaction_id`:<ul><li> Create an ad-hoc transaction</li><li> Create a transaction based on the customer token using the default billing address</li><li> Create a transaction based on the customer and paymethod tokens using the customer default billing address</li><li> Create a transaction based on the paymethod token, which requires the address in the request message</li><li> Reverse a sale transaction and create a credit transaction, which requires the `transaction_id` and `authorization_code` of the original transaction</li></ul>
+@name("Transaction (Credit Card)")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"sale",
+    "authorization_amount": 102.45,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2020",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// This URI creates sale transactions using an existing `paymethod_token`. A [token](https://www.forte.net/glossary) is a random string of alpha-numeric characters that represent a payment method, which Forte stores in an encrypted database. Along with encryption, tokenization is used in the payments industry to protect sensitive data.
+@name("Transaction with Credit Card Token")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"sale",
+    "authorization_amount": 102.45,
+   	"paymethod_token": "mth_jmBCI5cDV0CuyFb7NWzrAg",
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  }
+}')
+
+
+// This URI creates sale transactions using an existing `paymethod_token`. A [token](https://www.forte.net/glossary) is a random string of alpha-numeric characters that represent a payment method, which Forte stores in an encrypted database. Along with encryption, tokenization is used in the payments industry to protect sensitive data.
+@name("Transaction with eCheck Token")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+json({
+    "action": "sale",
+    "authorization_amount": 102.45,
+    "paymethod_token": "mth_jmBCI5cDV0CuyFb7NWzrAg",
+    "echeck": {
+        "sec_code": "PPD"
+    },
+    "billing_address": {
+        "first_name": "Jennifer",
+        "last_name": "McFly"
+    }
+})
+
+
+// Swiped card transactions require the `card_reader` and `card_data` parameters. For more information, see the Transactions Object.
+@name("Swiped Credit Card Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"sale",
+    "authorization_amount": 102.45,
+    "subtotal_amount": 99.95,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+       "card_reader": "30050202",       
+       "card_data":"0~IPAD100KB|24~98CE04601007130D|1~11|2~87687687687876876876|4~|5~516F2DCD1EB18A99E775E36457E3454AA4C1448635D9067F3151A112D49A6F02F9CAC15F2B608D2E915EBA99846E81AC763AE89D29437B31|6~%B4445220002000007^TESTCARD/TEST^17120000011111000?|7~;4445220002000007=17120000000000000000?|8~|9~00000000|10~000001|11~9500020000C8892001C7|12~00002200|"
+  }
+}')
+
+
+// Including the `save_token` parameter in the body of your request creates customer and/or paymethod tokens from the card's swipe data. The `save_token` parameter supports the following values: <ul><li> `customer` - Creates both a customer and paymethod tokens</li><li> `paymethod` - Creates a clientless paymethod token (i.e., a paymethod token that is not associated to a customer token).</li></ul> If you wish to create tokens from swipe data without creating a transaction, include the `"action": "authorize"` and `"authorization_amount": 0.01` parameters in the body of your request.
+@name("Paymethod Token from a Swiped Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"authorize",
+    "authorization_amount": 0.01,
+    "save_token": "paymethod",
+    "card":{
+       "card_reader": "30050202",       
+       "card_data":"0~IPAD100KB|24~98CE04601007130D|1~11|2~87687687687876876876|4~|5~516F2DCD1EB18A99E775E36457E3454AA4C1448635D9067F3151A112D49A6F02F9CAC15F2B608D2E915EBA99846E81AC763AE89D29437B31|6~%B4445220002000007^TESTCARD/TEST^17120000011111000?|7~;4445220002000007=17120000000000000000?|8~|9~00000000|10~000001|11~9500020000C8892001C7|12~00002200|"
+  }
+}')
+
+
+// Use this endpoint with the following parameters to submit EMV transactions using your eDynamo device:// <ul><li> `card.card_reader = 21079802`</li>// <li> `card.card_emv_data`</li></ul>
+@name("EMV Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+   "action": "sale",
+    "authorization_amount": "250.33",
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly",
+     "phone": "444-444-4444",
+     "physical_address": {
+       "street_line1": "8003 Clock Tower Ln",
+       "street_line2": "Suite 200",
+       "locality": "Hill Valley",
+       "region": "CA",
+       "postal_code": "46203"
+      }
+  },
+  "card":{
+     "card_reader": "21079802",
+     "card_emv_data":"9011880B43A7710002B0|963A2FBE21EB8FDDB43CEEFBA158720272930EE43574E88906D6E05222C46DEB1675DA87496C8B1FE6A126F2D3DD1BC4036534DFBE7720E6B0AE80C08C06D5F00573591DD926627718B38F96037C26635AE8D7CFBC4552DAB59B0D26362EA4B31D328BC2EDA3C2807474CB79436116D5A21FADA42EAF0971B6BA73B46C965C73203D56DEB927AE9E09D32A64DBC5B6D17486D97892F0C2BC2C5F7105AFAB46257183BFFBA9E6D4EAA03BAC5F300F61ACA3F315A7ED15B90D79D8D09F92F21634CD8577E46F77730433D73946E1393320CEE7AD523B4C2A102DD0936E37875374BFFA835FDF03A955FEB3C913774B16419FACC10E6E032A2CC46E9103DC70ED655D38989ED6FA3DB5B202AFCFC1D1CAA825BC8E0DCE06CDC4E4FC5584B04D3F210A695626A3E779E5230708BE3280F379570B7EC3215EE4319D2308A0718C5F4F4DFB28924C8B123C"
+  }
+}')
+
+
+// For service fee transactions, merchants must calculate the fee amount and then include it in the `service_fee_amount` parameter in the request. To look up your location's service fee rates/amounts, perform a GET call to the [Locations by ID](https://restdocs.forte.net/?version=latest#c9573549-f7b5-4126-b6da-c1f24514fef3) endpoint.
+@name("Transaction with Service Fee")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"sale",
+    "authorization_amount": 111.54,
+    "service_fee_amount": 3.20,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2020",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// This URI can perform the following tasks while returning a new `transaction_id`:<ul><li> Create an ad-hoc transaction</li><li> Create a transaction based on the customer token using the default billing address</li><li> Create a transaction based on the customer and paymethod tokens using the customer default billing address</li><li> Create a transaction based on the paymethod token, which requires the address in the request message</li><li> Reverse a sale transaction and create a credit transaction, which requires the `transaction_id` and `authorization_code` of the original transaction</li></ul>
+@name("Transaction (ECheck)")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action":"sale",
+    "authorization_amount": 240.52,
+    "billing_address":{
+       "first_name": "Marty",
+       "last_name": "McFly"
+    },
+    "echeck":{
+       "sec_code": "WEB",
+       "account_type": "Checking",
+       "routing_number": "021000021",
+       "account_number": "000111222",
+       "account_holder": "Marty McFly"
+    }
+}')
+
+
+// This URI can perform the following tasks while returning a new `transaction_id`:<ul><li> Create an ad-hoc transaction</li><li> Create a transaction based on the customer token using the default billing address</li><li> Create a transaction based on the customer and paymethod tokens using the customer default billing address</li><li> Create a transaction based on the paymethod token, which requires the address in the request message</li><li> Reverse a sale transaction and create a credit transaction, which requires the `transaction_id` and `authorization_code` of the original transaction</li></ul> **NOTE**: This endpoint does not specify the location of the transaction in the endpoint; rather, the `location_id` parameter is included in the body of the request.
+@name("Transaction (Alternative URI)")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "location_id": "loc_192642",
+    "action":"sale",
+    "authorization_amount": 102.45,
+    "subtotal_amount": 99.95,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2017",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// A sale transaction is used to collect funds from a customer's debit/credit card or bank account in exchange for goods or services. The `sale` action creates an [authorization](https://www.forte.net/glossary) request and a [capture](https://www.forte.net/glossary) operation in one step. Use this URI to create a `sale` transaction by appending the `sale` action to the end of the URI. You can also create a `sale` transaction by including the `"action"="sale"` parameter in the body of a request to the `/organizations/{organization_id}/transactions` URI.
+@name("Sale Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/sale"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "authorization_amount": 102.45,
+    "subtotal_amount": 99.95,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2017",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// A credit transaction is used to send funds to a bank account or credit/debit card. Typically, merchants use this action to refund a customer for a returned good or for payroll distributions. This URI creates a `credit` transaction by appending the `credit` action to the end of the URI. You can also create a `credit` transaction by including the `"action"="credit"` parameter in the body of a request to the `/organizations/{organization_id}/transactions` URI.
+@name("Credit Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/credit"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "authorization_amount": 102.45,
+    "subtotal_amount": 99.95,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2017",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// An authorization validates funds and occurs at the time of the transaction--such as when a card is swiped at a point-of-sale terminal. In a matter of seconds, a request is sent on behalf of the merchant and authorizations are approved or declined by the issuing bank. Authorizations ensure that cardholders have sufficient funds/credit limits available to complete the transaction. Forte supports both full and partial authorizations.// // This URI creates an authorize transaction by appending the `authorize` action to the end of the URI. You can also create an authorize transaction by including the `"action"="authorize"` parameter in the body of a request to the `/organizations/{organization_id}/transactions` URI.
+@name("Authorize Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/authorize"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "authorization_amount": 102.45,
+    "subtotal_amount": 99.95,
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly"
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2017",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// **NOTE**: Forte Verify requires a subscription.// //  Forte Verify is a service that automatically performs pre-authorization checks on EFT account numbers to ensure the account is valid and in good standing. This URI creates a [Forte Verify](https://www.forte.net/devdocs/forte_verify/forte_verify.htm) transaction by appending the `verify` action to the end of the URI. You can also create a Forte Verify transaction by including the `"action"="verify"` parameter in the body of a request to the `/organizations/{organization_id}/transactions` URI.
+@name("Forte Verify Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/verify"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "authorization_amount": "",
+    "billing_address":{
+     "first_name": "Jennifer",
+     "last_name": "McFly",
+     "phone": "444-444-4444",
+     "physical_address": {
+       "street_line1": "8003 Clock Tower Ln",
+       "street_line2": "Suite 200",
+       "locality": "Hill Valley",
+       "region": "CA",
+       "postal_code": "95420"
+      }
+  },
+  "card":{
+     "card_type": "visa",
+     "name_on_card": "Jennifer McFly",
+     "account_number": "4111111111111111",
+     "expire_month": "12",
+     "expire_year": "2017",
+     "card_verification_value":"123"
+  }
+}')
+
+
+// A force transaction captures the funds of an echeck transaction by bypassing verification or authorization functionality. Merchants should verify or authorize force operations prior to performing them. This URI creates a `force` transaction by appending the `force` action to the end of the URI. You can also create a `force` transaction by including the `"action"="force"` parameter in the body of a request to the /organizations/{organization_id}/transactions URI.
+@name("Force Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/force"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "authorization_amount":1.00,
+       "authorization_code":"123456",
+       "billing_address":{
+          "first_name":"Emmett",
+          "last_name":"Brown",
+          "physical_address":{
+             "street_line1":"2123 Einstein Way",
+             "street_line2":"Suite 200",
+             "locality":"Hill Valley",
+             "region":"CA",
+             "country": "US",
+             "postal_code":"90217"
+         }
+      },
+      "card":{
+         "card_type":"visa",
+         "name_on_card":"Emmett Brown",
+         "account_number":"4012888888881881",
+         "expire_month":02,
+         "expire_year":2019,
+         "customer_accounting_code":"123"
+     }
+}')
+
+
+// One-time tokens require a <a href='http://www.forte.net/devdocs/forte.js/forte.js.htm#' target='_blank'>Forte.js</a> integration. Forte.js is a script you can add to your payment form that sends sensitive payment data to Forte (instead of the directly to your server) in return for a one-time token. This one-time token keeps sensitive data safe and reduces your Payment Card Industry Data Security Standard (PCI-DSS) obligations and scope. One-time tokens expire after 60 minutes.
+@name("Transaction from a One-Time Token")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"sale", 
+       "authorization_amount":1.00,
+       "billing_address":{
+          "first_name":"Emmett",
+          "last_name":"Brown"
+       },
+       "card":{
+          "one_time_token":"ott_tq0hemmmtf-zsxgp689rew"
+       }
+}')
+
+
+// Line items require both a `line_item_header` and a numbered line item field (`line_item_1`). You can include up to 100 fields of line items (e.g., name, quantity, price, etc.)
+@name("Transaction with Line Items")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"sale",
+       "authorization_amount": 109.49,
+       "billing_address":{
+          "first_name": "Emmett",
+          "last_name": "Brown"
+       },
+       "echeck":{
+          "sec_code": "WEB",
+          "account_type": "Checking",
+          "routing_number": "021000021",
+          "account_number": "000111222",
+          "account_holder": "Emmett Brown"
+       },
+       "line_items":{
+          "line_item_header":"SKU,Price,Qty",
+          "line_item_1":"021000021,45.00,2",
+          "line_item_2":"021000022,36.99,10",
+          "line_item_3":"021000023,27.50,7"
+      }
+}')
+
+
+// You can include up to nine `xdata` fields. Each field can contain up to 80 characters. **NOTE**: Values within this field cannot contain double quotation characters (i.e., "text"); Forte supports single quotation characters (i.e., 'text'). If you require double quotation characters within this value, use HTML escape characters to ensure the information properly displays (e.g., `xdata_1="Marco's &#147;Place&#148;"`).
+@name("Transaction with XDATA")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"sale",
+       "customer_token":"cst_h_TrrHANEU6XjmMV_EMVrA",
+       "paymethod_token":"mth_cp459q53Q0W5wJdMG35f1w",
+       "reference_id": "000159",
+       "authorization_amount": 1.00,
+       "entered_by":"Griff Tannen",
+       "sales_tax_amount": 0.25,
+       "xdata":{
+          "xdata_1":"Branch 00189",
+          "xdata_2":"Hill Valley, CA",
+          "xdata_3":"Region WEST"
+       }
+}')
+
+
+// A reverse (i.e., refund) takes the original charge from a billing account and retracts it (e.g., reversed sales will have a disbursement or credit performed). Forte supports both full and partial reversals. Reversals can be performed on sale transactions that have been settled (credit cards) or funded (echecks). Including the `reverse` action in the body of your request automatically generates a [credit](https://restdocs.forte.net/#106b7ecb-60e1-4134-a52c-40236788d3a8) transaction. The `original_transaction_id` and the `authorization_code` must also be included in the body of the request.
+@name("Fully Refund a Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+json({
+    "action": "reverse",
+    "authorization_amount": 104.95,
+    "original_transaction_id": "trn_eb28a71e-377c-41a2-89de-bfa7bd47ecd2",
+    "authorization_code": "9ZQ754"
+})
+
+
+// A reverse (i.e., refund) takes the original charge from a billing account and retracts it (e.g., reversed sales will have a disbursement or credit performed). Forte supports both full and partial reversals. Reverses can be performed on sale transactions that have been settled (credit cards) or funded (echecks). Including the `reverse` action in the body of your request automatically generates a [credit](https://restdocs.forte.net/#106b7ecb-60e1-4134-a52c-40236788d3a8) transaction. The `original_transaction_id` and the `authorization_code` must also be included in the body of the request.
+@name("Partially Refund a Transaction")
+POST "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"reverse", 
+       "authorization_amount":50.00,
+       "original_transaction_id":"trn_eb28a71e-377c-41a2-89de-bfa7bd47ecd2",
+       "authorization_code":"9ZQ754"
+}')
+
+
+// This URI returns all transactions for a [location](https://restdocs.forte.net/#step-1-sign-up-for-a-test-account).
+@name("All Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI returns all `sale` transactions for a <a href="https://restdocs.forte.net/#step-1-sign-up-for-a-test-account" target="_blank">location</a>.
+@name("All Sale Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/sale"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI returns all `credit` transactions for a <a href="https://restdocs.forte.net/#step-1-sign-up-for-a-test-account" target="_blank">location</a>.
+@name("All Credit Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/credit"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI returns all `authorize` transactions for a <a href="https://restdocs.forte.net/#step-1-sign-up-for-a-test-account" target="_blank">location</a>.
+@name("All Authorize Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/authorize"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI returns all `verify` transactions for a <a href="https://restdocs.forte.net/#step-1-sign-up-for-a-test-account" target="_blank">location</a>.
+@name("All Verify Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/verify"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// This URI returns all `inquiry` transactions for a <a href="https://restdocs.forte.net/#step-1-sign-up-for-a-test-account" target="_blank">location</a>.
+@name("All Inquiry Transactions")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/inquiry"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// Returns all transactions for a specific `customer_token`.
+@name("All Transactions for a Customer")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/customers/cst_{{customertoken}}/transactions/"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// Returns the details of a specific transaction based on the `transaction_id`.
+@name("Transaction by ID")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/trn_{{transactionID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+
+
+
+// To narrow your search data using specific criteria, use the following filter parameters:// <ul>// <li> start_received_date / end_received_date</li>// <li> received_date</li>// <li> origination_date</li>// <li> customer_token</li>// <li> original_transaction_id</li>// <li> customer_id</li>// <li> order_number</li>// <li> reference_id</li>// <li> status</li>// <li> action</li>// <li> authorization_amount</li>// <li> entered_by</li>// <li> bill_to_company_name</li>// <li> bill_to_first_name</li>// <li> bill_to_last_name</li>// <li> paymethod_type</li>// <li> last_4_account_number</li>// <li> response_code</li>// <li> attempt_number</li>// </ul>// // // **NOTES**: <ul><li> The `action` filter parameter supports the following values: <ul><li> sale</li><li> credit</li><li> authorize</li><li> verify</li><li> inquiry</li></ul></li><li> Searches using the `origination_date` filter parameter will only yield results for echeck transactions.</li><li> To find transactions within a specified date range, use the `start_received_date` and  `end_received_date` filter parameters or the `start_origination_date` and `end_origination_date` filter parameters.</li><li> To find transactions from a single day, use the `received_date` or `origination_date` (echeck only) filter paramters.</li><li> Date range filters must include both the start and end date parameters; otherwise, Forte uses a default 90-day date range from the provided date parameter or, when no date parameter is provided, from the current date.</li><li> All date filter parameters are time aware</li></ul>
+@name("Transactions with Filter")
+GET "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+? "filter"= "start_received_date+eq+'2018-01-01'+and+end_received_date+eq+'2018-08-03' "
+
+
+
+// A void is used to stop a transaction from originating (echecks) or going to settlement (credit cards) and for canceling holds on transactions that were previously authorized. You can only void a transaction once. Only `sale`, `authorize`, `force` (echecks only) or `credit` transactions in the Ready, Authorized, or Review status can be voided.
+@name("Void a Transaction")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/trn_{{transactionID}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"void",
+       "authorization_code":"33717372",
+       "entered_by":"Griff Tannen"
+}')
+
+
+// This endpoint voids a previously approved `authorize` transaction. 
+@name("Void an Authorization")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/trn_{{transaction_id}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"void",
+       "authorization_code":"0KR123",
+       "entered_by":"Griff Tannen"
+}')
+
+
+// This endpoint stops the disbursement of funds back to the consumer after their original transaction was reversed/refunded. You must append the `transaction_id` of the refund transaction to the end of the endpoint, and include the `void` action and `authorization_code` of the refund/reversal transaction in the body of the request.
+@name("Void a Refund")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions/trn_{{transaction_id}}"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+       "action":"void",
+       "authorization_code":"0XD331",
+       "entered_by":"Griff Tannen"
+}')
+
+
+// A `capture` enables merchants to collect the funds of a previous `authorize` transaction. The capture amount must be equal to the authorization amount of the `authorize` transaction. A capture must be performed within the authorization/pre-authorization period (i.e., when the status of the transaction is in-progress) for credit card and echeck transactions.
+@name("Capture a Transaction")
+PUT "https://{{baseURI}}/organizations/org_{{organizationID}}/locations/loc_{{locationID}}/transactions"
+basicauth("{{apiaccessid}}", "{{apisecurekey}}")
+data('{
+    "action": "capture",
+    "transaction_id": "trn_2360c442-a6f7-423e-a4d8-de944b7aee16",
+    "authorization_amount": 108.34,
+    "authorization_code": "0SF381",
+}')
+
+
+

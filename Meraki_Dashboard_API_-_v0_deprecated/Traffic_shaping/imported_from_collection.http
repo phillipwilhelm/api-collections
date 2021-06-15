@@ -1,0 +1,158 @@
+#!/usr/bin/env dothttp
+
+// Update the traffic shaping settings for an SSID on an MR network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // trafficShapingEnabled| boolean| Whether traffic shaping rules are applied to clients on your SSID.// defaultRulesEnabled| boolean|     Whether default traffic shaping rules are enabled (true) or disabled (false).//     There are 4 default rules, which can//     be seen on your network's traffic shaping page. Note that default rules//     count against the rule limit of 8.// // rules| array|     An array of traffic shaping rules. Rules are applied in the order that//     they are specified in. An empty list (or null) means no rules. Note that//     you are allowed a maximum of 8 rules.// 
+@name("updateNetworkSsidTrafficShaping")
+PUT "https://{{baseUrl}}/networks/:networkId/ssids/:number/trafficShaping"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "trafficShapingEnabled": true,
+  "defaultRulesEnabled": true,
+  "rules": [
+    {
+      "definitions": [
+        {
+          "type": "host",
+          "value": "google.com"
+        },
+        {
+          "type": "port",
+          "value": "9090"
+        },
+        {
+          "type": "ipRange",
+          "value": "192.1.0.0"
+        },
+        {
+          "type": "ipRange",
+          "value": "192.1.0.0/16"
+        },
+        {
+          "type": "ipRange",
+          "value": "10.1.0.0/16:80"
+        },
+        {
+          "type": "localNet",
+          "value": "192.168.0.0/16"
+        },
+        {
+          "type": "applicationCategory",
+          "value": {
+            "id": "meraki:layer7/category/2",
+            "name": "Blogging"
+          }
+        },
+        {
+          "type": "application",
+          "value": {
+            "id": "meraki:layer7/application/133",
+            "name": "Battle.net"
+          }
+        }
+      ],
+      "perClientBandwidthLimits": {
+        "settings": "custom",
+        "bandwidthLimits": {
+          "limitUp": 1000000,
+          "limitDown": 1000000
+        }
+      },
+      "dscpTagValue": null,
+      "pcpTagValue": null
+    }
+  ]
+}')
+
+
+// Display the traffic shaping settings for a SSID on an MR network
+@name("getNetworkSsidTrafficShaping")
+GET "https://{{baseUrl}}/networks/:networkId/ssids/:number/trafficShaping"
+"Accept": "*/*"
+
+
+
+// Update the traffic shaping settings for an MX network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // defaultRulesEnabled| boolean|     Whether default traffic shaping rules are enabled (true) or disabled (false).//     There are 4 default rules, which can//     be seen on your network's traffic shaping page. Note that default rules//     count against the rule limit of 8.// // rules| array|     An array of traffic shaping rules. Rules are applied in the order that//     they are specified in. An empty list (or null) means no rules. Note that//     you are allowed a maximum of 8 rules.// 
+@name("updateNetworkTrafficShaping")
+PUT "https://{{baseUrl}}/networks/:networkId/trafficShaping"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "defaultRulesEnabled": true,
+  "rules": [
+    {
+      "definitions": [
+        {
+          "type": "host",
+          "value": "google.com"
+        },
+        {
+          "type": "port",
+          "value": "9090"
+        },
+        {
+          "type": "ipRange",
+          "value": "192.1.0.0"
+        },
+        {
+          "type": "ipRange",
+          "value": "192.1.0.0/16"
+        },
+        {
+          "type": "ipRange",
+          "value": "10.1.0.0/16:80"
+        },
+        {
+          "type": "localNet",
+          "value": "192.168.0.0/16"
+        },
+        {
+          "type": "applicationCategory",
+          "value": {
+            "id": "meraki:layer7/category/2",
+            "name": "Blogging"
+          }
+        },
+        {
+          "type": "application",
+          "value": {
+            "id": "meraki:layer7/application/133",
+            "name": "Battle.net"
+          }
+        }
+      ],
+      "perClientBandwidthLimits": {
+        "settings": "custom",
+        "bandwidthLimits": {
+          "limitUp": 1000000,
+          "limitDown": 1000000
+        }
+      },
+      "dscpTagValue": null,
+      "priority": "normal"
+    }
+  ]
+}')
+
+
+// Display the traffic shaping settings for an MX network
+@name("getNetworkTrafficShaping")
+GET "https://{{baseUrl}}/networks/:networkId/trafficShaping"
+"Accept": "*/*"
+
+
+
+// Returns the application categories for traffic shaping rules.
+@name("getNetworkTrafficShapingApplicationCategories")
+GET "https://{{baseUrl}}/networks/:networkId/trafficShaping/applicationCategories"
+"Accept": "*/*"
+
+
+
+// Returns the available DSCP tagging options for your traffic shaping rules.
+@name("getNetworkTrafficShapingDscpTaggingOptions")
+GET "https://{{baseUrl}}/networks/:networkId/trafficShaping/dscpTaggingOptions"
+"Accept": "*/*"
+
+
+
+

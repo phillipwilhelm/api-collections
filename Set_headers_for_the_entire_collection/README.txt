@@ -1,0 +1,1 @@
+https://community.postman.com/t/setting-headers-for-entire-collection-folder/708/13

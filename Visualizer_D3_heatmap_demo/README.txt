@@ -1,0 +1,1 @@
+This collection is a Postman adaptation of [Robert Valmassoi](https://codepen.io/valmassoi)'s excellent Codepen, ["Visualize Data with a Heat Map using D3 JS"](https://codepen.io/valmassoi/pen/aNGryB). It shows how you can use Postman's Visualizer feature to render a heatmap chart from your API response data using D3.

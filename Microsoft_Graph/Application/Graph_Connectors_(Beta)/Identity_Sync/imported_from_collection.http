@@ -1,0 +1,47 @@
+#!/usr/bin/env dothttp
+
+// Create group under the connection
+@name("Create Group")
+POST "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups"
+json({
+    "id": "graphConnectorGroupId",
+    "displayName": "Display name of group sampleExternalGroupId"
+})
+
+
+@name("Add AAD user as member")
+POST "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups/graphConnectorGroupId/members/"
+json({
+    "id": "e42f427c-f33f-4389-afd8-db432ff6a338",
+    "type": "user",
+    "identitySource": "azureActiveDirectory"
+})
+
+
+@name("Add AAD group as member")
+POST "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups/graphConnectorGroupId/members/"
+json({
+    "id": "e42f427c-f33f-4389-afd8-db432ff6a338",
+    "type": "group",
+    "identitySource": "azureActiveDirectory"
+})
+
+
+@name("Add connector group as member")
+POST "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups/graphConnectorGroupId/members/"
+json({
+    "id": "childGraphConnectorGroupId",
+    "type": "group",
+    "identitySource": "external"
+})
+
+
+@name("Remove Member")
+DELETE "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups/graphConnectorGroupId/members/childGraphConnectorGroupId"
+
+
+@name("Delete Group")
+DELETE "https://graph.microsoft.com/beta/external/connections/sampleConnectionId/groups/graphConnectorGroupId"
+
+
+

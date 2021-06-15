@@ -1,0 +1,52 @@
+#!/usr/bin/env dothttp
+
+// This Request is used to GET a Trivia Question.
+@name("Get Trivia Question")
+GET "https://opentdb.com/api.php"
+? "amount"= "10"
+? "category"= "{{categoryCode}}"
+? "encode"= "base64"
+
+
+// This Request Sends a Trivia Question to Slack.
+@name("Send Question To Slack")
+POST "https://{{slackIncomingWebhookUrl}}/"
+"Content-Type": "application/json"
+data('{
+    "text": "Can You Answer this Question?",
+    "attachments": [
+        {
+            "text": "{{question}}",
+            "fallback": "You are unable to choose a game",
+            "callback_id": "word_game",
+            "color": "#3AA3E3",
+            "attachment_type": "default",
+            "actions": [
+                {
+                    "name": "correct answer",
+                    "text": "{{correctAnswer}}",
+                    "type": "button",
+                    "value": "{{correctAnswer}}"
+                },
+                {
+                    "name": "wrong answer",
+                    "text": "{{wrongAnswer1}}",
+                    "type": "button",
+                    "value": "{{wrongAnswer1}}"
+                }
+            ]
+        }
+    ]
+}')
+
+
+// Checks If User Answered Correctly or Not and Send the Result to Slack.
+@name("Check Answer and Send Result to Slack")
+POST "https://{{responseUrlToSlack}}/"
+"Content-Type": "application/json"
+data('{
+    "text": "{{data}}"
+}')
+
+
+

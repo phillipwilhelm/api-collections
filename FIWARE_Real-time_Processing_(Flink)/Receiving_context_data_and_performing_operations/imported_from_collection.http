@@ -1,0 +1,33 @@
+#!/usr/bin/env dothttp
+
+// Once a dynamic context system is up and running (execute Example1), we need to inform **Flink** of changes in context.// // This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.// // -   The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to//     measurements from the attached IoT Sensors, since they had been provisioned using these settings// // -   The notification `url` must match the one our Flink program is listening to. Substitute ${MY_IP} for your machine's//     IP address in the docker0 network (must be accessible from the docker container). You can get this IP like so (maybe//     you need to use sudo):// // ```console// docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}'// ```// // -   The `throttling` value defines the rate that changes are sampled.
+@name("Orion - Subscribe to Context Changes")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify Flink of all context changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": ".*"
+      }
+    ]
+  },
+  "notification": {
+    "http": {
+      "url": "http://taskmanager:9001"
+    }
+  }
+}')
+
+
+// If a subscription has been created, you can check to see if it is firing by making a GET // request to the `/v2/subscriptions` endpoint.// // Within the `notification` section of the response, you can see several additional `attributes` which describe the health of the subscription// // If the criteria of the subscription have been met, `timesSent` should be greater than `0`.// A zero value would indicate that the `subject` of the subscription is incorrect or the subscription // has created with the wrong `fiware-service-path` or `fiware-service` header// // The `lastNotification` should be a recent timestamp - if this is not the case, then the devices// are not regularly sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**// // The `lastSuccess` should match the `lastNotification` date - if this is not the case // then **Draco** is not receiving the subscription properly. Check that the host name// and port are correct. // // Finally, check that the `status` of the subscription is `active` - an expired subscription// will not fire.
+@name("Orion - Check Subscription is working")
+GET "http://{{orion}}/v2/subscriptions/"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+

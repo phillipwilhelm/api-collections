@@ -1,0 +1,47 @@
+#!/usr/bin/env dothttp
+
+// Take all the folks, sort by lowest score and alphabetize by name. The top sort is today's winner for dishwasher duty.
+@name("Get the next assignment")
+GET "https://{{airtable_full_URL}}/"
+"Authorization": "Bearer {{airtable_key}}"
+? "sort%5B0%5D%5Bfield%5D"= "count"
+? "sort%5B0%5D%5Bdirection%5D"= "asc"
+? "sort%5B1%5D%5Bfield%5D"= "name"
+? "sort%5B1%5D%5Bdirection%5D"= "asc"
+? "view"= "Grid+view"
+
+
+
+// Make sure that the person managing the dishwasher gets credit for it!
+@name("Update the lucky winner's count")
+PATCH "https://{{airtable_full_URL}}/{{todayID}}"
+"Authorization": "Bearer {{airtable_key}}"
+"Content-Type": "application/json"
+data('{
+  "fields": {
+    "count": {{todayCount}}
+  }
+}')
+
+
+// Post to the Slack, so everyone knows who is supposed to be loading and unloading the dishwasher.
+@name("Post to Slack")
+POST "https://{{SlackChannel}}/"
+"Content-Type": "application/json"
+data('{
+  
+  "attachments": [
+        {
+            "title": "{{title}}",
+            "text": "<{{body}}> :smile:",
+            "color": "#2eb886"
+        }
+    ]
+
+           
+}
+
+')
+
+
+

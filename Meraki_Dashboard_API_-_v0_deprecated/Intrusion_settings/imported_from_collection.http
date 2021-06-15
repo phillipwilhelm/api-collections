@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Returns all supported intrusion settings for an MX network
+@name("getNetworkSecurityIntrusionSettings")
+GET "https://{{baseUrl}}/networks/:networkId/security/intrusionSettings"
+"Accept": "*/*"
+
+
+
+// Set the supported intrusion settings for an MX network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // mode| string| Set mode to 'disabled'/'detection'/'prevention' (optional - omitting will leave current config unchanged)// idsRulesets| string| Set the detection ruleset 'connectivity'/'balanced'/'security' (optional - omitting will leave current config unchanged). Default value is 'balanced' if none currently saved// protectedNetworks| object| Set the included/excluded networks from the intrusion engine (optional - omitting will leave current config unchanged). This is available only in 'passthrough' mode
+@name("updateNetworkSecurityIntrusionSettings")
+PUT "https://{{baseUrl}}/networks/:networkId/security/intrusionSettings"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "mode": "prevention",
+  "idsRulesets": "balanced",
+  "protectedNetworks": {
+    "useDefault": false,
+    "includedCidr": [
+      "10.0.0.0/8",
+      "127.0.0.0/8",
+      "169.254.0.0/16",
+      "172.16.0.0/12"
+    ],
+    "excludedCidr": [
+      "10.0.0.0/8",
+      "127.0.0.0/8"
+    ]
+  }
+}')
+
+
+// Returns all supported intrusion settings for an organization
+@name("getOrganizationSecurityIntrusionSettings")
+GET "https://{{baseUrl}}/organizations/:organizationId/security/intrusionSettings"
+"Accept": "*/*"
+
+
+
+// Sets supported intrusion settings for an organization//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // whitelistedRules| array| Sets a list of specific SNORT® signatures to whitelist
+@name("updateOrganizationSecurityIntrusionSettings")
+PUT "https://{{baseUrl}}/organizations/:organizationId/security/intrusionSettings"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "whitelistedRules": [
+    {
+      "ruleId": "meraki:intrusion/snort/GID/01/SID/688",
+      "message": "SQL sa login failed"
+    },
+    {
+      "ruleId": "meraki:intrusion/snort/GID/01/SID/5805",
+      "message": "MALWARE-OTHER Trackware myway speedbar runtime detection - switch engines"
+    }
+  ]
+}')
+
+
+

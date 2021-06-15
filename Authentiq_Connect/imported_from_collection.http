@@ -1,0 +1,35 @@
+#!/usr/bin/env dothttp
+
+// Start a session with Authentiq Connect and authenticate a user.// // Example:// // ```// GET https://connect.authentiq.io/authorize?client_id=<your-client-id>&response_type=code+id_token&scope=openid+email&redirect_uri=<your-redirect-uri>&state=0123456789// ```// // This endpoint is compatible with OpenID Connect and also supports the POST method, in which case the parameters are passed as a form post.// // See also://   - [OAuth 2.0 Authorization Endpoint](http://tools.ietf.org/html/rfc6749#section-3.1)//   - [OIDC Au
+@name("Authenticate a user")
+GET "https://{{baseUrl}}/authorize"
+? "client_id"= "<get>"
+? "response_type"= "<get>"
+? "scope"= "<get>"
+? "redirect_uri"= "<get>"
+? "state"= "<>"
+? "response_mode"= "<get>"
+? "nonce"= "<get>"
+? "display"= "<>"
+? "prompt"= "<>"
+? "max_age"= "<>"
+? "ui_locales"= "<>"
+
+
+// Exchange en authorization code for an ID Token or Access Token.// // This endpoint supports both `client_secret_post` and `client_secret_basic` authenticatino methods, as specified by the client's `token_endpoint_auth_method`.// // See also://   - [OIDC Token Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest)//   - [OIDC Successful Token response](http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse)//   - [OIDC Token Error response](http://openid.net/specs/openid-conne
+@name("Obtain an ID Token")
+POST "https://{{baseUrl}}/token"
+"Authorization": "<>"
+
+
+// Use this endpoint to retrieve a user's profile in case you've not already obtained enough details from the ID Token via the Token Endpoint.//  See also://  - [OIDC UserInfo endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
+@name("Retrieve their user profile")
+GET "https://{{baseUrl}}/userinfo"
+
+
+// An OpenID Connect Session Management iframe to facilitate e.g. single sign-on or remote logouts.// // The iframe implements the OIDC postMessage-based [change notification protocol](http://openid.net/specs/openid-connect-session-1_0.html#ChangeNotification) via which a client can receive notifications about session state changes.// // See also:// - [OIDC OP iframe](http://openid.net/specs/openid-connect-session-1_0.html#OPiframe)
+@name("Include a session iframe")
+GET "https://{{baseUrl}}/:client_id/iframe"
+
+
+

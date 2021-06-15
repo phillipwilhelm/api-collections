@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// Lists all of your webhooks.// // https://developer.webex.com/endpoint-webhooks-get.html
+@name("List webhooks")
+GET "https://{{WEBEXAPI}}/webhooks"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Creates a webhook for messages/created event.// // Note that you'll need to change the requestb.in URI to your own to see the webhook in action.// // https://developer.webex.com/endpoint-webhooks-post.html
+@name("Create a webhook (all events, all rooms)")
+POST "https://{{WEBEXAPI}}/webhooks"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+      "name": "Webhook to Requestb.in (all events, no filter)",
+      "resource": "all",
+      "event": "all",
+      "targetUrl": "https://enuxe3i231jho.x.pipedream.net/"
+    }')
+
+
+// Shows details for a webhook, by ID.// // Specify the webhook ID in the webhookId parameter in the URI.// // https://developer.webex.com/endpoint-webhooks-webhookId-get.html
+@name("Get webhook details")
+GET "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Deletes a webhook, by ID.// // Specify the webhook ID in the webhookId parameter in the URI.// // https://developer.webex.com/endpoint-webhooks-delete.html
+@name("Delete a webhook")
+DELETE "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+// Creates a room. The authenticated user is automatically added as a member of the room. See the Memberships API to learn how to add more people to the room.// // https://developer.webex.com/endpoint-rooms-post.html
+@name("Create a room (for test run purpose)")
+POST "https://{{WEBEXAPI}}/rooms"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "Postman - Testing Webhooks"
+}')
+
+
+// Creates a webhook for messages/created event.// // Note that you'll need to change the requestb.in URI to your own to see the webhook in action.// // https://developer.webex.com/endpoint-webhooks-post.html
+@name("Create a webhook (messages/created)")
+POST "https://{{WEBEXAPI}}/webhooks/"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{
+      "name": "Postman WebHook Test",
+      "resource": "messages",
+      "event": "created",
+      "targetUrl": "https://enryghfod7afj.x.pipedream.net",
+      "filter": "roomId={{_room}}"
+    }')
+
+
+// Shows details for a webhook, by ID.// // Specify the webhook ID in the webhookId parameter in the URI.// // https://developer.webex.com/endpoint-webhooks-webhookId-get.html
+@name("Get webhook details")
+GET "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Updates a webhook, by ID.// // Specify the webhook ID in the webhookId parameter in the URI.// // https://developer.webex.com/endpoint-webhooks-webhookId-put.html
+@name("Update a webhook")
+PUT "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman WebHook Test (renamed)",
+    "event": "all"
+}')
+
+
+// adds a message in a room, to check an event is triggered
+@name("Add a message (for test run purpose)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "roomId" : "{{_room}}",
+  "text" : "This is a plain text message to read from the webhook"
+}')
+
+
+// Deletes a webhook, by ID.// // Specify the webhook ID in the webhookId parameter in the URI.// // https://developer.webex.com/endpoint-webhooks-delete.html
+@name("Delete a webhook")
+DELETE "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+// Deletes a room, by ID.// // Specify the room ID in the roomId parameter in the URI.// // https://developer.webex.com/endpoint-rooms-roomId-delete.html
+@name("Delete a room (cleanup)")
+DELETE "https://{{WEBEXAPI}}/rooms/{{_room}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+
+

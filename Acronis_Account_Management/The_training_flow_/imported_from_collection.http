@@ -1,0 +1,896 @@
+#!/usr/bin/env dothttp
+
+@name("Get self info using Basic Authentication")
+GET "https://{{base_url}}/api/2/users/me"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+
+
+@name("Create an API Client")
+POST "https://{{base_url}}/api/2/clients"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/json"
+data('{
+	"type": "api_client",
+	"tenant_id": "{{my_tenant_id}}",
+	"token_endpoint_auth_method": "client_secret_basic",
+	"data": {
+		"client_name": "API.Client"
+	}
+}')
+
+
+@name("Issue a JWT token")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Create a partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "MyFirstPartner",
+    "parent_id": "{{my_tenant_id}}",
+    "kind": "partner"
+}')
+
+
+@name("Get available offering items for a partner tenant")
+GET "https://{{base_url}}/api/2/tenants/{{my_tenant_id}}/offering_items/available_for_child"
+? "edition"= "{{edition}}"
+? "kind"= "{{kind}}"
+
+
+@name("Set offering items for a partner tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/offering_items "
+"Content-Type": "application/json"
+data('{
+    "offering_items": [
+        {
+            "measurement_unit": "seconds",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "compute_points",
+            "type": "infra",
+            "edition": "standard",
+            "name": "compute_points",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "dr_cloud_servers",
+            "type": "infra",
+            "edition": "standard",
+            "name": "dr_cloud_servers",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "dr_storage",
+            "type": "infra",
+            "edition": "standard",
+            "name": "dr_storage",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "storage",
+            "type": "infra",
+            "edition": "standard",
+            "name": "storage",
+            "infra_id": "019097a6-114f-4418-bd54-e01ef049f209",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "usage_name": "fc_storage",
+            "type": "infra",
+            "edition": null,
+            "name": "fc_storage",
+            "infra_id": "fbc254b9-d8be-4daf-94f6-0253d23b63f0",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "workstations",
+            "type": "count",
+            "edition": "standard",
+            "name": "workstations",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "servers",
+            "type": "count",
+            "edition": "standard",
+            "name": "servers",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "vms",
+            "type": "count",
+            "edition": "standard",
+            "name": "vms",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "mobiles",
+            "type": "count",
+            "edition": "standard",
+            "name": "mobiles",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "mailboxes",
+            "type": "count",
+            "edition": "standard",
+            "name": "mailboxes",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "websites",
+            "type": "count",
+            "edition": "standard",
+            "name": "websites",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "child_storages",
+            "type": "count",
+            "edition": "standard",
+            "name": "child_storages",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "local_storage",
+            "type": "count",
+            "edition": null,
+            "name": "local_storage",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "gsuite_seats",
+            "type": "count",
+            "edition": "standard",
+            "name": "gsuite_seats",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "web_hosting_servers",
+            "type": "count",
+            "edition": "standard",
+            "name": "web_hosting_servers",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_mailboxes",
+            "type": "feature",
+            "edition": "standard",
+            "name": "o365_mailboxes",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_onedrive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "o365_onedrive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_sharepoint_sites",
+            "type": "count",
+            "edition": "standard",
+            "name": "o365_sharepoint_sites",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_mail",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_mail",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_drive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_drive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_team_drive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_team_drive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "b71b2c18-590a-303c-9d5a-8444fbe713ac",
+            "usage_name": "drives_shipped_to_cloud",
+            "type": "count",
+            "edition": null,
+            "name": "drives_shipped_to_cloud",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "usage_name": "fc_seats",
+            "type": "count",
+            "edition": null,
+            "name": "fc_seats",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "usage_name": "fc_child_storages",
+            "type": "count",
+            "edition": null,
+            "name": "fc_child_storages",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "notary_storage",
+            "type": "count",
+            "edition": null,
+            "name": "notary_storage",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "notarizations",
+            "type": "count",
+            "edition": null,
+            "name": "notarizations",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "esignatures",
+            "type": "count",
+            "edition": null,
+            "name": "esignatures",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        }
+    ]
+}')
+
+
+@name("Create a customer tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "MyFirstCustomer",
+    "parent_id": "{{partner_tenant_id}}",
+    "kind": "customer"
+  }')
+
+
+@name("Get available offering items for a customer tenant")
+GET "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/offering_items/available_for_child"
+? "edition"= "{{edition}}"
+? "kind"= "{{kind}}"
+
+
+@name("Set offering items for a customer tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/offering_items "
+"Content-Type": "application/json"
+data('{
+    "offering_items": [
+        {
+            "measurement_unit": "seconds",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "compute_points",
+            "type": "infra",
+            "edition": "standard",
+            "name": "compute_points",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "dr_cloud_servers",
+            "type": "infra",
+            "edition": "standard",
+            "name": "dr_cloud_servers",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "dr_storage",
+            "type": "infra",
+            "edition": "standard",
+            "name": "dr_storage",
+            "infra_id": "debe7865-fa8d-4c16-8e26-adcf8d7fd23d",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "storage",
+            "type": "infra",
+            "edition": "standard",
+            "name": "storage",
+            "infra_id": "019097a6-114f-4418-bd54-e01ef049f209",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "usage_name": "fc_storage",
+            "type": "infra",
+            "edition": null,
+            "name": "fc_storage",
+            "infra_id": "fbc254b9-d8be-4daf-94f6-0253d23b63f0",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "workstations",
+            "type": "count",
+            "edition": "standard",
+            "name": "workstations",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "servers",
+            "type": "count",
+            "edition": "standard",
+            "name": "servers",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "vms",
+            "type": "count",
+            "edition": "standard",
+            "name": "vms",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "mobiles",
+            "type": "count",
+            "edition": "standard",
+            "name": "mobiles",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "mailboxes",
+            "type": "count",
+            "edition": "standard",
+            "name": "mailboxes",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "websites",
+            "type": "count",
+            "edition": "standard",
+            "name": "websites",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "local_storage",
+            "type": "count",
+            "edition": null,
+            "name": "local_storage",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "gsuite_seats",
+            "type": "count",
+            "edition": "standard",
+            "name": "gsuite_seats",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "web_hosting_servers",
+            "type": "count",
+            "edition": "standard",
+            "name": "web_hosting_servers",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_mailboxes",
+            "type": "feature",
+            "edition": "standard",
+            "name": "o365_mailboxes",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_onedrive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "o365_onedrive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "o365_sharepoint_sites",
+            "type": "count",
+            "edition": "standard",
+            "name": "o365_sharepoint_sites",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_mail",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_mail",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_drive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_drive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "n/a",
+            "application_id": "6e6d758d-8e74-3ae3-ac84-50eb0dff12eb",
+            "usage_name": "google_team_drive",
+            "type": "feature",
+            "edition": "standard",
+            "name": "google_team_drive",
+            "locked": false,
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "b71b2c18-590a-303c-9d5a-8444fbe713ac",
+            "usage_name": "drives_shipped_to_cloud",
+            "type": "count",
+            "edition": null,
+            "name": "drives_shipped_to_cloud",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "usage_name": "fc_seats",
+            "type": "count",
+            "edition": null,
+            "name": "fc_seats",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "bytes",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "notary_storage",
+            "type": "count",
+            "edition": null,
+            "name": "notary_storage",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "notarizations",
+            "type": "count",
+            "edition": null,
+            "name": "notarizations",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        },
+        {
+            "measurement_unit": "quantity",
+            "application_id": "f9c5744e-bd1a-36b6-b0f0-ecd7483e1796",
+            "usage_name": "esignatures",
+            "type": "count",
+            "edition": null,
+            "name": "esignatures",
+            "locked": false,
+            "quota": {
+                "overage": null,
+                "version": 0,
+                "value": null
+            },
+            "status": 1
+        }
+    ]
+}')
+
+
+@name("Get a customer pricing model")
+GET "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/pricing"
+
+
+@name("Set a customer pricing model to production")
+PUT "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/pricing"
+"Content-Type": "application/json"
+data('{
+    "mode": "production",
+    "version": 1585044997344,
+    "currency": null
+}')
+
+
+@name("Check login availability")
+GET "https://{{base_url}}/api/2/users/check_login"
+? "username"= "{{login}}"
+
+
+@name("Create a new user for a customer")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{customer_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com",
+      "firstname": "First{{login}}",
+      "lastname": "Last{{login}}"
+  }
+}')
+
+
+@name("Activate a user by setting a password")
+POST "https://{{base_url}}/api/2/users/{{user_id}}/password"
+"Content-Type": "application/json"
+data('{
+  "password": "MyStrongP@ssw0rd"
+}')
+
+
+@name("Get a tenant usage")
+GET "https://{{base_url}}/api/2/tenants/{{my_tenant_id}}/usages"
+
+
+@name("Create a report")
+POST "https://{{base_url}}/api/2/reports"
+"Content-Type": "application/json"
+data('{
+    "parameters": {
+        "kind": "usage_current",
+        "tenant_id": "{{my_tenant_id}}",
+        "level": "accounts",
+        "formats": [
+            "csv_v2_0"
+        ]
+    },
+    "schedule": {
+        "type": "once"
+    },
+    "result_action": "save"
+}')
+
+
+@name("Get stored reports list")
+GET "https://{{base_url}}/api/2/reports/{{report_id}}/stored"
+
+
+@name("Download stored reports")
+GET "https://{{base_url}}/api/2/reports/{{report_id}}/stored/{{stored_report_id}}"
+
+
+

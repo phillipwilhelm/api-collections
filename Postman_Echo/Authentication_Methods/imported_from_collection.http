@@ -1,0 +1,26 @@
+#!/usr/bin/env dothttp
+
+// This endpoint simulates a **basic-auth** protected endpoint. // The endpoint accepts a default username and password and returns a status code of `200 ok` only if the same is provided. // Otherwise it will return a status code `401 unauthorized`.// // > Username: `postman`// > // > Password: `password`// // To use this endpoint, send a request with the header `Authorization: Basic cG9zdG1hbjpwYXNzd29yZA==`. // The cryptic latter half of the header value is a base64 encoded concatenation of the default username and password. // Using Postman, to send this request, you can simply fill in the username and password in the "Authorization" tab and Postman will do the rest for you.// // To know more about basic authentication, refer to the [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) wikipedia article.// The article on [authentication helpers](https://www.getpostman.com/docs/helpers#basic-auth?source=echo-collection-app-onboarding) elaborates how to use the same within the Postman app.
+@name("Basic Auth")
+GET "https://postman-echo.com/basic-auth"
+basicauth("postman", "password")
+
+
+// This endpoint sends a hashed Digest Authorization header to gain access to a valid `200 Ok` response code. In Postman, it uses the stored [global variables](https://www.getpostman.com/docs/environments#gloval-variables?source=echo-collection-app-onboarding), `echo_digest_realm` and `echo_digest_nonce`, to generate the hashed authorisation header.// // Within Postman, for this request to successfully authenticate, running the previous request "DigestAuth Request" stores the relevant information within the global variables.
+@name("DigestAuth Success")
+GET "https://postman-echo.com/digest-auth"
+digestauth("postman", "password")
+"Authorization": "Digest username="postman", realm="Users", nonce="ni1LiL0O37PRRhofWdCLmwFsnEtH1lew", uri="/digest-auth", response="254679099562cf07df9b6f5d8d15db44", opaque="""
+
+
+// This endpoint is a Hawk Authentication protected endpoint. [Hawk authentication](https://github.com/hueniverse/hawk) is a widely used protocol for protecting API endpoints. One of Hawk's main goals is to enable HTTP authentication for services that do not use TLS (although it can be used in conjunction with TLS as well).// // In order to use this endpoint, select the "Hawk Auth" helper inside Postman, and set the following values:// // Hawk Auth ID: `dh37fgj492je`// // Hawk Auth Key: `werxhqb98rpaxn39848xrunpaw3489ruxnpa98w4rxn`// // Algorithm: `sha256`// // The rest of the values are optional, and can be left blank. Hitting send should give you a response with a status code of 200 OK.
+@name("Hawk Auth")
+GET "https://postman-echo.com/auth/hawk"
+
+
+// OAuth1.0a is a specification that defines a protocol that can be used by one// service to access "protected" resources (endpoints) on another service. A// major part of OAuth1.0 is HTTP Request Signing. This endpoint allows you to // check whether the request calculation works properly in the client. // // The endpoint supports the HTTP ``Authorization`` header. In case the signature// verification fails, the endpoint provides the four debug values,// // * ``base_uri``// * ``normalized_param_string``// * ``base_string``// * ``signing_key``// // For more details about these parameters, check the [OAuth1.0a Specification](http://oauth.net/core/1.0a/)// // In order to use this endpoint, you can set the following values:// // > Consumer Key: ``RKCGzna7bv9YD57c``// >// > Consumer Secret: ``D+EdQ-gs$-%@2Nu7``// // If you are using Postman, also check the "Add params to header" and // "Auto add parameters" boxes.
+@name("OAuth1.0 (verify signature)")
+GET "https://postman-echo.com/oauth1"
+
+
+

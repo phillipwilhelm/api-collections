@@ -1,0 +1,97 @@
+#!/usr/bin/env dothttp
+
+@name("Get Access Token")
+POST "https://login.windows.net/{{TenantDomain}}/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+? "api-version"= "1.0"
+data({
+    "grant_type": [
+        "client_credentials"
+    ],
+    "resource": [
+        "https://manage.office.com"
+    ],
+    "client_id": [
+        "{{ClientID}}"
+    ],
+    "client_secret": [
+        "{{ClientSecret}}"
+    ]
+})
+
+
+@name("Start AzureActiveDirectory Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/start"
+? "contentType"= "Audit.AzureActiveDirectory"
+
+
+@name("Start Exchange Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/start"
+? "contentType"= "Audit.Exchange"
+
+
+@name("Start SharePoint Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/start"
+? "contentType"= "Audit.SharePoint"
+
+
+@name("Start General Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/start"
+? "contentType"= "Audit.General"
+
+
+@name("Start DLP Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/start"
+? "contentType"= "DLP.All"
+
+
+@name("Start Subscription With Webhook Notification")
+POST "https://manage.office.com/api/v1.0/{{TenantID}}/activity/feed/subscriptions/start"
+"Content-Type": "application/json; utf-8"
+? "contentType"= "Audit.SharePoint"
+data('{
+	"webhook": {
+		"address": "https://webhost/api/managementApiReceiver",
+		"authId": "o365activityapinotification",
+		"expiration": ""
+	}
+}')
+
+
+@name("List current subscriptions")
+GET "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/list"
+
+
+@name("List current subscriptions PublisherIdentifier")
+GET "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/list"
+? "PublisherIdentifier"= "{{TenantID}}"
+
+
+@name("List SharePoint Audit Content")
+GET "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/content"
+? "contentType"= "Audit.SharePoint"
+
+
+@name("List SharePoint Audit Content Between Dates")
+GET "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/content"
+? "contentType"= "Audit.SharePoint"
+? "startTime"= "2019-07-08T15:00"
+? "endTime"= "2019-07-08T23:30"
+
+
+@name("List SharePoint Audit Content Next Page")
+GET "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/content"
+? "contentType"= "Audit.SharePoint"
+
+
+@name("Get Blob Avoid Throttling")
+GET "https://manage.office.com/api/v1.0/4e2c0a7e-91a7-4c7f-9ba3-5eb81c88cb8f/activity/feed/audit/20190731084841023152992$20190731151817903213468$audit_sharepoint$Audit_SharePoint$na0022"
+? "PublisherIdentifier"= "{{TenantID}}"
+
+
+@name("Stop Audit Subscription")
+POST "https://manage.office.com/api/v1.0/{{TenantDomain}}.onmicrosoft.com/activity/feed/subscriptions/stop"
+? "contentType"= "{{subscriptionContentType}}"
+
+
+

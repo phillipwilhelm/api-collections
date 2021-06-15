@@ -1,0 +1,154 @@
+#!/usr/bin/env dothttp
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/jb-api-specification.htm// // Retrieves a collection of all journeys. The journey collection resources are embedded in the items property of the response body. Use both a sort order and paging to minimize the response size and response time.
+@name("Get Interactions (Journeys)")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-apis.meta/mc-apis/jb-api-specification.htm// // Retrieves a single journey by ID.
+@name("Get Interactions (Journeys) - By ID")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/{{journeyId}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/postCreateInteraction.htm// // Creates or saves a journey. To create a new journey provide the request body in the appropriate Journey Specification. Please read the Journey Spec page to understand which properties are required to create a journey via the API. The id, key, createdDate, modifiedDate, status and definitionId are assigned by Journey Builder and are never to be passed in as parameters for creating a journey.
+@name("Create Interaction (Journey) - Basic Shell")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions"
+json({
+    "key": "ixn-created-via-the-api",
+    "name": "API-Created journey",
+    "workflowApiVersion": 1,
+    "triggers": [],
+    "goals": [],
+    "activities": []
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/postCreateInteraction.htm// // Creates or saves a journey. To create a new journey provide the request body in the appropriate Journey Specification. Please read the Journey Spec page to understand which properties are required to create a journey via the API. The id, key, createdDate, modifiedDate, status and definitionId are assigned by Journey Builder and are never to be passed in as parameters for creating a journey.
+@name("Create Interaction (Journey) - Entry Event Only")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions"
+json({
+    "key": "postman-journey-testing-2",
+    "name": "This is our first journey 2",
+    "description": "We are using this journey to learn how to use the Journey Spec in Journey Builder",
+    "workflowApiVersion": 1,
+    "triggers": [
+        {
+            "key": "event-key",
+            "name": "Starting point for the journey",
+            "type": "APIEvent",
+            "eventDefinitionKey": "APIEvent-c204d5ab-543c-56de-f7f2-75c2f9220411",
+            "arguments": {},
+            "configurationArguments": {}
+        }
+    ]
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/postCreateInteraction.htm// // Creates or saves a journey. To create a new journey provide the request body in the appropriate Journey Specification. Please read the Journey Spec page to understand which properties are required to create a journey via the API. The id, key, createdDate, modifiedDate, status and definitionId are assigned by Journey Builder and are never to be passed in as parameters for creating a journey.
+@name("Create Interaction (Journey) - Simple Journey")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions"
+json({
+    "key": "postman-demo",
+    "name": "Postman Demo",
+    "description": "Api created Journey",
+    "entryMode": "MultipleEntries",
+    "defaults": {
+        "email": [
+            "{{Event.APIEvent-0dbe46de-74f9-a309-7778-298c0a565f93.\"Email\"}}"
+        ]
+    },
+    "workflowApiVersion": 1,
+    "triggers": [
+        {
+            "key": "TRIGGER",
+            "name": "api-event",
+            "description": "",
+            "type": "APIEvent",
+            "outcomes": [],
+            "arguments": {},
+            "configurationArguments": {
+                "criteria": ""
+            },
+            "metaData": {
+                "eventDefinitionId": "e35aa03b-4a75-47e5-a855-92fa07dce953",
+                "eventDefinitionKey": "APIEvent-0dbe46de-74f9-a309-7778-298c0a565f93"
+            }
+        }
+    ],
+    "goals": [],
+    "activities": [
+        {
+            "key": "postman-email-key-1",
+            "name": "Welcome Email",
+            "description": "",
+            "type": "EMAILV2",
+            "outcomes": [
+                {
+                    "key": "sent-email-now-wait",
+                    "next": "welcome-email-then-wait",
+                    "arguments": {},
+                    "metaData": {}
+                }
+            ],
+            "arguments": {},
+            "configurationArguments": {
+                "applicationExtensionKey": "jb-email-activity",
+                "triggeredSend": {
+                    "emailId": 182582,
+                    "emailSubject": "Welcome to Makana",
+                    "name": "Makana Welcome Email",
+                    "isSalesforceTracking": true,
+                    "isMultipart": true,
+                    "isSendLogging": true,
+                    "suppressTracking": false,
+                    "sendClassificationId": "8da936da-9a40-e711-af11-78e3b50b7f0c",
+                    "isTrackingClicks": true
+                }
+            },
+            "metaData": {
+                "isConfigured": true
+            }
+        },
+        {
+            "key": "welcome-email-then-wait",
+            "name": "1 minute",
+            "type": "WAIT",
+            "configurationArguments": {
+                "waitDuration": 1,
+                "waitUnit": "MINUTES"
+            },
+            "metaData": {
+                "isConfigured": true,
+                "waitType": "duration"
+            }
+        }
+    ]
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/postPublishInteractionById.htm// // Publishes a journey version asynchronously.
+@name("Publish Interaction (Journey)")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/publishAsync/{{journeyId}}"
+? "versionNumber"= "{{versionNumber}}"
+
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/getPublishStatus.htm// // Checks the status of a publication.
+@name("Get Interaction (Journey) Publish Status")
+GET "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/publishStatus/{{statusId}}"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/postStopInteractionById.htm// // Stops a running journey.
+@name("Stop Interaction (Journey)")
+POST "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/stop/{{journeyId}}"
+? "versionNumber"= "{{versionNumber}}"
+
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/deleteInteractionById.htm// // Deletes a journey by ID. When deleting last version of a journey, check if the journey is associated with a tag and unassociated the tag using the deleteTags resource.
+@name("Delete Interaction (Journey) - By ID")
+DELETE "https://{{et_subdomain}}.rest.marketingcloudapis.com/interaction/v1/interactions/{id}"
+
+
+
+

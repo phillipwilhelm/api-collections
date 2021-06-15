@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// This method returns a list of the members of a Safe. To run this web service, the user must have **ViewSafeMembers** permissions in the Safe.
+@name("Get Safe Members")
+GET "https://{{BaseURL}}/PasswordVault/api/Safes/{{Safe}}/Members"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "filter"= "memberType eq user AND membershipExpired eq false AND includePreDefinedUsers eq false"
+? "search"= "searchWord"
+? "offset"= "0"
+? "limit"= "25"
+? "sort"= "asc"
+
+
+// This method adds an existing user or group as a Safe member.// // The user who runs this web service requires the following permissions in the Vault:// // * Manage Safe Members
+@name("Add Safe Member")
+POST "https://{{BaseURL}}/PasswordVault/api/Safes/{{Safe}}}/Members"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+    "memberName": "JonDoe",
+    "searchIn": "Vault",
+    "membershipExpirationDate": 123456,
+    "permissions": {
+        "useAccounts": false,
+        "retrieveAccounts": false,
+        "listAccounts": false,
+        "addAccounts": false,
+        "updateAccountContent": false,
+        "updateAccountProperties": false,
+        "initiateCPMAccountManagementOperations": false,
+        "specifyNextAccountContent": false,
+        "renameAccounts": false,
+        "deleteAccounts": false,
+        "unlockAccounts": false,
+        "manageSafe": false,
+        "manageSafeMembers": false,
+        "backupSafe": false,
+        "viewAuditLog": false,
+        "viewSafeMembers": false,
+        "accessWithoutConfirmation": false,
+        "createFolders": false,
+        "deleteFolders": false,
+        "moveAccountsAndFolders": false,
+        "requestsAuthorizationLevel1": false,
+        "requestsAuthorizationLevel2": false
+    }
+}')
+
+
+

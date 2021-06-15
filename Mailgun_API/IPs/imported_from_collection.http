@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+// | Parameter | Description                                                             |// |-----------|-------------------------------------------------------------------------|// | dedicated | Return only dedicated IPs if set to true. (all are returned by default) |
+@name("Get all IPs for an account")
+GET "https://{{BASE_URL}}/ips"
+"Authorization": "Basic {{token}}"
+? "dedicated"= "false"
+
+
+// Returns information about the specified IP.
+@name("Get specific IP")
+GET "https://{{BASE_URL}}/ips/{{ip}}"
+"Authorization": "Basic {{token}}"
+
+
+// Returns a list of IPs currently assigned to the specified domain.
+@name("Get list of IPs for a domain")
+GET "https://{{BASE_URL}}/domains/{{mydomain}}/ips"
+"Authorization": "Basic {{token}}"
+
+
+// Assign a dedicated IP to the domain specified.// // > **Note**: Only dedicated IPs can be assigned to a domain.
+@name("Assign IP to domain")
+POST "https://{{BASE_URL}}/domains/{{mydomain}}/ips"
+"Authorization": "Basic {{token}}"
+files(
+	("ip", "")
+)
+
+
+// Unassign an IP from the domain specified.
+@name("Unassign IP from a domain")
+DELETE "https://{{BASE_URL}}/domains/{{mydomain}}/ips/{{ip}}"
+"Authorization": "Basic {{token}}"
+data({
+    "ip": [
+        ""
+    ]
+})
+
+
+

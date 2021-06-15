@@ -1,0 +1,124 @@
+#!/usr/bin/env dothttp
+
+// To enable instant notifications of actions performed on a module.
+@name("Enable Notifications")
+POST "https://{{api-domain}}/crm/v2/actions/watch"
+data('{
+    "watch": [
+        {
+            "channel_id": "1000000068001",
+            "events": [
+                "Solutions.create",
+                "Price_Books.create",
+                "Contacts.create",
+                "Solutions.edit"
+            ],
+            "channel_expiry": "2018-02-02T10:30:00+05:30",
+            "token": "TOKEN_FOR_VERIFICATION_OF_1000000068001",
+            "notify_url": "https://www.zoho.com/callback?authorization=Zoho-oauthtoken 1000.23dnsbbbh455jnn&key1=val1&key2=val2"
+        },
+        {
+            "channel_id": "1000000068002",
+            "events": [
+                "Deals.all"
+            ],
+            "channel_expiry": "2018-02-02T10:30:00+05:30",
+            "token": "TOKEN_FOR_VERIFICATION_OF_1000000068002",
+            "notify_url": """https://www.zoho.com/callback?authorization=Zoho-oauthtoken 1000.23dnsbbbh455jnn&key1=val1&key2=val2&key3=val1"
+        },
+        {
+            "channel_id": "1000000068003",
+            "events": [
+                "Cases.all"
+            ],
+            "channel_expiry": "2018-02-02T10:30:00+05:30",
+            "token": "TOKEN_FOR_VERIFICATION_OF_1000000068003",
+            "notify_url": "https://www.zoho.com/callback?authorization=Zoho-oauthtoken 1000.23dnsbbbh455jnn&key1=val1"
+        }
+    ]
+}')
+
+
+// To get the details of the notifications enabled by the user.
+@name("Notification Details")
+GET "https://{{api-domain}}/crm/v2/actions/watch"
+
+
+// To update the details of the notifications enabled by a user. All the provided details would be persisted and rest of the details would be removed.
+@name("Update Details of a Notification")
+PUT "https://{{api-domain}}/crm/v2/actions/watch"
+data('{
+    "watch": [
+       {
+            "channel_id": "1000000068001",
+            "events": [
+                "Solutions.edit",
+                "Price_Books.edit",
+                "Contacts.delete",
+                "Solutions.create"
+            ],
+            "channel_expiry": "2018-02-02T11:30:00+05:30",
+            "token": "ALTERED_TOKEN_FOR_VERIFICATION_OF_1000000068001",
+            "notify_url": "https://www.zoho.com/callback?authorization=Zoho-oauthtoken 1000.23dnsbbbh455jnn&key1=val1&key=val2"
+        },
+       {
+            "channel_id": "1000000068002",
+            "events": [
+                "Deals.create"
+            ],
+            "channel_expiry": "2018-02-02T11:30:00+05:30",
+            "token": "ALTERED_TOKEN_FOR_VERIFICATION_OF_1000000068002",
+            "notify_url": """https://www.zoho.com/callback?authorization=Zoho-oauthtoken 1000.23dnsbbbh455jnn&key1=val1&key2=val&key3=val1"
+        }
+    ]
+}')
+
+
+// To update only specific details of a specific notification enabled by the user. All the provided details would be persisted and rest of the details will not be removed.
+@name("Update Specific Information of a Notification")
+PATCH "https://{{api-domain}}/crm/v2/actions/watch"
+json({
+    "watch": [
+        {
+            "channel_id": "1000000068001",
+            "events": [
+                "Solutions.create",
+                "Price_Books.delete"
+            ],
+            "channel_expiry": "2018-02-02T11:30:00+05:30"
+        },
+        {
+            "channel_id": "1000000068002",
+            "events": [
+                "Deals.edit"
+            ],
+            "channel_expiry": "2018-02-02T11:30:00+05:30"
+        }
+    ]
+})
+
+
+// To stop all the instant notifications enabled by the user for a channel.
+@name("Disable Notifications")
+DELETE "https://{{api-domain}}/crm/v2/actions/watch"
+? "channel_ids"= "1000000068003,1000000068001,1000000068002"
+
+
+// To disable notifications for the specified events in a channel.
+@name("Disable Specific Notifications")
+PATCH "https://{{api-domain}}/crm/v2/actions/watch"
+json({
+    "watch": [
+        {
+            "channel_id": "1000000058001",
+            "events": [
+                "Leads.edit",
+                "Cases.all"
+            ],
+            "_delete_events": true
+        }
+    ]
+})
+
+
+

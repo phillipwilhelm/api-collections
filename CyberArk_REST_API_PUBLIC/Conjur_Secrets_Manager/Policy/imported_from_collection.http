@@ -1,0 +1,309 @@
+#!/usr/bin/env dothttp
+
+// Adds data to the existing Conjur policy. Deletions are not allowed. Any policy objects that exist on the server but are omitted from the policy file will not be deleted and any explicit deletions in the policy file will result in an error.
+@name("Append to a Policy")
+POST "https://{{dapHostname}}/policies/{{dapAccount}}/policy/{{dapPolicyID}}"
+"Authorization": "Token token="{{dapToken}}""
+data('- !user george')
+
+
+@name("AWS authn-iam Policy Append to Root Policy")
+POST "https://{{dapHostname}}/policies/{{dapAccount}}/policy/root"
+"Authorization": "Token token="{{dapToken}}""
+data("- !policy
+  id: authn-iam/prod
+  owner: !group /admins
+  body:
+    - !webservice
+
+    - !group clients
+
+    - !permit
+      role: !group clients
+      privileges: [ read, authenticate ]
+      resource: !webservice
+
+- !policy 
+  id: myapp
+  owner: !group /admins
+  body:
+  - &variables
+    - !variable database/username
+    - !variable database/password
+
+  # Create a group that will have permission to retrieve variables
+  - !group secrets-users
+
+  # Give the `secrets-users` group permission to retrieve variables
+  - !permit
+    role: !group secrets-users
+    privilege: [ read, execute ]
+    resource: *variables
+  
+  # Create a layer to hold this application's hosts
+  - !layer
+
+  # The host ID needs to match the AWS ARN of the role we wish to authenticate.
+  - !host 978458609324/MyApp
+
+  # Add our host into our layer
+  - !grant
+    role: !layer
+    member: !host 978458609324/MyApp
+
+  # Give the host in our layer permission to retrieve variables
+  - !grant
+    member: !layer
+    role: !group secrets-users
+  
+- !grant
+  role: !group authn-iam/prod/clients
+  member: !host myapp/978458609324/MyApp")
+
+
+@name("Kubernetes authn-k8s Policy Append to Root Policy")
+POST "https://{{dapHostname}}/policies/{{dapAccount}}/policy/root"
+"Authorization": "Token token="{{dapToken}}""
+data('- !policy
+  id: authn-k8s/k8s-follower
+  body:
+  - !webservice
+  
+  - !variable ca/key
+  
+  - !variable ca/cert
+
+  - !policy
+    id: apps
+    body:
+    - !layer
+
+    - &authenticated-resources-k8s
+      - !host
+        id: dap/service_account/conjur-cluster
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/jenkins
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/python
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/secretless
+        annotations:
+          kubernetes/authentication-container-name: secretless-broker
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/summon
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/curl
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          kubernetes: "true"
+
+      - !host
+        id: demoapps/deployment/k8ssecretdap
+        annotations:
+          kubernetes/authentication-container-name: cyberark-secrets-provider
+          kubernetes: "true"
+
+    - !grant
+      role: !layer
+      members: *authenticated-resources-k8s
+      
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer apps
+
+
+
+- !policy
+  id: seed-generation
+  body:
+  - !webservice
+  - !layer consumers
+  - !permit
+    role: !layer consumers
+    privilege: [ "execute" ]
+    resource: !webservice
+
+- !grant
+  role: !layer seed-generation/consumers
+  member: !host /conjur/authn-k8s/k8s-follower/apps/dap/service_account/conjur-cluster')
+
+
+@name("OpenShift authn-k8s Policy Append to Root Policy")
+POST "https://{{dapHostname}}/policies/{{dapAccount}}/policy/root"
+"Authorization": "Token token="{{dapToken}}""
+data('- !policy
+  id: authn-k8s/okd-follower
+  body:
+  - !webservice
+  
+  - !variable ca/key
+  
+  - !variable ca/cert
+
+  - !policy
+    id: apps
+    body:
+    - !layer
+
+    - &authenticated-resources-okd
+      - !host
+        id: dap/service_account/conjur-cluster
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          openshift: "true"
+          
+      - !host
+        id: demoapps/deployment/jenkins
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          openshift: "true"
+
+      - !host
+        id: demoapps/deployment/secretless
+        annotations:
+          kubernetes/authentication-container-name: secretless-broker
+          openshift: "true"
+
+      - !host
+        id: demoapps/deployment/summon
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          openshift: "true"
+
+      - !host
+        id: demoapps/deployment/pyton
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          openshift: "true"
+
+      - !host
+        id: demoapps/deployment/curl
+        annotations:
+          kubernetes/authentication-container-name: authenticator
+          openshift: "true"
+          
+      - !host
+        id: demoapps/deployment/k8s_secret
+        annotations:
+          kubernetes/authentication-container-name: cyberark-secrets-provider
+          openshift: "true"
+
+    - !grant
+      role: !layer
+      members: *authenticated-resources-okd
+      
+  - !permit
+    resource: !webservice
+    privilege: [ read, authenticate ]
+    role: !layer apps
+
+- !policy
+  id: seed-generation
+  body:
+  - !webservice
+  - !layer consumers
+  - !permit
+    role: !layer consumers
+    privilege: [ "execute" ]
+    resource: !webservice
+
+- !grant
+  role: !layer seed-generation/consumers
+  member: !host /conjur/authn-k8s/k8s-follower/apps/dap/service_account/conjur-cluster')
+
+
+@name("Seed Follower Service Policy Append to Root Policy")
+POST "https://{{dapHostname}}/policies/{{dapAccount}}/policy/root"
+"Authorization": "Token token="{{dapToken}}""
+data('- !policy
+  id: seed-generation
+  body:
+  - !webservice
+  - !layer consumers
+  - !permit
+    role: !layer consumers
+    privilege: [ "execute" ]
+    resource: !webservice
+
+- !grant
+  role: !layer seed-generation/consumers
+  member: !host /conjur/authn-k8s/k8s-follower/apps/dap/service_account/conjur-cluster
+
+- !grant
+  role: !layer seed-generation/consumers
+  member: !host /conjur/authn-k8s/okd-follower/apps/dap/service_account/conjur-cluster')
+
+
+// Loads or replaces a Conjur policy document.// // Any policy data which already exists on the server but is **not** explicitly specified in the new policy file **will be deleted**.
+@name("Replace Policy")
+PUT "https://{{dapHostname}}/policies/{{dapAccount}}/policy/{{dapPolicyID}}"
+"Authorization": "Token token="{{dapToken}}""
+data('---
+- !user mike
+
+- !user john
+
+- !user paul
+
+- !user eva
+
+- !group admins
+
+- !group devops
+
+- !grant
+  role: !group admins
+  members:
+   - !user mike
+   - !user eva
+
+- !grant
+  role: !group devops
+  members:
+   - !user john
+   - !user paul
+   - !group admins
+   - !user admin
+
+- !permit
+  role: !group admins
+  privileges:
+   - read
+   - update
+   - create
+  resources:
+   - !policy root
+
+- !policy
+  id: conjur
+  owner: !group /devops
+
+- !policy
+  id: secrets
+  owner: !group /devops
+  
+- !policy
+  id: ansible
+  owner: !group /devops')
+
+
+

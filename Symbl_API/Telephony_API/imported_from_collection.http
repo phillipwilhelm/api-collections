@@ -1,0 +1,93 @@
+#!/usr/bin/env dothttp
+
+// # About this API// Telephony API Telephony to connect to a PSTN endpoint and start the connection and start processing.// // ## Prerequisite// You must generate access token by executing `Generate Token` request under Authentication folder.// // ## \_\_phone_number\_\_// Replace value for `phoneNumber` in request body with a valid US/Canada phone number or a preferred dial-in US/Canada phone number of your conferencing platform. Include country code, example - "19998887777", where '1' is country code for US/Canada// // ## \_\_dtmf_sequence\_\_// Replace value for `dtmf` in with your joining sequence. Usually only required if dialing in to conferencing platform or phone number with IVR.// Examples - "7733445566#" or "7733445566#,,7734#"// // If DTMF sequence is not required, delete this field.// // ## \_\_email_address\_\_ (Email Addresses)// Optionally, add list of valid email addresses under sendSummaryEmail `actions`. If added, an email will be sent at the end of the call.// // ## \_\_name_of_this_call\_\_// Give name to your meeting/call.// // ## Participants// Optionally, send participants in the meeting/call, by adding `users` array.// <pre>//     <code>// 		"users": [{// 			"user": {// 				"name": "John",// 				"userId": "john@example.com",// 				"role": "organizer"// 			}// 			}, // 			{// 			"user": {// 				"name": "Mary",// 				"userId": "mary@example.com"// 			}// 		}]//     <code>// </pre>
+@name("Start Connection (PSTN)")
+POST "https://api.symbl.ai/v1/endpoint:connect"
+"x-api-key": "{{api_token}}"
+"Content-Type": "application/json"
+data('{
+	"operation": "start",
+	"endpoint": {
+	  "type" : "pstn",
+	  "phoneNumber": "__phone_number__", 
+	  "dtmf": "__dtmf_sequence__"
+	},
+	"actions": [{
+	  "invokeOn": "stop",
+	  "name": "sendSummaryEmail",
+	  "parameters": {
+	    "emails": [
+	      "__email_address__"  
+	    ]
+	  }
+	}],
+	"data" : {
+		"session": {
+			"name" : "__name_of_this_call__"
+		}
+    }
+}')
+
+
+// # About this API// Telephony API Telephony to connect to SIP endpoint (SIP Trunk) and start the connection for processing.// // ## Prerequisite// You must generate access token by executing `Generate Token` request under Authentication folder.// // ## \_\_phone_number\_\_// Replace value for `phoneNumber` in request body with a valid US/Canada phone number or a preferred dial-in US/Canada phone number of your conferencing platform. Include country code, example - "19998887777", where '1' is country code for US/Canada// // ## \_\_dtmf_sequence\_\_// Replace value for `dtmf` in with your joining sequence. Usually only required if dialing in to conferencing platform or phone number with IVR.// Examples - "7733445566#" or "7733445566#,,7734#"// // If DTMF sequence is not required, delete this field.// // ## \_\_email_address\_\_ (Email Addresses)// Optionally, add list of valid email addresses under sendSummaryEmail `actions`. If added, an email will be sent at the end of the call.// // ## \_\_name_of_this_call\_\_// Give name to your meeting/call.// // ## Participants// Optionally, send participants in the meeting/call, by adding `users` array.// <pre>//     <code>// 		"users": [{// 			"user": {// 				"name": "John",// 				"userId": "john@example.com",// 				"role": "organizer"// 			}// 			}, // 			{// 			"user": {// 				"name": "Mary",// 				"userId": "mary@example.com"// 			}// 		}]//     <code>// </pre>
+@name("Start Connection (SIP)")
+POST "https://api.symbl.ai/v1/endpoint:connect"
+"x-api-key": "{{api_token}}"
+"Content-Type": "application/json"
+data('{
+	"operation": "start",
+	"endpoint": {
+	  "type" : "sip",
+
+	  // Replace with a valid SIP URI, accessible over internet. See more - https://tools.ietf.org/html/rfc5630
+	  // SIP with RTP and SIPS with SRTP for secure VoIP traffic are supported
+	  // URI paramters can be passed in
+	  // include country code, example - "sip:john.99332@example.com"
+	  "uri": "__sip_uri__"
+	},
+	"actions": [{
+	  "invokeOn": "stop",
+	  "name": "sendSummaryEmail",
+	  "parameters": {
+	    "emails": [
+			// list of valid email addresses. 
+			// If added, an email will be sent at the end of the call
+	      "__email_address__"  
+	    ]
+	  }
+	}],
+	"data" : {
+		"session": {
+			// Give name to your meeting/call
+			"name" : "__name_of_this_session__"
+			// Optionally, send participants in the meeting/call, Uncomment following \'users\' array.
+			// "users": [{
+			// 	"user": {
+			// 		"name": "John",
+			// 		"userId": "john@example.com",
+			// 		"role": "organizer"
+			// 	}
+			// }, 
+			// {
+			// 	"user": {
+			// 		"name": "Mary",
+			// 		"userId": "mary@example.com"
+			// 	}
+			// }]
+		}
+    }
+}')
+
+
+// # About this API// Stop currently active connection created using Telephony API for PSTN or SIP endpoint.// // ## Prerequisite// * You must have generated access token by executing `Generate Token` request under Authentication folder.// * You should have executed Start Connection either using PSTN or SIP or if you have existing active `connectionId` which is not created using this postman collection then you will need to replace `connection_id` variable in request body with your connectionId.// // ## connection_id// Last known `connectionId` for successful connection created using this Postman collection. If you have existing active `connectionId` which is not created using this postman collection then you will need to replace `connection_id` variable in request body with your connectionId.
+@name("Stop Connection")
+POST "https://api.symbl.ai/v1/endpoint:connect"
+"Content-Type": "application/json"
+"x-api-key": "{{api_token}}"
+json({
+    "operation": "stop",
+    "connectionId": "{{connection_id}}"
+})
+
+
+

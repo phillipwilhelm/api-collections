@@ -1,0 +1,146 @@
+#!/usr/bin/env dothttp
+
+// Import identity provider from uploaded JSON file
+@name("Import identity provider from uploaded JSON file [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/import-config"
+"Content-Type": "multipart/form-data"
+
+
+
+// Create a new identity provider
+@name("Create a new identity provider [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances"
+"Content-Type": "application/json"
+data('{
+        "alias": "keycloak-oidc-2",
+        "providerId": "keycloak-oidc",
+        "enabled": true,
+        "updateProfileFirstLoginMode": "on",
+        "trustEmail": false,
+        "storeToken": false,
+        "addReadTokenRoleOnCreate": false,
+        "authenticateByDefault": false,
+        "linkOnly": false,
+        "firstBrokerLoginFlowAlias": "first broker login",
+        "config": {}
+    }')
+
+
+// Get identity providers
+@name("Get identity providers [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances"
+"Content-Type": "multipart/form-data"
+
+
+// Get the identity provider from alias
+@name("Get the identity provider from alias [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}"
+"Content-Type": "multipart/form-data"
+
+
+// Return object stating whether client Authorization permissions have been initialized or not and a reference
+@name("Return object stating client Authorization [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/management/permissions"
+"Content-Type": "multipart/form-data"
+
+
+// Return object stating whether client Authorization permissions have been initialized or not and a reference
+@name("Return object stating client Authorization [SAT]  Copy")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/management/permissions"
+"Content-Type": "application/json"
+data('{
+	"enabled": true
+}')
+
+
+// Export public broker configuration for identity provider
+@name("Export public broker configuration for identity provider [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/export"
+"Content-Type": "multipart/form-data"
+? "format"= "json"
+
+
+// Update the identity provider
+@name("Update the identity provider [SAT] ")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}"
+"Content-Type": "application/json"
+data('{
+    "alias": "keycloak-oidc-2",
+    "internalId": "0df24d90-d39e-4e02-ab3d-7150efa40b1d",
+    "providerId": "keycloak-oidc",
+    "enabled": true,
+    "updateProfileFirstLoginMode": "on",
+    "trustEmail": true,
+    "storeToken": false,
+    "addReadTokenRoleOnCreate": false,
+    "authenticateByDefault": false,
+    "linkOnly": false,
+    "firstBrokerLoginFlowAlias": "first broker login",
+    "config": {}
+}')
+
+
+// Delete the identity provider
+@name("Delete the identity provider [SAT] ")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}"
+"Content-Type": "application/json"
+
+
+// Get mapper types for identity provider
+@name("Get mapper types for identity provider [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mapper-types"
+"Content-Type": "application/octet-stream"
+
+
+// Add a mapper to identity provider
+@name("Add a mapper to identity provider [SAT] ")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mappers"
+"Content-Type": "application/json"
+data('{
+	"name": "test-mapper",
+	"identityProviderAlias": "keycloak-oidc2",
+	"identityProviderMapper": "keycloak-oidc",
+	"config": {}
+}')
+
+
+// Get mappes for the identity provider 
+@name("Get mappes for the identity provider [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mappers"
+"Content-Type": "application/json"
+
+
+// Get mapper by id for the identity provider
+@name("Get mapper by id for the identity provider  [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mappers/ea65c956-24c7-4587-8fe7-c07222e3485d"
+"Content-Type": "application/json"
+
+
+// Get identity providers
+@name("Get identity providers  [SAT] ")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/providers/keycloak-oidc"
+"Content-Type": "application/json"
+
+
+// Update a mapper for the identity provider
+@name("Update a mapper for the identity provider  [SAT] ")
+PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mappers/ea65c956-24c7-4587-8fe7-c07222e3485d"
+"Content-Type": "application/json"
+data('{
+    "id": "ea65c956-24c7-4587-8fe7-c07222e3485d",
+    "name": "test",
+    "identityProviderAlias": "keycloak-oidc-2",
+    "identityProviderMapper": "hardcoded-user-session-attribute-idp-mapper",
+    "config": {
+        "syncMode": "INHERIT"
+    }
+}')
+
+
+// Delete a mapper for the identity provider
+@name("Delete a mapper for the identity provider  [SAT]")
+DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/identity-provider/instances/{{providerAlias}}/mappers/ea65c956-24c7-4587-8fe7-c07222e3485d"
+"Content-Type": "application/json"
+
+
+

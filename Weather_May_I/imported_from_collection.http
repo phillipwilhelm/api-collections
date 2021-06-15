@@ -1,0 +1,25 @@
+#!/usr/bin/env dothttp
+
+// This API uses the AIRNow API to get the current AQI for a specified zip code.// // <br/> <br/>// // [AirNow API](https://docs.airnowapi.org/webservices)
+@name("AirNow - AQI")
+GET "https://www.airnowapi.org/aq/observation/zipCode/current/"
+? "format"= "application/json"
+? "distance"= "25"
+? "API_KEY"= "{{airnowkey}}"
+? "zipCode"= "{{zipcode}}"
+
+
+// This API uses the OpenWeather API to get the current temperature and weather for a specified zip code.// // <br/> <br/>// // // [OpenWeather API](https://openweathermap.org/api)
+@name("OpenWeather - Temp -Weather")
+GET "https://api.openweathermap.org/data/2.5/weather"
+? "zip"= "{{zipcode}}"
+? "appid"= "{{api-key}}"
+
+
+// This API uses the Twitter API v1.1 statuses/update call to send tweets to the specified Twitter account. The information in the tweet is composed with the environment variables set by **GET** AirNow-AQI and **GET** OpenWeather - Temp-Weather.// // <br/> <br/>// // [Twitter API v1.1 statuses/update](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/post-and-engage/api-reference/post-statuses-update)
+@name("Tweet Information")
+POST "https://api.twitter.com/1.1/statuses/update.json"
+? "status"= "The weather in {{thecity}} is {{weather}} and {{temp}} °F. AQI is {{AQI}}, air quality is {{aq}}. You can have {{activity}} activites today. {{jacket}}"
+
+
+

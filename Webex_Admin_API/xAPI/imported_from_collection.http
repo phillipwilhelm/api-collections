@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+// Lists all active Webex devices associated with the authenticated user, such as devices activated in personal mode, or devices to which the user is actively paired or using. Administrators can list all devices within an organization.// // https://developer.webex.com/docs/api/v1/devices/list-devices
+@name("List Devices (with tag)")
+GET "https://{{WEBEXAPI}}/devices"
+"Authorization": "Bearer {{access_token}}"
+? 'tag'= '"postman"'
+
+
+// Shows details for a device, by ID.// Specify the device ID in the deviceId parameter in the URI.// // https://developer.webex.com/docs/api/v1/devices/get-device-details
+@name("Get Device Details")
+GET "https://{{WEBEXAPI}}/devices/{{_device}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Query the current status of the Webex RoomOS Device.// // Specify the target device in the deviceId parameter in the URI.// // The target device is queried for statuses according to the expression in the name parameter.// // See the xAPI Guide for a description of status expressions.// // https://developer.webex.com/docs/api/v1/xapi/query-status
+@name("Query Status (audio.volume)")
+GET "https://{{WEBEXAPI}}/xapi/status"
+"Authorization": "Bearer {{access_token}}"
+? "deviceId"= "{{_device}}"
+? "name"= "Audio.Volume"
+
+
+// Execute a command on the Webex RoomOS Device.// // Specify the command to execute in the commandName parameter in the URI.// // See the xAPI Guide for a description of command expressions.// // https://developer.webex.com/docs/api/v1/xapi/execute-command
+@name("Execute Command (standby.deactivate)")
+POST "https://{{WEBEXAPI}}/xapi/command/Standby.Deactivate"
+"Authorization": "Bearer {{access_token}}"
+json({
+    "deviceId": "{{_device}}"
+})
+
+
+// Execute a command on the Webex RoomOS Device.// // Specify the command to execute in the commandName parameter in the URI.// // See the xAPI Guide for a description of command expressions.// // https://developer.webex.com/docs/api/v1/xapi/execute-command
+@name("Execute Command (message.alert)")
+POST "https://{{WEBEXAPI}}/xapi/command/UserInterface.Message.Alert.Display"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+json({
+    "deviceId": "{{_deviceId}}",
+    "arguments": {
+        "Duration": 15,
+        "Title": "xAPI Cloud Test",
+        "Text": "This is posted from Postman ;-) Change me!"
+    }
+})
+
+
+// Execute a command on the Webex RoomOS Device.// // Specify the command to execute in the commandName parameter in the URI.// // See the xAPI Guide for a description of command expressions.// // https://developer.webex.com/docs/api/v1/xapi/execute-command
+@name("Execute Command (welcomebanner.set)")
+POST "https://{{WEBEXAPI}}/xapi/command/SystemUnit.WelcomeBanner.Set"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+json({
+    "deviceId": "{{_deviceId}}",
+    "arguments": {},
+    "body": "****************
+Webex Device
+Authorized Access Only
+****************"
+})
+
+
+@name("Execute Command (macro.save)")
+POST "https://{{WEBEXAPI}}/xapi/command/Macros.Macro.Save"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+"": ""
+data('{
+	"deviceId": "{{_deviceId}}",
+	"arguments": {
+		"Name": "postman",
+		"OverWrite": "False"
+	},
+	"body": "// This macro was pushed from Postman via Webex Cloud /xapi\nconsole.log(\'Hello world\');\n"
+}
+')
+
+
+

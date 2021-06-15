@@ -1,0 +1,31 @@
+#!/usr/bin/env dothttp
+
+// Gets the API key of a user given the username and password via HTTP Basic Authentication.// // Passwords are stored in the Conjur database using bcrypt with a work factor of 12. Therefore, login is a fairly expensive operation. However, once the API key is obtained, it may be used to inexpensively obtain access tokens by calling the Authenticate method. An access token is required to use most other parts of the Conjur API.// // Your HTTP/REST client probably provides HTTP basic authentication support. For example, curl and all of the Conjur client libraries provide this.// // Note that machine roles (Hosts) do not have passwords and do not need to login.
+@name("Login")
+GET "https://{{dapHostname}}/authn/{{dapAccount}}/login"
+basicauth("{{dapUsername}}", "{{dapPassword}}")
+
+
+
+// WhoAmI provides information about the client making an API request.// // It can be used to help troubleshoot configuration by verifying authentication and the client IP address for audit and network access restrictions. For more information, see [Host Attributes](https://docs.cyberark.com/Product-Doc/OnlineHelp/AAM-DAP/Latest/en/Content/Operations/Policy/statement-ref-host.htm#Attribut).
+@name("Whoami")
+GET "https://{{dapHostname}}/whoami"
+"Authorization": "Token token="{{dapToken}}""
+
+
+// Gets a short-lived access token, which can be used to authenticate requests to (most of) the rest of the Conjur API. A client can obtain an access token by presenting a valid login name and API key.// // The login must be URL encoded. For example, `alice@devops` must be encoded as `alice%40devops`.// // For host authentication, the login is the host ID with the prefix `host/`. For example, the host webserver would login as `host/webserver`, and would be encoded as `host%2Fwebserver`.// // For API usage, the access token is ordinarily passed as an HTTP Authorization “Token” header.// // **Note: Base64-encode the JSON Web Token (JWT) returned in the response for use as the {{dapToken}}.**
+@name("Authenticate")
+POST "https://{{dapHostname}}/authn/{{dapAccount}}/{{dapUsername}}/authenticate"
+"Content-Type": "application/json"
+"Accept-Encoding": "base64"
+data('{{dapAPIKey}}')
+
+
+// Changes a user’s password. You must provide the login name and current password or API key of the user whose password is to be updated in an HTTP Basic Authentication header. Also replaces the user’s API key with a new securely generated random value. You can fetch the new API key by using Login.// // Your HTTP/REST client probably provides HTTP basic authentication support. For example, curl and all of the Conjur client libraries provide this.// // Note that machine roles (Hosts) do not have passwords. They authenticate using their API keys, while passwords are only used by human users.
+@name("Change Your Password")
+PUT "https://{{dapHostname}}/authn/{{dapAccount}}/password"
+basicauth("{{dapUsername}}", "{{dapAPIKey}}")
+data('{{dapNewPassword}}')
+
+
+

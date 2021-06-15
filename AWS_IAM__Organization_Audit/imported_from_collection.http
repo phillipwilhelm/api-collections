@@ -1,0 +1,96 @@
+#!/usr/bin/env dothttp
+
+// Get the account aliase of the current aws account.
+@name("Get account aliase")
+GET "https://iam.amazonaws.com/"
+? "Action"= "ListAccountAliases"
+? "Version"= "2010-05-08"
+
+
+// Importing the crediantial report and making a list of IAM users whoes access keys must be rotated.
+@name("Get Account Summary")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GetAccountSummary"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+
+
+// Fetches current password policy of the AWS account.
+@name("Password Policy Check")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GetAccountPasswordPolicy"
+? "Version"= "2010-05-08"
+
+
+// Generates current IAM crediantial report of the AWS account.
+@name("Generate IAM Credential Report")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GenerateCredentialReport"
+? "Version"= "2010-05-08"
+
+
+// Analyses IAM credential report which is being generated in the previous request.
+@name("Analyse IAM Credential Report")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GetCredentialReport"
+? "Version"= "2010-05-08"
+
+
+// Gets list of IAM users.
+@name("List Users")
+GET "https://iam.amazonaws.com/"
+? "Action"= "ListUsers"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+
+
+// Gets list of IAM groups.
+@name("List groups")
+GET "https://iam.amazonaws.com/"
+? "Action"= "ListGroups"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+
+
+// Gets list of IAM roles.
+@name("List Roles")
+GET "https://iam.amazonaws.com/"
+? "Action"= "ListRoles"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+
+
+// Gets list of cutomer managed IAM policies.
+@name("List Policies")
+GET "https://iam.amazonaws.com/"
+? "Action"= "ListPolicies"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+? "Scope"= "Local"
+
+
+// Generates service last accessed details for an IAM entity.
+@name("Generate Service Last Accessed Details")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GenerateServiceLastAccessedDetails"
+? "Version"= "2010-05-08"
+? "Arn"= "{{iamEntityArn}}"
+
+
+// Gets service last accessed details generated in the previous request.
+@name("Get Service Last Accessed Details")
+GET "https://iam.amazonaws.com/"
+? "Action"= "GetServiceLastAccessedDetails"
+? "JobId"= "{{JobId}}"
+? "Version"= "2010-05-08
+"
+
+
+// Sends report notification to slack channel
+@name("Post to Slack")
+POST "https://{{slack_url}}/"
+"Content-Type": "application/json"
+data('{{slack_body}}')
+
+
+

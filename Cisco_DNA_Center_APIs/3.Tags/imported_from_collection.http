@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// Gets a list of all tags defined on the controller
+@name("https://{{dnac}}:{{port}}/api/v1/tag")
+GET "https://{{dnac}}/api/v1/tag"
+"x-auth-token": "{{token}}"
+
+
+// Finds the tagId for the tag created earlier// // this is stored in the tagId environment variable.
+@name("https://{{dnac}}:{{port}}/api/v1/tag FIND TAG")
+GET "https://{{dnac}}/api/v1/tag"
+"x-auth-token": "{{token}}"
+
+
+// Creates a new tag on the controller
+@name("https://{{dnac}}:{{port}}/api/v1/tag POST")
+POST "https://{{dnac}}/api/v1/tag"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+data('{ "tag" : "InterestingDevice" }')
+
+
+// Gets a task status.// uses environment variable for the taskId
+@name("https://{{dnac}}:{{port}}/api/v1/task/{{taskId}} - TAG")
+GET "https://{{dnac}}/api/v1/task/{{taskId}}"
+"x-auth-token": "{{token}}"
+
+
+// Associates an existing tag with a network-device.// // Tag needs to have been created before it can be associated// // network-device is the deviceId environment variable, you need to change this
+@name("https://{{dnac}}:{{port}}/api/v1/tag/association")
+POST "https://{{dnac}}/api/v1/tag/association"
+"x-auth-token": "{{token}}"
+"Content-type": "application/json"
+data('{
+  "resourceId": "{{deviceId}}",
+"resourceType" : "network-device",
+  "tag": "InterestingDevice"
+
+}')
+
+
+// Gets a task status.// uses environment variable for the taskId
+@name("https://{{dnac}}:{{port}}/api/v1/task/{{taskId}}")
+GET "https://{{dnac}}/api/v1/task/{{taskId}}"
+"x-auth-token": "{{token}}"
+
+
+@name("https://{{dnac}}:{{port}}/api/v1/tag/association?tag=InterestingDevice&resourceType=network-device")
+GET "https://{{dnac}}/api/v1/tag/association"
+"x-auth-token": "{{token}}"
+? "tag"= "InterestingDevice"
+? "resourceType"= "network-device"
+
+
+// Deletes association between tag and device// // you need to delete the association before you can delete the tag
+@name("ttps://{{dnac}}:{{port}}/api/v1/tag/association/{{tagId}}?resourceType=network-device&resourceId={{deviceId}}")
+DELETE "https://{{dnac}}/api/v1/tag/association/{{tagId}}"
+"x-auth-token": "{{token}}"
+? "resourceType"= "network-device"
+? "resourceId"= "{{deviceId}}"
+
+
+// delete tag from controller
+@name("https://{{dnac}}:{{port}}/api/v1/tag/{{tagId}}")
+DELETE "https://{{dnac}}/api/v1/tag/{{tagId}}"
+"x-auth-token": "{{token}}"
+
+
+

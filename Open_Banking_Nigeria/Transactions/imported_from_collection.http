@@ -1,0 +1,202 @@
+#!/usr/bin/env dothttp
+
+// This endpoint retrieves customer transactions specified by a start and end date.// // `This endpoint supports paging`// // #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |accountNumber|string|`Required` The customer’s bank account number `|// |amount|number|`Required` Transaction amount |// |currency|string|`Required` A 3 character code that represents the currency|// |channel|string|`Optional` Channel from which the transaction was done such as `ATM`, `POS`, `Mobile`, `USSD`|// |debitOrCredit|string|`Required` Debit or Credit `Dr or Cr`|// |narration|string|`Required` A description of the transaction |// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |transactionTime|datetime|`Required` The time on which the transaction was done on the system in the format `DDMMYYYY hh:mm:ss`|// |transactionType|string|`Required` The type of transaction|// |valueDate|datetime|`Required`  The value date for transaction on the system in the format `DDMMYYYY`|// |balanceAfter|number|`Optional` The balance of the account after the transaction was approved or authorized|
+@name("Get Statement")
+GET "https://{{url}}/v1/transaction/{accountId}/statement"
+"Content-Type": "application/json"
+? "from"= "{startDate}"
+? "to"= "{endDate}"
+
+
+// This endpoint retrieves customer transactions specified by a last number of transactions.// // `This endpoint supports paging`// // #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |accountNumber|string|`Required` The customer’s bank account number `|// |amount|number|`Required` Transaction amount |// |currency|string|`Required` A 3 character code that represents the currency|// |channel|string|`Optional` Channel from which the transaction was done such as `ATM`, `POS`, `Mobile`, `USSD`|// |debitOrCredit|string|`Required` Debit or Credit `Dr or Cr`|// |narration|string|`Required` A description of the transaction |// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |transactionTime|datetime|`Required` The time on which the transaction was done on the system in the format `DDMMYYYY hh:mm:ss`|// |transactionType|string|`Required` The type of transaction|// |valueDate|datetime|`Required`  The value date for transaction on the system in the format `DDMMYYYY`|// |balanceAfter|number|`Optional` The balance of the account after the transaction was approved or authorized|
+@name("GetLastNTransaction")
+GET "https://{{url}}/v1/transaction/{accountId}/statement"
+"Content-Type": "application/json"
+? "from"= "{startDate}"
+? "to"= "{endDate}"
+? "limit"= "{limit}"
+
+
+// This endpoint processes a single transfer to an account within the bank.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |amount|number|`Required` Transaction amount|// |statusWebHook|number|`Optional` WebHook that can be called back to check the transaction status|// |channel|string|`Required` Transaction channel|// |currency|string|`Required` A 3-character code that represents the currency|// |destinationAccount|string|`Required` Recipient’s account number in NUBAN format|// |destinationAccountName|string|`Required` Recipient name |// |destinationNarration|string|`Required` Transaction description|// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |sourceAccount|string|`Required` Sender’s account number in NUBAN format|// |sourceAccountName|string|`Required` Sender account name |// |sourceAmount|number|`Required` Transaction amount|// |sourceCurrency|string|`Required` A 3-character code that represents the currency |// |sourceNarration|string|`Required` Sender transaction description|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful | // |errorCode|string|`Optional` The code if the transaction was not successful | // | transactionRef |string|`Required` A unique reference provided by the system for the specific transaction | // | validTill|string|`Required` The time in which the authorization token is valid before it is expired| // | expiryMinutes|number|`Required` The number of minutes by which the authorization would expire | // | authDetails| |`Required` Collection of authorization payload| // | type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // | label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // | Message|string|`Required` The message that Service Provider should display when rendering input to the customer| 
+@name("Single Transfer within Bank")
+POST "https://{{url}}/v1/transaction/singletransferwithbank"
+"Content-Type": "application/json"
+data('{
+  "amount": 0,
+  "channel": "string",
+  "currency": "NGN",
+  "destinationAccount": "0123456789",
+  "destinationAccountName": "Ado John Sule",
+  "destinationNarration": "A sample transfer",
+  "endDate": "2018-12-13T15:59:33.516Z",
+  "referenceId": "ABCD12345678901234567890",
+  "sourceAccount": "9876543210",
+  "sourceAccountName": "Solomon Grundy",
+  "sourceAmount": "10000",
+  "sourceCurrency": "NGN",
+  "sourceNarration": "Transfer to Ado",
+  "startDate": "2018-12-13T15:59:33.516Z",
+  "transactionDate": "2018-12-13T15:59:33.516Z",
+ "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}')
+
+
+// This endpoint return the name of attached to an account number. it is  useful to detect situations where the originating customer specifies a wrong beneficiary account.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |accountNumber|number|`Required` The account number to enquire|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// | Message|string|`Optional` The message that Service Provider should display when rendering input to the customer| // | responseCode|string|`Required` Response code as defined by as defined by 8583 standards| // |accountNumber|string|`Required` The account number passed in for enquiry `20225552255`| // |accountName|string|`Required` The name attached to the account number `John Doe`| // |bvn|string|`Required` Bank verification number of the account `2014554547` | // 
+@name("Name Enquiry")
+POST "https://{{url}}/v1/transaction/nameenquiry"
+"Content-Type": "application/json"
+data('{
+  "accountNumber": "0123456789"
+}')
+
+
+// This endpoint processes a single interbank to an account in another bank or financial institution.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |amount|number|`Required` Transaction amount|// |statusWebHook|number|`Optional` WebHook that can be called back to check the transaction status|// |channel|string|`Required` Transaction channel|// |currency|string|`Required` A 3-character code that represents the currency |// |destinationBankCode|string|`Required` Code of the recipient bank|// |destinationBankName|string|`Required` Name of the recipient bank |// |destinationAccount|string|`Required` Recipient’s account number in NUBAN format|// |destinationAccountName `Mike Dudu`|string|`Required` Recipient name|// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |sourceAccount|string|`Required` Sender’s account number in NUBAN format|// |sourceAccountName|string|`Required` Sender account name |// |sourceAmount|number|`Required` Transaction amount |// |sourceCurrency|string|`Required` A 3-character code that represents the currency|// |narration|string|`Required` Sender transaction description |// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful| // |errorCode|string|`Optional` The code if the transaction was not successful| // | transactionRef |string|`Required` A unique reference provided by the system for the specific transaction| // | validTill|string|`Required` The time in which the authorization token is valid before it is expired| // | expiryMinutes|number|`Required` The number of minutes by which the authorization would expire| // | authDetails| |`Required` Collection of authorization payload| // | type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // | label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // | Message|string|`Required` The message that Service Provider should display when rendering input to the customer|
+@name("Single Transfer to Another Bank")
+POST "https://{{url}}/v1/transaction/singleInterbankTransfer"
+"Content-Type": "application/json"
+data('{
+    "amount": 0,
+    "channel": "string",
+    "currency": "NGN",
+    "destinationAccount": "0123456789",
+    "destinationBankCode": "000111",
+    "destinationBankName": "ABC National Bank Plc.",
+    "destinationAccountName": "Ado John Sule",
+    "endDate": "2018-12-13T15:59:33.516Z",
+    "referenceId": "ABCD12345678901234567890",
+    "sourceAccount": "9876543210",
+    "sourceAccountName": "Solomon Grundy",
+    "sourceAmount": "10000",
+    "sourceCurrency": "NGN",
+    "narration": "Transfer to Ado",
+    "startDate": "2018-12-13T15:59:33.516Z",
+    "transactionDate": "2018-12-13T15:59:33.516Z",
+    "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}')
+
+
+// This endpoints returns the status of a transaction through the reference. This endpoint is able to confirm any type of transaction. // // -----------// #### URL Parameters// // | Parameter |Type |Description  |// |--|--|--|// | transactionReference|string |`Required` Transaction reference of a previously posted transaction which has been done by the Servive Provider. You cannot check status of transactions done by another Service Provider|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |status|string|`Required` A description of the state of the transaction| // |statusCode|string|` Required ` A code describing the state of the transaction	| 
+@name("Transaction confirmation")
+GET "https://{{url}}/v1/transaction/confirmation/{transactionReference}"
+
+
+// This endpoint is called to complete any transaction that requires extra authoriztion such as `OTP` authorization.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |requestRef|number|``Required`` A unique request reference|// |transactionRef|number|``Required`` A unique transaction reference|// |authDetails|||// |type|string|``Required`` The type of authorization method e.g `OTP` `password`|// |value|string|``Required`` The authorization value|// // // #### Response Body Fields// | Field |Type |Description |// | ----------- | ----------- | ----------- |// |status|string|``Required`` Status of the transaction  |// |statusCode|string|``Required`` Status code transaction ``01234``|
+@name("Transaction completion")
+POST "https://{{url}}/v1/transaction/complete"
+"Content-Type": "application/json"
+data('{
+    "requesRef": "0000000000",
+    "transactionRef": "0000000000",
+    "authDetails": [
+        {
+            "type": "otp",
+            "value": "THE VALUE"
+        },
+        {
+            "type": "password",
+            "value": "THE VALUE"
+        }
+    ]
+}')
+
+
+// This endpoint holds a specified amount in a customer's account.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |account|string|`Required` Customer's account number in NUBAN format|// |amount|number|`Required` Transaction amount to be held|// |currency|string|`Required` A 3-character code that represents the currency|// |startHoldDate|datetime|`Required` The time when the FI should commence holding the funds|// |endHoldDate|datetime|`Required` The time when the FI should release the funds from customer account if no payment is made against the held funds|// |transactionDate|datetime|`Required` Transaction time|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful| // |errorCode|string|`Optional` The code if the transaction was not successful| // |transactionRef |string|`Required` A unique reference provided by the system for the specific transaction| // |validTill|string|`Required` The time in which the authorization token is valid before it is expired| // |expiryMinutes|number|`Required` The number of minutes by which the authorization would expire| // |authDetails| |`Required` Collection of authorization payload| // |type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // |label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // |Message|string|`Required` The message that Service Provider should display when rendering input to the customer| 
+@name("Hold Fund")
+POST "https://{{url}}/v1/transaction/holdfund/"
+"Content-Type": "application/json"
+data('{
+    "referenceId": "ABCD12345678901234567890",
+    "accountNumber": "9876543210",
+    "amount": "10000",
+    "currency": "NGN",
+    "narration": "Hold fund narration",
+    "startHoldDate": "2018-12-01T15:59:33.516Z",
+    "endHoldDate": "2018-12-31T15:59:33.516Z",
+    "transactionDate": "2018-12-13T15:59:33.516Z"
+  }')
+
+
+// This endpoint releases a specified amount in a customer's account that have been previously held by the SP.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|string|`Required` The unique reference to a previously held amount on the customer's account|// |accountNumber|string|`Required` Customer account number in NUBAN format|// |amount|number|`Required` The amount that should be released. If more than the amount held, the whole amount held would be released|// |currency|string|`Required` A 3-character code that represents the currency|// |releaseHoldDate|datetime|`Required` The time when the FI should release the held funds|// |transactionDate|datetime|`Required` Transaction time|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful| // |errorCode|string|`Optional` The code if the transaction was not successful| // |transactionRef |string|`Required` A unique reference provided by the system for the specific transaction| 
+@name("Release Fund")
+POST "https://{{url}}/v1/transaction/releasefund/"
+"Content-Type": "application/json"
+data('{
+    "referenceId": "ABCD12345678901234567890",
+    "accountNumber": "9876543210",
+    "amount": "5000",
+    "currency": "NGN",
+    "releaseHoldDate": "2018-12-31T15:59:33.516Z",
+    "transactionDate": "2018-12-13T15:59:33.516Z"
+  }')
+
+
+// This endpoints returns the status of a fund held on an account through the reference.// // -----------// #### URL Parameters// // | Parameter |Type |Description  |// |--|--|--|// |accountNumber|string|`Required` Customer account number in NUBAN format|// | referenceId|string |`Required` Fund hold reference of a previously held fund which has been done by the Servive Provider. You cannot check status of funds held by another Service Provider|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |referenceId|string|`Required` The unique reference to the held amount on the customer's account|// |accountNumber|string|`Required` Customer account number in NUBAN format|// |amount|number|`Required` The amount that is held|// |currency|string|`Required` A 3-character code that represents the currency|// |startHoldDate|datetime|`Required` The time when the FI should commenced holding the funds|// |endHoldDate|datetime|`Required` The time when the FI would release the funds from customer account if no payment is made against the held funds|// |transactionDate|datetime|`Required` Transaction time|
+@name("Get Held Fund")
+GET "https://{{url}}/v1/transaction/heldfund/{accountNumber}/{referenceId}"
+
+
+// This endpoint processes multiple transfer to an account within the bank.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |statusWebHook|number|`Optional` WebHook that can be called back to check the transaction status|// |channel|string|`Required` Transaction channel|// |currency|string|`Required` A 3-character code that represents the currency|// |destinationAccount|string|`Required` Recipient’s account number in NUBAN format|// |destinationAccountName|string|`Required` Recipient name |// |destinationNarration|string|`Required` Transaction description|// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |sourceAccount|string|`Required` Sender’s account number in NUBAN format|// |sourceAccountName|string|`Required` Sender account name |// |sourceAmount|number|`Required` Transaction amount|// |sourceCurrency|string|`Required` A 3-character code that represents the currency |// |sourceNarration|string|`Required` Sender transaction description|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful | // |errorCode|string|`Optional` The code if the transaction was not successful | // | transactionRef |string|`Required` A unique reference provided by the system for the specific transaction | // | validTill|string|`Required` The time in which the authorization token is valid before it is expired| // | expiryMinutes|number|`Required` The number of minutes by which the authorization would expire | // | authDetails| |`Required` Collection of authorization payload| // | type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // | label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // | Message|string|`Required` The message that Service Provider should display when rendering input to the customer| 
+@name("Multiple Transer Within Bank")
+POST "https://{{url}}/v1/transaction/multiIntrabankTransfer"
+"Content-Type": "application/json"
+data('{
+  "batchId": "string",
+  "channel": "string",
+  "transactions": [
+    {
+      "destinationAccount": "55558855458",
+      "destinationAccountName": "John Doe",
+      "destinationBankCode": "4455",
+      "destinationNarration": "A sample transfer"
+    },
+     {
+      "destinationAccount": "55558855458",
+      "destinationAccountName": "Selma Nikes",
+      "destinationBankCode": "4455",
+      "destinationNarration": "A sample transfer"
+    }
+  ],
+
+  "referenceId": "5584848415",
+  "sourceAccount": "50555551515",
+  "sourceAccountName": "Solomon Grundy",
+  "sourceAmount": "50000",
+  "sourceCurrency": "NGN",
+  "sourceNarration": "Transfer to workers",
+ "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}
+')
+
+
+// This endpoint processes multiple transfer to an account within the bank.// // #### Request Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |amount|number|`Required` Transaction amount|// |statusWebHook|number|`Optional` WebHook that can be called back to check the transaction status|// |channel|string|`Required` Transaction channel|// |currency|string|`Required` A 3-character code that represents the currency|// |destinationAccount|string|`Required` Recipient’s account number in NUBAN format|// |destinationAccountName|string|`Required` Recipient name |// |destinationNarration|string|`Required` Transaction description|// |referenceId|string|`Required` A unique internal reference to the specific transaction|// |sourceAccount|string|`Required` Sender’s account number in NUBAN format|// |sourceAccountName|string|`Required` Sender account name |// |sourceAmount|number|`Required` Transaction amount|// |sourceCurrency|string|`Required` A 3-character code that represents the currency |// |sourceNarration|string|`Required` Sender transaction description|// // -----------// #### Response Body Fields// // | Field |Type |Description |// | ----------- | ----------- | ----------- |// |errorMessage|string|`Optional` The message if the transaction was not successful | // |errorCode|string|`Optional` The code if the transaction was not successful | // | transactionRef |string|`Required` A unique reference provided by the system for the specific transaction | // | validTill|string|`Required` The time in which the authorization token is valid before it is expired| // | expiryMinutes|number|`Required` The number of minutes by which the authorization would expire | // | authDetails| |`Required` Collection of authorization payload| // | type|string|`Required` The type of identity bit. Examples are `OTP`, `Password`, `Card`| // | label|string|`Required` The text of the label that Service Provider would use to collect identity bit when rendering input to the customer| // | Message|string|`Required` The message that Service Provider should display when rendering input to the customer| 
+@name("Multiple Transfer To Another Bank")
+POST "https://{{url}}/v1/transaction/multipleinterbankTransfer"
+"Content-Type": "application/json"
+data('{
+    "batchId": "string",
+    "channel": "string",
+    "transactions": [
+        {
+            "destinationAccount": "55558855458",
+            "destinationAccountName": "John Doe",
+            "destinationBankCode": "4455",
+            "destinationNarration": "A sample transfer"
+        },
+        {
+            "destinationAccount": "55558855458",
+            "destinationAccountName": "Selma Nikes",
+            "destinationBankCode": "4455",
+            "destinationNarration": "A sample transfer"
+        }
+    ],
+    "referenceId": "5584848415",
+    "sourceAccount": "50555551515",
+    "sourceAccountName": "Solomon Grundy",
+    "sourceAmount": "50000",
+    "sourceCurrency": "NGN",
+    "sourceNarration": "Transfer to workers",
+    "statusWebHook": "https://merchantfeedback.merchant.com/status/ABCD12345678901234567890/"
+}')
+
+
+

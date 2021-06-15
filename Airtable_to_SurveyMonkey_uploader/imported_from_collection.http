@@ -1,0 +1,18 @@
+#!/usr/bin/env dothttp
+
+// Get all records from airtable base.// // For the authorization, add your Airtable API key as an [environment variable](https://www.getpostman.com/docs/v6/postman/environments_and_globals/intro_to_environments_and_globals) called `airtable_api_key` under the environment editor.// // To generate or manage your API key, visit your [Airtable account](https://airtable.com/account) page.// // ![[airtable docs](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/airtable_docs.png)](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/airtable_docs.png)// // The first request in my [Postman collection](https://www.getpostman.com/docs/v6/postman/collections/intro_to_collections) is to `GET` all airtable records from this base. Make sure to update your `airtable_base` in the environment editor the way you did with your API key. Let’s store this information by parsing the response and setting an environment variable called `airtable_records` under the **Tests** tab.
+@name("Retrieve records from Airtable")
+GET "https://api.airtable.com/v0/{{airtable_base}}/Imported%20table"
+"Authorization": "Bearer {{airtable_api_key}}"
+
+
+
+// Create a new question on a survey page.// // The [SurveyMonkey API documentation](https://developer.surveymonkey.com/api/v3/) has a **Run in Postman** button to import all of their endpoints into the Postman app.// // The second request in my Postman Collection would be to `POST` every question to my existing survey. For the authorization, create a new SurveyMonkey app. Under their **Settings** tab, select the scopes and permissions that your app will have.// // ![[surveymonkey permissions](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/surveymonkey_permissions.png)](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/surveymonkey_permissions.png)// // On this same page, copy the access token and add this information as an [environment variable](https://www.getpostman.com/docs/v6/postman/environments_and_globals/intro_to_environments_and_globals) called `surveymonkey_token` under the environments editor. In this same manner, you will also need to update the `SURVEY_ID` and `PAGE_ID` environment variables, which you can now `GET` using the other SurveyMonkey API endpoints.  // // ![[editing the environment](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/surveymonkey_env_editor.png)](https://s3.amazonaws.com/postman-static-getpostman-com/postman-docs/surveymonkey_env_editor.png)// // Under the **Pre-request Script** tab, let’s access the airtable records and format the question data in the way that the SurveyMonkey API requires, to be sent in the request body.
+@name("Create question in SurveyMonkey")
+POST "https://api.surveymonkey.net/v3/surveys/{{SURVEY_ID}}/pages/{{PAGE_ID}}/questions"
+"Content-Type": "application/json"
+"Authorization": "bearer {{surveymonkey_token}}"
+data('{{message}}')
+
+
+

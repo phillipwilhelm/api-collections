@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+// Get key info
+@name("Get key info [SAT]")
+GET "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}"
+"Content-Type": "application/json"
+
+
+// Get a keystore file for the client, containing private key and public certificate
+@name("Get a keystore file for the client [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}/download"
+"Content-Type": "application/json"
+data('{
+	"storePassword": "app",
+	"format": "JKS"
+}')
+
+
+// Upload certificate and eventually private key
+@name("Upload certificate and eventually private key [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}/upload"
+"Content-Type": "multipart/form-data"
+
+
+
+// Upload only certificate, not private key
+@name("Upload only certificate, not private key [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}/upload-certificate"
+"Content-Type": "multipart/form-data"
+
+
+
+// Generate a new keypair and certificate, and get the private key file Generates a keypair and certificate and serves the private key in a specified keystore format.
+@name("Generate a new keypair and certificate [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}/generate-and-download"
+"Content-Type": "application/json"
+data('{
+	"storePassword": "app",
+	"format": "JKS"
+}')
+
+
+// Generate a new certificate with new key pair
+@name("Generate a new certificate with new key pair [SAT]")
+POST "https://{{keycloak_url}}/admin/realms/{{realm}}/clients/{{clientId}}/certificates/{{attr}}/generate"
+"Content-Type": "application/json"
+
+
+

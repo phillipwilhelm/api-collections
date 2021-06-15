@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// We will get a list of all books available in Postman Office Library (stored in an  [Airtable Base](https://airtable.com/shrSgSkkOcWGdlJ8F) ) using the [Airtable API](https://airtable.com/api).// // [![Image of airtable base](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-6-45-35-pm.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-6-45-35-pm.png)// // // **Pre-request script:** When you type `/bookbug [The Hobbit]` in Slack and hit enter, the message (and its data) is sent to the Postman monitor url via HTTP POST. We will store this query as an environment variable `user_query` under the **Pre-request Script** tab. Additionally, Slack also sends a `response_url` as a part of the payload. This url will be used to send data back to slack. We will store this url as an environment variable `response_url`.// // [![Image of pre-request script](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-6-36-46-pm.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-6-36-46-pm.png)// // // **Test script:** Under the **Tests** tab, we will extract the id of the queried book and store it in an environment variable `record_id`. If the book is not available, the next request to be executed will be set as `Post to slack (unavailable)` using Postman's `setNextRequest()` method.// // The `postman.setNextRequest()` method accepts a request name or id within the same collection as a parameter. Use this method to establish a workflow sequence and designate which request in the same collection to run next, instead of defaulting to the linear execution. Read more about [building workflows](https://www.getpostman.com/docs/postman/collection_runs/building_workflows).// // [![Image of test script](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-24-at-11-21-42-am.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-24-at-11-21-42-am.png)
+@name("Get list of all books")
+GET "https://{{airtable_url}}/"
+"Authorization": "Bearer {{airtable_api_key}}"
+
+
+// Using the `record_id`, we will retrieve all the details of the book which the user searched for.// // // **Test script:** Under the **Tests** tab, we will store the retrieved details as environment variables. If the `book_status` is "Available", the next request to be executed will be set as `Post to Slack (available)` using Postman's `setNextRequest()` method.// // The `postman.setNextRequest()` method accepts a request name or id within the same collection as a parameter. Use this method to establish a workflow sequence and designate which request in the same collection to run next, instead of defaulting to the linear execution. Read more about [building workflows](https://www.getpostman.com/docs/postman/collection_runs/building_workflows).// // [![Image of test script](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-24-at-11-21-57-am.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-24-at-11-21-57-am.png)
+@name("Retrieve a record")
+GET "https://{{airtable_url}}/{{record_id}}"
+"Authorization": "Bearer {{airtable_api_key}}"
+
+
+// The `response_url` is the webhook URL provided by slack to post data back to slack. This request will be executed if the book is available but is currently being read by someone.// // [![Image of currently reading](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-54-59-pm.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-54-59-pm.png)
+@name("Post to slack (currently being read)")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+    "text": "*{{book_name}} is currently being read by {{book_readby}}. Check back later maybe?*"
+}')
+
+
+// The `response_url` is the webhook URL provided by slack to post data back to slack. This request will be executed if the book is available and is up for grabs!// // [![Image of borrow button](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-41-20-pm.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-41-20-pm.png)
+@name("Post to slack (available)")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+    "text": "This book is available!",
+    "attachments": [
+        {
+            "title": "{{book_name}}",
+        
+            "author_name": "{{book_author}}",
+  
+            "image_url": "{{book_image}}"
+        },
+        {
+            "title": "Here\'s what goodreads has to say about this book -",
+            "text": "{{book_goodreads_url}}"
+        }
+    ]
+}')
+
+
+// The `response_url` is the webhook URL provided by slack to post data back to slack. This request will be executed if the book is unavailable.// // [![Image of unavailable](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-57-51-pm.png)](https://jsshzyxacm.files.wordpress.com/2017/10/screen-shot-2017-10-23-at-5-57-51-pm.png)
+@name("Post to slack (unavailable)")
+POST "https://{{response_url}}/"
+"Content-Type": "application/json"
+data('{
+    "response_type": "in_channel",
+    "text": "Oops, this book is not available :(",
+    "attachments": [
+        {
+            "text":"Time to get a new book? ;)"
+        }
+    ]
+}')
+
+
+

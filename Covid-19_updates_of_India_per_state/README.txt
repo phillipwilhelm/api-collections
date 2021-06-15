@@ -1,0 +1,1 @@
+A single endpoint that returns the number of cases, recoveries, and deaths per state in India.

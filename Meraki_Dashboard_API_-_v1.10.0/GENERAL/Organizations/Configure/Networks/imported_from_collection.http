@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// List the networks that the user has privileges on in an organization
+@name("List The Networks That The User Has Privileges On In An Organization")
+GET "https://{{baseUrl}}/organizations/:organizationId/networks"
+"X-Cisco-Meraki-API-Key": ""
+? "configTemplateId"= "{{configTemplateId}}"
+? "tags"= "{{tags}}"
+? "tagsFilterType"= "{{tagsFilterType}}"
+? "perPage"= "{{perPage}}"
+? "startingAfter"= "{{startingAfter}}"
+? "endingBefore"= "{{endingBefore}}"
+
+
+// Create a network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the new network// productTypes| array| The product type(s) of the new network. Valid types are wireless, appliance, switch, systemsManager, camera, cellularGateway, environmental. If more than one type is included, the network will be a combined network.// tags| array| A list of tags to be applied to the network// timeZone| string| The timezone of the network. For a list of allowed timezones, please see the 'TZ' column in the table in <a target='_blank' href='https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'>this article.</a>// copyFromNetworkId| string| The ID of the network to copy configuration from. Other provided parameters will override the copied configuration, except type which must match this network's type exactly.// notes| string| Add any notes or additional information about this network here.// // #### Supports Action Batches// // **Resource**|**Operation**// :-------------: |:-------------:// `/organizations/{organizationId}/networks` | create// 
+@name("Create A Network")
+POST "https://{{baseUrl}}/organizations/:organizationId/networks"
+"X-Cisco-Meraki-API-Key": ""
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "productTypes": [
+        "<string>",
+        "<string>"
+    ],
+    "tags": [
+        "<string>",
+        "<string>"
+    ],
+    "timeZone": "<string>",
+    "copyFromNetworkId": "<string>",
+    "notes": "<string>"
+}')
+
+
+// Combine multiple networks into a single network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the combined network// networkIds| array| A list of the network IDs that will be combined. If an ID of a combined network is included in this list, the other networks in the list will be grouped into that network// enrollmentString| string| A unique identifier which can be used for device enrollment or easy access through the Meraki SM Registration page or the Self Service Portal. Please note that changing this field may cause existing bookmarks to break. All networks that are part of this combined network will have their enrollment string appended by '-network_type'. If left empty, all exisitng enrollment strings will be deleted.// // #### Supports Action Batches// // **Resource**|**Operation**// :-------------: |:-------------:// `/organizations/{organizationId}/networks` | combine// 
+@name("Combine Multiple Networks Into A Single Network")
+POST "https://{{baseUrl}}/organizations/:organizationId/networks/combine"
+"X-Cisco-Meraki-API-Key": ""
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "networkIds": [
+        "<string>",
+        "<string>"
+    ],
+    "enrollmentString": "<string>"
+}')
+
+
+

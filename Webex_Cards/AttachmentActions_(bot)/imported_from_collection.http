@@ -1,0 +1,382 @@
+#!/usr/bin/env dothttp
+
+@name("[bot] Get person details")
+GET "https://{{WEBEXAPI}}/people/me"
+"Authorization": "Bearer {{bot_token}}"
+
+
+// Creates a temp space that will be used to add a user, post a card, have the user submit actions and retrieve the submitted data via a webhook
+@name("[bot] Create a space (for test purpose)")
+POST "https://{{WEBEXAPI}}/rooms"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "Testing Cards"
+}')
+
+
+@name("[bot] Create a webhook (attachmentActions)")
+POST "https://{{WEBEXAPI}}/webhooks"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+      "name": "AttachmentActions Test from Postman",
+      "resource": "attachmentActions",
+      "event": "created",
+      "filter": "roomId={{_room}}",
+      "targetUrl": "https://en87plexda2ac.x.pipedream.net/",
+      "secret": "not THAT secret"
+}')
+
+
+// Lists all of your webhooks.// // https://developer.webex.com/endpoint-webhooks-get.html
+@name("[bot] List webhooks")
+GET "https://{{WEBEXAPI}}/webhooks"
+"Authorization": "Bearer {{bot_token}}"
+
+
+@name("[user] Get person details")
+GET "https://{{WEBEXAPI}}/people/me"
+"Authorization": "Bearer {{access_token}}"
+
+
+@name("[bot] Create a membership (add user)")
+POST "https://{{WEBEXAPI}}/memberships"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+  "roomId" : "{{_room}}",
+  "personId": "{{_user}}",
+  "isModerator": false
+}')
+
+
+// https://adaptivecards.io/samples/
+@name("[bot] Create a message (with card)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Stève at Post/Con](https://www.getpostman.com/post-con-2019/)",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "text": "API Emulators as an emerging Best Practice"
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "style": "Person",
+                                        "url": "https://www.getpostman.com/img/pages/post-con-2019/_post-con-speakers/steve-sfartz.jpg",
+                                        "size": "Small"
+                                    }
+                                ],
+                                "width": "auto"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "weight": "Bolder",
+                                        "text": "Stève Sfartz",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "API Architect at Cisco",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                    }
+                                ],
+                                "width": "stretch"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "Modern applications are highly distributed. We face challenges related to the use of internal and external APIs and how to build APIs with agility in the face of software that can evolve and change at any time. The API industry proposes two common strategies to circumvent these challenges: API Mocking and Service Virtualization. At Cisco, we came up with the idea of API emulators has a third strategy.\nIn this talk, I\'ll explain the motivation behind API emulators in the perspective of DevOps, CI/CD, Software Development, and serverless/microservices architectures.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "FactSet",
+                        "facts": [
+                            {
+                                "title": "Track:",
+                                "value": "Design and Architecture"
+                            },
+                            {
+                                "title": "When:",
+                                "value": "Thursday, 11:45AM"
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Take survey",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "What are you familiar with?"
+                                },
+                                {
+                                    "type": "Input.ChoiceSet",
+                                    "id": "survey",
+                                    "isMultiSelect": true,
+                                    "value": "1",
+                                    "choices": [
+                                        {
+                                            "title": "API Mocks",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "title": "API Emulators",
+                                            "value": "2"
+                                        },
+                                        {
+                                            "title": "Service Virtualization",
+                                            "value": "3"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Input.Text",
+                                    "placeholder": "enter comment",
+                                    "style": "text",
+                                    "maxLength": 0,
+                                    "id": "comment"
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "send",
+                                    "data": {
+                                        "id": "POST/CON 2019"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Jobs at Cisco",
+                        "url": "https://jobs.cisco.com/jobs/SearchJobs/DevNet?3_109_3=%5B%22169482%22%5D&3_143_3=%5B%2212229389%22%5D"
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Join DevNet",
+                        "url": "https://developer.cisco.com/appdev/"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("[user] Get message (read card)")
+GET "https://{{WEBEXAPI}}/messages/{{_message}}"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "[Stève at Post/Con](https://www.getpostman.com/post-con-2019/)",
+    "attachments": [
+        {
+            "contentType": "application/vnd.microsoft.card.adaptive",
+            "content": {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.0",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "text": "API Emulators as an emerging Best Practice"
+                    },
+                    {
+                        "type": "ColumnSet",
+                        "columns": [
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "Image",
+                                        "style": "Person",
+                                        "url": "https://www.getpostman.com/img/pages/post-con-2019/_post-con-speakers/steve-sfartz.jpg",
+                                        "size": "Small"
+                                    }
+                                ],
+                                "width": "auto"
+                            },
+                            {
+                                "type": "Column",
+                                "items": [
+                                    {
+                                        "type": "TextBlock",
+                                        "weight": "Bolder",
+                                        "text": "Stève Sfartz",
+                                        "wrap": true
+                                    },
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "None",
+                                        "text": "API Architect at Cisco DevNet",
+                                        "isSubtle": true,
+                                        "wrap": true
+                                    }
+                                ],
+                                "width": "stretch"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TextBlock",
+                        "text": "Modern applications are highly distributed. We face challenges related to the use of internal and external APIs and how to build APIs with agility in the face of software that can evolve and change at any time. The API industry proposes two common strategies to circumvent these challenges: API Mocking and Service Virtualization. At Cisco, we came up with the idea of API emulators has a third strategy.\nIn this talk, I\'ll explain the motivation behind API emulators in the perspective of DevOps, CI/CD, Software Development, and serverless/microservices architectures.",
+                        "wrap": true
+                    },
+                    {
+                        "type": "FactSet",
+                        "facts": [
+                            {
+                                "title": "Track:",
+                                "value": "Design and Architecture"
+                            },
+                            {
+                                "title": "When:",
+                                "value": "Thursday, 11:45AM"
+                            }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.ShowCard",
+                        "title": "Take survey",
+                        "card": {
+                            "type": "AdaptiveCard",
+                            "body": [
+                                {
+                                    "type": "TextBlock",
+                                    "text": "What are you familiar with?"
+                                },
+                                {
+                                    "type": "Input.ChoiceSet",
+                                    "id": "MultiSelectVal",
+                                    "isMultiSelect": true,
+                                    "value": "1",
+                                    "choices": [
+                                        {
+                                            "title": "API Mocks",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "title": "API Emulators",
+                                            "value": "2"
+                                        },
+                                        {
+                                            "title": "Service Virtualization",
+                                            "value": "3"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "type": "Action.Submit",
+                                    "title": "send",
+                                    "data": {
+                                        "id": "1234567890"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Check jobs",
+                        "url": "https://jobs.cisco.com/jobs/SearchJobs/DevNet?3_109_3=%5B%22169482%22%5D&3_143_3=%5B%2212229389%22%5D"
+                    },
+                    {
+                        "type": "Action.OpenUrl",
+                        "title": "Join DevNet",
+                        "url": "https://developer.cisco.com/appdev/"
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+// Posts a plain text or markdown message, and optionally, a media content attachment, to a room.// // https://developer.webex.com/endpoint-messages-post.html
+@name("[user] Create an attachmentAction (submit)")
+POST "https://{{WEBEXAPI}}/attachment/actions"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "type": "submit",
+  "messageId": "{{_message}}",
+  "inputs": {
+        "id": "POST/CON 2019",
+        "survey": "1,3",
+        "comment": "joining to learn more about emulators"
+    }
+}')
+
+
+// Posts a plain text or markdown message, and optionally, a media content attachment, to a room.// // https://developer.webex.com/endpoint-messages-post.html
+@name("[bot] Get attachmentAction details (read inputs)")
+GET "https://{{WEBEXAPI}}/attachment/actions/{{_action}}"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+
+
+// https://adaptivecards.io/samples/
+@name("[bot] Create a message (respond to user)")
+POST "https://{{WEBEXAPI}}/messages"
+"Authorization": "Bearer {{bot_token}}"
+"Content-Type": "application/json"
+data('{
+    "roomId": "{{_room}}",
+    "markdown": "**Thanks for your feedback to \'{{_inputs_id}}\' survey**\n\n> comments:<br/> _{{_inputs_survey}}_"
+}')
+
+
+// Deletes a room, by ID.// // Specify the room ID in the roomId parameter in the URI.// // https://developer.webex.com/endpoint-rooms-roomId-delete.html
+@name("[bot] Delete webhook")
+DELETE "https://{{WEBEXAPI}}/webhooks/{{_webhook}}"
+"Authorization": "Bearer {{bot_token}}"
+
+
+
+// Deletes a room, by ID.// // Specify the room ID in the roomId parameter in the URI.// // https://developer.webex.com/endpoint-rooms-roomId-delete.html
+@name("[bot] Delete space")
+DELETE "https://{{WEBEXAPI}}/rooms/{{_room}}"
+"Authorization": "Bearer {{bot_token}}"
+
+
+
+

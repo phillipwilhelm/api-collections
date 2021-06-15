@@ -1,0 +1,26 @@
+#!/usr/bin/env dothttp
+
+// https://developer.salesforce.com/docs/atlas.en-us.mc-app-development.meta/mc-app-development/access-token-s2s.htm// // When the access token expires, your application must request a new access token using the same v2/token route as before. The lifetime of an access token is 20 minutes.
+@name("Request SFMC Token")
+POST "https://{{et_subdomain}}.auth.marketingcloudapis.com/v2/token"
+json({
+    "grant_type": "client_credentials",
+    "client_id": "{{et_clientId}}",
+    "client_secret": "{{et_clientSecret}}",
+    "account_id": "{{et_mid}}"
+})
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/getUserInfo.htm// // Gets information for the account and user that are associated with the access token.
+@name("Get User Info")
+GET "https://{{et_subdomain}}.auth.marketingcloudapis.com/v2/userinfo"
+
+
+// https://developer.salesforce.com/docs/atlas.en-us.noversion.mc-apis.meta/mc-apis/getBaseURLs.htm// // Gets tenant-specific REST and authentication base URIs for the Marketing Cloud tenant associated with the provided username and client ID.
+@name("Get Base URLs")
+GET "https://{{et_subdomain}}.auth.marketingcloudapis.com/v2/discovery"
+? "client_id"= "{{et_clientId}}"
+? "resource"= "acct:{{userId}}"
+
+
+

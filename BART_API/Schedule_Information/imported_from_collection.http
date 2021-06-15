@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// The "fare" and "clipper" attributes of the <trip> element are depricated, and the <fares> element should be used instead.// // Trips can contain from 1 to 4 legs, depending on the number of transfers that are required.// // Fare clases may change, but should always include a "cash" fare along with any other discount classes.// // The Fare "name" attribute is the official BART name for the fare and should be used when displaying the fare.// // The "level" attribute of the <fares> element is for future use and will currently always have a value of "normal".// // Special schedule messages will only be displayed if the trip date, time, and orig or dest stations match a special schedule notice.// // Any error messages will be included in an <error> item under the <message> element.
+@name("Arrive")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "arrive"
+? "key"= "{{key}}"
+? "orig"= "MLBR"
+? "dest"= "MONT"
+? "date"= "now"
+? "b"= "2"
+? "a"= "2"
+? "l"= "1"
+? "json"= "y"
+
+
+// The "fare" and "clipper" attributes of the <trip> element are depricated, and the <fares> element should be used instead.// // Trips can contain from 1 to 3 legs, depending on the number of transfers that are required.// // Fare clases may change, but should always include a "cash" fare along with any other discount classes.// // The Fare "name" attribute is the official BART name for the fare and should be used when displaying the fare.// // The "level" attribute of the <fares> element is for future use and will currently always have a value of "normal".// // Special schedule messages will only be displayed if the trip date, time, and orig or dest stations match a special schedule notice.// // Any error messages will be included in an <error> item under the <message> element.
+@name("Depart")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "depart"
+? "key"= "{{key}}"
+? "orig"= "MLBR"
+? "dest"= "MONT"
+? "date"= "now"
+? "b"= "2"
+? "a"= "2"
+? "l"= "1"
+? "json"= "y"
+
+
+// The optional "date" and "sched" parameters should not be used together. If they are, the date will be ignored, and the sched parameter will be used.// // The <trip> element has been depricated, and the <fares> element should be used instead.// // Fare clases may change, but should always include a "cash" fare along with any other discount classes.// // The Fare "name" attribute is the official BART name for the fare and should be used when displaying the fare.// // The "level" attribute of the <fares> element is for future use and will currently always have a value of "normal".// // Any error messages will be included in an <error> item under the <message> element.
+@name("Fare")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "fare"
+? "key"= "{{key}}"
+? "orig"= "MLBR"
+? "dest"= "MONT"
+? "date"= "today"
+? "json"= "y"
+
+
+// On BART Holidays, the trains may run on a different schedule from normal. This typically will mean that a Sunday/Holiday schedule will be used, however, sometimes a Saturday schedule is used. The Schedule Information API will automatically use the appropriate schedule for any trip that coincides with a BART holiday. In addition, a message will be appended to the trip results stating that a holiday schedule was used.
+@name("Holiday")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "holiday"
+? "key"= "{{key}}"
+? "json"= "y"
+
+
+// Route Information sometimes changes with schedule changes as lines are reconfigured. This may affect the name and abbreviation of the route.// // The optional "date" and "sched" parameters should not be used together. If they are, the date will be ignored, and the sched parameter will be used.// // The "index" attribute of the <train> has been depricated and the "trainIdx" attribute should be used instead.// // Special Schedule messages will only appear if they apply to the specified route on the given day.// // Trips between midnight and BART midnight will include a warning in the results stating that the schedule is for the prior day.// // Any error messages will be included in an <error> item under the <message> element.
+@name("Route schedules")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "routesched"
+? "route"= "6"
+? "key"= "{{key}}"
+? "time"= "12:47+am"
+? "json"= "y"
+
+
+// This information is primarily useful when a new schedule has been announced and released. The API will automatically use the appropriate schedule based on the date specified in the call once a new schedule has been released.
+@name("Schedules")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "scheds"
+? "key"= "{{key}}"
+? "json"= "y"
+
+
+// Occasionally BART has special schedule announcements that affect certain stations (construction, etc.). If a trip is requested from the API, a message will be appended to the trip results stating that a special message may pertain to the trip. This API call provides all current and future special schedule notices. A notice is considered current or future if the end date is greater than or equal to the date the call is made.// // If there is a related news article, then the link element will provide a URL to a BART news story.
+@name("Special")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "special"
+? "key"= "{{key}}"
+? "l"= "1"
+? "json"= "y"
+
+
+// Schedule information for a specific station.
+@name("Station schedules")
+GET "http://api.bart.gov/api/sched.aspx"
+? "cmd"= "stnsched"
+? "key"= "{{key}}"
+? "orig"= "MLBR"
+? "json"= "y"
+
+
+

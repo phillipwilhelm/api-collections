@@ -1,0 +1,1 @@
+The main goal of this collection to help the developer understand the various API capabilities of Cisco Next Gen Firewall using Firepower Device Manager APIs (This is local manager available on device)

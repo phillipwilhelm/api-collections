@@ -1,0 +1,167 @@
+#!/usr/bin/env dothttp
+
+// FMC REST API call to generate authentication token for subsequent API calls
+@name("Generate Authentication Token")
+POST "https://{{fmc_hostname}}/api/fmc_platform/v1/auth/generatetoken"
+basicauth("{{fmc_user}}", "{{fmc_pasword}}")
+
+
+// REST API call to get all access polcies from the FMC and save the one we are interested in as a variable
+@name("Access Policies")
+GET "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies"
+"x-auth-access-token": "{{fmc_token}}"
+
+
+// REST API call to get all rules from a defined Policy and store a single rule of interest for modification
+@name("Access Rules")
+GET "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies/{{fmc_policy}}/accessrules"
+"x-auth-access-token": "{{fmc_token}}"
+
+
+// REST API call to get details of a specific rule inside an Access Policy
+@name("Access Rule Details")
+GET "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies/{{fmc_policy}}/accessrules/{{fmc_rule}}"
+"x-auth-access-token": "{{fmc_token}}"
+
+
+// REST call to make a new Access rule inside a policy
+@name("New Access Rule in Policy")
+POST "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies/{{fmc_policy}}/accessrules"
+"Content-Type": "application/json"
+"x-auth-access-token": "{{fmc_token}}"
+data('{
+    "action": "ALLOW",
+    "enabled": true,
+    "type": "AccessRule",
+    "sendEventsToFMC": true,
+    "vlanTags": {},
+    "destinationNetworks": {
+        "literals": [
+          {
+            "type": "Network",
+            "value": "10.1.1.0/24"
+          }
+        ]
+    },
+    "variableSet": {
+        "name": "Default-Set",
+        "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+        "type": "VariableSet"
+    },
+     "ipsPolicy": {
+        "name": "Balanced Security and Connectivity",
+        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+        "type": "IntrusionPolicy"
+    },
+    "logBegin": false,
+    "logEnd": true,
+    "logFiles": false,
+    "name": "_sevt2018-api-rule"
+    }')
+
+
+// REST call to make a new Access rule inside a policy in bulk
+@name("New Bulk Access Rule in Policy")
+POST "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies/{{fmc_policy}}/accessrules"
+"Content-Type": "application/json"
+"x-auth-access-token": "{{fmc_token}}"
+? "bulk"= "true"
+? "section"= "mandatory"
+data('[
+	{
+    "action": "ALLOW",
+    "enabled": true,
+    "type": "AccessRule",
+    "sendEventsToFMC": true,
+    "vlanTags": {},
+    "destinationNetworks": {
+        "literals": [
+          {
+            "type": "Network",
+            "value": "10.1.1.0/24"
+          }
+        ]
+    },
+    "variableSet": {
+        "name": "Default-Set",
+        "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+        "type": "VariableSet"
+    },
+     "ipsPolicy": {
+        "name": "Balanced Security and Connectivity",
+        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+        "type": "IntrusionPolicy"
+    },
+    "logBegin": false,
+    "logEnd": true,
+    "logFiles": false,
+    "name": "_sevt2018-api-rule-1"
+    },
+   	{
+    "action": "ALLOW",
+    "enabled": true,
+    "type": "AccessRule",
+    "sendEventsToFMC": true,
+    "vlanTags": {},
+    "destinationNetworks": {
+        "literals": [
+          {
+            "type": "Network",
+            "value": "10.2.1.0/24"
+          }
+        ]
+    },
+    "variableSet": {
+        "name": "Default-Set",
+        "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+        "type": "VariableSet"
+    },
+     "ipsPolicy": {
+        "name": "Balanced Security and Connectivity",
+        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+        "type": "IntrusionPolicy"
+    },
+    "logBegin": false,
+    "logEnd": true,
+    "logFiles": false,
+    "name": "_sevt2018-api-rule-2"
+    }
+]')
+
+
+// REST call to get all configurted CTID feeds in FMC
+@name("All Configured Intelligence Feeds")
+GET "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
+"X-auth-access-token": "{{fmc_token}}"
+? "expanded"= "true"
+
+
+// REST call to add a custom intelligence feed
+@name("Add custom intelligence feed")
+POST "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
+"X-auth-access-token": "{{fmc_token}}"
+"Content-Type": "application/json"
+data('{
+  "startHour": 2,
+  "name": "SANS Suspicious Domains",
+  "description": "SANS medium sensitivity domain listing",
+  "feedType": "flatfile",
+  "feedContent": "DomainNameObjectType",
+  "delivery": "url",
+  "uri": "https://isc.sans.edu/feeds/suspiciousdomains_Medium.txt",
+  "refresh": 1440,
+  "version": "1.0.0",
+  "downloadOn": true,
+  "params": {
+    "selfSignedServerCertificate": "true",
+    "hostnameVerifier": "allow_all"
+  },
+  "property": {
+    "ttl": 90,
+    "publish": true,
+    "action": "block"
+  }
+}')
+
+
+

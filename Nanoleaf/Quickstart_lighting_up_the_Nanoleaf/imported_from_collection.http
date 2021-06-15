@@ -1,0 +1,34 @@
+#!/usr/bin/env dothttp
+
+// A user is authorized to access the OpenAPI if they can demonstrate physical access of the Light Panels. // // ### Generate an authorization token// // 1. On the Nanoleaf controller, hold the on-off button for 5-7 seconds until the LED starts flashing in a pattern.// 2. From the Postman app or your own app, send a POST request to the authorization endpoint within 30 seconds of activating pairing, like this (substituting the IP address and port for your central controller):// // `http://192.188.x.x:16021/api/v1/new`// // The result returned will be a 32-character authorization token that you will use in all of your subsequent calls.// // Refer to Section 6 of the [Nanoleaf Open API Documentation](http://forum.nanoleaf.me/docs/openapi).// // **Note:** In this request's test script, the auth token value will be set as an environment variable called `authToken`. If you already have an authorization token that you'd like to use, [update the Postman environment](https://www.getpostman.com/docs/v6/postman/environments_and_globals/manage_environments#editing-an-active-environment) with your token.
+@name("Quickstart:  Add a user")
+POST "http://{{ipAddress}}/api/v1/new"
+
+
+
+@name("Quickstart: Get all light controller info")
+GET "http://{{ipAddress}}/api/v1/:auth_token/"
+
+
+
+@name("Quickstart: update on/off")
+PUT "http://{{ipAddress}}/api/v1/:auth_token/state"
+"Content-Type": "application/json"
+data('{
+  "on": {
+    "value": true
+  }
+}')
+
+
+@name("Quickstart: List Effects")
+GET "http://{{ipAddress}}/api/v1/:auth_token/effects/effectsList"
+
+
+
+@name("Quickstart: Update Effect")
+PUT "http://{{ipAddress}}/api/v1/:auth_token/effects"
+data('{"select" : "{{nextEffect}}"}')
+
+
+

@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// The Save Quote API saves a CPQ quote.// Available in: Salesforce CPQ Summer ’16 and later// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_quote_api_save_final.htm
+@name("Save Quote API")
+POST "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+data('https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_quote_model_9.htm')
+
+
+// The Calculate Quote API calculates the prices of a CPQ quote.// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_quote_api_calculate_final.htm
+@name("Calculate Quote API")
+PATCH "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "SBQQ.QuoteAPI.QuoteCalculator"
+data('https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_quote_model_9.htm#cpq_api_quote_model_9')
+
+
+// The Read Quote API reads a quote from a CPQ quote ID.// Available in: Salesforce CPQ Summer ’16 and later// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_read_quote.htm
+@name("Read Quote API")
+GET "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "reader"= "SBQQ.QuoteAPI.QuoteReader"
+data('https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_quote_model_9.htm#cpq_api_quote_model_9')
+
+
+// Validate a CPQ quote and return any validation errors.// Available in: Salesforce CPQ Winter ’19 and later// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_validate_quote.htm
+@name("Validate Quote API")
+PATCH "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "QuoteAPI.QuoteValidator"
+data('https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_quote_model_9.htm#cpq_api_quote_model_9')
+
+
+// Receive a CPQ quote, product collection, and quote group key in a request, and return a Quote model with all provided products added as quote lines.// Available in: Salesforce CPQ Summer ’16 and later// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_add_products.htm
+@name("Add Products API")
+PATCH "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "SBQQ.QuoteAPI.QuoteProductAdder"
+data('https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_quote_model_9.htm#cpq_api_quote_model_9')
+
+
+// The Read Product API takes the request’s product ID, pricebook ID, and currency code and returns a Product model. The Product model loads the product from your catalog when the user requests it.// Available in: Salesforce CPQ Summer ’16 and later// Special Access Rules: Users must have read access to the product2 object.// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_read_product.htm
+@name("Read Product API")
+PATCH "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "SBQQ.ProductAPI.ProductLoader"
+json({
+    "context": {
+        "pricebookId": "01sA0000000wuhg",
+        "currencyCode": "USD"
+    }
+})
+
+
+// The Read Product API takes the request’s product ID, pricebook ID, and currency code and returns a Product model. The Product model loads the product from your catalog when the user requests it.// Available in: Salesforce CPQ Summer ’16 and later// Special Access Rules: Users must have read access to the product2 object.// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_read_product.htm
+@name("Create and Save Quote Proposal API")
+POST "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "QuoteDocumentAPI.SaveProposal"
+json({
+    "saver": "SBQQ.QuoteDocumentAPI.Save",
+    "model": {
+        "name": "test",
+        "quoteId": "<SFDC_ID>",
+        "templateId": "<SFDC_ID>",
+        "outputFormat": "PDF",
+        "language": "en_US",
+        "paperSize": "Default"
+    }
+})
+
+
+// The Read Product API takes the request’s product ID, pricebook ID, and currency code and returns a Product model. The Product model loads the product from your catalog when the user requests it.// Available in: Salesforce CPQ Summer ’16 and later// Special Access Rules: Users must have read access to the product2 object.// // https://developer.salesforce.com/docs/atlas.en-us.cpq_dev_api.meta/cpq_dev_api/cpq_api_read_product.htm
+@name("Quote Term Reader API")
+PATCH "https://{{_endpoint}}/services/apexrest/SBQQ/ServiceRouter"
+"Content-Type": "application/json"
+? "loader"= "SBQQ.QuoteTermAPI.Load"
+json({
+    "context": {
+        "templateId": "a0v5C000000jTgr",
+        "language": "es"
+    }
+})
+
+
+

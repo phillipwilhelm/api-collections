@@ -1,0 +1,36 @@
+#!/usr/bin/env dothttp
+
+@name("Issue a JWT token")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Create a customer tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Postman Demo Runner Customer",
+    "parent_id": "{{partner_tenant_id}}",
+    "kind": "customer"
+}')
+
+
+@name("Get available offering items for a customer tenant")
+GET "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/offering_items/available_for_child"
+? "edition"= "cyber_protect_std"
+? "kind"= "customer"
+
+
+@name("Set offering items for a customer tenant")
+PUT "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/offering_items"
+"Content-Type": "application/json"
+data('{{offering_items}}')
+
+
+

@@ -1,0 +1,268 @@
+#!/usr/bin/env dothttp
+
+@name("Create Server VMedia Policy")
+POST "https://www.intersight.com/api/v1/vmedia/Policies"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Name":"server-vmedia-policy",
+	"Mappings":[
+		{
+			"AuthenticationProtocol":"none",
+			"DeviceType":"cdd",
+			"HostName":"172.22.250.163",
+			"MountOptions":"",
+			"MountProtocol":"http",
+			"RemoteFile":"Vmware-ESXi-6.5a.0-4887370-Custom-Cisco-6.5.0.2-LD.iso",
+			"RemotePath":"/",
+			"Username":"",
+			"VolumeName":"ESXi-6.5a-LD"
+		}
+	]
+}')
+
+
+@name("Retrieve Server VMedia Policy by Moid")
+GET "https://intersight.com/api/v1/vmedia/Policies/{{server-vmedia-policy}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+
+
+@name("Create Server Boot Policy")
+POST "https://intersight.com/api/v1/boot/PrecisionPolicies"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Name":"server-boot-from-local-disk-policy",
+	"Description":"Boot Server from Local Disk",
+	"BootDevices":[
+		{
+			"ObjectType":"boot.LocalDisk",
+			"Enabled":true,"Name":"boot",
+			"Slot":"SAS"
+		},
+		{
+			"ObjectType":"boot.LocalCdd",
+			"Enabled":true,"Name":"vmedia"
+		}
+	]
+}')
+
+
+@name("Retrieve Server Boot Policy by Moid")
+GET "https://intersight.com/api/v1/boot/PrecisionPolicies/{{server-boot-from-local-disk-policy}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+
+
+@name("Create Server NTP Policy")
+POST "https://intersight.com/api/v1/ntp/Policies"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+  "Name":"server-ntp-policy",
+  "Description":"NTP Policy for ntp.org",
+  "Enabled":true,
+  "NtpServers":[
+  	"pool.ntp.org"
+  	],
+  "Tags":[]
+}')
+
+
+@name("Retrieve NTP Policy by Moid")
+GET "https://intersight.com/api/v1/ntp/Policies/{{server-ntp-policy}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+
+
+@name("Create 'server-01' Server Profile")
+POST "https://www.intersight.com/api/v1/server/Profiles"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Name":"server-01",
+	"Description":"Server Profile for a Server",
+	"Tags":[]
+}')
+
+
+@name("Retrieve 'server-01' Server Profile by Moid")
+GET "https://intersight.com/api/v1/server/Profiles/{{server-server-profile-01}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+
+
+@name("Create 'server-02' Server Profile")
+POST "https://www.intersight.com/api/v1/server/Profiles"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Name":"server-02",
+	"Description":"Server Profile for a Server",
+	"Tags":[]
+}')
+
+
+@name("Retrieve 'server-02' Server Profile by Moid")
+GET "https://intersight.com/api/v1/server/Profiles/{{server-server-profile-02}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+
+
+@name("Update vmedia/Profiles Profiles list with 'server-01' and 'server-02' Server Profiles")
+POST "https://intersight.com/api/v1/vmedia/Policies/{{server-vmedia-policy}}/Profiles"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('[
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-01}}"
+		
+	},
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-02}}"
+		
+	}
+]')
+
+
+@name("Update Boot/PrecisionPolicies Profiles with 'server-01' and 'server-02' Server Profiles")
+POST "https://intersight.com/api/v1/boot/PrecisionPolicies/{{server-boot-from-local-disk-policy}}/Profiles"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('[
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-01}}"
+		
+	},
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-02}}"
+		
+	}
+]')
+
+
+@name("Update NTP/Policies Profiles files with 'server-01' and 'server-02' Server Profiles")
+POST "https://intersight.com/api/v1/ntp/Policies/{{server-ntp-policy}}/Profiles"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('[
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-01}}"
+		
+	},
+	{
+		"ObjectType":"server.Profile",
+		"Moid": "{{server-server-profile-02}}"
+		
+	}
+]')
+
+
+@name("Retrieve Server RackUnit Resource 'server-01' by UserLabel")
+GET "https://intersight.com/api/v1/compute/RackUnits"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+? "$filter"= "UserLabel eq 'server-01'"
+
+
+@name("Assign Compute Resource to Server Profile 'server-01'")
+POST "https://intersight.com/api/v1/server/Profiles/{{server-server-profile-01}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"AssignedServer": "{{server-compute-resource}}"
+}
+')
+
+
+@name("Deploy Server Profile 'server-01'")
+POST "https://intersight.com/api/v1/server/Profiles/{{server-server-profile-01}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Action": "Deploy"
+}
+')
+
+
+@name("UnAssign Compute Resource to Server Profile 'server-01'")
+POST "https://intersight.com/api/v1/server/Profiles/{{server-server-profile-01}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Action": "Unassign"
+}
+')
+
+
+@name("Replace NTP/Policies Profiles list with 'server-01' Server Profile")
+POST "https://intersight.com/api/v1/ntp/Policies/{{server-ntp-policy}}"
+"Accept": "application/json"
+"Authorization": "Signature {{httpsig}}"
+"Digest": "{{computed-digest}}"
+"Date": "{{current-date}}"
+"Content-Type": "application/json"
+data('{
+	"Profiles": [
+		{
+			"ObjectType":"server.Profile",
+			"Moid":"{{server-server-profile-01}}",
+			"link": "https://www.intersight.com/api/v1/server/Profiles/{{server-server-profile-01}}"
+		}
+	]
+}
+')
+
+
+

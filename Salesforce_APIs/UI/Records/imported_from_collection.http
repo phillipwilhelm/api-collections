@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// Get layout information, metadata, and data to build UI for a single record or for a collection of records.// The response contains layout information for whichever layout types are specified in the layoutTypes parameter.// // It contains data for the records specified in the recordIds parameter.// // The response contains object metadata for the object types of the records specified in the recordIds parameter, and for any nested objects. For example, a request to /ui-api/record-ui/001RM000003RsOHYA0, which is an Account, returns object metadata for Account and User, because the OwnerId field on the Account object contains a reference to the User object.
+@name("Get Record Data and Object Metadata")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/record-ui/:RECORD_IDS"
+
+
+// Get metadata about page layouts for the specified object type.
+@name("Get Record Layout Metadata")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/layout/:SOBJECT_API_NAME"
+
+
+// Get a Salesforce org’s active theme. A theme uses colors, images, and banners to change the overall appearance of Salesforce. Administrators can define themes and switch themes to provide a different look. The User Interface API response matches the Admin’s selection.
+@name("Get a Directory of Supported Objects")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/object-info"
+
+
+// Get metadata about a specific object. The response includes metadata describing fields, child relationships, record type, and theme.
+@name("Get Object Metadata")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/object-info/:SOBJECT_API_NAME"
+
+
+// Get metadata about a specific object. The response includes metadata describing fields, child relationships, record type, and theme.
+@name("Get Values for a Picklist Field")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/object-info/:SOBJECT_API_NAME/picklist-values/:RECORD_TYPE_ID/:FIELD_API_NAME"
+
+
+// Get metadata about a specific object. The response includes metadata describing fields, child relationships, record type, and theme.
+@name("Get Values for All Picklist Fields of a Record Type")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/object-info/:SOBJECT_API_NAME/picklist-values/:RECORD_TYPE_ID"
+
+
+// Get child records for a specified record and child relationship name. Relationships are connections between records. On a record detail page, each record in a related list has a child relationship to the parent record.
+@name("Get Child Records")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records/:RECORD_ID/child-relationships/:RELATIONSHIP_NAME
+"
+
+
+// Get a record’s data.
+@name("Get a Record")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records/:RECORD_ID"
+
+
+// Get data for a batch of records.
+@name("Get a Batch of Records")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records/batch/:RECORD_IDS"
+
+
+// Create a record. First, make a request to the Clone Record Default or Create Record Default resources to get the default metadata and data for the record.// As of API version 43.0, if you pass read-only fields in a request body, the response is an Error with Output.
+@name("Create a Record")
+POST "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records"
+"Content-Type": "application/json"
+data('{
+    "allowSaveOnDuplicate": false,
+    "apiName": "Object",
+    "fields": {
+        "FieldAPIName": "FieldValue"
+    }
+}')
+
+
+// Get the default layout information, object information, and data for cloning a record. After getting the default values, make a request to POST /ui-api/records to create the record.// The response contains the default field values for a record cloned from the record specified in <RECORD_ID>, optionally of the specified recordTypeId.// // It also contains the corresponding layout information for edit mode. In the Salesforce user interface, an admin with “Customize Application” permission can mark a field as required in a layout. When you’re building UI, to determine which fields to mark as required in a layout for edit mode, use the RecordLayoutItem.required property.// // The response contains object metadata for the object type of the record specified in <RECORD_ID> and for any nested objects. For example, /ui-api/record-defaults/clone/001d000000AtfRIAAZ is a request to clone an Account record. It returns object metadata for Account and User, because the OwnerId field on the Account object contains a reference to the User object.
+@name("Get Default Values to Clone a Record")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/record-defaults/clone/:RECORD_ID"
+
+
+
+// Get the default values for fields for a new record of a specified object and optional record type. After getting the default values, make a request to POST /ui-api/records to create the record.// The response contains the default field values for the Full layout type for a new record of the object type specified in <SOBJECT_API_NAME>.// // It also contains the corresponding layout for create mode. In the Salesforce user interface, an admin with “Customize Application” permission can mark a field as required in a layout. When you’re building UI, to determine which fields to mark as required in a layout for create mode, use the RecordLayoutItem.required property.// // The response contains object metadata for the object specified in <SOBJECT_API_NAME> and for any nested objects. For example, a request to /ui-api/record-defaults/create/Account returns object metadata for Account and User, because the OwnerId field on the Account object contains a reference to the User object.
+@name("Get Default Values to Create a Record")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/record-defaults/create/:RECORD_ID"
+
+
+
+// Update a record's data.// User Interface API enforces Salesforce validation rules. If a validation rule fails, the response is an Error with Output.// // When you make a PATCH request to update a record, make sure that the record hasn’t changed since the user started editing it. To find out whether it’s safe to save a record, pass the If-Modified-Since HTTP header in the request.// // As of API version 43.0, if you pass read-only fields in a request body, the response is an Error with Output.
+@name("Update a Record")
+PATCH "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records/:RECORD_ID"
+"Content-Type": "application/json"
+data('{
+    "allowSaveOnDuplicate": false,
+    "apiName": "Object",
+    "fields": {
+        "FieldAPIName": "FieldValue"
+    }
+}')
+
+
+// Update a record's data.// User Interface API enforces Salesforce validation rules. If a validation rule fails, the response is an Error with Output.// // When you make a PATCH request to update a record, make sure that the record hasn’t changed since the user started editing it. To find out whether it’s safe to save a record, pass the If-Modified-Since HTTP header in the request.// // As of API version 43.0, if you pass read-only fields in a request body, the response is an Error with Output.
+@name("Delete a Record")
+DELETE "https://{{_endpoint}}/services/data/v{{version}}/ui-api/records/:RECORD_ID"
+
+
+
+// When a user edits a lookup field, use this resource to search for and display suggestions. You can search for most recently used matches, for matching names, or for any match in a searchable field. You can also specify lookup filter bindings for dependent lookups.
+@name("Get Lookup Field Suggestions")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/lookups/:SOBJECT_API_NAME/:FIELD_API_NAME"
+
+
+
+// When a user edits a lookup field, use this resource to search for and display suggestions for a specified object. You can search for most recently used matches, for matching names, or for any match in a searchable field. You can also specify lookup filter bindings for dependent lookups.
+@name("Get Lookup Field Suggestions for a Specified Object")
+GET "https://{{_endpoint}}/services/data/v{{version}}/ui-api/lookups/:SOBJECT_API_NAME/:FIELD_API_NAME/:TARGET_API_NAME"
+
+
+
+

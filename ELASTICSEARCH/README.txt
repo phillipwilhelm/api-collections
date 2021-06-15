@@ -1,0 +1,1 @@
+Elasticsearch es un motor de análisis y búsqueda de texto completo altamente escalable. Le permite almacenar, buscar y analizar grandes volúmenes de datos de forma rápida y casi en tiempo real. Generalmente se usa como el motor / tecnología subyacente que impulsa las aplicaciones que tienen características y requisitos de búsqueda complejos.

@@ -1,0 +1,25 @@
+#!/usr/bin/env dothttp
+
+// Under the **Tests** tab, I can use the [`pm.*` APIs](https://learning.getpostman.com/docs/postman/scripts/postman_sandbox_api_reference) allowing me access to the response body. In this example, let's parse some information from the response body formatted as XML and transform it to JSON, and then save this information as an environment variable so we can access this info in a subsequent request.// // To work with XML more easily, the Postman sandbox let's us use the [`xml2js` package](https://www.npmjs.com/package/xml2js), a simple XML to JavaScript object converter.
+@name("Holiday web service")
+POST "http://www.holidaywebservice.com/HolidayService_v2/HolidayService2.asmx"
+"Content-Type": "text/xml"
+data('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:hs="http://www.holidaywebservice.com/HolidayService_v2/">
+ <soapenv:Body>
+     <hs:GetHolidaysForMonth>
+        <hs:year>2019</hs:year>
+        <hs:countryCode>UnitedStates</hs:countryCode>
+        <hs:month>11</hs:month>
+     </hs:GetHolidaysForMonth>
+ </soapenv:Body>
+</soapenv:Envelope>')
+
+
+// We can use variables using the double curly braces syntax - like `{{this}}` in the text areas of the request builder. Alternatively, we can use variables under the scripting areas (**Pre-request Script** and **Tests** tabs) using syntax for the [`pm.*` APIs](https://learning.getpostman.com/docs/postman/scripts/postman_sandbox_api_reference).
+@name("Echo xml")
+GET "https://postman-echo.com/get"
+? "foo1"= "{{holidays}}"
+? "foo2"= "bar2"
+
+
+

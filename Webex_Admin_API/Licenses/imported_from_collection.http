@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+// List all licenses for a given organization. If no orgId is specified, the default is the organization of the authenticated user.// // https://developer.webex.com/endpoint-licenses-get.html// // Example of a response:// ``` json// {//   'items' : [ {//     'id' : 'OTZhYmMyYWEtM2RjYy0xMWU1LWExNTItZmUzNDgxOWNkYzlh',//     'displayName' : 'Spark Calling',//     'totalUnits' : '42',//     'consumedUnits' : '8'//   } ]// }// ```
+@name("List Licenses")
+GET "https://{{WEBEXAPI}}/licenses"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Shows details for a license, by ID.// // Specify the license ID in the licenseId parameter in the URI.// // https://developer.webex.com/endpoint-licenses-licenseId-get.html// // Example Response:// ``` json// {//   'id' : 'OTZhYmMyYWEtM2RjYy0xMWU1LWExNTItZmUzNDgxOWNkYzlh',//   'displayName' : 'Spark Calling',//   'totalUnits' : '42',//   'consumedUnits' : "8'// }// ```
+@name("Get License Details")
+GET "https://{{WEBEXAPI}}/licenses/{{_license}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Create a new user account for a given organization. Only an admin can create a new user account.// // https://developer.webex.com/endpoint-people-post.html// // Example Request:// ``` json// {//   'emails' : [ 'johnny.chang@foomail.com', 'jchang@barmail.com' ],//   'displayName' : 'John Andersen',//   'firstName' : 'John',//   'lastName' : 'Andersen',//   'avatar' : 'https://1efa7a94ed21783e352-c62266528714497a17239ececf39e9e2.ssl.cf1.rackcdn.com/V1~54c844c89e678e5a7b16a306bc2897b9~wx29yGtlTpilEFlYzqPKag==~1600',//   'orgId' : 'OTZhYmMyYWEtM2RjYy0xMWU1LWExNTItZmUzNDgxOWNkYzlh',//   'roles' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ],//   'licenses' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ]// }// // Example Response:// {//   'id' : 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY',//   'emails' : [ 'johnny.chang@foomail.com', 'jchang@barmail.com' ],//   'displayName' : 'John Andersen',//   'firstName' : 'John',//   'lastName' : 'Andersen',//   'avatar' : 'https://1efa7a94ed21783e352-c62266528714497a17239ececf39e9e2.ssl.cf1.rackcdn.com/V1~54c844c89e678e5a7b16a306bc2897b9~wx29yGtlTpilEFlYzqPKag==~1600',//   'orgId' : 'OTZhYmMyYWEtM2RjYy0xMWU1LWExNTItZmUzNDgxOWNkYzlh',//   'roles' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ],//   'licenses' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ],//   'created' : '2015-10-18T14:26:16+00:00',//   'timezone' : 'America/Denver'// }// ```
+@name("Create a Person (random)")
+POST "https://{{WEBEXAPI}}/people"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "emails": [
+    "{{_random}}@{{_domain}}"
+  ],
+  "firstName": "User",
+  "lastName": "FromPostman"
+}')
+
+
+// Shows details for a person, by ID.// Specify the person ID in the personId parameter in the URI.// // https://developer.webex.com/endpoint-people-personId-get.html
+@name("Get Person Details (fetch displayName & orgId)")
+GET "https://{{WEBEXAPI}}/people/{{_person}}"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Update details for a person, by ID.// // Specify the person ID in the personId parameter in the URI. Only an admin can update a person details.// // https://developer.webex.com/endpoint-people-personId-put.html// // Example Request:// ``` json// {//   'emails" : [ 'johnny.chang@foomail.com', 'jchang@barmail.com' ],//   'displayName' : 'John Andersen',//   'firstName' : 'John',//   'lastName' : 'Andersen',//   'avatar' : 'https://1efa7a94ed21783e352-c62266528714497a17239ececf39e9e2.ssl.cf1.rackcdn.com/V1~54c844c89e678e5a7b16a306bc2897b9~wx29yGtlTpilEFlYzqPKag==~1600',//   'orgId' : 'OTZhYmMyYWEtM2RjYy0xMWU1LWExNTItZmUzNDgxOWNkYzlh',//   'roles' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ],//   'licenses' : [ 'Y2lzY29zcGFyazovL3VzL1JPT00vOGNkYzQwYzQtZjA5ZS0zY2JhLThjMjYtZGQwZTcwYWRlY2Iy', 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mMDZkNzFhNS0wODMzLTRmYTUtYTcyYS1jYzg5YjI1ZWVlMmX' ]// }// ```
+@name("Update a Person (set license)")
+PUT "https://{{WEBEXAPI}}/people/{{_person}}"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+  "orgId" : "{{_organization}}",
+  "displayName" : "{{_displayName}}",
+  "licenses": [ "{{_license}}" ]
+}
+
+
+  ')
+
+
+

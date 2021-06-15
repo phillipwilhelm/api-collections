@@ -1,0 +1,84 @@
+#!/usr/bin/env dothttp
+
+// This method returns a list of all the applications in the Vault.// The user who runs this web service requires the following permission in the Vault:// - Audit Users
+@name("List Applications")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "Location"= "\"
+? "IncludeSublocations"= "true"
+
+
+// This method returns information about a specific application.// The user who runs this web service requires the following permission in the Vault:// - Audit Users
+@name("List a Specific Application")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "AppID"= "{{AppID}}"
+
+
+// This method returns information about all the authentications methods of a specific application.// The user who runs this web service requires the following permission in the Vault:// - Audit Users
+@name("List all Authentication Methods of a Specific Application")
+GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/{{AppID}}/Authentications"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method adds a new application to the Vault.// The user who adds this application requires the following permission in the Vault:// - Manage Users
+@name("Add Application")
+POST "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "application":
+  {
+    "AppID":"{{AppID}}",
+    "Description":"Testing DevOps Deployments with CyberArk",
+    "Location":"/Applications",
+    "AccessPermittedFrom":0,
+    "AccessPermittedTo":23,
+    "ExpirationDate":"",
+    "Disabled":"No",
+    "BusinessOwnerFName":"John",
+    "BusinessOwnerLName":"Doe",
+    "BusinessOwnerEmail":"John.Doe@CyberArk.com",
+    "BusinessOwnerPhone":"555-555-1212"
+  }
+}')
+
+
+// This method adds a new authentication method to a specific application in the Vault.// The user who adds this authentication method requires the following permissions in the Vault:// - Manage Users
+@name("Add Authentication")
+POST "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/{{AppID}}/Authentications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "authentication":
+  {
+    "AuthType":"path/osuser/hash/machineAddress",
+    "AuthValue":"<Path string>/<OSUser Name>/<Hash Value>/<Machine Address/CIDR>",
+    "IsFolder":<true/false>,
+    "AllowInternalScripts":<true/false>
+  }
+}')
+
+
+// This method deletes a specific application.// The user requires the following permission in the Vault:// - Manage Users
+@name("Delete a Specific Application")
+DELETE "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "AppID"= "{{AppID}}"
+
+
+
+// This method deletes a specific authentication method from a defined application.// The user requires the following permission in the Vault:// - Manage Users
+@name("Delete a Specific Authentication")
+DELETE "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Applications/{{AppID}}/Authentications/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "AuthID"= "1"
+
+
+
+

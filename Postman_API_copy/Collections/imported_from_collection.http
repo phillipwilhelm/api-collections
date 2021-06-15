@@ -1,0 +1,144 @@
+#!/usr/bin/env dothttp
+
+// The `/collections` endpoint returns a list of all [collections](https://www.getpostman.com/docs/collections) that are accessible by you. The list includes your own collections and the collections that you have subscribed to.// // The response contains an array of collection information containing the `name`, `id`, `owner` and `uid` of each collection.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("All Collections")
+GET "https://api.getpostman.com/collections"
+"X-Api-Key": "{{postman_api_key}}"
+
+
+// Access the contents of a collection that is accessible to you using its unique id (`uid`).// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Single Collection ")
+GET "https://api.getpostman.com/collections/{{collection_uid}}"
+"X-Api-Key": "{{postman_api_key}}"
+
+
+// This endpoint allows you to create collections using the Postman Collection v2 format. For more information about the v2 schema, check the format [here](https://schema.getpostman.com/json/collection/v2.0.0/docs/index.html).// // On successful creation of the collection, the response returns the collection `name`, `id` and the `uid`.// // You can also specify the context of a workspace to create a collection in directly by passing the `workspace` as a query param.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Create Collection")
+POST "https://api.getpostman.com/collections"
+"X-Api-Key": "{{postman_api_key}}"
+"Content-Type": "application/json"
+data('{
+  "collection": {
+    "info": {
+      "name": "Sample Collection {{$randomInt}}",
+      "description": "This is just a sample collection.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "This is a folder",
+        "item": [
+          {
+            "name": "Sample POST Request",
+            "request": {
+              "url": "https://postman-echo.com/post",
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\"data\": \"123\"}"
+              },
+              "description": "This is a sample POST Request"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Sample GET Request",
+        "request": {
+          "url": "https://postman-echo/get",
+          "method": "GET",
+          "description": "This is a sample GET Request"
+        }
+      }
+    ]
+  }
+}')
+
+
+// This endpoint allows you to update an existing collection using the Postman Collection v2 format. For more information about the v2 schema, check the format [here](https://schema.getpostman.com/json/collection/v2.0.0/docs/index.html).// // On successful updation of the collection, the response returns the collection `name`, `id` and `uid`.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.// // Note: Please be careful when trying to update the collection, as the existing collection will be replaced by the request body.
+@name("Update Collection")
+PUT "https://api.getpostman.com/collections/{{collection_uid}}"
+"Content-Type": "application/json"
+"X-Api-Key": "{{postman_api_key}}"
+data('{
+  "collection": {
+    "info": {
+      "name": "Sample Collection {{$randomInt}}",
+      "description": "This is just a sample collection.",
+      "_postman_id": "174bad7c-07e3-45f3-914f-36cf84e5586f",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "This is a folder",
+        "item": [
+          {
+            "name": "Sample POST Request",
+            "request": {
+              "url": "https://postman-echo.com/post",
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\"data\": \"123\"}"
+              },
+              "description": "This is a sample POST Request"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Sample GET Request",
+        "request": {
+          "url": "https://postman-echo/get",
+          "method": "GET",
+          "description": "This is a sample GET Request"
+        }
+      }
+    ]
+  }
+}')
+
+
+// This endpoint allows you to delete an existing collection.// // On successful deletion of the collection, the response returns the `id` and `uid`.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Delete Collection")
+DELETE "https://api.getpostman.com/collections/{{collection_uid}}"
+"X-Api-Key": "{{postman_api_key}}"
+
+
+
+// This endpoint allows you to create a fork from an existing collection.// // On successful creation of the collection, the response returns the collection `name`, `id`, `uid` along with `fork` information.// // You can also specify the context of a workspace to fork a collection in by passing the `workspace` as a query param.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Create a Fork")
+POST "https://api.getpostman.com/collections/fork/{{collection_uid}}"
+"X-Api-Key": "{{postman_api_key}}"
+"Content-Type": "application/json"
+? "workspace"= "{{workspace_id}}"
+data('{
+	"name": "Fork name"
+}')
+
+
+// This endpoint allows you to merge a forked collection back to its destination collection.// // On successful creation of the collection, the response returns the collection `name`, `id` and `uid`.// // You need to specify the fork UID (as `source`) and destination collection UID (as `destination`) in the request body.// // Optionally, you can also specify the merge strategy as either `deleteSource` or `updateSourceWithDestination`. Following is an explanation of the merge strategies// // | Merge Strategy | Behaviour |// | --- | --- |// | deleteSource | Forked collection is deleted after merging |// | updateSourceWithDestination | Forked collection is up to date with changes in destination collection |// // If the collections cannot be merged (due to conflicts), appropriate error messages will be returned.// // // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Merge a Fork")
+POST "https://api.getpostman.com/collections/merge"
+"X-Api-Key": "{{postman_api_key}}"
+"Content-Type": "application/json"
+data('{
+	"strategy": "deleteSource",
+	"source": "{{source_collection_uid}}",
+	"destination": "{{destination_collection_uid}}"
+}')
+
+
+

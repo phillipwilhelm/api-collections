@@ -1,0 +1,175 @@
+#!/usr/bin/env dothttp
+
+// List the organizations that the user has privileges on
+@name("getOrganizations")
+GET "https://{{baseUrl}}/organizations"
+"Accept": "*/*"
+
+
+
+// Create a new organization//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the organization
+@name("createOrganization")
+POST "https://{{baseUrl}}/organizations"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My organization"
+}')
+
+
+// Return an organization
+@name("getOrganization")
+GET "https://{{baseUrl}}/organizations/:organizationId"
+"Accept": "*/*"
+
+
+
+// Update an organization//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the organization
+@name("updateOrganization")
+PUT "https://{{baseUrl}}/organizations/:organizationId"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My organization"
+}')
+
+
+// Delete an organization
+@name("deleteOrganization")
+DELETE "https://{{baseUrl}}/organizations/:organizationId"
+"Accept": "*/*"
+
+
+
+// Claim a list of devices, licenses, and/or orders into an organization. When claiming by order, all devices and licenses in the order will be claimed; licenses will be added to the organization and devices will be placed in the organization's inventory.//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // orders| array| The numbers of the orders that should be claimed// serials| array| The serials of the devices that should be claimed// licenses| array| The licenses that should be claimed
+@name("claimIntoOrganization")
+POST "https://{{baseUrl}}/organizations/:organizationId/claim"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "orders": [
+    "4CXXXXXXX"
+  ],
+  "serials": [
+    "Q234-ABCD-5678"
+  ],
+  "licenses": [
+    {
+      "key": "Z2XXXXXXXXXX",
+      "mode": "addDevices"
+    }
+  ]
+}')
+
+
+// Create a new organization by cloning the addressed organization//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the new organization
+@name("cloneOrganization")
+POST "https://{{baseUrl}}/organizations/:organizationId/clone"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My organization"
+}')
+
+
+// List the status of every Meraki device in the organization
+@name("getOrganizationDeviceStatuses")
+GET "https://{{baseUrl}}/organizations/:organizationId/deviceStatuses"
+"Accept": "*/*"
+
+
+
+// Return the inventory for an organization
+@name("getOrganizationInventory")
+GET "https://{{baseUrl}}/organizations/:organizationId/inventory"
+"Accept": "*/*"
+? "includeLicenseInfo"= "{{includeLicenseInfo}}"
+
+
+
+// Return an overview of the license state for an organization
+@name("getOrganizationLicenseState")
+GET "https://{{baseUrl}}/organizations/:organizationId/licenseState"
+"Accept": "*/*"
+
+
+
+// Return the third party VPN peers for an organization
+@name("getOrganizationThirdPartyVPNPeers")
+GET "https://{{baseUrl}}/organizations/:organizationId/thirdPartyVPNPeers"
+"Accept": "*/*"
+
+
+
+// Update the third party VPN peers for an organization//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // peers| array| The list of VPN peers
+@name("updateOrganizationThirdPartyVPNPeers")
+PUT "https://{{baseUrl}}/organizations/:organizationId/thirdPartyVPNPeers"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "peers": [
+    {
+      "name": "My peer 1",
+      "publicIp": "123.123.123.1",
+      "privateSubnets": [
+        "192.168.1.0/24",
+        "192.168.128.0/24"
+      ],
+      "secret": "asdf1234",
+      "ipsecPolicies": {
+        "ikeCipherAlgo": [
+          "tripledes"
+        ],
+        "ikeAuthAlgo": [
+          "sha1"
+        ],
+        "ikeDiffieHellmanGroup": [
+          "group2"
+        ],
+        "ikeLifetime": 28800,
+        "childCipherAlgo": [
+          "aes128"
+        ],
+        "childAuthAlgo": [
+          "sha1"
+        ],
+        "childPfsGroup": [
+          "disabled"
+        ],
+        "childLifetime": 28800
+      },
+      "networkTags": [
+        "all"
+      ]
+    },
+    {
+      "name": "My peer 2",
+      "publicIp": "123.123.123.2",
+      "remoteId": "miles@meraki.com",
+      "privateSubnets": [
+        "192.168.2.0/24",
+        "192.168.129.0/24"
+      ],
+      "secret": "asdf56785678567856785678",
+      "networkTags": [
+        "none"
+      ],
+      "ipsecPoliciesPreset": "default"
+    }
+  ]
+}')
+
+
+// Return the uplink loss and latency for every MX in the organization from at latest 2 minutes ago
+@name("getOrganizationUplinksLossAndLatency")
+GET "https://{{baseUrl}}/organizations/:organizationId/uplinksLossAndLatency"
+"Accept": "*/*"
+? "t0"= "{{t0}}"
+? "t1"= "{{t1}}"
+? "timespan"= "{{timespan}}"
+? "uplink"= "{{uplink}}"
+? "ip"= "{{ip}}"
+
+
+
+

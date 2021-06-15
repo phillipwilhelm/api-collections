@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// The `/environments` endpoint returns a list of all [environments](https://www.getpostman.com/docs/environments) that belong to you..// // The response contains an array of environments' information containing the `name`, `id`, `owner` and `uid` of each environment.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("All Environments")
+GET "https://api.getpostman.com/environments"
+
+
+// Access the contents of an environment that is accessible to you using its unique id (`uid`).// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Single Environment")
+GET "https://api.getpostman.com/environments/{{environment_uid}}"
+
+
+// A sample body is added to the request that conforms to the following JSON schema:// // ```json// {//   "type": "object",//   "properties": {//     "environment": {//       "type": "object",//       "properties": {//         "name": {//               "type": "string",//               "maxLength": 254,//               "minLength": 1//             },//         "values": {//           "type": "array",//           "maxItems": 100,//           "additionalItems": false,//           "items": {//               "type": "object",//               "properties": {//                 "key": {//                   "type": "string",//                   "maxLength": 254//                   "minLength": 1//                 },//                 "value": { "type": "string" },//                 "enabled": { "type": "boolean" }//               },//               "required": ["key", "value"]//             }//         }//       },//       "required": ["name"]//     }//   },//   "required": ["environment"]// }// ```// // On successful creation of the environment, the API returns the environment name and `id`.// // You can also specify the context of a workspace to create an environment in directly by passing the `workspace` as a query param.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Create Environment")
+POST "https://api.getpostman.com/environments"
+"Content-Type": "application/json"
+data('{
+    "environment": {
+        "name": "Sample Environment Name (required)",
+        "values": [
+            {
+                "key": "variable_name_1",
+                "value": "The value of the variable"
+            },
+            {
+                "key": "variable_name_2",
+                "value": ""
+            }
+        ]
+    }
+}')
+
+
+// This endpoint replaces an existing environment.// // A sample body is added to the request that conforms to the following JSON schema:// // ```json// {// 	"type": "object",// 	"properties": {// 		"environment": {// 			"type": "object",// 			"properties": {// 				"name": {// 					"type": "string",// 					"maxLength": 254,// 					"minLength": 1// 				},// 				"values": {// 					"type": "array",// 					"maxItems": 100,// 					"additionalItems": false,// 					"items": {// 						"type": "object",// 						"properties": {// 							"key": {// 								"type": "string",// 								"maxLength": 254,// 								"minLength": 1// 							},// 							"value": {// 								"type": "string",// 								"maxLength": 254,// 								"minLength": 1// 							},// 							"type": {// 								"type": "string"// 							},// 							"enabled": {// 								"type": "boolean"// 							}// 						},// 						"required": [// 							"key",// 							"value"// 						]// 					}// 				}// 			}// 		}// 	},// 	"required": [// 		"environment"// 	]// }// ```// // On successful updation of the environment, the API returns the environment name and `id`.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Update Environment")
+PUT "https://api.getpostman.com/environments/{{environment_uid}}"
+"Content-Type": "application/json"
+data('{
+    "environment": {
+        "name": "New Name",
+        "values": [
+            {
+                "key": "name",
+                "value": "Bruce Wayne"
+            },
+            {
+                "key": "occupation",
+                "value": "Vigilante"
+            }
+        ]
+    }
+}')
+
+
+// This endpoint allows you to delete a single environment based on an environment's unique `uid`.// // > Requires <a href="#authentication">API Key</a> as `X-Api-Key` request header or `apikey` URL query parameter.
+@name("Delete Environment")
+DELETE "https://api.getpostman.com/environments/{{environment_uid}}"
+
+
+

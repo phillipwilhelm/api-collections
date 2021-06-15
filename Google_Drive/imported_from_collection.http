@@ -1,0 +1,53 @@
+#!/usr/bin/env dothttp
+
+// Lists all the files with the Drive. This also lists all the ids of the folders and files.
+@name("Files_list")
+GET "https://www.googleapis.com/drive/v3/files"
+
+
+// Retrieve particular media file.
+@name("Get media file")
+GET "https://www.googleapis.com/drive/v3/files/{{file_id}}"
+? "alt"= "media"
+
+
+// Copy the file to one of the folder.
+@name("Files_Copy")
+PATCH "https://www.googleapis.com/drive/v3/files/{{file_id}}"
+"file_id": ""
+? "folder_id"= "{{folder_id}}"
+
+
+// Helps you to rename a particular file.
+@name("Rename file")
+PATCH "https://www.googleapis.com/drive/v3/files/{{file_id}}"
+json({
+    "name": "renamed.jpeg",
+    "mimeType": "image/jpeg"
+})
+
+
+// Upload files directly to drive.
+@name("Upload files")
+POST "https://www.googleapis.com/upload/drive/v3/files"
+"Content-Type": "application/json; charset=UTF-8"
+files(
+	("Attach an image.jpg", "None")
+)
+
+
+// Helps you create a folder within the drive.
+@name("Create folder")
+POST "https://www.googleapis.com/upload/drive/v3/files"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("Attach an file to create folder", "None")
+)
+
+
+// Helps you to delete a particular file.
+@name("File Delete")
+DELETE "https://www.googleapis.com/drive/v3/files/{{file_id}}"
+
+
+

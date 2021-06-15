@@ -1,0 +1,1 @@
+This returns a list of notable women throughout the history of computer technology. The project is managed using a Github repository and this public API workspace. If there is someone you'd like to see added to the list you can submit an issue on the repository, or you can submit a pull request after adding the listing to the _data/people.yaml file.

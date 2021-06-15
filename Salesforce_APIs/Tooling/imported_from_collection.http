@@ -1,0 +1,169 @@
+#!/usr/bin/env dothttp
+
+// Retrieves available code completions of the referenced type for Apex system method symbols (type=apex). Available from API version 28.0 or later.
+@name("Tooling Completion")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/completions"
+"Accept": "application/json"
+
+
+// Executes Apex code anonymously. Available from API version 29.0 or later.
+@name("Tooling ExecuteAnonymous")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/executeAnonymous/"
+"Content-Type": "application/json"
+? "anonymousBody"= "System.Debug('awesome');"
+
+
+
+// Executes a query against an object and returns data that matches the specified criteria. Tooling API exposes objects like EntityDefinition and FieldDefinition that use the external object framework. That is, they don’t exist in the database but are constructed dynamically. Special query rules apply to virtual entities.// If the query result is too large, it’s broken up into batches. The response contains the first batch of results and a query identifier. The identifier can be used in a request to retrieve the next batch.
+@name("Tooling Query")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/query/"
+"Content-Type": "application/json"
+
+
+
+// Runs one or more methods within one or more Apex classes, using the asynchronous test execution mechanism. In the request body, you can specify test class names and IDs, suite names and IDs, the maximum number of failed tests to allow, and the test level, as comma-separated lists or as an array. You can also indicate whether to opt out of collecting code coverage information during the test run (available in API version 43.0 and later).
+@name("Tooling Run Tests Async")
+POST "https://{{_endpoint}}/services/data/v{{version}}/tooling/runTestsAsynchronous"
+"Content-Type": "application/json"
+data('{
+    "classNames": "comma-separated list of class names",
+    "classids": "comma-separated list of class IDs",
+    "suiteNames": "comma-separated list of test suite names",
+    "suiteids": "comma-separated list of test suite IDs",
+    "maxFailedTests": "integer value",
+    "testLevel": "TestLevel enum value",
+    "skipCodeCoverage": "boolean value"
+}
+
+or 
+
+[
+    {
+        "className": "YourClassName",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "className": "ManagedPackageNamespace.ManagedClassName",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "classId": "01pD0000000FhyEIAS",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "maxFailedTests": "2"
+    },
+    {
+        "testLevel": "RunSpecifiedTests"
+    }
+]')
+
+
+// Runs one or more methods within one or more Apex classes, using the asynchronous test execution mechanism. In the request body, you can specify test class names and IDs, suite names and IDs, the maximum number of failed tests to allow, and the test level, as comma-separated lists or as an array. You can also indicate whether to opt out of collecting code coverage information during the test run (available in API version 43.0 and later).
+@name("Tooling Run Tests Sync")
+POST "https://{{_endpoint}}/services/data/v{{version}}/tooling/runTestsSynchronous"
+"Content-Type": "application/json"
+data('[
+    {
+        "className": "YourClassName",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "maxFailedTests": "2"
+    }
+]
+
+or
+
+[
+    {
+        "classId": "01pD0000000Fhy9IAC",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "maxFailedTests": "2"
+    }
+]')
+
+
+// Runs one or more methods within one or more Apex classes, using the asynchronous test execution mechanism. In the request body, you can specify test class names and IDs, suite names and IDs, the maximum number of failed tests to allow, and the test level, as comma-separated lists or as an array. You can also indicate whether to opt out of collecting code coverage information during the test run (available in API version 43.0 and later).
+@name("Tooling Search")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/search"
+"Content-Type": "application/json"
+data('[
+    {
+        "className": "YourClassName",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "maxFailedTests": "2"
+    }
+]
+
+or
+
+[
+    {
+        "classId": "01pD0000000Fhy9IAC",
+        "testMethods": [
+            "testMethod1",
+            "testMethod2",
+            "testMethod3"
+        ]
+    },
+    {
+        "maxFailedTests": "2"
+    }
+]')
+
+
+// Lists the available Tooling API objects and their metadata.
+@name("Get Tooling Describe")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/sobjects/"
+
+
+@name("Get Tooling Metadata SObject")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/sobjects/:SOBJECT_API_NAME"
+
+
+@name("Get Tooling Describe SObject")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/sobjects/:SOBJECT_API_NAME/describe"
+
+
+@name("Post Tooling SObject")
+POST "https://{{_endpoint}}/services/data/v{{version}}/tooling/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+json({
+    "Name": "test"
+})
+
+
+@name("Access Records")
+GET "https://{{_endpoint}}/services/data/v{{version}}/tooling/sobjects/:RECORD_ID"
+
+
+

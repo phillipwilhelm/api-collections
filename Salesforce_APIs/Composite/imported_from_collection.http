@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// Executes a series of REST API requests in a single call. You can use the output of one request as the input to a subsequent request. The response bodies and HTTP statuses of the requests are returned in a single response body. The entire request counts as a single call toward your API limits.// The requests in a composite call are called subrequests. All subrequests are executed in the context of the same user. In a subrequest’s body, you specify a reference ID that maps to the subrequest’s response. You can then refer to the ID in the url or body fields of later subrequests by using a JavaScript-like reference notation.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_composite.htm
+@name("Composite")
+POST "https://{{_endpoint}}/services/data/v{{version}}/composite/"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "collateSubrequests": "Boolean",
+    "compositeRequest": "Composite Subrequest[]"
+}')
+
+
+// Composite graphs provide an enhanced way to perform composite requests, which execute a series of REST API requests in a single call.// Regular composite requests allow you to execute a series of REST API requests in a single call. And you can use the output of one request as the input to a subsequent request.// // Composite graphs extend this by allowing you to assemble a more complicated and complete series of related objects and records.// // Composite graphs also enable you to ensure that the steps in a given set of operations are either all completed or all not completed. This avoids requiring you to check for a mix of successful and unsuccessful results.// // Regular composite requests have a limit of 25 subrequests. Composite graphs increase this limit to 500. This gives a single API call much greater power.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_graph_introduction.htm
+@name("Composite Graph")
+POST "https://{{_endpoint}}/services/data/v{{version}}/composite/graph"
+"Content-Type": "application/json"
+data('{
+    "graphs": [
+        {
+            "graphId": "graph1",
+            "compositeRequest": [
+                {
+                    "method": "POST",
+                    "url": "/services/data/v{{version}}/sobjects/Account/",
+                    "referenceId": "newAccount",
+                    "body": {
+                        "Name": "ACME Inc."
+                    }
+                },
+                {
+                    "method": "POST",
+                    "url": "/services/data/v{{version}}/sobjects/Contact/",
+                    "referenceId": "newContact",
+                    "body": {
+                        "FirstName": "John",
+                        "LastName": "Doe",
+                        "AccountId": "@{newAccount.id}"
+                    }
+                }
+            ]
+        }
+    ]
+}')
+
+
+// Executes up to 25 subrequests in a single request. The response bodies and HTTP statuses of the subrequests in the batch are returned in a single response body. Each subrequest counts against rate limits.// The requests in a batch are called subrequests. All subrequests are executed in the context of the same user. Subrequests are independent, and you can’t pass information between them. Subrequests execute serially in their order in the request body. When a subrequest executes successfully, it commits its data. Commits are reflected in the output of later subrequests. If a subrequest fails, commits made by previous subrequests are not rolled back. If a batch request doesn’t complete within 10 minutes, the batch times out and the remaining subrequests aren’t executed.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_batch.htm
+@name("Batch")
+POST "https://{{_endpoint}}/services/data/v{{version}}/composite/batch"
+"Content-Type": "application/json"
+data('{
+    "haltOnError": "Boolean",
+    "batchRequests": "Subrequest[]"
+}')
+
+
+// Creates one or more sObject trees with root records of the specified type. An sObject tree is a collection of nested, parent-child records with a single root record.// In the request data, you supply the record hierarchies, required and optional field values, each record’s type, and a reference ID for each record. Upon success, the response contains the IDs of the created records. If an error occurs while creating a record, the entire request fails. In this case, the response contains only the reference ID of the record that caused the error and the error information.// // The request can contain the following:// Up to a total of 200 records across all trees// Up to five records of different types// SObject trees up to five levels deep// Because an sObject tree can contain a single record, you can use this resource to create up to 200 unrelated records of the same type.// // When the request is processed and records are created, triggers, processes, and workflow rules fire separately for each of the following groups of records.// Root records across all sObject trees in the request// All second-level records of the same type—for example, second-level Contacts across all sObject trees in the request// All third-level records of the same type// All fourth-level records of the same type// All fifth-level records of the same type// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobject_tree.htm
+@name("SObject Tree")
+POST "https://{{_endpoint}}/services/data/v{{version}}/composite/tree/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+data('{
+    "records":"SObject Tree Input[]"
+}')
+
+
+// Executes actions on multiple records in one request. Use SObject Collections to reduce the number of round-trips between the client and server. This resource is available in API version 42.0 and later.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm
+@name("SObject Collections Create")
+POST "https://{{_endpoint}}/services/data/v{{version}}/composite/sobjects"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "records":"SObject[]"
+}')
+
+
+// Executes actions on multiple records in one request. Use SObject Collections to reduce the number of round-trips between the client and server. This resource is available in API version 42.0 and later.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm
+@name("SObject Collections Retrieve")
+GET "https://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+
+
+
+// Executes actions on multiple records in one request. Use SObject Collections to reduce the number of round-trips between the client and server. This resource is available in API version 42.0 and later.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm
+@name("SObject Collections Update")
+PATCH "https://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+data('{
+    "allOrNone": "Boolean",
+    "records":"SObject[]"
+}')
+
+
+// Executes actions on multiple records in one request. Use SObject Collections to reduce the number of round-trips between the client and server. This resource is available in API version 42.0 and later.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_composite_sobjects_collections.htm
+@name("SObject Collections Delete")
+DELETE "https://{{_endpoint}}/services/data/v{{version}}/composite/sobjects/:SOBJECT_API_NAME"
+"Content-Type": "application/json"
+
+
+
+

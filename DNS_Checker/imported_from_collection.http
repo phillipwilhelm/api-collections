@@ -1,0 +1,81 @@
+#!/usr/bin/env dothttp
+
+// Postman Echo is a service you can use to test your REST clients and make sample API calls. It provides endpoints for GET, POST, PUT, various auth mechanisms and other utility endpoints.// // Read more [here](https://docs.postman-echo.com/).// // // This request reads environment variables (if provided) and sets those (or the defaults) to determine the execution flow (branching) of the collection.// // // It also bootstraps some helper functions which will we be used by the requests to post results to Slack if a `slack_incoming_webhook` is specified in an environment variable during the initialization of this run.// // Slack is a team communication platform. A slack incoming webhook allows different services to post messages to different users or slack channels in your team. It can easily be configured by following [this guide](https://api.slack.com/incoming-webhooks).
+@name("Call Postman Echo")
+GET "https://postman-echo.com/get"
+
+
+// Posts a message to Slack
+@name("Start Notification")
+POST "https://{{slack_incoming_webhook}}/"
+"Content-type": "application/json"
+data('{
+  "text": "DNS Check Started"
+}')
+
+
+// An A record maps a domain name to the IP address (IPv4) of the computer hosting the domain. Simply put, an A record is used to find the IP address of a computer connected to the internet from a name.// // Read more [here](https://support.dnsimple.com/articles/a-record/).
+@name("Host Address (A records)")
+GET "https://{{dns_service}}/{{domain}}/a"
+
+
+// The record AAAA (also quad-A record) specifies IPv6 address for given host. So it works the same way as the A record and the difference is the type of IP address.
+@name("IPv6 Host Address (AAAA records)")
+GET "https://{{dns_service}}/{{domain}}/aaaa"
+
+
+// CNAME stands for Canonical Name. CNAME records can be used to alias one name to another.// // For example, if you have a server where you keep all of your documents online, it might normally be accessed through docs.example.com. You may also want to access it through documents.example.com. One way to make this possible is to add a CNAME record that points documents.example.com to docs.example.com. When someone visits documents.example.com they will see the exact same content as docs.example.com.
+@name("Canonical Name (CNAME records)")
+GET "https://{{dns_service}}/{{domain}}/cname"
+
+
+// MX stands for Mail eXchange. MX Records tell email delivery agents where they should deliver your email. You can have many MX records for a domain, providing a way to have redundancy and ensure that email will always be delivered.
+@name("Mail eXchange (MX records)")
+GET "https://{{dns_service}}/{{domain}}/mx"
+
+
+// An NS record is used to delegate a subdomain to a set of name servers.
+@name("Name Servers (NS records)")
+GET "https://{{dns_service}}/{{domain}}/ns"
+
+
+// An SPF record is a Sender Policy Framework record and is used to indicate to mail exchanges which hosts are authorized to send mail for a domain.
+@name("Sender Policy Framework (SPF records)")
+GET "https://{{dns_service}}/{{domain}}/spf"
+
+
+// CERT-records store certificates and related revocation lists (CRL) for cryptographic keys.// // [Read more](http://simpledns.com/help/v60/index.html?rec_cert.htm)
+@name("Certificate (CERT records)")
+GET "https://{{dns_service}}/{{domain}}/cert"
+
+
+// TXT-records are used to hold descriptive text.//  // They are often used to hold general information about a domain name such as who is hosting it, contact person, phone numbers, etc.// // [Read More](http://simpledns.com/help/v60/index.html?rec_cert.htm)
+@name("Text (TXT records)")
+GET "https://{{dns_service}}/{{domain}}/txt"
+
+
+// A DNSKEY-record holds a public key that resolvers can use to verify DNSSEC signatures in RRSIG-records.//  // DNSKEY-records have the following data elements:// - Flags: "Zone Key" (set for all DNSSEC keys) and "Secure Entry Point" (set for KSK and simple keys).// - Protocol: Fixed value of 3 (for backwards compatibility)// - Algorithm: The public key's cryptographic algorithm.// - Public key: Public key data.// // [Read More](http://simpledns.com/help/v60/index.html?rec_cert.htm)
+@name("DNS Key record (DNSKEY records)")
+GET "https://{{dns_service}}/{{domain}}/dnskey"
+
+
+// Recently vulnerabilities in the DNS were discovered that allow an attacker to hijack this process of looking some one up or looking a site up on the Internet using their name. The purpose of the attack is to take control of the session to, for example, send the user to the hijacker's own deceptive web site for account and password collection.// // These vulnerabilities have increased interest in introducing a technology called DNS Security Extensions (DNSSEC) to secure this part of the Internet's infrastructure.// // [Read More](https://www.icann.org/resources/pages/dnssec-qaa-2014-01-29-en)
+@name("DNSSEC Lookaside Validation record (DLV records)")
+GET "https://{{dns_service}}/{{domain}}/dlv"
+
+
+// IPsec is an end-to-end security scheme operating in the Internet Layer of the Internet Protocol Suite, while some other Internet security systems in widespread use, such as Transport Layer Security (TLS) and Secure Shell (SSH), operate in the upper layers at the Transport Layer (TLS) and the Application layer (SSH). IPsec can automatically secure applications at the IP layer.// // [Read More](https://en.wikipedia.org/wiki/IPsec).
+@name("IPSec Key (IPSECKEY records)")
+GET "https://{{dns_service}}/{{domain}}/ipseckey"
+
+
+// This request sends the notification to Slack.
+@name("End Notification")
+POST "https://{{slack_incoming_webhook}}/"
+"Content-type": "application/json"
+data('{
+  "text": "DNS Check Completed"
+}')
+
+
+

@@ -1,0 +1,26 @@
+#!/usr/bin/env dothttp
+
+// Queries the Zendesk Status API to check if Zendesk is down. 
+@name("Query Zendesk Status")
+GET "https://status.zendesk.com/api/components/{{tag}}"
+? "domain"= "{{domain}}.zendesk.com"
+
+
+@name("Post to Slack")
+POST "https://hooks.slack.com/services/{{webhook_url}}"
+"Content-Type": "application/json"
+data('{
+    "attachments": [
+        {
+            "color": "#ff0000",
+            "title": "Zendesk IS Down!",
+            "title_link": "https://twitter.com/ZendeskOps?s=17",
+            "text": "Check Zendesk Ops Twitter for details![click the title^]",
+            "image_url": "https://media.giphy.com/media/3oFzma9FGIblOf6Wk0/giphy.gif"
+
+        }
+    ]
+}')
+
+
+

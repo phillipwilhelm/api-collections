@@ -1,0 +1,88 @@
+#!/usr/bin/env dothttp
+
+// Pre Script Block// -// - Serves as entry point for all of the requests// - Routes the requests// - Handles Errors// - Creates payload
+@name("App")
+POST "https://{{response_url}}/"
+json({
+    "text": "{{pre_response}}"
+})
+
+
+// Tests Block// -// - Checks for errors// - Routes successful and error responses// - Creates payload// // Routes to `TaskResponse` or `ErrorResponse`
+@name("ListTasks")
+GET "https://{{url_}}&sort%5B0%5D%5Bfield%5D=end&sort%5B0%5D%5Bdirection%5D=asc/"
+"Authorization": "{{airtable_auth}}"
+
+
+// Tests Block// -// - Checks for errors// - Routes successful and error responses// - Creates slack payload// Routes to `TaskResponse` or `ErrorResponse`
+@name("CreateTask")
+POST "https://{{url_}}/"
+"Authorization": "{{airtable_auth}}"
+data('{{_payload}}')
+
+
+// Tests block// -// - Checks for errors// - Routes successful and error responses// - Creates slack payload Routes to `TaskDeletedResponse` or `ErrorResponse`
+@name("DeleteTask")
+DELETE "https://{{url_}}/"
+"Authorization": "{{airtable_auth}}"
+
+
+// Tests block// -// - Checks for errors// - Routes successful and error responses// - Creates slack payload Routes to `MarkCompleteResponse` or `ErrorResponse`
+@name("MarkComplete")
+PATCH "https://{{url_}}/"
+"Authorization": "{{airtable_auth}}"
+data('{{_payload}}')
+
+
+// Prescript Block// -// - Format payload for slack// // Acts as exit point for application
+@name("TaskResponse")
+POST "https://{{response_url}}/"
+data('{{pre_response}}')
+
+
+// Prescript Block// -// - Format payload for slack// // Acts as exit point for application
+@name("HintResponse")
+POST "https://{{response_url}}/"
+data('{{formatted_response}}')
+
+
+// Serves as Exit point of application
+@name("MarkCompleteResponse")
+POST "https://{{response_url}}/"
+json({
+    "text": "Marked!!!"
+})
+
+
+// Serves as Exit point of application
+@name("TaskDeletedResponse")
+POST "https://{{response_url}}/"
+json({
+    "text": "Marked!!!"
+})
+
+
+// Serves as Exit point of application
+@name("ErrorResponse")
+POST "https://{{response_url}}/"
+json({
+    "blocks": [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Runtime Error*"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "`{{pre_response}}`"
+            }
+        }
+    ]
+})
+
+
+

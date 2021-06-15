@@ -1,0 +1,35 @@
+#!/usr/bin/env dothttp
+
+@name("Get Bearer Token")
+POST "https://api.twitter.com/oauth2/token"
+"Authorization": "Basic {{BearerToken}}"
+"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Get Trending Topics")
+GET "https://api.twitter.com/1.1/trends/place.json"
+"Authorization": "Bearer {{twitter_access_token}}"
+? "id"= "1"
+
+
+// Requests news articles from newsapi.org with query text and language as English
+@name("Get News Articles")
+GET "https://newsapi.org/v2/top-headlines"
+? "q"= "{{query}}"
+? "apiKey"= "{{NEWS_API_KEY}}"
+? "language"= "en"
+
+
+// Sends the news articles to the Slack channel// // SLACK_HOOK: Entire URL of the Slack hook (Ex: https://hooks.slack.com/services/TTFF7GGAA/DEHHHHKJL/FdfEdfjdkrueiso)
+@name("Post News Articles")
+POST "https://{{SLACK_HOOK}}/"
+"Content-Type": "application/json"
+data('{{post}}')
+
+
+

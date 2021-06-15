@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// Subscribes profiles to a list. Profiles will be single or double opted into the specified list in accordance with that list’s settings. Note: If you have double opt-in turned on, users will not be added to list until they opt-in, and so API will respond with an empy list: `[]`
+@name("Subscribe Profiles to List")
+POST "https://{{baseUrl}}/v2/list/:list_id/subscribe"
+"Content-Type": "application/json"
+? "api_key"= "PRIVATE_KEY"
+data('{
+    "profiles": [
+        {
+            "email": "george.washington@klaviyo.com"
+        },
+        {
+            "phone_number": "+13239169023",
+            "sms_consent": true
+        }
+    ]
+}')
+
+
+// Checks if profiles are on a list and not suppressed.
+@name("Check Subscriptions")
+GET "https://{{baseUrl}}/v2/list/:list_id/subscribe"
+"Content-Type": "application/json"
+data('{
+    "api_key": "PRIVATE_KEY",
+    "emails": [
+        "george.washington@klaviyo.com",
+        "john.adams@klaviyo.com"
+    ],
+    "phone_numbers": [
+        "13239169023"
+    ],
+    "push_tokens": [
+        "PUSH_TOKEN"
+    ]
+}')
+
+
+// Unsubscribes and removes profiles from a list.
+@name("Unsubscribe Profiles From List")
+DELETE "https://{{baseUrl}}/v2/list/:list_id/subscribe"
+"Content-Type": "application/json"
+? "api_key"= "PRIVATE_KEY"
+data('{
+    "emails": [
+        "george.washington@klaviyo.com",
+        "john.adams@klaviyo.com"
+    ],
+    "phone_numbers": [
+        "13239169023"
+    ],
+    "push_tokens": [
+        "PUSH_TOKEN"
+    ]
+}')
+
+
+

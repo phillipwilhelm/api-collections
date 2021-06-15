@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+// The rate of change of the **Motion Sensor** is driven by events in the real-world. We need to receive// every event to be able to aggregate the results.// // This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.// // * The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors// * The `idPattern` in the request body ensures that **Quantum Leap** will be informed of all **Motion Sensor** data changes.// * The notification `url` must match the exposed port.// // The `metadata` attribute ensures that the `time_index` column within the Crate-DB database will match the data found within the **Orion Context Broker** rather than using the creation time of the record within the Crate-DB itself.
+@name("Orion - QuantumLeap - Aggregate Motion Sensor Count Events")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify QuantumLeap of all Motion Sensor count changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": "Motion.*"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "count"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://quantumleap:8668/v2/notify"
+    },
+    "attrs": [
+      "count"
+    ],
+    "metadata": ["dateCreated", "dateModified"]
+  }
+}')
+
+
+// The luminosity of the **Smart Lamp** is constantly changing, we only need to **sample** the values to be// able to work out relevant statistics such as minimum and maximum values and rates of change.// // This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker// and including the `throttling` attribute in the request body.// // * The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors// * The `idPattern` in the request body ensures that **Quantum Leap** will be informed of all **Smart Lamp** data changes only// * The notification `url` must match the configured `STH_PORT`// * The `throttling` value defines the rate that changes are sampled.// * // // The `metadata` attribute ensures that the `time_index` column within the Crate-DB database will match the data found within the **Orion Context Broker** rather than using the creation time of the record within the Crate-DB itself.
+@name("Orion - QuantumLeap - Sample Lamp Luminosity")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify Quantum Leap to sample Lamp changes every five seconds",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": "Lamp.*"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "luminosity",
+        "location"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://quantumleap:8668/v2/notify"
+    },
+    "attrs": [
+      "luminosity", "location"
+    ],
+    "metadata": ["dateCreated", "dateModified"]
+  },
+  "throttling": 5
+}')
+
+
+// If the subscriptions have been created, you can check to see if they are firing by making a GET // request to the `/v2/subscriptions` endpoint.// // Within the `notification` section of the response, you can see several additional `attributes` which describe the health of the subscription// // If the criteria of the subscription have been met, `timesSent` should be greater than `0`.// A zero value would indicate that the `subject` of the subscription is incorrect or the subscription // has created with the wrong `fiware-service-path` or `fiware-service` header// // The `lastNotification` should be a recent timestamp - if this is not the case, then the devices// are not regularly sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**// // The `lastSuccess` should match the `lastNotification` date - if this is not the case // then **Quantum Leap** is not receiving the subscription properly. Check that the host name// and port are correct. // // Finally, check that the `status` of the subscription is `active` - an expired subscription// will not fire.
+@name("Orion - Check Subscription is working")
+GET "http://{{orion}}/v2/subscriptions/"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+
+

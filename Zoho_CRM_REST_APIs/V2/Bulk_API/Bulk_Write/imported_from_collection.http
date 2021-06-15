@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// To upload a CSV file in ZIP format for bulk write API. The response contains the **file_id**. Use this ID while making the bulk write request.
+@name("Upload File")
+POST "https://content.zohoapis.com/crm/v2/upload"
+"X-CRM-ORG": "694902309"
+"feature": "bulk-write"
+"": ""
+files(
+	("file", "None")
+)
+
+
+// To create a bulk write job to import records into CRM.
+@name("Create Bulk Write Job")
+POST "https://{{api-domain}}/crm/bulk/v2/write"
+json({
+    "operation": "insert",
+    "ignore_empty": true,
+    "callback": {
+        "url": "https://www.zoho.com/in/crm/",
+        "method": "post"
+    },
+    "resource": [
+        {
+            "type": "data",
+            "module": "Leads",
+            "file_id": "{{file_id}}",
+            "field_mappings": [
+                {
+                    "api_name": "Last_Name",
+                    "index": 0
+                },
+                {
+                    "api_name": "Owner",
+                    "index": 1
+                },
+                {
+                    "api_name": "Date_3",
+                    "index": 2,
+                    "format": "yyyy/MM/dd"
+                },
+                {
+                    "api_name": "Mobile",
+                    "index": 3
+                },
+                {
+                    "api_name": "Layout",
+                    "index": 4
+                }
+            ]
+        }
+    ]
+})
+
+
+// To get the details of a bulk write job performed previously.
+@name("Job Details")
+GET "https://{{api-domain}}/crm/bulk/v2/write/{{job_id}}"
+
+
+

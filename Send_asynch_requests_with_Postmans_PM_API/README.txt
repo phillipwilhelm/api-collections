@@ -1,0 +1,3 @@
+This is the example from [this blog post](http://blog.getpostman.com/2017/10/03/send-asynchronous-requests-with-postmans-pm-api/) about sending asynchronous requests with Postman's PM API.
+
+The [Postman Sandbox](https://www.getpostman.com/docs/postman/scripts/postman_sandbox_api_reference) is a JavaScript execution environment that is available to you while writing pre-request and test scripts for requests in both Postman and Newman. Read more about [sending asynchronous requests](https://learning.getpostman.com/docs/postman/scripts/postman_sandbox_api_reference/#pmsendrequest).

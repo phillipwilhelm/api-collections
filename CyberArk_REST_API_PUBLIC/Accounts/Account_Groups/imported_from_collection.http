@@ -1,0 +1,48 @@
+#!/usr/bin/env dothttp
+
+// This method returns all the account groups in a specific Safe. The user performing this task must have the following permissions in the Safe:// // * Add accounts// * Update account content// * Update account properties// * Create folders
+@name("Get Account Group by Safe")
+GET "https://{{BaseURL}}/PasswordVault/API/AccountGroups"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+? "Safe"= "{{Safe}}"
+
+
+// This method returns all the members of an existing account group. These accounts can be either password accounts or SSH Key accounts.// // __NOTE: All members of account groups must be stored in the same Safe as the group itself.__// // The user performing this task must have the following permissions in the Safe:// // * Add accounts// * Update account content// * Update account properties// * Create folders
+@name("Get Account Group Members")
+GET "https://{{BaseURL}}/PasswordVault/API/AccountGroups/{{GroupName}}/Members"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+
+
+// This method enables application managers to define a new account group automatically, and manage accounts as part of a group.// // To create an account group, users require the following permissions in the Safe where the group is created:// * Add accounts// * Update account content// * Update account properties// * Create folders// // **Note:** _The following characters are not supported in URL values in the Body:_ **+ & % #**
+@name("Add Account Group")
+POST "https://{{BaseURL}}/API/AccountGroups/"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "GroupName":"{{GroupName}}",
+  "GroupPlatform":"{{PlatformID}}",
+  "Safe":"{{Safe}}"
+}')
+
+
+// This method adds an account as a member to an existing account group.  The account can contain either a password or SSH key.  All members of an account group must be stored in the same Safe as the group itself.// // To add an account as a member to an account group, users require the following permissions to the Safe where the group is created:// * Add accounts// * Update account content// * Update account properties// // **Note:** _The following characters are not support in URL values in the Body:_ **+ & % #**
+@name("Add Account to Account Group")
+POST "https://{{BaseURL}}/API/AccountGroups/{{GroupName}}/Members"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{
+  "AccountID":"{{AccountID}}"
+}')
+
+
+// This method removes an account member from an account group. This account can be either a password account or an SSH Key account.// // The user performing this task must have the following permissions in the Safe:// // * Add accounts// * Update account content// * Update account properties// * Create folders
+@name("Delete Member from Account Group")
+DELETE "https://{{BaseURL}}/PasswordVault/API/AccountGroups/{{GroupName}}/Members/{{AccountID}}"
+"Authorization": "{{CyberArkLogonResult}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+

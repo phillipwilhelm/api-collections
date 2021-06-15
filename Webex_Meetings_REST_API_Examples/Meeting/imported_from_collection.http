@@ -1,0 +1,233 @@
+#!/usr/bin/env dothttp
+
+// Our prerequest script will examine the UTCOFFSET and TIMEZONE variables and generate a to/from team for a meeting that starts at noon tommorow and lasts for 30 minutes// Our request body will use the temporary _start_time and _end_time variables that our prerequest script _start_time// Our tests will validate that we got the expected result and set some additional temporary environment variables that will be used in subseqent tests
+@name("Create a non recurring meeting for tommorow")
+POST "https://{{MEETINGS_API_URL}}/meetings"
+"Content-Type": "application/json"
+data('{
+    "title": "Sample Title",
+    "agenda": "Sample Agenda",
+    "password": "A@ssword123",
+    "start": "{{_start_time}}",
+    "end": "{{_end_time}}",
+    "timezone": "{{TIMEZONE_STRING}}", 
+    "enabledAutoRecordMeeting": false,
+    "allowAnyUserToBeCoHost": false
+}')
+
+
+// You can pass an ID directly to the /meetings API to get that object.  In this case we will get the non-recurring meetingType:meetingSeries object that we just created.
+@name("Get meeting by ID")
+GET "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+"Authorization": "{{Authorization}}"
+
+
+// If we pass the id as a meetingSeriesId query param, we get a list of scheduledMeeting meetingTypes that are associated with this series.  In this case since the meeting was non-recurring there is only one result.  This scheduledMeeting DTO is exactly the same as it's non-recurring meetingSeries parent, except that the meetingType is different (scheduledMeeting vs meetingSeries), and it provides an explicit meetingSeriesId.  Note that this matches the id, since in the caase of a non-recurring meeting the meetingSeries object and the scheduleMeeting object are the same thing.
+@name("Get meeting using meetingSeriesId query param")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+"Authorization": "{{Authorization}}"
+? "meetingSeriesId"= "{{_singleMeetingId}}"
+
+
+// In our pre-request script we grab the saved version of this meeting that we saved when we created it. We toggle the boolean value `enabledAutoRecordMeeting`.  We then write the new meeting object to an environment and use that as the body of our PUT request.   Our test validates that the result has the new value.
+@name("Update the meeting")
+PUT "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+"Content-Type": "application/json"
+data('{{_theMeeting}}
+')
+
+
+// This request is like the first POST request except that we add the reccurence field in our request body
+@name("Create series meeting")
+POST "https://{{MEETINGS_API_URL}}/meetings"
+"Content-Type": "application/json"
+data('{
+    "title": "Series Title",
+    "agenda": "Series Agenda",
+    "password": "A@ssword123",
+    "start": "{{_start_time}}",
+    "end": "{{_end_time}}",
+    "timezone": "{{TIMEZONE_STRING}}",
+    "recurrence": "FREQ=DAILY;INTERVAL=1;COUNT=10",
+    "enabledAutoRecordMeeting": false,
+    "allowAnyUserToBeCoHost": false
+}')
+
+
+// In addition to including the ID of a meeting in the GET /meetings url, you can specify query parameters to get a meeting.  In this example, we specify the meetingNumber.  The result is always a list of items although in this case we get back just one element in the list, the meetingSeries that we just created with that meeting number.
+@name("Get recurring meeting by number")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingNumber"= "{{_recurringMeetingNumber}}"
+
+
+// We can perform the same request by specfing the meetingSeriesId as the query parameter instead of the meetingNumber.  In this case the response will be a list of scheduledMeeting meetingType objects associated with the series.   In this case each scheduledMeeting object has a unique id, but they all share a common meetingSeriesId.
+@name("Get recurring meeting by meetingSeriesId")
+GET "https://{{MEETINGS_API_URL}}/meetings/"
+? "meetingSeriesId"= "{{_recurringMeetingId}}"
+
+
+// When querying for a list of scheduled meetings you can use the `to` and `from` query params.  In this case we set it for a week which is the same as the default.
+@name("List a week's worth of recurring meeting instances")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+"Authorization": "Bearer {{CITOKEN}}"
+"Content-Type": "application/json"
+? "meetingSeriesId"= "{{_recurringMeetingId}}"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// You can also limit the number of results returned by setting the `max` query param.   Here we make the same call as before but limit it to our MAX_RESULTS environment variable.
+@name("Test max param on meeting instances")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+"Authorization": "Bearer {{CITOKEN}}"
+"Content-Type": "application/json"
+? "meetingSeriesId"= "{{_recurringMeetingId}}"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+? "max"= "{{MAX_RESULTS}}"
+
+
+// This time we will modify just a single scheduledMeeting instance.  Our prequest script will read in a copy of that meeting that we saved when we first listed the scheduledMeeting instances, and our test will validate that the value has changed as expected.  Note that when a scheduleMeeting is updated the `isModified` attribute is set to true.
+@name("Update a scheduled MeetingInstance")
+PUT "https://{{MEETINGS_API_URL}}/meetings/{{_aScheduledMeetingId}}"
+"Content-Type": "application/json"
+data('{{_aScheduledMeeting}}
+')
+
+
+// Let's get the next two scheduledMeeting instances and validate that they have different values for the enabledAutoRecordMeeting setting.
+@name("Validate just one scheduledMeeting was updated")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+"Authorization": "Bearer {{CITOKEN}}"
+"Content-Type": "application/json"
+? "meetingSeriesId"= "{{_recurringMeetingId}}"
+? "max"= "2"
+
+
+// This time we will modify just a single scheduledMeeting instance.  Our prequest script will read in a copy of that meeting that we saved when we first listed the scheduledMeeting instances, and our test will validate that the value has changed as expected.  The `isModified` attribute will be false in all scheduledMeeting instances, except the one that we previously changed.
+@name("Update the meeting series")
+PUT "https://{{MEETINGS_API_URL}}/meetings/{{_recurringMeetingId}}"
+"Content-Type": "application/json"
+data('{{_theMeetingSeries}}')
+
+
+// Let's get the next two scheduledMeeting instances and validate that they now all have the same value for the enabledAutoRecordMeeting setting.
+@name("Validate all scheduledMeetings are updated")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+"Authorization": "Bearer {{CITOKEN}}"
+"Content-Type": "application/json"
+? "meetingSeriesId"= "{{_recurringMeetingId}}"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+? "max"= "{{MAX_RESULTS}}"
+
+
+@name("Create a 3rd non recurring meeting for tommorow")
+POST "https://{{MEETINGS_API_URL}}/meetings"
+"Content-Type": "application/json"
+data('{
+    "title": "Sample Title",
+    "agenda": "Sample Agenda",
+    "password": "A@ssword123",
+    "start": "{{_start_time}}",
+    "end": "{{_end_time}}",
+    "timezone": "{{TIMEZONE_STRING}}", 
+    "enabledAutoRecordMeeting": false,
+    "allowAnyUserToBeCoHost": false
+}')
+
+
+// A GET to /meetings API with no query params returns a list of meetingSeries that have one or more associated scheduleMeetings that will happen in the next seven days.  We expect at least 3 results.
+@name("Get meetingSeries for next week (default)")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+
+
+// Here we also get all the meetingSeries for the next week but this time we explicitly ask for `meetingType` of meetingSeries and set the `to` and `from` parameters for the next seven days.  We test that we got the same results as the previous call
+@name("Get meetingSeries for next week (explicit params)")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "meetingSeries"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// Now we change the `meetingType` to scheduledMeetings to get the scheduledMeetings instead of the meetingSeries type.
+@name("Get scheduledMeetings for next week")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "scheduledMeeting"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// By changing the `to` and `from` parameters we can look backwards and see previously scheduledMeetings.  At the time of creating this collect they are all in the `state` of scheduled but soon they should be in either the `inProgress`, `ended` or `missed` states.
+@name("Get scheduledMeetings from last week")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "scheduledMeeting"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// In the future we can add a `state` query param to "missed" and look backwards to see if we can find any scheduleMeetings that were missed
+@name("Get scheduledMeetings that were missed - not yet available")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "scheduledMeeting"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// In the near future you can set the `meetingType` to "meeting" to get meetings that have occured or are occuring.
+@name("Get meetings that were joined last week -- not yet available")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "meeting"
+? "from"= "{{_from_time}}"
+? "to"= "{{_to_time}}"
+
+
+// Also in the near future you will be able to set the `state` to "inProgress" to get meetings that are occuring now.  (You can query for either a meetingSeries or a meeting `meetingType`, but you must specify the one you are looking for).
+@name("Get meetings that are happening now - not yet available")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "meetingSeries"
+? "state"= "inProgress"
+
+
+// Also in the near future you will be able to set the `state` to "inProgress" to get meetings that are occuring now.  (You can query for either a meetingSeries or a meeting `meetingType`, but you must specify the one you are looking for).
+@name("Get meetings that are happening now - not yet available Copy")
+GET "https://{{MEETINGS_API_URL}}/meetings"
+? "meetingType"= "meetingSeries"
+? "state"= "inProgress"
+
+
+@name("Delete the non recurring meeting")
+DELETE "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+"Content-Type": "application/json"
+
+
+
+@name("Delete the recurring meeting")
+DELETE "https://{{MEETINGS_API_URL}}/meetings/{{_recurringMeetingId}}"
+"Content-Type": "application/json"
+
+
+
+@name("Delete the second single meeting")
+DELETE "https://{{MEETINGS_API_URL}}/meetings/{{_secondSingleMeetingId}}"
+"Content-Type": "application/json"
+
+
+
+@name("Attempt to delete a deleted meeting - should be 404")
+DELETE "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+"Authorization": "Bearer {{CITOKEN}}"
+"Content-Type": "application/json"
+
+
+
+@name("Attempt to GET a deleted meeting - should be 404")
+GET "https://{{MEETINGS_API_URL}}/meetings/{{_singleMeetingId}}"
+
+
+// This request will run a pre-request script that will delete all the temporary environment variables that have been set.
+@name("Cleanup")
+GET "https://postman-echo.com/"
+
+
+

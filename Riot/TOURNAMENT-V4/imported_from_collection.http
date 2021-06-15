@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// Create a tournament code for the given tournament.// // TournamentCodeParameters// | Name               	| Data Type   	| Description                                                                                                                                                                                                                                                                               	|// |--------------------	|-------------	|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|// | spectatorType      	| string      	| The spectator type of the game. (Legal values: NONE, LOBBYONLY, ALL)                                                                                                                                                                                                                      	|// | teamSize           	| int         	| The team size of the game. Valid values are 1-5.                                                                                                                                                                                                                                          	|// | pickType           	| string      	| The pick type of the game. (Legal values: BLIND_PICK, DRAFT_MODE, ALL_RANDOM, TOURNAMENT_DRAFT)                                                                                                                                                                                           	|// | allowedSummonerIds 	| Set[string] 	| Optional list of encrypted summonerIds in order to validate the players eligible to join the lobby. NOTE: We currently do not enforce participants at the team level, but rather the aggregate of teamOne and teamTwo. We may add the ability to enforce at the team level in the future. 	|// | mapType            	| string      	| The map type of the game. (Legal values: SUMMONERS_RIFT, TWISTED_TREELINE, HOWLING_ABYSS)                                                                                                                                                                                                 	|// | metadata           	| string      	| Optional string that may contain any data in any format, if specified at all. Used to denote any custom information about the game.                                                                                                                                                       	|
+@name("Create Tournament Code")
+POST "https://{{URL}}/lol/tournament/v4/codes"
+"Content-Type": "application/x-www-form-urlencoded"
+data('{
+  "allowedSummonerIds": {},
+  "mapType": "",
+  "metadata": "",
+  "pickType": "",
+  "spectatorType": "",
+  "teamSize": 0
+}')
+
+
+// Returns the tournament code DTO associated with a tournament code string.
+@name("Tournament DTO by Tournament Code")
+GET "https://{{URL}}/lol/tournament/v4/codes/:Tournament Code"
+
+
+// Update the pick type, map, spectator type, or allowed summoners for a code.// // TournamentCodeUpdateParameters:// | Name               	| Data Type   	| Description                                                                                                                                                                                                                                                                               	|// |--------------------	|-------------	|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|// | spectatorType      	| string      	| The spectator type (Legal values: NONE, LOBBYONLY, ALL)                                                                                                                                                                                                                                   	|// | pickType           	| string      	| The pick type (Legal values: BLIND_PICK, DRAFT_MODE, ALL_RANDOM, TOURNAMENT_DRAFT)                                                                                                                                                                                                        	|// | allowedSummonerIds 	| Set[string] 	| Optional list of encrypted summonerIds in order to validate the players eligible to join the lobby. NOTE: We currently do not enforce participants at the team level, but rather the aggregate of teamOne and teamTwo. We may add the ability to enforce at the team level in the future. 	|// | mapType            	| string      	| The map type (Legal values: SUMMONERS_RIFT, TWISTED_TREELINE, HOWLING_ABYSS)                                                                                                                                                                                                              	|
+@name("Update Tournament by Tournament Code")
+PUT "https://{{URL}}/lol/tournament/v4/codes/:Tournament Code"
+data('{
+  "allowedSummonerIds": {},
+  "mapType": "",
+  "pickType": "",
+  "spectatorType": ""
+}')
+
+
+// Gets a mock list of lobby events by tournament code.
+@name("Lobby Events by Tournament Code")
+GET "https://{{URL}}/lol/tournament/v4/lobby-events/by-code/:Tournament Code"
+
+
+// Creates a tournament provider and returns its ID.// // ProviderRegistrationParameters:// | Name   	| Data Type 	| Description                                                                                                                                                                                                                                                      	|// |--------	|-----------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|// | url    	| string    	| The provider's callback URL to which tournament game results in this region should be posted. The URL must be well-formed, use the http or https protocol, and use the default port for the protocol (http URLs must use port 80, https URLs must use port 443). 	|// | region 	| string    	| The region in which the provider will be running tournaments. (Legal values: BR, EUNE, EUW, JP, LAN, LAS, NA, OCE, PBE, RU, TR)                                                                                                                                  	|
+@name("Create Tournament Provider")
+POST "https://{{URL}}/lol/tournament/v4/providers"
+data('{
+  "region": "",
+  "url": ""
+}')
+
+
+// Creates a tournament and returns its ID.// // TournamentRegistrationParameters:// | Name       	| Data Type 	| Description                                                                                    	|// |------------	|-----------	|------------------------------------------------------------------------------------------------	|// | providerId 	| int       	| The provider ID to specify the regional registered provider data to associate this tournament. 	|// | name       	| string    	| The optional name of the tournament.                                                           	|
+@name("Create Tournament")
+POST "https://{{URL}}/lol/tournament/v4/tournaments"
+data('{
+  "name": "",
+  "providerId": 0
+}')
+
+
+

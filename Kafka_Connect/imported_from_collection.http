@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+@name("Get connector plugins")
+GET "https://{{ENDPOINT}}/connector-plugins"
+
+
+@name("Get connectors")
+GET "https://{{ENDPOINT}}/connectors"
+
+
+// Create a debezium user with proper grant options first:// // ```// CREATE USER 'debezium'@'%' IDENTIFIED WITH mysql_native_password BY 'password';// GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'debezium'@'%';// ```
+@name("Create MySQL connector")
+POST "https://{{ENDPOINT}}/connectors"
+"Content-Type": "application/json"
+data('{
+	"name": "mysql",
+	"config": {
+    	"connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    	"database.hostname": "mysql",
+    	"database.port": "3306",
+    	"database.user": "debezium",
+    	"database.password": "password",
+    	"database.server.id": "42",
+    	"database.server.name": "playground",
+    	"database.whitelist": "playground",
+    	"database.history.kafka.bootstrap.servers": "kafka1:9092",
+    	"database.history.kafka.topic": "dbhistory.playground",
+    	"snapshot.mode": "when_needed",
+    	"include.schema.changes": "true"
+	}
+}')
+
+
+@name("Get MySQL connector status")
+GET "https://{{ENDPOINT}}/connectors/mysql/status"
+
+
+@name("Get MySQL connector config")
+GET "https://{{ENDPOINT}}/connectors/mysql/config"
+
+
+@name("Restart MySQL connector")
+POST "https://{{ENDPOINT}}/connectors/mysql/restart"
+"Content-Type": "application/json"
+
+
+@name("Pause MySQL connector")
+PUT "https://{{ENDPOINT}}/connectors/mysql/pause"
+"Content-Type": "application/json"
+
+
+@name("Resume MySQL connector")
+PUT "https://{{ENDPOINT}}/connectors/mysql/resume"
+"Content-Type": "application/json"
+
+
+@name("Delete MySQL connector")
+DELETE "https://{{ENDPOINT}}/connectors/mysql"
+"Content-Type": "application/json"
+
+
+

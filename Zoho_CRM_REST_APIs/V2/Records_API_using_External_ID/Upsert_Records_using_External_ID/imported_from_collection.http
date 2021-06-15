@@ -1,0 +1,47 @@
+#!/usr/bin/env dothttp
+
+// Let us consider an example of an upsert request in the Contacts module. When the external field's value is unique, and if the other duplicate fields are checked, the system inserts the contact.
+@name("Upserting a record when the external value is unique")
+POST "https://{{api-domain}}/crm/v2/Contacts/upsert"
+"X-EXTERNAL": "Contacts.External_Contact_ID"
+json({
+    "data": [
+        {
+            "Last_Name": "Boyle",
+            "External_Contact_ID": "Boyle1"
+        }
+    ]
+})
+
+
+// When you pass the external value in the request, and if that external value exists in the record of a module, the system updates that record with the other details in the input. Otherwise, the system inserts a records in that module.
+@name("Upserting a record through the external value")
+POST "https://{{api-domain}}/crm/v2/Contacts/upsert"
+"X-EXTERNAL": "Contacts.External_Contact_ID"
+json({
+    "data": [
+        {
+            "Last_Name": "Boyle P",
+            "External_Contact_ID": "Boyle1",
+            "Email": "p.boyle@abc.com"
+        }
+    ]
+})
+
+
+// In this example, a new external value is passed to the external field External_Contact_ID in the Contacts module. Now, the system checks for the system-defined duplicate check field "Email". If that email ID exists for a contact, the system updates that contact with the new value for the external field.
+@name("Upserting the external field using the system-defined duplicate check field")
+POST "https://{{api-domain}}/crm/v2/Contacts/upsert"
+"X-EXTERNAL": "Contacts.External_Contact_ID"
+json({
+    "data": [
+        {
+            "Last_Name": "Boyle P",
+            "External_Contact_ID": "Boyle123",
+            "Email": "p.boyle@abc.com"
+        }
+    ]
+})
+
+
+

@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+@name("List Azure AD devices")
+GET "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/"
+? "$filter"= "isof('microsoft.graph.windowsUpdates.azureADDevice')"
+
+
+@name("Get Azure AD device")
+GET "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/{{UpdatableAssetId}}"
+
+
+@name("Delete Azure AD device")
+DELETE "https://graph.microsoft.com/beta/admin/windows/updates/deployments/{{UpdatableAssetId}}"
+
+
+@name("Enroll in update management")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/enrollAssets"
+json({
+    "updateCategory": "{{EnrollmentUpdateCategory}}",
+    "assets": [
+        {
+            "@odata.type": "#microsoft.graph.windowsUpdates.azureADDevice",
+            "id": "{{AzureAdDeviceId}}"
+        }
+    ]
+})
+
+
+@name("Unenroll from update management")
+POST "https://graph.microsoft.com/beta/admin/windows/updates/updatableAssets/unenrollAssets"
+json({
+    "assets": [
+        {
+            "@odata.type": "#microsoft.graph.windowsUpdates.azureADDevice",
+            "id": "{{AzureAdDeviceId}}"
+        }
+    ]
+})
+
+
+

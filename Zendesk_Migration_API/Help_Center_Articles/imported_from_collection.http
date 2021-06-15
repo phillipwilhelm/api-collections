@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+@name("Side Load JSRSASign")
+GET "http://kjur.github.io/jsrsasign/jsrsasign-latest-all-min.js"
+
+
+// Here we just pass in the required information about the service account and scopes we want to touch. // Then sign the payload and send it over for an access token. // // //iss: email address of service account // //scope	A space-delimited list of the permissions that the application requests.// //aud	A descriptor of the intended target of the assertion. When making an access token request this value is always https://oauth2.googleapis.com/token.// //exp	The expiration time of the assertion, specified as seconds since 00:00:00 UTC, January 1, 1970. This value has a maximum of 1 hour after the issued time.// //iat	The time the assertion was issued, specified as seconds since 00:00:00 UTC, January 1, 1970.// // // https://developers.google.com/identity/protocols/OAuth2ServiceAccount#makingrequest// // https://gist.github.com/dinvlad/425a072c8d23c1895e9d345b67909af0
+@name("Google Get Token")
+POST "https://oauth2.googleapis.com/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    ],
+    "assertion": [
+        "{{jwt}} "
+    ]
+})
+
+
+// Loops through all the paginated Zendesk Articles and adds them to an environment variable called 'values'// These 'values' make up the rows for the Google sheet.
+@name("Get All Zendesk Articles")
+GET "https://postman.zendesk.com/api/v2/help_center/en-us/articles.json"
+? "per_page"= "100"
+? "page"= "{{page}}"
+
+
+// Now we can just pass in the token as if we got it from a consent screen in the Auth tab! // // Happy hacking!
+@name("Update Sheet Copy")
+POST "https://sheets.googleapis.com/v4/spreadsheets/{{sheetId}}/values/{{range}}:append"
+"Authorization": "Bearer {{accessToken}}"
+"Content-Type": "text/plain"
+? "valueInputOption"= "USER_ENTERED"
+? "insertDataOption"= "INSERT_ROWS"
+data('{{values}}')
+
+
+

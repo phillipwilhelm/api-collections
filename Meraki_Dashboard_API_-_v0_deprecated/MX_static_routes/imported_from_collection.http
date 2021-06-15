@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// List the static routes for an MX or teleworker network
+@name("getNetworkStaticRoutes")
+GET "https://{{baseUrl}}/networks/:networkId/staticRoutes"
+"Accept": "*/*"
+
+
+
+// Add a static route for an MX or teleworker network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the new static route// subnet| string| The subnet of the static route// gatewayIp| string| The gateway IP (next hop) of the static route
+@name("createNetworkStaticRoute")
+POST "https://{{baseUrl}}/networks/:networkId/staticRoutes"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My route",
+  "subnet": "192.168.1.0/24",
+  "gatewayIp": "1.2.3.5"
+}')
+
+
+// Return a static route for an MX or teleworker network
+@name("getNetworkStaticRoute")
+GET "https://{{baseUrl}}/networks/:networkId/staticRoutes/:staticRouteId"
+"Accept": "*/*"
+
+
+
+// Update a static route for an MX or teleworker network//  #### Body Parameters // **Parameter**|**Type**|**Description** //  :-------------: |:-------------: |:-------------: // name| string| The name of the static route// subnet| string| The subnet of the static route// gatewayIp| string| The gateway IP (next hop) of the static route// enabled| boolean| The enabled state of the static route// fixedIpAssignments| object| The DHCP fixed IP assignments on the static route. This should be an object that contains mappings from MAC addresses to objects that themselves each contain "ip" and "name" string fields. See the sample request/response for more details.// reservedIpRanges| array| The DHCP reserved IP ranges on the static route
+@name("updateNetworkStaticRoute")
+PUT "https://{{baseUrl}}/networks/:networkId/staticRoutes/:staticRouteId"
+"Accept": "*/*"
+"Content-Type": "application/json"
+data('{
+  "name": "My route",
+  "subnet": "192.168.1.0/24",
+  "fixedIpAssignments": {
+    "22:33:44:55:66:77": {
+      "ip": "1.2.3.4",
+      "name": "Some client name"
+    }
+  },
+  "reservedIpRanges": [
+    {
+      "start": "192.168.1.0",
+      "end": "192.168.1.1",
+      "comment": "A reserved IP range"
+    }
+  ]
+}')
+
+
+// Delete a static route from an MX or teleworker network
+@name("deleteNetworkStaticRoute")
+DELETE "https://{{baseUrl}}/networks/:networkId/staticRoutes/:staticRouteId"
+"Accept": "*/*"
+
+
+
+

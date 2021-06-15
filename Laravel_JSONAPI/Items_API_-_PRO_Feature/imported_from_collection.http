@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+@name("List Items")
+GET "https://{{api_url}}/items"
+"Accept": "application/vnd.api+json"
+? "page[number]"= "1"
+? "page[size]"= "50"
+? "filter[name]"= "item_name"
+? "filter[category]"= "some_category"
+? "filter[tags]"= "some_tag"
+? "filter[status]"= "published"
+? "filter[is_on_homepage]"= "1"
+? "filter[date_at][]"= "2020-01-01 00:00:00"
+? "filter[date_at][]"= "2020-12-31 00:00:00"
+? "filter[created_at][]"= "2020-01-01 00:00:00"
+? "filter[created_at][]"= "2020-12-31 00:00:00"
+? "include"= "category,tags"
+? "sort"= "name,category.name,tags.name,created_at"
+? "fields[item]"= "name,excerpt,description,status,image,is_on_homepage,date_at"
+? "fields[user]"= "name,email,profile_image"
+? "fields[tags]"= "name"
+? "fields[category]"= "name"
+
+
+@name("Create Item")
+POST "https://{{api_url}}/items"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+data('{
+    "data": {
+        "type": "items",
+        "attributes": {
+            "name": "item name",
+            "excerpt": "item description excerpt",
+            "description": "item description",
+            "status": "published",
+            "image": "https://laravel-json-api-v2.test/uploads/items/1/image/cBFGnmZT81FK4DVJcnwOShhXm9ETMaBRWkzdBmkd.jpeg",
+            "is_on_homepage": true,
+            "date_at": "2020-04-16 00:00:00"
+        },
+        "relationships": {
+            "category": {
+                "data": {
+                    "type": "categories",
+                    "id": "1"
+                }
+            },
+            "user": {
+                "data": {
+                    "type": "users",
+                    "id": "1"
+                }
+            },
+            "tags": {
+                "data": [
+                    {
+                        "type": "tags",
+                        "id": "1"
+                    }
+                ]
+            }
+        }
+    }
+}')
+
+
+@name("Show Item")
+GET "https://{{api_url}}/items/1"
+"Accept": "application/vnd.api+json"
+? "include"= "user,user.roles,category,tags"
+
+
+@name("Update Item")
+PATCH "https://{{api_url}}/items/13"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+data('{
+    "data": {
+        "type": "items",
+        "id": "1",
+        "attributes": {
+            "name": "new_item_name"
+        }
+    }
+}')
+
+
+@name("Delete Item")
+DELETE "https://{{api_url}}/items/1"
+"Accept": "application/vnd.api+json"
+
+
+@name("Upload Item Image")
+POST "https://{{api_url}}/uploads/items/1/image"
+"Accept": "application/vnd.api+json"
+"Content-Type": "application/vnd.api+json"
+files(
+	("attachment", "None")
+)
+
+
+
