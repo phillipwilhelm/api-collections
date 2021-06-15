@@ -1,0 +1,72 @@
+#!/usr/bin/env dothttp
+
+// The response contains the following information:
+// 
+// * `count` Number of objects on this page
+// 
+// * `page` Page identifier
+// 
+// * `next_page` The value to provide in the request’s `page` query parameter for the next page. This will be `null` if there are no more pages.
+// 
+// * `objects` List of calendar objects
+
+@name("List all calendars")
+GET "https://{{base-url}}/accounts/me/cal/calendars"
+
+
+// Retrieves information about a calendar.
+
+@name("Retrieve a calendar")
+GET "https://{{base-url}}/accounts/me/cal/calendars/$CALENDAR_ID"
+
+
+// To create an calendar, perform a POST request with a JSON object of the following parameters:
+// 
+// * `name`: Name of the calendar
+// 
+// * `description`: Description of the calendar
+// 
+// * `location`: Geographic location of the calendar
+// 
+// * `timezone`: Timezone of the calendar (not supported in `outlook_calendar`)
+
+@name("Create a calendar")
+POST "https://{{base-url}}/accounts/me/cal/calendars"
+"Content-Type": "application/json"
+data('{
+    "name": "Example",
+    "description": "An example of calendar creation",
+    "location": "Anytown, USA",
+    "timezone": "US/Pacific"
+}')
+
+
+// To update a calendar, create a JSON object with any of the following properties:
+// 
+// * name
+// 
+// * description
+// 
+// * location
+// 
+// * timezone (not supported in `outlook_calendar`)
+// 
+// The new object will be returned on success.
+
+@name("Update a calendar")
+PATCH "https://{{base-url}}/accounts/me/cal/calendars/$CALENDAR_ID"
+"Content-Type": "application/json"
+data('{
+	"name": "Update the name",
+	"description: "Update the description",
+	"timezone": "time update"
+}')
+
+
+// Delete a calendar.
+
+@name("Delete a calendar")
+DELETE "https://{{base-url}}/accounts/me/cal/calendars/$CALENDAR_ID"
+
+
+

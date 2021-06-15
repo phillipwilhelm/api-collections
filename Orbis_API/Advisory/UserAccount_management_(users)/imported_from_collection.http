@@ -1,0 +1,222 @@
+#!/usr/bin/env dothttp
+
+// List all active individual users:
+// 
+// ```javascript
+// [
+// 	{
+//     "userId": 1234,
+//     "username": "TRCLIENT4",
+//     "allowOco": false,
+//     "allowLimit": true,
+//     "allowGtm": false,
+//     "language": "en",
+//     "branch": 10000,
+//     "allowSpreads": false,
+//     "professional": false,
+//     "inetTrading": true,
+//     "domestic": false,
+//     "shariaSafetyEnabled": false,
+//     "allowMoo": false,
+//     "allAgreementsSigned": false,
+//     "locked": false,
+//     "allowGtc": false,
+//     "allowGtd": false,
+//     "allowOptionRolling": false,
+//     "allowTrailingStop": false,
+//     "optionTrading": false,
+//     "allowLoc": false,
+//     "exchanges": [
+//       "0F",
+//       "0E",
+//       "0D",
+//       "0Bi",
+//       "0Bk",
+//       "0At",
+//       "0Aw",
+//       "0Au",
+//       "14m",
+//       "15v",
+//       "0Aq",
+//       "0As",
+//       "TORONTO",
+//       "VENTURE",
+//       "GB"
+//     ],
+//     "allowFok": false,
+//     "allowNotHeld": false,
+//     "allowSalesCredit": false,
+//     "userType": "CLIENT",
+//     "status": "A",
+//     "allowBuywrites": false,
+//     "droidEnabled": false,
+//     "allowStop": true,
+//     "quoteType": "BATS",
+//     "createdOn": "06/15/2018 16:00:33 EDT",
+//     "homeMarket": "U",
+//     "allowLoo": false,
+//     "allowTso": false,
+//     "email": "",
+//     "allowIoc": false,
+//     "loggedInOn": "10/01/2018 10:56:40 EDT",
+//     "allowAon": true,
+//     "branchName": "",
+//     "allowMoc": false,
+//     "allowSubRoutes": false,
+//     "allowAlgos": false,
+//     "allowFee3": false,
+//     "allowFee1": false,
+//     "allowFee2": false,
+//     "accountList": [],
+//     "allowIronCondor": false,
+//     "currencyCode": "USD",
+//     "allowMarket": true
+//   }
+// ]
+// ```
+
+@name("/list")
+GET "https://{{url}}/api/v2/advisory/users/list"
+
+
+// Returns list of accounts belonging to given user with optional realtime balance:
+// 
+// ```javascript
+// [{
+//   account: {
+//     "omnibusId": 0,
+//     "repCode": "DA00",
+//     "country": "USA",
+//     "lastName": "Gogol",
+//     "city": "",
+//     "phone2": "",
+//     "smaMultiplier": 1,
+//     "liquidationOnly": false,
+//     "identifierType": "ACCOUNT",
+//     "mpid": "VTDT",
+//     "createdOn": "06/15/2018 16:00:58 EDT",
+//     "moneyDvp": 0,
+//     "intermediary": false,
+//     "phone1": "",
+//     "accountClassification": "CASH",
+//     "allowNakedCalls": true,
+//     "maxDvp": 0,
+//     "destinationOverrideEnabled": false,
+//     "shortMarginReq": 1.5,
+//     "belongsToOmnibus": false,
+//     "street1": "",
+//     "state": "",
+//     "id": 92932,
+//     "street2": "",
+//     "preferred": false,
+//     "skipOptionsRisk": false,
+//     "optionLevel": 0,
+//     "valueDvp": 0,
+//     "zip": "",
+//     "bpConfig": 1,
+//     "address": "",
+//     "allowNakedPuts": true,
+//     "accountType": 1,
+//     "fullName": "General Gogol",
+//     "updatedOn": "09/28/2018 11:17:04 EDT",
+//     "accountNumber": "TRCLIENT4",
+//     "accountId": 1,
+//     "firstName": "General",
+//     "identifierBreakdown": "DEFAULT",
+//     "skipEquitiesRisk": false,
+//     "middleName": "",
+//     "status": "A"
+//   },
+//   rtb: {
+//     "accountId": 92646,
+//     "balance": 5000,
+//     "modelId": 92646
+//   }
+// }
+// ]
+// ```
+
+@name("/accounts")
+GET "https://{{url}}/api/v2/advisory/users/accounts"
+? "uid"= "1234"
+? "loadRtb"= "false"
+
+
+// Account type breakdown. Currently supporting: `CASH`, `MARGIN`, `DAY_TRADER`, `IRA_ROTH`, `IRA_SEP`, `IRA_TRADITIONAL`, `IRA_ROLLOVER_ACCOUNT`. Example:
+// 
+// ```javascript
+// {
+// 	IRA_TRADITIONAL: 1,
+// 	CASH: 4
+// }
+// ```
+
+@name("/accounts/stats")
+GET "https://{{url}}/api/v2/advisory/users/accounts/stats"
+
+
+// Notes for the account:
+// 
+// ```javascript
+// [
+// 	{noteId: 1234, content: 'This is a note', timestamp: '10/02/2018 14:41:13 EDT', author: {userId: 1234, username: 'AUTHOR'}}
+// ]
+// ```
+
+@name("/account/notes")
+GET "https://{{url}}/api/v2/advisory/users/account/notes"
+? "aid"= "1234"
+
+
+// Notes for the user:
+// 
+// ```javascript
+// [
+// 	{noteId: 1234, content: 'This is a note', timestamp: '10/02/2018 14:41:13 EDT', author: {userId: 1234, username: 'AUTHOR'}}
+// ]
+// ```
+
+@name("/notes")
+GET "https://{{url}}/api/v2/advisory/users/notes"
+? "uid"= "1234"
+
+
+// `action` is one of: `add`, `modify`, `delete`
+// 
+// Returns new/updated/deleted note. Delete note's ID will be zero.
+// 
+// ```javascript
+// [
+// 	{noteId: 1234, content: 'This is a note', timestamp: '10/02/2018 14:41:13 EDT', author: {userId: 1234, username: 'AUTHOR'}}
+// ]
+// ```
+
+@name("/notes/{action}")
+POST "https://{{url}}/api/v2/advisory/users/notes/{action}"
+"Content-Type": "application/json"
+data("{
+	userId: 1234,
+	content: 'Note content'
+}")
+
+
+// `action` is one of: `add`, `modify`, `delete`
+// 
+// Returns new/updated/deleted note. Delete note's ID will be zero.
+// 
+// ```javascript
+// [
+// 	{noteId: 1234, content: 'This is a note', timestamp: '10/02/2018 14:41:13 EDT', author: {userId: 1234, username: 'AUTHOR'}}
+// ]
+// ```
+
+@name("/account/notes/{action}")
+POST "https://{{url}}/api/v2/advisory/users/notes/{action}"
+"Content-Type": "application/json"
+data("{
+	accountId: 1234,
+	content: 'Note content'
+}")
+
+
+

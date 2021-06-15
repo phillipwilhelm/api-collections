@@ -1,0 +1,661 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/identityProviders` endpoint returns a list of all identity provider resources for the specified environment resource.
+
+@name("READ All Identity Providers")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single identity provider resource, the `GET /environments/{environmentId}/identityProviders/{providerId}` operation returns data only for the identity provider resource with the specified ID.
+
+@name("READ One Identity Provider")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{providerID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// If Facebook is specified as the the external identity provider, a subset of Facebook provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<Facebook attribute name>}`
+// 
+// When you create a new Facebook identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the Facebook `email` attribute. The `username` attribute is the core mapping attribute; the default Facebook attribute value is `email`. It is also recommended that you map the PingOne `email` attribute to the Facebook `email` attribute. 
+// 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the Facebook `email` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.email}"
+// }
+// 
+// ```
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// 
+// When the `type` property value is set to `FACEBOOK`, Facebook's `appId` and `appSecret` property values are required in the request body.
+// 
+// #### Facebook identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`appId` | A string that specifies the application ID from Facebook. This is a required property.|
+// |`appSecret` | A string that specifies the application secret from Facebook. This is a required property.|
+// 
+// 
+// #### Facebook core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`username` | A string that specifies the core Facebook attribute. The default value is `${providerAttributes.email}` and the default update value is `EMPTY_ONLY`.|
+// 
+// #### Facebook provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`<default>` | Options are: `id`, `first_name`, `last_name`, `middle_name`, `name`, `name_format`, and `email`.|
+// |`USER_AGE_RANGE` | Options are: `age_range`.|
+// |`USER_BIRTHDAY` | Options are: `birthday`.|
+// |`USER_GENDER` | Options are: `gender`.|
+// 
+
+@name("CREATE Identity Provider (Facebook)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Custom Facebook ID Provider",
+    "enabled": true,
+    "name": "FacebookIdP6",
+    "type": "FACEBOOK",
+    "appId": "FBID",
+    "appSecret": "FBSecret"
+}')
+
+
+// If Google is specified as the the external identity provider, a subset of Google provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<Google attribute name>}`
+// 
+// When you create a new Google identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the Google `emailAddress.value` attribute. The `username` attribute is the core mapping attribute; the default Google attribute value is `emailAddress.value`. It is also recommended that you map the PingOne `email` attribute to the Google `emailAddress.value` attribute. 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the Google `emailAddress.value` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.emailAddress.value}"
+// }
+// 
+// ```
+// 
+// 
+// ::: info
+// **Note:** Before you can use Google as an external identity provider, you must register your application with Google and activate the People API in the Google API Console. For additional information, see the following topic in the Google API documentation: [Get Ready to Use the People API](https://developers.google.com/people/v1/getting-started). To get started, follow the instructions provided in the Google API Console: [Google API Console](https://console.developers.google.com/flows/enableapi?apiid=people.googleapis.com&credential=client_key).
+// :::
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// When the `type` property value is set to `GOOGLE`, Google's `clientId` and `clientSecret` property values are required in the request body.
+// 
+// #### Google identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`clientId` | A string that specifies the application ID from Google. This is a required property.|
+// |`clientSecret` | A string that specifies the application secret from Google. This is a required property.|
+// 
+// 
+// #### Google core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`username` | A string that specifies the core Google attribute. The default value is `${providerAttributes.emailAddress.value}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### Google provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`profile, email` | Options are: `resourceName`, `etag`, `emailAddress.value`, `name.displayName`, `name.familyName`, `name.givenName`, `name.middleName`, `nickname.value`, `nickname.type`, `gender.value`, and `gender.formattedValue`.|
+// |`https://www.googleapis.com/auth/profile.agerange.read` | Options are: `ageRange.ageRange`.|
+// |`https://www.googleapis.com/auth/profile.language.read` | Options are: `locale.value`.|
+// |`https://www.googleapis.com/auth/user.birthday.read` | Options are: `birthday.date.month`, `birthday.date.day`, `birthday.date.year`, and `birthday.text`.|
+// |`https://www.googleapis.com/auth/user.phonenumbers.read` | Options are: `phoneNumber.value`.|
+// 
+// 
+// 
+
+@name("CREATE Identity Provider (Google)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Custom Google ID Provider",
+    "enabled": true,
+    "name": "GoogleIdP1",
+    "type": "GOOGLE",
+    "clientId": "GoogleID",
+    "clientSecret": "GoogleSecret"
+}')
+
+
+// If LinkedIn is specified as the the external identity provider, a subset of LinkedIn provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<LinkedIn attribute name>}`
+// 
+// When you create a new LinkedIn identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the LinkedIn `emailAddress` attribute. The `username` attribute is the core mapping attribute; the default LinkedIn attribute value is `emailAddress`. It is also recommended that you map the PingOne `email` attribute to the LinkedIn `emailAddress` attribute. 
+// 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the LinkedIn `emailAddress` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.emailAddress}"
+// }
+// 
+// ```
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// When the `type` property value is set to `LINKEDIN`, LinkedIn's `clientId` and `clientSecret` property values are required in the request body.
+// 
+// 
+// #### LinkedIn identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`clientId` | A string that specifies the application ID from LinkedIn. This is a required property.|
+// |`clientSecret` | A string that specifies the application secret from LinkedIn. This is a required property.|
+// 
+// 
+// #### LinkedIn core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`username` | A string that specifies the core LinkedIn attribute. The default value is `${providerAttributes.emailAddress}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### LinkedIn provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`r_liteprofile` | Options are: `id`, `firstName`, `lastName`.|
+// |`r_emailaddress` | Options are: `emailAddress`.|
+// 
+// 
+
+@name("CREATE Identity Provider (LinkedIn)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Custom LinkedIn ID Provider",
+    "enabled": true,
+    "name": "LinkedInIdP",
+    "type": "LINKEDIN",
+    "clientId": "LINKEDIN_ID",
+    "clientSecret": "LINKEDIN_SECRET"
+}')
+
+
+// If OpenID Connect is specified as the the external identity provider, the OpenID Connect `sub` attribute can be used as the provider mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<OpenID Connect attribute name>}`
+// 
+// When you create a new OpenID Connect identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the OpenID Connect `sub` attribute. For more information, see the OpenID Connect core mapping attribute. 
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// 
+// When the `type` property value is set to `OPENID_CONNECT`, the OpenID Connect application's `clientId` and `clientSecret` property values are required in the request body. Other required properties are: `name`, `type`, `authorizationEndpoint`, `jwksEndpoint`, `tokenEndpoint`, `issuer`, `scopes`, and `tokenEndpointAuthMethod`.
+// 
+// #### OpenID Connect identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`authorizationEndpoint` | A string that specifies the the OIDC identity provider's authorization endpoint. This value must be a URL that uses `https`. This is a required property.|
+// |`clientId` | A string that specifies the application ID from the OIDC identity provider. This is a required property.|
+// |`clientSecret` | A string that specifies the application secret from the OIDC identity provider. This is a required property.|
+// |`discoveryEndpoint` | A string that specifies the OIDC identity provider's discovery endpoint. This value must be a URL that uses `https`.|
+// |`issuer` | A string that specifies the issuer to which the authentication is sent for the OIDC identity provider. This value must be a URL that uses `https`. This is a required property.|
+// |`jwksEndpoint` | A string that specifies the OIDC identity provider's jwks endpoint. This value must be a URL that uses `https`. This is a required property.|
+// |`scopes` | An array that specifies the scopes to include in the authentication request to the OIDC identity provider. This is a required property.|
+// |`tokenEndpoint` | A string that specifies the OIDC identity provider's token endpoint. This is a required property.|
+// |`tokenEndpointAuthMethod` | A string that specifies the OIDC identity provider's token endpoint authentication method.  Options are `CLIENT_SECRET_BASIC` (default), `CLIENT_SECRET_POST`, and `NONE`. This is a required property.|
+// |`userInfoEndpoint` | A string that specifies the OIDC identity provider's userInfo endpoint.   |
+// 
+// 
+// #### OpenID Connect core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`username` | A string that specifies the core OpenID Connect attribute. The default value is `${providerAttributes.sub}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### OpenID Connect provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`openid` | `sub`|
+// 
+// 
+// ::: info
+// **Note:** Clients can specify any attribute that the identity provider returns in an ID token (for example, `iss`, `aud`, `exp`). For more information, see  [OpenID Connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+// :::
+// 
+
+@name("CREATE Identity Provider (OpenID Connect)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Custom OpenID Connect Provider",
+    "enabled": true,
+    "name": "OpenIDConnectIdP",
+    "type": "OPENID_CONNECT",
+    "clientId": "OPENID_CONNECT_ID",
+    "clientSecret": "OPENID_CONNECT_SECRET",
+    "authorizationEndpoint": "https://OPENID_CONNECT_AUTH_ENDPOINT",
+    "tokenEndpoint": "https://OPENID_CONNECT_TOKEN_ENDPOINT",
+    "userInfoEndpoint": "https://OPENID_CONNECT_USER_INFO_ENDPOINT",
+    "jwksEndpoint": "https://OPENID_CONNECT_JWKS_ENDPOINT",
+    "issuer": "https://OPENID_CONNECT_ISSUER",
+    "scopes": ["openid", "CUSTOM_SCOPE"],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "discoveryEndpoint": "https://OPENID_CONNECT_DISCOVERY_ENDPOINT"
+}')
+
+
+// If Amazon is specified as the the external identity provider, a subset of Amazon provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<Amazon attribute name>}`
+// 
+// When you create a new Amazon identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the Amazon `user_id` attribute. The `username` attribute is the core mapping attribute; the default Amazon attribute value is `user_id`. It is also recommended that you map the PingOne `email` attribute to the Amazon `email` attribute. 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the Amazon `email` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.email}"
+// }
+// 
+// ```
+// 
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// When the `type` property value is set to `AMAZON`, Amazon's `clientId` and `clientSecret` property values are required in the request body.
+// 
+// #### Amazon identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`clientId` | A string that specifies the application ID from Amazon. This is a required property.|
+// |`clientSecret` | A string that specifies the application secret from Amazon. This is a required property.|
+// 
+// 
+// #### Amazon core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`user_id` | A string that specifies the core Amazon attribute. The default value is `${providerAttributes.user_id}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### Amazon provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`profile` | Options are: `user_id`, `email`, `name` |
+// |`postal_code` | Options are: `postal_code`|
+// 
+// 
+// :::info
+// **Note:** To retrieve a user's `postal_code` attribute value from Amazon, the user must have a valid primary shipping address associated with the Amazon account. 
+// :::
+
+@name("CREATE Identity Provider (Amazon)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Amazon Provider",
+    "enabled": true,
+    "name": "AmazonIdP",
+    "type": "AMAZON",
+    "clientId": "AMAZON_ID",
+    "clientSecret": "AMAZON_SECRET"
+}')
+
+
+// If Twitter is specified as the the external identity provider, a subset of Twitter provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<Twitter attribute name>}`
+// 
+// When you create a new Twitter identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the Twitter `id` attribute. The `username` attribute is the core mapping attribute; the default Twitter attribute value is `id`. It is also recommended that you map the PingOne `email` attribute to the Twitter `email` attribute. 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the Twitter `email` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.email}"
+// }
+// 
+// ```
+// 
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// When the `type` property value is set to `TWITTER`, Twitter's `clientId` and `clientSecret` property values are required in the request body.
+// 
+// #### Twitter identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`clientId` | A string that specifies the application ID from Twitter. This is a required property.|
+// |`clientSecret` | A string that specifies the application secret from Twitter. This is a required property.|
+// 
+// 
+// #### Twitter core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`id` | A string that specifies the core Twitter attribute. The default value is `${providerAttributes.id}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### Twitter provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`{no defined permission}` | Options are: `id`, `email`, `name`, `screen_name`, `created_at`, `statuses_count`, `favourites_count`, `friends_count`, `followers_count`, `verified`, `protected`, `description`, `url`, `location`, `profile_image_url_https` |
+// 
+// 
+// 
+// :::info
+// **Note:** To retrieve a user's `email` attribute value from Twitter, a Twitter application must enable the **Request email addresses from users** permission available under **App permissions** on [developer.twitter.com](https://developer.twitter.com/en/docs/basics/apps/guides/app-permissions). For more information about Twitter configuation requirements, see [Add an identity provider - Twitter](https://docs.pingidentity.com/bundle/p14c/page/ipy1591044210259.html) in the PingOne for Customers admin console.  
+// :::
+// 
+
+@name("CREATE Identity Provider (Twitter)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Twitter Provider",
+    "enabled": true,
+    "name": "TwitterIdP",
+    "type": "TWITTER",
+    "clientId": "TWITTER_IDP",
+    "clientSecret": "TWITTER_SECRET"
+}')
+
+
+// If Apple is specified as the the external identity provider, a subset of Apple provider attributes can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<Apple attribute name>}`
+// 
+// When you create a new Apple identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the Apple `sub` attribute. The `username` attribute is the core mapping attribute; the default Apple attribute value is `sub`. It is also recommended that you map the PingOne `email` attribute to the Apple `email` attribute. 
+// 
+// 
+// The request body for the email-to-email mapping looks like this, with the `value` attribute showing the Apple `email` attribute expressed using the placeholder syntax:
+// 
+// ```
+// {
+//     "name": "email",
+//     "update": "EMPTY_ONLY",
+//     "value": "${providerAttributes.email}"
+// }
+// 
+// ```
+// 
+// 
+// The `POST /environments/{environmentId}/identityProviders` operation adds a new identity provider resource to the specified environment.
+// 
+// ::: info
+// This request supports the `?expand=attributes` query filter to show the details for the core attribute mapping created by the request.
+// :::
+// 
+// When the `type` property value is set to `APPLE`, Apple's `clientId` and `clientSecret` property values are required in the request body. The request also requires a `clientSecretSigningKey`, which is a PKCS #8 private key in the PEM base64-encoded format obtained from your Apple client developer account. It is used to generate a client secret. The `teamId`, which is a ten-character Team ID value obtained from your Apple client developer account, and a `keyId`, which is a ten-character Key ID obtained from your Apple client developer account.
+// 
+// #### Apple identity provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`clientId` | A string that specifies the application ID from Apple. This is the identifier obtained after registering a services ID in the Apple developer portal. This is a required property.|
+// |`clientSecretSigningKey` | A string that specifies the  private key that is used to generate a client secret. This is a required property.|
+// |`keyId` | A 10-character string that Apple uses to identify an authentication key. This is a required property.|
+// |`teamId` | A 10-character string that Apple uses to identify teams. This is a required property.|
+// 
+// 
+// 
+// #### Apple core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`sub` | A string that specifies the core Apple attribute. The default value is `${providerAttributes.sub}` and the default update value is `EMPTY_ONLY`.|
+// 
+// 
+// #### Apple provider attributes
+// 
+// |Permission | Provider attributes|
+// |---------|------------|
+// |`name` | Options are: `sub`, `iss`, `iat`, `expt`, `aud`, `nonce`, `nonce_supported`|
+// |`email` | Options are: `email`, `email_verified`|
+// 
+// 
+// 
+// 
+
+@name("CREATE Identity Provider (Apple)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "Apple Provider",
+    "enabled": true,
+    "name": "AppleIdP",
+    "type": "APPLE",
+    "clientId": "APPLE_IDP",
+    "clientSecret": "APPLE_SECRET",
+    "clientSecretSigningKey": "-----BEGIN PRIVATE KEY-----\nMIGTAgEAMB....\n-----END PRIVATE KEY-----",
+    "teamId": "{{teamId}}",
+    "keyId": "{{keyID}}"
+}')
+
+
+// If SAML is specified as the the external identity provider, any SAML attribute defined in the assertion can be used as the mapping attribute placeholder value.
+// 
+// The placeholder value must use the following syntax:
+// 
+// `${providerAttributes.<SAML attribute name>}`
+// 
+// When you create a new SAML identity provider entity, the `POST` request automatically maps the PingOne `username` attribute to the SAML `samlAssertion.subject` attribute. The `username` attribute is the core mapping attribute; the default SAML attribute value is `${samlAssertion.subject}`, which is a special reserved placeholder to refer to the subject name ID in the SAML assertion response.
+// 
+// SAML attributes can be mapped to any searchable PingOne user attribute, such as `username`, `name.family`, `name.given`, `email`, `phone`, `externalId`, or `population.id`.
+// 
+// The following sample shows the request body to map the PingOne `externalId` attribute to an `externalId` attribute defined in the SAML assertion.
+// 
+// ```
+// {
+// 	"name": "externalId",
+// 	"value": "${providerAttributes.samlAssertion.externalId}",
+// 	"update": "EMPTY_ONLY"
+// }
+// 
+// ```
+// 
+// 
+// The sample shows the request with the `type` property set to `SAML`. In addition, this sample uses an `expand` filter in the request URL to show SAML attribute details.
+// 
+// 
+// **Note:** The `_embedded` attribute in the response lists the SAML attribute mapping resources associated with the new identity provider resource. This particular identity provider has only the default mapping, in which the PingOne `username` attribute is mapped to the `${samlAssertion.subject}` SAML attribute.
+// 
+// 
+// #### SAML service provider settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`authnRequestSigned` | A boolean that specifies whether the SAML authentication request will be signed when sending to the identity provider. |
+// |`idpEntityId` | A string that specifies the entity ID URI that is checked against the `issuerId` tag in the incoming response.|
+// |`idpVerification.certificates[].id` | A array that specifies the identity provider's certificate IDs used to verify the signature on the signed assertion from the identity provider. Signing is done with a private key and verified with a public key.|
+// |`spEntityId` | A string that specifies the service provider's entity ID, used to look up the application.|
+// |`spSigning.key.id` | A string that specifies the service provider's signing key ID. If this property value is omitted, the default signing key for the environment is used.|
+// |`ssoBinding` | A string that specifies the binding for the authentication request. Options are `HTTP_POST` and `HTTP_REDIRECT`.|
+// |`ssoEndpoint` | A string that specifies the SSO endpoint for the authentication request.|
+// 
+// 
+// 
+// #### SAML core attributes
+// 
+// |Property | Description|
+// |---------|------------|
+// |`username` | A string that specifies the core SAML attribute. The default value is `${samlAssertion.subject}` and the default update value is `EMPTY_ONLY`.|
+// 
+
+@name("CREATE Identity Provider (SAML)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "SAMLIdP",
+  "description": "this is SAML IdP test",  
+  "type": "SAML",
+  "enabled": false,
+  "spEntityId": "sp-{$timestamp}",
+  "idpEntityId": "idp-{$timestamp}",
+  "ssoBinding": "HTTP_POST",
+  "ssoEndpoint": "https://idp.com/sso",
+  "authnRequestSigned": "false",
+  "idpVerification": {
+    "certificates": [
+      {
+        "id": "{certId}"
+      }
+    ]
+  },
+  "spSigning": {
+  	"key": {
+  		"id": "{spSigningId}"
+  	}
+  }
+}')
+
+
+// The OpenID Connect identity provider discovery endpoint takes an OIDC well-known endpoint URL in the request body and returns identity provider metadata. The `POST /environments/{{envID}}/identityProviders` operation uses the `application/vnd.pingidentity.openid-configuration.discover+json` custom media type as the content type in the request header.
+// 
+// 
+// #### Identity provider discovery settings data model
+// 
+// |Property | Description|
+// |---------|------------|
+// |`url` | A string that specifies the OpenID Connect (OIDC) well-known endpoint for the identity provider. |
+
+@name("READ OpenID Provider Metadata")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/vnd.pingidentity.openid-configuration.discover+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "url": "https://oidc_well_known_enpoint"
+}')
+
+
+// To update a property value associated with a selected identity provider resource, use the  `PUT /environments/{environmentId}/identityProviders/{providerId}` operation to modify the specified attribute values. For example, you can change the `description` attribute value of the identity provider.
+// 
+// ::: info
+// **Note:** For trademarked identity providers such as Facebook, Google, and LinkedIn, updates to the `loginButtonIcon.id` and `loginButtonIcon.href` properties are ignored to preserve the identity provider's branding rules.
+// :::
+// 
+
+@name("UPDATE Identity Provider")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{providerID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Custom ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "9765e2ec-f958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "FACEBOOK",
+    "appId": "FBID",
+    "appSecret": "FBSecret",
+    "#permissions": [
+        "USER_AGE_RANGE",
+        "USER_BIRTHDAY",
+        "USER_GENDER",
+        "EMAIL"
+    ]
+}')
+
+
+// To delete an identity provider resource, you need to specify the environment ID and the identity provider resource ID in the request URL. The `DELETE /environments/{environmentId}/identityProviders/{providerId}` operation deletes the identified identity provider resource.
+// 
+// 
+// For successful delete operations, a `204 NO CONTENT` message is returned by the request.
+// 
+
+@name("DELETE Identity Provider")
+DELETE "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{providerID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

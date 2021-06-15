@@ -1,0 +1,96 @@
+#!/usr/bin/env dothttp
+
+// Retrieves a list of JSON descriptions for all forms (videoasks) in your VideoAsk account. Forms are sorted by creation date in descending order.
+// 
+// Fields for pagination:
+// - `offset`: to indicate from which answer we want to start the page
+// - `limit`: to indicate the size of the page
+
+@name("Retrieve forms")
+GET "https://{{base_url}}/forms"
+"Authorization": "Bearer {{token}}"
+? "limit"= "0"
+? "offset"= "0"
+
+
+// Retrieves a form by the given `form_id`. Includes all its questions definitions for convenience.
+
+@name("Retrieve form")
+GET "https://{{base_url}}/forms/{{form_id}}"
+"Authorization": "Bearer {{token}}"
+
+
+@name("Create a form")
+POST "https://{{base_url}}/forms"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "My VideoAsk",
+    "show_contact_name": false,
+    "show_contact_email": false,
+    "show_contact_phone_number": false,
+    "show_consent": false,
+    "requires_contact_name": false,
+    "requires_contact_email": false,
+    "requires_contact_phone_number": false,
+    "requires_consent": false
+}')
+
+
+@name("Update a form")
+PATCH "https://{{base_url}}/forms/{{form_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+    "title": "My new title",
+    "are_answers_public": false,
+    "are_messages_public": false
+}')
+
+
+// The response will contain full weeks report within the interval dates if interval is `weekly`.
+// 
+// For reporting purposes, weeks will start on Mondays and end on Sundays. If the dates given as start or end doesn't correspond to the exact start or end of the week, the whole week containing that date will be included in the report (see example).
+
+@name("Get form metrics")
+GET "https://{{base_url}}/forms/{{form_id}}/metrics"
+"Authorization": "Bearer {token}"
+"Content-Type": "<string>"
+? "interval"= "weekly"
+? "since"= "2020-06-01"
+? "until"= "2020-08-31"
+? "platform"= "desktop"
+
+
+@name("Create a question")
+POST "https://{{base_url}}/questions"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+json({
+    "form_id": "{{form_id}}",
+    "media_type": "video",
+    "media_url": "https://media3.giphy.com/media/du50vJjfVwziQkzqCs/giphy.mp4",
+    "thumbnail_url": "https://media3.giphy.com/media/du50vJjfVwziQkzqCs/giphy-preview.gif",
+    "allowed_answer_media_types": [
+        "video",
+        "audio",
+        "text"
+    ]
+})
+
+
+// Retrieves a question by the given `question_id`.
+
+@name("Retrieve a question")
+GET "https://{{base_url}}/questions/{{question_id}}"
+"Authorization": "Bearer {{token}}"
+
+
+@name("Update a question")
+PATCH "https://{{base_url}}/questions/{{question_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+

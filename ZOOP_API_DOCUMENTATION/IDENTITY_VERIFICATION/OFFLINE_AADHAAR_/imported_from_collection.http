@@ -1,0 +1,197 @@
+#!/usr/bin/env dothttp
+
+// This API initialises Offline Aadhaar transaction for gateway
+// <br>
+// Once the transaction is initiated pass the above generated id to the web/android SDK to start the transaction. This will open the gateway window and rest of the transaction will be processed on the gateway till transaction is either successful or failed. 
+// 
+// <h4>RESULT TO RESPONSE_URL(PROVIDED IN INIT CALL)</h4>
+// 
+// ```
+// {  
+//    "id":"<<transaction id>>",
+//    "env":<<environment code>>,
+//    "mode":"<<mode>>",
+//    "transaction_status":5,
+//    "internal_status":null,
+//    "transaction_attempts":<<number of attempts>>,
+//    "public_ip":"<<user ip address>>",
+//    "request_medium":"<<what was origin of request web or mobile>>",
+//    "response_url":"<<response url of agency>>",
+//    "face_match":"<<Y or N>>",
+//    "face_match_resp":"<<Y,N or S (if face match got a response or not) S stands for skipped>>",
+//    "face_match_remark":"<<in case of face_match_resp = s , Reason why face match was skipped>>",
+//    "face_match_txn":"<<face match transaction id>>",
+//    "request_consent":"<<user consent Y or N>>",
+//    "request_timestamp":"2019-01-22 18:33:09:602 +05:30",
+//    "response_timestamp":"2019-01-22 18:33:09:626 +05:30",
+//    "transaction_data":{  
+//       "BasicInfo":{  
+//          "Name":"<<user name>>",
+//          "DOB":"<<DOB>>",
+//          "Gender":"<<gender>>"
+//       },
+//       "Image":"<<Base 64 of user image>>",
+//       "AadhaarInfo":"XXXXXXXX4302",
+//       "AddressEnglish":"<<user address>>",
+//       "EmailInfo":"<<Verified or Not Verified (XML mode only)>>",
+//       "PhoneInfo":"<<Verified or Not Verified (XML mode only)>>",
+//       "FaceMatchScore":"<<Facematch Score out of 100>>",
+//       "UserSelfie":"<<base 64 of user selfie image>>"
+//    }
+// }
+// ```
+// <br>
+
+@name("Verification (Gateway INIT)")
+POST "https://{{base_url}}/gateway/offline-aadhaar/init"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+	"response_url" : "<<response url>>",
+	"purpose" : "<<Purpose of transaction>>",
+	"face_match" : "<<Y or N>>"
+}')
+
+
+// If you prefer to use have a API based solution instead of gateway based solution you can call this API directly.
+// 
+// In case of zip file you need to pass base64 of zip file.
+// 
+// <h4>OUTPUT for XML Mode</h4>
+// 
+// ```
+// {
+//     "id": "5c5ad7e4-0348-4ef7-a039-cb939867a062",
+//     "env": 1,
+//     "mode": "xml",
+//     "transaction_status": 5,
+//     "internal_status": null,
+//     "public_ip": "116.75.212.42",
+//     "request_consent": "Y",
+//     "purpose": "Testing API mode",
+//     "request_timestamp": "2020-09-29 14:10:47:430 +05:30",
+//     "response_timestamp": "2020-09-29 14:10:47:510 +05:30",
+//     "face_match_type": null,
+//     "result": {
+//         ""BasicInfo":{  
+//          "Name":"Sunila XXXX",
+//          "DOB":"03-10-XXXX",
+//          "Gender":"F"
+//       },
+//        "FileCreatedAt": "2020-07-09T14:00:14.505Z",
+//         
+//       "Image":"Base 64 of image found”, 
+// "      AadhaarInfo":"xxxxxxxx9029",
+//       "AddressEnglish":"address"
+//         "DetailedAddress": {
+//             "house": "",
+//             "street": "",
+//             "locality": "",
+//             "postoffice": "",
+//             "district": "",
+//             "state": "",
+//             "postalcode": ""
+//         },
+//         "EmailInfo": "Verified",
+//         "PhoneInfo": "Verified",
+//         "Xml": "xml file"
+//     }
+// }
+// ```
+// Note: EmailInfo and PhoneInfo will only verified when mode is xml.
+// 
+// <h4>OUTPUT for PDF Mode</h4>
+// 
+// ```
+// {  
+//    "id":"8aefba88-07fd-441a-9587-62b0fac9a668",
+//    "env":1,
+//    "mode":"pdf",
+//    "transaction_status":5,
+//    "internal_status":null,
+//    "public_ip":"103.3.40.138",
+//    "request_consent":"Y",
+//    "request_timestamp":"2019-03-06 11:21:24:549 +05:30",
+//    "response_timestamp":"2019-03-06 11:21:27:265 +05:30",
+//    "result":{  
+//       "SignatureData":{  
+//          "documentCoverage":true,
+//          "integrityCheck":true,
+//          "signerLocation":null,
+//          "signerName":"DS UNIQUE IDENTIFICATION AUTHORITY OF INDIA 03",
+//          "signingDate":"Wed Jan 09 16:12:17 IST 2019",
+//          "signingReason":null,
+//          "error":false,
+//          "errorMessage":null,
+//          "revision":1
+//       },
+//       "BasicInfo":{  
+//          "Name":"Sunila XXXX",
+//          "DOB":"03-10-XXXX",
+//          "Gender":"F"
+//       },
+//        "DownloadDate": "DD/MM/YYYY",
+//         "MobileNumber": "XXXXXXXXXX",
+//       "Image":"Base 64 of image found”, 
+// "      AadhaarInfo":"xxxxxxxx9029",
+//       "AddressEnglish":"address"
+// 
+//    }
+// }
+// 
+// ```
+
+@name("Extract Aadhaar Data")
+POST "https://{{base_url}}/extract-aadhaar-data"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+	"mode": "<<pdf or xml>>",
+	"file" : "<<base64 string of the pdf or zip file>>",
+	"password": "<<password of file>>",
+	"purpose": "<<purpose of the transaction>>",
+	"mobile":"<<mobile_number for xml>>",
+	"email": "<<email_address for xml>>",
+	"request_consent" : "Y",
+	"get_detailed_address" : "Y<<For xml>>"
+}')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<<transaction ID>>",
+//     "env": 1,
+//     "mode": <<pdf or xml>>,
+//     "transaction_status": <<transaction status>>,
+//     "internal_status": <<Internal code in case of failure>>,
+//     "transaction_attempts": <<number of attempts>>,
+//     "public_ip": <<ip of user>>,
+//     "request_medium": null,
+//     "response_url": "<<url at which response is sent>>",
+//     "response_to_agency": "<<if data was delivered to agency's Response URL or not>>",
+//     "face_match": "<<if face match was available or not>>",
+//     "facematch_score": <<face match score if face match was available>>,
+//     "face_match_remark": null,
+//     "face_match_txn": <<face match transaction>>,
+//     "request_consent": "<<if consent was present or not>>",
+//     "request_timestamp": "2019-03-22 18:00:04:179 +05:30",
+//     "response_timestamp": "2019-03-22 18:00:04:208 +05:30"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/gateway/offline-aadhaar/<<transaction id>>/fetch"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+
+
+
+

@@ -1,0 +1,39 @@
+#!/usr/bin/env dothttp
+
+// Returns a webhook configured in an organization. To get only the webhook `config` properties, see "[Get a webhook configuration for an organization](/rest/reference/orgs#get-a-webhook-configuration-for-an-organization)."
+
+@name("Get an organization webhook")
+GET "https://{{baseUrl}}/orgs/:org/hooks/:hook_id"
+
+
+// Updates a webhook configured in an organization. When you update a webhook, the `secret` will be overwritten. If you previously had a `secret` set, you must provide the same `secret` or set a new `secret` or the secret will be removed. If you are only updating individual webhook `config` properties, use "[Update a webhook configuration for an organization](/rest/reference/orgs#update-a-webhook-configuration-for-an-organization)."
+
+@name("Update an organization webhook")
+PATCH "https://{{baseUrl}}/orgs/:org/hooks/:hook_id"
+"Content-Type": "application/json"
+data('{
+    "config": {
+        "url": "<uri>",
+        "content_type": "<string>",
+        "secret": "<string>",
+        "insecure_ssl": "<string>"
+    },
+    "events": [
+        "push"
+    ],
+    "active": true,
+    "name": "<string>"
+}')
+
+
+@name("Delete an organization webhook")
+DELETE "https://{{baseUrl}}/orgs/:org/hooks/:hook_id"
+
+
+// This will trigger a [ping event](https://docs.github.com/webhooks/#ping-event) to be sent to the hook.
+
+@name("Ping an organization webhook")
+POST "https://{{baseUrl}}/orgs/:org/hooks/:hook_id/pings"
+
+
+

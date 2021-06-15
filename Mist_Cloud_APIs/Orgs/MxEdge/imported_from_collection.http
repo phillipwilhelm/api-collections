@@ -1,0 +1,277 @@
+#!/usr/bin/env dothttp
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxcluster_id|string|MxCluster this MxEdge belongs to
+// tunterm_ip_config|object|ip configuration of the Mist Tunnel interface
+// services|list|list of services to run, tunterm only for now
+// tunterm_port_config|object|ethernet port configurations
+// separate_upstream_downstream|boolean|weather to separate upstream / downstream ports. default is false where all ports will be used.
+// downstream_ports|list|list of ports to be used for downstream (to AP) purpose
+// upstream_ports|list|list of ports to be used for upstrea purpose (to LAN)
+// upstream_port_vlan_id|int|native VLAN id for upstream ports, default is 1
+
+@name("getOrgMxEdges")
+GET "https://{{host}}/api/v1/orgs/:org_id/mxedges"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the tunnel
+// virtualization_type|string|Virtualization environment
+// memory_stats|object|Memory usage
+// total|int|Total amount of usable RAM, in kibibytes, which is physical RAM minus a number of reserved bits and the kernel binary code.
+// free|int|The amount of physical RAM, in kibibytes, left unused by the system.
+// available|int|An estimate of how much memory is available for starting new applications, without swapping.
+// buffers|int|The amount, in kibibytes, of temporary storage for raw disk blocks.
+// cached|int|The amount of physical RAM, in kibibytes, used as cache memory.
+// swap_cached|int|The amount of memory, in kibibytes, that has once been moved into swap, then back into the main memory, but still also remains in the swapfile.
+// active|int|The amount of memory, in kibibytes, that has been used more recently and is usually not reclaimed unless absolutely necessary.
+// inactive|int|The amount of memory, in kibibytes, that has been used less recently and is more eligible to be reclaimed for other purposes.
+// swap_total|int|The total amount of swap available, in kibibytes.
+// swap_free|int|The total amount of swap free, in kibibytes.
+// cpu_stats|object|CPU/core stats list
+// usage|int|percentage of load, Busy/(Idle + Busy) since last sampling
+// user|float|percentage of User, User/(Idle + Busy) since last sampling
+// system|float|percentage of System, System/(Idle + Busy) since last sampling
+// idle|float|percentage of Idle, Idle/(Idle + Busy) since last sampling
+// interrupt|float|percentage of Interrupt, (Irq + SoftIrq)/(Idle + Busy) since last sampling
+// ip_stat|object|IP stats
+// ips|object|IPs for each net interface
+
+@name("getOrgMxEdgesStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats/mxedges"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxcluster_id|string|MxCluster this MxEdge belongs to
+// tunterm_ip_config|object|ip configuration of the Mist Tunnel interface
+// services|list|list of services to run, tunterm only for now
+// tunterm_port_config|object|ethernet port configurations
+// separate_upstream_downstream|boolean|weather to separate upstream / downstream ports. default is false where all ports will be used.
+// downstream_ports|list|list of ports to be used for downstream (to AP) purpose
+// upstream_ports|list|list of ports to be used for upstrea purpose (to LAN)
+// upstream_port_vlan_id|int|native VLAN id for upstream ports, default is 1
+
+@name("getOrgMxEdgeDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxcluster_id|string|MxCluster this MxEdge belongs to
+// tunterm_ip_config|object|ip configuration of the Mist Tunnel interface
+// services|list|list of services to run, tunterm only for now
+// tunterm_port_config|object|ethernet port configurations
+// separate_upstream_downstream|boolean|weather to separate upstream / downstream ports. default is false where all ports will be used.
+// downstream_ports|list|list of ports to be used for downstream (to AP) purpose
+// upstream_ports|list|list of ports to be used for upstrea purpose (to LAN)
+// upstream_port_vlan_id|int|native VLAN id for upstream ports, default is 1
+
+@name("getOrgMxEdgesDetailsStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats/mxedges/:mxedge_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|name of the Mist Edge
+// model|string|model of the Mist Edge
+// service|list|list of services enabled 
+// mxcluster_id|string|MxCluster this MxEdge belongs to
+// tunterm_ip_config|object|ip configuration of the Mist Tunnel interface
+// services|list|list of services to run, tunterm only for now
+// tunterm_port_config|object|ethernet port configurations
+// separate_upstream_downstream|boolean|weather to separate upstream / downstream ports. default is false where all ports will be used.
+// downstream_ports|list|list of ports to be used for downstream (to AP) purpose
+// upstream_ports|list|list of ports to be used for upstrea purpose (to LAN)
+// upstream_port_vlan_id|int|native VLAN id for upstream ports, default is 1
+// 
+// 
+// Note: The list of available Mist Edge Models is available in Org>Const>getMxEdgeModels
+
+@name("createOrgMxEdge")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('    {
+        "name": "Guest",
+        "model": "ME-100",
+    
+        "tunterm_ip_config": {
+            "ip": "10.2.1.1",
+            "netmask": "255.255.255.0",
+            "gateway": "10.2.1.254",
+            "dns": [ "8.8.8.8" ],
+            "dns_suffix": [ ".mist.local" ]
+        },
+
+        "tunterm_port_config": {
+            // draft, not finalized
+            "separate_upstream_downstream": true, 
+            "downstream_ports": ["3"],
+            "upstream_ports": [ "0", "1", "2" ],
+            "upstream_port_vlan_id": 30 
+        },
+
+        // if custom vlan settings are desired
+        "tunterm_switch_config": {
+            "enabled": true,
+            "0": {
+                "vlan_ids": [1, 3055],
+                "port_vlan_id": 1
+            }
+        },
+
+        "tunterm_monitoring": [
+            {
+                "protocol": "ping",   // arp / ping / tcp
+                "host": "10.2.8.15",  // can be ip, ipv6, hostname
+                "timeout": 300,  // 60 - 3600, default is 300
+
+                // when protocol==tcp
+                "port": 80
+            }
+        ],
+        "ntp_servers": []
+    }')
+
+
+// #### Query Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|tunterm or radsecproxy or mxagent
+// action|string|restart or start or stop
+
+@name("controlOrgMxEdgeServices")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id/services/:name/:action"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxedge_ids|list|list of mxedge IDs to upgrade
+// channel|string|upgrade channel to follow, stable (default) / beta / alpha
+// versions|object|version to upgrade for each service, optional, current (assumed) / latest / default / specific version (e.g. 2.5.100)
+// allow_downgrades|boolean|whether downgrade is allowed when running version is higher than expected version for each service, optional, default value is false
+
+@name("upgradeOrgMxEdge")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/upgrade"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "mxedge_ids": [
+        "387804a7-3474-85ce-15a2-f9a9684c9c90"
+    ],
+    "channel": "stable",
+    "versions": {
+        "mxagent": "current",
+        "tunterm": "default"
+    },
+    "allow_downgrades": {
+        "mxagent": false,
+        "tunterm": true
+    }
+})
+
+
+@name("updateOrgMxEdge")
+PUT "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Guest"
+})
+
+
+@name("deleteOrgMxEdge")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// In the case where a Mist Edge is replaced, you would need to unregister it. Which disconnects the currently the connected Mist Edge and allow another to register.
+// 
+
+@name("unregisterOrgMxEdge")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id/unregister"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// In the case where a Mist Edge is replaced, you would need to unregister it. Which disconnects the currently the connected Mist Edge and allow another to register.
+// 
+
+@name("restartOrgMxEdge")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id/restart"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// For a Mist Edge in default state, it will show a random claim code like `135-546-673` which you can “claim” it into your Org
+
+@name("claimOrgMxEdge")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/claim"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "code": "135-546-673"
+})
+
+
+@name("assignOrgMxEdgeToSite")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/assign"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "site_id": "4ac1dcf4-9d8b-7211-65c4-057819f0862b",
+    "mxedge_ids": [
+        "387804a7-3474-85ce-15a2-f9a9684c9c90"
+    ]
+})
+
+
+@name("unassignOrgMxEdgeFromSite")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/unassign"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "mxedge_ids": [
+        "387804a7-3474-85ce-15a2-f9a9684c9c90"
+    ]
+})
+
+
+// #### Bodu Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ports|list|list of ports to bounce
+// hold_time|int|in milli seconds, hold time between multiple port bounces
+
+@name("bounceOrgMxEdgeDataPorts")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxedges/:mxedge_id/services/tunterm/bounce_port"
+json({
+    "ports": [
+        "0",
+        "2"
+    ]
+})
+
+
+

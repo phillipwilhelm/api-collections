@@ -1,0 +1,324 @@
+#!/usr/bin/env dothttp
+
+// Used for order validation. This step should be performed before order placement. The result will either be a server error (with an error code) or response as shown below. `quote` field will be returned only when `requireNbbo` has been set to _true_. Setting `requireNbbo` may result in quote lookup charge and exist to accomodate rule SEC603.
+// 
+// ```javascript
+// {
+// 	expectedPx: 1234.5, 
+// 	orderFeesCharges: {
+// 		commission: 0.0,
+// 		sec: 0.0,
+// 		orf: 0.0,
+// 		taf: 0.0,
+// 		ess: 0.0,
+// 		pef: 0.0
+// 	},
+// 	quote: {
+// 		symbol: 'ZVZZT'
+// 	},
+// 	warnings: []
+// }
+// ```
+
+@name("Preview")
+POST "https://{{url}}/api/orders/v2/preview/option"
+"Content-Type": "application/json"
+data("{
+	account: {
+		accountId: 12345, // optional
+		accountNumber: 'optional'
+	},
+	order: {
+		quote: {
+			symbol: 'F 130927C00014500' // OSI formatted ticker
+		},
+		transaction: 'BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE',
+		marketTime: 'CORE_MARKET', // optional
+		orderType: 'MARKET|LIMIT|STOP|STOP_LIMIT',
+		fillType: 'ANY|AON',
+		validity: 'DAY|GTC',
+		quantity: 123,
+		limitPrice: 123,
+		stopPrice: 123
+	}
+}")
+
+
+// Request is the same as preview. Response:
+// 
+// ```javascript
+// {OrderRef: 'XX123456'}
+// ```
+
+@name("Placement")
+POST "https://{{url}}/api/orders/v2/place/option"
+"Content-Type": "application/json"
+data("{
+	account: {
+		accountId: 12345, // optional
+		accountNumber: 'optional'
+	},
+	order: {
+		quote: {
+			symbol: 'F 130927C00014500' // OSI formatted ticker
+		},
+		transaction: 'BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE',
+		marketTime: 'CORE_MARKET', // optional
+		orderType: 'MARKET|LIMIT|STOP|STOP_LIMIT',
+		fillType: 'ANY|AON',
+		validity: 'DAY|GTC',
+		quantity: 123,
+		limitPrice: 123,
+		stopPrice: 123
+	}
+}")
+
+
+// Enpoint supports strategy preview of the multileg order. Individual legs are not assumed to be all options hence `option` flag must be explicitely set. In order to submit a buy-write, one of the legs needs to be an equity. The `symbol` for option legs is in OSI format as descibed. OSI format with `F     130927C00014500` as an example (b=bytes):
+// 
+// |Root	|Year	|Month	|Day	|P/C	|Strike whole	|Decimal|
+// |-------|-------|-------|-------|-------|---------------|-------|
+// |6b		|2b		|2b		|2b		|1b		|5b				|3b		|
+// |F		|13		|09		|27		|C		|00014			|500	|
+// 
+// Result of the preview will include supported strategy type along with classifications. If fields are missing stragedy cannot be determinted or not supported:
+// ```json
+// {
+//   "strategyType": "Spread",
+//   "strategyClassification": "LongCallSpread",
+// }
+// ```
+
+@name("Multileg strategy")
+POST "https://{{url}}/api/orders/v2/preview/options/multileg/strategy"
+"Content-Type": "application/json"
+data('{
+	"account": {
+		"accountId": 1234,
+		"accountNumber": "TRACCOUNT"
+	},
+	"order" : {
+		"spreadPrice": 0.0,
+		"validity": "DAY|GTC",
+		"orderType": "MARKET|Even|Credit|Debit",
+		"legs": [
+			{
+				"quantity": 10,
+				"quote": {
+					"symbol": "F     130927C00014500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			},
+			{
+				"quantity": 10, 
+				"quote": {
+					"symbol": "F     130927C00015500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			}
+		]
+	}
+}')
+
+
+// Enpoint supports any multilegged type of order. Individual legs are not assumed to be all options hence `option` flag must be explicitely set. In order to submit a buy-write, one of the legs needs to be an equity. The `symbol` for option legs is in OSI format as descibed. OSI format with `F     130927C00014500` as an example (b=bytes):
+// 
+// |Root	|Year	|Month	|Day	|P/C	|Strike whole	|Decimal|
+// |-------|-------|-------|-------|-------|---------------|-------|
+// |6b		|2b		|2b		|2b		|1b		|5b				|3b		|
+// |F		|13		|09		|27		|C		|00014			|500	|
+// 
+// Result of the preview will include possible fill prices and strategy type along with classifications. `quote` field will be returned only when `requireNbbo` has been set to _true_. Setting `requireNbbo` may result in quote lookup charge and exist to accomodate rule SEC603.
+// 
+// ```javascript
+// {
+//   "strategyType": "Spread",
+//   "strategyClassification": "LongCallSpread",
+//   "legs": [
+//     {
+//       "quote": {
+//         "symbol": "AX    200417C00030000",
+//         "underlying": {
+//           "symbol": "AX",
+//           },
+//         },
+//       },
+//       orderFeesCharges: {
+//         commission: 0.0,
+//         sec: 0.0,
+//         orf: 0.0,
+//         taf: 0.0,
+//         ess: 0.0,
+//         pef: 0.0
+//       },
+//       "expectedPx": 1.95,
+//       "expectedQty": 2,
+//       "warnings": []
+//     },
+//     {
+//       "expectedPx": 5.3,
+//       "expectedQty": 2,
+//       "orderFeesCharges": {
+//         commission: 0.0,
+//         sec: 0.0,
+//         orf: 0.0,
+//         taf: 0.0,
+//         ess: 0.0,
+//         pef: 0.0
+//       },
+//       "warnings": [],
+//       "quote": {
+//         "symbol": "AX    200417C00025000",
+//         "underlying": {
+//           "symbol": "AX",
+//           "askRegion": {
+//             "code": "ARCX",
+//             "description": "ARCA"
+//           },
+//           "tradeRegion": {
+//             "code": "NYSE",
+//             "description": "New York Stock Exchange"
+//           },
+//           "bidRegion": {
+//             "code": "ARCX",
+//             "description": "ARCA"
+//           },
+//         },
+//         "askRegion": {
+//           "code": "MIHI",
+//           "description": "Miami Options Exchange"
+//         },
+//         "rootSymbol": "AX",
+//         "underlyingSymbol": "AX",
+//         "bidRegion": {
+//           "code": "CBOE",
+//           "description": "Chicago Board Options Exchange"
+//         },
+//         "bid": 5.1,
+//         "lastPrice": 6.6,
+//         "intradayValue": 0
+//       }
+//     }
+//   ]
+// }
+// ```
+
+@name("Preview (multileg)")
+POST "https://{{url}}/api/orders/v2/preview/options/multileg"
+"Content-Type": "application/json"
+data('{
+	"requireNbbo": false,
+	"account": {
+		"accountId": 1234,
+		"accountNumber": "TRACCOUNT"
+	},
+	"order" : {
+		"spreadPrice": 0.0,
+		"validity": "DAY|GTC",
+		"orderType": "MARKET|Even|Credit|Debit",
+		"legs": [
+			{
+				"quantity": 10,
+				"quote": {
+					"symbol": "F     130927C00014500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			},
+			{
+				"quantity": 10, 
+				"quote": {
+					"symbol": "F     130927C00015500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			}
+		]
+	}
+}')
+
+
+// See multileg preview for details. Note that buy-writes' legs will be arranged with equity leg always first. Result of order placement is:
+// 
+// ```javascript
+// {"OrderRef": "CC123456789"}
+// ```
+
+@name("Placement (multileg)")
+POST "https://{{url}}/api/orders/v2/place/options/multileg"
+"Content-Type": "application/json"
+data('{
+	"account": {
+		"accountId": 1234,
+		"accountNumber": "TRACCOUNT"
+	},
+	"order" : {
+		"spreadPrice": 0.0,
+		"validity": "DAY|GTC",
+		"orderType": "MARKET|Even|Credit|Debit",
+		"legs": [
+			{
+				"quantity": 10,
+				"quote": {
+					"symbol": "F     130927C00014500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			},
+			{
+				"quantity": 10, 
+				"quote": {
+					"symbol": "F     130927C00015500",
+					"option": true
+				},
+				"transaction": "BUY_TO_OPEN|BUY_TO_CLOSE|SELL_TO_OPEN|SELL_TO_CLOSE"
+			}
+		]
+	}
+}')
+
+
+// Allows to preview upcoming cancel/replace request. Result is the same as multileg preview.
+
+@name("Replace Preview (multileg)")
+POST "https://{{url}}/api/orders/v2/multileg/replace/preview"
+"Content-Type": "application/json"
+data('{
+	"requireNbbo": false,
+	"order" : {
+		"orderRef": "XX123456",
+		"spreadPrice": 0.0,
+		"orderType": "MARKET|Even|Credit|Debit",
+		"legs": [
+			{"quantity": 10},
+			{"quantity": 10}
+		]
+	}
+}')
+
+
+// Initiates a cancel/replace request on existing order. Error on failure or echo on success:
+// 
+// ```javascript
+// {"orderRef": "CC123456789"}
+// ```
+
+@name("Replace (multileg)")
+POST "https://{{url}}/api/orders/v2/multileg/replace"
+"Content-Type": "application/json"
+data('{
+	"order" : {
+		"orderRef": "XX123456",
+		"spreadPrice": 0.0,
+		"orderType": "MARKET|Even|Credit|Debit",
+		"legs": [
+			{"quantity": 10},
+			{"quantity": 10}
+		]
+	}
+}')
+
+
+

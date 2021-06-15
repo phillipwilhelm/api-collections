@@ -1,0 +1,1 @@
+This is a Postman collection for searching the Twitter platform using the Twitter API, allowing anyone to search for Tweets without writing code. 

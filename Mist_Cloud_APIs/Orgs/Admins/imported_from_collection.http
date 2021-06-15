@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+// Get a list of people who can manage the Site/Org under the Org
+// 
+// #### Response Parameters
+// **Parameter**|**Type**|**Description**
+// :-------------: |:-------------: |:-------------: 
+// admin_id|string|admin id
+// first_name|string|first name
+// last_name|string|last name
+// privileges|list|list of privileges the admin has on the orgs/sites
+// scope|string|site / org / sitegroup
+// role|string|admin / write / read
+// site_id|string|site id
+// first_name|string|for a invite, this is the original name used
+// last_name|string|for a invite, this is the original name used
+
+@name("getOrgAdmins")
+GET "https://{{host}}/api/v1/orgs/:org_id/admins"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// admin_id|string|admin id
+// privileges|list|list of privileges the admin has on the orgs/sites
+// scope|string|site / org / sitegroup
+// role|string|admin / write / read / helpdesk / none
+// site_id|string|site id
+
+@name("updateOrgAdmin")
+PUT "https://{{host}}/api/v1/orgs/:org_id/admins/:admin_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "privileges": [
+        {
+            "scope": "org",
+            "role": "admin"
+        },
+        {
+            "scope": "site",
+            "site_id": "d96e3952-53e8-4266-959a-45acd55f5114",
+            "role": "admin"
+        },
+        {
+            "scope": "sitegroup",
+            "sitegroup_id": "581328b6-e382-f54e-c9dc-999983183a34",
+            "role": "admin"
+        }
+    ]
+})
+
+
+// This removes all privileges this admin has against the org
+// 
+
+@name("revokeOrgAdmin")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/admins/:admin_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// If the request is successful, an email will also be sent to the user with a link to ```https://manage.mist.com/verify/invite?token=:token&expire=1459632743&org=OrgName```
+// 
+// 
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// email|string|email - admin_id is not exposed
+// first_name|string|first name, used in the invitation text
+// last_name|string|last name
+// privileges|list|list of privileges the admin has on the orgs/sites
+// scope|string|site / org / sitegroup
+// role|string|admin / write / read / helpdesk
+// site_id|string|site id
+// hours|int|optional, how long the invite should be valid, default is 1 day. Max is capped at 1 week.
+
+@name("inviteOrgAdmin")
+POST "https://{{host}}/api/v1/orgs/:org_id/invites"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "email": "joe@abc.com",
+    "first_name": "John",
+    "last_name": "Smith",
+    "hours": 24,
+    "privileges": [
+        {
+            "scope": "org",
+            "role": "admin"
+        },
+        {
+            "scope": "site",
+            "site_id": "d96e3952-53e8-4266-959a-45acd55f5114",
+            "role": "admin"
+        }
+    ]
+})
+
+
+// NOTE: another call to ```GET /api/v1/self``` is required to see the new set of privileges
+// 
+
+@name("verifyOrgAdminInvite")
+POST "https://{{host}}/api/v1/invite/verify/:token"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+@name("updateOrgAdminInvite")
+PUT "https://{{host}}/api/v1/orgs/:org_id/invites/:invite_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "hours": 24,
+    "privileges": [
+        {
+            "scope": "org",
+            "role": "admin"
+        },
+        {
+            "scope": "site",
+            "site_id": "d96e3952-53e8-4266-959a-45acd55f5114",
+            "role": "admin"
+        }
+    ]
+})
+
+
+@name("uninviteOrgAdmin")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/invites/:invite_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

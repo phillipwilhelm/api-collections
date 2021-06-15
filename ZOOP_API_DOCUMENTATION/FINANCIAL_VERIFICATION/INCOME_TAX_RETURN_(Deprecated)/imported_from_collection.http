@@ -1,0 +1,210 @@
+#!/usr/bin/env dothttp
+
+// **NOTE**: For more complete and up-to-date documentation do checkout our [ITR docs on GitHub](https://github.com/zoop/zoop-web-sdk/blob/master/README.md#zoop-income-tax-return-itr-gateway-beta)
+// 
+// You can read <a href='https://github.com/zoop/zoop-gateway-ios-sdk' download> IOS GATEWAY DOCUMENTATION HERE</a><br>
+// 
+// **{{base_url}}**
+// 
+// PREPROD : https://preprod.aadhaarapi.com
+// 
+// PRODUCTION: https://prod.aadhaarapi.com
+// 
+// To initiate a gateway transaction a REST API call has to be made to backend. This call will generate a Gateway Transaction Id which needs to be passed to the frontend web-sdk to launch the gateway.
+// 
+// **Request Body Params**
+// 
+// | Parameters   | Mandatory | Description/Value                                    |
+// | ------------ | --------- | ---------------------------------------------------- |
+// | mode         | true      | REDIRECT or POPUP                                    |
+// | redirect_url | false     | A valid URL                                          |
+// | webhook_url  | true      | A valid URL                                          |
+// | purpose      | true      | Your purpose                                         |
+// | phone        | true      | Phone number linked to ITR portal                    |
+// | pan          | true      | PAN number linked to ITR portal                      |
+// | dob          | true      | Date of birth of the PAN holder in YYYY-MM-DD format |
+// | pdf_required | false     | Whether you need PDF of ITR fetched                  |
+// | duration     | false     | Years for which ITR details to fetch                 |
+// 
+// **Successful Response**
+// 
+// ```json
+// {
+//   "id": "<<transaction_id>>",
+//   "mode": "POPUP",
+//   "env": "PRODUCTION",
+//   "webhook_security_key": "<<UUID>>",
+//   "request_version": "1.0",
+//   "request_timestamp": "2020-02-17T13:14:26.423Z",
+//   "expires_at": "2020-02-17T13:24:26.423Z"
+// }
+// ```
+// The above generated gateway transactionId is needed to make open gateway via WEB SDK.
+// 
+// **Note:** A transaction is valid only for 10 mins after generation.
+// 
+// 
+// **Failure Response**
+// 
+// ```json
+// {
+//   "statusCode": 400,
+//   "errors": [],
+//   "message": "<<message about the error>>"
+// }
+// ```
+// 
+// ### Webhook Reponse
+// 
+// The webhook response will be sent to `webhook_url` provided at the init call. When receiving the webhook response please match the `webhook_security_key` in the header of the request to be the same as the one provided in the init call. If they are not the same **you must abandon the webhook response**.
+// 
+// ```json
+// {
+//   "id": "a13b7814-066c-4d42-879a-c564ff6c8fgad",
+//   "mode": "POPUP",
+//   "env": "PRODUCTION",
+//   "response_code": "101",
+//   "response_message": "Transaction Successful",
+//   "phone_number": "9999999999",
+//   "dob": "25-10-1992",
+//   "request_version": "1.0",
+//   "pan": "ABCDE1234F",
+//   "last_user_stage": "itr_parsed",
+//   "last_user_stage_code": "P006",
+//   "data": {
+//     "transactions": [
+//       {
+//         "2019-20": {
+//           {
+//   "PersonalInfo": {
+//     "Name": " String ",
+//     "Father Name": "Sanjay Bansal",
+//     "AssesseeName": {
+//       "FirstName": " Rajat ",
+//       "MiddleName": " ",
+//       "LastName": " Bansal "
+//     },
+//     "PAN": " ABCDE1234F ",
+//     "DOB": "25-10-1992",
+//     "Status": "Active",
+//     "AadhaarCardNo": "**** **** 9876",
+//     "EmployerCategory": " Government/Public sector undertaking/Pensioners/Others ",
+//     "Address": {
+//       "ResidenceNo": " H.NO 89 DWARKA NAGAR COACH FACTORY",
+//       "ResidenceName": "Rajat Bansal",
+//       "RoadOrStreet": "Old post office",
+//       "LocalityOrArea": " DWARKA NGAR",
+//       "CityOrTownOrDistrict": " BHOPAL",
+//       "State": " MADHYA PRADESH",
+//       "PinCode": " 462010",
+//       "MobileNo": "9999999999",
+//       "EmailAddress": " abc@gmail.com ",
+//       "Country": "India"
+//     }
+//   },
+//   "ITR1_IncomeDeductions": {
+//     "Salary": " Integer ",
+//     "IncomeFromSal": " 452000",
+//     "AlwnsNotExempt": " 0 ",
+//     "PerquisitesValue": " 0 ",
+//     "ProfitsInSalary": " 0 ",
+//     "DeductionUs16": " 40000 ",
+//     "TotalIncomeOfHP": " 0 ",
+//     "IncomeOthSrc": " 0 ",
+//     "GrossTotIncome": " 412000",
+//     "TotalIncome": " 0 ",
+//     "UsrDeductUndChapVIA": {
+//       "Section80C": " 0 ",
+//       "Section80CCC": " 0 ",
+//       "Section80CCDEmployeeOrSE": " 0 ",
+//       "Section80CCD1B": " 0 ",
+//       "Section80CCDEmployer": " 0 ",
+//       "Section80CCG": " 0 ",
+//       "Section80DD": " 0 ",
+//       "Section80DDB": " 0 ",
+//       "Section80E": " 195000 ",
+//       "Section80EE": " 0 ",
+//       "Section80G": " 0 ",
+//       "Section80GG": " 30000 ",
+//       "Section80GGA": " 0 ",
+//       "Section80GGC": " 0 ",
+//       "Section80RRB": " 0 ",
+//       "Section80QQB": " 0 ",
+//       "Section80TTA": " 0 ",
+//       "Section80U": " 0 ",
+//       "TotalChapVIADeductions": " 225000",
+//       "TotalIncome": " 187000 ",
+//       "Section80DHealthInsPremium": {
+//         "Sec80DHealthInsurancePremiumUsr": " 0 ",
+//         "Sec80DMedicalExpenditureUsr": " 0 ",
+//         "Sec80DPreventiveHealthCheckUpUsr": " 0 "
+//       }
+//     }
+//   },
+//   "TaxesPaid": {
+//     "TCS": " 0 ",
+//     "TDS": " 0 ",
+//     "OthersInc": {
+//       "SEC 10-5-LeaveTravelAllowance": " 0 ",
+//       "SEC 10-14-i": " 0 ",
+//       "SEC 10-13-A": " 0 "
+//     },
+//     "TotalTaxesPaid": " 15000 ",
+//     "SelfAssessmentTax": " 0 ",
+//     "AdvanceTax": " 0 "
+//   },
+//   "BalTaxPayable": " Integer ",
+//   "ITR1_TaxComputation": {
+//     "TotalIntrstPay": " 0 ",
+//     "Section89": " 0 ",
+//     "NetTaxLiability": " 0 ",
+//     "Rebate87A": " 0 ",
+//     "GrossTaxLiability": " 0 ",
+//     "TotalTaxPayable": " 0 ",
+//     "TotTaxPlusIntrstPay": " 0 ",
+//     "TaxPayableOnRebate": " 0 ",
+//     "EducationCess": " 0 ",
+//     "IntrstPay": {
+//       "IntrstPayUs234A": " 0 ",
+//       "IntrstPayUs234C": " 0 ",
+//       "IntrstPayUs234B": " 0 "
+//     }
+//   },
+//   "refund": {
+//     "RefundDue": "15000",
+//     "BankAccountDtls": {
+//       "PriBankDetails": {
+//         "IFSCCode": " ICIC0000558",
+//         "BankName": " ICICI BANK LIMITED",
+//         "BankAccountNo": " 055811234556"
+//       }
+//     },
+//     "employer": {
+//       "tan": " abcde123456",
+//       "Name of deductor": "Quagga technologies private limited",
+//       "Salary": " 240000",
+//       "Tax Deducted": "15000"
+//     }
+//   }
+// }
+// }
+// ```
+
+@name("Init ITR")
+POST "https://{{base_url}}/itr/v1/init"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+json({
+    "mode": "POPUP",
+    "webhook_url": "https://you-domain.com/webhook",
+    "purpose": "Why Am I making this transaction?",
+    "phone": "999999999",
+    "dob": "YYYY-MM-DD",
+    "pan": "ABCDE1234F",
+    "pdf_required": "Y/N",
+    "duration": 3
+})
+
+
+

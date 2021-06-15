@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// ### Transaction Fee API
+// 
+// This API takes in the required fields as input and calculates the estimated credit card Transaction Fee based on the pricing models and processors that have been configured for any individual merchant. The transaction Fee API response message contains the calculated Transaction Fee and the InterPayments unique transaction identifier, sTxId.
+// 
+// **Required parameters**
+// 
+// 
+// >   nicn   - First 6 digits of the credit card number              
+// >   region - Zip code or State code                
+// >   amount - Amount in dollars
+// 
+// **Optional Parameters**
+// 
+// >   country – Optional 3 letter country code, defaults to '840' for United States       
+// >   campaign – Optional text field available for categorizing transactions        
+// >   mTxId - Optional order ID used to identify and update transactions        
+// >   sTxId – Optional transaction ID used to update transactions       
+// >   processor – Optional card processor identifier    
+
+@name("Transaction  Fee API")
+POST "https://api-test.interpayments.com/v1/ch"
+"Content-Type": "application/json"
+"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1OTAwNzU5ODYsIm5hbWUiOiJwb3N0bWFuIiwiaWQiOiI3MDI4NTk3Yy02MzQ4LTQzOTAtOTQwNi1lNjVmNmQyZTZiOGUiLCJkYXRhIjpbInBvc3RtYW4gLSB0ZXN0IC0gbm9uZXhwIl19.2aTCpCnz66srQtuz5MarWqpsZ80zGaGFq7QbuJ92n9U"
+data('{
+  "nicn": "411111",
+  "region": "47112",
+  "amount": 100.00
+}')
+
+
+// ### Sale API
+// 
+// The Sale API is called once the transaction has been completed by the end consumer. This call is used to identify the transaction as successful so that it can then be marked as complete. The Sale API is called using the mTxId or the sTxId (or both) to identify the transaction. The Sale API call will be return the sTxId in response to confirm the transaction has been updated.
+// 
+// Note: The update of the mTxId is allowed in this API call.
+// 
+// **Required parameters**
+// 
+// >   sTxId – InterPayments unique identifier  (optional but required if mTxId is not passed)       
+// >   or        
+// >   mTxId - Order Id (optional but required if sTxId is not passed)       
+// 
+// 
+// ****Optional Parameters****
+// >   authCode - Optional authorization code to be saved for reference    
+
+@name("Sale API")
+POST "https://api-test.interpayments.com/v1/ch/sale"
+"Content-Type": "application/json"
+"X-Requested-With": "xhr"
+"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1OTAwNzU5ODYsIm5hbWUiOiJwb3N0bWFuIiwiaWQiOiI3MDI4NTk3Yy02MzQ4LTQzOTAtOTQwNi1lNjVmNmQyZTZiOGUiLCJkYXRhIjpbInBvc3RtYW4gLSB0ZXN0IC0gbm9uZXhwIl19.2aTCpCnz66srQtuz5MarWqpsZ80zGaGFq7QbuJ92n9U"
+data('{
+  "sTxId": "5f0e20db640000450044f6c8"
+}')
+
+
+

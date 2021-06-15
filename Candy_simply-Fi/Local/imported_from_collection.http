@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// This only need to run once a time, to recalculate stats
+
+@name("PrepareStatistics")
+GET "http://{{PRODUCT_IP}}/http-prepareStatistics.json"
+? "encrypted"= "1"
+
+
+// # Dishwasher
+//  - s1: Intensive 75°C
+//  - s2: ???
+//  - s3: Eco 45°C
+//  - s4: Pre-wash - 5mn
+//  - [...]
+//  - s24: ???
+
+@name("GetStatistics")
+GET "http://{{PRODUCT_IP}}/http-getStatistics.json"
+? "encrypted"= "1"
+
+
+@name("GetStatus")
+GET "http://{{PRODUCT_IP}}/http-read.json"
+? "encrypted"= "1"
+
+
+// This doesn't work for whatever reason. Response is a success but network change is not applied. Looks like it cannot be done after initial enrolment.
+// 
+// If you're lucky and have the 'old way' of enrolment, you can connect to the public SSID WIFIDISHWASHING-**** or CANDYDISHWASHING-**** (or FRIDGE, ....). Then send this command to 192.168.0.1. See Pre-req to know how to compute the initial encryption key in that case (should be, cannot test it). For the others a first Bluetooth peering is required which I didn't work on.
+
+@name("Enrollment")
+GET "http://{{PRODUCT_IP}}/http-config.json"
+? "encrypted"= "1"
+? "NTW_MODE"= "{{NETWORD_SECURITY}}"
+? "SSID"= "{{NETWORK_SSID}}"
+? "PASSWORD"= "{{NETWORD_PASSWORD}}"
+? "ENCRYPT_KEY"= "{{PRODUCT_ENCRYPTIONKEY}}"
+
+
+

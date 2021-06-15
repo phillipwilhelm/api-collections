@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// Stores visitor details in Smart Recommendations. The details can include visitor location, web page they came from, and custom properties.
+// 
+// The endpoint works with both automatic tracking and manual tracking. Call this endpoint when you first encounter a visitor in your app to store information about them.
+
+@name("Track visitor details")
+POST "https://recommend.kontent.ai/api/v2/track/visitor"
+"Content-Type": "application/json"
+data('{
+    "visitId": "<string>",
+    "visitor": {
+        "ip": "<string>",
+        "referer": "<string>",
+        "location": {
+            "city": "<string>",
+            "country": "<string>",
+            "timezone": "<string>"
+        },
+        "custom": {
+            "$ref": {}
+        }
+    }
+}')
+
+
+// Tracks a standard page visit.
+
+@name("Track a visit")
+POST "https://recommend.kontent.ai/api/v2/track/visit"
+"Content-Type": "application/json"
+data('{
+    "visitId": "<string>",
+    "currentItemCodename": "<string>"
+}')
+
+
+// Tracks a visitor conversion. A conversion is an interaction that occurred as a result of your call to action. For example, this can be a purchase, form submission, or the start of a subscription.
+// 
+// Smart Recommendations puts higher value on this interaction than on a simple visit.
+
+@name("Track a conversion")
+POST "https://recommend.kontent.ai/api/v2/track/conversion"
+"Content-Type": "application/json"
+data('{
+    "visitId": "<string>",
+    "currentItemCodename": "<string>"
+}')
+
+
+// Tracks how much of the page has the visitor already seen. Partial views may be logged multiple times during a single page visit as the visitor scrolls down the page – Smart Recommendations will use only the last tracked view.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p><strong>Partial view tracking improves your recommendations</strong></p>
+// <p>Tracking what portion of content your visitors have seen improves the accuracy of the recommendations. With this information, the API can distinguish between a simple glance and a complete read-through.</p>
+// 
+// <!--Callout-end-->
+
+@name("Track a partial view")
+POST "https://recommend.kontent.ai/api/v2/track/portion"
+"Content-Type": "application/json"
+data('{
+    "portionPercentage": "<integer>",
+    "visitId": "<string>",
+    "currentItemCodename": "<string>"
+}')
+
+
+

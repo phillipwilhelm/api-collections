@@ -1,0 +1,112 @@
+#!/usr/bin/env dothttp
+
+// Create a new content type.
+
+@name("Add a content type")
+POST "https://manage.kontent.ai/v2/projects/:project_id/types"
+"Content-Type": "application/json"
+data('{
+    "elements": [
+        {
+            "name": "<string>",
+            "type": "<string>",
+            "codename": "<string>",
+            "external_id": "<string>",
+            "guidelines": "<string>",
+            "asset_count_limit": {
+                "value": "<integer>",
+                "condition": "<string>"
+            },
+            "maximum_file_size": "<integer>",
+            "allowed_file_types": "<string>",
+            "image_width_limit": {
+                "value": "<integer>",
+                "condition": "<string>"
+            },
+            "image_height_limit": {
+                "value": "<integer>",
+                "condition": "<string>"
+            },
+            "is_required": "<boolean>",
+            "content_group": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            }
+        }
+    ],
+    "name": "<string>",
+    "codename": "<string>",
+    "external_id": "<string>",
+    "content_groups": [
+        {
+            "name": "<string>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        },
+        {
+            "name": "<string>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        }
+    ]
+}')
+
+
+// Retrieve a dynamically paginated list of content types.
+
+@name("List content types")
+GET "https://manage.kontent.ai/v2/projects/:project_id/types"
+"x-continuation": "<string>"
+
+
+// Retrieve information about a single content type.
+
+@name("Retrieve a content type")
+GET "https://manage.kontent.ai/v2/projects/:project_id/types/:type_identifier"
+
+
+// Modify content types, their elements, and the configuration of specific objects.
+// 
+// You can modify the specified content type and its contents in three ways based on your chosen operation type (in the `op` body parameter):
+// * `addInto` to add an element or content group to the content type or add an option to a multiple choice element.
+// * `remove` to delete a specific element or content group from the content type or delete a specific option from a multiple choice element.
+// * `replace` to change the value of a specific property of a specified object.
+// 
+// For any operation that does not affect the content type itself, you need to include a `{path_reference}` in the `path` body parameter for the object you want to modify. Path references can be by ID, codename, or external ID, but take a slightly different form from references to the content type:
+// * `id:5eb3d03e-c69d-4e93-b4cc-76f453271386`
+// * `codename:my_text_element`
+// * `external_id:text_from_external_database` – Any special characters such as slashes (`/`) need to be escaped, so the external ID `my/value` would need to be added to `path` as `external_id:my\/value`.
+
+@name("Modify a content type")
+PATCH "https://manage.kontent.ai/v2/projects/:project_id/types/:type_identifier"
+"Content-Type": "application/json"
+data('[
+    {
+        "op": "<string>",
+        "value": [
+            "<string>",
+            "<string>"
+        ],
+        "path": "<string>",
+        "before": {
+            "id": "<uuid>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        },
+        "after": {
+            "id": "<uuid>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        }
+    }
+]')
+
+
+// Delete an unused content type.
+
+@name("Delete a content type")
+DELETE "https://manage.kontent.ai/v2/projects/:project_id/types/:type_identifier"
+
+
+

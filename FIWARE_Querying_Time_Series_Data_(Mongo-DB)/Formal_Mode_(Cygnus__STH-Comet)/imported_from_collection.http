@@ -1,0 +1,155 @@
+#!/usr/bin/env dothttp
+
+// Once Cygnus is running, You can check the status by making an HTTP request to the exposed `CYGNUS_API_PORT` port. 
+// If the response is blank, this is usually because Cygnus is not running or is listening on another port.
+// 
+// >**Troubleshooting:** What if the response is blank ?
+// >
+// > * To check that a docker container is running try
+// >
+// >```bash
+// >docker ps
+// >```
+// >
+// >You should see several containers running. If `cygnus` is not running, you can restart the containers as necessary.
+
+@name("Cygnus - Obtain version information")
+GET "http://{{cygnus}}/v1/version"
+
+
+
+// Once STH-Comet is running, You can check the status by making an HTTP request to the exposed `STH_PORT` port. 
+// If the response is blank, this is usually because STH-Comet is not running or is listening on another port.
+// 
+// >**Troubleshooting:** What if the response is blank ?
+// >
+// > * To check that a docker container is running try
+// >
+// >```bash
+// >docker ps
+// >```
+// >
+// >You should see several containers running. If `sth-comet` is not running, you can restart the containers as necessary.
+
+@name("STH-Comet - Obtain version information")
+GET "http://{{sth-comet}}/version"
+
+
+
+// Once a dynamic context system is up and running, we need to inform **Cygnus** of changes in context.
+// **Cygnus** will store the historical context data in a Mongo-DB database and **STH-Comet** will only
+// be used to read the persisted data.
+// 
+// 
+// The rate of change of the **Motion Sensor** is driven by events in the real-world. We need to receive
+// every event to be able to aggregate the results.
+// 
+// This is done by making a POST request to the `/v2/subscription` endpoint of the **Orion Context Broker**.
+// 
+// * The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors
+// * The `idPattern` in the request body ensures that **Cygnus**  will be informed of all **Motion Sensor** data changes.
+// * The notification `url` must match the configured `CYGNUS_MONGO_SERVICE_PORT`
+
+@name("Orion - Cygnus - Aggregate Motion Sensor Count Events")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify Cygnus of all Motion Sensor count changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": "Motion.*"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "count"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://cygnus:5051/notify"
+    },
+    "attrs": [
+      "count"
+    ]
+  }
+}')
+
+
+// Once a dynamic context system is up and running, we need to inform **Cygnus** of changes in context.
+// **Cygnus** will store the historical context data in a Mongo-DB database and **STH-Comet** will only
+// be used to read the persisted data.
+// 
+// The luminosity of the **Smart Lamp** is constantly changing, we only need to **sample** the values to be
+// able to work out relevant statistics such as minimum and maximum values and rates of change.
+// 
+// This is done by making a POST request to the `/v2/subscription` endpoint of the **Orion Context Broker**
+// and including the `throttling` attribute in the request body.
+// 
+// * The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors
+// * The `idPattern` in the request body ensures that **Cygnus** will be informed of all **Smart Lamp** data changes only
+// * The notification `url` must match the configured `CYGNUS_MONGO_SERVICE_PORT`
+// * The `throttling` value defines the rate that changes are sampled.
+
+@name("Orion - Cygnus - Sample Lamp Luminosity")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify Cygnus to sample Lamp changes every five seconds",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": "Lamp.*"
+      }
+    ],
+    "condition": {
+      "attrs": [
+        "luminosity"
+      ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://cygnus:5051/notify"
+    },
+    "attrs": [
+      "luminosity"
+    ]
+  },
+  "throttling": 5
+}')
+
+
+// If the subscriptions have been created, you can check to see if they is firing by making a GET 
+// request to the `/v2/subscriptions` endpoint.
+// 
+// Within the `notification` section of the response, you can see several additional `attributes` which describe the health of the subscription
+// 
+// If the criteria of the subscription have been met, `timesSent` should be greater than `0`.
+// A zero value would indicate that the `subject` of the subscription is incorrect or the subscription 
+// has created with the wrong `fiware-service-path` or `fiware-service` header
+// 
+// The `lastNotification` should be a recent timestamp - if this is not the case, then the devices
+// are not regularly sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**
+// 
+// The `lastSuccess` should match the `lastNotification` date - if this is not the case 
+// then **Cygnus** is not receiving the subscription properly. Check that the host name
+// and port are correct. 
+// 
+// Finally, check that the `status` of the subscription is `active` - an expired subscription
+// will not fire.
+
+@name("Orion - Cygnus - Check Subscriptions are working")
+GET "http://{{orion}}/v2/subscriptions/"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+
+

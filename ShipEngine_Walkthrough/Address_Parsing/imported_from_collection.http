@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// This request shows how to pass unstructured text to ShipEngine that contains address information. ShipEngine will recognize any address-related parts of the text and give you back an `address` object.
+
+@name("Parse an Address")
+POST "https://api.shipengine.com/v1/addresses/recognize"
+"Content-Type": "application/json"
+data('{
+	"text": "I need to send a package to my friend Amanda Miller’s house at 525 Winchester Blvd in San Jose (that\'s california, obviously). The zip code there is 95128."
+}')
+
+
+// ShipEngine's Parse Address API returns confidence scores for each entity that it recognizes, as well as for the address as a whole.  You can use these scores to determine whether the address is safe to use or requires additional validation or information from the user.
+
+@name("Confidence scores")
+POST "https://api.shipengine.com/v1/addresses/recognize"
+"Content-Type": "application/json"
+data('{
+	"text": "I need to send a package to my friend Amanda. Her last name is Miller, btw. Her office address is 525 Winchester Blvd. That\'s in California for sure. Pretty sure it\'s San Jose, but I\'m only like 90% sure about that. Pretty sure the zip code is something like 95128, or maybe 90210."
+}')
+
+
+// If you already know some parts of the address, you can provide them to ShipEngine, and we'll use those values. These values can also help us recognize other parts of the address.
+
+@name("Already-known fields")
+POST "https://api.shipengine.com/v1/addresses/recognize"
+"Content-Type": "application/json"
+data('{
+	"text": "I need to send a package to my friend Amanda Miller’s house at 525 Winchester Blvd in San Jose (that\'s california, obviously). The zip code there is 95128.",
+	"address": {
+		"country_code": "US"
+	}
+}')
+
+
+// ShipEngine can parse more than just addresses. If you think the text may contain other shipment information, like package weight, dimensions, insurance, or carrier preferences, then use our Parse Shipment API instead of our Parse Address API.
+
+@name("Parse shipment information")
+POST "https://api.shipengine.com/v1/shipments/recognize"
+"Content-Type": "application/json"
+data('{
+	"text": "I need to ship a 17lb package that’s 36x12x24in. It’s going to Amanda Miller’s house at 525 Winchester Blvd in San Jose California. The zip code is 95128. It\'s really valuable, so insure it for $400 and require an adult signature please."
+}')
+
+
+// If you already know some parts of the shipment, you can provide them to ShipEngine, and we'll use those values. These values can also help us recognize other parts of the shipment.
+
+@name("Parse shipment info w/ known fields")
+POST "https://api.shipengine.com/v1/shipments/recognize"
+"Content-Type": "application/json"
+data('{
+	"text": "I need to ship a 17lb package that’s 36x12x24in. It’s going to Amanda Miller’s house at 525 Winchester Blvd in San Jose California. The zip code is 95128. It\'s really valuable, so insure it for $400 and require an adult signature please.",
+	"shipment": {
+		"ship_from": {
+			"name": "John Doe",
+			"company_name": "Example Corp.",
+			"address_line1": "4009 Marathon Blvd",
+			"city_locality": "Austin",
+			"state_province": "TX",
+			"postal_code": "78756",
+			"country_code": "US",
+			"phone": "512-555-5555"
+		}
+	}
+}')
+
+
+

@@ -1,0 +1,3 @@
+AEPS (Aadhaar Enabled Payment System) is the Aadhaar base payment system using AEPS you can send and receive payment from any where and any time using your aadhaar number and thumb impression. AEPS Payment system is secure fund transfer payment system because every time when you transfer the fund then you need to thumb impression.
+
+The Softcare Infotech is one of the best company which provides you AEPS payment and API for AEPS. By integrating the Aadhaar Enabled Payment System you API in your portal you can able to transfer funds using your aadhaar detail.

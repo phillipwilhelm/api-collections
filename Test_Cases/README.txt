@@ -1,0 +1,1 @@
+These are test cases for validating Cloud Newman is working.

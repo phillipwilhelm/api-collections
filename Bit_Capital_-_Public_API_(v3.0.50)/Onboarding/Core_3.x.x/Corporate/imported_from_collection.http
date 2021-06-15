@@ -1,0 +1,232 @@
+#!/usr/bin/env dothttp
+
+// ### Validating body request in Consumer Corporate
+// 
+// 
+// ![Fileds](http://www.plantuml.com/plantuml/svg/dPPHJzim4CUVuLD4UGuIR4XZquHWQpPLeb01qiIcFLoJA_7asDdv0kkcVlSvZbdTA2LaKLGbzp_RvyllpZqp3CG_Z5RxV_RtuboN85JyBehVrxN8J-F46ck3fA14PpPCGjstmbAGuSi-HS8EeG9Z7ZNbeN2I5K07i-cbyq0RWGnbPrXgAe6T0sdfvisqCdM9v8nFBrQm-zYBULMrYwEgozDCKwK96EF4YV1hcdT3QxQZG6K2PFgp5hmA7Iej54TWeXmpKOBi39YJNWeU7b1XPPsM80ssxuLMQApfMnDqiulSHNrq52VEO8DV88KJ2oLOW8nQ9Ifhmz42exUnzLz_TxD2dXCQiprnhPYsjlI1m0Zfrp4CZA7wglacngjP9nkl3qDLeRWl5feAhRUIUXnu-Qq5wWD8aKTVf_EFLvCq4YgoyVmEuY54xf-jFo__bYahYIKgxWlOvyZxWLfDWC4ZOyap30ifJD4C_-I0so0qIvDPEatSVPrUJ9ERcoITpvEBsybvaixcdtq04kz1Tj4_EdG1U1ScoB7hSXnww0gLDKuw7-NENWUpsS5aqlWDKBuBy_6SZmUzIteNzHxMnyBklsGlxWEy3m0_GFmBaH_D_23qkwaVn3xCLiRYGR08qjKJwHk_hfU5cRN70bEDphPkfL7ZFH1-WkRNnrG1iKBQYgXgI9C1tLTVBjFh93g_lRso3tT-Rdy8zHTS4864GQTTHq-qENlirJbgd2sen0h9QFLK1izKuNyLulXQz8DApGLIDm4dmVuzzWz2tZ1mRHe_OvqaRkI582voM3tNa_gAlwV-Url0s2xW1mNfB_MYWSRRFVFzJU8bVMAuLGntYn4DOtJFU4dRUBPp33UFJY9QCFIZskIuVLZxgdOLOMtsqTxh_JDKUVFtyYy0)
+// 
+// 
+// 
+// |Establishment Format |Status |Partner acceptance|Particulars|
+// |-|-|-|-|
+// |MEI|`avaliable`|`consumer`|only 1 partner|
+// |EI|`avaliable`|`consumer`|only 1 partner|
+// |EIRELI|`avaliable`|`consumer`|only 1 partner|
+// |SS|`avaliable`|`consumer`|used by professionals as simple company, only 1 partner|
+// |EPP|`avaliable`|`consumer` and `corporate`||
+// |ME|`avaliable`|`consumer` and `corporate`||
+// |SA|`not avaliable`|`consumer` and `corporate`|minimum 2 partners|
+// |LTDA|`avaliable on-demand`|`consumer` and `corporate`|minimum 2 partners|
+// |MEI|`avaliable`|`consumer`|only 1 partner|
+
+@name("Create Consumer (PJ)")
+POST "https://{{API_BASE_URL}}/consumers"
+"Content-Type": "application/json"
+data('{
+    "domain": "5f1953f1-8035-4a58-9390-b456065be79a",
+    "username": "userName",
+    "firstName": "Empresa Company",
+    "lastName": "Consumer PJ ME",
+    "password": "P@$$w0rd",
+    "email": "email@emailcorporate.com.br",
+    "role": "consumer",
+    "consumer": {
+        "type": "corporate", //must be "corporate" for companies 
+        "taxId": "098765432109876", //taxId of consumer PJ
+        "financialEquity": "99999.00",
+        "financialProfit": "99999.00",
+        "pep": false,
+        "phones": [
+            {
+                "code": "11",
+                "number": "9999998888" //if "corporate" is not necessary to validade SMS token
+            }
+        ],
+        "addresses": [
+            {
+                "country": "Brasil",
+                "state": "SP",
+                "city": "São Paulo",
+                "neighborhood": "Bela Vista",
+                "code": "01000000",
+                "street": "Av. Paulista",
+                "number": "1000",
+                "complement": ""
+            }
+        ],
+        "companyData": {
+            "establishmentFormat": "ME", //ME | MEI | EI | EIRELI | EPP | EMPG | SS
+            "legalName": "Empresa Company",
+            "tradeName": "Consumer PJ ME",
+            "openingDate": "1999-01-01", //foundation date of company
+            "type": "corporate",
+            "taxId": "098765432109876",
+            "financialEquity": "9999.00",
+            "financialProfit": "9999.00",
+            "pep": false,
+            "phones": [
+                {
+                    "code": "11",
+                    "number": "9999998888"
+                }
+            ],
+            "addresses": [
+                {
+                    "country": "Brasil",
+                    "state": "SP",
+                    "city": "São Paulo",
+                    "neighborhood": "Bela Vista",
+                    "code": "01000000",
+                    "street": "Av. Paulista",
+                    "number": "1000",
+                    "complement": ""
+                }
+            ],
+            "activities": [
+                {
+                    "code": "123456", // CNAE code
+                    "isMain": true // CNAE main activity
+                },
+                {
+                    "code": "654321", //CNAE code
+                    "isMain": false //others CNAE
+                }
+            ],
+            "partners": [
+                {
+                    "profile": "OWNER", // OWNER | ATTONERY
+                    "firstName": "Socio Pessoa Fisica",
+                    "lastName": "Partner 1",
+                    "email": "emailpartner1@email.com.br",
+                    "consumer": { //personal data of PARTNER1
+                        "type": "personal",
+                        "taxId": "09876543210",
+                        "financialEquity": "1000.00",
+                        "financialProfit": "1000.00",
+                        "motherName": "mae do conusmer",
+                        "civilStatus": "single",
+                        "birthday": "1980-02-29",
+                        "pep": false,
+                        "phones": [
+                            {
+                                "code": "11",
+                                "number": "9999998888",
+                                "type": "mobile"
+                            }
+                        ],
+                        "addresses": [
+                            {
+                                "country": "BR",
+                                "state": "ES",
+                                "city": "Vitoria",
+                                "code": "29018280",
+                                "street": "Parque Moscoso",
+                                "number": "100",
+                                "neighborhood": "Centro",
+                                "complement": "casa 01",
+                                "reference": "pto de referencia",
+                                "status": "own"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "profile": "OWNER", // OWNER | ATTONERY
+                    "firstName": "Empresa Socio Pessoa Juridica",
+                    "lastName": "Partner 2",
+                    "email": "emailpartner2@teste.com",
+                    "consumer": { //datas of PARTNER2
+                        "type": "corporate", //is a partner is "corporate" then it must have other "partner" inside the body. In this case, the consumer has 1 partner "type:corporate".
+                        "taxId": "11122233344455",
+                        "financialEquity": "8888.00",
+                        "financialProfit": "8888.00",
+                        "pep": false,
+                        "companyData": {
+                            "establishmentFormat": "ME",
+                            "legalName": "Empresa Socio Pessoa Juridica",
+                            "tradeName": "Empresa Socio Pessoa Juridica",
+                            "openingDate": "1999-01-01",
+                            "type": "corporate",
+                            "taxId": "11122233344455",
+                            "financialEquity": "1000.00",
+                            "financialProfit": "1000.00",
+                            "partners": [ //
+                                {
+                                    "profile": "OWNER",
+                                    "firstName": "Socio PF da Empresa Socio Pessoa Juridica",
+                                    "lastName": "Socio PF da Empresa Socio Pessoa Juridica",
+                                    "email": "email.me@teste.com",
+                                    "consumer": {
+                                        "type": "personal",
+                                        "taxId": "55566677788",
+                                        "financialEquity": "1000.00",
+                                        "financialProfit": "1000.00",
+                                        "motherName": "mae do socio",
+                                        "civilStatus": "single",
+                                        "birthday": "1980-02-29",
+                                        "pep": false,
+                                        "phones": [
+                                            {
+                                                "code": "11",
+                                                "number": "9999998888",
+                                                "type": "mobile"
+                                            }
+                                        ],
+                                        "addresses": [
+                                            {
+                                                "country": "BR",
+                                                "state": "ES",
+                                                "city": "Vitoria",
+                                                "code": "29018280",
+                                                "street": "Parque Moscoso",
+                                                "number": "100",
+                                                "neighborhood": "Centro",
+                                                "complement": "casa 01",
+                                                "reference": "pto de referencia",
+                                                "status": "own"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ],
+                            "activities": [
+                                {
+                                    "code": "123456",
+                                    "isMain": true
+                                },
+                                {
+                                    "code": "654321",
+                                    "isMain": false
+                                }
+                            ]
+                        },
+                        "phones": [
+                            {
+                                "code": "11",
+                                "number": "9999998888",
+                                "type": "mobile"
+                            }
+                        ],
+                        "addresses": [
+                            {
+                                "country": "BR",
+                                "state": "ES",
+                                "city": "Vitoria",
+                                "code": "29018280",
+                                "street": "Parque Moscoso",
+                                "number": "100",
+                                "neighborhood": "Centro",
+                                "complement": "casa 01",
+                                "reference": "pto de referencia",
+                                "status": "own"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}')
+
+
+

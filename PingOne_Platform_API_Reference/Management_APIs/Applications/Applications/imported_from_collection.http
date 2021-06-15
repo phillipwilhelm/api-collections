@@ -1,0 +1,672 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/applications` endpoint returns a list of all application resources for the specified environment resource.
+
+@name("READ All Applications")
+GET "https://{{apiPath}}/environments/{{envID}}/applications"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single application resource, the `GET /environments/{environmentId}/applications/{applicationId}` operation returns data only for the application resource with the specified ID.
+
+@name("READ One Application")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// If you set the `protocol` attribute to `NONE`, you must provide values for the following OIDC settings:
+// 
+// 
+// #### Base Data Model
+// 
+// Property | Required? | Type |
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean |
+// `name` | Y | String |
+// `description` | N | String|
+// `type` | Y | One of: `NATIVE_APP` |
+// `protocol` |Y | One of: `NONE`, `OPENID_CONNECT`, `SAML` |
+// `homePageUrl` | N | URL |
+// `loginPageUrl` | N | URL | 
+// `icon` |  |
+// -- id | N | UUID |
+// -- href | N | URL |
+// `bundleId` | N | String | 
+// `packageName` | N | String | 
+// 
+
+@name("CREATE Application (NONE Protocol)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "enabled": true,
+    "name": "NONE-App",
+    "description": "Test Description - None App",
+    "type": "NATIVE_APP",
+    "protocol": "NONE",
+    "homePageUrl": "https://example.com",
+    "loginPageUrl": "http://localhost{{flowUIPort}}",
+    "#icon": {
+        "id": "{{imageID}}",
+        "href": "https://upload.image.org/image.jpg"
+    },
+    "bundleId": "{{bundleID}}",
+    "packageName": "{{packageName}}"
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// 
+// #### Base application data model (web application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` |Y | Boolean
+// `name` | Y | String
+// `description` |N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// icon | |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// 
+// 
+// #### Additional OIDC properties
+// 
+// If you set the `protocol` attribute to `OPENID_CONNECT`, you must provide values for the required OIDC settings. Optional settings can be omitted.
+// 
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more URLs |
+// `responseTypes` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` | N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// refreshTokenDuration | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// 
+// 
+
+@name("CREATE Application (OIDC Protocol - Web App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "attributes"
+data('{
+    "enabled": true,
+    "name": "OIDC-Web-App",
+    "#description": "Test Description - OIDC App (Web)",
+    "type": "WEB_APP",
+    "protocol": "OPENID_CONNECT",
+    "homePageUrl": "https://example.com/homePage",
+    "loginPageUrl": "http://example.com/loginPage",
+    "icon": {
+        "id": "imageID",
+        "href": "https://upload.image/image.jpg"
+    },
+    "grantTypes": [
+        "AUTHORIZATION_CODE"
+    ],
+    "#postLogoutRedirectUris": [
+        "https://example.com/logout"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ],
+    "responseTypes": [
+        "CODE"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "pkceEnforcement": "REQUIRED",
+    "refreshTokenDuration": 86400,
+    "refreshTokenRollingDuration": 86400
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// 
+// #### Base application data model (native application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean
+// `name` |Y | String
+// `description` | N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` |  |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// 
+// #### Additional OIDC settings
+// 
+// If you set the `protocol` attribute to `OPENID_CONNECT`, you must provide values for the required OIDC settings. Optional settings can be omitted.
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more URLs* |
+// `responseTypes` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` | N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// `refreshTokenDuration` | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// `bundleId` | N | String
+// `packageName` | N | String
+// 
+// 
+
+@name("CREATE Application (OIDC Protocol - Native App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "attributes"
+data('{
+    "enabled": true,
+    "name": "OIDC-Native-App",
+    "description": "Test Description - OIDC App (Native)",
+    "type": "NATIVE_APP",
+    "protocol": "OPENID_CONNECT",
+    "homePageUrl": "https://example.com/homePage",
+    "loginPageUrl": "http://example.com/loginPage",
+    "icon": {
+        "id": "{{imageID}}}}",
+        "href": "https://upload.image.org/image.jpg"
+    },
+    "grantTypes": [
+        "AUTHORIZATION_CODE",
+        "IMPLICIT"
+    ],
+    "#postLogoutRedirectUris": [
+        "https://example.com/logout"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ],
+    "responseTypes": [
+        "CODE",
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "NONE",
+    "pkceEnforcement": "REQUIRED",
+    "refreshTokenDuration": 86400,
+    "refreshTokenRollingDuration": 86400,
+    "bundleId": "{{bundleID}}",
+    "packageName": "{{packageName}}"
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// 
+// #### Base application data model (single page application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean
+// `name` | Y | String
+// `description` | N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` |  |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// #### Additional OIDC settings
+// 
+// If you set the `protocol` attribute to `OPENID_CONNECT`, you must provide values for the required OIDC settings. Optional settings can be omitted.
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more URLs |
+// `resposnseTypes` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` | N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// `refreshTokenDuration` | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// 
+// 
+
+@name("CREATE Application (OIDC Protocol - Single Page App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "attributes"
+data('{
+    "enabled": true,
+    "name": "OIDC-SPA-App",
+    "description": "Test Description - OIDC App (Single Page App)",
+    "type": "SINGLE_PAGE_APP",
+    "protocol": "OPENID_CONNECT",
+    "homePageUrl": "https://example.com/homePage",
+    "loginPageUrl": "http://example.com/loginPage",
+    "icon": {
+        "id": "{{imageID}}",
+        "href": "https://upload.image.org/image.jpg"
+    },
+    "grantTypes": [
+        "IMPLICIT"
+    ],
+    "#postLogoutRedirectUris": [
+        "https://example.com/logout"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ],
+    "responseTypes": [
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "NONE",
+    "pkceEnforcement": "REQUIRED",
+    "refreshTokenDuration": 86400,
+    "refreshTokenRollingDuration": 86400
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// 
+// #### Base application data model (service application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean
+// `name` | Y | String
+// `description` | N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` |  |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// 
+// #### Additional OIDC settings
+// 
+// If you set the `protocol` attribute to `OPENID_CONNECT`, you must provide values for the required OIDC settings. Optional settings can be omitted.
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more URLs |
+// `responseTypes` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` |N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// `refreshTokenDuration` | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// 
+// 
+// 
+
+@name("CREATE Application (OIDC Protocol - Service App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "attributes"
+data('{
+    "enabled": true,
+    "name": "OIDC-Service-App",
+    "description": "Test Description - OIDC App (Service)",
+    "type": "SERVICE",
+    "protocol": "OPENID_CONNECT",
+    "homePageUrl": "https://example.com/homePage",
+    "loginPageUrl": "http://example.com/loginPage",
+    "icon": {
+        "id": "{{imageID}}",
+        "href": "https://upload.image.org/image.jpg"
+    },
+    "grantTypes": [
+        "AUTHORIZATION_CODE",
+        "CLIENT_CREDENTIALS",
+        "IMPLICIT",
+        "REFRESH_TOKEN"
+    ],
+    "postLogoutRedirectUris": [
+        "https://example.com/logout"
+    ],
+    "redirectUris": [
+        "http://localhost:3000/response",
+        "http://localhost:3000/code/response",
+        "https://example.com",
+        "https://www.getpostman.com/oauth2/callback"
+    ],
+    "responseTypes": [
+        "CODE",
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_POST",
+    "pkceEnforcement": "REQUIRED",
+    "refreshTokenDuration": 86400,
+    "refreshTokenRollingDuration": 86400
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment.  
+// 
+// In addition to the required  `name` attribute, the request body also specifies a value of "true" for the `enabled` attribute. If a value is not specified for the `enabled` attribute, it is set to `false` by default.
+// 
+// 
+// #### Base application data model (worker application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean
+// `name` | Y | String
+// `description` | N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` |  |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// 
+// 
+// #### Additional OIDC settings
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` | N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// `refreshTokenDuration` | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// 
+// 
+
+@name("CREATE Application (OIDC Protocol - Worker App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "attributes"
+data('{
+    "enabled": true,
+    "name": "WORKER-App",
+    "description": "Test Description - Worker App",
+    "type": "WORKER",
+    "protocol": "OPENID_CONNECT",
+    "homePageUrl": "https://example.com/homePage",
+    "loginPageUrl": "http://example.com/loginPage",
+    "icon": {
+        "id": "{{imageID}}",
+        "href": "https://upload.image.org/image.jpg"
+    },
+    "grantTypes": [
+        "CLIENT_CREDENTIALS"
+    ],
+    "postLogoutRedirectUris": [
+        "https://example.com/logout"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ],
+    "#responseTypes": [
+        "CODE",
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "pkceEnforcement": "REQUIRED",
+    "refreshTokenDuration": 86400,
+    "refreshTokenRollingDuration": 86400
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new mobile application resource to the specified environment.  
+// 
+// 
+// The sample `POST` operation shows usage of the optional `bundleId` and `packageName` properties, for adding a new `NATIVE_APP` type resource (a mobile application) to the specified environment.
+// 
+// 
+// 
+// #### Base application data model (native application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `enabled` | Y | Boolean
+// `name` |Y | String
+// `description` | N | String
+// `type` | Y | One of: `NATIVE_APP`, `WEB_APP`, `SINGLE_PAGE_APP`, `SERVICE`, `WORKER`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` |  |
+// -- `id` | N | UUID
+// -- `href` | N | URL
+// 
+// 
+// 
+// #### Additional OIDC settings
+// 
+// If you set the `protocol` attribute to `OPENID_CONNECT`, you must provide values for the required OIDC settings. Optional settings can be omitted.
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- | 
+// `grantTypes` | Y | One or more of: `AUTHORIZATION_CODE`, `IMPLICIT`, `REFRESH_TOKEN`, `CLIENT_CREDENTIALS` |
+// `postLogoutRedirectUris` | Y | One or more URLs |
+// `redirectUris` | Y | One or more URLs* |
+// `responseTypes` | Y | One or more of: `TOKEN`, `ID_TOKEN`, `CODE` |
+// `tokenEndpointAuthMethod` | Y | One of: `NONE`, `CLIENT_SECRET_BASIC`, `CLIENT_SECRET_POST` |
+// `pkceEnforcement` | N | One of: `OPTIONAL`, `REQUIRED`, `S256_REQUIRED`; default `OPTIONAL` 
+// `refreshTokenDuration` | N | Integer (60 - {maxInt}) 
+// `refreshTokenRollingDuration` | N | Integer (60 - {maxInt}) 
+// `bundleId` | N | String
+// `packageName` | N | String
+// 
+// 
+
+@name("CREATE Application (OIDC Mobile App)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+ "name": "SALES APPLICATION",
+ "description": "Description for my sales application.",
+ "enabled": true,
+ "type": "NATIVE_APP",
+ "loginPageUrl": "http://example.com",
+ "protocol": "OPENID_CONNECT",
+ "responseTypes": [ "TOKEN", "ID_TOKEN" ],
+ "grantTypes": [ "IMPLICIT" ],
+ "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+ "postLogoutRedirectUris": [ "https://example.com" ],
+ "redirectUris": [ "https://example.com:3000/response", "https://example.com:3000/code/response", "https://example.com" ],
+ "bundleId": "com.pingidentity.bundleId",
+ "packageName": "com.pingidentity.packageName"
+}')
+
+
+// The `POST /environments/{environmentId}/applications` operation adds a new application resource to the specified environment. If you set the `protocol` attribute to `SAML`, you must provide values for the following SAML settings:
+// 
+// * `spEntityId`
+// * `acsUrls`
+// * `assertionDuration`
+// 
+// 
+// #### Base application data model (SAML application)
+// 
+// Property | Required? | Type | 
+// -------- | --------- | ---- |
+// `enabled` | Y | Boolean
+// `name` |Y | String
+// `description` | N | String
+// `type` | Y | One of: `WEB_APP`, `CUSTOM_APP` 
+// `protocol` | Y | One of: `NONE`, `OPENID_CONNECT`, `SAML`
+// `homePageUrl` | N | URL
+// `loginPageUrl` | N | URL 
+// `icon` | |
+// -- `id` |  N | UUID
+// -- `href` |  N | URL
+// 
+// 
+// 
+// #### Additional SAML settings
+// 
+// Property | Required? | Type | 
+// -------- |  --------- | ---- | 
+// `spEntityID` | Y | String
+// `acsUrls` | Y | One or more URLS | 
+// `assertionDuration` | Y | Integer 
+// `defaultTargetUrl`|N |URL
+// `sloBinding` | N | One of: `HTTP_REDIRECT`, `HTTP_POST`; default `HTTP_POST` 
+// `sloEndpoint` | N | URL 
+// `sloResponseEndpoint` | N | URL 
+// `responseSigned` | N | Boolean
+// `assertionSigned` | N | Boolean
+// `idpSigning` | | 
+// -- `key` | |  
+// -- `algorithm` | N | String
+// `spEncryption` | | 
+// -- `algorithm` |N | String
+// -- `certificates` | | 
+// -- -- `id` | N | UUID
+// `spVerification` | | 
+// -- `authnRequestSigned` |N | Boolean
+// -- `certificates` | | 
+// -- -- `id` | N | One or more UUIDs
+
+@name("CREATE Application (SAML Protocol)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "app_{{$timestamp}}",
+    "description": "this is my application",
+    "enabled": true,
+    "#loginPageUrl": "https://example.com",
+    "type": "WEB_APP",
+    "protocol": "SAML",
+    "#icon": {
+        "id": "04ad537e-c9cd-45c3-abfb-f41946cfe374",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Baby_Jake.jpg"
+    },
+    "assertionDuration": 60,
+    "acsUrls": [
+        "https://example.com"
+    ],
+    "sloResponseEndpoint": "https://example.com",
+    "spEntityId": "test"
+}')
+
+
+// You can use the `POST /environments/{environmentId}/applications` endpoint to return SAML application connection property values needed to establish the application connection. The sample shows how to parse application connection metadata from a file. This operation uses the `application/samlmetadata+xml` media type as the content type in the request header. The request body specifies the metadata file:
+// 
+// 
+// 
+// ::: info
+// **Note:** The `x509SigningCert` and `x509EncryptionCert` SAML metadata properties are valid (temporarily) for backward compatibility. These properties will be removed from the product in a future release.
+// :::
+
+@name("CREATE Application (SAML - Metadata Import)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/samlmetadata+xml"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "{{file-content-as-bytes}}"
+}')
+
+
+// You can use the `POST /environments/{environmentId}/applications` endpoint to return SAML application connection property values needed to establish the application connection. The sample shows how to return application connection metadata from a URL. This operation uses the `application/samlmetadata+url` media type as the content type in the request header. The request body specifies the URL:
+// 
+// 
+// ::: info
+// **Note:** The `x509SigningCert` and `x509EncryptionCert` SAML metadata properties are valid (temporarily) for backward compatibility. These properties will be removed from the product in a future release.
+// :::
+
+@name("CREATE Application (SAML - URL Import)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "{{URL}}"
+}')
+
+
+// To update a property value associated with a selected application resource, use the  `PUT /environments/{environmentId}/applications/{applicationId}` operation to modify the specified attribute values. The request requires the `name`, `type`, and `protocol` attributes in the request.
+
+@name("UPDATE Application (OIDC)")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "AppName",
+    "description": "This is my UPDATED app description",
+    "protocol": "OPENID_CONNECT",
+    "type": "WEB_APP"
+    }')
+
+
+// To update a property value associated with a selected application resource, use the  `PUT /environments/{environmentId}/applications/{applicationId}` operation to modify the specified attribute values. The request requires the `name`, `type`, and `protocol` attributes in the request.
+
+@name("UPDATE Application (SAML)")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "UPDATED_{{$timestamp}}",
+    "description": "this is my UPDATED client",
+    "enabled": false,
+    "type": "WEB_APP",
+    "protocol": "SAML",
+    "assertionDuration": 60,
+    "acsUrls": [
+        "https://example.com"
+    ],
+    "sloResponseEndpoint": "https://example.com",
+    "spEntityId": "test"
+}')
+
+
+// To delete an application resource, you need to specify the environment ID and the application resource ID. The `DELETE /environments/{environmentId}/applications/{applicationId}` operation deletes the identified application resource.
+// 
+// For successful delete operations, a `204 NO CONTENT` message is returned by the request.
+
+@name("DELETE Application")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appD}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

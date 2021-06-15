@@ -1,0 +1,39 @@
+#!/usr/bin/env dothttp
+
+// This compliance report uses the device config template SET-DNS-SERVER to see if the device has a DNS server per OS type. 
+// It assumes you have the template in the CDB and have device groups set. The prod instance does not have these set by default.
+
+@name("Configure DNS Server Compliance Report")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:compliance"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+data('<compliance xmlns="http://tail-f.com/ns/ncs">
+               <reports>
+                 <report>
+                   <name>DNS_COMPLIANCE_REPORT</name>
+                   <compare-template>
+                     <template-name>SET-DNS-SERVER</template-name>
+                     <device-group>ALL</device-group>
+                   </compare-template>
+                 </report>
+               </reports>
+             </compliance>')
+
+
+// for a system install the report will be created here:
+// /var/opt/ncs/state/compliance-reports
+
+@name("Run Compliance Report")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:compliance/reports/report=DNS_COMPLIANCE_REPORT/run"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+data('<input>
+	<outformat>html</outformat>
+</input>')
+
+
+

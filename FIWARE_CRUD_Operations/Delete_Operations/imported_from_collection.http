@@ -1,0 +1,178 @@
+#!/usr/bin/env dothttp
+
+// This example deletes the Entity with `id=urn:ngsi-ld:Product:001` from the context
+// 
+// Entities be deleted by making a DELETE request to the `/v2/entities/<entity>` endpoint.
+// 
+// ---
+// Subsequent requests using the same `id` will result in an error response since the entity no longer exists
+
+@name("Delete a Data Entity")
+DELETE "http://{{orion}}/v2/entities/urn:ngsi-ld:Product:010"
+
+
+// This example remove the `specialOffer` attribute from the Entity with `id=urn:ngsi-ld:Product:010` 
+// 
+// Attributes be deleted by making a DELETE request to the `/v2/entities/<entity>/attrs/<attribute>` endpoint.
+// 
+// ---
+// If the attribute does not exist in the context, the result in an error response.
+
+@name("Delete an Attribute from a Data Entity")
+DELETE "http://{{orion}}/v2/entities/urn:ngsi-ld:Product:010/attrs/specialOffer"
+
+
+
+// This example uses the convenience batch processing endpoint to delete a series of available products.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes - `actionType=delete` means we will
+// delete something from the context and the `entities` attribute holds the `id` of the entities we wish to update.
+// 
+// ---
+// If any entity does not exist in the context, the result in an error response.
+
+@name("Batch Delete Multiple Data Entities")
+POST "http://{{orion}}/v2/op/update"
+"Content-Type": "application/json"
+data('{
+  "actionType":"delete",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:001", "type":"Product"
+    },
+    {
+      "id":"urn:ngsi-ld:Product:002", "type":"Product"
+    }
+  ]
+}')
+
+
+// This example uses the convenience batch processing endpoint to delete a series of attributes from  an available product.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes - `actionType=delete` means we will
+// delete something from the context and the `entities` attribute holds an array of attributes we wish to update.
+// 
+// ---
+// If any attribute does not exist in the context, the result in an error response.
+
+@name("Batch Delete  Multiple Attributes from a Data Entity")
+POST "http://{{orion}}/v2/op/update"
+"Content-Type": "application/json"
+data('{
+  "actionType":"delete",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:010", "type":"Product",
+      "price":{},
+      "name": {}
+    }
+  ]
+}')
+
+
+// This example returns the key of all entities directly associated with the `urn:ngsi-ld:Product:001`.
+// 
+// * If this request returns an empty array, the entity has no associates - it can be safely deleted
+// * If the response lists a series of **InventoryItem** entities they should be deleted before the product is removed from the context.
+// 
+// 
+// Note that we deleted **Product** `urn:ngsi-ld:Product:001` earlier, so what we
+// see above is actually a dangling reference, i.e. the returned **InventoryItem**
+// references a **Product** that no longer exists.
+
+@name("Find existing data relationships")
+GET "http://{{orion}}/v2/entities/"
+? "q"= "refProduct==urn:ngsi-ld:Product:001"
+? "options"= "count"
+? "attrs"= "type"
+data('{
+  "actionType": "APPEND",
+  "entities": [
+    {
+    "id": "7770",
+    "type": "Shelf",
+    "store": { 
+      "type": "Relationship",
+      "value": "urn:ngsi-ld:Store:store1"
+    },
+    "location": {
+        "type": "geo:json",
+        "value": {
+           "type": "Point",
+           "coordinates": [13.3986112, 52.554699]
+        }
+    },
+    "name": {
+        "type": "Text",
+        "value": "Corner Unit"
+    },
+    "maxCapacity": {
+        "type": "Integer",
+        "value": 50
+    }
+},
+
+ {
+      "id": "7771",
+      "type": "Shelf",
+      "store": {
+        "type": "Relationship",
+        "value": "urn:ngsi-ld:Store:store1"
+      },
+      "location": {
+        "type": "geo:json",
+        "value": {
+          "type": "Point",
+          "coordinates": [
+            13.3987221,
+            52.5546640
+          ]
+        }
+      },
+      "name": {
+        "type": "Text",
+        "value": "Wall Unit 1"
+      },
+      "maxCapacity": {
+        "type": "Integer",
+        "value": 100
+      }
+    },
+    
+    {
+      "id": "7772",
+      "type": "Shelf",
+      "store": {
+        "type": "Relationship",
+        "value": "urn:ngsi-ld:Store:store1"
+      },
+      "location": {
+        "type": "geo:json",
+        "value": {
+          "type": "Point",
+          "coordinates": [
+            13.3987221,
+            52.5546640
+          ]
+        }
+      },
+      "name": {
+        "type": "Text",
+        "value": "Wall Unit 2"
+      },
+      "maxCapacity": {
+        "type": "Integer",
+        "value": 100
+      }
+    }
+    
+    
+
+
+
+
+  ]
+}')
+
+
+

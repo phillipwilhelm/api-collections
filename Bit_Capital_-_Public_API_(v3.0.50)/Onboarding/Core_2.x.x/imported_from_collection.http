@@ -1,0 +1,223 @@
+#!/usr/bin/env dothttp
+
+// Create a new consumer.
+// 
+// <br/>
+// 
+// **Scopes:** `users:write`
+
+@name("Create Consumer (PJ)")
+POST "https://{{API_BASE_URL}}/consumers"
+"Content-Type": "application/json"
+data('{
+    "domain": "7a30763c-cd3f-4bdb-964a-39c83218f915",
+    "firstName": "EMPRESA",
+    "lastName": "LEGALNAME LTDA",
+    "email": "emailempresa@email.com",
+    "role": "consumer",
+    "consumer": {
+        "birthday": "2019-09-07T12:00:00.000Z",
+        "motherName": null,
+        "companyData": {
+            "establishmentFormat": "LTDA",
+            "stateRegistration": "",
+            "partnerChanged": false,
+            "openingDate": "2019-09-07T12:00:00.000Z",
+            "legalStatus": "active",
+            "legalNature": "213-5",
+            "activities": [
+                {
+                    "description": "Treinamento em desenvolvimento profissional e gerencial",
+                    "isMain": true,
+                    "code": "85.99-6-04"
+                },
+                {
+                    "description": "Edição de cadastros, listas e de outros produtos gráficos",
+                    "isMain": false,
+                    "code": "58.19-1-00"
+                },
+                {
+                    "description": "Outras atividades de ensino não especificadas anteriormente",
+                    "isMain": false,
+                    "code": "85.99-6-99"
+                }
+            ],
+            "tradeName": "EMPRESA Consultoria e Treinamentos",
+            "legalName": "EMPRESA LEGAL NAME LTDA",
+            "partners": [
+                {
+                    "birthCountry": "Brasil",
+                    "motherName": "MAE DO PARTNER PF",
+                    "birthDate": "1980-03-01T12:00:00.000Z",
+                    "addresses": [
+                        {
+                            "neighborhood": "Jardim Vergueiro",
+                            "complement": "43 bl5",
+                            "reference": "",
+                            "country": "BR",
+                            "street": "Av Padre Arlindo Vieira",
+                            "status": "own",
+                            "number": "3100",
+                            "state": "SP",
+                            "code": "04166003",
+                            "city": "São Paulo"
+                        }
+                    ],
+                    "profile": "owner",
+                    "phones": [
+                        {
+                            "number": "966259243",
+                            "type": "mobile",
+                            "code": "11"
+                        }
+                    ],
+                    "gender": "M",
+                    "taxId": "08538995766",
+                    "isPep": false,
+                    "email": "bruno.vieira@outlook.com",
+                    "type": "personal",
+                    "name": "Bruno da Silva Vieira",
+                    "revenue": 1000
+                }
+            ],
+            "revenue": 1000,
+            "taxId": "34794217000132"
+        },
+        "type": "corporate",
+        "pep": false,
+        "taxId": "34794217000132",
+        "phones": [
+            {
+                "default": true,
+                "number": "966259243",
+                "code": "11",
+                "countryCode": "55"
+            }
+        ],
+        "addresses": [
+            {
+                "status": "own",
+                "default": true,
+                "reference": "",
+                "country": "BR",
+                "state": "SP",
+                "city": "São Paulo",
+                "code": "04166003",
+                "neighborhood": "Jardim Vergueiro",
+                "complement": "43 bl5",
+                "number": "3100",
+                "street": "Av Padre Arlindo Vieira"
+            }
+        ]
+    }
+}')
+
+
+// Create a new consumer.
+// 
+// <br/>
+// 
+// **Scopes:** `users:write`
+
+@name("Create Consumer (PF)")
+POST "https://{{API_BASE_URL}}/consumers"
+"Content-Type": "application/json"
+data('{
+    "domain": "7a30763c-cd3f-4bdb-964a-39c83218f915",
+    "password": "P@$$w0rd",
+    "firstName": "{{$randomFirstName}}",
+    "lastName": "{{$randomLastName}}",
+    "email": "{{$randomEmail}}",
+    "consumer": {
+        "type": "personal",
+        "taxId": "{{randomCPF}}",
+        "motherName": "Mae do userPF",
+        "birthday": "1980-02-29 12:00:00",
+        "phones": [
+            {
+                "code": "27",
+                "number": "{{randomPhone}}",
+                "type": "mobile"
+            }
+        ],
+        "addresses": [
+            {
+                "country": "BR",
+                "state": "ES",
+                "city": "Vitoria",
+                "code": "29018280",
+                "street": "Parque Moscoso",
+                "number": "100",
+                "neighborhood": "Centro",
+                "complement": "casa 01",
+                "reference": "pto de referencia",
+                "status": "own"
+            }
+        ]
+    }
+}')
+
+
+// Get all phones from a consumer by it's id.
+// 
+// <br/>
+// 
+// **Scopes:** `users:read`
+
+@name("List phoneID")
+GET "https://{{API_BASE_URL}}/consumers/:id/phones"
+
+
+// Ask for a token for validate the consumer mobile phone
+
+@name("Send token SMS")
+POST "https://{{API_BASE_URL}}/consumers/:userId/phones/:phoneId/send-token"
+"Content-Type": "application/json"
+
+
+// Sends a token to validate consumer mobile phone
+
+@name("Verify token SMS")
+POST "https://{{API_BASE_URL}}/consumers/:id/phones/:phoneId/verify"
+"Content-Type": "application/json"
+data('{
+	"token": "H-132307"
+}')
+
+
+// Uploads a picture and stores it related with the consumer using its UUID.
+// If there's no document of this type, it will be created.
+// 
+// <br/>
+// 
+// **Scopes:** `users:documents:write`
+
+@name("Upload documents")
+POST "https://{{API_BASE_URL}}/consumers/:id/documents/:type/:side"
+files(
+	("file", "None"),
+	("number", "08538995766"),
+	("reason", "Seems legit")
+)
+
+
+@name("List Legal Terms")
+GET "https://{{API_BASE_URL}}/legal-terms"
+? "skip"= "0"
+? "limit"= "50"
+
+
+@name("Read Legal Terms")
+GET "https://{{API_BASE_URL}}/consumers/:id/legal-terms"
+
+
+@name("Accept Legal Terms")
+POST "https://{{API_BASE_URL}}/consumers/:consumerId/legal-terms/:legalTermId"
+"Content-Type": "application/json"
+data('{
+	"ip": "127.0.0.1",
+	"userAgent": "Postman"
+}')
+
+
+

@@ -1,0 +1,53 @@
+#!/usr/bin/env dothttp
+
+// This request sets client's public key on the server. The keys are generated automatically and saved as Postman environment variables. Server returns its own public key and an installation token which are also saved as Postman environment variables.
+
+@name("Create an installation")
+POST "https://{{host}}/v1/installation"
+"Content-Type": "application/json"
+"User-Agent": "postman"
+"X-Bunq-Language": "en_US"
+"X-Bunq-Region": "nl_NL"
+"X-Bunq-Client-Request-Id": "{{request_id}}"
+"X-Bunq-Geolocation": "{{geolocation}}"
+"X-Bunq-Client-Signature": "{{signature}}"
+data('{"client_public_key":"{{public_key_client_fmt}}"}')
+
+
+@name("Add the device")
+POST "https://{{host}}/v1/device-server"
+"Content-Type": "application/json"
+"Cache-Control": "no-cache"
+"User-Agent": "postman"
+"X-Bunq-Language": "en_US"
+"X-Bunq-Region": "nl_NL"
+"X-Bunq-Client-Request-Id": "{{request_id}}"
+"X-Bunq-Geolocation": "{{geolocation}}"
+"X-Bunq-Client-Authentication": "{{installation_token}}"
+"X-Bunq-Client-Signature": "{{signature}}"
+data('{
+	"description": "Postman",
+	"secret": "{{api_key}}",
+	"permitted_ips": ["*"]
+}')
+
+
+// Sessions are temporary and expire after the auto-logout time set for the user account. The logout time can only be changed by the account owner in the bunq app.
+
+@name("Add a session")
+POST "https://{{host}}/v1/session-server"
+"Content-Type": "application/json"
+"Cache-Control": "no-cache"
+"User-Agent": "postman"
+"X-Bunq-Language": "en_US"
+"X-Bunq-Region": "nl_NL"
+"X-Bunq-Client-Request-Id": "{{request_id}}"
+"X-Bunq-Geolocation": "{{geolocation}}"
+"X-Bunq-Client-Authentication": "{{installation_token}}"
+"X-Bunq-Client-Signature": "{{signature}}"
+data('{
+	"secret": "{{api_key}}"
+}')
+
+
+

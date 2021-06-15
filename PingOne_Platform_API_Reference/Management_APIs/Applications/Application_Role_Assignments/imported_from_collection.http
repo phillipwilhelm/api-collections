@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// Applications in PingOne can be assigned one or more roles. You can view the roles assigned to a specific application, and you can view the role assignment scopes that define the limitations of each role.
+// 
+// The `GET /environments/{environmentId}/applications/{applicationId}/roleAssignments` operation returns the list of roles assigned to the application specified by the application ID.
+
+@name("READ Application Role Assignments")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/roleAssignments"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET /environments/{environmentId}/applications/{applicationId}/roleAssignments/{roleAssignmentId}` operation returns the specific role assignment assigned to the application identified by the application's ID.
+
+@name("READ One Application Role Assignment")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/roleAssignments/{{roleAssignmentID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can manage the roles assigned to specific applications. When you assign a role to an application, you provide the attribute values required to identify the role and designate the role assignment scope for this application.
+// 
+// The sample shows the `POST /environments/{environmentId}/applications/{applicationId}/roleAssignments` operation to create the role assignment for the application in the specified environment resource.
+// 
+// The request URL identifies the environment ID and application ID. The request body specifies the `role` ID and the `scope` attribute values. The `scope` attribute provides the resource ID and resource type to designate the role assignment scope associated with this application. In this sample, the scope `type` is `ORGANIZATION` and the specific organization to which the role assignment scope applies is specified in the `id` value.
+// 
+
+@name("CREATE Application Role Assignments")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/roleAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "role": {
+        "id": "{{roleID}}"
+    },
+    "scope": {
+        "id": "{{envID}}",
+        "type": "ENVIRONMENT"
+    }
+}')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/applications/{applicationId}/roleAssignments/{roleAssignmentId}` operation to delete the role assignment specified by its ID in the request URL. The role assignment is deleted only for the application identified in the request URL.
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Application Role Assignment")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/roleAssignments/{{roleAssignmentID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

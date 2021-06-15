@@ -1,0 +1,141 @@
+#!/usr/bin/env dothttp
+
+// List all of your saved blueprints.
+// 
+// The response is an array of blueprint entries without the diagram data. Each entry includes the blueprint ID and name, access control and user information.
+// 
+// The provided blueprint IDs are required to access the other blueprint related APIs.
+// 
+// Responses
+// =========
+// - **200 OK on success**
+// - 401 Unauthorized
+
+@name("List my blueprints")
+GET "https://{{cloudcraft_url}}/blueprint"
+
+
+// Retrieve one blueprint by ID, in JSON format.
+// 
+// Path Parameters
+// ===============
+// - **ID**: _UUID_, Blueprint ID. Required.
+// 
+// Responses
+// =========
+// - **200 OK on success**
+// - 401 Unauthorized
+// - 403 Forbidden, insufficient privileges
+// - 404 Blueprint not found
+
+@name("Retrieve blueprint")
+GET "https://{{cloudcraft_url}}/blueprint/ID"
+
+
+
+// Create a new blueprint.
+// 
+// The body of the request should contain the blueprint document in JSON format. The response will contain the created blueprint, including the newly assigned ID.
+// 
+// Responses
+// =========
+// - **201 Created on success**
+// - 401 Unauthorized
+// - 403 Forbidden, insufficient privileges
+
+@name("Create blueprint")
+POST "https://{{cloudcraft_url}}/blueprint"
+"Content-Type": "application/json"
+data('{
+    "data": {
+        "grid": "standard",
+        "name": "My new blueprint"
+    }
+}')
+
+
+// Update an existing blueprint by ID.
+// 
+// The body of the request should contain the updated blueprint document in JSON format.
+// 
+// Optionally, a conditional update of the blueprint can be perfomed by including the _If-Match_ HTTP header with the same ETag value as provided by the "Retrieve blueprint" API. If the blueprint has been modified since the retrieval, the update will be rejected with a _412 Resource out of date_ response. If the update succeeds, the new ETag will be returned.
+// 
+// Responses
+// =========
+// - **204 No Content on success**
+// - 401 Unauthorized
+// - 403 Forbidden, insufficient privileges
+// - 404 Blueprint not found
+// - 412 Resource out of date
+
+@name("Update blueprint")
+PUT "https://{{cloudcraft_url}}/blueprint/ID"
+"Content-Type": "application/json"
+data('{
+    "data": {
+        "grid": "standard",
+        "name": "My new blueprint"
+    }
+}')
+
+
+// Render blueprint for export in SVG, PNG, PDF or MxGraph format.
+// 
+// Path Parameters
+// ===============
+// - **BLUEPRINT_ID**: _UUID_, Blueprint ID
+// - **FORMAT**: _String_, one of "svg", "png", "pdf", "mxGraph"
+// 
+// Optional query parameters
+// =========================
+// - **scale**: _Float_. Scale relative to original size (1.0), for example 0.5 for half or 2.0 for double size.
+// - **width**: _Number_. Image width in pixels (for SVG, PNG and PDF).
+// - **height**: _Number_. Image height in pixels (for SVG, PNG and PDF).
+// - **grid**: _Boolean_. Enable or disable grid rendering.
+// - **transparent**: _Boolean_. Enable or disable transparent background rendering.
+// - **landscape**: _Boolean_. Enable or disable landscape paper format (PDF).
+// - **paperSize**: _String_. One of "Letter", "Legal", "Tabloid", "Ledger", "A0", "A1", "A2", "A3", "A4", "A5".
+// 
+// Responses
+// =========
+// - **200 OK on success**, with the content type being one of:
+//   - image/svg+xml
+//   - image/png
+//   - application/pdf
+//   - application/xml
+//   - application/json
+// - 401 Unathorized
+// - 403 Forbidden, insufficient privileges
+// - 404 Blueprint not found
+
+@name("Export blueprint as image")
+GET "https://{{cloudcraft_url}}/blueprint/BLUEPRINT_ID/FORMAT"
+
+
+// Delete a blueprint by ID.
+// 
+// When the deletion succeeds _204 No Content_ is returned.
+// 
+// Path Parameters
+// ===============
+// - **ID**: _UUID_, Blueprint ID. Required.
+// 
+// Responses
+// =========
+// - **204 No Content on success**
+// - 401 Unathorized
+// - 403 Forbidden, insufficient privileges
+// - 404 Blueprint not found
+
+@name("Delete blueprint")
+DELETE "https://{{cloudcraft_url}}/blueprint/ID"
+"Content-Type": "application/json"
+data('{
+    "data": {
+        "grid": "standard",
+        "name": "My new blueprint"
+    }
+}')
+
+
+

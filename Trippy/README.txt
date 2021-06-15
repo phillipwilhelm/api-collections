@@ -1,0 +1,1 @@
+The Trippy API is not a real API. Use this example as a guide to develop your own personal transportation APIs

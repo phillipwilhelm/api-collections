@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgNetworks")
+GET "https://{{host}}/api/v1/orgs/:org_id/networks"
+
+
+@name("getOrgNetworkDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/networks/:network_id"
+
+
+@name("createOrgNetworks")
+POST "https://{{host}}/api/v1/orgs/:org_id/networks"
+data('{
+    "name": "store",
+    "vlan_id": 70,
+    "subnet": "192.168.70.0/24",
+    "gateway": "192.168.70.1",
+    
+    // whether to allow clients in the network to talk to each other
+    "isolation": false,
+
+    // whether this network has direct internet access
+    "internet_access": {
+        "enabled": true,
+
+        // by default, all access is allowed
+        // to only allow certain traffic, make restricted=true and define service_policies 
+        "restricted": false,
+
+        "static_nat": {
+            "63.16.0.1": {"to": "192.168.70.3", "name": "printer-1"},
+            "63.16.0.32/30": {"to": "192.168.70.16/30", "name": "pos-stations"}
+        },
+        "destination_nat": {
+            ":2222": {"to": "192.168.70.30", "name": "ssh", "port": 22},
+            "63.16.0.3:443": {"to": "192.168.70.5", "name": "web server", "port": 443}
+        }
+    },
+
+    // whether this network can be accessed from vpn
+    "vpn_access": {
+        "data-center": {
+            "routed": true,  // whether this network is routable
+
+            // if routed = false (usually at Spoke), but some hosts needs to be reachable from Hub
+            "nat_pool": "172.16.0.0/26",  // a subnet is required to create and advertise the route to Hub
+            "static_nat": {
+                "172.16.0.1": {"to": "192.168.70.3", "name": "pos-station-1"},
+                "172.16.0.2": {"to": "192.168.70.8", "name": "pos-station-2"},
+                "172.16.0.12/30": {"to": "192.168.70.12/30", "name": "pos-stations"}
+            },
+            "destination_nat": {
+                "172.16.0.5/30": {"to": "192.168.70.5/30", "name": "web server"},
+                "172.16.0.3:8443": {"to": "192.168.70.5", "name": "web server", "port": 443}
+            }
+        }
+    },
+
+    "tenants": {
+        "pos-stations": {
+            "addresses": ["192.168.70.16/30"]
+        },
+        "printer-1": {
+            "addresses": ["192.168.70.3"]
+        }
+    }
+}')
+
+
+@name("updateOrgNetwork")
+PUT "https://{{host}}/api/v1/orgs/:org_id/networks/:network_id"
+json({
+    "name": "guest",
+    "vlan_id": 70,
+    "subnet": "192.168.70.0/24"
+})
+
+
+@name("deleteOrgNetwork")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/networks/:network_id"
+
+
+

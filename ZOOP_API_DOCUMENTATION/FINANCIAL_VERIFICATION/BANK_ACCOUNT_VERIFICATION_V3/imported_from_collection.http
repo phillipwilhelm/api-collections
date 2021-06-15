@@ -1,0 +1,183 @@
+#!/usr/bin/env dothttp
+
+// This API can be used to verify any Indian bank's account number
+// ## REQUEST JSON
+// 
+// ### Body Params
+// 
+// * Account (required) - Bank Account Number which needs to be verified
+// * IFSC (required) - IFSC Code of corresponding bank
+// * Consent(required) - (Y/N)
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invalid Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not white listed :(IP address)".
+// }
+// ```
+// 
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "response_code": "NCP",
+//     "response_message": "Invalid parameter: Consent is required"
+// }
+// ```
+// ```
+// {
+//     "statusCode": 400,
+//     "response_code": "NCP",
+//     "response_message": "Invalid parameter: Consent should be 'Y'"
+// }
+// ```
+// 
+// 
+// <h4>Missing account number/non numeric account number </h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Account number is invalid."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Account number is missing."
+// }
+// ```
+// 
+// 
+// <h4>Missing IFSC / Non alphaNumeric IFSC / IFSC length not equal to 11 </h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "IFSC has invalid format."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "IFSC is missing."
+// }
+// ```
+// 
+// <h4>Transaction success | Account validation success</h4>
+// 
+// ```
+// {
+//     "id": "666a6466-fe62-4e45-8692-e19b69eb6291",
+//     "transaction_status": 1,
+//     "response_code": "TXN",
+//     "response_message": "Account details successfully verified.",
+//     "data": {
+//         "BeneName": "SARTXXX  NXXXX",
+//         "BankRef": "03231642XXXX",
+//         "Remark": "Transaction Successful",
+//         "Status": "VERIFIED"
+//     },
+//     "request_timestamp": "2020-11-18 16:34:45:926 +05:30",
+//     "response_timestamp": "2020-11-18 16:34:49:894 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction success | Account validation failure</h4>
+// 
+// ```
+// {
+//     "id": "8be46ddb-e257-4be3-9978-cdb93175cb30",
+//     "transaction_status": 2,
+//     "response_code": "IAN",
+//     "response_message": "Account details could not be verified.",
+//     "data": {
+//         "Remark": "Invalid Account Number, Account details could not be verified.",
+//         "Status": "UNVERIFIED"
+//     },
+//     "request_timestamp": "2020-11-18 16:36:01:448 +05:30",
+//     "response_timestamp": "2020-11-18 16:36:03:215 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "d9a9affc-0986-4b14-81ec-a0ccd05f1b85",
+//     "response_code": null,
+//     "response_message": null,
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-07-19 15:25:00:476 +05:30",
+//     "response_timestamp": null
+// }
+// ```
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-bank/v3"
+json({
+    "Account": "<<Account Number Here>>",
+    "IFSC": "<<Bank's IFSC code>>",
+    "consent": "Y/N"
+})
+
+
+

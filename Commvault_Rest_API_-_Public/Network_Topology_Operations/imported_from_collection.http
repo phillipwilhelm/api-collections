@@ -1,0 +1,223 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation returns all the network topologies.
+
+@name("Network Topologies")
+GET "https://{{ServerUrl}}/FirewallTopology"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns details of a particular network topology.
+
+@name("Network Topology properties")
+GET "https://{{ServerUrl}}/FirewallTopology/{{topologyId}}"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation creates a network topology.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// 
+// <tr>
+// <td>topologyType</td>
+// <td>
+// <p>values:<br />- network gateway topology : 1<br />- one-way topology : 2<br />- two-way topology : 3<br />- cascading gateways topology : 4<br /></p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>displayType</td>
+// <td>
+// <p>values:<br />- servers : 0<br />- laptops : 1<br /></p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>useWildcardProxy <br />
+// (only for Network Gateway Topology)</td>
+// <td>
+// <p>values:<br />- true : to enable <i>Force servers to use network gateways for all traffic</i><br />- false : to disable <i>Force servers to use network gateways for all traffic</i><br /></p>
+// </td>
+// </tr>
+// 
+// 
+// <tr>
+// <td>pushNWConfigOnTopology</td>
+// <td>
+// <p>values:<br />- true : to push network configuration on topology after creation<br />- false : if push network configuration is not required<br /></p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>isSmartTopology</td>
+// <td>
+// <p>values:<br />- true <br />- false <br />  should be passed as true only if any of the client group is Smart Group</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>fwGroupType</td>
+// <td>
+// <p>values:<br />- Infrastructure machines : 1<br />- Servers : 2<br />- Server gateways : 3<br />- DMZ gateways : 4<br /></p>
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+
+@name("Network Topology")
+POST "https://{{ServerUrl}}/FirewallTopology"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "pushNWConfigOnTopology": false,
+    "firewallTopology": {
+        "extendedProperties": "<App_TopologyExtendedProperties displayType=\"{{displayType}}\" />",
+        "topologyType": {{topologyType}},
+        "description": "Cascading Gateways Topology",
+        "isSmartTopology": true,
+        "firewallGroups": [
+            {
+                "fwGroupType": 2,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup1}}"
+                }
+            },
+            {
+                "fwGroupType": 1,
+                "isMnemonic": true,
+                "clientGroup": {
+                    "clientGroupName": "My CommServe Computer"
+                }
+            },
+            {
+                "fwGroupType": 3,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup2}}"
+                }
+            },
+            {
+                "fwGroupType": 4,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup3}}"
+                }
+            }
+        ],
+        "topologyEntity": {
+            "topologyName": "{{topologyName}}"
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation updates a network topology.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>topologyType</td>
+// <td>
+// <p>values:<br />- network gateway topology : 1<br />- one-way topology : 2<br />- two-way topology : 3<br />- cascading gateways topology : 4<br /></p>
+// </td>
+// </tr>
+// <tr>
+// <td>displayType</td>
+// <td>
+// <p>values:<br />- servers : 0<br />- laptops : 1<br /></p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Update Network Topology")
+PUT "https://{{ServerUrl}}/FirewallTopology/{{topologyId}}"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "pushNWConfigOnTopology": false,
+    "firewallTopology": {
+        "extendedProperties": "<App_TopologyExtendedProperties displayType=\"{{displayType}}\" />",
+        "topologyType": {{topologyType}},
+        "description": "Updating Cascading Gateways Topology",
+        "isSmartTopology": true,
+        "firewallGroups": [
+            {
+                "fwGroupType": 2,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup1}}"
+                }
+            },
+            {
+                "fwGroupType": 1,
+                "isMnemonic": true,
+                "clientGroup": {
+                    "clientGroupName": "My CommServe Computer"
+                }
+            },
+            {
+                "fwGroupType": 3,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup2}}"
+                }
+            },
+            {
+                "fwGroupType": 4,
+                "isMnemonic": false,
+                "clientGroup": {
+                    "clientGroupName": "{{clientGroup3}}"
+                }
+            }
+        ],
+        "topologyEntity": {
+            "topologyName": "TestTopology",
+            "topologyId": 1080
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation performs a push network configuration on the topology.
+
+@name("Push Network Topology")
+POST "https://{{ServerUrl}}/FirewallTopology/{{topologyId}}/Push"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation deletes a network topology.
+
+@name("Network Topology")
+DELETE "https://{{ServerUrl}}/FirewallTopology/{{topologyId}}"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+

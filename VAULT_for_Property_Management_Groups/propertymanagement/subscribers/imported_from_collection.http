@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// - Use this API to add a get a new unique psuedonym for an account in your system. You will later require the SubscriberToken from API response during operations such as addKey() and removeKey(). 
+// - Provide EmailAddress to enable subscriber web console. 
+// - Provide PhoneNumber.E164 to enable SMS for OTP (optional)
+
+@name("addSubscriber")
+POST "https://{{url}}/propertymanagement/subscribers/addSubscriber"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+    "EmailAddress": "gjain@blueportwireless.com",
+    "PhoneNumber.E164": "{{SubscriberPhoneNumber.E164}}"
+}')
+
+
+// - Use this API to enable text and web based console for subscribers. 
+// - PhoneNumber.E164 is optional
+// - A confirmation message will be sent to subscriber.
+
+@name("enableSubscriberConsole")
+POST "https://{{url}}/propertymanagement/subscribers/enableSubscriberConsole"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberToken": "{{SubscriberToken}}",
+    "EmailAddress": "gjain@blueportwireless.com"
+})
+
+
+// - Use this API to delete susbcriber's email adress and phone number from VAULT. 
+// - This operation is irreversible.
+// - DATA PRIVACY NOTICE - Any subscriber can directly close an account with Blueport bypassing system of property management group / network operator. Subscriber's pseudonym "SubscriberToken" will be retained for up to 24 months, and will available to applicable parties (as required by local law).
+
+@name("deleteSubscriberConsole")
+POST "https://{{url}}/propertymanagement/subscribers/deleteSubscriberConsole"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+json({
+    "EmailAddress": "gjain@blueportwireless.com"
+})
+
+
+// Use the API to get a list of unused SubscriberTokens. You cannot have more than 5 unused SubscriberTokens at any point in time. 
+
+@name("listUnusedSubscriberTokens")
+POST "https://{{url}}/propertymanagement/subscribers/listUnusedSubscriberTokens"
+"x-api-key": "{{x-api-key}}"
+
+
+
+// Use the API to search for SubscriberTokens ( recently added, limit 30 tokens)
+
+@name("findSubscriberTokens")
+POST "https://{{url}}/propertymanagement/subscribers/findSubscriberTokens"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberTokenPart": "aai"
+})
+
+
+// - Use this API to add a new key for a subscriber. 
+// - You can also attach PolicyforSubscriberKey. VenueID and PolicyforSubscriberKey are required fields for Network Policy. 
+// - You can omit VenueID and PolicyforSubscriberKey, if network policy at a venue is not required.
+
+@name("addKey")
+POST "https://{{url}}/propertymanagement/subscribers/addKey"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberToken": "{{SubscriberToken}}",
+    "UserPartofKey": "pmgiveskey1",
+    "StartDateTimeUTC.ISO8601": "2020-05-28T00:00:00.000Z",
+    "EndDateTimeUTC.ISO8601": "2021-05-28T00:00:00.000Z",
+    "KeyPoolID": "{{KeyPoolID}}",
+    "VenueID": "{{VenueID}}",
+    "PolicyforSubscriberKey": {
+        "VLAN": 1313
+    }
+})
+
+
+// - Use this API to reset existing key of a subscriber.
+
+@name("resetKey")
+POST "https://{{url}}/propertymanagement/subscribers/resetKey"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberToken": "{{SubscriberToken}}",
+    "CurrentKeyID": "7f11511d393753dcdbfa75e46f11616cc5216088f93c2c5f9e758162965cc142",
+    "UserPartForNewKey": "gogogo"
+})
+
+
+// - Use this API to add a new key for a subscriber. 
+// - You can also attach PolicyforSubscriberKey. VenueID and PolicyforSubscriberKey are required fields for Network Policy. 
+// - You can omit VenueID and PolicyforSubscriberKey, if network policy at a venue is not required.
+
+@name("removeKey")
+POST "https://{{url}}/propertymanagement/subscribers/removeKey"
+"Content-Type": "application/json"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberToken": "{{SubscriberToken}}",
+    "KeyID": "{{KeyID}}"
+})
+
+
+// Use the API to get a list active keys (e.g. WPA2 PSK) of a subscriber.
+
+@name("listSubscriberKeys")
+POST "https://{{url}}/propertymanagement/subscribers/listSubscriberKeys"
+"x-api-key": "{{x-api-key}}"
+json({
+    "psk": "fajwrkgrvg.TabascoCaballo487"
+})
+
+
+// Use the API to permanently close a subscriber's account. This operation is irreversible.
+// 
+// DATA PRIVACY NOTICE - Subscriber's pseudonym "SubscriberToken" will be retained for up to 24 months, and will available to applicable parties (as required by local law).
+
+@name("closeSubscriberAccount")
+POST "https://{{url}}/propertymanagement/subscribers/closeSubscriberAccount"
+"x-api-key": "{{x-api-key}}"
+json({
+    "SubscriberToken": "{{SubscriberToken}}"
+})
+
+
+

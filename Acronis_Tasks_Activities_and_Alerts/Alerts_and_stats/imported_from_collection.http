@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+@name("Get all alerts list")
+GET "https://{{base_url}}/api/alert_manager/v1/alerts"
+"Accept": "application/json"
+
+
+@name("Create an alerts type")
+POST "https://{{base_url}}/api/alert_manager/v1/types"
+"Accept": "application/json"
+json({
+    "id": "f36a9ef2-2f93-46da-8717-536eb7cb5569",
+    "severity": "waring",
+    "enabled": true,
+    "contextKeys": [],
+    "searchableDetails": [],
+    "supportedOS": [
+        "ios",
+        "linux",
+        "macos",
+        "windows"
+    ]
+})
+
+
+@name("Get filtered alerts list")
+GET "https://{{base_url}}/api/alert_manager/v1/alerts"
+"Accept": "application/json"
+? "updated_at"= "gt(1600646400000000000)"
+? "severity"= "error"
+? "type"= "ProtectionServiceNotWorking"
+? "order"= "desc(created_at)"
+? "limit"= "20"
+? "show_deleted"= "true"
+
+
+@name("Get an alert by id")
+GET "https://{{base_url}}/api/alert_manager/v1/alerts/{{alert_id}}"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+
+
+@name("Delete alerts defined by filter")
+DELETE "https://{{base_url}}/api/alert_manager/v1/alerts"
+"Accept": "application/json"
+? "severity"= "warning"
+? "updated_at"= "lt(1594643605000000000)"
+
+
+@name("Get count of alerts")
+GET "https://{{base_url}}/api/alert_manager/v1/count"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+
+
+@name("Get stats of alerts")
+GET "https://{{base_url}}/api/alert_manager/v1/stats"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+
+
+@name("Get alerts sync")
+GET "https://{{base_url}}/api/alert_manager/v1/sync"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+
+
+@name("Get all registered alert types")
+GET "https://{{base_url}}/api/alert_manager/v1/types"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+
+
+@name("Get resource status")
+GET "https://{{base_url}}/api/alert_manager/v1/resource_status"
+"Accept": "application/json"
+"X-Apigw-Tenant-ID": "{{customer_tenant_id}}"
+"X-Apigw-Tenant-Locator": "/{{my_tenant_id}}/{{partner_tenant_id}}/{{customer_tenant_id}}"
+? "embed_alert"= "true"
+
+
+

@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+// Endpoint que cria um bloqueio no servidor de _locks_.
+// 
+// Os bloqueios são classificados por tipo e podem ter uma quantidade máxima que é informada no campo opcional **maximo** ao solicitar o bloqueio pela primeira vez. 
+// 
+// Crie bloqueios com a chave ``maximo`` = 1 para garantir que apenas uma instância da sua solução execute determinada ação ao mesmo tempo. Use ``maximo`` > 1 para bloqueios de controle de quantidade de uso, por exemplo.
+// 
+// Uma vez criado, o bloqueio fica ativo até o _timeout_ (em segundos) ser atingido ou uma requisição de remove-lo (``DELETE``) for enviada.
+// 
+// O retorno do _endpoint_ devolve uma chave ``"ID"`` que deve ser armazenada para uso posterior (consulta ou exclusão). Apesar do parâmetro ``timeout`` garantir que o bloqueio será derrubado, é uma prática altamente recomendada sempre enviar a requisição ``DELETE`` para remover o bloqueio adquirido, principalmente se o ele foi criado com um tempo elevado de _timeout_.</br></br>
+// 
+// ## Request model
+// 
+// | Chave | Uso |
+// |:----- | :---|
+// | **nome** | |
+// | **tipo** | |
+// | **dono** | |
+// | **maximo** | |
+// | **timeout** | |
+
+@name("Criar um bloqueio")
+POST "https://{{url}}/{{version}}/locks/"
+basicauth("super", "{{password}}")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"api_key": "{{apikey}}"
+? "api_key"= "{{apikey}}"
+data('{
+  "nome": "Bloqueio de Teste 8",
+  "tipo": "Teste2",
+  "dono": "PostMan",
+  "maximo": 2,
+  "timeout": 50
+}')
+
+
+// Recurso para consultar os detalhes de um bloqueio.
+
+@name("Obter detalhes do bloqueio")
+GET "https://{{url}}/{{version}}/locks/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "lock_id"= "{{lock_id}}"
+
+
+// Permite renovar o timeout de um bloqueio.
+// 
+// O tempo de expiração deve ser informado em  **segundos**.
+// 
+// **IMPORTANTE**: se o bloqueio já estiver expirado, o CIS vai retornar o código de erro ``404`` e o bloqueio não será renovado.
+
+@name("Renovar um bloqueio")
+PUT "https://{{url}}/{{version}}/locks/"
+basicauth("super", "{{password}}")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "timeout": 300
+}')
+
+
+// Permite remover um bloqueio ativo no servidor de bloqueio do CIS.
+// 
+// **IMPORTANTE**: se o bloqueio estiver expirado, o CIS vai retornar um erro de código ``404`` informando que o bloqueio não pode ser encontrado.
+
+@name("Remover um bloqueio")
+DELETE "https://{{url}}/{{version}}/locks/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "lock_id"= "{{lock_id}}"
+
+
+
+

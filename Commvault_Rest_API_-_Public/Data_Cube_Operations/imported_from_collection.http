@@ -1,0 +1,471 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation returns a list of Index Servers.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_analytics_engines.htm)
+
+@name("View Index Servers")
+GET "https://{{ServerUrl}}/dcube/getAnalyticsEngine"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns all datasources.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>type</td>
+// <td>
+// <p>values:<br />- File System : 5<br />- SharePoint : 28<br />- Email : 29<br />- OneDrive : 27<br />- Database : 30<br />- Google Drive : 32<br />- Gmail : 33</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Datasources")
+GET "https://{{ServerUrl}}/dcube/GetDataSources"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "summary"= "1"
+? "ignoreFedSearch"= "true"
+? "type"= "5"
+
+
+// <h2>Description</h2>
+// This operation creates a new data source in Data Cube.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_post_create_data_source.htm)
+
+@name("Create a Data Source")
+POST "https://{{ServerUrl}}/dcube/createDataSource"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+	"collectionReq": {
+		"collectionName": "OpenDSRestSample",
+		"ciserver": {
+			"cloudID": {{cloudId}}
+		}
+	},
+	"dataSource": {
+		"description": "",
+		"datasourceType": 11,
+		"attribute": 0,
+		"datasourceName": "OpenDSRestSample"
+	}
+}')
+
+
+// <h2>Description</h2>
+// This operation returns all datasources for a given client.
+
+@name("Datasources For Client With Mount Paths")
+GET "https://{{ServerUrl}}/V2/EDiscoveryClients/Clients/4"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "includeDocCount"= "1"
+
+
+// <h2>Description</h2>
+// This operation returns a list of all the data sources in Data Cube and their properties.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>datasourceType</td>
+// <td>
+// <p>values:<br />- File System : 5<br />- SharePoint : 28<br />- Email : 29<br />- OneDrive : 27<br />- Database : 30<br />- Google Drive : 32<br />- Gmail : 33</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_data_sources.htm)
+
+@name("View Data Sources and Properties")
+GET "https://{{ServerUrl}}/dcube/GetDataSources"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "datasourceId"= "{{datasourceId}}"
+? "type"= "{{datasourceType}}"
+? "summary"= "0"
+
+
+// <h2>Description</h2>
+// This operation retrieves the default handler of a datasource.
+
+@name("Datasource Handler")
+GET "https://{{ServerUrl}}/dcube/getdefaulthandler/{{datasourceId}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation retrieves all sensitive data files in datasource
+
+@name("Datasource Files")
+GET "https://{{ServerUrl}}/dcube/handler/{{datasourceHandlerId}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// <p>This operation returns the data for a data source.</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" style="width: 511px;" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">slevel_Url_0</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Root level directory</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">slevel_Url_1</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">One folder level deep&nbsp;</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">json.facet</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Unicode Encoded Value</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// <h2>Response Parameters</h2>
+// <table class="tableintopic" style="width: 511px;" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">Sum_Size</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Value in Bytes</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_mining_data_api_get.htm)
+
+@name("Retrieve Data")
+GET "https://{{ServerUrl}}/dcube/search/{{datasourceId}}/select"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "wt"= "json"
+? "q"= "*:*"
+? "rows"= "10"
+
+
+// This request submits a download by creating a local CSV and zip file on the webserver.
+
+@name("Export Data - Step 1 - Submit Request")
+POST "https://{{ServerUrl}}/dcube/export/{{datasourceHandlerId}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+data('{
+    "searchParams": [
+        {
+            "key": "fq",
+            "value": "IsFile:1"
+        },
+        {
+            "key": "fl",
+            "value": "CreatedTime,FolderName,Url,AccessTime"
+        }
+    ]
+}')
+
+
+// This operation polls for the submitted request to complete. Wait for the status to finish to proceed to step 3.
+
+@name("Export Data - Step 2 - Poll Request")
+GET "https://{{ServerUrl}}/dcube/export/{{datasourceHandlerId}}/status"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+? "token"= "{{tokenName}}"
+
+
+// This operation downloads the CSV file to a specified location. 
+
+@name("Export Data - Step 3 - Download File Stream")
+POST "https://{{ServerUrl}}/Stream/getDownloadCenterFileStream"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "fileParams": [
+        {
+            "name": "zip",
+            "id": 3
+        },
+        {
+            "name": "{{exportRequestDownloadGuid}}",
+            "id": 2
+        },
+        {
+            "name": "Streamed",
+            "id": 10
+        }
+    ]
+})
+
+
+// <h2>Description</h2>
+// This operation starts a datasource crawl.
+
+@name("Start Crawl")
+POST "https://{{ServerUrl}}/dcube/startjob/{{DatasourceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// <div class="pane resizableX resizableY request-meta-viewer">
+// <div class="pane-content">
+// <div class="requester-contents-group-container">
+// <div class="requester-contents-group-left">
+// <div class="inline-editor-wrapper request-meta-description">
+// <div class="inline-editor-text-wrapper-container">
+// <div class="inline-editor-text-wrapper inline-editor-text-wrapper--editable">
+// <div class="inline-editor-text">
+// <div>This operation schedules datasource crawl.</div>
+// </div>
+// </div>
+// </div>
+// </div>
+// </div>
+// </div>
+// </div>
+// </div>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" style="width: 511px;" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">repeatUnits</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Schedule Type.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, Minute(s)</li>
+// <li class="listbullet">2, Hourly</li>
+// <li class="listbullet">3, Daily</li>
+// <li class="listbullet">4, Weekly</li>
+// </ul>
+// </td>
+// </tr>
+// <tr>
+// <td style="width: 188px;">
+// <p class="tabletext">isActive</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Enable or Disable the Schedule</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">0, Disable</li>
+// <li>1, Enable</li>
+// </ul>
+// </td>
+// </tr>
+// <tr>
+// <td style="width: 188px;">
+// <p class="tabletext">day</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Day of the Week</p>
+// <p class="tabletext">Valid values are from 1 to 7, with 1=Sunday</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// <h2>&nbsp;</h2>
+
+@name("Schedule Crawl")
+POST "https://{{ServerUrl}}/dcube/schedule"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<DM2ContentIndexing_SEDataSource datasourceId="{{datasourceId}}">
+    <schedule repeatUnits="1" minutes="50" isActive="1"/>
+</DM2ContentIndexing_SEDataSource>')
+
+
+// <h2>Description</h2>
+// This operation returns schedule status for a datasource.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" style="width: 511px;" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 188px;">
+// <p class="tabletext">repeatUnits</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Schedule Type.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, Minute(s)</li>
+// <li class="listbullet">2, Hourly</li>
+// <li class="listbullet">3, Daily</li>
+// <li class="listbullet">4, Weekly</li>
+// </ul>
+// </td>
+// </tr>
+// <tr>
+// <td style="width: 188px;">
+// <p class="tabletext">isActive</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Enable or Disable the Schedule</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">0, Disable</li>
+// <li>1, Enable</li>
+// </ul>
+// </td>
+// </tr>
+// <tr>
+// <td style="width: 188px;">
+// <p class="tabletext">day</p>
+// </td>
+// <td style="width: 323px;">
+// <p class="tabletext">Day of the Week</p>
+// <p class="tabletext">Valid values are from 1 to 7, with 1=Sunday</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// <h2>&nbsp;</h2>
+
+@name("Datasource Schedule Status")
+GET "https://{{ServerUrl}}/dcube/GetDataSources"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "datasourceId"= "{{datasourceId}}"
+
+
+// <h2>Description</h2>
+// This operation returns the status and information about the latest crawling operation for a data source in Data Cube.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_data_source_crawl_status.htm)
+
+@name("View Crawling Status")
+GET "https://{{ServerUrl}}/dcube/GetStatus/{{DatasourceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns information about the crawling history for a data source in Data Cube.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_data_source_crawl_history.htm)
+
+@name("View Crawl History")
+GET "https://{{ServerUrl}}/dcube/GetHistory/{{DatasourceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation stops a datasource crawl.
+
+@name("Stop Crawl")
+POST "https://{{ServerUrl}}/dcube/stopjob/{{DatasourceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation returns a list of the JDBC drivers that are available on a specific Index Server.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_jdbc_drivers.htm)
+
+@name("View JDBC Drivers")
+GET "https://{{ServerUrl}}/dcube/GetJDBCDrivers/{{cloudId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"": ""
+
+
+// <h2>Description</h2>
+// This operation returns a list of registered CommServe databases.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_get_registered_cs_db.htm)
+
+@name("View Registered CommServe Databases")
+GET "https://{{ServerUrl}}/dcube/getcommcellinfo"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation deletes the data source and its content from Data Cube.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/data_cube/r_data_cube_api_post_delete_data_source.htm)
+
+@name("Delete a Data Source")
+POST "https://{{ServerUrl}}/dcube/deleteDataSource/{{DatasourceId}}"
+"Accept": "application/xml"
+"Authtoken": "{{TOKEN}}"
+
+
+

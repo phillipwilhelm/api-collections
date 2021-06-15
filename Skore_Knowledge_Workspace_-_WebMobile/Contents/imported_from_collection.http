@@ -1,0 +1,166 @@
+#!/usr/bin/env dothttp
+
+// Returns content meta-data. ie. images, type of content, creator, number of views, etc. This API does not provide with content playback information. For content playback, use the Provision api.Types: image, presentation, text, video, link, document
+
+@name("Content details v1")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Returns content meta-data. ie. images, type of content, creator, number of views, etc.
+// - This API returns the siblings of the content (previous and next).
+// - Content is searched in next or previous section when the current section has no more contents to list.
+
+@name("Content details v2")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/contents/{{CONTENT_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// User comment a content.
+
+@name("Create comment")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/comments"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+data('{
+	"text": "Lorem ipsum dolor sit amet..."
+}')
+
+
+// Returns content comments.
+
+@name("List comments of content")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/comments"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "limit"= "1"
+? "continuation"= "DnF1ZXJ5VGhlbkZldG"
+? "sort_by"= "created_at:desc"
+
+
+// Search for users and teams to mention them in your comments.
+
+@name("Mentions")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/comments/mentions"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "search"= "jo"
+
+
+// Provisions a content to be played on the target device. If the content has any questions liked to it, will also return the worksheet details. If a worksheet is not present, one will be created and returned.
+// 
+// - Content types: `image`, `presentation`, `text`, `video`, `link`, `document` 
+// - Question types: `multiple_choice`, `essay` 
+// - Worksheets status: `waiting_review`, `completed`, `pending` 
+// - Question status: `pending`, `waiting_review`, `correct`, `wrong`
+
+@name("Provision v1")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/provision"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Provisions a content with the instructions needed to play it in different devices and hosts. The content has a type and a provider (which shows its origin), and the instructions vary according to the provider.
+// 
+// * Content types: `article`, `audio`, `document`, `file`, `image`, `learning_object`, `link`, `presentation`, `questionnaire`, `text` and `video`
+// * Content providers: `cloudinary_audio`, `cloudinary_image`, `cloudinary_video`, `google_drive`, `scorm_cloud`, `skore_document`, `skore_general`, `skore_pdf`, `skore_questionnaire`, `skore_s3`, `slideshare`, `survey_monkey`, `vimeo`, `ted` and `youtube`
+// 
+// Contents in skore are "knowledge artifacts", and even if they aren't a `questionnaire`, they can have questions. In this case, questions can be used to generate engagement and/or help users on their learning path.
+// 
+// * Worksheet statuses: `waiting_review`, `completed`, `pending`
+// * Question types: `multiple_choice` and `essay`
+// * Question statuses: `pending`, `waiting_review`, `correct` and `wrong`
+// 
+// Also, the provisioning act returns the content consumption status, which includes number of likes, comments and if the content is bookmarked or not. To resume a content that was partialy consumed, the `stats` also contains the resume instructions.
+// 
+// When you provision a content, you get some information about the provisioned media, like: 
+// * `allow_download` - Indicates whether this content can be downloaded
+// * `format` - Indicates the format of the media
+// * `source` - The media itself, what should be displayed. It could be a text, a link, a html and so on.
+// * `secure` - Indicates whether has a secure protocol
+// * `embeddable` - Indicates whether this content can be embedded
+// * `player_url` - The URL of our media player
+
+@name("Provision v2")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/contents/{{CONTENT_ID}}/provision"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Provisions a content with the instructions needed to play it in different devices and hosts. The content has a type and a provider (which shows its origin), and the instructions vary according to the provider.
+// 
+// * Content types: `questionnaire`, `file`, `audio`, `learning_object`, `presentation`, `video`, `text`, `image`, `document`, `link`
+// * Content providers: `skore_questionnaire`, `skore_general`, `cloudinary_image`, `cloudinary_audio`, `cloudinary_video`, `skore_s3`, `skore_pdf`, `skore_document`, `vimeo`, `ted` and `youtube`
+// 
+// Contents in skore are "knowledge artifacts", and even if they aren't a `questionnaire`, they can have questions. In this case, questions can be used to generate engagement and/or help users on their learning path.
+// 
+// * Worksheet statuses: `waiting_review`, `completed`, `pending`
+// * Question types: `multiple_choice` and `essay`
+// * Question statuses: `pending`, `waiting_review`, `correct` and `wrong`
+// 
+// Also, the provisioning act returns the content consumption status, which includes number of likes, comments and if the content is bookmarked or not. To resume a content that was partialy consumed, the `stats` also contains the resume instructions.
+// 
+// When you provision a content, you get some information about the provisioned media, like: 
+// * `allow_download` - Indicates whether this content can be downloaded
+// * `format` - Indicates the format of the media
+// * `source` - The media itself, what should be displayed. It could be a text, a link, a html and so on.
+// * `secure` - Indicates whether has a secure protocol
+// * `embeddable` - Indicates whether this content can be embedded
+// * `processing` - Indicates that the file is being processed and can not be played back
+
+@name("Provision v3")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v3/contents/{{CONTENT_ID}}/provision"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+"skore_ref": "postman"
+
+
+// Notifies that the user has "liked" a particular content.
+
+@name("Like a content")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/like"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Notifies that the user has "disliked" a particular content.
+
+@name("Dislike a content")
+DELETE "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/like"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// .
+
+@name("Add content in bookmark")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/bookmark"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// .
+
+@name("Remove content from bookmark")
+DELETE "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/bookmark"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Makes the content's media available to download
+
+@name("Download")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/contents/{{CONTENT_ID}}/download"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+@name("Feed")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/content_feed"
+"Authorization": "{{TOKEN}}"
+"Content-Type": "application/json"
+
+
+

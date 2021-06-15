@@ -1,0 +1,435 @@
+#!/usr/bin/env dothttp
+
+// Returns list of models available on current advisory platform:
+// 
+// ```json
+// [
+//     {
+//         "id": 1,
+//         "title": "Test model",
+//         "description": "The more the faster the better",
+//         "reserveType": "DOLLAR|PERCENTAGE",
+//         "fractionalSharePolicy": "RoundDown|RoundUp|Fractional",
+//         "minimum": 5000,
+//         "reserve": 500,
+//         "robo": false,
+//         "roboActive": false,
+//         "identifierType": "MODEL",
+//         "identifierBreakdown": "DEFAULT",
+//         "accounts": [],
+//         "components": [
+//             {
+//                 "type": "SECURITY",
+//                 "addedOn": "10/15/2018 15:39:19 EDT",
+//                 "symbol": "CI",
+//                 "tag": "",
+//                 "note": "",
+//                 "option": false,
+//                 "percentage": 0.15,
+//                 "tag": "Health",
+//                 "note": "Health sector",
+//                 "quote": {
+//                 	
+//                 }
+//             }
+//         ]
+//     },
+//     {
+//         "id": 6,
+//         "title": "Test model #1",
+//         "description": "bah",
+//         "reserveType": "PERCENTAGE|PERCENTAGE",
+//         "fractionalSharePolicy": "RoundDown|RoundUp|Fractional",
+//         "minimum": 5000,
+//         "reserve": 0.05,
+//         "robo": false,
+//         "roboActive": false,
+//         "identifierType": "MODEL",
+//         "identifierBreakdown": "DEFAULT",
+//         "accounts": [],
+//         "components": [
+//             {
+//                 "type": "SECURITY",
+//                 "addedOn": "10/11/2018 22:50:16 EDT",
+//                 "symbol": "AAPL",
+//                 "tag": "",
+//                 "note": "",
+//                 "option": false,
+//                 "percentage": 0.05,
+//                 "quote": {
+//                 	
+//                 }
+//             }
+//         ]
+//     },
+// ]
+// ```
+
+@name("Listing")
+GET "https://{{url}}/api/v2/advisory/models"
+? "loadQuotes"= "false"
+? "loadAccounts"= "false"
+
+
+// Returns list of all tags available in all models' components.
+// 
+// ```javascript
+// ['tag1', 'tag2', 'tag3']
+// ```
+
+@name("Component tags")
+GET "https://{{url}}/api/v2/advisory/models/components/tags"
+
+
+// Buying power of the model or, if `all` specified, total buying power across all managed models.
+
+@name("Buying power")
+GET "https://{{url}}/api/v2/advisory/model/balance/{currency}/{modelId}"
+
+
+// Returns realtime model's balance. Comprised of all accounts belonging to said model. If `modelId` equals `all`, returns realtime balance for all known accounts.
+
+@name("Realtime balance")
+GET "https://{{url}}/api/v2/advisory/model/rtb/{modelId}"
+
+
+// Returns realtime model's balance history. Comprised of all accounts belonging to said model. If `modelId` equals `all`, returns realtime balance for all known models.
+// 
+// ```javascript
+// [{date: '9/1/2018', balance: 1000, modelId: 1234}]
+// ```
+
+@name("Realtime balance history")
+GET "https://{{url}}/api/v2/advisory/model/rtb/history/{modelId}"
+
+
+// ```javascript
+// [{
+// 	symbol: "VOO",
+// 	sourcePct: 0.2,
+// 	targetPct: 0.15,
+// 	modelId: 1,
+// 	id: 34,
+// 	createdOn: "10/12/2018 13:43:26 EDT",
+// 	option: false,
+// 	status: "Pending",
+// 	quote: {
+// 		
+// 	}
+// }]
+// ```
+
+@name("Adjustments")
+GET "https://{{url}}/api/v2/advisory/model/adjustments/{modelId}"
+? "loadQuotes"= "false"
+
+
+// Generates allocations that need to take place on order so satisfy desired model adjustment:
+// 
+// ```javascript
+// [{
+// 	account: {
+// 		accountId: 123, 
+// 		accountNumber: 'TRACCOUNT'
+// 	}, 
+// 	rtb: {
+// 		balance: 1000 // current balance
+// 	},
+// 	balance: {
+// 		availableCash: 1000 // current trading limit
+// 	},
+// 	position: { // current position
+// 		symbol: 'GOOG',
+// 		quantity: 100,
+// 		value: 1000
+// 	},
+// 	error: 'ERR_ORDER_NOT_FOUND', // error if allocation is not feasable
+// 	quantity: 1.5, // number of shares to be allocated
+// 	expectedPx: 100, // current market price of the security
+// 	transType: 'B', // are we expected to BUY or to SELL to get to the target
+// 	currentAllocationPct: .05,
+// 	targetAllocationValue: 10000
+// }]
+// ```
+
+@name("Adjustment preview")
+GET "https://{{url}}/api/v2/advisory/model/adjustments/preview/{adjustmentId}"
+
+
+// Returns list of accounts linked to the model with optional realtime balance, portfolio, or realtime balance 3 months history. `modelId` is either ID of required model or `all` for all available models. Response sample:
+// 
+// ```javascript
+// [{
+//   account: {
+// 	//  bears all of account's information
+//     "accountNumber": "TRCLIENT4",
+//     "accountId": 1
+//   },
+//   rtb: {
+//     "accountId": 1,
+//     "balance": 5000,
+//     "modelId": 1
+//   },
+//   model: {
+//   	id: 1
+//   }
+// }
+// ]
+// ```
+
+@name("Member accounts")
+GET "https://{{url}}/api/v2/advisory/model/accounts/{modelId}"
+? "loadRtb"= "false"
+? "loadRtbHistory"= "false"
+
+
+// Returns list of accounts that do not belong to any model:
+// 
+// ```javascript
+// [{
+//   account: {
+//     "omnibusId": 0,
+//     "repCode": "DA00",
+//     "country": "USA",
+//     "lastName": "Gogol",
+//     "city": "",
+//     "phone2": "",
+//     "smaMultiplier": 1,
+//     "liquidationOnly": false,
+//     "identifierType": "ACCOUNT",
+//     "mpid": "VTDT",
+//     "createdOn": "06/15/2018 16:00:58 EDT",
+//     "moneyDvp": 0,
+//     "intermediary": false,
+//     "phone1": "",
+//     "accountClassification": "CASH",
+//     "allowNakedCalls": true,
+//     "maxDvp": 0,
+//     "destinationOverrideEnabled": false,
+//     "shortMarginReq": 1.5,
+//     "belongsToOmnibus": false,
+//     "street1": "",
+//     "state": "",
+//     "id": 92932,
+//     "street2": "",
+//     "preferred": false,
+//     "skipOptionsRisk": false,
+//     "optionLevel": 0,
+//     "valueDvp": 0,
+//     "zip": "",
+//     "bpConfig": 1,
+//     "address": "",
+//     "allowNakedPuts": true,
+//     "accountType": 1,
+//     "fullName": "General Gogol",
+//     "updatedOn": "09/28/2018 11:17:04 EDT",
+//     "accountNumber": "TRCLIENT4",
+//     "accountId": 1,
+//     "firstName": "General",
+//     "identifierBreakdown": "DEFAULT",
+//     "skipEquitiesRisk": false,
+//     "middleName": "",
+//     "status": "A"
+//   }
+// }
+// ]
+// ```
+
+@name("Orphaned accounts")
+GET "https://{{url}}/api/v2/advisory/model/accounts/orphaned"
+
+
+// Account type breakdown. Currently supporting: `CASH`, `MARGIN`, `DAY_TRADER`, `IRA_ROTH`, `IRA_SEP`, `IRA_TRADITIONAL`, `IRA_ROLLOVER_ACCOUNT`. Example:
+// 
+// ```javascript
+// {
+// 	IRA_TRADITIONAL: 1,
+// 	CASH: 4
+// }
+// ```
+
+@name("Member account statistics")
+GET "https://{{url}}/api/v2/advisory/model/accounts/stats/{modelId}"
+
+
+// Get realtime balances. When `modelId` is:
+// 
+// * `all` - return balances for all accounts in all models
+// * `models` - return balance for each _model_ in the branch
+// * `1234` (modelId) - return balances for all accounts in given model
+
+@name("Member realtime balances")
+GET "https://{{url}}/api/v2/advisory/model/rtbs/{modelId}"
+
+
+// If `modelId` specified, returns all positions contained within requested model. Each entry will indicate account it belongs to by `accountId` field. Entries can be groupped together by having `combined=true` parameter. Grouping will loose `accountId` and cost will be averaged out.
+// 
+// If `modelId` equals `all`, returns all positions across all models
+
+@name("Portfolio")
+GET "https://{{url}}/api/v2/advisory/model/portfolios/{modelId}"
+? "loadQuotes"= "false"
+? "combined"= "false"
+? "loadIndustries"= "false"
+? "loadUpgrades"= "false"
+? "loadEarnings"= "false"
+? "loadCost"= "false"
+? "marketCapWeights"= "false"
+
+
+// Returns buying power for all models in firm:
+// 
+// ```javascript
+// [
+//     {availableCash: 17259.25, modelId: 1},
+//     {availableCash: 10000.00, modelId: 2}
+// ]
+// ```
+
+@name("All model buying power")
+GET "https://{{url}}/api/v2/advisory/model/balances/{currency}"
+? "currency"= "USD"
+
+
+// Buying power of the model.
+
+@name("Position lookup")
+GET "https://{{url}}/api/v2/advisory/model/position/equity/{modelId}"
+
+
+// Buying power of the model.
+
+@name("Position lookup (options)")
+GET "https://{{url}}/api/v2/advisory/model/position/option/{modelId}"
+
+
+// Allows modifications to the adjustment where `{action}` is one of `Create`, `Update`, `Cancel`, `Fetch`, `Activate`. Not all fields are needed for all actions.
+
+@name("Adjustment updates")
+POST "https://{{url}}/api/v2/advisory/model/adjustments/modify/{action}"
+"Content-Type": "application/json"
+data("{
+	id: 123,
+	modelId: 123,
+	sourcePct: .1,
+	targetPct: .3,
+	quote: {
+		symbol: 'ZVZZT'
+	}
+}")
+
+
+// Creates a new model. Components can be passed as well at the creation. If passed, no adjustment suggestions would be generated. Returns newly created model with an ID:
+// 
+// ```json
+// {
+// 	"id": 1234,
+// 	"title": '',
+// 	"description": '',
+// 	"minimum": 0,
+// 	"reserve": 0,
+// 	"reserveType": 'DOLLAR', // DOLLAR|PERCENTAGE
+// 	"fractionalSharePolicy": 'RoundDown', // RoundDown|RoundUp|Fractional
+// 	"components": [
+// 		{"symbol": "ZVZZT", "percentage": .3, "tag": "tag", "note": "Test"}
+// 	]
+// }
+// ```
+
+@name("Creation")
+POST "https://{{url}}/api/v2/advisory/model/create"
+"Content-Type": "application/json"
+data('{
+	"title": "",
+	"description": "",
+	"minimum": 0,
+	"reserve": 0,
+	"reserveType": "DOLLAR",
+	"fractionalSharePolicy": "RoundDown",
+	"components": [
+		{"symbol": "ZVZZT", "percentage": .3, "tag": "tag", "note": "Test"}
+	]
+}')
+
+
+// Updates the model. Returns basic response upon success:
+// 
+// ```javascript
+// {success: true}
+// ```
+
+@name("Update")
+POST "https://{{url}}/api/v2/advisory/model/update"
+"Content-Type": "application/json"
+data("{
+	title: 'My new title',
+	description: 'My new description',
+	minimum: 5000,
+	reserve: 1000,
+	reserveType: DOLLAR, // DOLLAR|PERCENTAGE
+}")
+
+
+// Deletes the model. Must not track any accounts (unlink any accounts first). Basic response upon success:
+// 
+// ```javascript
+// {success: true}
+// ```
+
+@name("Deletion")
+POST "https://{{url}}/api/v2/advisory/model/delete"
+"Content-Type": "application/json"
+data('{id: 1234}')
+
+
+@name("Component update")
+POST "https://{{url}}/api/v2/advisory/model/component/update"
+"Content-Type": "application/json"
+data("{
+	note: 'A simple note. Can be up to 500 in length',
+	tag: 'Ability to tag the component. Up to 50 in length',
+	symbol: 'MSFT',
+	percentage: .2, // 20%
+	option: false,
+	type: SECURITY,
+	model: {
+		id: 1
+	}
+}")
+
+
+@name("Link of member accounts")
+POST "https://{{url}}/api/v2/advisory/model/account/link"
+"Content-Type": "application/json"
+data('{
+	accountId: 10,
+	modelId: 7
+}')
+
+
+@name("Unlink member account")
+POST "https://{{url}}/api/v2/advisory/model/account/unlink"
+"Content-Type": "application/json"
+data('{
+	accountId: 10,
+	modelId: 7
+}')
+
+
+@name("Allocations")
+POST "https://{{url}}/api/v2/advisory/model/orders/allocate"
+"Content-Type": "application/json"
+data("{
+  orders: [
+    {ourRef: 'CC123456', quantity: 50.0},
+    {ourRef: 'CC654321', quantity: 50.0}
+  ],
+  targets: [
+    {quantity: 4.9, account: {accountNumber: 'CLIENT1'}},
+    {quantity: 5.1, account: {accountNumber: 'CLIENT2'}},
+    {quantity: 90.0, account: {accountNumber: 'CLIENT3'}}
+  ]
+}")
+
+
+

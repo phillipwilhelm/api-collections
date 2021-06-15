@@ -1,0 +1,189 @@
+#!/usr/bin/env dothttp
+
+// Get a list of parameters used to configure this warehouse. This will include the available parameters for the following levels: WMS, Merchant, Cart
+// 
+// ### Array Response Fields
+// | Field | Data Type | Length | Description |
+// |-------|-------|-------|-------|
+// | wms | Array |  | List of available WMS setup params, a description, and allowed values |
+// | merchant | Array |  | List of available Merchant setup params, a description, and allowed values |
+// | cart | Array |  | List of available Cart setup params, a description, and allowed values |
+
+@name("List WMS Params")
+GET "https://{{BASE_URL}}/v1/wms/params"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+
+
+// Edit WMS info including WMS System and wms parameters. Any fields left off will be left as-is.
+// 
+// ### Post Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |------------------|-----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |   wms_name   |   String   |  |  N  |   Change which WMS System to connect this account to.  |
+// |    wms_params    |    Array    |  |  N  |    Array of WMS level param values to set for this account. You can   get a list of valid values from the wms section of the [/wms/params](#99aefc50-34e7-4fa5-b944-9cbb24eaf594)   endpoint.    |
+
+@name("Edit WMS")
+POST "https://{{BASE_URL}}/v1/wms/edit"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+  "wms_name": "WMS_3PL",
+  "wms_params": {
+  	"ownerCode": "123"
+  }
+}')
+
+
+// Creates a new merchant user and returns API credentials for that merchant.
+// 
+// ### Post Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |------------------|-----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    name    |    String    |    80    |    Y    |    Name of Merchant    |
+// |    user    |    Array    |  |    N    |    Optionally create a new user for this merchant. User will receive a password setup email.    |
+// |    wms_params    |    Array    |  |  |    Array of WMS param values to set for this merchant. You can get a list of valid values from the merchant section of the /wms/params endpoint.    |
+// 
+// ### User Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    email    |    String    |    255    |    Y    |    User email    |
+// |    name    |    String    |    45    |    Y    |    User Name    |
+// 
+// ### Array Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |----------------|-----------------|--------------|---------------------------------|
+// |    api_user    |    String    |  |    API User for new Merchant    |
+// |    api_key    |    String    |  |    API Key for new Merchant    |
+
+@name("New Merchant")
+POST "https://{{BASE_URL}}/v1/wms/merchant"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+  "name": "Test API Merch"
+}')
+
+
+// Returns an array of acceptable warehouse ship methods. No parameters are required.
+// <br/><br/>
+// **Note:** This list is unlikely to change often, or ever at all. We recommend you cache/store this list and either update it occasionally or as needed on-demand
+// 
+// ### Response Fields
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    code    |    String    |    64    |    Code Sent to Warehouse    |
+// |    description    |    String    |    255    |    Description of Ship Method    |
+// 
+// **Note:** The codes and descriptions returned are defined by the warehouse and not CartRover. They may differ from what you see here.
+
+@name("List WMS Ship Methods")
+GET "https://{{BASE_URL}}/v1/wms/shipmethod/list"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// This will return all merchants belonging to the WMS account. 
+// 
+// ### Response Fields
+// The response is a numerically indexed array with each element containing the following keys.
+// 
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    merchant_pk    |    Int    |        |   CartRover merchant ID    |
+// |    name    |    String    |        |    Merchant Name    |
+// |    discontinued_sw    |    String    |        |    Y or N. Y for disabled.    |
+
+@name("List Merchants")
+GET "https://{{BASE_URL}}/v1/wms/merchant/list"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// This will attempt to cancel/refund orders with the originating order source/cart by specifying Shipment and Line items to cancel/refund. The cart's response will be returned. Not all carts support this functionality.
+// 
+// You may also find the Cancel/Refund Order Logs API endpoint useful to lookup previous cancellation requests.
+// <br/><br/>
+// **Note:** This call may take longer than others because CartRover will reach out to the shopping cart in real time and wait for a response.
+// <br/>
+// <br/>
+// **Note:** API calls are limited to 10 orders per API Call.
+// 
+// # Request
+// 
+// ### Array Request Fields
+// |    Field Name    |    Data Type    |    Length    |    Required?    |    Description    |
+// |--------------------|-----------------|--------------|-----------------|----------------------------------------------------------------------|
+// |    cust_ref    |    String    |    16    |    Y    |    Unique Order Number    |
+// |    cancel_order    |    Boolean    |  |    Y    |    Set TRUE to cancel order    |
+// |    refund_note    |    String    |  |  |    Reasons to refund order    |
+// |    cancel_note    |    String    |  |  |    Reasons to cancel order    |
+// |    merchant_pk    |    Int    |  | Y |    CartRover merchant ID. See [List Merchants](#0991239e-1562-4698-9f97-9341f36b1228)     |
+// |    shipment    |    Array    |  |    Y    |    Array that contains shipment refund information    |
+// |    items    |    Array    |  |  |    Array that contains detailed order items   refund/cancellation    |
+// 
+// #### Shipment Array Fields
+// |    Field Name    |    Data Type    |    Length    |    Required?    |    Description    |
+// |----------------------------|-----------------|--------------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+// |    full_shipping_refund    |    Boolean    |  |    Y    |    Set TRUE to refund all shipping/handling fees    |
+// |    refund_amount    |    Float    |  |    Required if full_shipping_refund is set to FALSE    |    Specify shipment refund amount. Refund_amount cannot exceed   total shipping/handling fees.    |
+// 
+// #### Items Array Fields
+// |    Field Name    |    Data Type    |    Length    |    Required?    |    Description    |
+// |-----------------------|-----------------|--------------|-----------------|--------------------------------------------------------|
+// |    sku    |    String    |  |    Y    |    Unique sku that represents a product in an order    |
+// |    cancel_quantity    |    Int    |  |    Y    |    Qty of the product to be refunded/cancelled    |
+// 
+// 
+// # Response
+// 
+// ### Array Response Fields
+// |    Field Name    |    Data Type    |    Length    |    Description    |
+// |------------------|-----------------|--------------|-------------------------------------------|
+// |    Orders    |    Array    |  |    detailed API response of each order    |
+// 
+// #### Orders Array Fields
+// |    Field Name    |    Data Type    |    Length    |    Description    |
+// |----------------------------|-----------------|--------------|------------------------------------------------------------------------------------------------------|
+// |    cust_ref    |    String    |  |    Unique Order Number    |
+// |    order_cancel_success    |    Boolean    |  |    Order cancellation/refund status. TRUE represent success.    |
+// |    server_response    |    String    |  |    Detailed API response message. Normally contains error   messages if Carts API request failed.    |
+
+@name("Cancel/Refund Order in Cart")
+POST "https://{{BASE_URL}}/v1/wms/orders/cart_cancel"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('[
+  {
+    "cust_ref" : "TEST01",
+    "merchant_pk" : 2319,
+    "cancel_order" : true,
+    "shipment" : {
+      "full_shipping_refund": true
+    }
+  },
+  {
+    "cust_ref" : "TEST99",
+    "merchant_pk" : 2319,
+    "cancel_order" : true,
+    "shipment" : {
+      "full_shipping_refund": true
+    }
+  }
+]')
+
+
+// Retrieves an order's cancel/refund logs by using cust_ref.
+// 
+// ### Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |-------------------------|-----------------|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    item    |    String    |  |    the unique SKU of order line item.   * SHIPPING\_REFUND * represents shipping/handling fees refund.   * ORDER_CANCELED * represents that order has been canceled.    |
+// |    cancel\_refund_qty    |    Int    |  |    Qty of canceled item.    |
+// |    total\_refund    |    Float    |  |    Total refund for that item with cancel\_refund\_qty    |
+// |    date    |    Timestamp    |  |    ISO-8601, UTC timezone    |
+
+@name("Request Cancel/Refund Logs")
+GET "https://{{BASE_URL}}/v1/wms/orders/cart_cancel/record/{{MERCHANT_PK}}/{{CUST_REF}}"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+

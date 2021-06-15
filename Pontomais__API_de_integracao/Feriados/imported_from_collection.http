@@ -1,0 +1,257 @@
+#!/usr/bin/env dothttp
+
+// Lista os feriados cadastrados.
+// 
+// ## Parâmetros na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | count | Boolean | Não | Contar total de registros (*true - sim \| false - não*) |
+// | page | Integer | Não | Número da página iniciando em 1 |
+// | per_page | Integer | Não | Número de registros por página |
+// | attributes | String | Não | Lista de campos desejados separados por vírgula, ex: "id,code,name" |
+// | sort_property | String | Não | Campos que devem ser ordenados, separados por vírgula, ex1: "name", ex2: "name,date" |
+// | sort_direction | String | Não | Direção da ordenação dos campos a serem ordenados (*valores possíveis são asc ou desc*), ex1: "asc", ex2: "asc,desc" |
+// | name | String | Não | Filtro de busca por nome |
+// | year | String | Não | Filtro de busca por ano |
+// | search | String | Não | Filtro de busca geral, busca por nome, data, equipe, departamento, unidade, centro de custos ou turno |
+// | team_id | String | Não | Filtro de busca por equipe |
+// | department_id | String | Não | Filtro de busca por departamento |
+// | business_unit_id | String | Não | Filtro de busca por unidade de negócios |
+// | cost_center_id | String | Não | Filtro de busca por centro de custos |
+// | shift_id | String | Não | Filtro de busca por turno |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id                 | Integer   | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60) | Nome do feriado |
+// | date | String (5) | Dia e mês do feriado no formato DD/MM |
+// | fixed | Boolean | O feriado é recorrente? Ou seja, a data se repete em todos os anos? (*true - sim, se repete todos os anos \| false - não, a data se aplica apenas ao ano corrente*) |
+// | active | Boolean | O feriado está ativo? (*true - sim \| false - não*) |
+// | team | Object | Equipe à qual o feriado se refere |
+// | department | Object | Departamento à qual o feriado se refere |
+// | business_unit | Object | Unidade de negócio à qual o feriado se refere |
+// | cost_center | Object | Centro de custo à qual o feriado se refere |
+// | shift | Object | Turno à qual o feriado se refere |
+// 
+// #### Formato do objeto team
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da equipe |
+// | name | String (100) | Nome da equipe |
+// 
+// #### Formato do objeto department
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da departamento |
+// | name | String (100) | Nome da departamento |
+// 
+// #### Formato do objeto business_unit
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da unidade de negócio |
+// | name | String (100) | Nome da unidade de negócio |
+// 
+// #### Formato do objeto cost_center
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da centro de custos |
+// | name | String (100) | Nome da centro de custos |
+// 
+// #### Formato do objeto shift
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da turno |
+// | name | String (100) | Nome da turno |
+// | main_parent_id | Integer | Identificador sequencial do histórico de alterações do turno gerado automaticamente pelo sistema |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/holidays"
+"access-token": "{{client_token}}"
+? "attributes"= "id,name,fixed,date,active,team,department,business_unit,cost_center,shift"
+? "count"= "{{holiday_count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+? "sort_property"= "date"
+? "sort_direction"= "desc"
+? "year"= "2018"
+
+
+// Exibe os atributos de um feriado.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | holiday_id | Integer | Sim | ID do feriado a ser detalhado |
+// 
+// ## Parâmetros na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | attributes | String | Não | Lista de campos desejados separados por vírgula, ex: "id,code,name" |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id                 | Integer   | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60) | Nome do feriado |
+// | date | String (5) | Dia e mês do feriado no formato DD/MM |
+// | fixed | Boolean | O feriado é recorrente? Ou seja, a data se repete em todos os anos? (*true - sim, se repete todos os anos \| false - não, a data se aplica apenas ao ano corrente*) |
+// | active | Boolean | O feriado está ativo? (*true - sim \| false - não*) |
+// | team | Object | Equipe à qual o feriado se refere |
+// | department | Object | Departamento à qual o feriado se refere |
+// | business_unit | Object | Unidade de negócio à qual o feriado se refere |
+// | cost_center | Object | Centro de custo à qual o feriado se refere |
+// | shift | Object | Turno à qual o feriado se refere |
+// 
+// #### Formato do objeto team
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da equipe |
+// | name | String (100) | Nome da equipe |
+// 
+// #### Formato do objeto department
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da departamento |
+// | name | String (100) | Nome da departamento |
+// 
+// #### Formato do objeto business_unit
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da unidade de negócio |
+// | name | String (100) | Nome da unidade de negócio |
+// 
+// #### Formato do objeto cost_center
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da centro de custos |
+// | name | String (100) | Nome da centro de custos |
+// 
+// #### Formato do objeto shift
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da turno |
+// | name | String (100) | Nome da turno |
+// | main_parent_id | Integer | Identificador sequencial do histórico de alterações do turno gerado automaticamente pelo sistema |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/holidays/{{holiday_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,name,fixed,date,business_unit"
+
+
+// Cria um feriado.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | name | String (60) | Sim | Nome do feriado |
+// | date | String (5) | Sim | Dia e mês do feriado no formato DD/MM |
+// | fixed | Boolean | Não | O feriado é fixo? Ou seja, deve se repetir em todos os anos? (*true - sim, todos os anos \| false - não, apenas no ano corrente*) |
+// | active | Boolean | Não | O feriado está ativo? (*true - sim \| false - não*) |
+// | team_id | Integer | Não | ID da equipe à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todas as equipes |
+// | department_id | Integer | Não | ID do departamento à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os departamentos |
+// | business_unit_id | Integer | Não | ID da unidade de negócio à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todas as unidades |
+// | cost_center_id | Integer | Não | ID do centro de custos à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os centros de custos |
+// | shift_id | Integer | Não | ID do turno à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os turnos |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/holidays"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "holiday": {
+    "name": "{{name}}",
+    "fixed": {{holiday_fixed}},
+    "date": "{{date}}",
+    "team_id": {{team_id}},
+    "department_id": {{department_id}},
+    "business_unit_id": {{business_unit_id}},
+    "cost_center_id": {{cost_center_id}},
+    "shift_id": {{shift_id}}
+  }
+}')
+
+
+// Edita um Feriado.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | holiday_id | Integer | Sim | ID do feriado |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | name | String (60) | Sim | Nome do feriado |
+// | date | String (5) | Sim | Dia e mês do feriado no formato DD/MM |
+// | fixed | Boolean | Não | O feriado é fixo? Ou seja, deve se repetir em todos os anos? (*true - sim, todos os anos \| false - não, apenas no ano corrente*) |
+// | active | Boolean | Não | O feriado está ativo? (*true - sim \| false - não*) |
+// | team_id | Integer | Não | ID da equipe à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todas as equipes |
+// | department_id | Integer | Não | ID do departamento à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os departamentos |
+// | business_unit_id | Integer | Não | ID da unidade de negócio à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todas as unidades |
+// | cost_center_id | Integer | Não | ID do centro de custos à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os centros de custos |
+// | shift_id | Integer | Não | ID do turno à qual o feriado se refere. Se um ID não for informado o sistema aplicará a todos os turnos |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/holidays/{{holiday_id}}"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "holiday": {
+    "name": "{{name}}",
+    "fixed": {{holiday_fixed}},
+    "date": "{{date}}",
+    "team_id": {{team_id}},
+    "department_id": {{department_id}},
+    "business_unit_id": {{business_unit_id}},
+    "cost_center_id": {{cost_center_id}},
+    "shift_id": {{shift_id}}
+  }
+}')
+
+
+// Exclui um cargo.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- | ----------- | --------- |
+// | holiday_id | Integer | Sim | ID do feriado a ser excluído |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/holidays/{{holiday_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

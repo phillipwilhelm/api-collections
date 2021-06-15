@@ -1,0 +1,177 @@
+#!/usr/bin/env dothttp
+
+// <h3>List of available Document Codes</h3>
+// 
+// ```
+// "I101" : "Aadhaar Card",
+// "I102" : "PAN Verification Record",
+// "I103" : "Driving License",
+// "I104" : "LPG Subscription Voucher",
+// "E101" : "Class X Marksheet",
+// "E102" : "Class X Migration Certificate",
+// "E103" : "Class X Passing Certificate",
+// "E121" : "Class XII Marksheet",
+// "E122" : "Class XII Migration Certificate",
+// "E123" : "Class XII Passing Certificate"
+// ```
+// 
+// <h3>Transaction Status List</h3>
+// 
+// ```
+// INITIATED : 1,
+// SUCCESSFUL: 5,
+// FAILED: 6,
+// EXPIRED: 9,
+// CONSENT_DENIED: 10,
+// TERMINATED_BY_USER: 11,
+// PARTIAL_COMPLETED: 21,
+// DIGILOCKER_UPLOADING_DOCS: 22,
+// DIGILOCKER_FETCHED_ALL_DOCS: 23,
+// DIGILOCKER_DOCS_SENT: 24
+// ```
+// 
+// <h2>Document Status List</h2>
+// 
+// ```
+// 1: INITIATED 
+// 2: URI_FETCHED 
+// 3: URI_FETCHED_FAILED 
+// 4: VERIFIED 
+// 5: VERIFICATION_FAILED
+// ```
+// 
+// <h4>INIT REQUEST JSON</h4>
+// 
+// ```
+// {
+// 	"response_url" : "webhook url",
+// 	"user_name"	   : "Name of the user",
+// 	"documents" : ["array with list of ID codes to be fetched from digilocker"],
+// 	"purpose" : "purpose of the transaction"
+// }
+// ```
+// 
+// <h4>INIT Response JSON</h4>
+// 
+// ```
+// {
+//    "id": "<<transactionId>>",
+//    "env": "<< environment code>>",
+//    "response_url": "<<response url of agency>>",
+//    "webhook_security_key": "token set in headers for verification"
+// }
+// ```
+// <br>
+// Once the transaction is initiated pass the above generated id to the SDK to start the transaction. This will open the gateway window and rest of the transaction will be processed on the gateway till document is signed successfully or there is any failure. 
+// 
+// <h2>Response To Agency URL (Provided in INIT)</h2>
+// 
+// <h4>Transaction Failed Response</h4>
+// 
+// ```
+// {
+//     "id": "<<transaction id>>",
+//     "env": << environment code >> ,
+//     "transaction_status": 6,
+//     "public_ip": "<<user ip address>>",
+//     “user_name”: “ << user name >> ”,
+//     "request_medium": "<<what was origin of request web or mobile>>",
+//     "response_url": "<<response url of agency>>",
+//     "response_to_agency": "<<response sent to agency or not>>",
+//     "request_consent": "<<user consent Y or N>>",
+//     "request_timestamp": "2019-01-22 18:33:09:602 +05:30",
+//     "response_timestamp": "2019-01-22 18:33:09:626 +05:30",
+// }
+// ```
+// 
+// <h4>Transaction Success Response</h4>
+// 
+// ```
+// {
+//     "id": "<<transaction id>>",
+//     "env": << environment code >> ,
+//     "transaction_status": 5,
+//     "public_ip": "<<user ip address>>",
+//     “user_name”: “ << user name >> ”,
+//     "request_medium": "<<what was origin of request web or mobile>>",
+//     "response_url": "<<response url of agency>>",
+//     "response_to_agency": "<<response sent to agency or not>>",
+//     "request_consent": "<<user consent Y or N>>",
+//     "request_timestamp": "2019-01-22 18:33:09:602 +05:30",
+//     "response_timestamp": "2019-01-22 18:33:09:626 +05:30",
+//     "document": [{
+//         "id": "<<document id>>",
+//         "index": << index order >> ,
+//         "transaction_id": "<<transaction id>>",
+//         "doc_type": "<<type of document>>",
+//         "source": "<<source of document>>",
+//         "txn": "<<transaction id from digilocker>>",
+//         "shared_till": "<<time till when this document could be shared>>",
+//         "content_type": "<<type of document>>",
+//         "response_code": "<<response code for the document>>",
+//         "response_message": "<<response msg for the document>>",
+//         "document_status": << status of the document >> ,
+//         "request_timestamp": "2019-01-23 14:39:38:565 +05:30",
+//         "response_timestamp": "2019-01-23 15:04:38:496 +05:30",
+//         "document_data": "<<base 64 of the document>>"
+//     }]
+// }
+// ```
+
+@name("INIT API")
+POST "https://{{base_url}}/gateway/digilocker/init"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+	"response_url" : "webhook url",
+	"user_name"	   : "Name of the user",
+	"documents" : ["array with list of ID codes to be fetched from digilocker"],
+	"purpose" : "purpose of the transaction"
+}')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<<transaction id>>",
+//     "env": << environment code >> ,
+//     "transaction_status": 5,
+//     "public_ip": "<<user ip address>>",
+//     “user_name”: “ << user name >> ”,
+//     "request_medium": "<<what was origin of request web or mobile>>",
+//     "response_url": "<<response url of agency>>",
+//     "response_to_agency": "<<response sent to agency or not>>",
+//     "request_consent": "<<user consent Y or N>>",
+//     "request_timestamp": "2019-01-22 18:33:09:602 +05:30",
+//     "response_timestamp": "2019-01-22 18:33:09:626 +05:30",
+//     "document": [{
+//         "id": "<<document id>>",
+//         "index": << index order >> ,
+//         "transaction_id": "<<transaction id>>",
+//         "doc_type": "<<type of document>>",
+//         "source": "<<source of document>>",
+//         "txn": "<<transaction id from digilocker>>",
+//         "shared_till": "<<time till when this document could be shared>>",
+//         "content_type": "<<type of document>>",
+//         "response_code": "<<response code for the document>>",
+//         "response_message": "<<response msg for the document>>",
+//         "document_status": << status of the document >> ,
+//         "request_timestamp": "2019-01-23 14:39:38:565 +05:30",
+//         "response_timestamp": "2019-01-23 15:04:38:496 +05:30",
+//         "document_data": "<<base 64 of the document>>"
+//     }]
+// }
+// ```
+
+@name("Fetch API")
+GET "https://{{base_url}}/gateway/digilocker/<<transaction_id>>/fetch"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+
+
+

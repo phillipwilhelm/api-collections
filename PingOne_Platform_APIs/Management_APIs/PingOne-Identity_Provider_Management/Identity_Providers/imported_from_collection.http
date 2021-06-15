@@ -1,0 +1,599 @@
+#!/usr/bin/env dothttp
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional Facebook Fields
+// 
+// Property | Mutable? | Required? | Type | Notes 
+// -------- | -------- | --------- | ---- | -----
+// appId | Y | Y | String; max 256 characters, `^[a-zA-Z0-9_-]+$` | Application ID from [Facebook](https://developers.facebook.com).
+// appSecret | Y | Y | String; max 256 characters, `^[a-zA-Z0-9_-]+$` | Application secret from [Facebook](https://developers.facebook.com).
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (Facebook)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Custom Facebook ID Provider",
+    "enabled": true,
+    "name": "FacebookIdP6",
+    "type": "FACEBOOK",
+    "appId": "FBID",
+    "appSecret": "FBSecret"
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional SAML Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// idpEntityId | Y | Y | String | The entity ID URI that will be checked against the issuerId tag in the incoming response.
+// spEntityId | Y | Y | String; must be unique w/in Env | The entity ID URI that will be included in the outbound request and is used by the IdP to identify this SP. Will also be used to verify the audience in the incoming response.
+// ssoBinding | Y | Y | One of: `HTTP_REDIRECT`, `HTTP_POST` | Binding to use for the outbound request.
+// ssoEndpoint | Y | Y | URL; max size 2000 | The SSO endpoint to which the outbound request will be sent. Must be HTTPS.
+// authnRequestSigned | Y | Y | Boolean | Indicates if the SAML Authn Request will be signed when sent to IdP.
+// spSigning | Y | N | | If missing, default signing key for the Env will be used.
+// --algorithm | Y | N | One of: `SHA256withRSA`, `SHA384withRSA`, `SHA512withRSA`|
+// --key | | | |
+// ----id | Y | Y | UUID |
+// idpVerification | | | | Cert to be used to verify the signature on the signed Assertion from IdP.
+// --cert | | | |
+// ----id | Y | Y | UUID |
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (SAML)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Custom ID Provider",
+    "enabled": true,
+    "name": "samlIdP_{{$timestamp}}",
+    "type": "SAML",
+    "spEntityId": "{{envID}}",
+    "idpEntityId": "samlIdP{{$timestamp}}",
+    "ssoEndpoint": "https://example.com",
+    "ssoBinding": "HTTP_REDIRECT",
+    "acsBinding": "",
+    "idpVerification": {
+    	"cert": {
+    		"id": "{{certID}}"
+    	},
+    	"algorithm": "RSA_SHA 256"
+    }
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional LinkedIn Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// clientId | Y | Y | String | Application ID from [LinkedIn](https://www.linkedin.com/developers/).
+// clientSecret | Y | Y | String | Application secret from [LinkedIn](https://www.linkedin.com/developers/).
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (LinkedIn)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Custom LinkedIn ID Provider",
+    "enabled": true,
+    "name": "LinkedInIdP",
+    "type": "LINKEDIN",
+    "clientId": "LINKEDIN_ID",
+    "clientSecret": "LINKEDIN_SECRET"
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional Google Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// clientID | Y | Y | String | Application ID from [Google](https://developers.google.com/).
+// clientSecret | Y | Y | String | Application secret from [Google](https://developers.google.com/).
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (Google)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Custom Google ID Provider",
+    "enabled": true,
+    "name": "GoogleIdP1",
+    "type": "GOOGLE",
+    "clientId": "GoogleID",
+    "clientSecret": "GoogleSecret"
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional Apple Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// clientId | Y | Y | String | A string that specifies the application ID from Apple. This is the identifier obtained after registering a services ID in the Apple developer portal.
+// clientSecretSigningKey | Y | Y | String | A string that specifies the private key that is used to generate a client secret.
+// keyId | Y | Y | String | A 10-character string that Apple uses to identify an authentication key.
+// teamId | Y | Y | String | A 10-character string that Apple uses to identify teams.
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (Apple)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Apple Provider",
+    "enabled": true,
+    "name": "AppleIdP",
+    "type": "APPLE",
+    "clientId": "APPLE_IDP",
+    "clientSecret": "APPLE_SECRET",
+    "clientSecretSigningKey": "-----BEGIN PRIVATE KEY-----\nMIGTAgEAMB....\n-----END PRIVATE KEY-----",
+    "teamId": "1ABC2D4F5T",
+    "keyId": "6GH7JK8LU0"
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional Amazon Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// clientId | Y | Y | String | The clientId from AWS.
+// clientSecret | Y | Y | String | The clientSecret from AWS.
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (Amazon)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Amazon Provider",
+    "enabled": true,
+    "name": "AmazonIdP",
+    "type": "AMAZON",
+    "clientId": "AMAZON_ID",
+    "clientSecret": "AMAZON_SECRET"
+}')
+
+
+// #### Base Identity Provider Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// enabled | Y | Y | Boolean |
+// name | Y | Y | String; must be unique w/in Env: `^[a-zA-Z0-9_-]+$` |
+// description | Y | N | String: `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// type | N | Y | One of: `FACEBOOK`, `GOOGLE`, `LINKEDIN`, `APPLE `, `TWITTER`, `AMAZON`, `YAHOO`, `MICROSOFT`, `OPENID_CONNECT`, `SAML`, `LDAP` |
+// icon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// loginButtonIcon | | | | If not set, default icon will be used (based on `type`).
+// --id | Y | N | UUID |
+// --href | Y | N | URL |
+// 
+// #### Additional Twitter Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// clientId | Y | Y | String | The API consumer key from Twitter.
+// clientSecret | Y | Y | String | The API consumer secret key from Twitter.
+// 
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("CREATE Identity Provider (Twitter)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Twitter Provider",
+    "enabled": true,
+    "name": "TwitterIdP",
+    "type": "TWITTER",
+    "clientId": "TWITTER_IDP",
+    "clientSecret": "TWITTER_SECRET"
+}')
+
+
+@name("CREATE Identity Provider (Paypal)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Paypal Provider",
+    "enabled": true,
+    "name": "PaypalIdP",
+    "type": "PAYPAL",
+    "clientId": "PAYPAL_ID",
+    "clientSecret": "PAYPAL_SECRET",
+    "clientEnvironment": "sandbox"
+}')
+
+
+// "enabled" -> boolean, defaults to false
+// 
+// "name" -> unique string
+// 
+// "type" -> one of: [ "FACEBOOK", "GOOGLE", "LINKEDIN", "APPLE", "TWITTER", "OPENID_CONNECT", "SAML" ] <- IMMUTABLE,
+// 
+// "clientId" -> Application ID from Twitter Provider
+// 
+// "clientSecret" -> Application secret from Twitter Provider
+
+@name("CREATE Identity Provider (Github)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Github Provider",
+    "enabled": true,
+    "name": "GithubIdP",
+    "type": "GITHUB",
+    "clientId": "GITHUB_ID",
+    "clientSecret": "GITHUB_SECRET"
+}')
+
+
+@name("CREATE Identity Provider (Microsoft)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Microsoft Provider",
+    "enabled": true,
+    "name": "MicrosoftIdP",
+    "type": "MICROSOFT",
+    "clientId": "MICROSOFT_ID",
+    "clientSecret": "MICROSOFT_SECRET"
+}')
+
+
+@name("CREATE Identity Provider (Yahoo)")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "description": "Yahoo Provider",
+    "enabled": true,
+    "name": "YahooIdP",
+    "type": "YAHOO",
+    "clientId": "YAHOO_ID",
+    "clientSecret": "YAHOO_SECRET"
+}')
+
+
+@name("READ All Identity Providers")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+
+
+// #### `expand` Parameter
+// Can set to `attributes` to have the IdP's Attributes included in `_embedded`.
+
+@name("READ One Identity Provider")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}"
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider (Facebook)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Custom ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "9765e2ec-f958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "FACEBOOK",
+    "appId": "FBID",
+    "appSecret": "FBSecret",
+    "#permissions": [
+        "USER_AGE_RANGE",
+        "USER_BIRTHDAY",
+        "USER_GENDER",
+        "EMAIL"
+    ]
+}')
+
+
+@name("UPDATE Identity Provider (LinkedIn)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "LinkedIn ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "LINKEDIN",
+    "appId": "LINKEDIN_ID",
+    "appSecret": "LINKEDIN_SECRET"
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider (SAML)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Custom ID Provider",
+    "enabled": true,
+    "icon": {
+        "id": "407b3814-e8b6-4f6c-8045-96ab52706890",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Bureaucrats_at_work.svg/196px-Bureaucrats_at_work.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "SAML",
+    "spEntityId": "{{envID}}",
+    "idpEntityId": "samlIdP{{$timestamp}}",
+    "ssoEndpoint": "https://example.com",
+    "ssoBinding": "HTTP_REDIRECT",
+    "acsBinding": "",
+    "idpVerification": {
+    	"cert": {
+    		"id": "{{certID}}"
+    	},
+    	"algorithm": "RSA_SHA 256"
+    }
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider (Apple)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "LinkedIn ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "LINKEDIN",
+    "appId": "LINKEDIN_ID",
+    "appSecret": "LINKEDIN_SECRET"
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider (Amazon)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Amazon ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "AMAZON",
+    "clientId": "AMAZON_ID",
+    "clientSecret": "AMAZON_SECRET"
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider (Twitter)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Twitter ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "TWITTER",
+    "clientId": "TWITTER_ID",
+    "clientSecret": "TWITTER_SECRET"
+}')
+
+
+@name("UPDATE Identity Provider (Paypal)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Paypal ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "PAYPAL",
+    "clientId": "PAYPAL_ID",
+    "clientSecret": "PAYPAL_SECRET",
+    "paypalEnvironment": "sandbox"
+}')
+
+
+@name("UPDATE Identity Provider (Github)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Github ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "GITHUB",
+    "clientId": "GITHUB_ID",
+    "clientSecret": "GITHUB_SECRET"
+}')
+
+
+@name("UPDATE Identity Provider (Microsoft)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Micreosoft ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "MicrosoftIdP",
+    "type": "MICROSOFT",
+    "clientId": "MICROSOFT_ID",
+    "clientSecret": "MICROSOFT_SECRET"
+}')
+
+
+@name("UPDATE Identity Provider (Yahoo)")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+data('{
+    "#accountLinking": {
+        "filter": "SCIM filter for matching to a User"
+    },
+    "#description": "Yahoo ID Provider",
+    "enabled": false,
+    "icon": {
+        "id": "2565e2ec-1958-4a20-a178-3ba5f54d6477",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Oxygen-user-identity-female.svg/128px-Oxygen-user-identity-female.svg.png"
+    },
+    "name": "UPDATED_{{$timestamp}}",
+    "type": "YAHOO",
+    "clientId": "YAHOO_ID",
+    "clientSecret": "YAHOO_SECRET"
+}')
+
+
+@name("DELETE Identity Provider")
+DELETE "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}"
+
+
+
+

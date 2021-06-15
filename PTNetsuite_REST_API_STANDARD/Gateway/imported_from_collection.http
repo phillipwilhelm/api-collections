@@ -1,0 +1,856 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the existing gateways for the current user.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key   | Value   | Description               | 
+// | ----- | ------- | ------------------------- |
+// | reachable   | {{reachable}} | Flag used to indicate whether the gateway is reachable or not
+// | id   | {{id}} | Gateway ID
+// | ip   | {{ip}} | Gateway IP Address
+// | public  | {{public}} | Flag used to indicate if the gateway is public or private
+// | label  | {{label}} | Label used to identify the gateway
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Gateway List")
+GET "{{protocol}}://{{host}}/api/v2/gateways"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns the gateway associated with the given `gid`, the unique id associated to each gateway.
+// 
+// The response will provide an object that containsssssss the single Gateway details.
+// 
+// Details:
+//    * No body in the request
+//    * The gateway to obtain is identified in the url by `{{gid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Gateway Information")
+GET "{{protocol}}://{{host}}/api/v2/gateway/{{gid}}"
+"Authorization": "Bearer {{token}}"
+
+
+// This API creates a new gateway.
+// 
+// The reponse will contain the created object with the created gateway.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//    * If `supportsRemoteControl` is `true` the fields `rctrlUsername` and `rctrlPassword` are required
+// 
+//  
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//         "id": {
+//             "type": "string",
+//             "pattern": "^[0-9a-f]{16}$",
+//             "description": "Gateway id that uniquely identify a gateway. Hex string with 16-hex characters (lower-case)"
+//         },
+//         "label": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "The label is a field used to describe this gateway"
+//         },
+//         "public": {
+//             "type": "boolean",
+//             "default": true,
+//             "description": "This flag indicate if the gateway is public and usable from other users"
+//         },
+//         "lat": {
+//             "type": "number",
+//             "minimum": -90,
+//             "maximum": 90,
+//             "description": "Latitude location for the gateway [°]"
+//         },
+//         "lng": {
+//             "type": "number",
+//             "minimum": -180,
+//             "maximum": 180,
+//             "description": "Longitude location for the gateway [°]"
+//         },
+//         "alt": {
+//             "type": "number",
+//             "minimum": 0,
+//             "maximum": 7000,
+//             "description": "Altitude location for the gateway [m]"
+//         },
+//         "model": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Model and brand of the gateway"
+//         },
+//         "serial": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Serial number of the gateway"
+//         },
+//         "firmware": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Current firmware version present in the gateway"
+//         },
+//         "subnet": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Subnet used by this gateway"
+//         },
+//         "supportsRemoteControl": {
+//             "type": "boolean",
+//             "description": "Flag used to indicate if the gateway support remote control"
+//         },
+//         "rctrlUsername": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Username used for remote control. Disabled if the gateway does not support remote control"
+//         },
+//         "rctrlPassword": {
+//             "type": "string",
+//             "minLength": 8,
+//             "maxLength": 255,
+//             "description": "Password used for remote control. Disabled if the gateway does not support remote control"
+//         },
+//         "GatewayProfileId": {
+//             "type": "integer",
+//             "description": "Gateway profile id that defines a set of gateway's characteristics"
+//         }
+//     },
+//     "if": {
+//         "properties": {
+//             "supportsRemoteControl": {
+//                 "const": true
+//             }
+//         },
+//         "required": [
+//             "supportsRemoteControl"
+//         ]
+//     },
+//     "then": {
+//         "required": [
+//             "label",
+//             "id",
+//             "GatewayProfileId",
+//             "supportsRemoteControl",
+//             "rctrlUsername",
+//             "rctrlPassword"
+//         ]
+//     },
+//     "required": [
+//         "label",
+//         "id",
+//         "GatewayProfileId"
+//     ],
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                                        | Type      | Required     | Nullable | Default | Defined by    |
+// | ----------------------------------------------- | --------- | ------------ | -------- | ------- | ------------- |
+// | [GatewayProfileId](#gatewayprofileid)           | `integer` | **Required** | No       |         | (this schema) |
+// | [alt](#alt)                                     | `number`  | Optional     | No       |         | (this schema) |
+// | [firmware](#firmware)                           | `string`  | Optional     | No       |         | (this schema) |
+// | [id](#id)                                       | `string`  | **Required** | No       |         | (this schema) |
+// | [label](#label)                                 | `string`  | **Required** | No       |         | (this schema) |
+// | [lat](#lat)                                     | `number`  | Optional     | No       |         | (this schema) |
+// | [lng](#lng)                                     | `number`  | Optional     | No       |         | (this schema) |
+// | [model](#model)                                 | `string`  | Optional     | No       |         | (this schema) |
+// | [public](#public)                               | `boolean` | Optional     | No       | `true`  | (this schema) |
+// | [rctrlPassword](#rctrlpassword)                 | `string`  | Optional     | No       |         | (this schema) |
+// | [rctrlUsername](#rctrlusername)                 | `string`  | Optional     | No       |         | (this schema) |
+// | [serial](#serial)                               | `string`  | Optional     | No       |         | (this schema) |
+// | [subnet](#subnet)                               | `string`  | Optional     | No       |         | (this schema) |
+// | [supportsRemoteControl](#supportsremotecontrol) | `boolean` | Optional     | No       | `false` | (this schema) |
+// 
+// ## GatewayProfileId
+// 
+// Gateway profile id that defines a set of gateway's characteristics
+// 
+// `GatewayProfileId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### GatewayProfileId Type
+// 
+// `integer`
+// 
+// ## alt
+// 
+// Altitude location for the gateway [m]
+// 
+// `alt`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### alt Type
+// 
+// `number`
+// 
+// - minimum value: `0`
+// - maximum value: `7000`
+// 
+// ## firmware
+// 
+// Current firmware version present in the gateway
+// 
+// `firmware`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### firmware Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## id
+// 
+// Gateway id that uniquely identify a gateway. Hex string with 16-hex characters (lower-case)
+// 
+// `id`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### id Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5B0-9a-f%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[0-9a-f]{16}$
+// ```
+// 
+// ## label
+// 
+// The label is a field used to describe this gateway
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## lat
+// 
+// Latitude location for the gateway [°]
+// 
+// `lat`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lat Type
+// 
+// `number`
+// 
+// - minimum value: `-90`
+// - maximum value: `90`
+// 
+// ## lng
+// 
+// Longitude location for the gateway [°]
+// 
+// `lng`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lng Type
+// 
+// `number`
+// 
+// - minimum value: `-180`
+// - maximum value: `180`
+// 
+// ## model
+// 
+// Model and brand of the gateway
+// 
+// `model`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### model Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## public
+// 
+// This flag indicate if the gateway is public and usable from other users
+// 
+// `public`
+// 
+// - is optional
+// - type: `boolean`
+// - default: `true`
+// - defined in this schema
+// 
+// ### public Type
+// 
+// `boolean`
+// 
+// ## rctrlPassword
+// 
+// Password used for remote control. Disabled if the gateway does not support remote control
+// 
+// `rctrlPassword`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### rctrlPassword Type
+// 
+// `string`
+// 
+// - minimum length: 8 characters
+// - maximum length: 255 characters
+// 
+// ## rctrlUsername
+// 
+// Username used for remote control. Disabled if the gateway does not support remote control
+// 
+// `rctrlUsername`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### rctrlUsername Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## serial
+// 
+// Serial number of the gateway
+// 
+// `serial`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### serial Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## subnet
+// 
+// Subnet used by this gateway
+// 
+// `subnet`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### subnet Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## supportsRemoteControl
+// 
+// Flag used to indicate if the gateway support remote control
+// 
+// `supportsRemoteControl`
+// 
+// - is optional
+// - type: `boolean`
+// - default: `false`
+// - defined in this schema
+// 
+// ### supportsRemoteControl Type
+// 
+// `boolean`
+
+@name("Create Gateway")
+POST "{{protocol}}://{{host}}/api/v2/gateway"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"id":"{{gatewayId}}",
+	"GatewayProfileId": {{gpid}},
+	"label":"{{label}}"
+}')
+
+
+// This API allows to update the information of the own gateway identified by `{{gid}}`.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change public or label.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//    * If `supportsRemoteControl` is `true` the fields `rctrlUsername` and `rctrlPassword` are required
+// 
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//         "label": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "The label is a field used to describe this gateway"
+//         },
+//         "public": {
+//             "type": "boolean",
+//             "description": "This flag indicate if the gateway is public and usable from other users"
+//         },
+//         "lat": {
+//             "type": "number",
+//             "minimum": -90,
+//             "maximum": 90,
+//             "description": "Latitude location for the gateway [°]"
+//         },
+//         "lng": {
+//             "type": "number",
+//             "minimum": -180,
+//             "maximum": 180,
+//             "description": "Longitude location for the gateway [°]"
+//         },
+//         "alt": {
+//             "type": "number",
+//             "minimum": 0,
+//             "maximum": 7000,
+//             "description": "Altitude location for the gateway [m]"
+//         },
+//         "model": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Model and brand of the gateway"
+//         },
+//         "serial": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Serial number of the gateway"
+//         },
+//         "firmware": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Current firmware version present in the gateway"
+//         },
+//         "subnet": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Subnet used by this gateway"
+//         },
+//         "supportsRemoteControl": {
+//             "type": "boolean",
+//             "description": "Flag used to indicate if the gateway support remote control"
+//         },
+//         "rctrlUsername": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Username used for remote control. Disabled if the gateway does not support remote control"
+//         },
+//         "rctrlPassword": {
+//             "type": "string",
+//             "minLength": 8,
+//             "maxLength": 255,
+//             "description": "Password used for remote control. Disabled if the gateway does not support remote control"
+//         },
+//         "GatewayProfileId": {
+//             "type": "integer",
+//             "description": "Gateway profile id that defines a set of gateway's characteristics"
+//         }
+//     },
+//     "anyOf": [
+//         {
+//             "required": [
+//                 "label"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "public"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "lat"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "lng"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "alt"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "model"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "serial"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "firmware"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "subnet"
+//             ]
+//         },
+//         {
+//             "required": [
+//                 "GatewayProfileId"
+//             ]
+//         },
+//         {
+//             "if": {
+//                 "properties": {
+//                     "supportsRemoteControl": {
+//                         "const": true
+//                     }
+//                 },
+// 		        "required": [
+// 		            "supportsRemoteControl"
+// 		        ]
+// 		    },
+//             "then": {
+//                 "required": [
+//                     "supportsRemoteControl",
+//                     "rctrlUsername",
+//                     "rctrlPassword"
+//                 ]
+//             }
+//         }
+//     ],
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                                        | Type      | Required | Nullable | Defined by    |
+// | ----------------------------------------------- | --------- | -------- | -------- | ------------- |
+// | [GatewayProfileId](#gatewayprofileid)           | `integer` | Optional | No       | (this schema) |
+// | [alt](#alt)                                     | `number`  | Optional | No       | (this schema) |
+// | [firmware](#firmware)                           | `string`  | Optional | No       | (this schema) |
+// | [label](#label)                                 | `string`  | Optional | No       | (this schema) |
+// | [lat](#lat)                                     | `number`  | Optional | No       | (this schema) |
+// | [lng](#lng)                                     | `number`  | Optional | No       | (this schema) |
+// | [model](#model)                                 | `string`  | Optional | No       | (this schema) |
+// | [public](#public)                               | `boolean` | Optional | No       | (this schema) |
+// | [rctrlPassword](#rctrlpassword)                 | `string`  | Optional | No       | (this schema) |
+// | [rctrlUsername](#rctrlusername)                 | `string`  | Optional | No       | (this schema) |
+// | [serial](#serial)                               | `string`  | Optional | No       | (this schema) |
+// | [subnet](#subnet)                               | `string`  | Optional | No       | (this schema) |
+// | [supportsRemoteControl](#supportsremotecontrol) | `boolean` | Optional | No       | (this schema) |
+// 
+// ## GatewayProfileId
+// 
+// Gateway profile id that defines a set of gateway's characteristics
+// 
+// `GatewayProfileId`
+// 
+// - is optional
+// - type: `integer`
+// - defined in this schema
+// 
+// ### GatewayProfileId Type
+// 
+// `integer`
+// 
+// ## alt
+// 
+// Altitude location for the gateway [m]
+// 
+// `alt`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### alt Type
+// 
+// `number`
+// 
+// - minimum value: `0`
+// - maximum value: `7000`
+// 
+// ## firmware
+// 
+// Current firmware version present in the gateway
+// 
+// `firmware`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### firmware Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## label
+// 
+// The label is a field used to describe this gateway
+// 
+// `label`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## lat
+// 
+// Latitude location for the gateway [°]
+// 
+// `lat`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lat Type
+// 
+// `number`
+// 
+// - minimum value: `-90`
+// - maximum value: `90`
+// 
+// ## lng
+// 
+// Longitude location for the gateway [°]
+// 
+// `lng`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lng Type
+// 
+// `number`
+// 
+// - minimum value: `-180`
+// - maximum value: `180`
+// 
+// ## model
+// 
+// Model and brand of the gateway
+// 
+// `model`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### model Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## public
+// 
+// This flag indicate if the gateway is public and usable from other users
+// 
+// `public`
+// 
+// - is optional
+// - type: `boolean`
+// - defined in this schema
+// 
+// ### public Type
+// 
+// `boolean`
+// 
+// ## rctrlPassword
+// 
+// Password used for remote control. Disabled if the gateway does not support remote control
+// 
+// `rctrlPassword`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### rctrlPassword Type
+// 
+// `string`
+// 
+// - minimum length: 8 characters
+// - maximum length: 255 characters
+// 
+// ## rctrlUsername
+// 
+// Username used for remote control. Disabled if the gateway does not support remote control
+// 
+// `rctrlUsername`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### rctrlUsername Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## serial
+// 
+// Serial number of the gateway
+// 
+// `serial`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### serial Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## subnet
+// 
+// Subnet used by this gateway
+// 
+// `subnet`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### subnet Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## supportsRemoteControl
+// 
+// Flag used to indicate if the gateway support remote control
+// 
+// `supportsRemoteControl`
+// 
+// - is optional
+// - type: `boolean`
+// - defined in this schema
+// 
+// ### supportsRemoteControl Type
+// 
+// `boolean`
+
+@name("Update Gateway Information")
+PUT "{{protocol}}://{{host}}/api/v2/gateway/{{gid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label":"{{new-label}}"
+}')
+
+
+// This API allows to delete an existing gateways and all the relationship with other users if the gateway is shared with some user.
+// 
+// The gateway to delete is passed in the URL using the GatewayId as `{{gid}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The gateway to delete is identified in the url by `{{gid}}`
+//    * The possible responses are listed in the section on the right
+//    * If we delete a gateway, we delete also the relationship with all the other user. A friend user won't see anymore the gateway if we delete it
+
+@name("Remove Gateway")
+DELETE "{{protocol}}://{{host}}/api/v2/gateway/{{gid}}"
+"Authorization": "Bearer {{token}}"
+
+
+

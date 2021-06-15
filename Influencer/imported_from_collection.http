@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+// Register an influencer account via email.
+// 
+// Add influencer_signup true to create a store for the user and set the role to influencer.
+
+@name("Register via email")
+POST "https://{{host}}/api/v1/users/registrations"
+"Content-Type": "application/json"
+json({
+    "user": {
+        "firstname": "Example",
+        "lastname": "Account",
+        "email": "email@example.com",
+        "password": "ComPlexP4ssW0rd123",
+        "password_confirmation": "ComPlexP4ssW0rd123",
+        "influencer_signup": true
+    }
+})
+
+
+@name("Login")
+POST "https://{{host}}/api/v1/users/login"
+"Content-Type": "application/json"
+json({
+    "email": "fabian@oldharlem.nl",
+    "password": "Welkom#1"
+})
+
+
+// Use this endpoint to register or login an influencer. 
+// 
+// After signup a store will be generated. Query the store using the returned `api_key` at `/me/store`
+// 
+// Possible providers:
+// * facebook
+// * instagram_graph
+// 
+// For supported providers a social media content profile will be created.
+
+@name("Influencer Social Login")
+POST "https://{{host}}/api/v1/users/influencer_login"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+json({
+    "provider": "facebook|instagram_graph",
+    "oauth_token": "VERY_PRIVATE_ACCESS_TOKEN"
+})
+
+
+@name("Profile")
+GET "https://{{host}}/api/v1/users/me"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Influencer disconnect social login")
+DELETE "https://{{host}}/api/v1/users/me/disconnect_authentication"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"provider": "facebook"
+}')
+
+
+// This endpoint will invite a new user to your store.
+// 
+// Specify the role_id obtained from api/v1/roles.
+// 
+// If the user has no account it will be invited to the iris arke platform. If the user has an account already they will be asked to join the store. 
+// 
+// The current active store will be used for the invitation. 
+// 
+// Use the select current store endpoint to change this. 
+
+@name("Invite a user to your store")
+POST "https://{{host}}/api/v1/users/me/invitations"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+json({
+    "invitation": {
+        "email": "fabian2@oldharlem.nl",
+        "role_id": 2
+    }
+})
+
+
+// List all available store roles. 
+
+@name("Roles")
+GET "https://{{host}}/api/v1/users/me/roles"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+
+
+// Use this endpoint to accept a user invitation. 
+// 
+// The invitation_token can be obtained from the url the shop core redirected to. 
+// 
+// Currently: `myirisarke.com/users/invitation/accept/:invitation_token`
+
+@name("Accept user invitation")
+PUT "https://{{host}}/users/invitation"
+json({
+    "accept_invitation": {
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "test@example.com",
+        "password": "very_secure_123",
+        "password_confirmation": "very_secure_123",
+        "invitation_token": "igGT497ssYT8qHWDnj1c"
+    }
+})
+
+
+@name("Reset password")
+POST "https://{{host}}/api/v1/users/reset_password"
+json({
+    "email": "email_to_reset@example.com"
+})
+
+
+// Set a new account password from a reset password token. 
+
+@name("Change password from token")
+POST "https://{{host}}/api/v1/users/change_password_from_token"
+json({
+    "reset_password_token": "your_token",
+    "password": "MyNewPassword@123",
+    "password_confirmation": "MyNewPassword@123"
+})
+
+
+

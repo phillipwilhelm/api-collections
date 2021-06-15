@@ -1,0 +1,204 @@
+#!/usr/bin/env dothttp
+
+// #### Search picklist in ERP
+// *(sapBusinessOne=156/OPKL)*
+// 
+// The picklist search allows you to filter the ERP by:
+// - List Search: by branch and createdFrom + createdTo, by objectErp {optional} (17* = sales order, 1250000001 = transfer request), by docStatus {optional}
+// - Unitary Search: by erpKey or orderNum or docNum
+// 
+// If no field for unitary search (erpKey or orderNum or docNum) is informed in the request, the picklists search is performed by branch and creation date from/to (which become mandatory).
+// 
+// The picklists service will consider valid picklists with:
+// - SAP Business One: [1] OPKL.Canceled = N and OPKL.Status! = C + PKL1.PickStatus! = C and PKL1.ObjType = 17 or 1250000001 or 13 = Reserve Invoice or 202 = Production Order
+// - TOTVS Protheus: not available
+// 
+// Comments:
+// - branch: SAP Business One (ORDR.BPLId), TOTVS Protheus (not available)
+// - objectErp = SAP Business One (PKL1.BaseObject equal to 17 = ORDR or 1250000001 = OWTQ), TOTVS Protheus (??? equal to 17 = SC5 or 1250000001 = ???)
+// - partnerKey: SAP Business One (ORDR.CardCode), TOTVS Protheus (C5_CLIENTE + C5_LOJACLI)
+// - erpKey: SAP Business One (OPKL.AbsEntry), TOTVS Protheus (CB7 _ ???)
+// - orderNum: SAP Business One (ORDR.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - baseKey: SAP Business One (ORDR.DocEntry), TOTVS Protheus (R_E_C_N_O_)
+// - baseNum: SAP Business One (ORDR.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - docStatus / lineStatus: C = closed, R = released, Y = picked, P = partially picked, D = partially delivered, X = canceled
+// 
+// Data presented by picklist: Picklist and sales order data, Partner, Items
+// 
+// The service will search the ERP database and return the picklists located. The response will inform:
+// - The total number of picklists in the “count” field
+// 
+// For picklist list the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - “pageSize” = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - “pageNum” = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - “pageTotal” = total pages, reported in the response
+// - “hasNext” = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the picklists list in two situations:
+// - Full Search: will result in all picklists, according to filters.
+// - Incremental Search: will result in all picklists, according to filters, that have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Serch, the updatedAt field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which picklists should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OPKL.CreateDate, OPKL.UpdateDate, OPKL.CreateTS, OPKL.UpdateTS), TOTVS Protheus: not available
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: OPKL / PKL1, TOTVS: CB7), the respective registration must be performed in the Custom Table.
+//  
+// Limitations:
+// - The picklists service does not support batch handling
+// - The picklists service does not support Serial Numbers handling (SerialNumber)
+
+@name("Sales Picklists")
+GET "https://{{endpoint}}/picklists"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-01-01"
+? "createdTo"= "2020-03-31"
+? "branch"= "1"
+? "docStatus"= "R"
+? "erpKey"= "121313"
+? "baseNum"= "244"
+? "orderNum"= "2001026731"
+? "pageNum"= "1"
+? "updatedAt"= "2020-01-13T10:00:00"
+
+
+
+// #### Insert sales order in ERP
+// *(sapBusinessOne=17/ORDR, totvsProtheus=SC5)*
+// 
+// This service allows to insert a new sales order in the ERP, with treatment for new and existing partner, physical separation of products, sales invoice and incoming payments.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales order will be added if the sales order is not found on the ERP by branch + orderNum:
+// - SAP B1: ORDR.BPLId + ORDR.NumAtCard
+// - TOTVS Protheus: C5_FILIAL + C5_PEDECOM (note: field C5_PEDECOM is only 10 characters long and cannot be increased)
+// 
+// The key to finding the partner is through taxNumber. If the partner is located by taxNumber, the data is updated, otherwise the new partner is added in the ERP.
+// - SAP Business One: CRD7.TaxId0 (company / government) or CRD7.TaxId4 (person / employee)
+// - TOTVS Protheus: A1_CGC (customer / lead) or A2_CGC (supplier)
+// 
+// The products sent for the service will be identified in the ERP:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// The following processes can be carried out after the inclusion of the sales order in the ERP:
+// - If the process goes through physical separation of products (API Setup: UseWms = true): [1] Picklist insert (if there is stock in all items), [2] payments insert in the Payments Table.
+// - If the process does not undergo physical separation of products (API Setup: UseWms = false): [1] Sales Invoice insert (if there is stock in all items), [2] Account Receivables insert
+// 
+// Comments:
+// - Customer: [1] customer/type: C = customer, S = supplier, L = lead, [2] customer/taxType: P = person, C = company, G = government, E = employee. Each PN will have 2 registered addresses (CRD1, CRD7), namely: ShipToCode (S) = /customer/fullName OR /shipment/shippingAddress/firstName + "" + /shipment/shippingAddress/lastName, BillToCode (B) = /customer/fullName OR /customer/billingAddress/firstName + "" + /customer/billingAddress/lastName. Each PN will have 3 tax identification numbers (CRD12), namely: ShipToCode, BillToCode, empty.
+// - Seller: sellerKey
+// - Discounts: in total items (priceAdjustValue), in total freight (shipAdjustValue). shipAdjustType = minus or plus
+// - items: Duplication of items on more than 1 order line is not accepted, basePrice: base/gross price, taxBasis: total value of the item (quantity * price), calculation date for tax
+// - totals: netValue: net value with discounts applied, grossValue: gross value with discounts and taxes applied, baseValue: base value for tax calculation, taxValue: taxes that increase order value (IPI, ICMS-ST, ...)
+// - payments: 5 payment methods are accepted (paymentMethod): transfer, boe, creditCard (mandatory fields: cardName and authid), cash, check
+// - The ERP payment method code can be entered in the paymentMethodKey field
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: ORDR / RDR1, TOTVS: SC5 / SC6), the respective registration must be performed in the Custom Table.
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |baseKey | string | Access key
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | Package
+// process | string | Process
+// system | string | system
+// target | string | target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | code
+// success | booleano | success
+// values | array | Values
+// values.object | string | object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Sales Picklist")
+PUT "https://{{endpoint}}/picklists"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "baseKey": "264"
+})
+
+
+// #### Update picklist in ERP
+// *(sapBusinessOne=156/OPKL)*
+//  
+// This service will allow to update picklist for sales order existing in the ERP.
+// 
+// The key to picklist location is by erpKey and the sales order by orderNum or baseNum or baseKey. If the picklist is found by erpKey and the sales order by orderNum or baseNum or baseKey, the data is updated, changing the status of the items received to Y = picked.
+// - SAP Business One: OPKL / PKL1.AbsEntry
+// - TOTVS Protheus: ???
+// 
+// The picklists service will consider picklists with:
+// - SAP Business One: [1] OPKL.Canceled = N and OPKL.Status! = C + PKL1.PickStatus! = C and PKL1.ObjType = 17
+// - TOTVS Protheus: not available
+// 
+// Picklists can have the following statuses in ERP:
+// - docStatus / lineStatus: C = closed, R = released, Y = picked, P = partially picked, D = partially delivered
+// 
+// The following processes are performed after updating the picklist to picked (Y) in the ERP:
+// - Insert of Sales Invoice
+// - Insert of accounts receivables (if recorded in Payments Table)
+// 
+// Limitations:
+// - The picklists service does not support batch handling
+// - The picklists service does not support Serial Numbers handling (SerialNumber)
+// 
+// #### Request object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :--- 
+// erpKey | string| Erp key
+// docNum | string | Doc Numbers
+// items | array | items
+// items.lineNum | string | Line Numbers
+// items.productKey | string | Product key
+// items.codeBars | string | Code codeBars
+// items.quantity | number | quantity
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | Package
+// process | string | process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// erpKey | string | Erp baseKey
+// docNum | string | Doc number
+// code | string | Code
+// success | booleano | Success
+// error | object | Error
+// error.code | string | Code
+// error.message | string | message
+// error.detais | string | Details
+
+@name("Sales Picklist")
+POST "https://{{endpoint}}/picklists"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "erpKey": "28",
+    "baseNum": "264",
+    "items": [
+        {
+            "lineNum": "0",
+            "productKey": "I004",
+            "codeBars": "I014",
+            "quantity": 1
+        }
+    ]
+})
+
+
+

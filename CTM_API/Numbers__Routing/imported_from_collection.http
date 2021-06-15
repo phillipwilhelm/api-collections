@@ -1,0 +1,72 @@
+#!/usr/bin/env dothttp
+
+// #### Route a tracking number to receiving number(s) when you know the receiving number ID(s) (RPN)
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN id of the tracking number|
+// |dial_route|yes|`number`|
+// |numbers_id|yes|an array of RPN IDs (receiving number IDs)|
+// |tracking_source_id|no|the tracking source id|
+// |number_config_id|no|the number/call setting id|
+// 
+// **Sample JSON body**
+// ```json
+// {
+//     "dial_route": "number",
+//     "numbers_id": [ "RPN...", "RPN..." ]
+// }
+// ```
+// 
+//   
+// #### Route a tracking number to receiving numbers that do not already exist
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN id of the tracking number|
+// |dial_route|yes|`number`|
+// |numbers|yes|an array of phone numbers without the country dial prefix (i.e. no +1 or +44)|
+// |country_codes|yes|an array of ISO 3166-1 alpha-2 country codes  (i.e. US, CA, GB)|
+// |tracking_source_id|no|the tracking source id|
+// |number_config_id|no|the number/call setting id|
+// |geo_config_id|no|the id of your geo router as well you want to set the dial_route 'geo_config'
+// 
+// **Sample JSON body**
+// ```json
+// {
+//     "dial_route": "number",
+//     "numbers": ["8665552222","4165553333"],
+//     "country_codes": ["US","CA"]
+// }
+// ```
+// 
+// **Sample JSON to set a Geo Router**
+// ```json
+// {
+//     "dial_route": "geo_config",
+//     "geo_config_id": "GEO188.....",
+// }
+// ```
+// 
+//   
+// #### Set up other routes
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |dial_route|yes|one of `number`, `voice_menu`, `geo_config`, `call_queue`, `conditional_router`, or `call_agent`|
+// |tracking_source_id||the tracking source id|
+// |number_config_id||the number/call setting id|
+
+@name("update number routing")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/update_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "dial_route": "number",
+    "numbers": ["8665552222","4165553333"],
+    "country_codes": ["US","CA"]
+}')
+
+
+

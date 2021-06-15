@@ -1,0 +1,29 @@
+#!/usr/bin/env dothttp
+
+// You can use `GET /environments/{environmentId}/users/{usersId}` to return information about the user. If you do not know the environment ID, which is required in the request URL, you can call `GET /environments` to return a list of environments and their assigned IDs.
+// 
+// The following sample shows the `GET /environments/{environmentId}/users/{usersId}` operation to return the user data.
+// 
+// 
+// The response data returned for this request shows all the property data defined for the specified user. The HAL `_links` entity for the user resource includes a `self` link (the URL to this user resource) as well as links to related resources. The data shows the information.
+
+@name("Step 1: Get a list of users")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The response data from Step 1 includes the URI to the `GET /environments/{environmentId}/users/{usersId}/password` endpoint, which enables several password actions, including checking the user's password state. To get the password state for a specific user resource, the `password` HAL link can be used initiate this action.
+// 
+// The `GET
+// /environments/{environmentId}/users/{userId}/password` operation checks the user's password status.
+// 
+// 
+// The response data shows the password `status` property for this resource as `MUST_CHANGE_PASSWORD`. In this case, the HAL link to the `password.reset` acton can be used to initiate the operation to reset this user's password.
+
+@name("Step 2: Get the password state")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+

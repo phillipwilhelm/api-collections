@@ -1,0 +1,225 @@
+#!/usr/bin/env dothttp
+
+@name("Create order (escrow)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    },
+    "receivers": [
+        {
+            "moipAccount": {
+                "id": "{{cmerchant_id}}"
+            },
+            "type": "SECONDARY",
+            "amount": {
+                "percentual": 50
+            }
+        }
+    ]
+}')
+
+
+@name("Create credit card payment (escrow)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "installmentCount": 1,
+  "escrow": {
+  	"description": "Teste escrow"
+  },
+  "statementDescriptor": "MyStore",
+  "fundingInstrument": {
+    "method": "CREDIT_CARD",
+    "creditCard": {
+      "expirationMonth": "02",
+      "expirationYear": "20",
+      "number": "5555666677778884",
+      "cvc": "123",
+      "holder": {
+        "fullname": "Jose Portador da Silva",
+        "birthdate": "1988-12-30",
+        "taxDocument": {
+          "type": "CPF",
+          "number": "33333333333"
+        },
+        "phone": {
+          "countryCode": "55",
+          "areaCode": "11",
+          "number": "66778899"
+        }
+      }
+    }
+  }
+}')
+
+
+@name("Release escrow")
+POST "https://{{url}}/v2/escrows/{{escrow_id}}/release"
+"Authorization": "OAuth {{app_accessToken}}"
+"Content-Type": "application/json"
+
+
+
+@name("Create credit card refund (escrow)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+
+
+
+@name("Create 2nd order (escrow)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    },
+    "receivers": [
+        {
+            "moipAccount": {
+                "id": "{{cmerchant_id}}"
+            },
+            "type": "SECONDARY",
+            "amount": {
+                "percentual": 50
+            }
+        }
+    ]
+}')
+
+
+@name("Create boleto payment (escrow)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "escrow": {
+    "description": "Teste escrow"
+  },
+  "fundingInstrument": {
+    "method": "BOLETO",
+    "boleto": {
+      "expirationDate": "2020-09-30",
+      "instructionLines": {
+        "first": "TESTETETSTTTST",
+        "second": "tfcsddlksjsd",
+        "third": "lkshglashiuahgha"
+      },
+      "logoUri": "http://"
+    }
+  }
+}')
+
+
+// The purpose of this endpoint is to simulate boleto authorization in Sandbox.
+// This function is not available in production environment.
+
+@name("Authorize boleto (escrow)")
+POST "https://{{url}}/simulador/authorize"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+? "payment_id"= "{{payment_id}}"
+? "amount"= "2000"
+data('{}')
+
+
+@name("Create bank account refund (escrow)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "refundingInstrument": {
+  	"method": "BANK_ACCOUNT",
+    "bankAccount": {
+      "bankNumber": "237",
+      "agencyNumber": "12345",
+      "agencyCheckNumber": "0",
+      "accountNumber": "12345678",
+      "accountCheckNumber": "7",
+      "type": "CHECKING",
+      "holder": {
+        "taxDocument": {
+          "type": "CPF",
+          "number": "22222222222"
+        },
+        "fullname": "Demo Moip"
+      }
+    }
+  }
+}')
+
+
+

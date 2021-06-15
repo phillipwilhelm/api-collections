@@ -1,0 +1,158 @@
+#!/usr/bin/env dothttp
+
+// Obter um pedido de balcão.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |ticket|texto|Número do pedido/senha de retirada|
+// |date|data/hora|Data e hora|
+// |total|número|Valor total do pedido|
+// |orders.userName|texto|Nome do cliente|
+// |orders.items.productName|texto|Nome do produto|
+// |orders.items.productCode|texto|Código de integração|
+// |orders.items.quantity|número|Quantidade|
+// |orders.items.price|número|Preço unitário|
+// |orders.items.total|número|Total do item|
+// |orders.items.observations|texto|Observações|
+// |orders.items.complements.name|texto|Nome do complemento|
+// |orders.items.complements.quantity|número|Quantidade do complemento|
+// |orders.items.complements.price|número|Preço unitário do complemento|
+// |orders.items.complements.total|número|Total do complemento|
+// |orders.payments.date|data|Data do pagamento|
+// |orders.payments.amount|número|Valor pago|
+// |orders.payments.serviceTax|número|Valor da taxa de serviço|
+// |orders.payments.discount|número|Valor do desconto|
+// |orders.payments.userName|texto|Nome do usuário|
+// |orders.payments.type|texto|Tipo da forma de pagamengo|
+// 
+// Exemplo:
+// 
+//     {
+//     "invoice": {
+//         "ticket": "619",
+//         "date": "2019-04-06T17:04:29-0300",
+//         "total": 98.8,
+//         "orders": [
+//             {
+//                 "userName": "Eleno Oliveira Adm",
+//                 "items": [
+//                     {
+//                         "productName": "La Manda Cabernet Sauvignon",
+//                         "productCode": "323455",
+//                         "quantity": 1,
+//                         "price": 38.9,
+//                         "total": 38.9,
+//                         "observation": "Para viagem."
+//                     },
+//                     {
+//                         "productName": "Salmão",
+//                         "productCode": "984700",
+//                         "quantity": 1,
+//                         "price": 59.9,
+//                         "total": 59.9,
+//                         "status": "P",
+//                         "observation": "Para viagem.\r\nMuito azeite",
+//                         "complements": [
+//                             {
+//                                 "name": "Purê de batata baroa com crispy de alho poró",
+//                                 "price": 0,
+//                                 "quantity": 1,
+//                                 "total": 0
+//                             },
+//                             {
+//                                 "name": "Ao ponto",
+//                                 "price": 0,
+//                                 "quantity": 1,
+//                                 "total": 0
+//                             }
+//                         ]
+//                     }
+//                 ]
+//             }
+//         ],
+//         "payments": [
+//             {
+//                 "pub": "1e2e8b4a-4bd0-43fa-994a-9c6b293ea1e9",
+//                 "invoice": "1B2ZEfVOBFN4z0fa6rPU",
+//                 "table": 0,
+//                 "date": "2019-04-30T18:59:22-0300",
+//                 "amount": 98.8,
+//                 "serviceTax": 0,
+//                 "waiter": "",
+//                 "user": "kUH7n70J33cuuyM45tGPBmYCqSu2",
+//                 "userName": "Reginaldo Pacheco Neves",
+//                 "type": "MASTER-CREDITO"
+//             }
+//         ]
+//     }
+//     }
+
+@name("getBalconyOrder")
+GET "https://{{onpubUrl}}/partner/pos/balcony/{getBalconyOrder}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Iniciar o pedido de balcão.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |ticket|texto|Senha do pedido|
+
+@name("initiatedBalconyOrder")
+PUT "https://{{onpubUrl}}/partner/pos/balcony/order/initiated"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "balconyOrder": {
+    	"ticket":"390"
+    }
+}')
+
+
+// Finalizar o pedido de balcão.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |ticket|texto|Senha do pedido|
+
+@name("finishedBalconyOrder")
+PUT "https://{{onpubUrl}}/partner/pos/balcony/order/finished"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "balconyOrder": {
+    	"ticket":"390"
+    }
+}')
+
+
+// Cancelar o pedido de balcão.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |ticket|texto|Senha do pedido|
+
+@name("canceledBalconyOrder")
+PUT "https://{{onpubUrl}}/partner/pos/balcony/order/canceled"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "balconyOrder": {
+    	"ticket":"449"
+    }
+}')
+
+
+

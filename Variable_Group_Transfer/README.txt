@@ -1,0 +1,1 @@
+This collection contains request for get variable group from source project and post variable group to target project.

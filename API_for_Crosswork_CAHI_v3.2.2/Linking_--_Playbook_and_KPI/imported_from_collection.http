@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+// Use this API call to Link a playbook to KPI. 
+// This API Call is an example to link interface state change playbook to Interface Flap KPI.
+
+@name("Interface-Flap-Linking")
+POST "https://{{crosswork_ip}}/crosswork/hi/v1/kpimgmt/link"
+"Content-Type": "application/json"
+data('{
+    "kpi": [
+        {
+            "kpi_id": "pulse_interface_flap_detector",
+            "kpi_name": "Interface flap detection",
+            "remediation": {
+                "url": "/crosswork/nca/v1/mopjobs",
+                "body": {
+                    "mop_id": "router_op_interface",
+                    "mop_name": "Interface State change",
+                    "hosts": "{{ index .Content `Producer` }}",
+                    "execution_params": {
+                        "admin_state": "down",
+                        "if_names": [
+                            "{{ index .Content `interface-name` }}"
+                        ],
+                        "provider": "Nso",
+                        "collection_type": "telemetry",
+                        "mop_timeout": "1h"
+                    },
+                    "execution_policy": {
+                        "execution_strategy": "strategy_continuous",
+                        "on_failure": "on_failure_pause"
+                    }
+                }
+            }
+        }
+    ]
+}')
+
+
+

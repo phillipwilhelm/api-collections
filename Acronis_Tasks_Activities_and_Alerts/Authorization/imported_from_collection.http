@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+@name("Get self info using Basic Authentication")
+GET "https://{{base_url}}/{{api_ver}}/users/me"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+
+
+@name("Create API Client")
+POST "https://{{base_url}}/api/2/clients"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/json"
+data('{
+	"type": "api_client",
+	"tenant_id": "{{my_tenant_id}}",
+	"token_endpoint_auth_method": "client_secret_basic",
+	"data": {
+		"client_name": "API.Client"
+	}
+}')
+
+
+@name("Delete API Client")
+DELETE "https://{{base_url}}/api/2/clients/{{client_id}}"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/json"
+
+
+@name("Issue a JWT token")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Get API Client Info (including tenant_id) using an issues token")
+GET "https://{{base_url}}/api/2/clients/{{client_id}}"
+"Accept": "application/json"
+
+
+

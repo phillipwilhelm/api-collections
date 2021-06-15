@@ -1,0 +1,240 @@
+#!/usr/bin/env dothttp
+
+@name("Get v2 API URL (apiV2url)")
+GET "https://{{platformurl}}/v1/auth/app/getYapiAddress"
+
+
+@name("Brower Login Step 1 Get token")
+GET "https://{{platformurl}}/v1/auth/app/token"
+
+
+@name("Browser Login Step 2 Open In Browser (not an API Call)")
+GET "https://{{platformurl}}/auth/"
+? "login"= "1"
+? "token"= "{{content}}"
+
+
+@name("Browser Login Step 3 After browser login")
+GET "https://{{platformurl}}/v1/auth/app/info"
+? "token"= "{{content}}"
+
+
+@name("Login")
+POST "https://{{apiV2url}}/webapp/1.0/login"
+data({
+    "p70": [
+        "{{login}}"
+    ],
+    "p80": [
+        "{{password}}"
+    ],
+    "p90": [
+        "{{platformurl}}"
+    ],
+    "p60": [
+        "{{productkey}}"
+    ]
+})
+
+
+// Sync call.
+
+@name("Root Sync")
+GET "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+
+
+@name("Folder Content Request")
+GET "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "folderuuid"= "{{folderuuid}}"
+
+
+@name("Folder Info Request")
+GET "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "folderlist"= "{{folderuuid}}"
+
+
+@name("Request File Icon")
+GET "https://{{apiV2url}}/webapp/1.0/icon"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "type"= "file"
+? "name"= "{{fileuuid}}"
+
+
+@name("Request Folder Icon")
+GET "https://{{apiV2url}}/webapp/1.0/icon"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "type"= "folder"
+? "name"= "{{folderuuid}}"
+
+
+@name("Download File")
+GET "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "fileuuid"= "{{fileuuid}}"
+
+
+@name("Download File With Transformations")
+GET "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "fileuuid"= "{{fileuuid}}"
+? "ext"= "png"
+? "size"= "49"
+? "cropx"= "0.00"
+? "cropy"= "0.00"
+? "compressiontype"= "1"
+? "compression"= "100"
+
+
+@name("Search - Keyword")
+GET "https://{{apiV2url}}/webapp/1.0/search"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "p60"= "{{productkey}}"
+? "searchterm"= "{{keyword}}"
+
+
+@name("Search - From Folder")
+GET "https://{{apiV2url}}/webapp/1.0/search"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "p60"= "{{productkey}}"
+? "folderuuid"= "{{folderuuid}}"
+? "productkey"= "{{productkey}}"
+
+
+@name("Search - Delta")
+GET "https://{{apiV2url}}/webapp/1.0/search"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "p60"= "{{productkey}}"
+? "searchterm"= "*"
+? "fromDate"= "2019-01-01T00:00:00Z"
+
+
+@name("Download Presets List")
+GET "https://{{apiV2url}}/webapp/1.0/downloadpresets"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "p60"= "{{productkey}}"
+
+
+@name("Sync Call")
+POST "https://{{apiV2url}}/webapp/1.0/sync"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "sync": [
+        "[{\"folders\":[]},{\"files\":[{\"fileuuid\":\"{{fileuuid}}\", \"updatedat\":\"\"}]}]"
+    ],
+    "apikey": [
+        "{{apikey}}"
+    ],
+    "useruuid": [
+        "{{useruuid}}"
+    ],
+    "p60": [
+        "{{productkey}}"
+    ]
+})
+
+
+@name("Folder Create")
+POST "https://{{apiV2url}}/webapp/1.0/resources"
+"Content-Type": "application/x-www-form-urlencoded"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+data({
+    "name": [
+        "{{name}}"
+    ],
+    "parent": [
+        "{{folderuuid}}"
+    ]
+})
+
+
+@name("Folder Update")
+PUT "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "folderuuid"= "{{folderuuid}}"
+? "name"= "{{name}}"
+
+
+
+@name("Delete Folder")
+DELETE "https://{{apiV2url}}/webapp/1.0/resources"
+"Content-Type": "application/x-www-form-urlencoded"
+? "name"= "Travel"
+? "parent"= "071a19a4dc506a513533e26f3632fa4a"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "folderuuid"= "{{folderuuid}}"
+data({
+    "name": [
+        "Test Creation Folder"
+    ],
+    "parent": [
+        "071a19a4dc506a513533e26f3632fa4a"
+    ]
+})
+
+
+// Make sure to update the file UUID after use, as the file in the demo example won't exist anymore once executed successfully.
+
+@name("Delete File")
+DELETE "https://{{apiV2url}}/webapp/1.0/resources"
+"_aid": "64795d17040cc8b41bc6ce60889f40bb_8j3h080813n37dpig5u073jv92"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "fileuuid"= "{{fileuuid}}"
+
+
+
+@name("Create Resource")
+POST "https://{{apiV2url}}/webapp/1.0/resources"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "folderuuid"= "{{folderuuid}}"
+files(
+	("file1", "None"),
+	("name", "A test upload"),
+	("description", "A test description")
+)
+
+
+@name("Update Resource")
+PUT "https://{{apiV2url}}/webapp/1.0/resources"
+"Content-Type": "application/x-www-form-urlencoded"
+? "p10"= "{{apikey}}"
+? "p20"= "{{useruuid}}"
+? "fileuuid"= "{{fileuuid}}"
+data({
+    "folder": [
+        "6ea8032ddd1971054875722dea8abf55"
+    ],
+    "name": [
+        "Travelling woman"
+    ],
+    "filters": [
+        "{\"Geographies\":\"Asia\"}"
+    ],
+    "description": [
+        "This is a picture of a travelling woman"
+    ],
+    "tags": [
+        "image"
+    ]
+})
+
+
+

@@ -1,0 +1,2 @@
+Random Data Generator REST API produces fictional - yet realistic - personal data on demand. Returned data is always random within its class. The API supports a variety of services: locations, names, dates, numbers, social security numbers, Credit Card Numbers. The API can be used as a personal data generator in application development. 
+Check out https://randomkey.io/random-data-api for more information.

@@ -1,0 +1,126 @@
+#!/usr/bin/env dothttp
+
+// This API adds a new downlink in queue in a multicast group.
+// 
+// The reponse will contain the created object with the created downlink.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "qos": {
+//       "type": "integer",
+//       "enum": [
+//         "0",
+//         "1"
+//       ],
+//       "Default": 1,
+//       "description": "Quality Of Service: 0 - Best effort. 1 - Transmission guaranteed"
+//     },
+//     "port": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "maximum": 255,
+//       "description": "LoRaWAN port"
+//     },
+//     "payload": {
+//       "type": "string",
+//       "pattern": "(^([a-fA-F0-9][a-fA-F0-9]){1,242})$",
+//       "minLength": 2,
+//       "maxLength": 484,
+//       "description": "Is the message contents to send to the device"
+//     }
+//   },
+//   "required": [
+//     "port",
+//     "payload"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property            | Type      | Required     | Nullable | Defined by    |
+// | ------------------- | --------- | ------------ | -------- | ------------- |
+// | [payload](#payload) | `string`  | **Required** | No       | (this schema) |
+// | [port](#port)       | `integer` | **Required** | No       | (this schema) |
+// | [qos](#qos)         | `enum`    | Optional     | No       | (this schema) |
+// 
+// ## payload
+// 
+// Is the message contents to send to the device
+// 
+// `payload`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### payload Type
+// 
+// `string`
+// 
+// - minimum length: 2 characters
+// - maximum length: 484 characters All instances must conform to this regular expression (test examples
+//   [here](<https://regexr.com/?expression=(%5E(%5Ba-fA-F0-9%5D%5Ba-fA-F0-9%5D)%7B1%2C242%7D)%24>)):
+// 
+// ```regex
+// (^([a-fA-F0-9][a-fA-F0-9]){1,242})$
+// ```
+// 
+// ## port
+// 
+// LoRaWAN port
+// 
+// `port`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### port Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// - maximum value: `255`
+// 
+// ## qos
+// 
+// Quality Of Service: 0 - Best effort. 1 - Transmission guaranteed
+// 
+// `qos`
+// 
+// - is optional
+// - type: `enum`
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#qos-known-values).
+// 
+// ### qos Known Values
+// 
+// | Value | Description |
+// | ----- | ----------- |
+// | `0`   | Best effort. The message will be transmitted to the devices of the group that satisfy the multicast profile requirements (they should have been activated and have sent at least one uplink, they should be class C devices, etc..).           |
+// | `1`   | Transmission guaranteed. No message will be transmitted if some devices do not satisfy the multicast profile requirements.            |
+
+@name("Downlink")
+POST "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}/downlink-queue"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"port": {{port}},
+	"payload": "{{payload}}"
+}')
+
+
+

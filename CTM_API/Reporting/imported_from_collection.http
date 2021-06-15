@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// The series endpoint allows you to aggregate multiple calls, texts, or forms by different dimensions of the activity record.  Generally, you can think of the call log and the reports aggregated here as activities with different types or as it's named in the API directions.  The directions supported are the following:
+// 
+// |direction|description|
+// |---------|-----------|
+// |inbound|inbound phone calls|
+// |outbound|outbound phone calls|
+// |msg_inbound|inbound text message|
+// |msg_outbound|outbound text message|
+// |form|web form received through a FormReactor (may have triggered a phone call but is captured as a form)|
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |start_date|yes|the starting date inclusive e.g. 2015-01-01 formatted date string - time is based on the accounts configured timezone|
+// |end_date|yes|the ending date inclusive e.g. 2015-01-01 formatted date string - time is based on the accounts configured timezone|
+// |with_time|yes|the value should always be sent with a value of 1|
+// |by|yes|the dimension of data to aggregate on.  See dimensions section below.|
+// |direction|no|describes the set of activity types being aggregated. e.g. form, inbound, outbound, msg_inbound, msg_outbound|
+// |multi_receiving_numbers_operator|no|includes,excludes on the multi_receiving_numbers filter option|
+// |multi_receiving_numbers|no|receiving number IDs to include or exclude from the filter see receiving number API and filter_id|
+// |multi_tracking_numbers_operator|no|includes or excludes multi_tracking_numbers|
+// |multi_tracking_numbers|no|tracking numbers IDs to include or exclude from the filter see tracking number API and filter_id|
+// |ring_time_operator|no|ring_time criteria operator e.g. less_than, less_than_equal, greater_than, greater_than_equal, or equal|
+// |ring_time|no|ring_time value to match calls ring time|
+// |talk_time_operator|no|talk_time criteria operator e.g. less_than, less_than_equal, greater_than, greater_than_equal, or equal|
+// |talk_time|no|talk_time value to match calls talk time|
+// |duration_operator|no|duration criteria operator e.g. less_than, less_than_equal, greater_than, greater_than_equal, or equal|
+// |duration|no|duration value to match calls total time|
+// |multi_tags_operator|no|includes or excludes for the multi_tags filter|
+// |multi_tags|no|multi_tags filter by tag name URL encoded|
+// 
+// |dimensions|description|
+// |----------|--------|
+// |source|tracking source|
+// |medium|web medium|
+// |status|activity status e.g. call status or text message delivery status.  For forms this is the associated call status or completed|
+// |tracking_number|the dialed tracking number or messaged number for inbound calls and texts or the outbound caller ID used for sending a message or making a phone call.|
+// |receiving_number|the number we dialed for an associated phone call.|
+// |agent|the agent who was dialed or texted or who made an outbound call or text.|
+// |tag|the tag assigned to the activity record|
+// |report_tag|the reporting conversion tag assigned to the activity record|
+// |landing_host|the web page hostname associated to the activity record|
+// |landing_path|the web page landing path associated to the activity record|
+// |referring_host|the referring web page hostname associated to the activity record|
+// |referrer_path|the referring web page landing path associated to the activity record|
+// |search|the search query string if available for the associated activity record|
+// |device|the device type if available for the associated activity record|
+// |browser|the browser type if available for the associated activity record|
+// |gender|the detected gender of the incoming caller or messager. requires enhanced caller id|
+// |phone_type|the type of phone number dialing requires enhanced caller id|
+// |carrier|type of phone number dialing requires enhanced caller id or spam detective|
+// |mobile|whether it is a mobile phone or not - requires enhanced caller id|
+// |experiments|optimizely integration experiements associated to the actvity record|
+// |variants|optimizely integration variants associated to the actvity record|
+// |accounts|activity records grouped by CallTrackingMetrics sub-account (requires agency API key)|
+// |adcampaign|paid advertising campaign associated to the activity|
+// |adgroup|paid advertising adgroup associated to the activity|
+// |adcreative|paid advertising ad creative associated to the activity|
+// |adkeyword|paid advertising ad keyword associated to the activity|
+// |adnetwork|paid advertising ad network associated to the activity|
+// |adposition|paid advertising ad position associated to the activity|
+// |adformat|paid advertising ad format associated to the activity|
+// |hour|hour of the day|
+// |day|day of the week|
+// |education|education of the caller requires enhanced callerid|
+// |language|language of the caller requires enhanced callerid|
+// |occupation|occupation of the caller requires enhanced callerid|
+
+@name("Reporting Series")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/reports/series.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "with_time"= "1"
+? "by"= "{{dimension}}"
+
+
+
+// The usage logs allow you to pull detailed usage information by tracking number or by account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |start_date|yes|the starting date inclusive e.g. 2015-01-01 formatted date string - time is based on the accounts configured timezone|
+// |end_date|yes|the ending date inclusive e.g. 2015-01-01 formatted date string - time is based on the accounts configured timezone|
+// |filter|no|a filter to filter the results by a matching field.  the searchable text includes the account name, the tracking number label and the tracking source name.  Additionally, you can filter by tracking number by using the fullly qualified E.164 phone number e.g. +1.., +44.., etc..|
+// |page|no|the page of results to view starting at 1|
+// |per_page|no| max per page values is 100 per page.|
+
+@name("Usage Logs")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/reports/usage_logs.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "group"= "number"
+? "page"= "1"
+? "per_page"= "10"
+
+
+
+

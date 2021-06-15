@@ -1,0 +1,129 @@
+#!/usr/bin/env dothttp
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// serial|string|device serial
+// model|string|device model
+// type|string|device type, ap
+// mac|string|MAC address
+// name|string|device name if assigned
+// id|string|device id
+// site_id|string|site id if assigned, null if not assigned
+// deviceprofile_id|string|deviceprofile id if assigned, null if not assigned
+// connected|boolean|whether the AP is connected
+// created_time|long|inventory created time, in epoch
+// modified_time|long|inventory last modified time, in epoch
+// 
+// 
+// #### Query Options
+// * Filtered Inventory by
+//  * model
+//  * serial
+//  * magic
+//  * site_id
+//  * type
+//  * mac
+//  * vc_mac
+//  * vc
+// 
+// Example:
+// ```
+// https://{{host}}/api/v1/orgs/:org_id/inventory?model=AP41
+// ```
+// 
+// ### VC (Virtual-Chassis) Management
+// Ideally VC should be managed as a single device - where - one managed entity where config / monitoring is anchored against (with a stable identify MAC) - all members appears in the inventory
+// 
+// In our implementation, we strive to achieve that without manual user configurations by 
+// 1. during claim or adoption a VC, we require FPC0 to exist and will use its MAC as identify for the entire chassis 
+// 2. other VC members will be automatically populated when they’re all present
+// 
+// The perceivable result is 
+// 1. from /sites/:site_id/stats/devices/:fpc0_mac API, you’d see the VC where module_stat contains the VC members 
+// 2. from /orgs/:org_id/inventory?vc=true API, you’d see all VC members with vc_mac pointing to the FPC0
+
+@name("getOrgInventory")
+GET "https://{{host}}/api/v1/orgs/:org_id/inventory"
+
+
+@name("addOrgInventory")
+POST "https://{{host}}/api/v1/orgs/:org_id/inventory"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json([
+    "6JG8E-PTFV2-A9Z2N",
+    "DVH4V-SNMSZ-PDXBR"
+])
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// op|string|Required. delete
+// serials|list|list of serial numbers, e.g. FXLH2015150025
+// macs|list|list of MAC, e.g. 5c5b350e0001
+
+@name("multiDeleteOrgInventory")
+PUT "https://{{host}}/api/v1/orgs/:org_id/inventory"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "delete",
+    "serials": [
+        "FXLH2015150025",
+        "FXLH2015150026"
+    ],
+    "macs": [
+        "5c5b350e0001"
+    ]
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// op|string|Required. assign
+// site_id|string|Required. target site id
+// macs|list|list of MAC, e.g. 5c5b350e0001
+// no_reassign|boolean|if true, treat site assignment against an already assigned AP as error
+// disable_auto_config|boolean|a cloud-ready switch/gateway will be managed/configured by Mist by default, this disabled the behavior
+// managed|boolean|an adopted switch/gateway will not be managed/configured by Mist by default, this enables the behavior
+
+@name("assignOrgInventoryToSite")
+PUT "https://{{host}}/api/v1/orgs/:org_id/inventory"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "assign",
+    "site_id": "4ac1dcf4-9d8b-7211-65c4-057819f0862b",
+    "macs": [
+        "5c5b350e0001"
+    ],
+    "no_reassign": false,
+    "disable_auto_config": false
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// op|string|Required. unassign
+// macs|list|list of MAC, e.g. 5c5b350e0001
+
+@name("unasignOrgInventoryToSite")
+PUT "https://{{host}}/api/v1/orgs/:org_id/inventory"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "unassign",
+    "macs": [
+        "5c5b350e0001"
+    ]
+})
+
+
+

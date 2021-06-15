@@ -1,0 +1,97 @@
+#!/usr/bin/env dothttp
+
+// The Products API is used to retrieve and query the VitalSource catalog, which has more than a million titles available. Users can choose specific requests to filter results and also configure paging on how many records are returned per page. With this API you get access to data used by VitalSource to distribute, sell and link content including links to additional resources to retrieve other metadata for use within a users own commerce system.
+
+@name("v4/products - Read All")
+GET "https://api.vitalsource.com/v4/products"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+
+
+@name("v3/credentials - Verify Credentials")
+POST "https://api.vitalsource.com/v3/credentials.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": ""
+data('<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<credentials>
+  <credential access-token="{{vst_access_token}}" />
+  <credential reference="{{vst_reference}}" />
+</credentials>')
+
+
+@name("v3/users - Create Reference User")
+POST "https://api.vitalsource.com/v3/users.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "text/xml"
+data('<user>
+	<reference>Postman_Test_001</reference>
+	<first-name>Jose</first-name>
+	<last-name>Tester</last-name>
+</user>	')
+
+
+@name("v3/licenses  - Read")
+GET "https://api.vitalsource.com/v3/licenses"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+? "sku"= "sku"
+? "license_type"= "all"
+
+
+// Create one or more redemption codes for specific VitalSource books with this call. These codes will be redeemed by user-specific accounts. Your company must have distribution rights to the products requested, or you will receive errors. Please note below we have documented the five ways you can define the license type. License MUST be specified for both the installed and online versions of Bookshelf. Use the example feature in Postman to see the versions we have loaded with this endpoint (top right.)
+
+@name("v3/codes - Create")
+POST "https://api.vitalsource.com/v3/codes"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data('<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+ <codes sku="{{vst_vbid}}" license-type="numdays" num-days="180" online-license-type="numdays" online-num-days="180" num-codes="1" tag="postman_created_code"/>
+ ')
+
+
+@name("v3/redemptions - Redeem Code")
+POST "https://api.vitalsource.com/v3/redemptions.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+data('<redemption>
+ <code>{{vst_code}}</code>
+</redemption>')
+
+
+@name("v3/redemptions/bulk - Redeem Codes (bulk)")
+POST "https://api.vitalsource.com/v3/redemptions/bulk.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+data('<redemptions callback="{{optional_callback_url}}"> 
+ <redemption access-token="{{vst_access_token}}" sku="{{vst_vbid}}"/>
+ <redemption access-token="{{vst_access_token}}" sku="{{vst_vbid2}}"/>
+</redemptions> ')
+
+
+@name("v3/redirects - SSO to Bookshelf eReader")
+POST "https://api.vitalsource.com/v3/redirects.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/xml"
+data('<redirect>
+ <destination>https://bookshelf.vitalsource.com/#/books</destination>
+ <brand>bookshelf.vitalsource.com</brand>
+</redirect>')
+
+
+@name("v3/users/:param - Update")
+PUT "https://api.vitalsource.com/v3/users.xml/{{vst_GUID}}"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+data('<user>
+	<reference>Integrations_Test_001</reference>
+	<first-name>Jose</first-name>
+	<last-name>New_last_name</last-name>
+</user>	')
+
+
+@name("v4/codes/:code - Delete/Cancel/Refund")
+DELETE "https://api.vitalsource.com/v4/codes/{{vst_code}}"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+
+
+
+

@@ -1,0 +1,108 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgRfTemplates")
+GET "https://{{host}}/api/v1/orgs/:org_id/rftemplates"
+
+
+@name("getOrgRfTemplateDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/rftemplates/:rftemplate_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("createOrgRfTemplate")
+POST "https://{{host}}/api/v1/orgs/:org_id/rftemplates"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "5G-Restricted",
+    "country_code": "US",
+    "band_24": {
+        "disabled": false,
+        "channels": [
+            1,
+            6,
+            11
+        ],
+        "bandwidth": 20,
+        "power": 16
+    },
+    "band_5": {
+        "disabled": false,
+        "channels": null,
+        "bandwidth": 40,
+        "power": 0,
+        "preamble": "short",
+        "power_min": 10,
+        "power_max": 18
+    },
+    "model_specific": {
+        "AP61": {
+            "band_5": {
+                "disabled": false,
+                "channels": [
+                    100,
+                    104
+                ],
+                "bandwidth": 40,
+                "power": 0
+            }
+        }
+    }
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("updateOrgRfTemplate")
+PUT "https://{{host}}/api/v1/orgs/:org_id/rftemplates/:rftemplate_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "5G-Restricted"
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("deleteOrgRfTemplate")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/rftemplates/:rftemplate_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

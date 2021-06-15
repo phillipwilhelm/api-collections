@@ -1,0 +1,139 @@
+#!/usr/bin/env dothttp
+
+// Lista os departamentos.
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador do departamento |
+// | name | String (60) | Nome do departamento |
+// | business_unit | Objeto | Unidade de negócio à qual o departamento pertence |
+// | observation | String (255) | Observação |
+// | employees_count | Integer | Quantidade de colaboradores |
+// | created_at         | Timestamp | Data e horário de criação do departamento |
+// | updated_at         | Timestamp | Data e horário de atualização do departamento |
+// 
+// #### Formato do objeto business_unit
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da unidade de negócio |
+// | name | String (100) | Nome da unidade de negócio |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/departments"
+"access-token": "{{client_token}}"
+
+
+// Exibe os atributos de um departamento.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | department_id | Integer | Sim | ID do departamento |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador do departamento |
+// | name | String (60) | Nome do departamento |
+// | business_unit | Objeto | Unidade de negócio à qual o departamento pertence |
+// | observation | String (255) | Observação |
+// | employees_count | Integer | Quantidade de colaboradores |
+// | created_at         | Timestamp | Data e horário de criação do departamento |
+// | updated_at         | Timestamp | Data e horário de atualização do departamento |
+// 
+// #### Formato do objeto business_unit
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code (60) | Código identificador da unidade de negócio |
+// | name | String (100) | Nome da unidade de negócio |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/departments/{{department_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,business_unit,observation,created_at"
+
+
+// Cria um departamento.
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----| ----------- | --------- |
+// | name | String (60) | Sim | Nome do departamento |
+// | code | Code (60) | Não | Código identificador do departamento |
+// | observation | String (255) | Não | Observação |
+// | business_unit_id | Integer | Sim | ID da unidade de négocio à qual o departamento deve pertencer |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/departments"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "department":
+  {
+    "code":"{{code}}",
+    "name":"{{name}}",
+    "observation":"{{observation}}",
+    "business_unit_id": {{business_unit_id}}
+  }
+}')
+
+
+// Edita um departamento.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | department_id | Integer | Sim | ID do departamento |
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----| ----------- | --------- |
+// | name | String (60) | Não | Nome do departamento |
+// | code | Code (60) | Não | Código identificador do departamento |
+// | observation | String (255) | Não | Observação |
+// | business_unit_id | Integer | Não | ID da unidade de négocio à qual o departamento deve pertencer |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/{{department_id}}"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "department":
+  {
+    "code":"{{code}}",
+    "name":"{{name}}",
+    "observation":"{{observation}}",
+    "business_unit_id": {{business_unit_id}}
+  }
+}')
+
+
+// Inativa um departamento.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- | ----------- | --------- |
+// | department_id | Integer | Sim | ID do departamento |
+
+@name("Inativar")
+DELETE "https://{{server_url}}/external_api/v1/departments/{{department_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

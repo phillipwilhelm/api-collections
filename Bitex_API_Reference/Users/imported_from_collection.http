@@ -1,0 +1,73 @@
+#!/usr/bin/env dothttp
+
+// List all the Users you manage, and their associated Account information.
+// You can always manage at least *one* user which is yourself. If you have Master User permissions, you'll be able to manage more.
+
+@name("List Users")
+GET "https://{{domain}}/api/users"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.1"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// A User also has one Account, where you can check their balance in all supported currencies as well as their Monthly Statements for download.
+// 
+// You'll find a User's Account in the `included` section of the response.
+// 
+// You can provide the User id of any User you manage. If you want to check your own balance, you can use the special 'me' id and it will show your own data.
+
+@name("Show User")
+GET "https://{{domain}}/api/users/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.1"
+
+
+@name("Create User")
+POST "https://{{domain}}/api/users"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.1"
+data('{
+    "data": {
+        "type": "users",
+        "attributes": {}
+    }
+}')
+
+
+// **Important**: The email change will not take effect immediately. Only after it is confirmed (clicking in a link we send to the new email address) you will be able to see the change reflected.
+
+@name("Update User")
+PATCH "https://{{domain}}/api/users/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.1"
+data('{
+    "data": {
+        "id": "5",
+        "type": "users",
+        "attributes": {
+            "email": "anotheremail@gmail.com",
+            "do_not_email": true,
+            "password": "newpassword",
+            "password_confirmation": "newpassword"
+        }
+    }
+}')
+
+
+// <div class="alert alert-danger">
+// 	This endpoint is deprecated, when you Show or List a User you'll receive their accounts in the 'included' section of the response.
+// </div>
+
+@name("List Accounts")
+GET "https://{{domain}}/api/accounts"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+

@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// licenses|list|list of licenses
+// type|string|subscription type, SUB-MAN / SUB-LOC / SUB-AST / SUB-VNA / SUB-DATA
+// start|long|start date of the license term
+// end|long|end date of the license term
+// quantity|int|number of devices entitled for this license
+// usage|object|usages of each license type
+// entitled|object|currently entitled for each license type
+
+@name("getOrgLicencesSummary")
+GET "https://{{host}}/api/v1/orgs/:org_id/licenses"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// usages|object|subscriptions and their quantities
+
+@name("getOrgLicencesBySite")
+GET "https://{{host}}/api/v1/orgs/:org_id/licenses/usages"
+
+
+@name("deleteOrgLicense")
+PUT "https://{{host}}/api/v1/orgs/:org_id/licenses"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "delete",
+    "license_id": "2b9116ab-cd1e-e897-6e08-31fccd88e782"
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// code|string|activation code
+// type|string|what to claim, all (default) / license / inventory
+
+@name("claimOrgLicense")
+POST "https://{{host}}/api/v1/orgs/:org_id/claim"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "code": "ZHT3K-H36DT-MG85D-M61AC",
+    "type": "all"
+})
+
+
+// If the admin has admin privilege against the `org_id` and `dst_org_id`, he can move some of the licenses to another Org. Given that: 1. the specified license is currently active 2. there’s enough licenses left in the specified license (by `subscription_id`) 3. there will still be enough entitled licenses for the `type` of license after the amendment
+
+@name("moveOrgLicenseToAnotherOrg")
+PUT "https://{{host}}/api/v1/orgs/:org_id/licenses"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "amend",
+    "subscription_id": "SUB-0000144",
+    "dst_org_id": "3eff35f7-c218-894e-bca2-24e5325601cc",
+    "quantity": 10
+})
+
+
+@name("undoMoveOrgLicenseToAnotherOrg")
+PUT "https://{{host}}/api/v1/orgs/:org_id/licenses"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "op": "unamend",
+    "amendment_id": "2b9116ab-cd1e-e897-6e08-31fccd88e792"
+})
+
+
+

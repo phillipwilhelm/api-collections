@@ -1,0 +1,743 @@
+#!/usr/bin/env dothttp
+
+// Este endpoint permite obtener las listas registradas en el sistema.
+
+@name("Obtener listas por marca")
+GET "https://{{url}}/api/v3/lists"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+// Este endpoint permite obtener la información básica de una lista registrada en el sistema.
+
+@name("Obtener lista")
+GET "https://{{url}}/api/v3/lists/:listId"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+// Permite obtener un informe detallado de: estado de la sincronización, categorías, productos, modificadores, opciones de modificadores, errores y advertencias de la ultima sincronización de una tienda.
+// 
+// #### Parámetros.
+// 
+// | Parámetro |Descripción|
+// |--|--|
+// | vendorId<br>**Este campo es requerido**| Identificador único de la marca, este identificador es proporcionado por Trade.|
+// | storeId<br>**Este campo es requerido**| Identificador único de la tienda.|
+// | channelId<br>**Este campo es requerido**| Identificador del canal de venta.|
+// | channelReferenceName<br>**Este campo es requerido si el atributo channelId no es único**| Nombre único de referencia, este nombre será utilizado para la búsqueda y asociación del canal estandarizado.|
+// | listName<br>**Este campo es requerido si se utiliza en atributo "additionalInfo.relatedLists" en la sincronización de canales de venta**| Nombre de la lista|
+// 
+// #### Estructura principal del informe.
+// 
+// | Clave |Descripción|
+// |--|--|
+// | summary.status| Estado de la sincronización.|
+// | summary.errors| Informe de errores encontrados en la ultima sincronización.|
+// | summary.warnings| Informe de advertencias encontradas en la ultima sincronización.|
+// | summary.individualUpdates| Determina si existieron actualizaciones individuales de productos o tiendas, es decir todas las acciones realizadas en los endpoints: Cambiar estado de tienda, Actualizar Precio/Estado de Producto.|
+// | summary.list| Informe completo de datos sincronizados (categorías, productos, modificadores, opciones, ...).|
+// | summary.list.listId| Identificador de la lista.|
+// | summary.list.listName| Nombre de la lista.|
+// | summary.list.schedules| Horario sincronizado de la lista.|
+// | summary.list.categories|  Listado de categorías sincronizadas, cada elemento tendrá la estructura definida en el atributo "categories" del endpoint Crear/Editar lista..|
+// | `summary.list.categories.*.childCategories`| Listado de subcategorías sincronizadas y asociadas a la categoría, cada elemento tendrá la estructura definida en el atributo "categories.*.childCategories" del endpoint Crear/Editar lista.|
+// | `summary.list.categories.*.productListing`| Listado de productos sincronizados y asociados a la categoría, cada elemento tendrá la estructura definida en el atributo "products" del endpoint Crear/Editar lista.|
+// | `summary.list.categories.*.productListing.*.productModifiers`| Listado de modificadores sincronizados y asociados al producto, cada elemento tendrá la estructura definida en el atributo "modifierGroups" del endpoint Crear/Editar lista.|
+// | `summary.list.categories.*.productListing.*.productModifiers.*.modifierOptions`| Listado de opciones sincronizadas y asociadas al modificador, cada elemento tendrá la estructura definida en el atributo "modifierOptions" del endpoint Crear/Editar lista.|
+// | request| Datos enviados.|
+
+@name("Obtener informe de sincronización")
+GET "https://{{url}}/api/v3/sync-summary/lists"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+// Este endpoint permite registrar o editar una lista en el sistema.
+// 
+// ##### Importante!: Cada request enviado se procesa como una nueva configuración, por lo que si un producto, categoría, modificador, ... no es enviado toda su configuración sera eliminada.
+// 
+// #### Conceptos iniciales.
+// 
+// | Campo |Descripción|
+// |--|--|
+// | lista| Conjunto de elementos (categorías, producto, preguntas, ..) que permiten administrar la estructura que será expuesta al usuario de app o web.|
+// | modificador| Permite definir preguntas.|
+// | opciones de modificador| Elemento de la entidad modificador que permite definir respuestas.|
+// | Venta adicional(up selling)| Consiste en ofrecer un producto(s) o servicio(s) similar al que quiere comprar o que ha comprado un cliente.|
+// | Venta cruzada(cross selling)| Consiste en ofrecerle un producto(s) o servicios(s) complementarios a los que consume o pretende consumir un cliente.|
+// 
+// #### Estructura general.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | modifierGroups<br>**Este campo es requerido**| `string, maxlength:45` | Permite definir un listado de modificadores que se utilizarán en la lista.|
+// | products<br>**Este campo es requerido**| `string, maxlength:45` | Permite definir los productos o items, asi como su organización en la lista. más adelante se describe la estructura de productos.|
+// | categories<br>**Este campo es requerido**| `string, maxlength:45` | Permite definir las categorias de productos, así como su organización en la lista. más adelante se describe la estructura de categorías.|
+// | list<br>**Este campo es requerido**| `object` | Información general de la lista que se va a crear, más adelante se describe su estructura.|
+// 
+// #### Estructura para modificadores.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | modifierId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único del modificador, este identificador debe ser definido por el cliente del API.|
+// | modifier<br>**Este campo es requerido**| `string, maxlength:200` | Texto para el modificador. Ej: Selecciona tu sabor de bebida.|
+// | minOptions<br>**Este campo es requerido**| `int` | Mínimo de opciones que deben seleccionarse|
+// | maxOptions<br>**Este campo es requerido**| `int` | Máximo de opciones que pueden seleccionarse|
+// | visible<br>**Este campo es requerido**| `boolean` | Determina si el modificador se mostrará en el app o la web.|
+// | position<br>**Este campo es requerido**| `int, null` | Posición en la que se muestra el modificador, si el valor es null se mostrará en orden alfabético utilizando el parámetro **modifier**.|
+// | type<br>**Este campo es requerido**| `enum(RADIO, CHECKBOX, QUANTITY, SELECT, CUSTOMIZE, SUPER_SIZE, CUSTOMIZE_ADD, CUSTOMIZE_SUBTRACT)` | Tipo de modificador.|
+// | modifierOptions<br>**Este campo es requerido**|`[object]` | Permite definir las opciones que se aplicarán al modificador, más adelante se define la estructura para las opciones de modificador.|
+// | additionalInfo<br>**Este campo es opcional**|`object, null` | Permite definir información adicional mediante pares clave-valor Ej: `{"menu_level": 0}`, estos valores no serán mostrados en el app o la web.|
+// 
+// 
+// #### Estructura para opciones de modificador.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | optionId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la opción, este identificador debe ser definido por el cliente del API.|
+// | productId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único del producto.|
+// | default<br>**Este campo es opcional**| `int, boolean` | Permite definir si una opciòn de modificador se muestra preseleccionada o no.|
+// | position<br>**Este campo es requerido**| `int, null` | Posición en la que se muestra la opción, si el valor es null se mostrará en orden alfabético utilizando el parámetro **name** definido en la estructura de producto.|
+// | additionalInfo<br>**Este campo es opcional**|`object, null` | Permite definir información adicional mediante pares clave-valor Ej: `{"menu_level": 0}`, estos valores no serán mostrados en el app o la web.|
+// 
+// #### Estructura para productos.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | productId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único del producto, se refiere al id interno(int) o externo(string) dependiendo del token OAuth2|
+// | name<br>**Este campo es requerido**| `string, maxlength:100` | Nombre del producto|
+// | type<br>**Este campo es requerido**| `enum(PRODUCT,MODIFIER,COMPLEMENT)` | Tipo del producto|
+// | description<br>**Este campo es opcional**| `string, maxlength:512` | Descripción del producto|
+// | standardTime<br>**Este campo es requerido**| `boolean` | Determina si usa su horario propio o el de la tienda |
+// | modifierId<br>**Este campo es opcional**| `string,int,null` |Identificador único de un producto modificador. |
+// | taxesInfo<br>**Este campo es opcional**| `null, object` | Impuestos que aplica el producto.|
+// | `taxesInfo.*.taxRate`<br>**Este campo es requerido si taxes no es null**| `int` | Permite definir la tasa de impuesto que grava el producto.|
+// | `taxesInfo.*.vatRatePercentage`<br>**Este campo es requerido si taxes no es null**| `int` | Permite definir la tasa de iva que grava el producto.|
+// | priceInfo<br>**Este campo es requerido**| `object` | Impuestos que aplica el producto.|
+// | `priceInfo.*.price`<br>**Este campo es requerido**| `float` | Permite definir el precio final del producto (este precio se mostrará en el app o la web).|
+// | `priceInfo.*.pointPrice`<br>**Este campo es opcional**| `int,null` | Permite el precio en puntos.|
+// | schedules<br>**Este campo es opcional**| `array,null` | Horario de la tienda, si el valor es **null** se interpreta como atención 24/7.|
+// | `schedules.*.day`<br>**Este campo es requerido**| enum(MONDAY<br>TUESDAY<br>WEDNESDAY<br>THURSDAY<br>FRIDAY<br>SATURDAY<br>SUNDAY<br>SPECIAL) | Día del horario|
+// | `schedules.*.startDate`<br>**Este campo es requerido si el valor de day es 'SPECIAL'**| `date:'Y-m-d', null` | Fecha inicio del horario|
+// | `schedules.*.endDate`<br>**Este campo es requerido si el valor de day es 'SPECIAL'**| `date:'Y-m-d', null` | Fecha fin del horario|
+// | `schedules.*.startTime`<br>**Este campo es requerido**| `time:'H:i'` | Hora inicio del horario|
+// | `schedules.*.endTime`<br>**Este campo es requerido**| `time:'H:i'` | Hora fin del horario|
+// | upselling<br>**Este campo es opcional**| `[int, string], null` | Conjunto de identificadores únicos de productos utilizados en la venta adicional, <br>**Es posible enviar un string con el siguiente formato "['product-1','product-2','product-3']", o si se usa json_encode(["0"]) (php) puede obtenerse un resultado similar a : "["0"]" que también es aceptado.**|
+// | crossSelling<br>**Este campo es opcional**| `[int, string], null` | Conjunto de identificadores únicos de productos utilizados en la venta cruzada, <br>**Es posible enviar un string con el siguiente formato "['product-1','product-2','product-3']", o si se usa json_encode(["0"]) (php) puede obtenerse un resultado similar a : "["0"]" que también es aceptado.**|
+// | tags<br>**Este campo es opcional**| `[string], null` | permite asignar etiquetas al producto, esto puede ser útil en la búsqueda de productos, <br>**Es posible enviar un string con el siguiente formato "['to me','to share']", o si se usa json_encode(["0"]) (php) puede obtenerse un resultado similar a : "["0"]" que también es aceptado.**|
+// | images<br>**Este campo es requerido**| `[objec], []` | Imágenes para el producto|
+// | `images.*.imageCategoryId`<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la categoría de imágenes <br>***Este identificador es suministrado por Trade**.|
+// | `images.*.fileUrl`<br>**Este campo es requerido**| `string` | Url de la imagen|
+// | `productModifiers`<br>**Este campo es requerido**| `[int, string]` | Permite asociar modificadores al producto, mas adelante se describe la logica para la posición de los modificadores.|
+// | additionalInfo<br>**Este campo es opcional**|`object, null` | Permite definir información adicional mediante pares clave-valor Ej: `{"combo_number": 1}`, estos valores no serán mostrados en el app o la web.|
+// 
+// #### ¿Cómo definir la posición de modificadores en un producto?.
+// 
+// 
+// Existen dos formas de definir la posición de un modificador dentro del producto:
+// 
+// **Como array de int,string** `['modifier-1', 'modifier-2', ...]`: la posición será determinada por el índice del elemento en el array Ej:
+// 
+// ```json
+// {
+//     ...
+//     "products": [
+//         {
+//             "productId": "Coffee-product-id",
+//             "name": "Small Coffee",
+//             ...
+//             "productModifiers": [
+//                 "sweetener-modifier" //-> se mostrarà en la primera posición
+//                 "milk-modifier" //-> se mostrarà en la segunda posición
+//             ]
+//         }
+//     ]
+// }
+// ```
+// **Como array de objetos**: la posición será determinada por la el atributo **position** :
+// 
+// ```json
+// {
+//     ...
+//     "products": [
+//         {
+//             "productId": "Coffee-product-id",
+//             "name": "Small Coffee",
+//             ...
+//             "productModifiers": [
+//                 {
+//                     "modifierId": "sweetener-modifier",
+//                     "position": 1 //-> se mostrarà en la primera posición
+//                 },
+//                 {
+//                     "modifierId": "milk-modifier",
+//                     "position": 2 //->se mostrarà en la segunda posición
+//                 }
+//             ]
+//         }
+//     ]
+// }
+// ```
+// 
+// #### Estructura para categorías.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | productCategoryId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador de la categoría, este identificador debe ser definido por el cliente del API.|
+// | name<br>**Este campo es requerido**| `string, maxlength:45` | Nombre de la categoría|
+// | displayInList<br>**Este campo es requerido**| boolean | Determina la visibilidad en el app/web.|
+// | crossSellingCategory<br>**Este campo es opcional**| boolean | Determina si la categoría va utilizarse para venta cruzada (cross selling), al definir el valor en **true**: Una vez el cliente proceda a realizar el pago se le mostrará el listado de productos definidos en el atributo "productListing" a modo de recomendación.|
+// | position<br>**Este campo es requerido  si displayInList es true**| `int, null` | Determina la posición en que se muestra en la lista.|
+// | images<br>**Este campo es opcional**| `[object], maxlength: 1` | Imagen para la categoría de productos|
+// | `images.*.imageCategoryId`<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la categoría de imágenes, se refiere al id interno(int) o externo(string) dependiendo del token OAuth2. <br>***Este identificador es suministrado por Trade**.|
+// | `images.*.fileUrl`<br>**Este campo es requerido para cada elemento de images**| `string` | Url de la imagen|
+// | childCategories<br>**Este campo es opcional**| `[object]` | Permite definir categorías en un segundo nivel (la estructura en la misma que categorías).|
+// | productListing<br>**Este campo es requerido**| `[object]` | Permite definir los productos asociados a la categoría. <br>**NOTA: Todos los productos definidos en este listado serán mostrados en el app/web.**|
+// | `productListing.*.productId`<br>**Este campo es requerido**| `int, string` | Identificador único del producto.|
+// | `productListing.*.position`<br>**Este campo es requerido**| `int` | Posición en la que se muestra el producto en la categoría.|
+// 
+// #### Canales estandarizados en el ecommerce (ecommerceChannelId).
+// | Identificador |Descripción|
+// |--|--|
+// |1|Domicilio web app|
+// |2|Domicilio call center|
+// |3|Pickup|
+// |4|Pickup drive|
+// |5|Kiosko servirse|
+// |6|Kiosko llevar|
+// |7|Domicilio glovo|
+// |8|Domicilio uber|
+// |9|Domicilio Rappi|
+// 
+// #### Estructura de Lista.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | ecommerceChannelId<br>**Este campo es opcional si se usa channelReferenceName**| `int` | Identificador del canal de venta unificado, hace referencia al identificador del canal estandarizado mostrado en la tabla anterior.|
+// | channelReferenceName<br>**Este campo es opcional si se usa ecommerceChannelId**| `string, maxlength:100` | Nombre único de referencia, este nombre será utilizado para la búsqueda y asociación del canal estandarizado.|
+// | list.listId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la lista. Ej:  pickup-menu, daily-menu, ...|
+// | list.listName<br>**Este campo es requerido**| `string, maxlength:45` | Nombre que identifique a la lista. Ej: "menu app"|
+// | vendorId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la marca. ***Este identificador es suministrado por Trade**.|
+// | list.storeId<br>**Este campo es requerido**| `string, maxlength:45` | Identificador único de la tienda, se refiere al parámetro **storeId** de la creación de tiendas y canales de venta (Sección 1).|
+// | list.channelId<br>**Este campo es requerido**| `string, maxlength:45` | Identificador único del canal de venta, se refiere al parámetro **channelId** de la creación de tiendas y canales de venta (Sección 1).|
+// | list.schedules<br>**Este campo es requerido**| `[object], null` | Permite aplicar un horario a la lista, puede utilizarse por ejemplo para mostrar un menú de desayunos en horario matutino.|
+// 
+// #### Activación e inactivación programada de productos
+// 
+// El registro de actividades programadas de productos permite activar e inactivar uno o varios productos en una fecha futura.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | scheduledActivities<br>**Este campo es opcional**| `[],[obj]` | Actividades programadas.|
+// | `scheduledActivities.*.productId`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `[],[obj]` | Identificador único del producto|
+// | `scheduledActivities.*.scheduledActiveStatus`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea activar el producto.|
+// | `scheduledActivities.*.scheduledInactiveStatus`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea inactivar el producto.|
+
+@name("Crear/Editar lista")
+PUT "https://{{url}}/api/v3/lists"
+"Content-Type": "application/json"
+"Authorization": ""
+data('{
+    "modifierGroups": [
+        {
+            "modifierId": "sweetener-modifier",
+            "modifier": "Select the sweetener",
+            "position": 1,
+            "minOptions": 1,
+            "maxOptions": 10,
+            "type": "CUSTOM",
+            "modifierOptions": [
+                {
+                    "optionId": "stevia-option",
+                    "productId": "stevia-product",
+                    "position": 1,
+                    "default": true,
+                    "additionalInfo": {
+                        "menu_level": 2
+                    }
+                },
+                {
+                    "optionId": "sugar-option",
+                    "productId": "sugar-product",
+                    "position": 2
+                }
+            ],
+            "additionalInfo": {
+                "menu_level": 1
+            }
+        },
+        {
+            "modifierId": "game-modifier",
+            "modifier": "What type of hard drive would you like?",
+            "position": 2,
+            "minOptions": 1,
+            "maxOptions": 1,
+            "type": "CUSTOM",
+            "modifierOptions": [
+                {
+                    "optionId": "hdd-option",
+                    "productId": "hdd-product",
+                    "position": 1,
+                    "default": true
+                },
+                {
+                    "optionId": "ssd-option",
+                    "productId": "ssd-product",
+                    "position": 2
+                }
+            ],
+            "additionalInfo": null
+        },
+        {
+            "modifierId": "stevia-type-modifier",
+            "modifier": "Stevia type",
+            "position": 0,
+            "minOptions": 1,
+            "maxOptions": 10,
+            "type": "CUSTOM",
+            "modifierOptions": [
+                {
+                    "optionId": "stevia-liquid-option",
+                    "productId": "stevia-liquid-product",
+                    "position": 0,
+                    "additionalInfo": {
+                        "menu_level": 2
+                    }
+                },
+                {
+                    "optionId": "stevia-sachet-option",
+                    "productId": "stevia-sachet-product",
+                    "position": 1,
+                    "default": true,
+                    "additionalInfo": {
+                        "menu_level": 2
+                    }
+                }
+            ],
+            "additionalInfo": {
+                "menu_level": 1
+            }
+        }
+    ],
+    "products": [
+        {
+            "productId": "Coffee-product-id",
+            "name": "Small Coffee",
+            "type": "PRODUCT",
+            "description": "The bestest Coffee",
+            "standardTime": true,
+            "schedules": [
+                {
+                    "day": "SPECIAL",
+                    "startDate": "2019-02-24",
+                    "endDate": "2019-02-25",
+                    "startTime": "19:00",
+                    "endTime": "23:59"
+                },
+                {
+                    "day": "MONDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "TUESDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "WEDNESDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "THURSDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "FRIDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "SATURDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "SUNDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                }
+            ],
+            "tags": [
+                "to share",
+                "to me"
+            ],
+            "upselling": [
+                "lg-coffee"
+            ],
+            "images": [
+                {
+                    "imageCategoryId": "product",
+                    "fileUrl": "https://path/to/file.png"
+                }
+            ],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 4.99,
+                "pointPrice": null
+            },
+            "productModifiers": [
+                "sweetener-modifier"
+            ],
+            "additionalInfo": {
+                "menu_level": 0
+            }
+        },
+        {
+            "productId": "lg-coffee",
+            "name": "Coffee (Lg)",
+            "type": "PRODUCT",
+            "description": "Coffee + donuts",
+            "standardTime": true,
+            "schedules": [
+                {
+                    "day": "MONDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "TUESDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "WEDNESDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "THURSDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "FRIDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "SATURDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                },
+                {
+                    "day": "SUNDAY",
+                    "startTime": "08:00",
+                    "endTime": "12:00"
+                }
+            ],
+            "tags": [
+                "to share",
+                "to me"
+            ],
+            "upselling": [
+                "lg-coffee"
+            ],
+            "images": [
+                {
+                    "imageCategoryId": "product",
+                    "fileUrl": "https://path/to/file.png"
+                }
+            ],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 5.99,
+                "pointPrice": 175
+            },
+            "productModifiers": [
+                "sweetener-modifier"
+            ]
+        },
+        {
+            "productId": "gamer-laptop",
+            "name": "game laptop",
+            "type": "PRODUCT",
+            "description": "Laptop in black color + gamepad.",
+            "standardTime": true,
+            "schedules": [
+                {
+                    "day": "MONDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "TUESDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "WEDNESDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "THURSDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "FRIDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "SATURDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                },
+                {
+                    "day": "SUNDAY",
+                    "startTime": "10:00",
+                    "endTime": "21:00"
+                }
+            ],
+            "tags": [
+                "to me"
+            ],
+            "upselling": [],
+            "images": [
+                {
+                    "imageCategoryId": "product",
+                    "fileUrl": "https://path/to/file.png"
+                }
+            ],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 1000,
+                "pointPrice": null
+            },
+            "productModifiers": [
+                "game-modifier"
+            ]
+        },
+        {
+            "productId": "ssd-product",
+            "name": "ssd product",
+            "type": "MODIFIER",
+            "description": "SSD Hard drive",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 123,
+                "pointPrice": 0
+            },
+            "productModifiers": []
+        },
+        {
+            "productId": "hdd-product",
+            "name": "HDD product",
+            "type": "MODIFIER",
+            "description": "HDD Hard drive",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 10.99,
+                "pointPrice": 0
+            },
+            "productModifiers": []
+        },
+        {
+            "productId": "stevia-product",
+            "name": "Stevia product",
+            "type": "MODIFIER",
+            "description": "Stevia",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 0,
+                "pointPrice": 0
+            },
+            "productModifiers": [
+                "stevia-type-modifier"
+            ]
+        },
+        {
+            "productId": "sugar-product",
+            "name": "sugar product",
+            "type": "MODIFIER",
+            "description": "sugar",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 0,
+                "pointPrice": 0
+            },
+            "productModifiers": []
+        },
+        {
+            "productId": "stevia-liquid-product",
+            "name": "Stevia liquid product",
+            "type": "MODIFIER",
+            "description": "Stevia liquid",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 0,
+                "pointPrice": 0
+            },
+            "productModifiers": []
+        },
+        {
+            "productId": "stevia-sachet-product",
+            "name": "Stevia sachet product",
+            "type": "MODIFIER",
+            "description": "Stevia sachet",
+            "standardTime": true,
+            "schedules": [],
+            "tags": [],
+            "upselling": [],
+            "images": [],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "priceInfo": {
+                "price": 0,
+                "pointPrice": 0
+            },
+            "productModifiers": []
+        }
+    ],
+    "categories": [
+        {
+            "productCategoryId": "coffees-category",
+            "name": "coffees",
+            "displayInList": true,
+            "position": 1,
+            "schedules": [],
+            "images": [
+                {
+                    "imageCategoryId": "category",
+                    "fileUrl": "https://host/path/to/file/coffees.png"
+                }
+            ],
+            "childCategories": [],
+            "productListing": [
+                {
+                    "productId": "Coffee-product-id",
+                    "position": 1
+                },
+                {
+                    "productId": "lg-coffee",
+                    "position": 0
+                }
+            ]
+        },
+        {
+            "productCategoryId": "computers-category",
+            "name": "computers",
+            "displayInList": true,
+            "position": 2,
+            "images": [],
+            "childCategories": [
+                {
+                    "productCategoryId": "laptops-category",
+                    "name": "Laptops",
+                    "displayInList": true,
+                    "position": 0,
+                    "images": [],
+                    "productListing": [
+                        {
+                            "productId": "gamer-laptop",
+                            "position": 0
+                        }
+                    ]
+                }
+            ],
+            "productListing": []
+        },
+        {
+            "productCategoryId": "other-category",
+            "name": "Other category",
+            "displayInList": false,
+            "position": null,
+            "images": [],
+            "childCategories": [],
+            "productListing": []
+        }
+    ],
+    "list": {
+        "listId": "my-list",
+        "listName": "daily list",
+        "vendorId": "1111",
+        "storeId": "my-store",
+        "channelId": "app-channel",
+        "ecommerceChannelId": 5,
+        "channelReferenceName": "APP ECOMMERCE A",
+        "schedules": []
+    },
+    "scheduledActivities": [
+        {
+            "productId": "Coffee-product-id",
+            "scheduledActiveStatus": "future-date"
+        }
+    ]
+}')
+
+
+// Este endpoint permite eliminar una lista registrada en el sistema.
+
+@name("Eliminar lista")
+DELETE "https://{{url}}/api/v3/lists/:listId"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+

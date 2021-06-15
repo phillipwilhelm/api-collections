@@ -1,0 +1,106 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgMxTunnels")
+GET "https://{{host}}/api/v1/orgs/:org_id/mxtunnels"
+
+
+@name("getOrgMxTunnelsDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/mxtunnels/:mxtunnel_id"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxtunnel_id|string|Mist Tunnel ID
+// state|string|idle / wait-ctrl-reply / wait-ctrl-conn / established / established_with_sessions
+// uptime|int|uptime
+// sessions|list|list of sessions
+// remote_id|string|WxlanTunnel Remote ID
+// remote_sid|int|remote sessions id (dynamically unless Tunnel is said to be static)
+// local_sid|int|remote sessions id (dynamically unless Tunnel is said to be static)
+
+@name("getOrgMxTunnelsStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats/tunnels/search"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mxtunnel_id|string|Mist Tunnel ID
+// state|string|idle / wait-ctrl-reply / wait-ctrl-conn / established / established_with_sessions
+// uptime|int|uptime
+// sessions|list|list of sessions
+// remote_id|string|WxlanTunnel Remote ID
+// remote_sid|int|remote sessions id (dynamically unless Tunnel is said to be static)
+// local_sid|int|remote sessions id (dynamically unless Tunnel is said to be static)
+
+@name("countOrgMxTunnelsStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats/tunnels/count"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|the name of the tunnel
+// protocol|list|udp / ip, default is udp
+// ipsec|object|enable or disable IPSec. default is disabled
+// mtu|number|Maximum Transmission Unit between Mist APs and Mist Edge. 0 means auto. Default is 0.
+// vlan_ids|list|list of vlan_ids that will be used
+// mxcluster_ids|list|list of mxclusters to deploy this tunnel to
+// hello_interval|float|in seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries. between 1 and 300, default is 60 seconds
+// hello_retries|int|between 2 and 30, default is 7
+
+@name("createOrgMxTunnel")
+POST "https://{{host}}/api/v1/orgs/:org_id/mxtunnels"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "HQ",
+    "protocol": "udp",
+    "vlan_ids": [
+        3,
+        4,
+        5
+    ],
+    "mxcluster_ids": [
+        "572586b7-f97b-a22b-526c-8b97a3f609c4"
+    ],
+    "hello_interval": 60,
+    "hello_retries": 3,
+    "ipsec": {
+        "enabled": true,
+        "split_tunnel": true,
+        "dns_servers": [
+            "172.16.0.8"
+        ],
+        "dns_suffix": [
+            "corp.juniper.com",
+            "juniper.internal"
+        ],
+        "extra_routes": [
+            {
+                "dest": "172.16.0.0/12",
+                "next_hop": "172.16.0.1"
+            }
+        ]
+    }
+})
+
+
+@name("updateOrgMxTunnel")
+PUT "https://{{host}}/api/v1/orgs/:org_id/mxtunnels/:mxtunnel_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "HQ"
+})
+
+
+@name("deleteOrgMxTunnel")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/mxtunnels/:mxtunnel_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

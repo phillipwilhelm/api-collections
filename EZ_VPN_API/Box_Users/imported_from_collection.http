@@ -1,0 +1,179 @@
+#!/usr/bin/env dothttp
+
+// Get the existing Users for a specific Box by uuid.
+
+@name("Get Box Users")
+GET "https://{{server-url}}/{{version}}/boxUsers/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Add a new User to a specific Box by uuid.
+// 
+// `grantedNetworks` is needed only for Enterprise plans. For the other plans the user is granted only on the Box network.
+// If empty or absent, only the box network is added.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Add Box User")
+POST "https://{{server-url}}/{{version}}/boxUsers/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"username" : "{{username}}",
+	"alias" : "{{alias}}",
+	"hidden" : {{hidden}},
+	"timerFrom" : "{{timerFrom}}",
+	"timerTo" : "{{timerTo}}",
+	"grantedNetworks" : [
+		{
+			"network" : "{{network}}",
+			"netmask" : "{{netmask}}"
+		},
+		{
+			"network" : "{{network}}",
+			"netmask" : "{{netmask}}"
+		}
+	]
+}')
+
+
+// Delete a User from a specific Box by uuid.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Delete Box User")
+DELETE "https://{{server-url}}/{{version}}/boxUsers/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"username" : "{{username}}",
+	"alias" : "{{alias}}",
+	"hidden" : {{hidden}},
+	"timerFrom" : "{{timerFrom}}",
+	"timerTo" : "{{timerTo}}",
+	"grantedNetworks" : [
+		{
+			"network" : "{{network}}",
+			"netmask" : "{{netmask}}"
+		},
+		{
+			"network" : "{{network}}",
+			"netmask" : "{{netmask}}"
+		}
+	]
+}')
+
+
+// Download the users certificate for a specific Box by uuid.
+// 
+// If the certificate is not present, an empty string is returned.
+
+@name("Get Box User Certificate")
+GET "https://{{server-url}}/{{version}}/boxUsers/download/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Update the user certificate alias for a specific Box by uuid.
+// 
+// If the `alias` field is not present, the alias is removed.
+
+@name("Update Box User Certificate alias")
+PUT "https://{{server-url}}/{{version}}/boxUsers/alias/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"alias" : "{{alias}}"
+}')
+
+
+// Enable the user certificate alias for a specific Box by uuid.
+
+@name("Enable Box User Certificate")
+PUT "https://{{server-url}}/{{version}}/boxUsers/enable/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Disable the user certificate alias for a specific Box by uuid.
+
+@name("Disable Box User Certificate")
+PUT "https://{{server-url}}/{{version}}/boxUsers/disable/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Set or update the user certificate password for a specific Box by uuid.
+// 
+// Password must be between 8 and 40 characters long, at least 1 digit, 1 lower case, 1 upper case, 1 special character.
+
+@name("Set Box User Certificate Password")
+PUT "https://{{server-url}}/{{version}}/boxUsers/setPassword/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"password" : "{{password}}"
+}')
+
+
+// Unset the user certificate password for a specific Box by uuid.
+
+@name("Unset Box User Certificate Password")
+PUT "https://{{server-url}}/{{version}}/boxUsers/unsetPassword/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Set or update the user certificate timer for a specific Box by uuid.
+// 
+// Time format is `M/d/yyyy h:m a`, e.g. `08/21/2019 12:00 AM`
+// 
+// Date and Time is considered as in the Box timezone.
+
+@name("Set Box User Certificate Timer")
+PUT "https://{{server-url}}/{{version}}/boxUsers/setTimer/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"timerFrom" : "{{timerFrom}}",
+	"timerTo" : "{{timerTo}}"
+}')
+
+
+// Remove the user certificate timer for a specific Box by uuid.
+
+@name("Unset Box User Certificate Timer")
+PUT "https://{{server-url}}/{{version}}/boxUsers/unsetTimer/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Get the granted and denied User Networks for a specific Box by uuid.
+
+@name("Get Box User Networks")
+GET "https://{{server-url}}/{{version}}/boxUsers/userNetworks/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Send an invite email to the user for a specific Box by uuid.
+// 
+// If the certificate is protected by a password, a direct download link will be included in the email.
+// 
+// No email will be sent if the certificate is set as hidden.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Resend Invite Email")
+PUT "https://{{server-url}}/{{version}}/boxUsers/resendLink/{{uuid}}/{{username}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+

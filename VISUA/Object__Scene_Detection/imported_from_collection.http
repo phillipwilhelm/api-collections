@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+// Detect _Objects and Scenes_ in a user-submitted image.
+// 
+// The image can be submitted using one of the following methods:
+// * _URL:_ the image is accessible via a URL and the URL is supplied as a POST parameter called `mediaUrl`
+// * _Base64:_ the image bytes are encoded in [Base64 format](https://en.wikipedia.org/wiki/Base64) and the resulting string is supplied as a POST parameter called `mediaBase64`
+// * _File:_ the image bytes are uploaded as a parameter of type File called `mediaFile`. This requires that the request `Content-Type` is set to [multipart/form-data](https://en.wikipedia.org/wiki/MIME#Form-Data)
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to a detection in the query image.
+// 
+// The fields `id` and `name` identify the specific Object or Scene detected.
+// 
+// The field `parents` consists of an array of related _Objects and Scenes_ from the most concrete to the most abstract.
+// 
+// The field `confidence` (ranging between 0.75 and 1) represents how likely the presence of the Object or Scene is. Depending on your use case, you might want to apply a threshold on this value. For example retaining items with `confidence > 0.95` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.8` will favour recall over precision.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// We strongly recommend that you store the unique `sessionId` field returned with each response as it references the specific request in our system. This can be used for support queries with our team at <support@visua.com>.
+
+@name("Detect in Image")
+POST "https://{{socket}}/detect"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-oas.png"
+    ],
+    "mediaBase64": [
+        "data:image/png;base64,YOURMEDIAENCODED"
+    ]
+})
+
+
+

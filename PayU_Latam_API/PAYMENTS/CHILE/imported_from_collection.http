@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// Medio de pago disponible:
+// - `REDCOMPRA`
+
+@name("BANK TRANSFER")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_CHILE}}",
+			"referenceCode": "{{$guid}}",
+			"description": "PAY TEST WITH REDCOMPRA IN CHILE",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "CLP"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Santiago",
+					"state": "Región Metropolitana de Santiago",
+					"country": "CL",
+					"postalCode": "00000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Santiago",
+				"state": "Región Metropolitana de Santiago",
+				"country": "CL",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Santiago",
+				"state": "Región Metropolitana de Santiago",
+				"country": "CL",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"extraParameters": {
+			"RESPONSE_URL": "http://www.test.com/response"
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "TRANSBANK_DEBIT",
+		"paymentCountry": "CL",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+// Medios de pago disponibles:
+// - `MULTICAJA`
+
+@name("CASH AND BANK")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_CHILE}}",
+			"referenceCode": "{{$guid}}",
+			"description": "PAY TEST WITH CASH IN CHILE",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "CLP"
+				}
+			},
+			"buyer": {
+				"fullName": "BUYER TEST",
+				"emailAddress": "buyer@test.com"
+			}
+		},
+		"extraParameters": {
+			"NETWORK_CALLBACK_URL": "http://www.test.com/response"
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "CL",
+		"ipAddress": "127.0.0.1"
+	}
+}')
+
+
+

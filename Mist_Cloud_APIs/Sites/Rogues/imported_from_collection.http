@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  duration|string|1d / 1h, default is 1d
+//  limit|int|max number of results, default = 100
+//  type|string|honeypot (honeypots) / lan (wired rogue) / others / spoof, default is others
+//  
+//   #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  next|string|link to next set of results. If more results aren’t present, next is null.
+//  ssid|string|ssid of the network detected as threat
+//  bssid|string|bssid of the network detected as threat
+//  num_aps|int|num of aps that heard the ssid/bssid pair
+//  ap_mac|string|mac of the device that had strongest signal strength for ssid/bssid pair
+//  channel|string|channel over which ap_mac heard ssid/bssid pair
+//  avg_rssi|float|average signal strength of ap_mac for ssid/bssid pair
+//  times_heard|int|represents number of times the pair was heard in the interval. Each count roughly corresponds to a minute.
+//  seen_on_lan|boolean|whether the reporting AP see a wireless client (on LAN) connecting to it
+
+@name("getSiteRogueAPs")
+GET "https://{{host}}/api/v1/sites/:site_id/insights/rogues"
+? "type"= "{{rogue_type}}"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  duration|string|1d / 1h, default is 1d
+//  limit|int|max number of results, default = 100
+
+@name("getSiteRogueClients")
+GET "https://{{host}}/api/v1/sites/:site_id/insights/rogues/clients"
+
+
+@name("getSiteRogueAPDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/rogues/:rogue_bssid"
+
+
+@name("searchSiteRogueEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/rogues/events/search"
+? "type"= "{{rogue_type}}"
+
+
+@name("countSiteRogueEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/rogues/events/count"
+? "distinct"= "{{distinct}}"
+
+
+@name("deauthSiteClientsConnectedToARogue")
+POST "https://{{host}}/api/v1/sites/:site_id/rogues/:rogue_bssid/deauth_clients"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

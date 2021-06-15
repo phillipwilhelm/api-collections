@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of all clients visible to the user, including clients shared from other users.
+// 
+// For a list of all clients *owned* by the user, excluding shared clients, append ?no_share=1. 
+// 
+// Learn more about Riskalyze client sharing: https://kb.riskalyze.com/hc/en-us/articles/115009224707-Data-Sharing
+
+@name("Get Client List")
+GET "https://{{base_url}}/ap/v1/clients/"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Use the Client ID to get a client's Name, Email, Risk Number, and a list of related objects. 
+// 
+// **TIP:** GET Client can be used to sync Client Risk Number, Current Portfolio Risk Number, and Proposal Risk Number in once call. Search the GET Client response for `latest_current_portfolio` and `latest_proposed_portfolio`. Then parse client[i].portfolios for the Risk Number associated with those portfolio IDs.
+
+@name("Get Client")
+GET "https://{{base_url}}/ap/v1/clients/:client_id"
+"Authorization": "Bearer {{access_token}}"
+
+
+@name("Search Clients by Name")
+GET "https://{{base_url}}/ap/v1/clients/search"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Search for clients to link to in Riskalyze using their name or email address. The search response will contain all clients with names or emails matching the search string. 
+// 
+// Allowed symbols include: `@` `_` `-` `.`
+// The `+` symbol will produce no search results. Submit a partial string to match instead.
+
+@name("Search Clients by Name or Email")
+GET "https://{{base_url}}/ap/v1/clients/"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Basic Client creation, returns the Riskalyze client id.
+// 
+// Default Client Status is "ACTIVE". Other valid status options are "PROSPECT" and "LEAD".
+
+@name("Create Client")
+POST "https://{{base_url}}/ap/v1/clients"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "fname": "First Name",
+    "lname": "Last Name",
+    "phone": "1234567890",
+    "status": "PROSPECT"
+}')
+
+
+// Though what you can update is minimal, this call allows changing high level client info
+
+@name("Update Client")
+PUT "https://{{base_url}}/ap/v1/clients/:client_id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "id": 847676534,
+    "fname": "Leroy",
+    "lname": "Smalls",
+    "phone": "5555551212",
+    "status": "LEAD",
+    "deleted": "0",
+    "email": "l.smalls@demo.com"
+}')
+
+
+// Removes an existing Client
+
+@name("Delete Client")
+DELETE "https://{{base_url}}/ap/v1/clients/:client_id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+// Triggers a sync between Riskalyze and third-party integrations linked to the Client. Applies only to clients with ACTIVE status.
+
+@name("Sync Client with In-Product Integrations")
+GET "https://{{base_url}}/ap/v1/integration/sync_client_generic/:client_id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+

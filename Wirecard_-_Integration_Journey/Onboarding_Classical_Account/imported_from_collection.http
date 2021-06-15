@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// Having a Classical Moip account means that the owner of that account can manage its sales in Wirecard environment.
+// However, a marketplace can embeed the whole management experience including transfers and payout if it has the right OAuth permissions.
+
+@name("Create classical account")
+POST "https://{{url}}/v2/accounts/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "transparentAccount": false,
+  "email": {
+    "address": "{{$timestamp}}@myemail.com"
+  },
+  "person": {
+    "name": "Sales Machine da Silva",
+    "taxDocument": {
+      "type": "CPF",
+      "number": "{{c_cpf}}"
+    },
+    "birthDate": "1994-03-01",
+    "phone": {
+      "countryCode": "55",
+      "areaCode": "11",
+      "number": "77121055"
+    },
+    "address": {
+      "street": "Av. Brigadeiro Faria de Lima",
+      "streetNumber": "195",
+      "district": "Financial District",
+      "zipcode": "79031-100",
+      "city": "São Paulo",
+      "state": "SP",
+      "country": "BRA"
+    }
+  },
+  "type": "MERCHANT"
+}')
+
+
+// This is the sample of a link to require OAuth permissions to a Classical Wirecard Account.
+
+@name("Request OAuth Permission")
+LINK "https://{{url-connect}}/oauth/authorize"
+basicauth("{{token}}", "{{key}}")
+? "response_type"= "code"
+? "client_id"= "{{app_id}}"
+? "redirect_uri"= "{{app_redirect_uri}}"
+? "scope"= "RECEIVE_FUNDS,REFUND,MANAGE_ACCOUNT_INFO"
+
+
+
+// Having a Classical Wirecard account means that the owner of that account can manage its sales in Wirecard environment.
+// However, a marketplace can embeed the whole management experience including transfers and payout if it has the right OAuth permissions.
+// 
+// Don't forget to include the `code` obtained in the permission link as and `x-www-form-urlencoded` parameter.
+
+@name("Generate OAuth AccessToken")
+POST "https://{{url-connect}}/oauth/token"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "{{app_accessToken}}"
+? "client_id"= "{{app_id}}"
+? "client_secret"= "{{app_secret}}"
+? "redirect_uri"= "{{app_redirect_uri}}"
+? "grant_type"= "authorization_code"
+? "code"= "01390b64a8875f14a17561fccdb565f94674edd7"
+
+
+

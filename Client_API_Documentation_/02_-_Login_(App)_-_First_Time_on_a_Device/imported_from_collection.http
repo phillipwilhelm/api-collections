@@ -1,0 +1,122 @@
+#!/usr/bin/env dothttp
+
+// # RegisterDevice API
+//   
+// This is a request to register a physical device in our system in addition to associating it with the subscriber on the session. This will determine if a physical device already exists based on the physical device passed in. It will use the DeviceId and SerialNumber fields to determine if the device already exists.
+// 
+// If a device exists, that will be associated to. If it is determined that a device does not exist, then a new one is created to be associated to. DeviceType and PhysicalDeviceType must be populated on the PhysicalDevice. If a physical device needs to be created, they need to be there.
+// 
+// NOTE: the PhysicalDevice on the response will contain a populated AuthenticationKey. This is the only time the authentication key will ever be accessible. The device must save this authentication key off in secure storage for use on subsequent session creations in order to obtain a session with elevated privileges for accessing content without a password.
+// The response also contains a SessionId that a fully authenticated subscriber session (level 5).
+// 
+// Available device types for ABC Corp 1:
+// 
+// * Windows PC (DeviceTypeCode 4, PhysicalDeviceTypeCode 1111)
+// * Apple iOS - iPhone/iTouch App (DeviceTypeCode 10, PhysicalDeviceTypeCode 1002)
+// * Apple iOS - iPad  App (DeviceTypeCode 11, PhysicalDeviceTypeCode 1003)
+// * Apple iOS - Apple TV App (DeviceTypeCode 12, PhysicalDeviceTypeCode 1004)
+// * Android Mobile Phone (DeviceTypeCode 16, PhysicalDeviceTypeCode 1000)
+// * Android Tablet (DeviceTypeCode 17, PhysicalDeviceTypeCode 1001)
+// * Amazon Fire TV (DeviceTypeCode 20055, PhysicalDeviceTypeCode 10045)
+// * Amazon Fire Stick (DeviceTypeCode 20056, PhysicalDeviceTypeCode 10046) 
+// * Amazon Fire Tablet (DeviceTypeCode 20057, PhysicalDeviceTypeCode 10047)
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 806 | DeviceNotFound | Fault indicating that a device could not be found |
+// | 812 | DuplicateDeviceNickname | Fault indicating that the device's nickname is already used by the subscriber on another device |
+// | 804 | DeviceAlreadyAssociated | Fault indicating that the device is already associated to the subscriber |
+// | 805 | DeviceNotAvailable | Fault indicating that the device is already associated with another subscriber and the association can not be removed |
+// | 810 | InvalidPhysicalDeviceType | Fault indicating that the associated physical device type code for a device is not valid |
+// | 811 | AssociationLimitViolation | Fault indicating that the subscriber has reached the limit on device associations |
+// | 813 | ExternalDeviceRegistrationFailure | Fault indicating that external device registration failed, e.g. the UV coordinator returned and error during registration |
+// 
+// # Response
+// 
+// ![Diagram to follow](http://custom.sbx1.cdops.net/Util/Screenshots/XYZ/RegisterDevice.jpg)
+// 
+// **AuthenticationKey** - this is rquired by the UnregisterDevice API when removing a registered device.
+// 
+// **RemainingDeviceAssociations** - shows the remaining number of device registration that can be made.  This value can be set through configuration.
+// 
+// **SessionId** - this is a device level authenticated token.  The timeouts held by this token are configured separately from the user level authenicated token.
+// 
+// **DeviceId** - This is an Id supplied by the user and is required by the UnregisterDevice API.
+// 
+// # Request
+// 
+
+@name("RegisterDevice (L & PW)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RegisterDevice"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"Content-Type": "application/json"
+data('{
+    "Login": "{{LOGIN_1}}",
+    "Password": "{{PASSWORD_1}}",
+    "PhysicalDevice": {
+        "DeviceId": 123456,
+        "DeviceTypeCode": {{DEVICE_TYPE_CODE}},
+        "PhysicalDeviceTypeCode": {{PHYSICAL_DEVICE_TYPE_CODE}},
+        "SerialNumber": "{{SERIAL_NUMBER}}"
+    },
+    "Nickname": "Android Mobile Phone",
+    "AllowPinlessPurchase": true
+}')
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// The product list form of RPC enables mutliple products to be checked for entitlement in a single call. Entitled pricing plans are identified by the "EntitledPricingPlanId" property in the response.
+// 
+// The "IncludeOrderablePricingPlans" property in not currently supported in this form of the RPC call.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+// 
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReferences": [
+        "XYZ_Access_Monthly",
+        "XYZ_Access_Annual",
+        "XYZ_TV_Access_Monthly",
+        "XYZ_TV_Access_Annual",
+        "XYZ_TV_Pro_Monthly",
+        "XYZ_TV_Pro_Annual"
+    ],
+    "IncludeEntitlementContext": true
+}')
+
+
+

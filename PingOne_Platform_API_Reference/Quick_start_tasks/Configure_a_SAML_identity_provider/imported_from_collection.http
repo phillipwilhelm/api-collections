@@ -1,0 +1,171 @@
+#!/usr/bin/env dothttp
+
+// The `POST /environments/{environmentId}/certificates` endpoint uploads a certificate file. You will need the verification certificate ID value in Step 2 to create the external identity provider resource.
+// 
+// 
+// The response returns a 202 Accepted message and shows the certificate data parsed from the uploaded certificate file.
+
+@name("Step 1a: Upload the SAML application's verification certificate")
+POST "https://{{apiPath}}/environments/{{envID}}/certificates"
+"Content-Type": "application/x-pkcs7-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "{filename}"
+}')
+
+
+// Optionally, the `POST /environments/{environmentId}/keys` endpoint can be used to upload the external identity provider's signing key file. This operation supports the `application/x-pkcs12-certificates` media type to upload a `pkcs12` file.
+
+@name("Step 1b: Upload the SAML application's signing key (Optional)")
+POST "https://{{apiPath}}/environments/{{envID}}/keys"
+"Content-Type": "application/x-pkcs12-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "{filename}"
+}')
+
+
+// You can use the `POST /environments/{environmentId}/identityProviders` endpoint to create the SAML identity provider configuration. This request automatically creates the core attribute mapping to associate the PingOne `username` attribute with the SAML `samlAssertion.subject` attribute. To verify the mapping, you can use the `?expand=attributes` query filter to show the core attribute mapping details in the `POST` response.  
+// 
+// 
+// In the request, the `name` property for the new identity provider is required and must be unique within the environment. The `enabled` property is required and should be set to `true`, and the `type` property is required and must specify `SAML` as the identity provider type.
+// 
+// The `idpVerification.certificates[].id` is required.  This is the UUID of the verification certificate that you uploaded in Step 1a.  The  `spSigning.key.id` property value is the UUID of the signing key that you uploaded in Step 1b.
+// 
+// The response shows the configuration data for the new identity provider.
+// 
+// ::: info
+// **Note:** The response also includes an `attributes` HAL link to initiate a request to create additional optional attribute mappings. For information about creating SAML identity provider attribute mappings, see [Add provider attributes](https://apidocs.pingidentity.com/pingone/customer/v1/api/man/p1_IdentityProvider/#Add-identity-provider-attributes).
+// :::
+// 
+
+@name("Step 2: Create the new identity provider resource")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "SAMLIdP",
+  "description": "My SAML IdP",  
+  "type": "SAML",
+  "enabled": false,
+  "spEntityId": "sp-{$timestamp}",
+  "idpEntityId": "idp-{$timestamp}",
+  "ssoBinding": "HTTP_POST",
+  "ssoEndpoint": "https://idp.com/sso",
+  "authnRequestSigned": "false",
+  "idpVerification": {
+    "certificates": [
+      {
+        "id": "123f67f8-c56c-4903-9c9b-c4b162e22789"
+      }
+    ]
+  },
+  "spSigning": {
+  	"key": {
+  		"id": "a65318d7-eaa2-4070-bb73-ffe21a6fca06"
+  	}
+  }
+}')
+
+
+// You can use the `POST /environments/{environmentId}/signOnPolicies` endpoint to create the new sign-on policy.
+// 
+// 
+// In the request, the `name` property is required and must be unique within the environment. The `description` property is optional, but recommended. The `default` property is optional, and should be set only if you want this sign-on policy to be the default policy for all applications in the environment. If this property is not set in the request, its value is set automatically to `false`.
+// 
+// 
+// The response includes an `actions` HAL link to the sign-on policy actions endpoint, which is used to assign an action to the new sign-on policy. The policy must have at least one associated action before it can be assigned to an application.
+// 
+// 
+
+@name("Step 3: Create the new sign-on policy")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "SAMLPolicy",
+  "description": "A sign-on policy for a SAML identity provider."
+}')
+
+
+// This step associates a sign-on policy action with the new sign-on policy you created in Step 3. The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates the sign-on policy action resource, which is associated with the sign-on policy (`{policyId}`) specified in the request URL.
+// 
+// PingOne supports several sign-on policy action types:
+// 
+// * `LOGIN`
+// 
+//   Basic authentication that prompts for a username and password.
+// 
+// * `MULTI_FACTOR_AUTHENTICATION`
+// 
+//   An authentication method that prompts users to enter a one-time password received on a registered device or accept a push confirmation on a registered mobile device.
+// 
+// * `IDENTIFIER_FIRST`
+// 
+//   An action used to identify the user by username and determine the applicable authentication methods for this user.
+// 
+// * `PROGRESSIVE_PROFILING`
+// 
+//   An action to prompt users to provide additional data at sign on. This action type does not authenticate users. It is used only to obtain additional profile data.
+// 
+// 
+// To establish a SAML username/password login flow, the `type` property for the action resource associated with the sign-on policy is set to `LOGIN`.
+// 
+// ::: info
+// **Note:** At this time, you can add external identity providers only to `LOGIN` and `IDENTIFIER_FIRST` type sign-on policy actions.
+// :::
+// 
+// 
+// For a sign-on action that supports SAML, the sign-on policy action must include the `socialProviders.id` property to specify the SAML identity provider ID `{providerId}` that you created in Step 2.
+// 
+// In addition, it is recommended that a sign-on policy that supports a SAML external identity provider also include the `registration` property to allow automatic account creation and account linking between the user's identity provider account and the PingOne account. For details about the `registration` sign-on action and how it relates to account linking, see [External identity provider login flow states](https://apidocs.pingidentity.com/pingone/customer/v1/api/concepts/p1-a_FlowStates/#External-identity-provider-login-flow-states).
+// 
+// ::: info
+// **Note:** If you do not enable the `registration` on the sign-on action, only existing PingOne for Customers users will be able to login.
+// :::
+// 
+// 
+// In this sample, the `priority` property is set to `1`, which designates this policy as the first sign-on policy executed, if there is more than one sign-on policy associated with the application. In addition, this action includes the `recovery` property to enable the `password.recover` authentication flow, allowing users to recover a forgotten password.
+
+@name("Step 4: Create the sign-on policy action")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "environment": {
+        "id": "{{envID}}"
+    },
+    "signOnPolicy": {
+        "id": "{{policyId}}"
+    },
+    "priority": 1,
+    "type": "LOGIN",
+    "socialProviders.id": "{{idpID}}",
+    "registration" : {
+      "enabled" : true,
+      "population" : {
+        "id" : "{{popID}}"
+      }
+    },
+    "recovery" : {
+      "enabled" : true
+    }
+}')
+
+
+// To use the new sign-on policy, the `POST /environments/{environmentId}/applications/{applicationId}/signOnPolicyAssignments` operation assigns the new sign-on policy to the application designated by its ID in the request URL. The request body requires the sign-on policy property `id` and an integer value for the `priority` property.
+// 
+
+@name("Step 5: Assign the sign-on policy to an application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "signOnPolicy": {
+      "id": "{{policyID}}"
+    },
+    "priority": 1
+}')
+
+
+

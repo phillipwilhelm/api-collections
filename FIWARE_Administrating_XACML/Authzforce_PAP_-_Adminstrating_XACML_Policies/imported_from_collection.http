@@ -1,0 +1,220 @@
+#!/usr/bin/env dothttp
+
+// To create a new domain in **Authzforce**, make a POST request to the
+// `/authzforce-ce/domains` endpoint including a unique `external-id` within
+// the `<domainProperties>` element
+// 
+// The response includes a `href` in the `<n2:link>` element  which holds the
+// `domain-id` used internally within **Authzforce**.
+// 
+// An empty `PolicySet` will be created for the new domain. By default all
+// access will be permitted.
+
+@name("Creating a new Domain")
+POST "http://{{authzforce}}/authzforce-ce/domains"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<domainProperties xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5" externalId="airplane"/>')
+
+
+// To create a `PolicySet` for a given domain information in **Authzforce**, make a
+// POST request to the
+// `/authzforce-ce/domains/{{domain-id}}/pap/policies` endpoint including the full set
+// of XACML rules to upload.
+// 
+// For this initial Policy, the following rules will be enforced
+// 
+// * The **white** zone is for immediate loading and unloading of passengers only
+// * There is no stopping in the **red** zone
+// 
+// The response contains the internal id of the policy held within **Authzforce** and 
+// version information about the `PolicySet` versions available.
+// The rules of the new `PolicySet` will not be applied until the `PolicySet` is activated.
+
+@name("Creating an initial PolicySet")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{new-domain-id}}/pap/policies"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="f8194af5-8a07-486a-9581-c1f05d05483c" Version="9" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit">
+   <Description>Policy Set for Airplane!</Description>
+   <Target />
+   <Policy PolicyId="airplane" Version="1.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit">
+      <Description>Vehicle Roles from the Male announcer in the movie Airplane!</Description>
+      <Target>
+         <AnyOf>
+            <AllOf>
+               <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">airplane!</AttributeValue>
+                  <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+               </Match>
+            </AllOf>
+         </AnyOf>
+      </Target>
+      <Rule RuleId="white-zone" Effect="Permit">
+         <Description>The white zone is for immediate loading and unloading of passengers only</Description>
+         <Target>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">white</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">loading</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+         </Target>
+         
+         
+         
+          <Condition>
+
+
+             <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+                                 <Apply FunctionId="urn:oasis:names:tc:xacml:2.0:function:time-in-range">
+                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                                       <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:environment:current-time" DataType="http://www.w3.org/2001/XMLSchema#time" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" MustBePresent="false"></AttributeDesignator>
+                                    </Apply>
+                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                                       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-bag">
+                                          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">00:00:00-08:00</AttributeValue>
+                                       </Apply>
+                                    </Apply>
+                                    <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+                                       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-bag">
+                                          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">18:00:00-23:59</AttributeValue>
+                                       </Apply>
+                                    </Apply>
+                                 </Apply>
+                              </Apply>
+                              
+                              
+               <!--Apply FunctionId="urn:oasis:names:tc:xacml:3.0:function:any-of">
+                  <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal" />
+                  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">managers-role-0000-0000-000000000000</AttributeValue>
+                  <AttributeDesignator Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false" />
+               </Apply-->
+         </Condition>
+         
+         
+         
+         
+         
+      </Rule>
+     
+   </Policy>
+</PolicySet>
+')
+
+
+// To activate a `PolicySet`, make a PUT request to the
+// `/authzforce-ce/domains/{domain-id}/pap/pdp.properties` endpoint including the `policy-id`
+// to update within the `<rootPolicyRefExpresion>` attribute
+// 
+// The response returns information about the `PolicySet` applied.
+
+@name("Activate the initial PolicySet")
+PUT "http://{{authzforce}}/authzforce-ce/domains/{{new-domain-id}}/pap/pdp.properties"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><pdpPropertiesUpdate xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5"><rootPolicyRefExpression>f8194af5-8a07-486a-9581-c1f05d05483c</rootPolicyRefExpression></pdpPropertiesUpdate>')
+
+
+// To update a `PolicySet` for a given domain information in **Authzforce**, make a
+// POST request to the
+// `/authzforce-ce/domains/{{domain-id}}/pap/policies` endpoint including the full set
+// of XACML rules to upload. Note that the `Version` must be unique.
+// 
+// For the updated Policy, the previous rules will be reversed
+// 
+// * The **red** zone is for immediate loading and unloading of passengers only
+// * There is no stopping in the **white** zone
+// 
+// The response contains version information about the `PolicySet` versions available.
+// The rules of the new `PolicySet` will not be applied until the `PolicySet` is activated.
+
+@name("Updating a Policy Set")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{new-domain-id}}/pap/policies"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicySetId="f8194af5-8a07-486a-9581-c1f05d05483c" Version="2" PolicyCombiningAlgId="urn:oasis:names:tc:xacml:3.0:policy-combining-algorithm:deny-unless-permit">
+   <Description>Policy Set for Airplane!</Description>
+   <Target />
+   <Policy PolicyId="airplane" Version="1.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:deny-unless-permit">
+      <Description>Vehicle Roles from the Female announcer in the movie Airplane!</Description>
+      <Target>
+         <AnyOf>
+            <AllOf>
+               <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">airplane!</AttributeValue>
+                  <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+               </Match>
+            </AllOf>
+         </AnyOf>
+      </Target>
+      <Rule RuleId="red-zone" Effect="Permit">
+         <Description>The red zone is for immediate loading and unloading of passengers only</Description>
+         <Target>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">red</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">loading</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+         </Target>
+      </Rule>
+      <Rule RuleId="white-zone" Effect="Deny">
+         <Description>There is no stopping in the white zone</Description>
+         <Target>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">white</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+            <AnyOf>
+               <AllOf>
+                  <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                     <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">stopping</AttributeValue>
+                     <AttributeDesignator Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true" />
+                  </Match>
+               </AllOf>
+            </AnyOf>
+         </Target>
+      </Rule>
+   </Policy>
+</PolicySet>
+')
+
+
+// To update an active a `PolicySet`, make another PUT request to the
+// `/authzforce-ce/domains/{domain-id}/pap/pdp.properties` endpoint including the `policy-id`
+// to update within the `<rootPolicyRefExpresion>` attribute. The ruleset will be updated to
+// apply the latest uploaded version.
+// 
+// The response returns information about the `PolicySet` applied.
+
+@name("Activating an updated PolicySet")
+PUT "http://{{authzforce}}/authzforce-ce/domains/{{new-domain-id}}/pap/pdp.properties"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><pdpPropertiesUpdate xmlns="http://authzforce.github.io/rest-api-model/xmlns/authz/5"><rootPolicyRefExpression>f8194af5-8a07-486a-9581-c1f05d05483c</rootPolicyRefExpression></pdpPropertiesUpdate>')
+
+
+

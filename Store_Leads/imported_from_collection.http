@@ -1,0 +1,131 @@
+#!/usr/bin/env dothttp
+
+// Retrieve an App
+
+@name("Retrieve an App")
+GET "https://storeleads.app/json/api/v1/all/app/:appIdentifier"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{bearerToken}}"
+? "fields"= "{{fields}}"
+
+
+// Returns a list of Apps. By default, 50 Apps are returned in a single request. Use the page request option to paginate.
+
+@name("Lists Apps")
+GET "https://storeleads.app/json/api/v1/all/app"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{bearerToken}}"
+? "fields"= "{{fields}}"
+? "f:categories"= "{{f:categories}}"
+? "f:categories:op"= "and"
+? "f:p"= "{{f:p}}"
+? "f:p:op"= "and"
+? "page"= "0"
+? "page_size"= "50"
+? "sort"= "{{sort}}"
+
+
+// Retrieve a Domain
+
+@name("Retrieve a Domain")
+GET "https://storeleads.app/json/api/v1/all/domain/:domainName"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{bearerToken}}"
+? "fields"= "{{fields}}"
+
+
+// Returns a list of Domains. The request parameters can be used to constrain the results to Domains matching specific criteria. Without any options, this endpoint will list all Domains.
+// 
+// By default, 50 Domains are returned in a single request. The page request option can be used to paginate through the first few pages or can be set to -1 to retrieve all Domains. See the page option below for more details.
+
+@name("Lists Domains")
+GET "https://storeleads.app/json/api/v1/all/domain"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{bearerToken}}"
+? "fields"= "{{fields}}"
+? "f:an"= "{{f:an}}"
+? "f:an:op"= "and"
+? "f:cat"= "{{f:cat}}"
+? "f:cat:op"= "and"
+? "f:cc"= "{{f:cc}}"
+? "f:cc:op"= "and"
+? "f:cratyyyymm"= "{{f:cratyyyymm}}"
+? "f:cratyyyymm:op"= "and"
+? "f:cratyyyymmdd"= "{{f:cratyyyymmdd}}"
+? "f:cratyyyymmdd:op"= "and"
+? "f:ds"= "{{f:ds}}"
+? "f:ismy"= "{{f:ismy}}"
+? "f:ismy:op"= "and"
+? "f:it"= "{{f:it}}"
+? "f:it:op"= "and"
+? "f:masmin"= "{{f:masmin}}"
+? "f:masmax"= "{{f:masmax}}"
+? "f:p"= "{{f:p}}"
+? "f:p:op"= "and"
+? "f:rankmin"= "{{f:rankmin}}"
+? "f:rankmax"= "{{f:rankmax}}"
+? "f:reg"= "{{f:reg}}"
+? "f:reg:op"= "and"
+? "f:sreg"= "{{f:sreg}}"
+? "f:sreg:op"= "and"
+? "f:tech"= "{{f:tech}}"
+? "f:tech:op"= "and"
+? "f:tld"= "{{f:tld}}"
+? "f:tld:op"= "and"
+? "f:tn"= "{{f:tn}}"
+? "f:tn:op"= "and"
+? "f:ts"= "{{f:ts}}"
+? "f:ts:op"= "and"
+? "f:tvn"= "{{f:tvn}}"
+? "f:tvn:op"= "and"
+? "page"= "0"
+? "page_size"= "50"
+? "q"= "{{q}}"
+
+
+
+// Returns a list of Domains. This endpoint supports all the filtering options that are supported by the `GET` version of the endpoint. It also supports advanced searches.
+// 
+// As an example, let's say that you want to return all Shopify Domains that match the query "kids" and also match any of the following words: "footwear", "shoes" and "boots". Further, you want to filter out any results that match "ski" or "ballet" because you're not interested in that kind of kids footwear.
+// 
+// This complex search expression can be expressed using the aq request option (which is analogous to Advanced Search in the UI).
+// 
+// The aq request option takes an array of search descriptors. Each descriptor must provide the following values:
+// 
+// * field: the name of the field
+// * value: the value to query against (multiple values must be comma-separated)
+// * operator: the operation to apply when multiple values are provided
+//   * and (default): Returns Domains matching all provided values
+//   * or: Returns Domains matching any of the provided values
+//   * nand: Returns Domains that do no match all of the provided values
+//   * nor: Returns Domains that do no match any of the provided values
+// 
+// Our example query would be represented as:
+// 
+// 
+//       [
+//         { "field": "q", "value": "kids"},
+//         { "field": "q", "value": "footwear shoes boots", "operator": "or"},
+//         { "field": "q", "value": "ski ballet", "operator": "nor"}
+//       ]
+
+@name("Lists Domains (Advanced Search)")
+POST "https://storeleads.app/json/api/v1/all/domain"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{bearerToken}}"
+data('{
+	"fields": "name,merchant_name,description",
+	"aq": [
+        { "field": "q", "value": "kids"},
+        { "field": "q", "value": "footwear shoes boots", "operator": "or"},
+        { "field": "q", "value": "ski ballet", "operator": "nor"}
+    ]
+}')
+
+
+

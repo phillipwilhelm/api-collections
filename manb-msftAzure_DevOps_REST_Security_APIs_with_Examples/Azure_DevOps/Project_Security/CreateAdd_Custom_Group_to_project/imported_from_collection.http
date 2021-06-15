@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+@name("List all projects")
+GET "https://dev.azure.com/{{organization}}/_apis/projects"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// {{storagekey}} is the ADO project ID 
+
+@name("Get Descriptors")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{storageKey}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// Use the project descriptor in place of the {{projectscopeDescriptor}}, example scp.MWKwNjdjNTctZTg2NC00NTAzLWIyMWItMTFjYmZkNjB7YjAx
+// 
+// 
+// Body: 
+// 
+// {
+// 	"displayName": "Custom Project Scoped Group",
+// 	"description": "Project level group created using API"
+// }
+
+@name("Create a project scoped group")
+POST "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+json({
+    "displayName": "Custom Project Scoped Group",
+    "description": "Project level group created using API"
+})
+
+
+// Use the project descriptor in place of the {{projectscopeDescriptor}}, example scp.MMAwNtdjNTctZTg2NC00NTAzLWIyMWItMTFjYmZkNjB7YjAx
+// 
+// 
+// Body: 
+// 
+// {
+// 	"displayName": "Custom Project Scoped Group",
+// 	"description": "Project level group created using API"
+// }
+
+@name("Create a project scoped group and add it to an existing group")
+POST "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "groupDescriptors"= "{{contributorGroupDescriptor}}"
+? "api-version"= "5.1-preview.1"
+json({
+    "displayName": "Custom Project Scoped Group Added to Contributors",
+    "description": "Project level group created using API"
+})
+
+
+// You can get the descriptor from the create call/call the Groups list with the project scope set to get the group https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/groups/list?view=azure-devops-rest-5.1
+
+@name("Get Details about the Project Scoped group (optional)")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups/{{projectgroupDescriptor}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// Use the project scoped group
+// 
+// Example 
+// vssgp.Uy0xLTktWTU1mTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtNDMxNjg1MTQ2LTM4MzU0NTMwMDAtMjU0NzAxMzA0MS0zNTgxNabcODU0
+
+@name("Delete Project Scoped Group")
+DELETE "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups/{{projectgroupDescriptor}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+

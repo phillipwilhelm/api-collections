@@ -1,0 +1,233 @@
+#!/usr/bin/env dothttp
+
+// <span>APP</span>
+// <h3>Create a new user</h3><br>
+// The API responds with the <b>ID</b> of the created user.
+// Each user receives a unique <b>ID</b> from us. This is needed by you as a reference to the user living in our backend. <br>
+// The <b>ID</b> of a user is inter alia needed for <code><a href="#f45487ce-f41f-40b8-993f-132ce62843ec">POST auth</a></code> to provide the user with his <b>UserApiKey</b>, which he needs to make requests himself.<br>
+// <hr><br>
+// 
+// <i><b>Attention!</b> Risk of confusion between User ID and UserApiKey</i>
+// <li><i>The <b>UserApiKey</b> is NOT the <b>ID of the user</b>. They must not be confused with each other.</i></li>
+// <table>
+// <tr><th>UserApiKey</th><th>User ID</th></tr>
+// <tr>
+// <td>The UserApiKey is always needed when the user <b>acts himself</b>.<br>Then the UserApiKey is the Bearer Token of the requesting user.</td>
+// <td>The User ID is our way to identify the user. It is required when <b>talking about</b> a user.<br>In this case the ID of the corresponding user is sent in the request body. (More about this later.)</td>
+// </tr>
+// <tr>
+// <td>The UserApiKey is <b>NEVER transferred in the request body</b>.</td>
+// <td>The User ID is <b>NEVER transmitted in the Request Header</b>.</td>
+// </tr>
+// </table>
+// <hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>User ID</h5>
+// <b>User ID</b> of the newly created user.
+// <hr><br>
+// 
+// <h4>Request</h4><br>
+// <h5>role</h5>
+// <b>Role</b> new role to assign to the user
+// <br><b>required</b>
+// <p><i>The first request body parameter needed to create a user is his <b>role</b>. The role of a user makes a crucial difference to our API in terms of the actions that the user should be entitled to perform. Look at Chapter <a href="#role-system">Role System</a> for more information.</i></p>
+// 
+// <h5>pwd</h5>
+// <b>string</b> new password to assign to the user
+// <br><b>required</b><br>
+// <p><i>The second request body parameter needed to create a user is his <b>password</b>.<br>
+// The user's password is required for <code><a href="#f45487ce-f41f-40b8-993f-132ce62843ec">POST auth</a></code> to obtain and renew the UserApiKey when it expires after {{user_api_key_expire_days}} days.</i></p>
+// <hr><br>
+
+@name("app/users")
+POST "https://{{base_url}}/app/users"
+json({
+    "pwd": "mypassword",
+    "role": "allner"
+})
+
+
+// <span>APP</span>
+// <h3>Update existing User</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>success</h5>
+// <b>string</b> message that says what has succeeded.
+// <h5>password</h5>
+// <b>string</b> the new password
+// <h5>deletedEntities</h5>
+// <b>Object</b><br>
+// apps <b>number</b> of deleted apps<br>
+// users <b>number</b> of deleted users<br>
+// locks <b>number</b> of deleted locks<br>
+// licenses <b>number</b> of deleted licenses<br>
+// openPermissions <b>number</b> of deleted openPermissions<br>
+// <hr><br>
+// 
+// <h4>Request</h4><br>
+// <h5>role</h5>
+// <b>Enum{"consumer", "manallger", "allner"}</b> new role to assign to the user
+// <br><b>required</b>
+// <h5>pwd</h5>
+// <b>string</b> new password to assign to the user
+// <br><b>required</b>
+// <h5>deleteLocks</h5>
+// <b>boolean</b> determines if locks should be deleted during the update
+// <br><b>default false</b>
+// <p><i>If an Allner is degraded to a consumer but has locks, they must be deleted, because a consumer cannot own locks. If deleteLocks is false, the Allner is degraded only if he has no locks, otherwise nothing happens and the response is 403.</i></p>
+// <h5>deleteLicenses</h5>
+// <b>boolean</b> determines if licenses should be deleted during the update
+// <br><b>default false</b>
+// <p><i>If a Manallger is degraded to a consumer but has license, they must be deleted, because a consumer cannot own licenses. If deleteLicenses is false, the Manallger is degraded only if he has no licenses, otherwise nothing happens and the response is 403.</i></p>
+// <hr><br>
+
+@name("app/users/{{user_id}}")
+PUT "https://{{base_url}}/app/users/{{user_id}}"
+json({
+    "role": "consumer",
+    "pwd": "mynewpassword",
+    "deleteLocks": true,
+    "deleteLicenses": true
+})
+
+
+// <span>APP</span>
+// <h3>Promote existing User</h3><br>
+// <p>This operation can also be reached by <code><a href="#663b396b-9071-4e5e-8970-aed40eca8c4f">PUT app/users/{{user_id}}</a></code>. The difference here, however, is that no degradation can be performed.</p>
+// <p>For example, if you want to chnage all consumers to manallgers, you can apply this route to all users. Then allners will remain allners, but consumers will become manallgers.</p><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>success</h5>
+// <b>string</b> "Nutzer von <code>role</code> auf <code>role</code> promoted" or "Nutzer bleibt <code>role</code>"
+// <hr><br>
+// 
+// <h4>Request</h4><br>
+// <h5>role</h5>
+// <b>Enum{"consumer", "manallger", "allner"}</b> new role to assign to the user
+// <br><b>required</b>
+// <hr><br>
+
+@name("app/users/{{user_id}}/promotion")
+PUT "https://{{base_url}}/app/users/{{user_id}}/promotion"
+json({
+    "role": "manallger"
+})
+
+
+// <span>APP</span>
+// <h3>Degrade existing User</h3><br>
+// <p>This operation can also be reached by <code><a href="#663b396b-9071-4e5e-8970-aed40eca8c4f">PUT app/users/{{user_id}}</a></code>. The difference here, however, is that no promotion can be performed.</p>
+// <p>For example, if you have a set of users where you don't want to have allners but only manallgers and consumers you can apply this route to all this users. Then consumers will remain consumers, but allners will become manallgers.</p><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>success</h5>
+// <b>string</b> message that says what has succeeded.
+// <h5>deletedEntities</h5>
+// <b>Object</b><br>
+// apps <b>number</b> of deleted apps<br>
+// users <b>number</b> of deleted users<br>
+// locks <b>number</b> of deleted locks<br>
+// licenses <b>number</b> of deleted licenses<br>
+// openPermissions <b>number</b> of deleted openPermissions<br>
+// <hr><br>
+// 
+// <h4>Request</h4><br>
+// <h5>role</h5>
+// <b>Enum{"consumer", "manallger", "allner"}</b> new role to assign to the user
+// <br><b>required</b>
+// <h5>deleteLocks</h5>
+// <b>boolean</b> determines if locks should be deleted during the update
+// <br><b>default false</b>
+// <h5>deleteLicenses</h5>
+// <b>boolean</b> determines if licenses should be deleted during the update
+// <br><b>default false</b>
+// <hr><br>
+
+@name("app/users/{{user_id}}/degradation")
+PUT "https://{{base_url}}/app/users/{{user_id}}/degradation"
+json({
+    "role": "consumer",
+    "deleteLocks": true,
+    "deleteLicenses": true
+})
+
+
+// <span>APP</span>
+// <h3>Get all Users from your Application</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Users</h5>
+// <b>User[]</b> all users from application with<br>
+// <li>id <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <li>pwd <b>string</b></li>
+// <li>role <b>Enum{"consumer","manallger","allner"}</b></li>
+// <hr><br>
+
+@name("app/users")
+GET "https://{{base_url}}/app/users"
+
+
+// <span>APP</span>
+// <h3>Get all Lockmodels from your Application</h3><hr><br>
+
+@name("app/lockmodels")
+GET "https://{{base_url}}/app/lockmodels"
+
+
+// <span>APP</span>
+// <h3>Get all Locks from your Application</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Locks</h5>
+// <b>Lock[]</b> all locks from application with<br>
+// <li>id <b>string</b> lock id</li>
+// <li>name <b>string|null</b></li>
+// <li>battery <b>float</b> number between 0 & 1</li>
+// <li>bluetooth_address <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <hr><br>
+
+@name("app/locks")
+GET "https://{{base_url}}/app/locks"
+
+
+// <span>APP</span>
+// <h3>Get a Lock from your Application</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Lock</h5>
+// <li>id <b>string</b> lock id</li>
+// <li>name <b>string|null</b></li>
+// <li>battery <b>float</b> number between 0 & 1</li>
+// <li>bluetooth_address <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <li>description <b>string|null</b></li>
+// <li>consumer_ids <b>string[]</b></li>
+// <li>manager_ids <b>string[]</b></li>
+// <li>owner_id <b>string</b></li>
+// <li>model <b>LockModel</b>
+//  <ul>
+//   <li>designation <b>string</b> like nam eor description of lockmodel</li>
+//   <li>protocol <b>string</b> the protocol name (needed if your app knows lockf from different lockmodels</li>
+//   <li>manufacturer <b>string</b> manufacturer of lockmodel</li>
+//   <li>locktype <b>string</b> e.g. "Arc Lock", "Padlock"</li>
+//  </ul>
+// </li>
+// <li>location <b>Location|null</b>
+//  <ul>
+//   <li>longitude <b>decimal</b> number from -999.999999 to 999.999999</li>
+//   <li>latitude <b>decimal</b> number from -999.999999 to 999.999999</li> 
+//  </ul>
+// </li>
+// <hr><br>
+
+@name("app/locks/{{lock_id}}")
+GET "https://{{base_url}}/app/locks/{{lock_id}}"
+
+
+

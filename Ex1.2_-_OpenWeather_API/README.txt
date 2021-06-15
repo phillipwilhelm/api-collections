@@ -1,0 +1,1 @@
+Collection used for Exercise 1.2 of Postman Expert training. 

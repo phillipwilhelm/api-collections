@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// The folder ID `root` can be used to list the contents of the root folder.
+// 
+// 
+// [API Reference](https://developers.kloudless.com/docs/v1/storage#folders-retrieve-folder-contents)
+
+@name("1. Get a list of items in the root folder")
+GET "https://{{base-url}}/accounts/me/storage/folders/root/contents/"
+
+
+
+@name("2. Download a file's contents")
+GET "https://{{base-url}}/accounts/me/storage/files/$FILE_ID/contents/"
+
+
+// [Link to API reference](https://developers.kloudless.com/docs/v1/events#events-list-events)
+// 
+// In order to use the events endpoints, you will need to enable event collection via your Kloudless application [Events Configuration tab](https://developers.kloudless.com/applications/*/events-details).
+// 
+// Once you have clicked both event collection boxes, hit Save. Your app will now be able to use the Events endpoints.
+// 
+// Please note, events will not be displayed retro-actively. In order to see events using this endpoint, you will need to perform some sort of action on files or folders in the connected account.
+// 
+// The next API request is a file upload. Once you have completed the POST request successfully, try this endpoint and see what is returned!
+
+@name("3. Enable Events endpoint")
+GET "https://{{base-url}}/accounts/me/events"
+? "cursor"= "after-auth"
+? "page_size"= "1000"
+
+
+// Upload a test text file. Change its name via the X-Kloudless-Metadata header.
+// 
+// Required Headers:
+// 
+// * X-Kloudless-Metadata: A JSON string, with the attributes:
+//   * parent_id: The ID of the folder to upload the file to.
+//   * name: The name of the file being uploaded.
+// 
+// 
+// [API Docs to upload a file](https://developers.kloudless.com/docs/v1/storage#files-upload-a-file)
+
+@name("4. Upload a file")
+POST "https://{{base-url}}/accounts/me/storage/files/"
+"Content-Type": "application/octet-stream"
+"X-Kloudless-Metadata": "{"parent_id": "root", "name": "test.txt"}"
+? "overwrite"= "false"
+
+
+
+// [Link to API reference](https://developers.kloudless.com/docs/v1/storage#locate-files-search)
+
+@name("5. Search for your file")
+GET "https://{{base-url}}/accounts/me/storage/search/"
+? "lang"= "keyword"
+? "page"= "1"
+
+
+

@@ -1,0 +1,160 @@
+#!/usr/bin/env dothttp
+
+// ### Body Description
+// ---
+// 
+// |Key|Description|
+// |--|--|
+// |`trigger`|Webhook trigger, or event. Can be `notiﬁcation:delivery:channel` or `notiﬁcation:delivery:failure`.|
+// |`app._id`|Id of the application used to send the notiﬁcation.|
+// |`timestamp`|Unix timestamp in seconds of when the event occurred.|
+// |`destination.type`|Channel type of the integration used to send the notiﬁcation.|
+// |`destination.integrationId`|Id of the integration used to send the notiﬁcation.|
+// |`destination.destinationId`|Id of the user to which the destination was sent.|
+// |`isFinalEvent`|Property to know if this is the last event.|
+// |`externalMessages`|List of external messages id.|
+// |`notification._id`|Id of the notiﬁcation. It matches the id that was returned when sending the notiﬁcation|
+// |`error`|Error, in the case of a `notification:delivery:failure` event.|
+// |`matchResult.appUser`|Truncated appUser, only available when the notiﬁcation speciﬁed `storage: "full"`. In the case of a `notification:delivery:failure` event, this is only available when the error occurred after the appUser was either resolved or created.|
+
+@name("notification:delivery:channel")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+json({
+    "trigger": "notification:delivery:channel",
+    "app": {
+        "_id": "5babc57a79ace012bba4781a"
+    },
+    "version": "v1.1",
+    "timestamp": 1480001440.731,
+    "destination": {
+        "type": "whatsapp",
+        "integrationId": "5b354bdab42a1r54363ccc26",
+        "destinationId": "+15145555555"
+    },
+    "isFinalEvent": false,
+    "externalMessages": [
+        {
+            "id": "a121392f-7dd3-4bdb-8844-fa3rd2ac7f72"
+        }
+    ],
+    "notification": {
+        "_id": "e361392f-7dd3-4bdb-8844-d0d002ac7f72"
+    },
+    "matchResult": {
+        "appUser": {
+            "_id": "5b354bdab42a1d61143ccc26",
+            "conversationStarted": true
+        },
+        "conversation": {
+            "_id": "075354bdab42a1d61143cc362"
+        }
+    }
+})
+
+
+// ### Body Description
+// ---
+// 
+// The payload for a notification user delivery.
+// 
+// |Key|Description|
+// |--|--|
+// |`trigger`|Webhook trigger, or event. Will be `notiﬁcation:delivery:user`.|
+// |`app._id`|Id of the application used to send the notiﬁcation.|
+// |`timestamp`|Unix timestamp in seconds of when the event occurred.|
+// |`destination.type`|Channel type of the integration used to send the notiﬁcation.|
+// |`destination.integrationId`|Id of the integration used to send the notiﬁcation.|
+// |`destination.destinationId`|Id of the user to which the destination was sent.|
+// |`isFinalEvent`|Property to know if this is the last event. Always `"full"` in the case of the `notification:delivery:user` trigger.|
+// |`externalMessages`|List of external messages id.|
+// |`notification._id`|Id of the notiﬁcation. It matches the id that was returned when sending the notiﬁcation|
+// |`matchResult.appUser`|Truncated appUser, only available when the notiﬁcation speciﬁed `storage: "full"`.|
+// 
+// 
+
+@name("notification:delivery:user")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+data('{
+    "trigger": "notification:delivery:user",
+    "app": {
+        "_id": "5babc57a79ace012bba4781a"
+    },
+    "version": "v1.1",
+    "timestamp": 1480001440.731,
+    "isFinalEvent": true,
+    "destination": {
+        "type": "whatsapp",
+        "integrationId": "5b354bdab42a1d61143ccc26",
+        "destinationId": "15145555555"
+    },
+    "externalMessages": [
+        {
+            "id": "a121392f-7dd3-4bdb-8844-fa3rd2ac7f72"
+        }
+    ],
+    "notification": {
+        "_id": "e361392f-7dd3-4bdb-8844-d0d002ac7f72"
+    },
+    "matchResult": {
+        "appUser": {
+            "_id": "5b354bdab42a1d61143ccc26",
+            "userId": "bob@email.com",
+            "conversationStarted": true
+        }
+    }
+}')
+
+
+// The payload for a notification delivery failure.
+// 
+// >  Note that it is possible for a notification:delivery:failure to not contain a matchResult.appUser entry.
+
+@name("notification:delivery:failure")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+data('{
+    "trigger": "notification:delivery:failure",
+    "app": {
+        "_id": "5babc57a79ace012bba4781a"
+    },
+    "version": "v1.1",
+    "timestamp": 1480001440.731,
+    "destination": {
+        "type": "whatsapp",
+        "integrationId": "5b354bdab42a1d61143ccc26",
+        "destinationId": "+15145555555"
+    },
+    "isFinalEvent": true,
+    "externalMessages": [
+        {
+            "id": "a121392f-7dd3-4bdb-8844-fa3rd2ac7f72"
+        }
+    ],
+    "notification": {
+        "_id": "e361392f-7dd3-4bdb-8844-d0d002ac7f72"
+    },
+    "matchResult": {
+        "appUser": {
+            "_id": "5b354bdab42a1d61143ccc26",
+            "conversationStarted": true
+        },
+        "conversation": {
+            "_id": "075354bdab42a1d61143cc362"
+        }
+    },
+    "error": {
+        "code": "bad_request",
+        "underlyingError": {
+            "status": 400,
+            "message": "This is an error message."
+        }
+    }
+}')
+
+
+

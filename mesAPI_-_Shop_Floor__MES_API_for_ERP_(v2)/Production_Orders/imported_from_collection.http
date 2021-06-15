@@ -1,0 +1,114 @@
+#!/usr/bin/env dothttp
+
+// #### Search production orders in ERP
+// *(totvsProtheus=SC2)*
+// 
+// Search production orders allows you to filter the ERP by:
+// - List: by `productKey` or `orderKey` {optional}, or by `createdFrom`, `createdTo`, `startFrom`, `startTo`, `finishFrom` or `finishTo`. Lists can be also filtered by `orderType` or `status` {optional}
+// - Unitary: by `erpKey` or `erpId` (TOTVS Protheus only)
+// 
+// If no field for unitary query (`erpKey` or `erpId`) is informed in the request, the search returns all valid records. The list search can be filtered by Product (`productKey`) or Sales Order (`orderKey`) or by production order dates (creation, expected start, expected end).
+// - `productKey`: [1] TOTVS Protheus: field C2_PRODUTO
+// - `orderKey`: [1] TOTVS Protheus: field C2_PEDIDO
+// - Production dates: [1] TOTVS Protheus: C2_EMISSAO, C2_DATPRI, C2_DATPRF
+// 
+// Comments:
+// - `erpKey`: the production order key = C2_NUM + C2_ITEM + C2_SEQUEN + C2_ITEMGRD
+// - `erpId`: the R_E_C_N_O_ of SC2
+// - `orderType`: production order type (E=expected, C=confirmed, *=all - default=F)
+// - `status`: production order status (O=open, S=started, C=closed - default=O,S)
+// 
+// The service will consider as valid products:
+// - TOTVS Protheus: [1] “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// The search will return production orders regardless of whether or not the products have a registered operating route.
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For all searches, the pagination feature will be used in the response, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow search in two situations:
+// - Full query: will result in all valid records
+// - Incremental Consultation: will result in all valid records that have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH: MM: SS) will be used to determine which products (partnumber / skus) should be returned. This information will be used in conjunction with: [1] TOTVS Protheus: fields C2_USERLGI and C2_USERLGA
+// 
+// For the use of user fields (UDF) created in the table of production orders (TOTVS Protheus: SC2), the respective registration must be performed in the Custom Table.
+
+@name("Production Orders")
+GET "https://{{endpoint}}/productionOrders"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-01"
+? "createdTo"= "2020-11-30"
+? "startFrom"= "2020-05-18"
+? "startTo"= "2020-05-22"
+? "finishFrom"= "2020-05-18"
+? "finishTo"= "2020-05-31"
+? "productKey"= "900.000.004"
+? "orderKey"= "000004"
+? "erpKey"= "05758101001"
+? "erpId"= "847"
+? "pageNum"= "1"
+? "updatedAt"= "2020-05-16T00:00:00"
+
+
+// #### Search production sequences in ERP
+// *(totvsProtheus=SG2)*
+// 
+// The search of production sequences allows you to filter the ERP by:
+// - List: by productKey or orderKey {optional}, or by createdFrom, createdTo, startFrom, startTo, finishFrom or finishTo {optional}
+// - Unitary: by erpKey or erpId (TOTVS Protheus only)
+// 
+// If no field for unitary query (erpKey or erpId) is informed in the request, the search returns all valid records. The list query can be filtered by Product (productKey) or Sales Order (orderKey) or by production order dates (creation, expected start, expected end).
+// - Product: [1] TOTVS Protheus: field C2_PRODUCT
+// - Sales order: [1] TOTVS Protheus: field C2_PEDIDO
+// - Production dates: [1] TOTVS Protheus: C2_EMISSAO, C2_DATPRI, C2_DATPRF
+// 
+// Note:
+// - erpKey is the key to the production sequence = C2_NUM + C2_ITEM + C2_SEQUEN + C2_ITEMGRD
+// - erpId is the recno at SC2 + G2_OPERAC
+// 
+// The service will consider as valid products:
+// - TOTVS Protheus: [1] “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// The search will return production orders only for products that have a registered operating route.
+// 
+// The response will inform:
+// - The number of returned objects in the “count” field
+// 
+// For all searches, the pagination feature will be used in the response, where the following fields are used to control the pagination:
+// - “pageSize” = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - “pageNum” = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, o If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - “pageTotal” = total pages, reported in the response
+// - “hasNext” = if there are more pages (true / false), informed in the response
+// 
+// This service will allow search in two situations:
+// - Full query: will result in all valid records
+// - Incremental Consultation: will result in all valid records that have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the updatedAt field of the body request (format YYYY-MM-DDTHH: MM: SS) will be used to determine which products (partnumber / skus) should be returned. This information will be used in conjunction with: [1] TOTVS Protheus: fields C2_USERLGI and C2_USERLGA
+// 
+// For the use of user fields (UDF) created in the table of production orders (TOTVS: SC2), the respective registration must be performed in the table [@IGT_CUSTOM].
+
+@name("Production Sequences")
+GET "https://{{endpoint}}/productionSequences"
+basicauth("{{user}}", "{{pass}}")
+? "createdFrom"= "2020-05-16"
+? "createdTo"= "2020-05-16"
+? "startFrom"= "2020-05-18"
+? "startTo"= "2020-05-22"
+? "finishFrom"= "2020-05-18"
+? "finishTo"= "2020-05-29"
+? "orderType"= "C"
+? "status"= "O"
+? "erpKey"= "00002001001"
+? "erpId"= "1329"
+? "productKey"= "900.000.003"
+? "orderKey"= "000004"
+? "pageNum"= "1"
+? "updateAt"= "2020-05-16T00:00:00"
+
+
+

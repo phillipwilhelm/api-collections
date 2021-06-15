@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+// Submit feedback related to a media (i.e., image or video) previously processed via your developer key. Your feedback will be reviewed by our Quality Assurance team. Depending on the result of the review, your feedback may be used to reinforce the Adaptive Learning Engine to better suit your use case.
+// 
+// The field `type` can be used to specify the nature of the feedback, for example `falsePositive`, `falseNegative` or `truePositive`.
+// 
+// The field `trackId` is required in case your feedback relates to a video. It corresponds to the field `trackId` returned with every detection as part of the [video response format](https://docs.visua.com/?version=latest#72f92177-4865-4968-8ddb-b6ae1940f026) and it's used to identify the specific detection your feedback relates to.
+// 
+// #### Response
+// 
+// The endpoint acknowledges the successful receipt of your feedback.
+
+@name("Detect Feedback")
+POST "https://{{socket}}/detect/:sessionId/feedback"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "type": [
+        "falsePositive"
+    ],
+    "trackId": [
+        "2"
+    ]
+})
+
+
+// Retrieve rate limit and usage statistics for each API endpoint.
+// 
+// The parameter `period` can be `hour`, `day` or `month` and controls how the usage statistics are aggregated over time.
+// 
+// Optional parameters `dateBegin` and `dateEnd` control the date range the usage statistics refer to. They are expressed in `yyyy-mm-dd` format and defined in the [UTC timezone](https://en.wikipedia.org/wiki/Coordinated_Universal_Time). The date range defined by `dateBegin` and `dateEnd` can be up to one month long. If not specific the date range defaults to the past 30 days.
+// 
+// #### Response
+// 
+// Each key in the response JSON corresponds to a public endpoint. For each endpoint the pair `time`, `unit` represents the time period the limit refers to. The key `limit` is the number of requests that can be made within that time period.
+// 
+// Requests exceeding the given rate limit will respond with status code `429 Too Many Requests`.
+// 
+// The field `usage` (currently available for `POST/detect` only) reports the number of requests executed over the last 30 days grouped by status code. If your developer key is configured for video the `usage` key contains an additional field `duration` detailing how many seconds of video were processed.
+
+@name("Limits")
+GET "https://{{socket}}/limits"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+? "period"= "day"
+? "dateBegin"= "2018-12-01"
+? "dateEnd"= "2018-12-31"
+
+
+

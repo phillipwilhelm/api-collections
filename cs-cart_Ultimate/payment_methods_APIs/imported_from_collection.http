@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+@name("SSl payment method kablewala")
+PUT "https://{{url}}/api/WkSslPayment/{{order_id}}"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+	"lang_code" : "{{lang_code}}",
+	"tran_id" : "361",
+	"status" : "VALIDATED",
+	"amount" : "2180.00",
+	"bank_tran_id" : "12345678"
+}')
+
+
+@name("share and get paypal")
+POST "https://{{url}}/api.php"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+? "_d"= "PaypalPayment"
+data('{
+	"order_id" : 172,
+	"paypal_payment_response" : {
+		"response" : {
+			"id" : "345675433",
+			"state" : "approved"
+		}
+	}
+}')
+
+
+@name("mpesa aladdinexpress initiate")
+GET "https://{{url}}/api.php"
+basicauth("{{user_name}}", "{{api_key}}")
+? "_d"= "MpesaPaymentRequest/{{customer_id}}"
+? "phone_number"= "254702797971"
+? "lang_code"= "{{lang_code}}"
+? "currency_code"= "{{currency_code}}"
+
+
+
+@name("mpesa aladdinexpress verify")
+POST "https://{{url}}/api.php"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+? "_d"= "MpesaPaymentRequest"
+data('{
+	"user_id" : "{{customer_id}}",
+	"checkout_request_id" : "ws_CO_DMZ_61240415_10082018142758800",
+	"merchant_request_id" : "7255-3536116-1"
+}')
+
+
+@name("payfort payment awtari after payment api (SDK)")
+GET "https://{{url}}/api/PayfortPayment/5227"
+basicauth("{{user_name}}", "{{api_key}}")
+? "status"= "14"
+? "lang_code"= "{{lang_code}}"
+? "currency_code"= "{{currency_code}}"
+
+
+
+

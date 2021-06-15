@@ -1,0 +1,774 @@
+#!/usr/bin/env dothttp
+
+// The authorization endpoint is used to interact with the end user and obtain an authorization grant. The sample shows the `GET /{environmentId}/as/authorize` operation. The request URL includes the `response_type` parameter with a value of `code`, which designates that this authorization request, if successful, returns an authorization code that is exchanged for an access token.
+// 
+// For a Proof Key for Code Exchange (PKCE) authorization request, the `/{environmentId}/as/authorize` request must include the `code_challenge` parameter. The `code_challenge_method` parameter is required if the application's `pkceEnforcement` property is set to `S256_REQUIRED`. Otherwise, it is optional.
+// 
+// The request parameter can be optionally signed with the application secret. The JWT should be constructed according to the following example:
+// ```
+// JWT: "header" :
+// {
+//   "alg": "HS256",
+//   "typ": "JWT"
+// },
+// "body" : 
+// {
+//   "aud": "https://auth.pingone.com/{envId}/as",
+//   "iss": "{applicationId}",
+//   "pi.template": {
+//     "name": "{templateName}",
+//     "variables": {
+//       "key1": "value1"
+//     }
+//   },
+//   "pi.clientContext": {
+//     "key2": "value2"
+//   }
+// }
+// ```
+// 
+// Supported parameters for an authorization request with a code grant are:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`acr_values`| A string that designates the names of the sign-on policies that are included in the authorization flow request. Options can include the PingOne predefined sign-on policies, `Single_Factor` and `Multi_Factor`, or any custom defined sign-on policy names. Sign-on policy names should be listed in order of preference, and they must be assigned to the application.  |
+// |`client_id`| A string that specifies the application's UUID. This is a required property.|
+// |`code_challenge`| A string that is computed from the `code_verifier` that is used in a Proof Key for Code Exchange (PKCE) authorization request. The length an character set requirements for the `code_challenge` string is documented in [Section 4.1 of RFC7636](https://tools.ietf.org/html/rfc7636#section-4.1). The computation for the `code_challenge` string is documented in [Section 4.2 of RFC7636](https://tools.ietf.org/html/rfc7636#section-4.2).|
+// |`code_challenge_method`| A string that specifies the computation logic used to generate the `code_challenge` string. The token endpoint uses this method to verify the `code_verifier` for PKCE authorization requests. Options are: `plain` and `S256`.|
+// |`id_token_hint` | A string that is used as a hint about the user's current or past authenticated session.|
+// |`login_hint` | A string that specifies a login identifier to pre-fill the **Username** field of the sign-on screen. The string can be the UUID of an existing user in the environment, which results in the look-up of the user's `username` property, or it can be another string used to pre-fill the sign-on screen. The **Username** field of the sign-on screen does not pre-fill if (1) the UUID is not associated with a discoverable user, (2) no string is provided as a hint, and (3) the OpenID Connect scope `openid` is not specified. In the flow response, if the `login_hint` value is a `username`, the value is returned in the flow response's `identifier` attribute. If the `login_hint` is a UUID, and the look-up finds a user, the `username` value is returned in the `identifier` attribute. If a user is not found, the UUID is returned in the flow response's `identifier` attribute. |
+// |`mobileRequest` | An optional parameter used by PingID to manage devices.|
+// |`max_age` | A string that specifies the maximum amount of time allowed since the user last authenticated. If the `max_age` value is exceeded, the user must re-authenticate. In addition, if the `max_age` value is set to 0 (max_age=0), this setting always requires the user to re-authenticate. |
+// |`nonce` | A string that is used to associate a client session with a token to mitigate replay attacks. The value is passed through unmodified from the authentication request to the token. This is an optional property for authorization requests that return a code.|
+// |`prompt` | A string that specifies whether the user is prompted to login for re-authentication. The prompt parameter can be used as a way to check for existing authentication, verifying that the user is still present for the current session. For `prompt=none`, the user is never prompted to login to re-authenticate, which can result in an error if authentication is required. For `prompt=login`, if time since last login is greater than the `max-age`, then the current session is stashed away in the flow state and treated in the flow as if there was no previous existing session. When the flow completes, if the flow's user is the same as the user from the stashed away session, the stashed away session is updated with the new flow data and persisted (preserving the existing session ID). If the flow's user is not the same as the user from the stashed away session, the stashed away session is deleted (logout) and the new session is persisted.|
+// |`redirect_uri` | A string that specifies the URL that specifies the return entry point of the application. This is a required property.|
+// |`request` | A JWT, optionally signed. The recommended best practice is to sign the request with the application secret if the client has access to it, or has a trusted relationship with a server that has access to the secret key.|
+// |`response_mode`| A string that specifies the mechanism for returning authorization response parameters from the authorization endpoint. This property specifies the `pi.flow` value to designate that the `redirect_uri` parameter is not required and authorization response parameters are encoded as a JSON object wrapped in a flow response and returned directly to the client with a `200` status. |
+// |`response_type` | A string that specifies the code or token type returned by an authorization request. Options are `token`, `id_token`, and `code`. This is a required property.|
+// |`scope` | A string that specifies permissions that determine the resources that the application can access. This parameter is not required, but it is needed to specify accessible resources.|
+// |`state` | A string that specifies an optional parameter that is used to maintain state between the logout request and the callback to the endpoint specified by the `post_logout_redirect_uri` query parameter.|
+
+@name("Authorize (authorization_code)")
+GET "https://{{authPath}}/{{envID}}/as/authorize"
+? "response_type"= "code"
+? "client_id"= "{{appID}}"
+? "redirect_uri"= "https://example.com"
+? "scope"= "openid profile p1:read:user"
+? "nonce"= "<nonce value>"
+? "state"= "<state value>"
+? "prompt"= "login"
+? "max_age"= "3600"
+? "acr_values"= "Single_Factor"
+
+
+// The authorization endpoint is used in a `POST` request. The `POST` request accepts all the same parameters as the `GET` request. Both initiate an authorization request. Note that for the `POST` request, parameters and their values are Form Serialized by adding the parameter names and values to the entity body of the HTTP request and specifying the `Content-Type: application/x-www-form-urlencoded` request header.
+// 
+// The request parameter can be optionally signed with the application secret. The JWT should be constructed according to the following example:
+// ```
+// JWT: "header" :
+// {
+//   "alg": "HS256",
+//   "typ": "JWT"
+// },
+// "body" : 
+// {
+//   "aud": "https://auth.pingone.com/{envId}/as",
+//   "iss": "{applicationId}",
+//   "pi.template": {
+//     "name": "{templateName}",
+//     "variables": {
+//       "key1": "value1"
+//     }
+//   },
+//   "pi.clientContext": {
+//     "key2": "value2"
+//   }
+// }
+// ```
+// 
+// The sample shows the `POST /{environmentId}/as/authorize` operation. 
+// 
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`acr_values`| A string that designates the names of the sign-on policies that are included in the authorization flow request. Options can include the PingOne predefined sign-on policies, `Single_Factor` and `Multi_Factor`, or any custom defined sign-on policy names. Sign-on policy names should be listed in order of preference, and they must be assigned to the application.  |
+// |`client_id`| A string that specifies the application's UUID. This is a required property.|
+// |`id_token_hint` | A string that is used as a hint about the user's current or past authenticated session.|
+// |`login_hint` | A string that specifies a login identifier to pre-fill the **Username** field of the sign-on screen. The string can be the UUID of an existing user in the environment, which results in the look-up of the user's `username` property, or it can be another string used to pre-fill the sign-on screen. The **Username** field of the sign-on screen does not pre-fill if (1) the UUID is not associated with a discoverable user, (2) no string is provided as a hint, and (3) the OpenID Connect scope `openid` is not specified. In the flow response, if the `login_hint` value is a `username`, the value is returned in the flow response's `identifier` attribute. If the `login_hint` is a UUID, and the look-up finds a user, the `username` value is returned in the `identifier` attribute. If a user is not found, the UUID is returned in the flow response's `identifier` attribute. |
+// |`mobileRequest` | An optional parameter used by PingID to manage devices.|
+// |`max_age` | A string that specifies the maximum amount of time allowed since the user last authenticated. If the `max_age` value is exceeded, the user must re-authenticate. In addition, if the `max_age` value is set to 0 (max_age=0), this setting always requires the user to re-authenticate. |
+// |`nonce` | A string that is used to associate a client session with a token to mitigate replay attacks. The value is passed through unmodified from the authentication request to the token. This is an optional property for authorization requests that return a code.|
+// |`prompt` | A string that specifies whether the user is prompted to login for re-authentication. The prompt parameter can be used as a way to check for existing authentication, verifying that the user is still present for the current session. For `prompt=none`, the user is never prompted to login to re-authenticate, which can result in an error if authentication is required. For `prompt=login`, if time since last login is greater than the `max-age`, then the current session is stashed away in the flow state and treated in the flow as if there was no previous existing session. When the flow completes, if the flow's user is the same as the user from the stashed away session, the stashed away session is updated with the new flow data and persisted (preserving the existing session ID). If the flow's user is not the same as the user from the stashed away session, the stashed away session is deleted (logout) and the new session is persisted.|
+// |`redirect_uri` | A string that specifies the URL that specifies the return entry point of the application. This is a required property.|
+// |`request` | A JWT, optionally signed. The recommended best practice is to sign the request with the application secret if the client has access to it, or has a trusted relationship with a server that has access to the secret key.|
+// |`response_mode`| A string that specifies the mechanism for returning authorization response parameters from the authorization endpoint. This property specifies the `pi.flow` value to designate that the `redirect_uri` parameter is not required and authorization response parameters are encoded as a JSON object wrapped in a flow response and returned directly to the client with a `200` status. |
+// |`response_type` | A string that specifies the code or token type returned by an authorization request. Options are `token`, `id_token`, and `code`. This is a required property.|
+// |`scope` | A string that specifies permissions that determine the resources that the application can access. This parameter is not required, but it is needed to specify accessible resources.|
+// |`state` | A string that specifies an optional parameter that is used to maintain state between the logout request and the callback to the endpoint specified by the `post_logout_redirect_uri` query parameter.|
+
+@name("Authorize (authorization_code)")
+POST "https://{{authPath}}/{{envID}}/as/authorize"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "response_type": [
+        "code"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "scope": [
+        "openid profile p1:read:user"
+    ],
+    "state": [
+        "<state value>"
+    ],
+    "response_mode": [
+        "fragment"
+    ],
+    "nonce": [
+        "<nonce value>"
+    ],
+    "prompt": [
+        "login"
+    ],
+    "max_age": [
+        "3600"
+    ],
+    "acr_values": [
+        "Single_Factor"
+    ]
+})
+
+
+// The authorization endpoint is used to interact with the end user and obtain an authorization grant. The sample shows the `GET /{environmentId}/as/authorize` operation. The request URL includes the `response_type` parameter with a value of `token`.
+// 
+// The request parameter can be optionally signed with the application secret. The JWT should be constructed according to the following example:
+// ```
+// JWT: "header" :
+// {
+//   "alg": "HS256",
+//   "typ": "JWT"
+// },
+// "body" : 
+// {
+//   "aud": "https://auth.pingone.com/{envId}/as",
+//   "iss": "{applicationId}",
+//   "pi.template": {
+//     "name": "{templateName}",
+//     "variables": {
+//       "key1": "value1"
+//     }
+//   },
+//   "pi.clientContext": {
+//     "key2": "value2"
+//   }
+// }
+// ```
+// 
+// Supported parameters for an authorization request with a `response_type` that returns a token:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`acr_values`| A string that designates the names of the sign-on policies that are included in the authorization flow request. Options can include the PingOne predefined sign-on policies, `Single_Factor` and `Multi_Factor`, or any custom defined sign-on policy names. Sign-on policy names should be listed in order of preference, and they must be assigned to the application.  |
+// |`client_id`| A string that specifies the application's UUID. This is a required property.|
+// |`id_token_hint` | A string that is used as a hint about the user's current or past authenticated session.|
+// |`login_hint` | A string that specifies a login identifier to pre-fill the **Username** field of the sign-on screen. The string can be the UUID of an existing user in the environment, which results in the look-up of the user's `username` property, or it can be another string used to pre-fill the sign-on screen. The **Username** field of the sign-on screen does not pre-fill if (1) the UUID is not associated with a discoverable user, (2) no string is provided as a hint, and (3) the OpenID Connect scope `openid` is not specified. In the flow response, if the `login_hint` value is a `username`, the value is returned in the flow response's `identifier` attribute. If the `login_hint` is a UUID, and the look-up finds a user, the `username` value is returned in the `identifier` attribute. If a user is not found, the UUID is returned in the flow response's `identifier` attribute. |
+// |`mobileRequest` | An optional parameter used by PingID to manage devices.|
+// |`max_age` | A string that specifies the maximum amount of time allowed since the user last authenticated. If the max_age value is exceeded, the user must re-authenticate.|
+// |`nonce` | A string that is used to associate a client session with a token to mitigate replay attacks. The value is passed through unmodified from the authentication request to the token. This is a required property for authorization requests that return a token.|
+// |`prompt` | A string that specifies whether the user is prompted to login for re-authentication. The prompt parameter can be used as a way to check for existing authentication, verifying that the user is still present for the current session. For `prompt=none`, the user is never prompted to login to re-authenticate, which can result in an error if authentication is required. For `prompt=login`, if time since last login is greater than the `max-age`, then the current session is stashed away in the flow state and treated in the flow as if there was no previous existing session. When the flow completes, if the flow's user is the same as the user from the stashed away session, the stashed away session is updated with the new flow data and persisted (preserving the existing session ID). If the flow's user is not the same as the user from the stashed away session, the stashed away session is deleted (logout) and the new session is persisted.|
+// |`redirect_uri` | A string that specifies the URL that specifies the return entry point of the application. This is a required property.|
+// |`request` | A JWT, optionally signed. The recommended best practice is to sign the request with the application secret if the client has access to it, or has a trusted relationship with a server that has access to the secret key.|
+// |`response_mode`| A string that specifies the mechanism for returning authorization response parameters from the authorization endpoint. This property specifies the `pi.flow` value to designate that the `redirect_uri` parameter is not required and authorization response parameters are encoded as a JSON object wrapped in a flow response and returned directly to the client with a `200` status. |
+// |`response_type` | A string that specifies the code or token type returned by an authorization request. Options are `token`, `id_token`, and `code`. This is a required property.|
+// |`scope` | A string that specifies permissions that determine the resources that the application can access. This parameter is not required, but it is needed to specify accessible resources.|
+// |`state` | A string that specifies an optional parameter that is used to maintain state between the logout request and the callback to the endpoint specified by the `post_logout_redirect_uri` query parameter.|
+
+@name("Authorize (implicit)")
+GET "https://{{authPath}}/{{envID}}/as/authorize"
+? "response_type"= "token"
+? "client_id"= "{{appID}}"
+? "redirect_uri"= "https://example.com"
+? "scope"= "openid profile p1:read:user"
+? "nonce"= "123"
+? "state"= "<state value>"
+? "prompt"= "login"
+? "max_age"= "3600"
+? "acr_values"= "Single_Factor"
+
+
+// The authorization endpoint is used in a `POST` request. The `POST` request accepts all the same parameters as the `GET` request. Both initiate an authorization request. Note that for the `POST` request, parameters and their values are Form Serialized by adding the parameter names and values to the entity body of the HTTP request and specifying the `Content-Type: application/x-www-form-urlencoded` request header.
+// 
+// The sample shows the `POST /{environmentId}/as/authorize` operation. The request includes a `response_type` parameter with a value of `token`, which designates that this  authorization request, if successful, returns an access token.
+// 
+// The request parameter can be optionally signed with the application secret. The JWT should be constructed according to the following example:
+// ```
+// JWT: "header" :
+// {
+//   "alg": "HS256",
+//   "typ": "JWT"
+// },
+// "body" : 
+// {
+//   "aud": "https://auth.pingone.com/{envId}/as",
+//   "iss": "{applicationId}",
+//   "pi.template": {
+//     "name": "{templateName}",
+//     "variables": {
+//       "key1": "value1"
+//     }
+//   },
+//   "pi.clientContext": {
+//     "key2": "value2"
+//   }
+// }
+// ```
+// 
+// Supported parameters for an authorization request with a `response_type` that returns a token:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`acr_values`| A string that designates the names of the sign-on policies that are included in the authorization flow request. Options can include the PingOne predefined sign-on policies, `Single_Factor` and `Multi_Factor`, or any custom defined sign-on policy names. Sign-on policy names should be listed in order of preference, and they must be assigned to the application.  |
+// |`client_id`| A string that specifies the application's UUID. This is a required property.|
+// |`id_token_hint` | A string that is used as a hint about the user's current or past authenticated session.|
+// |`login_hint` | A string that specifies a login identifier to pre-fill the **Username** field of the sign-on screen. The string can be the UUID of an existing user in the environment, which results in the look-up of the user's `username` property, or it can be another string used to pre-fill the sign-on screen. The **Username** field of the sign-on screen does not pre-fill if (1) the UUID is not associated with a discoverable user, (2) no string is provided as a hint, and (3) the OpenID Connect scope `openid` is not specified. In the flow response, if the `login_hint` value is a `username`, the value is returned in the flow response's `identifier` attribute. If the `login_hint` is a UUID, and the look-up finds a user, the `username` value is returned in the `identifier` attribute. If a user is not found, the UUID is returned in the flow response's `identifier` attribute. |
+// |`mobileRequest` | An optional parameter used by PingID to manage devices.|
+// |`max_age` | A string that specifies the maximum amount of time allowed since the user last authenticated. If the max_age value is exceeded, the user must re-authenticate.|
+// |`nonce` | A string that is used to associate a client session with a token to mitigate replay attacks. The value is passed through unmodified from the authentication request to the token. This is a required property for authorization requests that return a token.|
+// |`prompt` | A string that specifies whether the user is prompted to login for re-authentication. The prompt parameter can be used as a way to check for existing authentication, verifying that the user is still present for the current session. For `prompt=none`, the user is never prompted to login to re-authenticate, which can result in an error if authentication is required. For `prompt=login`, if time since last login is greater than the `max-age`, then the current session is stashed away in the flow state and treated in the flow as if there was no previous existing session. When the flow completes, if the flow's user is the same as the user from the stashed away session, the stashed away session is updated with the new flow data and persisted (preserving the existing session ID). If the flow's user is not the same as the user from the stashed away session, the stashed away session is deleted (logout) and the new session is persisted.|
+// |`redirect_uri` | A string that specifies the URL that specifies the return entry point of the application. This is a required property.|
+// |`request` | A JWT, optionally signed. The recommended best practice is to sign the request with the application secret if the client has access to it, or has a trusted relationship with a server that has access to the secret key.|
+// |`response_mode`| A string that specifies the mechanism for returning authorization response parameters from the authorization endpoint. This property specifies the `pi.flow` value to designate that the `redirect_uri` parameter is not required and authorization response parameters are encoded as a JSON object wrapped in a flow response and returned directly to the client with a `200` status. |
+// |`response_type` | A string that specifies the code or token type returned by an authorization request. Options are `token`, `id_token`, and `code`. This is a required property.|
+// |`scope` | A string that specifies permissions that determine the resources that the application can access. This parameter is not required, but it is needed to specify accessible resources.|
+// |`state` | A string that specifies an optional parameter that is used to maintain state between the logout request and the callback to the endpoint specified by the `post_logout_redirect_uri` query parameter.|
+
+@name("Authorize (implicit)")
+POST "https://{{authPath}}/{{envID}}/as/authorize"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "response_type": [
+        "token"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "scope": [
+        "openid profile p1:read:user"
+    ],
+    "nonce": [
+        "123"
+    ],
+    "state": [
+        "<state value>"
+    ],
+    "prompt": [
+        "login"
+    ],
+    "max_age": [
+        "3600"
+    ],
+    "acr_values": [
+        "Single_Factor"
+    ]
+})
+
+
+// The authorization endpoint is used to interact with the end user and obtain an authorization grant. The sample shows the `GET /{environmentId}/as/authorize` operation, which includes the `response_mode` parameter to designate one of the following special authentication flow options:
+// 
+// * A browserless flow for mobile clients that implements custom flow interfaces with PingOne platform flow APIs but with native application interface components. 
+// 
+// * An integration of PingOne authentication APIs and PingFederate (backend only integration).
+// 
+// * An MFA only flow where the client (or PingFederate) performs the primary authentication and needs to send the authenticated user to PingOne to complete the MFA workflow.
+// 
+// 
+// To enable these flows, the authorize request uses the following properties as parameters in the request to determine the authorization processing flow:
+// 
+// |Property | Description |
+// |---------|----------|
+// |`response_mode`| A string that specifies the mechanism for returning authorization response parameters from the authorization endpoint. This property specifies the `pi.flow` value to designate that the `redirect_uri` parameter is not required and authorization response parameters are encoded as a JSON object wrapped in a flow response and returned directly to the client with a `200` status. |
+// |`login_hint_token` | A string that specifies a token that provides a way for the client to identify the end-user to authenticate without needing to encode the entire authentication request in a signed JWT. Using a separate token instead of the `login_hint` parameter also means that this token can be signed by a client different from the authenticating client. |
+// |`request` | A string that specifies an optional parameter that enables OIDC/OAuth2 requests to be passed as a signed JWT. Using a JWT enables integrity protection of parameters that are required for risk based authentication or privacy and consent use cases. Specifically:<ul><li>Passing in the user agent's original IP address when the PingOne platform is used behind a server side application that is functioning as an authentication gateway or PingFederate.</li><li>Passing in a purpose or usage description string that could be displayed to the user on the authentication UI prompt, SMS message, push notification, or email message.</li></ul> |
+// 
+// 
+// 
+// The request parameter can be optionally signed with the application secret. The JWT should be constructed according to the following example:
+// ```
+// JWT: "header" :
+// {
+//   "alg": "HS256",
+//   "typ": "JWT"
+// },
+// "body" : 
+// {
+//   "aud": "https://auth.pingone.com/{envId}/as",
+//   "iss": "{applicationId}",
+//   "pi.template": {
+//     "name": "{templateName}",
+//     "variables": {
+//       "{key1}": "{value1}"
+//     }
+//   },
+//   "pi.clientContext": {
+//     "{key2}": "{value2}"
+//   }
+// }
+// ```
+// 
+// 
+// 
+// 
+
+@name("Authorize (Browserless and MFA Only Flows)")
+GET "https://{{authPath}}/{{envID}}/as/authorize"
+? "state"= "<state value>"
+? "prompt"= "login"
+? "max_age"= "3600"
+? "acr_values"= "Single_Factor"
+? "response_type"= "token id_token"
+? "client_id"= "6c796712-0f16-4062-815a-e0a92f4a2143"
+? "response_mode"= "pi.flow"
+? "scope"= "openid profile email"
+? "state"= "<string>"
+? "login_hint_token"= "<loginHintTokenString>"
+
+
+// After completing the actions specified by the sign-on policy, the authentication UI redirects to the `resume` endpoint, which is specified in the `resumeUrl` property in the flow resource.
+// 
+// The following sample shows the `/{environmentId}/as/resume` operation to return the flow back to the authorization service, specifying the flowID in the request URL and the current session token in the request header.
+// 
+// ```
+// curl -X GET \
+//   'https://auth.pingone.com/{environmentId}/as/resume?flowId=' \
+//   -H 'Cookie: ST=<sessionToken>'
+// 
+// ```
+
+@name("Resume")
+GET "https://{{authPath}}/{{envID}}/as/resume"
+"Cookie": "{{sessionToken}}"
+? "flowId"= "{{flowID}}"
+
+
+// The token endpoint is used by the client to obtain an access token by presenting its authorization grant. Note that authentication requirements to this endpoint are configured by the application's `tokenEndpointAuthMethod` property. For `authorization_code` and `client_credentials` grants, the application calls the `POST /{environmentId}/as/token` endpoint to acquire the access token.
+// 
+// For an `authorization_code` grant type in which the application's `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_BASIC`, the request looks like this. The `<headerValue>` represents a Base64-encoded representation of "username:password", in which the username is the `client_id` and the password is the `client_secret`:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Authorization: Basic <headerValue>' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'grant_type=authorization_code&code={authCode}&redirect_uri=https://example.com'
+// 
+// ```
+// 
+// For an `authorization_code` grant type in which the application's `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_POST`, the request looks like this:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'grant_type=authorization_code&code={authCode}&client_id={appID}&client_secret={appSecret}&redirect_uri=https://example.com'
+// 
+// ```
+// 
+// 
+// For an `authorization_code` grant type in which the application's `tokenEndpointAuthMethod` is set to `NONE`, the request looks like this:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'grant_type=authorization_code&code={authCode}&client_id={appID}&redirect_uri=https://example.com'
+// 
+// ```
+// 
+// For a PKCE authorization request, the token request must include the `code_verifier` parameter:
+// 
+// ```
+// curl -X POST \
+//   'https://auth.pingone.com/${environmentId}/as/token \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d `grant_type=authorization_code&code=${authCode}&redirect_uri=https://example.com&code_verifier=${codeVerifier}'
+// 
+// ```
+//  
+// Supported parameters for the token request are:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`client_id`| A string that specifies the application's UUID.|
+// |`client_secret`| A string that specifies the the application's client secret. This property is required only if the application's `tokenEndpointAuthMethod` property is set to `CLIENT_SECRET_POST`.|
+// |`code`| A string that specifies the authorization code returned by the authorization server. This property is required only if the `grant_type` is set to `authorization_code`.|
+// |`code_verifier`| A large random string used in a PKCE authorize request. This string is used to create the `code_challenge` value passed to the authorization server in the request. The length an character set requirements for the `code_verifier` string is documented in [Section 4.1 of RFC7636](https://tools.ietf.org/html/rfc7636#section-4.1). |
+// |`grant_type`| A string that specifies the grant type of the token request. Options are `authorization_code`, `implicit`, `refresh_token`, and `client_credentials`.|
+// |`redirect_uri` | A string that specifies the URL used as the return entry point of the application. This is a required property only if the `grant_type` is set to `authorization_code`.|
+// 
+// 
+// To obtain a refresh token along with an access token, the client must be configured with the `refresh_token` grant type and the `authorization_code` grant type. With this configuration, a refresh token is generated along with the access token. When obtaining the original access token, a refresh token is included in the response, which is tied to the client and the user session. As long as the session exists and it is not expired (30 days since the last sign on), the `/{environmentId}/as/token` endpoint can be used to exchange the refresh token for a new access token and refresh token. If the `openid` scope is granted, an ID token is also included.
+// 
+// When a new refresh token is issued, the previous refresh token is rotated to prevent token abuse, which is useful when client authentication is disabled. In addition, when a refresh token is exchanged, the `activeAt` property of the corresponding session is updated. This does not extend the duration of the session, but can be used to indicate that there is activity.
+// 
+// To revoke a refresh token, the corresponding session must be deleted. Session termination is supported only by the resource owner using the `/{environmentId}/as/signoff` endpoint or by disabling the user.
+// 
+// 
+// For more information about access token claims, see [Access token claims](#access-tokens-and-id-tokens).
+// 
+
+@name("Token (authorization_code)")
+POST "https://{{authPath}}/{{envID}}/as/token"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "authorization_code"
+    ],
+    "code": [
+        "{{authCode}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ]
+})
+
+
+// The token endpoint is used by the client to obtain an access token by presenting its authorization grant. Note that authentication requirements to this endpoint are configured by the application's `tokenEndpointAuthMethod` property.
+// 
+// ::: info
+// **Note:** To access PingOne resources for an application configured with a `client_credentials` grant type, the application's `type` property must be set to `WORKER` and the worker application should be assigned one or more roles. Alternatively, if the application configured with a `client_credentials` grant type is not a `WORKER` type, you can create a custom resource with defined scopes, assign the scopes to the application, and then request the scopes in the authorization request. This option creates a token that grants access to the custom resource only; it does not grant access to PingOne resources.
+// :::
+// 
+// 
+// Supported parameters for the token request are:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`client_id`| A string that specifies the application's UUID.|
+// |`client_secret`| A string that specifies the the application's client secret. This property is required only if the application's `tokenEndpointAuthMethod` property is set to `CLIENT_SECRET_POST`.|
+// |`code_verifier`| A large random string used in a PKCE authorize request. This string is used to create the `code_challenge` value passed to the authorization server in the request. The length an character set requirements for the `code_verifier` string is documented in [Section 4.1 of RFC7636](https://tools.ietf.org/html/rfc7636#section-4.1). |
+// |`grant_type`| A string that specifies the grant type of the token request. Options are `authorization_code`, `implicit`, `refresh_token`, and `client_credentials`.|
+
+@name("Token Admin App (client_credentials)")
+POST "https://{{authPath}}/{{envID}}/as/token"
+basicauth("{{adminAppID}}", "{{adminAppSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ],
+    "client_id": [
+        "{{adminAppID}}"
+    ],
+    "client_secret": [
+        "{{adminAppSecret}}"
+    ]
+})
+
+
+// The following sample shows the discovery endpoint, `GET /{environmentID}/as/.well-known/openid-configuration`, which returns the OpenID Connect provider metadata document for the issuer, `https://auth.pingone.com`.
+// 
+// 
+// 
+// The response is a set of claims about the OpenID provider's configuration, including all necessary endpoints and public key location information.
+
+@name("Discovery OpenID Configuration")
+GET "https://{{authPath}}/{{envID}}/as/.well-known/openid-configuration"
+
+
+// The UserInfo Endpoint is an OAuth 2.0 protected resource that returns claims about the authenticated end user. Note that the /{environmentId}/as/userinfo request takes an access token in the Authorization header to get the claims about the user.
+// 
+// curl -X GET \
+//   'https://auth.pingone.com/{environmentId}/as/userinfo' \
+//   -H 'Authorization: Bearer token'
+// 
+// 
+// #### Userinfo authorization requests
+// 
+// A `userinfo` authorization request is used with applications associated with the `openid` resource. This type of request takes an access token in the `Authorization` header to get the claims about the user.
+// 
+// The value for the `Authorization` header is the bearer token returned by the following authorization request:
+// 
+// ```bash
+// https://auth.pingone.com/{environmentId}/as/authorize?client_id={applicationId}&redirect_uri=https://example.com&response_type=token&scope=openid profile email address&acr_values=Single_Factor
+// 
+// ```
+// 
+// In the authorization request, the `scope` attribute must specify the `openid` value, which includes the `sub` claim (the user ID) in the response data. Additional OpenID Connect scopes such as `profile`, `address`, `phone` and `email` can also be included to add more user claims to the response.
+// 
+// 
+// #### Grants and scopes with userinfo
+// 
+// The access token used with the `/{environmentId}/as/userinfo` endpoint must be generated by an `implicit` or `authorization_code` grant type. In addition, the authorization request used to generate the access token must include the `openid` scope. The authorization request can also include any other OpenID Connect scopes (as shown in the sample above) to return additional user claims. PingOne user scopes such as `p1:reset:userPassword` are not applicable to `userinfo` authorization requests and applications associated with the `openid` resource.
+// 
+// ::: info
+// **Note:** Access tokens generated from a `client_credentials` grant type return an `ACCESS_FAILED` message when used with the `/{environmentId}/as/userinfo` endpoint. Tokens from a `client_credentials` grant use administrator permissions granted through role assignments.
+// :::
+// 
+
+@name("Userinfo")
+GET "https://{{authPath}}/{{envID}}/as/userinfo"
+
+
+// The UserInfo Endpoint is an OAuth 2.0 protected resource that returns claims about the authenticated end user. Note that the `/{environmentId}/as/userinfo` request takes an access token in the `Authorization` header to get the claims about the user.
+// 
+// You can use the `POST /{environmentId}/as/userinfo` operation to obtain a userinfo authorization grant. 
+// 
+// #### Userinfo authorization requests
+// 
+// A `userinfo` authorization request is used with applications associated with the `openid` resource. This type of request takes an access token in the `Authorization` header to get the claims about the user.
+// 
+// The value for the `Authorization` header is the bearer token returned by the following authorization request:
+// 
+// ```bash
+// https://auth.pingone.com/{environmentId}/as/authorize?client_id={applicationId}&redirect_uri=https://example.com&response_type=token&scope=openid profile email address&acr_values=Single_Factor
+// 
+// ```
+// 
+// In the authorization request, the `scope` attribute must specify the `openid` value, which includes the `sub` claim (the user ID) in the response data. Additional OpenID Connect scopes such as `profile`, `address`, `phone` and `email` can also be included to add more user claims to the response.
+// 
+// 
+// #### Grants and scopes with userinfo
+// 
+// The access token used with the `/{environmentId}/as/userinfo` endpoint must be generated by an `implicit` or `authorization_code` grant type. In addition, the authorization request used to generate the access token must include the `openid` scope. The authorization request can also include any other OpenID Connect scopes (as shown in the sample above) to return additional user claims. PingOne user scopes such as `p1:reset:userPassword` are not applicable to `userinfo` authorization requests and applications associated with the `openid` resource.
+// 
+// ::: info
+// **Note:** Access tokens generated from a `client_credentials` grant type return an `ACCESS_FAILED` message when used with the `/{environmentId}/as/userinfo` endpoint. Tokens from a `client_credentials` grant use administrator permissions granted through role assignments.
+// :::
+// 
+
+@name("Userinfo")
+POST "https://{{authPath}}/{{envID}}/as/userinfo"
+
+
+
+// The `GET /{environmentId}/as/signoff` endpoint is called to initiate end user logout. The `Cookie`  request header specifies the current session token.
+// 
+// 
+// The request URL includes the `id_token_hint` parameter, which is a required attribute that specifies the ID token passed to the logout endpoint as a hint about the user’s current authenticated session.
+// 
+// 
+// Supported parameters for the signoff request are:
+// 
+// 
+// |Property | Description |
+// |---------|----------|
+// |`id_token_hint`| A string that specifies the previously issued ID token, which is used to indicate the identity of the user, which is passed to the logout endpoint as a hint about the user's current authenticated session with the client.|
+// |`post_logout_redirect_uri`| A string that specifies an optional parameter that specifies the URL to which the browser is redirected after a logout has been performed.|
+// |`state` | A string that specifies an optional parameter that is used to maintain state between the logout request and the callback to the endpoint specified by the `post_logout_redirect_uri` query parameter.|
+// 
+// 
+// The signature of ID token provided in the `id_token_hint` attribute must be verified. The application identified by the ID token must exist and must not be disabled. The user identified by the ID token must be the user identified by the current session.
+// 
+// If a `post_logout_redirect_uri` parameter is provided and it does not match one of the `postLogoutRedirectUri` values of any application in the specified environment, this condition is handled as an un-redirectable error.
+
+@name("Signoff")
+GET "https://{{authPath}}/{{envID}}/as/signoff"
+"Cookie": "{{sessionToken}}"
+? "id_token_hint"= "{{idToken}}"
+? "post_logout_redirect_uri"= "https://example.com"
+? "state"= "<state value>"
+
+
+// The `GET /{environmentId}/as/jwks` endpoint returns the JSON Web Key Set [JWK] document. This document contains the signing keys that can be used to validate JWT signatures.
+// 
+// 
+// 
+// The following parameters are shown for each key:
+// 
+// * `kty`
+// 
+//   The is the key type, which identifies the cryptographic algorithm family used with the key. Options are `RSA`.
+// 
+// * `e`
+// 
+//   This is the RSA public exponent parameter, which is used in the RSA Key blinding operation.
+// 
+// * `kid`
+// 
+//   This is the key ID parameter, which is used to match a corresponding `kid` key value in the JWT token to validate the requestor and grant access to the specified API endpoint.
+// 
+// * `use`
+// 
+//   This is the public key use parameter, which identifies the intended use of the public key. Options are `sig` (signature) and `enc` (encryption).
+// 
+// * `n`
+// 
+//   This is the RSA modulus parameter, which is used in the RSA Key blinding operation.
+// 
+// * `x5t`
+// 
+//   This is an X.509 certificate SHA-1 thumbprint parameter, which is a base64url-encoded SHA-1 thumbprint of the DER encoding of an X.509 certificate.
+// 
+// * `x5c`
+// 
+//   This is an X.509 certificate chain parameter, which is a chain of one or more PKIX certificates.
+// 
+// 
+
+@name("READ JWKS")
+GET "https://{{authPath}}/{{envID}}/as/jwks"
+
+
+// The `POST /{environmentId}/as/introspect` endpoint returns the active state of an OAuth 2.0 token and the claims specified in [RFC 7662 Section 2.2](https://tools.ietf.org/html/rfc7662#section-2.2). The request requires the `token` parameter, which is the token string. It also supports the `token_type_hint` optional parameter to identify the type of the token submitted for introspection. Valid values for the `token_type_hint` parameter are `access_token`, `refresh_token`, and `id_token`.
+// 
+// 
+// For applications in which the `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_BASIC`, the request looks like this:
+// 
+// ```
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/introspect \
+//   -H 'Authorization: Basic <headerValue>' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d `token={OAuthToken}&token_type_hint={access_token}'
+// 
+// ```
+// 
+// 
+// For applications in which the `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_POST`, the request looks like this:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'token={OAuthToken}&token_type_hint={access_token}&client_id={appID}&client_secret={appSecret}'
+// 
+// ```
+// 
+// For applications in which the `tokenEndpointAuthMethod` is set to `NONE`, the request looks like this:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'token={OAuthToken}&token_type_hint={access_token}&client_id={appID}'
+// 
+// ```
+// 
+// 
+// 
+// For applications in which the `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_POST` and the `pkceEnforcement` property is enforced, the request looks like this:
+// 
+// ```bash
+// curl -X POST \
+//   'https://auth.pingone.com/{environmentId}/as/token' \
+//   -H 'Content-Type: application/x-www-form-urlencoded' \
+//   -d 'token={OAuthToken}&token_type_hint={access_token}&client_id={appID}&client_secret={appSecret}&code_verifier={codeVerifier}'
+// 
+// ```
+// 
+// The response always shows the `active` attribute, which is a boolean that indicates whether the token is currently active. For active tokens, the response also shows the `token_type` attribute value.
+// 
+// For more information about token claims, see [Token claims](#access-tokens-and-id-tokens).
+// 
+
+@name("Token Introspection (Access Token)")
+POST "https://{{authPath}}/{{envID}}/as/introspect"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{accessToken}}"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ]
+})
+
+
+// The `POST /{environmentId}/as/introspect` endpoint returns information about the ID token. The request requires the `token` parameter, which is the token string. It also supports the `token_type_hint` optional parameter to identify the type of the token submitted for introspection. Valid values for the `token_type_hint` parameter are `access_token`, `refresh_token`, and `id_token`.
+// 
+// The response always shows the `active` attribute, which is a boolean that indicates whether the token is currently active. For active tokens, the response also shows the `token_type` attribute value.
+// 
+
+@name("Token Introspection (ID Token)")
+POST "https://{{authPath}}/{{envID}}/as/introspect"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{idToken}}"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ]
+})
+
+
+// The `POST /{environmentId}/as/introspect` endpoint returns information about the refresh token.
+// 
+// The `exp` claim in a refresh token is expressed in epoch seconds (time in seconds since January 01, 1970), and resolves to a specific date and time. The value is calculated based on the lesser of `current time + refreshTokenDuration` and `original token minting time + refreshTokenRollingDuration`. The "original token minting time" is the time the user last authenticated using an `authorization_code` grant type on the `/token` endpoint and received the initial refresh token.
+// 
+// For more information about the `refreshTokenDuration` and `refreshTokenRollingDuration` OpenID Connect application properties, see [Applications settings data model](#applications).
+
+@name("Token Introspection (Refresh Token)")
+POST "https://{{authPath}}/{{envID}}/as/introspect"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{refreshToken}}"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ]
+})
+
+
+// The `POST /{environmentId}/as/revoke` endpoint revokes the token specified in the request body. The token's `scope` claim must specify a custom scope, and the `aud` claim specifies the resource associated with the custom scope.
+// 
+// The `POST /{environmentId}/as/revoke` endpoint uses the same authentication method as the `POST /{environmentId}/as/token` endpoint, and uses the value from the application's `tokenEndpointAuthMethod` to determine the configuration. If the `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_BASIC`, the `Authorization: Basic <headerValue>` represents a Base64-encoded representation of `"username:password"`, in which the username is the `client_id` and the password is the `client_secret`.
+// 
+// If the application's `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_POST`, the  request body contains the `client_id={appID}&client_secret={appSecret}` parameters to authenticate.
+// 
+// 
+// ::: info
+// **Note:** This endpoint does not support individual one-by-one access token revocation. This operation revokes all access tokens for the session and application combination. A token must have an associated session (`sid`) claim to be revoked. If you revoke a refresh token, it also revokes all associated access tokens to that specific session and application combination.
+// :::
+// 
+// 
+// 
+// If the authentication method is accepted, and the token contains the necessary `iat` and `sid` claims, the response returns a 200 code with an empty body.
+// 
+// If the token is invalid or if the token does not include the necessary `iat` and `sid` claims, an `unsupported_token_type` error is returned as directed in [OAuth 2.0 Token Revocation RFC7009 (section 2.2.1)](https://tools.ietf.org/html/rfc7009#section-2.2.1). If the `aud` claim identifies a platform token, an `unsupported_token_type` error response is returned.
+
+@name("Token Revocation")
+POST "https://{{authPath}}/{{envID}}/as/revoke"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{oauthToken}}"
+    ]
+})
+
+
+

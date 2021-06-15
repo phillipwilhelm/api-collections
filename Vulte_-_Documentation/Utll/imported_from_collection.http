@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Use this endpoint as a follow-up call for OTP validation. Specify the transaction ref of the transaction to be validated in the `transaction.transaction_ref` field.
+// 
+// Replace the value `request_type` with the corresponding service name.
+// 
+// The OTP must be encrypted with the Triple DES encryption algorithm and should be placed in the `auth.secure` field.
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Validate Transaction")
+POST "https://{{url}}/v2/transact/validate"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": " {{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "lookup_bvn_max",
+    "auth": {
+        "secure": "boif0gxwkZu3XYOwAD/MkA==",
+        "auth_provider": "Polaris"
+    },
+    "transaction": {
+        "transaction_ref": "67507990331863"
+    }
+}')
+
+
+// Use this endpoint for querying transactions. Specify the transaction ref of the transaction to be queried in the `transaction.transaction_ref` field.
+// 
+// Specify the service name in the `request_type` field.
+// 
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Query Transaction")
+POST "https://{{url}}/v2/transact/query"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": " {{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "disburse",
+    "auth": {
+        "secure": null,
+        "auth_provider": "Polaris"
+    },
+    "transaction": {
+        "transaction_ref": "{{transaction-ref}}"
+    }
+}')
+
+
+

@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// Permite consultar um ou mais tíckets.
+
+@name("Consultar tickets")
+GET "https://{{url}}/{{version}}/tickets/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{id}}"
+? "venda_id"= "{{id}}"
+? "praca_id"= "{{praca_id}}"
+? "estado"= "{{estado}}"
+? "apelido"= "{{apelido}}"
+? "permite_reserva"= "{{permite_reserva}}"
+? "limit"= "{{limit}}"
+? "cod_inicial"= "{{cod_inicial}}"
+? "cod_final"= "{{cod_final}}"
+
+
+// Endpoint que obtem o próximo ticket livre para consumo. 
+// 
+// O endpoint pode ser utilizado só para consulta ou pode vincular o ticket obtido à um novo consumo com o uso do parâmetro ``abre``. Com este parâmetro enviado, o ticket é utilizado e uma chamada subsequente ao endpoint retorna outro ticket livre. 
+// 
+// ### Associar um cliente ao ticket
+// É possível neste endpoint já criar ou atualizar os dados de um cliente.
+// 
+// **Modo Entrega**: 
+// **É obrigatório** enviar a chave ``cliente`` com o ID ou os dados para cadastro, já que não é possível fazer uma entrega sem nome e endereço.
+// 
+// **Modos Ficha e Mesa**: 
+// **É opcional** enviar a chave ``cliente``, porém o cliente só será atualizado se o parâmetro ``abre=true`` for enviado na url.
+// 
+// ### Atualizar dados do cliente
+// Para atualizar os dados cadastrais do cliente, envie a chave ``identificacao`` mais as chaves dos dados que devem ser atualizados. Não é necessário enviar todas as chaves.
+// 
+// Para associar um cliente ao ticket sem alterar os dados dele, informe apenas a chave ``identificacao``.
+// 
+// ```javascript
+// {
+//   "cliente": {
+//     "identificacao": "123456",
+//     "id_externo": 123,
+//     "nome": "CLIENTE NOVO",
+//     "sexo": "M",
+//     "dt_nascimento": "19850215 00:00:00",
+//     "cnpj_cpf": "22233344456",
+//     "inscricao_rg": "123456789",
+//     "endereco": "Rua Cel Artur de Godoy",
+//     "numero": 7,
+//     "complemento": "Sala 15",
+//     "bairro": "Vila Mariana",
+//     "referencia": "Prox Praça",
+//     "cep": "02432-123",
+//     "cidade": "São Paulo",
+//     "estado": "SP",
+//     "telefone": "32456785",
+//     "email": "cliente.novo@provedor.com",
+//     "fax": "",
+//     "taxa_entrega": 10.53,
+//     "regiao": 1
+//   }
+// }
+// ```
+
+@name("Obter próximo ticket livre")
+POST "https://{{url}}/{{version}}/consumos/proximo/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "modo_venda"= "{{modo_venda}}"
+? "abre"= "{{abre}}"
+data('{
+  "cliente": {
+    "identificacao": "982079950"
+  }
+}')
+
+
+

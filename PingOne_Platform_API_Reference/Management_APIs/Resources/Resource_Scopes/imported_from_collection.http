@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// To get the list of scopes associated with a specified resource, the `GET /environments/{environmentId}/resources/{resourceId}/scopes` operation returns data for the scopes associated with the resource entity ID specified in the request URL.
+// 
+// ::: info
+// **Note:** To get all scopes for all resources, you can use `GET /environments/{environmentId}/resources` with the `?expand=scopes` query parameter appended to the request. The response data lists all scopes and shows the scope sub-resource data in the `_embedded` section of the response.
+// :::
+
+@name("READ All Scopes (Resource)")
+GET "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single scope resource, the `GET /environments/{environmentId}/resources/{resourceId}/scopes/{scopeId}` operation returns data for the scope resource identified by its ID in the request URL.
+
+@name("READ One Scope")
+GET "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes/{{scopeID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/resources/{resourceId}/scopes` operation adds a new scope. The request URL specifies the new scope's associated environment ID and resource ID.
+// 
+// 
+// The request body must specify a value for the scope `name` property, and the `name` value must be unique within the specified environment resource.
+
+@name("CREATE Scope")
+POST "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "Scope_{{$timestamp}}",
+    "description": "My scope"
+}')
+
+
+// The `PUT /environments/{environmentId}/resources/{resourceId}/scopes/{scopeId}` operation updates the property values of the identified scope.
+// 
+// The request body specifies updated values for the scope `name` and `description` properties. Any property values not specified in the request body are cleared. The response returns a `200 OK` message, and it shows the updated property data for the modified scope resource.
+// 
+
+@name("UPDATE Scope")
+PUT "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes/{{scopeID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "Updated-Scope_{{$timestamp}}",
+    "description": "An UPDATED scope"
+}')
+
+
+// The sample shows the `DELETE /environments/{environmentId}/resources/{resourceId}/scopes/{scopeId}` operation to delete the scope.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Scope")
+DELETE "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes/{{scopeID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

@@ -1,0 +1,352 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of all the project entities associated with your company.
+// 
+// Note:
+// - `officeLocationId` will only be present if the project is associated with an Office Location.
+// - `modelIds` will contain an array of the Model entities currently associated with the project. These can be retrieved with the `GET /models/{id}` action discussed later.
+// - `pins` contains a url which can be used with the `GET /projects/{id}/pins` action to retrieve the library and channel ids for the sources that are pinned to the Project.
+// 
+// Output:
+// ```json
+// {
+//   "type": "object",
+//   "properties": {
+//     "projectId": {
+//       "type": "string"
+//     },
+//     "name": {
+//       "type": "string"
+//     },
+//     "analytics": {
+//       "type": "boolean"
+//     },
+//     "officeLocationId": {
+//       "type": "string"
+//     },
+//     "phase": {
+//       "type": "string",
+//       "enum": ["Active", "On Hold", "Archived"]
+//     },
+//     "designPhase": {
+//       "type": "string",
+//       "enum": ["", "SD", "DD", "CD", "CA"]
+//     },
+//     "modelIds": {
+//       "type": "array",
+//       "items": {
+//         "type": "string"
+//       }
+//     },
+//     "pins": {
+//       "type": "object",
+//       "properties": {
+//         "href": {
+//           "type": "string"
+//         }
+//       }
+//     }
+//   },
+//   "required": ["name", "analytics", "phase", "designPhase"]
+// }
+// 
+// ```
+
+@name("/projects")
+GET "https://{{url}}/projects"
+
+
+// This action will create a new Project entity.
+// 
+// Note:
+// Any field not marked as required may be omitted. If `copyContentSources` is provided and a Project with the supplied projectId exists, its pinned content sources will be copied into the new Project. Similarly, a projectId passed to copyAlertThresholds will provide a baseline of health standards for the new Project.
+// 
+// Input:
+// ```json
+// {
+//   "type": "object",
+//   "properties": {
+//     "name": {
+//       "type": "string"
+//     },
+//     "analytics": {
+//       "type": "boolean"
+//     },
+//     "officeLocationId": {
+//       "type": "string"
+//     },
+//     "phase": {
+//       "type": "string",
+//       "enum": ["Active", "On Hold", "Archived"]
+//     },
+//     "designPhase": {
+//       "type": "string",
+//       "enum": ["", "SD", "DD", "CD", "CA"]
+//     },
+//     "copyContentSources": {
+//       "type": "string"
+//     },
+//     "copyAlertThresholds": {
+//       "type": "string"
+//     }
+//   },
+//   "required": ["name", "analytics", "phase", "designPhase"],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// Output:
+// A successful response to this action is a 204 No Content status code with a Location header pointing at the newly created Project entity.
+
+@name("/projects")
+POST "https://{{url}}/projects"
+"Content-Type": "application/json"
+data('{
+    "name": "test",
+    "analytics": false,
+    "phase": "On Hold",
+    "designPhase": ""
+}
+')
+
+
+// This action is used to fetch the details of a single project, given its id. This will be very helpful in cases where it is necessary to set a value on the project, as `PUT /projects/{id}` will update the entire entity.
+// 
+// Output: see `GET /projects`
+
+@name("/projects/{id}")
+GET "https://{{url}}/projects/{{projectId}}"
+
+
+// This action will update a Project entity with the values contained in the submitted JSON object, as described in `GET /projects`.
+// 
+// Notes:
+// - Only name, analytics, officeLocationId, phase and designPhase can be updated through this action.
+// - `projectId` in the JSON body is ignored, as the `{id}` in the path will be used.
+// - `pins` and `modelIds` on the JSON object will likewise be ignored. To modify Pinned Content Sources, please see `PUT /projects/{id}/pins`. To modify Model associations with Projects, please see `PUT /models/{id}`.
+// 
+// Input:
+// ```json
+// {
+//   "type": "object",
+//   "properties": {
+//     "name": {
+//       "type": "string"
+//     },
+//     "analytics": {
+//       "type": "boolean"
+//     },
+//     "phase": {
+//       "type": "string"
+//     },
+//     "officeLocationId": {
+//       "type": "string"
+//     },
+//     "designPhase": {
+//       "type": "string"
+//     }
+//   },
+//   "required": ["name", "analytics", "phase", "officeLocationId", "designPhase"],
+//   "additionalProperties": false
+// }
+// ```
+
+@name("/projects/{id}")
+PUT "https://{{url}}/projects/{{projectId}}"
+"Content-Type": "application/json"
+data('{
+    "name": "test",
+    "analytics": false,
+    "phase": "On Hold",
+    "officeLocationId": "00000000-0000-0000-0000-000000000000",
+    "designPhase": ""
+}
+')
+
+
+// This action will retrieve a list of the Library Ids and Channel Ids that are "pinned" to the Project.
+// 
+// Output:
+// ```json
+// {
+//   "type": "object",
+//   "properties": {
+//     "projectId": {
+//       "type": "string"
+//     },
+//     "libraries": {
+//       "type": "array",
+//       "items": {
+//         "type": "string"
+//       }
+//     },
+//     "channels": {
+//       "type": "array",
+//       "items": {
+//         "type": "string"
+//       }
+//     }
+//   }
+// }
+// ```
+
+@name("/projects/{id}/pins")
+GET "https://{{url}}/projects/{{projectId}}/pins"
+
+
+// This action modifies a Project's Pins.
+// 
+// This uses the same schema as the output of `GET /projects/{id}/pins` (except the `projectId` field is ignored and may be omitted) to completely replace the list of channels and libraries that are pinned to a Project.
+
+@name("/projects/{id}/pins")
+PUT "https://{{url}}/projects/{{projectId}}/pins"
+"Content-Type": "application/json"
+data('{
+	"projectId": "{{projectId}}",
+    "libraries": [],
+    "channels": []
+}
+')
+
+
+// This action will delete a Project entity.
+
+@name("/projects/{id}")
+DELETE "https://{{url}}/projects/{{projectId}}"
+
+
+// This action will retrieve an array of the Models which exist in the system but which are not yet associated with a Project.
+// 
+// The successful result will contain a JSON array of Model entities with the following schema:
+// 
+// ```json
+// {
+//   "type": "object",
+//   "description": "A Revit Project file used in Analytics",
+//   "properties": {
+//     "modelId": {
+//       "type": "string"
+//     },
+//     "projectId": {
+//       "type": "string"
+//     },
+//     "filename": {
+//       "type": "string"
+//     },
+//     "centralPath": {
+//       "type": "string"
+//     },
+//     "analytics": {
+//       "type": "boolean"
+//     },
+//     "active": {
+//       "type": "boolean"
+//     },
+//     "ignored": {
+//       "type": "boolean"
+//     }
+//   },
+//   "required": ["filename"]
+// }
+// ```
+// 
+// Note that while the only required field is `filename`, `modelId`, `active` and `ignored` will also be populated. Any null values will be omitted from the JSON representation.
+
+@name("/models")
+GET "https://{{url}}/models"
+
+
+// This action is used to create new models, optionally associated with a Project. The schema for creation matches the schema on `GET /models`. Note that if no `projectId` is specified, the Model will not be associated with a Project. `active` and `ignored` default to false. If associated with a Project, `analytics` defaults to the Projects `analytics` setting.
+// 
+// A successful POST will return a "201 Created" status code and a Location header with the url of the newly created Model.
+
+@name("/models")
+POST "https://{{url}}/models"
+"Content-Type": "application/json"
+data('{
+    "centralPath": "RSN://Example/example.rvt",
+    "active": false,
+    "ignored": false,
+    "filename": "example.rvt"
+}')
+
+
+// This action will fetch the Model entity with the specified id, using the schema from `GET /models`.
+
+@name("/models/{id}")
+GET "https://{{url}}/models/{{modelId}}"
+"Content-Type": "application/json"
+
+
+
+// This action will update the Model with the specified `id`. Only `analytics`, `projectId`, `filename` and `ignored` can be updated through this action.
+// 
+// A successful request will return a 204 No Content status.
+
+@name("/models/{id}")
+PUT "https://{{url}}/models/{{modelId}}"
+"Content-Type": "application/json"
+data('{
+    "centralPath": "RSN://Example/example.rvt",
+    "active": false,
+    "ignored": false,
+    "filename": "example.rvt"
+}')
+
+
+// This action is used to fetch a list of the commits of a single model, given its id.
+// 
+// Output:
+// ```json
+// {
+//   "type": "array",
+//   "items": {
+//     "properties": {
+//       "author": {
+//         "type": "string"
+//       },
+//       "dataId": {
+//         "type": "string"
+//       },
+//       "eventId": {
+//         "type": "string"
+//       },
+//       "timestamp": {
+//         "type": "string"
+//       }
+//     },
+//     "required": ["author", "dataId", "eventId", "timestamp"]
+//   }
+// }
+// ```
+
+@name("/models/{id}/commits")
+GET "https://{{url}}/models/{{modelId}}/commits"
+
+
+// This action will retrieve a signed URL pointing to a Project Analytics commit.
+
+@name("/models/{id}/commits/{eventId}")
+GET "https://{{url}/models/{{modelId}}/commits/{{eventId}}"
+
+
+// This action will retrieve an array of the Models associated with the Project having the specified `id`, following the schema specified in `GET /models`.
+
+@name("/models?projectId={id}")
+GET "https://{{url}}/models"
+
+
+// This action will delete the Model with the specified `id`. A successful request will return a "204 No Content" status.
+
+@name("/models/{id}")
+DELETE "https://{{url}}/models/{{modelId}}"
+"Content-Type": "application/json"
+data('{
+    "centralPath": "RSN://Example/example.rvt",
+    "active": false,
+    "ignored": false,
+    "filename": "example.rvt"
+}')
+
+
+

@@ -1,0 +1,129 @@
+#!/usr/bin/env dothttp
+
+// Registra los datos de la tarjeta de crédito de un cliente y así obtener un código secuencial token.
+
+@name("CREATE TOKEN")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "CREATE_TOKEN",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"creditCardToken": {
+		"payerId": "PAYER_ID",
+		"name": "{{STATE}}",
+		"identificationNumber": 1000000000,
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"number": "4097440000000004",
+		"expirationDate": "2019/12"
+	}
+}')
+
+
+//  Registra los datos de las tarjetas de crédito de varios clientes y así obtener los códigos secuenciales token.
+
+@name("CREATE BATCH TOKENS")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "CREATE_BATCH_TOKENS",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"contentFile": "CONTENT_FILE"
+}')
+
+
+// Realiza cobros masivos, utilizando los Token que fueron previamente creados por nuestro sistema
+
+@name("PROCESS BATCH TRANSACTIONS TOKEN")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "PROCESS_BATCH_TRANSACTIONS_TOKEN",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"contentFile": "CONTENT_FILE"
+}')
+
+
+// Consulta de los Token de tarjetas de crédito previamente.
+
+@name("GET TOKENS")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "GET_TOKENS",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"creditCardTokenInformation": {
+		"payerId": "PAYER_ID",
+		"creditCardTokenId": "CREDITCARD_TOKEN_ID",
+		"startDate": "START_DATE",
+		"endDate": "END_DATE"
+	}
+}')
+
+
+// Elimina un registro de tarjeta de crédito tokenizada.
+
+@name("REMOVE TOKENS")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "REMOVE_TOKEN",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"removeCreditCardToken": {
+		"payerId": "PAYER_ID",
+		"creditCardTokenId": "CREDITCARD_TOKEN_ID"
+	}
+}')
+
+
+// Elimina masivamente los tokens que fueron creados previamente en el sistema.
+
+@name("REMOVE BATCH TOKENS")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "REMOVE_TOKEN",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"removeCreditCardToken": {
+		"payerId": "PAYER_ID",
+		"creditCardTokenId": "CREDITCARD_TOKEN_ID"
+	}
+}')
+
+
+

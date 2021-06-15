@@ -1,0 +1,207 @@
+#!/usr/bin/env dothttp
+
+// The `message:delivery:channel` webhook reports the success to handoff a message to a channel.
+// 
+// If `isFinalEvent` property of the payload is `true`, no additional delivery event (`message:delivery:*`) will be sent for the `message._id` and `destination.type` pair.
+// 
+// If `isFinalEvent` is false, another `message:delivery:*` webhook with the same `message._id` and `destination.type` pair is expected, but not guaranteed.
+
+@name("message:delivery:channel")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+json({
+    "trigger": "message:delivery:channel",
+    "app": {
+        "_id": "5a5ccf0d1b4077001a36b11d"
+    },
+    "appUser": {
+        "_id": "b234f6a69d2eea3589f4c24e",
+        "email": "steve.bob@email.com",
+        "surname": "Steve",
+        "givenName": "Bob",
+        "signedUpAt": "2018-04-02T14:45:46.505Z",
+        "properties": {
+            "favoriteFood": "prizza"
+        }
+    },
+    "conversation": {
+        "_id": "105e47578be874292d365ee8"
+    },
+    "destination": {
+        "type": "whatsapp"
+    },
+    "isFinalEvent": false,
+    "externalMessages": [
+        {
+            "id": "SMb0ee6ee1313a4141ba346e368325a04d"
+        }
+    ],
+    "message": {
+        "_id": "5baa5b4ab5bebb000ce85589"
+    },
+    "timestamp": 1537891147.555,
+    "version": "v1.1"
+})
+
+
+// The `message:delivery:user` webhook confirms the delivery of a message to the user.
+
+@name("message:delivery:user")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+json({
+    "trigger": "message:delivery:user",
+    "app": {
+        "_id": "5a5ccf0d1b4077001a36b11d"
+    },
+    "appUser": {
+        "_id": "b234f6a69d2eea3589f4c24e",
+        "email": "steve.bob@email.com",
+        "surname": "Steve",
+        "givenName": "Bob",
+        "signedUpAt": "2018-04-02T14:45:46.505Z",
+        "properties": {
+            "favoriteFood": "prizza"
+        }
+    },
+    "conversation": {
+        "_id": "105e47578be874292d365ee8"
+    },
+    "destination": {
+        "type": "whatsapp"
+    },
+    "isFinalEvent": true,
+    "externalMessages": [
+        {
+            "id": "SMb0ee6ee1313a4141ba346e368325a04d"
+        }
+    ],
+    "message": {
+        "_id": "5baa5b4ab5bebb000ce85589"
+    },
+    "timestamp": 1537891147.555,
+    "version": "v1.1"
+})
+
+
+// The `message:delivery:failure` webhook reports the failure to deliver a message to a user on the destination channel. If this webhook triggers, it means that the message did not reach the user.
+
+@name("message:delivery:failure")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+json({
+    "trigger": "message:delivery:failure",
+    "app": {
+        "_id": "575040549a38df8fb4eb1e51"
+    },
+    "appUser": {
+        "_id": "de13bee15b51033b34162411",
+        "userId": "123",
+        "email": "steve.bob@email.com",
+        "surname": "Steve",
+        "givenName": "Bob",
+        "signedUpAt": "2018-04-02T14:45:46.505Z",
+        "properties": {
+            "favoriteFood": "prizza"
+        }
+    },
+    "conversation": {
+        "_id": "105e47578be874292d365ee8"
+    },
+    "destination": {
+        "type": "whatsapp"
+    },
+    "isFinalEvent": true,
+    "error": {
+        "code": "unauthorized",
+        "underlyingError": {
+            "message": "Authentication failed due to the following reason: invalid token. Confirm that the access token in the authorization header is valid."
+        }
+    },
+    "message": {
+        "_id": "5baa610db5bebb000ce855d6"
+    },
+    "timestamp": 1480001711.941,
+    "version": "v1.1"
+})
+
+
+// The payload for when a user reads a conversation.
+// 
+// #### Conversation event payload schema
+// 
+// |**Field**|**Description**|
+// |--|--|
+// |**trigger**|"conversation:read"|
+// |**app**|A nested object representing the conversations app associated with the event. See the truncated app schema below for details.|
+// |**source**|A nested object representing the source of the event. See the source schema below for details.|
+// |**appUser**|A nested object representing the appUser associated with the event. See the truncated appUser schema below for details.|
+// |**client**|A nested object representing the current client associated with the conversation of the event. This field is only included when includeClient on webhook settings is set. See the client schema for detail.|
+// |**conversation**|A nested object representing the conversation associated with the event. See the truncated conversation schema below for details.|
+// |**timestamp**|A UNIX timestamp given in seconds, describing when conversations received the event.|
+// |**referral**|Referral information. Only present for WeChat and Messenger. See referral schema for details.|
+// |**version**|The API version used to create the webhook. See API version for details.|
+
+@name("conversation:read")
+POST "https://{{yourAPI}}/"
+"Content-Type": "application/json"
+"x-api-key": "CNXZYblQpmhmCuJtm61vMHMhW_WAbqEgsXYq7FNAwcbMb9LN26phXpLaxIQSq_nnkBICGDD3Zcls7eE9gExxaQ"
+json({
+    "trigger": "conversation:read",
+    "app": {
+        "_id": "57ec2881c47d2d24b0c16427"
+    },
+    "source": {
+        "type": "messenger"
+    },
+    "appUser": {
+        "_id": "7685787bf0e9e8cf56182288",
+        "conversationStarted": true,
+        "email": "steve.bob@email.com",
+        "surname": "Steve",
+        "givenName": "Bob",
+        "signedUpAt": "2018-04-02T14:45:46.505Z",
+        "properties": {
+            "favoriteFood": "prizza"
+        }
+    },
+    "client": {
+        "_id": "5c9d2f34a1d3a2504bc89511",
+        "lastSeen": "2019-04-05T18:23:20.791Z",
+        "platform": "web",
+        "id": "20b2be30cf7e4152865f066930cbb5b2",
+        "info": {
+            "currentTitle": "Conversation Demo",
+            "currentUrl": "https://examples.com/awesomechat",
+            "browserLanguage": "en-US",
+            "referrer": "",
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36",
+            "URL": "examples.com",
+            "sdkVersion": "4.17.12",
+            "vendor": "smooch"
+        },
+        "raw": {
+            "currentTitle": "Conversation Demo",
+            "currentUrl": "https://examples.com/awesomechat",
+            "browserLanguage": "en-US",
+            "referrer": "",
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36",
+            "URL": "examples.com",
+            "sdkVersion": "4.17.12",
+            "vendor": "smooch"
+        },
+        "active": true,
+        "primary": true,
+        "integrationId": "5c3640f8cd3fa5850931a954"
+    },
+    "conversation": {
+        "_id": "105e47578be874292d365ee8"
+    },
+    "timestamp": 1480349392.103
+})
+
+
+

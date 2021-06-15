@@ -1,0 +1,36 @@
+#!/usr/bin/env dothttp
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to recover a user's forgotten password. The request body requires the `username` attribute to identify the user and send a one-time password (OTP) that is used to set a new password. This operation uses the `application/vnd.pingidentity.password.forgot+json` custom media type as the content type in the request header.
+// 
+
+@name("Forgot Password")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.password.forgot+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "username": "xxxxxx"
+}')
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation sends the OTP to the user. The OTP is a randomly generated eight-character alphanumeric string sent to the user's email address, and the code is valid for five minutes. This operation uses the `application/vnd.pingidentity.password.sendRecoveryCode` custom media type as the content type in the request header.
+
+@name("Send (Resend) Recovery Code")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.password.sendRecoveryCode+json"
+"Cookie": "ST={{sessionToken}}"
+
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to recover the account and set a new password. The request body requires the `recoveryCode` and `newPassword` attributes. This operation uses the `application/vnd.pingidentity.password.recover+json` custom media type as the content type in the request header.
+
+@name("Recover Password")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.password.recover+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+	"recoveryCode": "xxxxxx",
+	"newPassword": "2Federate!"
+}')
+
+
+

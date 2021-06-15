@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Obtaining an auth code for an advisor's account is the first step in the process. An auth code will allow you to retrieve an access token and a refresh token.
+// Access tokens are valid for 1 hour and are used to access the Riskalyze API.
+// Refresh tokens are valid for 1 use or 90 days, whichever comes first.
+// 
+// redirect_uri may be passed to override the default redirect URI. Passing in a redirect_uri that matches the default redirect URI’s domain will override the default redirect URI. For example, if the default redirect URI is https://www.example.com/response, passing in https://www.example.com/response2 or https://response.example.com/override will work. Passing in https://www.example2.com/response will not work. Querystring parameters may be passed.
+
+@name("Obtain Auth Code")
+GET "https://pro.riskalyze.com/oauthconnect"
+? "response_type"= "code"
+? "state"= "{{state}}"
+? "client_id"= "{{oauth_client_id}}"
+
+
+// Exchange an auth code for an access token and a refresh token. The redirect_uri must match your default redirect_uri. Fuzzy matching is not supported with this call.
+
+@name("Exchange Auth Code")
+POST "https://{{base_url}}/ap/v1/oauthpro/token"
+"Content-Type": "application/json"
+data('{
+	"grant_type":"authorization_code",
+	"redirect_uri":"{{oauth_redirect_uri}}",
+	"client_id":"{{oauth_client_id}}",
+	"client_secret":"{{oauth_client_secret}}",
+	"code":"{{auth_code}}"
+}')
+
+
+// Exchange a refresh token for a new access token and a new refresh token. The redirect_uri must match your default redirect_uri. Fuzzy matching is not supported with this call.
+
+@name("Exchange Refresh Token")
+POST "https://{{base_url}}/ap/v1/oauthpro/token"
+"Content-Type": "application/json"
+data('{
+	"grant_type":"refresh_token",
+	"redirect_uri":"{{oauth_redirect_uri}}",
+	"client_id":"{{oauth_client_id}}",
+	"client_secret":"{{oauth_client_secret}}",
+	"refresh_token":"{{refresh_token}}"
+}')
+
+
+// An echo test to validate an access token.
+
+@name("Hello World")
+GET "https://{{base_url}}/ap/v1/integration/helloworld"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+// Send Riskalyze an access token and get a response that tells you which user it belongs to.
+
+@name("Find Token Owner")
+GET "https://{{base_url}}/ap/v1/user/whoAmI"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+

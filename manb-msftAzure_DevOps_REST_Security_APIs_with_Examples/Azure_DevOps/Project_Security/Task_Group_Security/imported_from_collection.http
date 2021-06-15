@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+@name("List Task Groups")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/taskgroups"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// token format : PROJECT_ID
+
+@name("Set Task Group Root Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{taskGroupSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 3,
+            "deny": 0,
+            "extendedInfo": {
+                "effectiveAllow": 1,
+                "effectiveDeny": 0,
+                "inheritedAllow": 1,
+                "inheritedDeny": 0
+            }
+        }
+    ]
+})
+
+
+@name("Remove Task Group Root Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/{{taskGroupSecurityNamespace}}/{{permissions}}"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+
+
+// token format : PROJECT_ID/TASK_GROUP_ID
+
+@name("Set Task Group given ID Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{taskGroupSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx/32946e5d-5bba-4e83-b66c-d8995bc2271a",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 3,
+            "deny": 0,
+            "extendedInfo": {
+                "effectiveAllow": 4,
+                "effectiveDeny": 0,
+                "inheritedAllow": 4,
+                "inheritedDeny": 0
+            }
+        }
+    ]
+})
+
+
+@name("Remove Task Group Given ID Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/{{taskGroupSecurityNamespace}}/{{permissions}}"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx/32946e5d-5bba-4e83-b66c-d8995bc2271a"
+
+
+@name("Get ACLs ")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{taskGroupSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+? "descriptors"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com"
+? "includeExtendedInfo"= "{includeExtendedInfo}"
+? "recurse"= "true"
+? "api-version"= "5.1"
+
+
+

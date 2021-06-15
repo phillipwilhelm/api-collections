@@ -1,0 +1,1 @@
+VTEX OMS is the module in charge of Order Management, Affiliate configuration and Recurring Orders.

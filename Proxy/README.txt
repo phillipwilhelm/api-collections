@@ -1,0 +1,5 @@
+Let's just get straight to the point, there are two common parameters in each endpoint related to get data:
+- expand: there are some fields that is not automatically included in endpoint's result, these field called *Expandable Fields*, to show these fields you are going to need to set [[expand]] params with the name of the field you want to include in the result, separate them with comma (NO space after or before comma) if you want to include multiple expandable fields, this params works recursively, so for example, you want to include points that member owned in [[member/profile]] result, then you need to set [[expand=points]], but if you need to include upline of each point as well, then you going to need to set [[expand=points,points.parent]]
+- fields: this params used to define what field you want to include in endpoint's result, separate them with comma (NO space after or before comma) if you want to include multiple fields
+
+Please define two of those params according to your needs, make sure to only get what you need, some of expandable fields is excessive in terms of SQL Query, be wise!!!

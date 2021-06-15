@@ -1,0 +1,74 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |country|yes|the [ISO_3166-1_alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) two-letter country code|
+// |searchby|yes|one of `area`, `tollfree`, `address`, or `number`|
+// |area_code|no|if using `searchby` set to `area` specify an area code to search for numbers in|
+// |pattern|no|an optional pattern to search for|
+// |address|no|if using `searchby` set to `address` specify an address or zip code: `123 main street, new york, ny` or `10001`|
+// |number|no|if using `searchby` set to `number` specify an area code and prefix: `917563`|
+
+@name("search for US/CA numbers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/search.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "country"= "US"
+? "searchby"= "area"
+? "areacode"= "443"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |country|yes|the [ISO_3166-1_alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) two-letter country code|
+// |pattern|no|an optional pattern to search for|
+// |operator|no|either `start_with` or `includes`|
+// 
+// The default operator is `includes`. It will look for numbers that contain the `pattern`.
+// 
+// The `start_with` operator allows you to find numbers by area code and prefix.
+
+@name("search for international numbers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/search.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "country"= "GB"
+? "pattern"= "430"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |phone_number|yes|use `phone_number` from search|
+// |test|no|if you set a value for `test`, you will not actually purchase the number, but it can be used to test setting up tracking number, etc.|
+
+@name("buy number for an account")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "phone_number": "+14102051558",
+    "test": true
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |area_code|yes|an area code you want to buy a number in|
+// |test|no|if you set a value for `test`, you will not actually purchase the number, but it can be used to test setting up tracking number, etc.|
+
+@name("buy number for an account by area code")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/areacode"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "phone_number": "+14102051558",
+    "test": true
+}')
+
+
+

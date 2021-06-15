@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+// To get data for a single resource entity, the `GET {{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}` operation returns data for the trusted email domain resource with the specified ID.
+// 
+
+@name("READ One Trusted Email Domain")
+GET "https://{{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// PingOne supports the ability to configure one trusted email domain for each environment.
+// 
+// The `GET {{apiPath}}/environments/{{envID}}/emailDomains` endpoint returns a list of zero or one trusted email domain resources associated with the specified environment resource.
+
+@name("READ All Trusted Email Domains")
+GET "https://{{apiPath}}/environments/{{envID}}/emailDomains"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET {{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/ownership` operation verifies ownership for the trusted email domain resource with the specified ID.
+// 
+
+@name("READ Trusted Email Domain Ownership Status")
+GET "https://{{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/ownership"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET {{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/dkim` operation returns the verification status and the verification token for the trusted email domain, for the 3 AWS SES regions. The verification status of the domain is `VERIFICATION_REQUIRED`, until the trusted email domain owner adds CNAME records in the trusted email domain's DNS settings. After that, the domain's status is `ACTIVE`.
+// 
+
+@name("READ Trusted Email Domain DKIM Status")
+GET "https://{{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/dkim"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET {{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/spf` operation returns the verification status and the verification token for the trusted email domain. The verification status of the domain is `VERIFICATION_REQUIRED`, until the trusted email domain owner adds TXT records in the trusted email domain's DNS settings. After that, the domain's status is `ACTIVE`.
+// 
+
+@name("READ Trusted Email Domain SPF Status")
+GET "https://{{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}/spf"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST {{apiPath}}/environments/{{envID}}/emailDomains` operation adds a new resource entity to the specified environment resource.
+// 
+// ::: info
+// **Note:** An environment can have only one configured trusted email domain.
+// :::
+// 
+// 
+// The request body must specify a value for the resource entity's `domainName` property, and there cannot be an existing trusted email domain resource associated with the specified environment. If a trusted email domain resource already exists for this environment, the response returns a `UNIQUENESS_VIOLATION` error.
+
+@name("CREATE Trusted Email Domain")
+POST "https://{{apiPath}}/environments/{{envID}}/emailDomains"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "domainName": "auth.shopco.com"
+}')
+
+
+// ::: info
+// **Note:** <ul><li>Before you delete a trusted email domain resource, all associated email addresses must be deleted.</li><li>Before (or after) you delete a trusted email domain resource, it is recommended that you remove the CNAME record that you created for this domain from the DNS manager. This step is optional.</li></ul>
+// :::
+// 
+// 
+// The sample shows the `DELETE {{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}` operation to delete the trusted email domain resource entity specified by its ID in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 Successfully deleted. No Content` message.
+
+@name("DELETE Trusted Email Domain")
+DELETE "https://{{apiPath}}/environments/{{envID}}/emailDomains/{{emailDomainId}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+

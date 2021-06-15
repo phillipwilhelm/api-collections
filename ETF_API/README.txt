@@ -1,0 +1,1 @@
+This is a REST API that allows you to get real-time data of the ETFs and data related to the ETFs from the website "https://www.ssga.com/us/en/individual/etfs/fund-finder?".

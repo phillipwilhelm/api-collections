@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+// A schema is the set of directory server rules that define the structures, contents, and constraints of a Directory Information Tree (DIT). The schema guarantees that any new data entries or modifications meet and conform to these predetermined set of definitions. It also reduces redundant data definitions and provides a uniform method for clients or applications to access its Directory Server objects. The PingDirectory Server ships with a default set of read-only schema files that define the core properties for the directory server.
+// 
+// Schemas endpoints provide operations to get all defined schemas.
+
+@name("Get Schemas")
+GET "https://{{pingdirectory_host}}/directory/v1/schemas/person"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+
+
+// A GET request on the base endpoint, /directory/v1, returns metadata about the server and API. It also returns a list of configured schemas allowed on the server.
+
+@name("Get Server Metadata")
+GET "https://{{pingdirectory_host}}/directory/v1/"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+
+
+// The POST /directory/v1 operation adds a new entry to the directory. The request body must contain all of the required attributes as defined in the schema. If there are no required attributes defined in the schema, you can submit a valid create request with only the _dn attribute in the request body.
+
+@name("Create User")
+POST "https://{{pingdirectory_host}}/directory/v1/"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+"Content-Type": "application/json"
+data('{
+  "_parentDN": "{{base_dn}}",
+  "objectClass": [ "person" ],
+  "cn": ["user.{{userID}}"],
+  "sn": ["pm-test-user"],
+  "userPassword": ["2Federate!"]
+}')
+
+
+// This operation returns the entry specified by its disstinguished name (DN).
+
+@name("Get User (by DN)")
+GET "https://{{pingdirectory_host}}/directory/v1/{{userDN}}"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+
+
+// This operation retrieves the user entry created by using the URL returned by the previous POST call.
+
+@name("Get User (by self URL)")
+GET "https://{{userURL}}/"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+
+
+// This request leverages the search API with filtering and paging facilities.
+
+@name("Search User by cn")
+GET "https://{{pingdirectory_host}}/directory/v1/{{base_dn}}/subtree"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+? "searchScope"= "wholeSubtree"
+? 'filter'= 'cn eq "user.{{userID}}"'
+
+
+// This request leverages the search API with filtering and paging facilities.
+
+@name("Search all users")
+GET "https://{{pingdirectory_host}}/directory/v1/{{base_dn}}/subtree"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+? "searchScope"= "wholeSubtree"
+? 'filter'= 'sn eq "pm-test-user"'
+
+
+// Modify an entry in PingDirectory.
+
+@name("Update User (set description)")
+PUT "https://{{pingdirectory_host}}/directory/v1/{{userDN}}"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+"Content-Type": "application/json"
+data('{
+  "description": ["This user is created via the PingDirectory REST API"]
+}')
+
+
+// Modify an entry in PingDirectory.
+
+@name("Update User (add description)")
+PATCH "https://{{pingdirectory_host}}/directory/v1/{{userDN}}"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+"Content-Type": "application/json"
+data('{
+	"modifications": 
+		[
+			{
+				"attributeName": "description",
+				"modificationType": "add",
+				"values": ["furthermore, these are set via a Postman collection"]
+			}
+		]
+}')
+
+
+// Delete an entry from PingDirectory
+
+@name("Delete User")
+DELETE "https://{{pingdirectory_host}}/directory/v1/{{userDN}}"
+basicauth("{{pingdirectory_admin_user}}", "{{pingdirectory_admin_pwd}}")
+
+
+

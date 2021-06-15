@@ -1,0 +1,112 @@
+#!/usr/bin/env dothttp
+
+// The sample shows the `GET /environments/{environmentId}/users/{userId}/devices` operation to return a list of all device resources associated with the specified user.
+// 
+// The `type` property shows that this user has an `EMAIL` device defined for use in a multi-factor authentication flow. The `status` property shows that the device is `ACTIVE`.
+// 
+// If a device is inactive, the `status` property is set to `ACTIVATION_REQUIRED` and the `_links` property includes the `activate` link. The response shows data for an inactive device.
+// 
+
+@name("READ All MFA User Devices")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The sample shows the `GET /environments/{environmentId}/users/{userId}/devices/{deviceId}` operation return information about the device resource specified by its ID in the request URL.
+// 
+// The response data shows sample extended information for a device whose `type` is `MOBILE`.
+
+@name("READ One MFA User Device")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/devices` operation to add an SMS device to the specified user resource.
+// 
+// The `status` parameter is optional. Use cases:
+// 
+// 1. If the actor makes the request on behalf of another user, the value assigned to `status` can be one of:
+// 	* `ACTIVE` (default, if not provided): The device is pre-paired for the user. The user is not required to activate the device before performing its first authentication.
+// 	* `ACTIVATION_REQUIRED`: The user must activate the device before performing its first authentication.
+// 2. If the actor making the request is the same user for whom the device is created, the status can only be `ACTIVATION_REQUIRED` (default, if not provided). Thus in this case, a user is required to activate the device before performing its first authentication.
+// 
+// A valid phone number string can be provided in international format (includes a leading `+` character), or in any format as long as the region (country code) where the number originates can be determined. The input string is checked to determine whether it is a viable phone number (for example, whether it has too few or too many digits, cannot start with a 1) or if no country code is supplied.
+// 
+// The following sample shows acceptable valid `phone` attribute formatting for the same number:
+// 
+// ```
+// +1.5125201234
+// +15125201234
+// +1.512.520.1234
+// 15125201234
+// 1-512-520-1234
+// +1 (512) 520-1234
+// ```
+// 
+// ::: info
+// **Note:** An actor making a self request must have an access token that includes the `p1:create:device` scope.
+// :::
+
+@name("CREATE MFA User Device (SMS)")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "type": "SMS",
+    "phone": "{see description for phone number format}"
+}')
+
+
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/devices` operation to add an EMAIL device to the specified user resource.
+// 
+// **Note:** An actor making a self request must have an access token that includes the `p1:create:device` scope.
+
+@name("CREATE MFA User Device (Email)")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "type": "EMAIL",
+    "email": "do-not-send@example.com"
+}')
+
+
+// Devices with a `status` of `ACTIVATION_REQUIRED` are activated using a valid one-time password (OTP). The OTP is sent to the phone number or email address specified in the device resource's properties.
+// 
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/devices/{deviceId}` operation to activate the device specified in the request URL. This operation uses the `application/vnd.pingidentity.device.activate+json` custom content type in the request header to specify the activation action.
+// 
+// When the activation action is completed successfully, the response returns a `200 OK` message and the device `status` property is changed to `ACTIVE`.
+
+@name("Activate MFA User Device")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+"Content-Type": "application/vnd.pingidentity.device.activate+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "otp": "xxxxxx"
+}')
+
+
+// The `PUT /environments/{environmentId}/users/{userId}/devices/{deviceId}/logs` operation issues a request for logs from a user’s mobile device.
+// 
+// The value of `expiresAt` is set at 24 hours from the time of the request for the logs. When the user connects to the app, it sends the logs and the status changes from `PENDING` to `RECEIVED`. `expiresAt` is reset when the logs are sent, or when the system date reaches the request’s expiry time.
+
+@name("Send MFA Device Logs")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}/logs"
+"Content-Type": "application/json"
+data('{
+    "status": "PENDING"
+}')
+
+
+// Devices are deactivated by deleting the device. The sample shows the `DELETE /environments/{environmentId}/users/{userId}/devices/{deviceId}` operation to remove the device specified in the request URL.
+// 
+// 
+// When the device is removed successfully, the response returns a `204 Successfully deleted` message.
+
+@name("DELETE MFA User Device")
+DELETE "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

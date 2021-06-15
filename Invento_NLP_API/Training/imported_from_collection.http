@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// Tells the user if a model is currently being trained
+
+@name("Training status")
+POST "https://{{url}}/get_status"
+"Content-Type": "application/json"
+
+
+// Roll back to previously trained model
+
+@name("model_rollback")
+POST "https://{{url}}/model_rollback"
+
+
+// Incase the training is stuck and or any error came up during the training, we can reset the training by calling this api. Then you can train again.
+
+@name("Reset training")
+POST "http://localhost/offline-bot/sdk/reset"
+
+
+// View exsiting training phrases if intent is already present
+
+@name("View Training phrases")
+POST "https://{{url}}/view_training_phrases"
+"Content-Transfer-Encoding": "application/json"
+files(
+	("data", "{"intent" :  "feedback"}")
+)
+
+
+// This api returns the intent of the user input , intent confidence, and entities recognised
+
+@name("Intent and Entity recognition")
+POST "https://{{url}}/nlp"
+files(
+	("text", "Hello there .")
+)
+
+
+// Append the latest intent with the training phrases to nlu file.
+// Update the same intent in the response file and
+// kick off training 
+// Model versioning
+// 	- old model is moved to cwd/temp directory	{cwd = current working directory}
+
+@name("Train and update NLU")
+POST "https://{{url}}/update_nlu"
+"Content-Type": "application/json"
+files(
+	("nlu", "{
+    "intent" : "enrollment",
+    "user_utterance" : ["How do i enroll myself ?","how do i join Invento's internship program?","Do Invento offer internship?", "what do i do enroll myself into Invento?"],
+    "response" : "Hello , Welcome to SCB",
+    "response_type" : "SK",
+    "optional_data" : []
+   }")
+)
+
+
+

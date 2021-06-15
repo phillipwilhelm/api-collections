@@ -1,0 +1,104 @@
+#!/usr/bin/env dothttp
+
+// The following sample shows the `GET /environments/{environmentId}/schemas` operation to return a list of all schema resources for the specified environment.
+
+@name("READ All Schemas")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single schema resource, the `GET /environments/{environmentId}/schemas/{schemaId}` operation returns data only for the schema resource with the ID specified in the request URL.
+// 
+// 
+// You can also retrieve the specified schema with its attributes expanded using `GET /environments/{environmentId}/schemas/{schemaId}?expand=attributes`. The output returned represents the schema for a single resource and all its attributes. Attributes and their values are listed in the `_embedded` HAL links.
+// 
+
+@name("READ One Schema")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The following sample shows the `GET /environments/{environmentId}/schemas/{schemaId}/attributes` operation to return a list of all attributes associated with the specified schema resource.
+
+@name("READ All (Schema) Attributes")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single attribute resource, the the `GET /environments/{environmentId}/schemas/{schemaId}/attributes/{attributeId}` operation returns data only for the attribute resource with the ID specified in the request URL.
+// 
+// 
+// **Custom string attributes in user resource requests**
+// 
+// You can use custom string attributes in a filtering expression to fine-tune the user response data. The following sample shows a `GET /environments/{environmentId}/users` request that returns users with a `shirtSize` custom attribute value set to `Large`.
+// 
+// ```bash
+// curl -X "GET" "https://api.pingone.com/v1/environments/000c2764-3489-4d34-a707-b23dd488049c/users?filter=shirtSize%20eq%20%Large%22" \
+// -H 'Content-type: application/json' \
+// -H 'Authorization: Bearer jwtToken'
+// ```
+
+@name("READ One Attribute")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The following sample shows the `POST /environments/{environmentId}/schemas/{schemaId}/attributes` operation to add a new custom attribute to a specified schema resource. In the request body, the `name` property is required. All other properties are optional.
+
+@name("CREATE Attribute")
+POST "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "description": "An optional property that specifies the description of the new attribute.",
+    "displayName": "An optional property that specifies the display name of the attribute.",
+    "enabled": false,
+    "name": "customAttribute-101",
+    "required": false,
+    "type": "STRING",
+    "unique": false
+}')
+
+
+// For schema attribute updates, both `PUT` and `PATCH` contracts are supported. The following sample shows the `PATCH /environments/{environmentId}/schemas/{schemaId}/attributes/{attributeId}` operation to update existing attribute properties. For the `PATCH` operation, the update operation targets only those attribute property values specified in the request body. Attribute properties omitted from the request body are not updated or removed.
+
+@name("UPDATE Attribute (Patch)")
+PATCH "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "NewName",
+    "schemaType": "CORE",
+    "type": "STRING",
+    "unique": true,
+    "enabled": false
+}')
+
+
+// You can also update existing attribute properties using `PUT /environments/{environmentId}/schemas/{schemaId}/attributes/{attributeId}`. The `PUT` operation removes any existing attribute properties omitted from the request body.
+
+@name("UPDATE Attribute (Put)")
+PUT "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+	"name": "customAttribute",
+    "unique": true,
+    "enabled": false,
+    "required": true
+}')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/schemas/{schemaId}/attributes/{attributeId}` operation to delete the attribute identified in the request URL by its ID.
+// 
+// 
+// For successful delete operations, a `204 NO CONTENT` message is returned by the request.
+
+@name("DELETE Attribute")
+DELETE "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

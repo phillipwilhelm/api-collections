@@ -1,0 +1,96 @@
+#!/usr/bin/env dothttp
+
+@name("List all users")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get user details")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users/{{userDescriptor}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// Another way to get user details
+
+@name("Get User Subject")
+POST "https://vssps.dev.azure.com/{{organization}}/_apis/graph/subjectlookup"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+json({
+    "lookupKeys": [
+        {
+            "descriptor": "aad.OTFhYTQzNzUtODg5Yi03NzdkLWFkZTItMDYyNGI0NDgxxxxx"
+        }
+    ]
+})
+
+
+// The Security Namespace for Collection Security is "3e65f728-f8bc-4ecd-8764-7e378b19bfa7"
+// 
+// For AAD users (including MSA guests in the tenant), you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantID\\user@domain.com as the descriptor.
+// 
+// Example 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity;82f988bf-86f1-41af-91ab-2d7cd011db47\\user@company.com
+// 
+// For MSA users, you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;PUID@Live.com.
+// 
+// If all you have is the aad.value or msa.value descriptor for the user, you can use this API to convert it to tenant\\UPN or PUID@Live.com: https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/subject%20lookup/lookup%20subjects?view=azure-devops-rest-5.1. For msa.value descriptors, the PUID would be the originId.
+
+@name("Edit/Set User Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{OrgGroupSecurityNamespaceID}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "NAMESPACE",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenant\\user@company.com",
+            "allow": 1024,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Project Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Unset/Delete User Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "token"= "NAMESPACE"
+? "descriptors"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\user@company.com"
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688",
+            "allow": 513,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+

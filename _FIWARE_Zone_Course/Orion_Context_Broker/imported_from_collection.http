@@ -1,0 +1,286 @@
+#!/usr/bin/env dothttp
+
+@name("Get all types")
+GET "https://{{host}}/v2/types"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Get a single type")
+GET "https://{{host}}/v2/types/Vehicle"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Get all entities")
+GET "https://{{host}}/v2/entities"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Create entity")
+POST "https://{{host}}/v2/entities"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"id": "myEntity",
+	"type": "myType",
+	"description": {
+		"value": "My happy entity",
+		"type": "Text"
+	},
+	"online": {
+		"value": true,
+		"type": "Boolean"
+	},
+	"temperature": {
+		"value": 42.3,
+		"type": "Number"
+	}
+}
+		')
+
+
+@name("Get a single entity")
+GET "https://{{host}}/v2/entities/myEntity"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Update entity attributes (append & update)")
+POST "https://{{host}}/v2/entities/myEntity/attrs"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"online": {
+		"value": false,
+		"type": "Boolean"
+	}
+}
+		')
+
+
+@name("Update entity attributes (strict update)")
+PATCH "https://{{host}}/v2/entities/myEntity/attrs"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"online": {
+		"value": false,
+		"type": "Boolean"
+	}
+}
+		')
+
+
+@name("Update entity attributes (replace)")
+PUT "https://{{host}}/v2/entities/myEntity/attrs"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"description": {
+		"value": "My even more happy entity",
+		"type": "Text"
+	},
+	"status": {
+		"value": "active",
+		"type": "Text"
+	},
+	"humidity": {
+		"value": 61.23,
+		"type": "Number"
+	}
+}		')
+
+
+@name("Delete a single entity")
+DELETE "https://{{host}}/v2/entities/myEntity"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+
+@name("Get attribute")
+GET "https://{{host}}/v2/entities/myEntity/attrs/temperature"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Update attribute")
+PUT "https://{{host}}/v2/entities/myEntity/attrs/temperature"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "type": "Number",
+    "value": -10.2
+}')
+
+
+@name("Delete attribute")
+DELETE "https://{{host}}/v2/entities/myEntity/attrs/temperature"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+
+@name("Get attribute value as text")
+GET "https://{{host}}/v2/entities/myEntity/attrs/description/value"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Set attribute value as text")
+PUT "https://{{host}}/v2/entities/myEntity/attrs/description/value"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "text/plain"
+data('"New description"')
+
+
+@name("Get all subscriptions")
+GET "https://{{host}}/v2/subscriptions"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Create subscription")
+POST "https://{{host}}/v2/subscriptions"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "description": "A subscription to get info about myEntity",
+  "subject": {
+    "entities": [
+      {
+        "id": "myEntity",
+        "type": "myType"
+      }
+    ],
+    "condition": {
+      "attrs": [ ]
+    }
+  },
+  "notification": {
+    "http": {
+      "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1"
+    },
+    "attrs": [
+      "temperature"
+    ]
+  }
+}')
+
+
+@name("Create subscription with conditions")
+POST "https://{{host}}/v2/subscriptions"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "description": "A subscription to get info about myEntity with conditions",
+  "subject": {
+    "entities": [{ 
+  "id": "myEntity",
+  "type": "myType"
+}],
+    "condition": {
+      "attrs": ["temperature"],
+      "expression": {"q": "temperature<10;temperature>0"}
+    }
+  },
+  "notification": {
+    "http": {"url": "https://putsreq.com/aVGLyszHUMDEHgtUe9C6"},
+    "attrs": ["temperature"]
+  }
+}
+')
+
+
+@name("Create subscription (custom notification)")
+POST "https://{{host}}/v2/subscriptions"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "description": "A subscription to get info about myEntity",
+  "subject": {
+    "entities": [
+      {
+        "id": "myEntity",
+        "type": "myType"
+      }
+    ],
+    "condition": {
+      "attrs": [ ]
+    }
+  },
+  "notification": {
+    "httpCustom": {
+      "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1",
+      "headers": {
+      	"Content-Type": "application/xml",
+      	"X-EntityType": "${type}"
+      },
+      "qs": {
+      	"entityId": "${id}"
+      },
+      "payload": "%3Ctemperature%3E${temperature}%3C/temperature%3E"
+    },
+    "attrs": [
+      "temperature"
+    ]
+  }
+}')
+
+
+@name("Get a single subscription")
+GET "https://{{host}}/v2/subscriptions/59e8c603779d7a40b18c714d"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Update subscription")
+PATCH "https://{{host}}/v2/subscriptions/59e8c603779d7a40b18c714d"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"status": "inactive"
+}')
+
+
+@name("Delete a single subscription")
+DELETE "https://{{host}}/v2/subscriptions/59e8c603779d7a40b18c714d"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+
+

@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// This test verifies that POST with body parameters is working as expected.
+
+@name("200 - Recommended Usage")
+POST "https://{{baseUrl}}/v1"
+json({
+    "collectionuid": "{{collection_uid}}",
+    "environmentuid": "{{environment_uid}}",
+    "environmentoverlayuid": "{{environment_overlay_uid}}"
+})
+
+
+// This test verifies that you can pass in a query parameter and have it get set in the environment.  This is how your API can take Dynamic Data.
+
+@name("200 - Defining Environment variable")
+POST "https://{{baseUrl}}/v1"
+? "foo"= "testing123"
+json({
+    "collectionuid": "{{collection_uid}}",
+    "environmentuid": "{{environment_uid}}",
+    "environmentoverlayuid": "{{environment_overlay_uid}}"
+})
+
+
+// This isn't the recommended way to access Cloud Newman, but for some reason if all you have access to is the query parameters then it should work.  You may hit CDN caching issues, etc.
+
+@name("200 - Query Param Usage")
+POST "https://{{baseUrl}}/v1"
+? "collectionuid"= "{{collection_uid}}"
+? "environmentuid"= "{{environment_uid}}"
+? "environmentoverlayuid"= "{{environment_overlay_uid}}"
+? "apikey"= "{{postman_api_key}}"
+
+
+
+// Test when the environment_uid is not correct.
+
+@name("404 - Bad environment_uid (in PARAMS)")
+POST "https://{{baseUrl}}/v1"
+? "environment_uid"= "BAD VALUE"
+json({
+    "collectionuid": "{{collection_uid}}",
+    "environmentoverlayuid": "{{environment_overlay_uid}}"
+})
+
+
+// Test when the environment_uid is not correct.
+
+@name("404 - Bad environment_uid (in body)")
+POST "https://{{baseUrl}}/v1"
+json({
+    "collectionuid": "{{collection_uid}}",
+    "environmentuid": "BAD VALUE HERE",
+    "environmentoverlayuid": "{{environment_overlay_uid}}"
+})
+
+
+// Test invalid post body.
+
+@name("404 - Bad POST body")
+POST "https://{{baseUrl}}/v1"
+data("{
+    THIS ISN'T VALID JSON!!!
+}")
+
+
+

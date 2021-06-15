@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// To reserve an account on Monnify, you’ll need to call the reserve account endpoint providing the information in the table below (remember to also add the authentication header)
+
+@name("Reserving an account")
+POST "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts"
+"Authorization": "Bearer AccessToken"
+"Content-Type": "application/json"
+json({
+    "accountReference": "100abc007",
+    "accountName": "Test Reserved Account",
+    "currencyCode": "NGN",
+    "contractCode": "6146592431",
+    "customerEmail": "test@tester.com",
+    "customerName": "John Doe"
+})
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Tokens)
+// 
+// 
+
+@name("Reserving an account with SubAccounts")
+POST "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts"
+"Authorization": "Bearer AccessToken"
+"Content-Type": "application/json"
+? "subAccountCode"= "The unique reference for the sub account that should receive the split."
+? "feeBearer"= "Boolean to determine if the sub account should bear transaction fees or not"
+? "feePercentage"= "The percentage of the transaction fee to be borne by the sub account"
+? "splitPercentage"= "The percentage of the amount paid to be split into the sub account."
+? "Field"= "Description"
+json({
+    "accountReference": "0111443-JP098",
+    "accountName": "Joe Philips",
+    "currencyCode": "NGN",
+    "contractCode": "6146592431",
+    "customerEmail": "jp@tester.com",
+    "customerName": "Joe Philips",
+    "incomeSplitConfig": [
+        {
+            "subAccountCode": "MFY_SUB_275274693326",
+            "feePercentage": 10.5,
+            "splitPercentage": 20,
+            "feeBearer": true
+        }
+    ]
+})
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Tokens)
+
+@name("Get Reserved Account Details")
+GET "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts/{accountReference}"
+"Authorization": "Bearer AccessToken"
+"Content-Type": "application/json"
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Token)
+
+@name("Updating Split Config On Reserved Account")
+PUT "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts/update-income-split-config/{accountReference}"
+"Authorization": "Bearer AccessToken"
+"Content-Type": "application/json"
+json([
+    {
+        "subAccountCode": "MFY_SUB_275274693326",
+        "feePercentage": 10.5,
+        "splitPercentage": 10,
+        "feeBearer": true
+    },
+    {
+        "subAccountCode": "MFY_SUB_851926296566",
+        "feeBearer": false,
+        "splitPercentage": 30
+    }
+])
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Tokens)
+
+@name("Get All Transactions on Reserved Account")
+GET "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts/transactions"
+"Authorization": "Bearer AccessToken"
+"Content-Type": "application/json"
+? "accountReference"= "{accountReference}"
+? "page"= "0"
+? "size"= "10"
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Token)
+// Please note this action cannot be reversed!!
+
+@name("Deleting a Reserved Account")
+DELETE "https://sandbox.monnify.com/api/v1/bank-transfer/reserved-accounts/3000004533"
+"Authorization": "Bearer AccessToken"
+? "account number"= "virtual account number generated for the accountReference (Reserved account number)"
+
+
+// This endpoint is protected with OAuth 2.0 (Bearer Token)
+
+@name("Source Account Restriction")
+GET "https://{{host}}/"
+
+
+

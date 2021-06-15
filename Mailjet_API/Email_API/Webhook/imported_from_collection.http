@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of all callback URL objects and their configuration settings. Whenever an action (e.g. email open) occurs, the information about it will be sent to the selected callback URL. You can then set up different automation workflows triggered by the tracked actions.
+// 
+// Note: The URL provided cannot be a root URL.
+
+@name("Retrieve all Callback URLs")
+GET "https://api.mailjet.com/v3/REST/eventcallbackurl"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Backup"= "false"
+? "EventType"= "1"
+? "Status"= "{{Status}}"
+? "Version"= "{{Version}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve the configuration settings of a specific callback URL. Whenever an action (e.g. email open) occurs, the information about it will be sent to the selected callback URL. You can then set up different automation workflows triggered by the tracked actions.
+// 
+// Note: The URL provided cannot be a root URL.
+
+@name("Retrieve a single Callback URL")
+GET "https://api.mailjet.com/v3/REST/eventcallbackurl/{{url_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Add a new callback URL used as a webhook to track different email actions. Whenever an action (e.g. email open) occurs, the information about it will be sent to this callback URL. You can then set up different automation workflows triggered by the tracked actions.
+// 
+// Note: The URL provided cannot be a root URL.
+
+@name("Create a Callback URL")
+POST "https://api.mailjet.com/v3/REST/eventcallbackurl"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "EventType": "open",
+    "IsBackup": false,
+    "Status": "alive",
+    "Version": 0,
+    "Url": "https://www.example.com/123/"
+}')
+
+
+// Update the configuration settings of an existing callback URL - which type of events it tracks, the URL used, whether it is active or not etc.
+// 
+
+@name("Update a Callback URL")
+PUT "https://api.mailjet.com/v3/REST/eventcallbackurl/{{url_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "EventType": "open",
+    "IsBackup": false,
+    "Status": "alive",
+    "Version": 0,
+    "Url": "https://www.example.com/123/"
+}')
+
+
+// Delete an existing callback URL.
+// 
+
+@name("Delete a Callback URL")
+DELETE "https://api.mailjet.com/v3/REST/eventcallbackurl/{{url_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+

@@ -1,0 +1,155 @@
+#!/usr/bin/env dothttp
+
+@name("getSitePacketCaptures")
+GET "https://{{host}}/api/v1/sites/:site_id/pcaps"
+
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  aps|[]string|List of target APs to capture packets
+//  ok|[]string|List of target APs successfully configured to capture packets
+//  failed|[]string|List of APs where configuration attempt failed
+
+@name("getSiteCapturingStatus")
+GET "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+
+
+// #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  client_mac|string|client mac, required if type==client; optional otherwise
+//  num_packets|int|number of packets to capture, 0 for unlimited, default is 1024 for client-capture, 100 for new association
+//  duration|int|duration of the cpture, in seconds, default is 600, maximum is 86400
+//  max_pkt_len|int|max_len of each packet to capture, default is 128, maximum is 2048
+//  ssid|string|optional filter by ssid
+//  ap_mac|string|optiona filter by ap_mac
+
+@name("startSiteClientPacketCapture")
+POST "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "client",
+    "client_mac": "60a10a773412",
+    "num_packets": 1000,
+    "duration": 300,
+    "max_pkt_len": 128,
+    "includes_mcast": false,
+    "ssid": null,
+    "ap_mac": null
+})
+
+
+//  #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  client_mac|string|client mac, required if type==client; optional otherwise
+//  num_packets|int|number of packets to capture, 0 for unlimited, default is 1024 for client-capture, 100 for new association
+//  duration|int|duration of the cpture, in seconds, default is 600, maximum is 86400
+//  max_pkt_len|int|max_len of each packet to capture, default is 128, maximum is 2048
+//  ssid|string|optional filter by ssid
+//  ap_mac|string|optiona filter by ap_mac
+
+@name("startSitePacketCaptureforNewWirelessClientAssociations")
+POST "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "new_assoc",
+    "num_packets": 100,
+    "duration": 600,
+    "max_pkt_len": 128,
+    "includes_mcast": false,
+    "ssid": null,
+    "ap_mac": null,
+    "client_mac": "60a10a773412"
+})
+
+
+// #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  num_packets|int|number of packets to capture, 0 for unlimited, default is 1024 for client-capture, 100 for new association
+//  duration|int|duration of the cpture, in seconds, default is 600, maximum is 86400
+//  max_pkt_len|int|max_len of each packet to capture, default is 128, maximum is 2048
+//  tcpdump_expression|string|tcpdump expression
+//  ap_mac|string|optional filter by ap_mac
+//  format|string|pcap format, pcap / stream, default is pcap
+
+@name("startSiteWiredPacketCapture")
+POST "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "wired",
+    "num_packets": 100,
+    "duration": 600,
+    "max_pkt_len": 68,
+    "tcpdump_expression": "tcp port 80",
+    "ap_mac": null
+})
+
+
+// #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  num_packets|int|number of packets to capture, 0 for unlimited, default is 1024 for client-capture, 100 for new association
+//  duration|int|duration of the cpture, in seconds, default is 600, maximum is 86400
+//  max_pkt_len|int|max_len of each packet to capture, default is 128, maximum is 2048
+//  ap_mac|string|optional filter by ap_mac
+//  format|string|pcap format, pcap / stream, default is pcap
+//  wlan_id|string|WLAN ID
+//  band|string|24,5 / 24 / 5, default is 24
+
+@name("startSiteWirelessPacketCapture")
+POST "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "wireless",
+    "num_packets": 100,
+    "duration": 600,
+    "max_pkt_len": 68,
+    "ap_mac": null
+})
+
+
+// #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  num_packets|int|number of packets to capture, 0 for unlimited, default is 1024 for client-capture, 100 for new association
+//  duration|int|duration of the cpture, in seconds, default is 600, maximum is 86400
+//  max_pkt_len|int|max_len of each packet to capture, default is 128, maximum is 2048
+//  ap_mac|string|optional filter by ap_mac
+//  format|string|pcap format, pcap / stream, default is pcap
+//  band|string|2.4 / 5, default is 2.4
+
+@name("startSiteRadiotapPacketCapture")
+POST "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "radiotap",
+    "num_packets": 100,
+    "duration": 600,
+    "max_pkt_len": 68,
+    "ap_mac": null,
+    "band": "2.4",
+    "format": "stream"
+})
+
+
+@name("stopSitePacketCapture")
+DELETE "https://{{host}}/api/v1/sites/:site_id/pcaps/capture"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,28 @@
+#!/usr/bin/env dothttp
+
+// This method of transfer is intended for international funds movement with bank relationship established previously via _bank relationship_. Depending on the underlying facilitator of funds movement it may be necessary to redirect client to an external site for transaction completion. In such case, `redirectUrl` will be provided via separate notification and/or within response object (requests may take longer to complete or even timeout).
+// 
+// 
+// `direction` in the endpoint is limited to:
+// * `deposit` - for all incoming funds
+// * `withdraw` - for all outgoing funds
+
+@name("Fund transfer")
+POST "https://{{url}}/api/transfer/bank/{direction}"
+data('{
+    "userAccount": {
+        "accountNumber": "AB123",
+        "accountId": 0
+    },
+    "entryId": 1,       // bank relationship entry id
+    "amount": 100.00,   // amount in USD to be deposited/withdrawn
+    "currency": "USD",  // others are not supported at the moment
+    "awaitRedirectUrl": false,  // whether this call will wait for `redirectUrl` availability
+    "awaitTime": 30000,         // maximum amount of time API should wait for `redirectUrl` (in milliseconds and is subject to server/client configuration)
+    "callbackUrl": "",          // field may be necessary to support client\'s decision to `cancel` the transfer
+    "remoteAddr": "{IP}",
+    "remoteDevice": "{iPhone}"
+}')
+
+
+

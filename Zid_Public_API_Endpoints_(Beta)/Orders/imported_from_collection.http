@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// Get order list by filters
+
+@name("List of Orders")
+GET "https://{{api_url}}/managers/store/orders"
+"Accept": "{{Accept}}"
+"Authorization": "{{Authorization}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Accept-Language": "{{Accept-Language}}"
+"User-Agent": "{{User-Agent}}"
+? "payload_type"= "default"
+? "page"= "1"
+? "per_page"= "15"
+? "order_status"= "preparing"
+? "status"= "preparing"
+? "payment_method"= "zid_bank_transfer"
+? "shipping_method"= "zid_delivery.option_597"
+? "customer_id"= "1"
+? "date_from"= "2020-01-01"
+? "date_to"= "2020-01-31"
+? "order_by"= "created_at"
+? "sort_by"= "asc"
+
+
+// Get a specific order by its id.
+
+@name("Order By Id")
+GET "https://{{api_url}}/managers/store/orders/:order-id/view"
+"Accept": "{{Accept}}"
+"Authorization": "{{Authorization}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Accept-Language": "{{Accept-Language}}"
+"User-Agent": "{{User-Agent}}"
+
+
+// Please consider that if the order is shipped through an integrated shipping company, then we can't update the order status from `ready` to `new`.
+// 
+// To send the order to a shipping company, you will need to change the order status to **ready** and to send **inventory_address_id** value with your request, it's a must since shipping companies need to know which pickup point to get the package from.
+// 
+// To get a list of your current inventory addresses along with their ids, please check [inventory addresses API endpoint](https://docs.zid.sa/?version=latest#3eb612af-335a-40be-9c81-9503022dfcda).
+
+@name("Update Order Status")
+POST "https://{{api_url}}/managers/store/orders/:order-id/change-order-status"
+"Accept": "{{Accept}}"
+"Authorization": "{{Authorization}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"User-Agent": "{{User-Agent}}"
+"Accept-Language": "{{Accept-Language}}"
+files(
+	("order_status", "ready"),
+	("inventory_address_id", "123")
+)
+
+
+

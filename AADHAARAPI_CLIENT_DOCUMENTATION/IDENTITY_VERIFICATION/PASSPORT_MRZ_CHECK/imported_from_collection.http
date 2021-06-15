@@ -1,0 +1,218 @@
+#!/usr/bin/env dothttp
+
+// ## REQUEST JSON
+// 
+// ### Body Params
+// 
+// * name (required) - Name as on Passport
+// * last_name (required) - Last Name as on Passport
+// * dob (required) - Date of Birth as on passport (dd/mm/yyyy format)
+// * doe (required) - Date of Expiration as on passport (dd/mm/yyyy format)
+// * gender (required) - Gender (M, F or T)
+// * passport_no (required) - Passport Number as mentioned in the passport
+// * type (required) - Type of passport (Passport Types mentioned below)
+// * country (required) - Country Code (Country Codes mentioned below)
+// * consent (required) - Consent of the End user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ## OUTPUT
+// 
+// <h4>Missing name</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Name is required"
+// }
+// ```
+// 
+// <h4>Missing last name</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Last Name is required"
+// }
+// ```
+// 
+// <h4>Missing/invalid DOB</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: DOB (Date of Birth) is required."
+// }
+// ```
+// 
+// <h4>Missing/invalid DOE</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: DOE (Date of Expiration) is required."
+// }
+// ```
+// 
+// <h4>Missing/invalid gender</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Please enter a valid Gender."
+// }
+// ```
+// 
+// <h4>Missing passport number</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Passport Number is required."
+// }
+// ```
+// 
+// <h4>Missing/invalid passport type</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Please enter a Passport type."
+// }
+// ```
+// 
+// <h4>Missing country code</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Country is required."
+// }
+// ```
+// 
+// <h4>Invalid country code</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "'Invalid parameter: Please enter valid country code"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// ```
+// {
+//     "id": "<< Transaction ID >>",
+//     "response_code": "101",
+//     "env": 1,
+//     "request_timestamp": "2018-09-17 14:05:19:608 +05:30",
+//     "response_timestamp": "2018-09-17 14:05:19:768 +05:30",
+//     "transaction_status": 1,
+//     "result": {
+//         "string2": "H2261416<XXXXXXXXXXXXXXXXXXXXX<<<<<<<<<<<<<<<2",
+//         "string1": "P<INDKOTHARI<<XXXXXX<MAHENXXXX<<<<<<<<<<<<<<<"
+//     },
+//     "response_msg": "Valid Authentication"
+// }
+// ```
+// 
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID >>",
+//     "response_code": "102",
+//     "env": 1,
+//     "request_timestamp": "2018-09-19 18:08:55:947 +05:30",
+//     "response_timestamp": "2018-09-19 18:08:57:366 +05:30",
+//     "response_msg": "Invalid ID number or combination of inputs"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-passport"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+	  "name": "<< Name on passport >>",
+	  "last_name": "<< Last Name >>",
+	  "dob": "<< Date of birth  dd/mm/yyyy>>",
+	  "doe": "<< Expiration Date dd/mm/yyyy>>",
+	  "gender": "<< M , F or T >>",
+	  "passport_no": "<< Passport Number>>",
+	  "type": "<< Passport Type >>",
+	  "country": "<< Country Code >>",
+      "consent":"<< Y or N >>",
+      "consent_text":"<< Consent Message >>"
+} ')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID>>",
+//     "consent": "Y",
+//     "consent_text": "<< Consent Text >>",
+//     "env": 1,
+//     "response_code": 101,
+//     "response_msg": "Valid Authentication",
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-09-14 15:09:49:107 +05:30",
+//     "response_timestamp": "2018-09-14 15:09:50:391 +05:30"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/verify-passport/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

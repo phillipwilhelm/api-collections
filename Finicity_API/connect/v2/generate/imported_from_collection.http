@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+// No matter how you plan on implementing Finicity Connect, you’ll need to generate and retrieve a Finicity Connect Link.  Connect provides you with a complete user experience, which requires minimal work in integration.  
+// Once you have generated the link it will only last until the authentication token under which it was generated expires. After that you will need to regenerate the Connect link under a new authentication token. We recommend generating a new authentication token when you generate a Connect link, to guarantee a full two hour life-span.
+// Connect features:
+// * Sign in, the user’s credentials and Multi-Factor Authentication (MFA)
+// * Search for the user’s financial institutions
+// * Manage the user’s accounts
+// 
+// 
+// **MVS Developers**
+// 
+// Use the `experience` parameter to call (per session) the Connect and the MVS application modules in the body of the request.
+//  
+// You can prepopulate the consumer’s SSN (only the last 4 digits appear) and DOB to display on the Find employment records page at the beginning of the MVS payroll module. Pass the SSN and DOB values for the consumer in the body of the request call.
+
+@name("Generate V2 Connect URL")
+POST "https://{{baseUrl}}/connect/v2/generate"
+"Content-Type": "application/json"
+data('{
+    "partnerId": "qui id nulla culpa consequat",
+    "customerId": "ipsum proident",
+    "consumerId": "86238nvnw7269e224a4e3de12352d87d",
+    "redirectUri": "https://www.finicity.com/connect/",
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "webhookData": {},
+    "webhookHeaders": {},
+    "institutionSettings": {},
+    "experience": "default",
+    "fromDate": 1607450357,
+    "reportCustomFields": [
+        {
+            "label": "loanID",
+            "value": "nostrud consectetur labore",
+            "shown": true
+        },
+        {
+            "label": "loanID",
+            "value": "ipsum exercitation laboris offici",
+            "shown": true
+        }
+    ],
+    "optionalConsumerInfo": {
+        "ssn": "consequat",
+        "dob": "ea ut"
+    }
+}')
+
+
+// Connect Lite allows as much control of the customer experience as possible. Lite includes just the essential pages needed for handling credentials and multi-factor authentication that must be handled by Finicity. You would be providing the financial institution search and the account management pages.
+// Connect Lite features:
+// * Sign in, user’s credentials and Multi-Factor Authentication (MFA)
+// * No user account management
+
+@name("Generate V2 Lite Connect URL")
+POST "https://{{baseUrl}}/connect/v2/generate/lite"
+"Content-Type": "application/json"
+data('{
+    "partnerId": "ex exercitation voluptate nisi veniam",
+    "customerId": "dolor commodo pariatur",
+    "institutionId": 102224,
+    "redirectUri": "https://www.finicity.com/connect/",
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "webhookData": {},
+    "webhookHeaders": {},
+    "experience": "default"
+}')
+
+
+// Fix provides a flow for customers to re-authenticate to their accounts, when the connection to the user’s financial institution is lost.  The connection to their accounts can stop working if the account password has changed, the MFA challenge has expired, or the token provided by the financial institution has been revoked.
+
+@name("Generate V2 Fix Connect URL")
+POST "https://{{baseUrl}}/connect/v2/generate/fix"
+"Content-Type": "application/json"
+data('{
+    "partnerId": "officia magna eiusmod ali",
+    "customerId": "et ut",
+    "institutionLoginId": 1007302745,
+    "redirectUri": "https://www.finicity.com/connect/",
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "webhookData": {},
+    "webhookHeaders": {},
+    "experience": "eiusmod cillum laborum Lorem quis"
+}')
+
+
+// This API generates a Connect 2.0 URL link for you to add within your own applications. Use the `experience` parameter to call the MVS application modules in the body of the request.
+//  
+// MVS prompts for both of the borrowers to enter all their financial, payroll, and paystub information. The primary and joint borrower’s experience is all done in one session.
+//  
+// You can prepopulate the consumer’s SSN (only the last 4 digits appear) and DOB to display on the Find employment records page at the beginning of the MVS payroll module. Pass the SSN and DOB values for the consumer in the body of the request call.
+
+@name("Generate V2 Connect URL - Joint Borrower")
+POST "https://{{baseUrl}}/connect/v2/generate/jointBorrower"
+"Content-Type": "application/json"
+data('{
+    "partnerId": 1445585709680,
+    "borrowers": [
+        {
+            "customerId": 1005061234,
+            "consumerId": "1973f901305e2ab3ba8840f411f6b057",
+            "type": "primary",
+            "optionalConsumerInfo": {
+                "ssn": 123412134,
+                "dob": 315576000
+            }
+        },
+        {
+            "customerId": 1005063558,
+            "consumerId": "1973f901305e2ab3ba8840f41112asdf9f",
+            "type": "jointBorrower",
+            "optionalConsumerInfo": {
+                "ssn": 351225513,
+                "dob": 625726800
+            }
+        }
+    ],
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "experience": "default",
+    "fromDate": 1607450357,
+    "reportCustomFields": [
+        {
+            "label": "loanID",
+            "value": 12345,
+            "shown": true
+        },
+        {
+            "label": "branchID",
+            "value": 55555,
+            "shown": false
+        }
+    ]
+}')
+
+
+

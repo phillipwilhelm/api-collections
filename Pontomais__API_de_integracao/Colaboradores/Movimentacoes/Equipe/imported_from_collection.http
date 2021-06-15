@@ -1,0 +1,109 @@
+#!/usr/bin/env dothttp
+
+// Lista as movimentações do colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ---- | -----|---------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na equipe |
+// | team | Object | Equipe da movimentação |
+// 
+// #### Formato do objeto team
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome da equipe                                          |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/team_changes"
+"access-token": "{{client_token}}"
+? "attributes"= "id,team,date"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+? "sort_direction"= "asc"
+? "sort_property"= "first_name"
+
+
+// Detalha a movimentação do colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | team_change_id | Integer | Sim | ID da movimentação |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na equipe |
+// | team | Object | equipe da movimentação |
+// 
+// #### Formato do objeto team
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome da equipe                                          |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/team_changes/{{team_change_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,team,date"
+
+
+// Cria uma movimentação de equipe para o colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | date | Date | Sim |  Data de início na equipe |
+// | team_id | Integer | Sim | ID do turno a ser movimentado |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/team_changes"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"team_change":{
+		"date": "{{team_change_date}}",
+		"team_id": {{team_id}}
+	}
+}')
+
+
+// Exclui uma movimentação de equipe do colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador a ser excluído a movimentação|
+// | team_change_id | Integer | Sim | ID da movimentação de equipe a ser excluída |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/team_changes/{{team_changes_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

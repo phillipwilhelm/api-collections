@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// Adopt a Box.
+// 
+// To Adopt a Box, you POST a JSON payload with populated with the following fields:
+// 
+// `macAddress`: the Box mac address.
+// 
+// `alias`: A mnemonic name for your Box.
+// 
+// `licenseCode`: *Optional*. The license code for the purchased plan.
+// 
+// If you have a starter kit with an included subscription, you can leave the field empty, to automatically use the included subscription. If you use a license code, the starter kit plan will not be used.
+// 
+// If you are readopting a Box previously deleted, the field must not be used.
+// 
+// If you already redeemed the license code, the field must not be used.
+// 
+// `activationCode`: *Optional*. If you already redeemed a few license codes, and you have more than one plan available, you need to pick up a plan to use for adoption through this field.
+// 
+// You can get a list of the available activation codes using the endpoint `/activationCodes`. If all your already loaded  plans are of the same type and duration, you do not need to use the field, one of those will be automatically used.
+// 
+// Please note that if both `licenseCode` and `activationCode` are present in the payload, `licenseCode` has precedence over `activationCode`.
+// 
+// `location`: Two letters geographical server location for faster and optimized access. Pick up the location closer to your Box final installation. The allowed values are `us` (North America), `eu` (Europe), `as` (Asia).
+// 
+// `protocol`: Network protocol. Allowed values are:
+// 
+// * `tcp443`
+// 
+// `topologyMode`: Allowed values are:
+// 
+// * `BRIDGE`: connect to the existing LAN. WAN and LAN ports are both available, configured as an ethernet switch.
+// * `ROUTER`: WAN port must be wired to the existing LAN. LAN port can be configured as a separated additional network, with different addressing.
+// 
+// `routerIpAddress`: Box IP address on LAN side when in `ROUTER` mode. Not used in `BRIDGE` mode.
+// 
+// `routerNetmask`: Box netmask on LAN side when in `ROUTER` mode. Not used in `BRIDGE` mode.
+// 
+// `portability`: possible values are:
+// 
+// * `true`: the Box can be moved between different networks; when rebooting it will self adapt to the new network.
+// * `false`: the Box will stop the VPN when moved to a different network.
+// 
+// In `ROUTER` mode, portability is always `true`.
+// 
+// `useRemoteDns`: possible values are:
+// 
+// * `true`: the DNS used by the Box is pushed to the VPN clients
+// * `false`: the client will use the usual DNS servers.
+// 
+// In `ROUTER` mode, the setting is always `false`.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Adopt a Box")
+POST "https://{{server-url}}/{{version}}/adopt"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+data('{
+	"macAddress" : "{{macAddress}}",
+	"alias" : "{{alias}}",
+	"location" : "{{location}}",
+	"protocol" : "{{protocol}}",
+	"topologyMode" : "{{topologyMode}}",
+	"portability" : {{portability}},
+	"useRemoteDns" : {{useRemoteDns}}
+}')
+
+
+// Get the list of the available Activation Codes.
+// 
+// Each Activation codes represent a pre-redeemed purchased license code.
+// You can preload any purchased activation code (see the `/redeem` endpoint), and it will be available during the adoption procedure.
+
+@name("Get all Activation Codes")
+GET "https://{{server-url}}/{{version}}/adopt/activationCodes"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+

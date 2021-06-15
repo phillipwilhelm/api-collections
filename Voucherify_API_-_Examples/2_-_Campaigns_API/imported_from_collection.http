@@ -1,0 +1,205 @@
+#!/usr/bin/env dothttp
+
+// Create campaign with one voucher without redemption limit
+
+@name("Create campaign")
+POST "https://{{url}}/campaigns"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "{{campaign-name}}",
+    "start_date": "2016-10-26T00:00:00Z",
+    "expiration_date": "2016-12-26T00:00:00Z",
+    "vouchers_count": 10,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+         "redemption": {
+          "quantity": 1
+      },
+        "code_config": {
+            "pattern": "TC2-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "campaign": true
+    }
+}')
+
+
+// Create campaign with one voucher without redemption limit
+
+@name("Create campaign (gift)")
+POST "https://{{url}}/campaigns"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "{{campaign-name}}",
+    "start_date": "2016-10-26T00:00:00Z",
+    "expiration_date": "2016-12-26T00:00:00Z",
+    "vouchers_count": 10,
+    "voucher": {
+        "type": "GIFT_VOUCHER",
+        "gift": {
+            "amount": "1000"
+        },
+         "redemption": {
+          "quantity": 1
+      },
+        "code_config": {
+            "pattern": "TC2-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "campaign": true
+    }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Import vouchers to campaign")
+POST "https://{{url}}/campaigns/{{campaign-name}}/import"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('[
+    {
+        "code": "CODE_{{$timestamp}}",
+        "redemption": {
+            "quantity": 1.0
+        },
+        "metadata": {"unit": "EUR"},
+        "additional_info": "secret-code1"
+    }
+]')
+
+
+@name("Create voucher in the campaign with given code")
+POST "https://{{url}}/campaigns/{{campaign-name}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Create voucher in the campaign")
+POST "https://{{url}}/campaigns/{{campaign-name}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Update campaign")
+PUT "https://{{url}}/campaigns/{{campaign-name}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+data('{
+  "description": "update-test"
+}')
+
+
+@name("Get campaign")
+GET "https://{{url}}/campaigns/{{campaign-name}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+data('{
+    "name": "TEST-API-FOR-CAMPAIGN-6",
+    "vouchers_count":2,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+        "redemption": {
+            "quantity": 5 
+        },
+        "code_config": {
+            "pattern": "TC6-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+@name("Get campaigns list")
+GET "https://{{url}}/campaigns"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+data('{
+    "name": "TEST-API-FOR-CAMPAIGN-6",
+    "vouchers_count":2,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+        "redemption": {
+            "quantity": 5 
+        },
+        "code_config": {
+            "pattern": "TC6-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+@name("Delete campaign")
+DELETE "https://{{url}}/campaigns/{{campaign-name}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "force"= "true"
+
+
+
+@name("Get campaign - non-existent")
+GET "https://{{url}}/campaigns/{{campaign-name}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "TEST-API-FOR-CAMPAIGN-6",
+    "vouchers_count":2,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+        "redemption": {
+            "quantity": 5 
+        },
+        "code_config": {
+            "pattern": "TC6-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+

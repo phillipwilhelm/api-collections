@@ -1,0 +1,3 @@
+The Razer Gold Global API offers merchant a wide range of payment channels to their customer across the globe with just one-time integration. Global API designed to optimize and simplify integration effort between merchant and various payment channels. Instead of having to integrate with multiple APIs from different payment channels, Global API provides a single endpoint for all. In other words, overall integration effort can be reduced and thus, completed in much shorter time.
+
+Razer Gold Global API also provides a secure payment experience with server to server communication over a secure socket layer (SSL) and conforms to Representational State Transfer (RESTful) architectural style uses JSON as its data representation format.

@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// To request a decision from Authzforce, make a POST request to the
+// `domains/{domain-id}/pdp` endpoint. In this case the user has the
+// is requesting access to `POST` to the `/ring/bell` endpoint.
+// 
+// The response for the request includes a `<Decision>` element to `Permit` or `Deny` access to the resource.
+// 
+// If the time on the server is between 9 a.m. and 5 p.m. the access request will be denied.
+
+@name("Deny Access to a Resource")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pdp"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" CombinedDecision="false" ReturnPolicyIdList="false">
+  <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">security-role-0000-0000-000000000000</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tutorial-dckr-site-0000-xpresswebapp</AttributeValue>
+     </Attribute>
+     <Attribute AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">/bell/ring</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POST</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" />
+</Request>')
+
+
+// Additional Fields can be added to the policy decision request to improve the likelyhood of a `Permit` response.
+// 
+// In the example below, the `emailaddress` and `subject:subject-id` have been added to the body of the request
+// within the `subject-category:access-subject` category.
+// 
+// With the new rule in place, the user `charlie` will be able to access the `/bell/ring` endpoint at all times of day.
+
+@name("Permit Access to a Resource")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pdp"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" CombinedDecision="false" ReturnPolicyIdList="false">
+  <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">charlie</AttributeValue>
+     </Attribute>
+     <Attribute AttributeId="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">charlie-security@test.com</AttributeValue>
+     </Attribute>
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">security-role-0000-0000-000000000000</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tutorial-dckr-site-0000-xpresswebapp</AttributeValue>
+     </Attribute>
+     <Attribute AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">/bell/ring</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+     <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POST</AttributeValue>
+     </Attribute>
+  </Attributes>
+  <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" />
+</Request>')
+
+
+

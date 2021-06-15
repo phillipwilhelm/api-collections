@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Initiates IAV process for supported 3rd Party Services for account aggregation. Orbis supports multiple IAV providers.
+// 
+// 
+// Plaid
+// 	Obtain the public key required to activate IAV on the client side. 
+// 
+// 	Please see the documentation on client-side link configuration: https://plaid.com/docs/quickstart/#cs-link-config
+// 
+// Yodlee
+// 	Returns all the necessary data to get started with account aggregation
+// 	
+// 	To receive the UserJWTToken, create a post request for this endpoint and include 'subject' in the body.
+// 	
+// 	Please see the documentation on client-side link configuration:	https://developer.yodlee.com/tools
+
+@name("Initiate Post")
+POST "https://{{url}}/api/iav/init"
+"Authorization": "{{auth}}"
+files(
+	("subject", "xxxxxxxxxxxxxxx")
+)
+
+
+// For Plaid, Send the public token and the account id received on the client side to complete the relationship.
+
+@name("Complete")
+POST "https://{{url}}/api/iav/complete"
+"Authorization": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"account" : "5VXXXXXXXXXX",  \\ Trading account number 
+	"publicToken" : "XXXXXXXXX", \\ Public token provided by IAV client
+	"bankAccountId" : "XXXXXXX",  \\ AccountID of the bank account being linked provided by IAV client
+	"externalIdentifier" : "XXXX", \\ External User Identifier
+    "newValidation": true
+}')
+
+
+// Plaid - Send the public token received on the client side after a successful login to obtain a list of bank accounts that can be linked instantly
+
+@name("List Bank Accounts")
+POST "https://{{url}}/api/iav/list"
+"Authorization": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"account" : "5VXXXXXXXXXX", \\ Trading account number 
+	"publicToken" : "XXXXXXXXX", \\  Public token provided by IAV client
+	"externalIdentifier":"XXXXXXXX", \\ External User Identifier
+    "newValidation" :true
+}')
+
+
+// Establish the relationship by sending the bankAccountId from the bank list and the trading account. Once the relationship is complete, money transfers can be done immediately. For Yodlee, send the Yodlee user identifier ("externalIdentifier") addtionally to link the account.
+
+@name("Link Bank Account")
+POST "https://{{url}}/api/iav/link"
+"Authorization": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"account" : "5VXXXXXXXX", // Trading account number
+	"bankAccountId" : "XXXXXXXXX", // Bank account ID provided by IAV client
+    "newValidation":true
+}')
+
+
+

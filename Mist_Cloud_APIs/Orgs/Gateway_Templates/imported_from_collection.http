@@ -1,0 +1,238 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgGatewayTemplates")
+GET "https://{{host}}/api/v1/orgs/:org_id/gatewaytemplates"
+
+
+@name("createOrgGatewayTemplates")
+POST "https://{{host}}/api/v1/orgs/:org_id/gatewaytemplates"
+data('{
+    "name": "xxx",
+
+    "networks": {
+        // additional networks that are not already defined from Networks
+    },
+
+    "port_config": {
+        // WAN 
+        "ge-0/0/0": {
+            "usage": "wan",
+            "name": "wan0",
+
+            "wan_type": "broadband",  // broadband (default), dsl, lte
+            "ip_config": {
+                "type": "dhcp",  // dhcp (default), static, pppoe
+
+                // if type=pppoe
+                "pppoe_username": "u13534",
+                "pppoe_password": "foryoureyesonly"
+            },
+
+            "vpns": {
+                "data-center": {
+                    "role": "spoke",
+                    "peer_wan_names": ["wan0"],
+
+                    // or on hub
+                    "role": "hub",
+
+                    // or mesh
+                    "role": "hub",
+                    "peer_wan_names": ["wan0"]
+                }
+            }
+        },
+        "cl-1/0/0": {
+            "usage": "wan",
+            "name": "lte",
+
+            "wan_type": "lte",
+            "lte_apn": "5ginternet",
+
+            "ip_config": {
+                "type": "dhcp"  // dhcp (default), static
+            },
+
+            // if the interface should only be used when all other WAN interfaces are down
+            "backup_only": false
+        },
+
+        // LAN
+        "ge-0/0/1-5": {
+            "usage": "lan",
+            "networks": ["default", "guest", "pos"],
+            "port_network": "default"
+        }
+    },
+
+    // all the IP configs on the LAN side
+    "ip_configs": {
+        "guest": {
+            "ip": "192.168.70.1",
+            "netmask": "/24"
+        }
+    },
+
+    "dhcpd_config": {
+        "enabled": true,
+        "guest": {
+            "type": "local",  // default
+            "ip_start": "192.168.70.100",
+            "ip_end": "192.168.70.200",                
+            "gateway": "192.168.70.1",
+
+            // optional, system one will be used
+            "dns_servers": [ "8.8.8.8", "4.4.4.4" ],
+            "dns_suffix": [ ".mist.local", ".mist.com" ],
+
+            // if using DHCP relay
+            "type": "relay",
+            "servers": ["11.2.3.4"]
+        }
+    },
+
+    // URL / Web filtering
+    "urlfilter_config": {
+        "enabled": "true",
+
+        // by default, this applies to all networks with Internet Access, but can be restricted as below
+        "profile": "default",  // default (default) / strict / custom
+        // if profile=custom    
+        "blocked_categories": [ "adult", "gaming", "violance" ],
+
+        // if desired, it can be network-specific
+        "networks": {
+            "guest": {
+                "profile": "default"
+            },            
+            "iot": {
+                "profile": "strict"
+            }
+        }
+    },
+
+    // IDP
+    "idp_config": {
+        "enabled": "true",
+
+        // by default, this applies to all networks with Internet Access, but can be restricted as below
+        "profile": "default",  // default (default) / enterprise
+
+        // if desired, it can be network-specific
+        "networks": {
+            "guest": {
+                "profile": "default"  // default (default) / enterprise
+            },            
+            "iot": {
+                "profile": "strict"
+            }
+        }
+    },
+
+    // experimental
+    "service_policies": [
+        {
+            "name": "dc-store-mgmt",
+            "tenants": ["it.datacenter"],
+            "services": ["store_servers"]
+        },
+        {
+            "name": "dc-apps-access",
+            "tenants": ["pos.store", "camera.store"],
+            "services": ["dc-apps"]
+        }
+    ],
+
+    // experimental
+    "gateway_matching": {
+        "enable": true
+        // see network template
+    }
+}')
+
+
+@name("getOrgGatewayTemplateDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/gatewaytemplates/:gatewaytemplate_id"
+
+
+@name("updateOrgGatewayTemplate")
+PUT "https://{{host}}/api/v1/orgs/:org_id/gatewaytemplates/:gatewaytemplate_id"
+data('{
+    "name": "xxx",
+
+    "networks": {
+        // additional networks that are not already defined
+    },
+
+    "port_usage": {
+        "wan": {
+            "mode": "wan"
+            // link preference
+        },
+        "lte": {
+            "mode": "wan"
+            // link preference
+        },
+        "lan": {
+            "mode": "trunk",
+            "all_networks": false,
+            "networks": [ "guest", "employee", "finance" ],
+            "port_network": null
+        }
+    },
+
+    "port_config": {
+        "ge-0/0/0": {
+            "usage": "wan"
+        },
+        "ge-0/0/1-5": {
+            "usage": "lan"
+        },
+        "ge-0/0/6": {
+            "usage": "inet"
+        }
+    },
+
+    "ip_configs": {
+        "guest": {
+        }
+    },
+
+    "dhcpd_config": {
+        "enabled": true,
+        "guest": {
+            "type": "local",  // default
+            "ip_start": "192.168.70.100",
+            "ip_end": "192.168.70.200",                
+            "gateway": "192.168.70.1",
+
+            // optional, system one will be used
+            "dns_servers": [ "8.8.8.8", "4.4.4.4" ],
+            "dns_suffix": [ ".mist.local", ".mist.com" ],
+
+            // fixed binding
+            "fixed_bindings": {
+                "5684dae9ac8b": {
+                    "name": "John",
+                    "ip": "192.168.70.35"
+                }
+            },
+
+            // if using DHCP relay
+            "type": "relay",
+            "servers": ["11.2.3.4"]
+        }
+    },
+
+    "gateway_matching": {
+        "enable": true
+        // see network template
+    }
+}')
+
+
+@name("deleteOrgGatewayTemplate")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/gatewaytemplates/:gatewaytemplate_id"
+
+
+

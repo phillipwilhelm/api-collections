@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+@name("Create VLAN 200")
+POST "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/bd-items/bd-items/BD-list"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+json({
+    "fabEncap": "vlan-200",
+    "BdState": "active",
+    "adminSt": "active",
+    "bridgeMode": "mac",
+    "fwdCtrl": "mdst-flood",
+    "fwdMode": "bridge,route",
+    "id": 200,
+    "longName": false,
+    "macPacketClassify": "disable"
+})
+
+
+@name("Get VLAN 200")
+GET "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/bd-items/bd-items/BD-list=vlan-200"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Assign VLAN 200 to eth1/21")
+PUT "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/intf-items/phys-items/PhysIf-list=eth1%2f21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+json({
+    "accessVlan": "vlan-200"
+})
+
+
+@name("Get interface eth1/21")
+GET "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/intf-items/phys-items/PhysIf-list=eth1%2f21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Get VPC config")
+GET "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/vpc-items/inst-items/dom-items"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+? "content"= "config"
+
+
+@name("Get interface po20 (vpc ka)")
+GET "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/intf-items/aggr-items/AggrIf-list=po20"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Get interface po21 (vpc data)")
+GET "https://{{nxos}}/restconf/data/Cisco-NX-OS-device:System/intf-items/aggr-items/AggrIf-list=po21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+

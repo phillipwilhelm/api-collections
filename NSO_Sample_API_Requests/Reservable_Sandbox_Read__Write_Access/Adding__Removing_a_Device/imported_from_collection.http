@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// Update the Payload with correct info. Sample XML can be used from Get on existing device or using commit dry run on CLI. Device names, NED-ID, Address and Ports will likely be different depending on your environment.
+
+@name("Step 0. Create a Device in the CDB")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+data('
+<!--
+Sample CLI to do the same thing
+devices device dist-rtr01
+address   10.10.20.175
+authgroup labadmin
+device-type cli ned-id cisco-ios-cli-6.44
+device-type cli protocol telnet
+state admin-state unlocked
+-->
+
+
+<device>
+ <name>dist-rtr01</name>
+ <address>10.10.20.175</address>
+ <authgroup>labadmin</authgroup>
+ <device-type>
+   <cli>
+     <ned-id xmlns:cisco-ios-cli-6.44="http://tail-f.com/ns/ned-id/cisco-ios-cli-6.44">cisco-ios-cli-6.44:cisco-ios-cli-6.44</ned-id>
+     <protocol>telnet</protocol>
+   </cli>
+ </device-type>
+ <state>
+   <admin-state>unlocked</admin-state>
+ </state>
+</device>
+      ')
+
+
+// Since the sandbox is using telnet, we won't need to fetch SSH host keys, but this call is how you would do it if you were using SSH
+// 
+// developer@ncs(config-device-dist-rtr01)# ssh fetch-host-keys
+// result not-available
+// info Not available for telnet
+// is the error given
+
+@name("(not needed on sandbox telent) Step 1. SSH Fetch-Host-Keys Device")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/ssh/fetch-host-keys"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+
+
+
+@name("Step 2. Sync-from Device")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/sync-from"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+
+
+
+@name("Delete a device from CDB Device List")
+DELETE "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+
+
+
+

@@ -1,0 +1,39 @@
+#!/usr/bin/env dothttp
+
+// Used to initialize a request sequence recording session. The response contains a UUID of the request sequence recording session which is used to identify the session via the query parameter "rsrs_id" for interceptions, terminations, and automation fetching endpoints.
+// 
+// If the PPA Env Postman environment is engaged when the request is sent, the environment will automatically record the newly initialized session's request sequence recording session id for automatic parameter integration with subsequent session endpoint interactions.
+
+@name("Initialize Request Sequence Recorder")
+POST "https://postmanprocessautomator.com/request_sequence_recorder"
+
+
+// Used to fetch the Python automation script of a request sequence recording session as identified by the rsrs_id parameter. To receive an automation script from this endpoint, the request sequence recording session specified must have been terminated.
+// 
+// If the PPA Env Postman environment is engaged when the request is sent, the environment will automatically populate the request sequence recording session id parameter with the most recently initialized session's ID.
+// 
+//  Due to the varying response encodings, the endpoint outputs are recorded as byte strings in the automation output files, so you may have to do a bit of string decoding from time to time is the response contains mixed/strange encodings!
+
+@name("Get Request Sequence Recording Session Automation Script")
+GET "https://postmanprocessautomator.com/request_sequence_recorder"
+? "rsrs_id"= "{{request_sequence_recording_session_id}}"
+
+
+// Used to terminate a request sequence recording session. Once terminated, the Python automation script may be fetched containing replication routines for all of the requests between the initialization and termination of the session.
+// 
+// If the PPA Env Postman environment is engaged when the request is sent, the environment will automatically populate the request sequence recording session id parameter with the most recently initialized session's ID.
+
+@name("Terminate Request Sequence Recording Session")
+DELETE "https://postmanprocessautomator.com/request_sequence_recorder"
+? "rsrs_id"= "{{request_sequence_recording_session_id}}"
+
+
+// Fetch the latest Postman-integratable pre-request script for intercepting your Postman requests and processing them in your Postman Process Automator request sequence recording sessions.
+// 
+// This script should be copied into the "Pre-request script" input text-field located under the method / url inputs of the API request you wish to include in an automation sequence.
+
+@name("Get Postman Interceptor")
+GET "https://postmanprocessautomator.com/request_sequence_recorder_interceptor"
+
+
+

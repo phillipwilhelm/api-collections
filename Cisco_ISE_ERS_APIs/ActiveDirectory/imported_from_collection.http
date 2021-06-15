@@ -1,0 +1,295 @@
+#!/usr/bin/env dothttp
+
+@name("activedirectory")
+GET "https://{{base_url}}/ers/config/activedirectory"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "size"= "100"
+? "page"= "1"
+? "filter"= "name.CONTAINS.irv"
+? "sortasc"= "name"
+? "sortdsc"= "name"
+
+
+@name("activedirectory/{id}")
+GET "https://{{base_url}}/ers/config/activedirectory/{{id}}"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+@name("activedirectory/name/{name}")
+GET "https://{{base_url}}/ers/config/activedirectory/name/{{name}}"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Attribute change:
+// - < ISE 3.0 P2: enableDomainWhiteList 
+// - >= ISE 3.0 P2 enableDomainAllowedList
+
+@name("activedirectory")
+POST "https://{{base_url}}/ers/config/activedirectory"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "ERSActiveDirectory": {
+        "name": "{{ad_domain_name}}",
+        "description": "",
+        "domain": "{{ad_domain_name}}",
+        "adgroups": {
+            "groups": []
+        },
+        "advancedSettings": {
+            "enablePassChange": true,
+            "enableMachineAuth": true,
+            "enableMachineAccess": true,
+            "agingTime": 5,
+            "enableDialinPermissionCheck": false,
+            "enableCallbackForDialinClient": false,
+            "plaintextAuth": false,
+            "identityNotInAdBehaviour": "SEARCH_JOINED_FOREST",
+            "unreachableDomainsBehaviour": "PROCEED",
+            "enableRewrites": false,
+            "rewriteRules": [
+                {
+                    "rowId": 0,
+                    "rewriteMatch": "host/[HOSTNAME].[DOMAIN]",
+                    "rewriteResult": "host/[HOSTNAME].[DOMAIN]"
+                },
+                {
+                    "rowId": 1,
+                    "rewriteMatch": "host/[HOSTNAME]",
+                    "rewriteResult": "host/[HOSTNAME]"
+                },
+                {
+                    "rowId": 2,
+                    "rewriteMatch": "[DOMAIN]\\[IDENTITY]",
+                    "rewriteResult": "[DOMAIN]\\[IDENTITY]"
+                },
+                {
+                    "rowId": 3,
+                    "rewriteMatch": "[IDENTITY]@[DOMAIN]",
+                    "rewriteResult": "[IDENTITY]@[DOMAIN]"
+                },
+                {
+                    "rowId": 4,
+                    "rewriteMatch": "[IDENTITY]",
+                    "rewriteResult": "[IDENTITY]"
+                }
+            ],
+            "firstName": "givenName",
+            "department": "department",
+            "lastName": "sn",
+            "organizationalUnit": "company",
+            "jobTitle": "title",
+            "locality": "l",
+            "email": "mail",
+            "stateOrProvince": "st",
+            "telephone": "telephoneNumber",
+            "country": "co",
+            "streetAddress": "streetAddress",
+            "schema": "ACTIVE_DIRECTORY"
+        },
+        "adAttributes": {
+            "attributes": []
+        },
+        "adScopesNames": "Default_Scope"
+    }
+}')
+
+
+@name("activedirectory/{id}/joinAllNodes")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/joinAllNodes"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{ad_admin_username}}"
+            },
+            {
+                "name" : "password",
+                "value" : "{{ad_admin_password}}"
+            }
+        ]
+    }
+}')
+
+
+@name("activedirectory/{id}/getGroupsByDomain")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/getGroupsByDomain"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "name",
+                "value" : "{{ad_domain_name}}"
+            },
+            {
+                "name" : "domain",
+                "value" : "{{ad_domain_name}}"
+            }
+        ]
+    }
+}')
+
+
+// Reload domain groups configuration from Active Directory into ISE
+
+@name("activedirectory/{id}/addGroups")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/addGroups"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "ERSActiveDirectory": {
+        "id": "{{id}}",
+        "name": "{{ad_domain_name}}",
+        "description": "",
+        "domain": "{{ad_domain_name}}"
+    }
+}')
+
+
+@name("activedirectory/{id}/getUserGroups")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/getUserGroups"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{username}}"
+            }
+        ]
+    }
+}')
+
+
+@name("activedirectory/{id}/getTrustedDomains")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/getTrustedDomains"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+@name("🚧 activedirectory/{id}/isUserMemberOf")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}}/isUserMemberOf"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{username}}"
+            },
+            {
+                "name" : "groupsids",
+                "value" : "{{group_sids}}"
+            }
+        ]
+    }
+}')
+
+
+@name("🚧  500 activedirectory/{id}/join")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/join"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{ad_admin_username}}"
+            },
+            {
+                "name" : "password",
+                "value" : "{{ad_admin_password}}"
+            },
+            {
+                "name" : "node",
+                "value" : "{{node_name}}"
+            },
+            {
+                "name" : "orgunit",
+                "value" : "{{org_unit}}"
+            }
+        ]
+    }
+}')
+
+
+@name("🚧  500 activedirectory/{id}/leave")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/leave"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{ad_admin_username}}"
+            },
+            {
+                "name" : "password",
+                "value" : "{{ad_admin_password}}"
+            },
+            {
+                "name" : "node",
+                "value" : "{{node_name}}"
+            },
+            {
+                "name" : "orgunit",
+                "value" : "{{org_unit}}"
+            } 
+        ]
+    }
+}')
+
+
+@name("activedirectory/{id}/leaveAllNodes")
+PUT "https://{{base_url}}/ers/config/activedirectory/{{id}}/leaveAllNodes"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "OperationAdditionalData" : {
+        "additionalData" : [ 
+            {
+                "name" : "username",
+                "value" : "{{ad_admin_username}}"
+            },
+            {
+                "name" : "password",
+                "value" : "{{ad_admin_password}}"
+            }
+        ]
+    }
+}')
+
+
+@name("activedirectory/{id}")
+DELETE "https://{{base_url}}/ers/config/activedirectory/{{id}}"
+basicauth("{{rest_username}}", "{{rest_password}}")
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+

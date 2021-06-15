@@ -1,0 +1,802 @@
+#!/usr/bin/env dothttp
+
+// Retorna os dados de uma venda com seus itens.
+// **Não retorna dados de pagamento**
+
+@name("Consultar venda")
+GET "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "1234")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "item_id"= "{{item_id_guid}}"
+
+
+
+// Resource para obter os detalhes de uma operação. Em caso de agrupamento de consumos, retorna a operação com todos os consumos do agrupamento.
+
+@name("Consultar operação")
+GET "https://{{url}}/{{version}}/consumos/operacao/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{id}}"
+? "operacao_id"= "{{id}}"
+
+
+
+// Retorna os detalhes de um único item do consumo.
+
+@name("Consultar item de venda")
+GET "https://{{url}}/{{version}}/consumos/item/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "contador"= "{{contador}}"
+? "item_id"= "{{item_id}}"
+
+
+// Retorna os dados do consumidor associado à uma venda.
+
+@name("Consultar consumidor")
+GET "https://{{url}}/{{version}}/consumos/consumidor/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+
+
+// Retorna os últimos pedidos em ordem decrescente de criação, conforme os parâmetros informados.
+
+@name("Consultar últimos pedidos")
+GET "https://{{url}}/{{version}}/consumos/ultimos/"
+? "api_key"= "{{apikey}}"
+? "modo_venda"= "{{modo_venda}}"
+? "qtd"= "{{qtd}}"
+? "origem"= "{{origem}}"
+? "apelido"= "{{apelido}}"
+? "cliente"= "{{cliente}}"
+? "estado"= "{{estado}}"
+? "estados"= "{{estados}}"
+? "retirada"= "0"
+
+
+// Resource para verificar se um determinado ticket está liberado para sair do estabelecimento, caso não possua valores a receber.  
+//   
+// **Não altera o estado do consumo.**
+// 
+// Se informar o parâmetro ``codigo`` o endpoint retorna ``true`` se a saída está liberada ou ``false`` se o ticket precisa passar no caixa antes da saída.
+// 
+// Se não informar o parâmetro ``codigo``, o _endpoint_ retorna uma lista simples de tickets que podem sair. Veja nos exemplos ao lado (exemplo 2).
+// 
+// ``/podesair?api_key=GUID&modo_venda=4``
+// 
+// *Response*
+// 
+// ```json
+// {
+//   "dados": [3, 4, 5, 10],
+//   "status": {
+//     "codigo": 200,
+//     "mensagem": "",
+//     "tipo": "OK",
+//     "quantidade": 4
+//   }
+// }
+// ```
+
+@name("Verificar se pode sair")
+GET "https://{{url}}/{{version}}/consumos/podesair/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+
+
+// Permite verificar se uma ficha está finalizada e o consumidor está liberado para sair.
+
+@name("Fazer checkout")
+GET "https://{{url}}/{{version}}/consumos/checkout/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+
+
+
+// Retorna uma lista dos locais de produção com itens marchados para um determinado consumo.
+
+@name("Locais marchados")
+GET "https://{{url}}/{{version}}/consumos/locais-marchados/"
+basicauth("super", "1234")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+
+
+// Recurso para efetuar vendas de itens nos consumos ou para fechar a conta.
+// 
+// Existe 2 tipos de itens:
+// 
+// 1.  Item "normal". São itens individuais.  
+//     Ex. Coca-cola, Cerveja
+// 2.  Item "combo". São pacotes de itens vendidos de uma vez.  
+//     Ex. Menu 1, Número 2, etc..
+// 
+// #### Identificação do item
+// 
+// O item pode ser enviado com o código ou com o id.
+// 
+// ```json
+// {
+//   "itens": [
+//     {   
+//       "id": 10,
+//       "quantidade": 1
+//     },
+//     {
+//       "codigo": "1234",
+//       "quantidade": 5
+//     }
+//   ]
+// }
+// ```
+// 
+// #### Enviar um novo apelido
+// 
+// Como opção, pode-se enviar um novo apelido para o ticket para os modos de venda ``Ficha``, ``Mesa`` e ``Balcão``.
+// 
+// ```json
+// {
+//   "apelido": "Maria",
+//   "itens": [ .... ]
+// }
+// ```
+// 
+// #### Enviar várias vendas ao mesmo tempo
+// 
+// Também permite efetuar vendas em mais de um consumo ao mesmo tempo para impressão agrupada por local de entrega. Para isto basta enviar uma lista de vendas na chave "vendas" e o campo "local_entrega".
+// 
+// #### Incluir mais um item em um combo
+// 
+// Quando um combo tem um slot do tipo "Rodízio", é possível incluir um novo item informando o índice do combo ao invés do código do combo.
+// 
+// ```json
+// {
+//   "itens": [
+//     {
+//       "tipo": "combo",
+//       "indice": 1,
+//       "marchar": false,
+//       "itens": [
+//         {
+//           "codigo": 25,
+//           "quantidade": 1,
+//           "observacao": [
+//             "com gelo"
+//           ]
+//         },
+//         {
+//           "codigo": 26,
+//           "quantidade": 1
+//         }
+//       ]
+//     }
+//   ]
+// }
+// ```
+// 
+// #### Informar qual o slot do item do combo
+// 
+// Quando um combo tem mais de um slot que permite o mesmo material, pode-se informar o índice do slot para cada material vendido.
+// 
+// Se o índice do slot não for informado, o CIS vai tentar incluir os materiais no primeiro slot disponível, podendo resultar em quantidades erradas quando o slot for do tipo quantidade fracionada.
+// 
+// Por exemplo, em um combo com 2 _slots_ do tipo fracionado que aceitam o material "501 - Pizza":
+// 
+// |Slot índice|Classe|Tipo quantidade|Qtd Min|Qtd Max|
+// |--|--|--|--|--|
+// |0|Pizzas|Fracionada|1|4|
+// |1|Pizzas|Fracionada|0|1|
+// 
+// Ao vender 2 pizzas sem informar o índice, o sistema vai lançar as duas pizzas no primeiro slot:
+// 
+// |Slot índice|Produto|Quantidade
+// |--|--|--|
+// |0|Pizza A|0,5|
+// ||Pizza A|0,5|
+// 
+// Ao vender 2 pizzas informando o índice zero para a primeira pizza e 1 para a segunda pizza teremos:
+// 
+// |Slot índice|Produto|Quantidade
+// |--|--|--|
+// |0|Pizza A|1|
+// |1|Pizza A|1|
+// 
+// Exemplo:
+// 
+// ```json
+// {
+//   "itens": [
+//     {
+//       "tipo": "combo",
+//       "codigo": "9999",
+//       "marchar": false,
+//       "itens": [
+//         {
+//           "quantidade": 1,
+//           "codigo": 501,
+//           "slot_indice": 0,
+//           "observacao": [
+//             "sem cebola"
+//           ]
+//         },
+//         {
+//           "quantidade": 1,
+//           "codigo": 501,
+//           "slot_indice": 1
+//         }
+//       ]
+//     }
+//   ]
+// }
+// ```
+// 
+// #### Enviar a taxa de entrega ou a taxa de serviço
+// 
+// A taxa de entrega e serviço são facultativas.  
+// **Importante**: Ao informar apenas uma das taxas a outra será  **automaticamente zerada**.  
+// Se nenhuma taxa for informada, os valores poderão ser calculados automaticamente pelo CIS. Portanto, para zerar ambas as taxas, envie-as com valor igual a zero.
+// 
+// ```json
+// {
+//   "taxa_servico": 10.5,
+//   "taxa_entrega": 5.6,
+//   "itens": [...]
+// }
+// ```
+// 
+// #### Enviar uma taxa externa
+// 
+// A taxa externa é uma taxa que não afeta o valor do pedido mas fica disponível nos contextos dos templates para ser usada nas impressões. 
+// Inicialmente foi implementada para suportar a impressão da taxa de entrega no pedido e canhoto de entrega quando o serviço de entrega é prestado e cobrado por terceiros e não pelo logista.
+// 
+// ```json
+// {
+//   "taxa_externa": 10.5,
+//   "itens": [...]
+// }
+// ```
+// 
+// #### Enviar o ponto de venda
+// 
+// ```json
+// {
+//   "pontovenda_id": 1,
+//   "local_entrega": "mesa 10",
+//   "itens": [...]
+// }
+// ```
+// 
+// #### Enviar a descrição do item
+// 
+// Para alterar a descrição de um item normal ou dos itens de um combo utilize a chave "descricao" no payload do endpoint. **Não é possível alterar a descrição de um combo, somente dos seus subitens.**
+// 
+// ```json
+//   "itens": [
+//     {
+//       "codigo": "1234",
+//       "descricao": "descrição personalizada do item",
+//       "quantidade": 5
+//     },
+//     {
+//       "tipo": "combo",
+//       "codigo": "9999",
+//       "itens": [
+//         {
+//           "codigo": 501,
+//           "descricao": "subitem 1",
+//           "quantidade": 1,
+//           "preco": 11.99
+//         },
+//         {
+//           "codigo": 501,
+//           "descricao": "subitem 2",
+//           "quantidade": 1,
+//           "preco": 2.99
+//         }
+//       ]
+//     }
+//   ]
+// }
+// ```
+// 
+// #### Enviar o preço unitário de venda
+// 
+// É possível sobrescrever o preço unitário de venda de um item normal ou dos itens de um combo. Basta enviar a chave "preco" com o valor.
+// 
+// **IMPORTANTE**: Ao informar o preço de um item de combo, deve-se informar o preço nos itens e não no combo. Todos os itens do combo devem ter seu preço informado.
+// 
+// Exemplo:
+// 
+// ```json
+// {
+//   "itens": [
+//     {
+//       "tipo": "combo",
+//       "codigo": "9999",
+//       "marchar": false,
+//       "itens": [
+//         {
+//           "quantidade": 1,
+//           "codigo": 501,
+//           "preco": 11.99,
+//           "observacao": [
+//             "sem cebola"
+//           ]
+//         },
+//         {
+//           "quantidade": 1,
+//           "codigo": 501,
+//           "preco": 2.99
+//         }
+//       ]
+//     }
+//   ]
+// }
+// ```
+// 
+// #### Marchar um ou mais itens
+// 
+// Para informar que o item deve ser marchado, informe o campo ``marchar`` de cada item ou combo com o valor ``true``.
+// 
+// A lista dos locais de produção disponíveis para liberar marcha pode ser consultada pelo _endpoint_ ``GET /v1/consumos/locais-marchados/``.
+// 
+// Para liberar a marcha de um determinado local de produção, use ``POST /v1/consumos/liberar-marcha/``
+
+@name("Lançar itens comuns")
+POST "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "perfilimpressao_id"= "{{perfilimpressao_id}}"
+? "dispositivo_utilizado"= "{{dispositivo}}"
+? "origem"= "{{origem}}"
+data('{
+  "itens": [
+    {
+      "tipo": "normal",
+      "id": 1,
+      "quantidade": 1,
+      "descricao": "descrição personalizada" 
+    },
+    {
+      "tipo": "normal",
+      "id": 1,
+      "quantidade": 1
+    },
+    {
+      "tipo": "normal",
+      "id": 1,
+      "quantidade": 1,
+      "descricao": "   " 
+    }
+  ]
+}')
+
+
+// Permite lançar itens em um combo de rodízio.
+// 
+// Utilize os mesmos parâmetros definidos em [Vender itens](#e636e888-eb49-4555-983c-4115f46f2c86).
+
+@name("Lançar item de rodízio")
+POST "https://{{url}}/{{version}}/consumos/"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+data('{
+  "itens": [
+    {
+      "tipo": "combo",
+      "codigo": "701",
+      "itens": [
+      	{
+          "codigo": 700
+        },
+        {
+          "codigo": 220
+        },
+        {
+          "codigo": 232
+        },
+        {
+          "codigo": 233
+        },
+        {
+          "codigo": 234
+        },
+        {
+          "codigo": 518
+        }
+      ]
+    }
+  ]
+}')
+
+
+// Utilize os mesmos parâmetros definidos em [Vender itens](#e636e888-eb49-4555-983c-4115f46f2c86).
+// 
+// O campo ``quantidade`` é opcional.
+// 
+// Assim como em um item normal, o combo também pode ser vendido pelo código ou pelo id.
+// 
+// ### Marchar um combo
+// 
+// Para marchar um combo, envie o campo ``marchar=true`` do combo. Também é possível marchar apenas alguns itens do combo. Para isso, envie ``marchar=true`` apenas nos itens que deseja marchar.
+
+@name("Lançar combo")
+POST "https://{{url}}/{{version}}/consumos/"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+data('{
+  "itens": [
+    {
+      "tipo": "combo",
+      "codigo": "703",
+      "quantidade": 1,
+      "marchar": false,
+      "itens": [
+        {
+          "id": 1,
+          "slot_indice": 0
+        },
+        {
+          "codigo": 232,
+          "slot_indice": 0
+        },
+        {
+          "codigo": 101,
+          "slot_indice": 1
+        }
+      ]
+    }
+  ]
+}')
+
+
+// Utilize os mesmos parâmetros definidos em [Vender itens](#e636e888-eb49-4555-983c-4115f46f2c86).
+// 
+// O consumidor é o que vai ser associado ao comprovante fiscal da venda. Não confundir com o cliente, que é associado à venda.
+// 
+// Use os parâmetros ``numerodechamada``, ``num_minimo``, ``num_maximo`` para gerar um número de chamada aleatório ao efetuar o pedido.
+
+@name("Lançar itens com consumidor e local de entrega")
+POST "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "num_maximo"= "{{num_maximo}}"
+? "num_minimo"= "{{num_minimo}}"
+? "numerodechamada"= "{{num_chamada}}"
+data('{
+  "consumidor":{
+     "endereco":"Rua Teste",
+     "cpf_cnpj":"35062267997",
+     "nome":"Fulano de Oliveira",
+     "email": "email@gmail.com"
+  },
+  "itens": [{
+    "codigo": 101, 
+    "quantidade": 1, 
+    "observacao": ["Sem açucar"], 
+    "tipo": "normal"
+  }], 
+  "local_entrega": "mesa 11"
+}')
+
+
+// Fecha a conta e retorna a impressão da conferência de conta no JSON de resposta (opcional).
+// 
+// O _endpoint_ é o mesmo usado para [vender itens](#e636e888-eb49-4555-983c-4115f46f2c86), porém informe um JSON vazio no corpo da requisição.
+
+@name("Fechar conta e obter impressão.")
+POST "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "devolver_impressao"= "{{devolver_impressao}}"
+data('{}')
+
+
+// Permite expedir um pedido de entrega, informando o código do entregador e o id do ticket.
+
+@name("Expedir um pedido")
+POST "https://{{url}}/{{version}}/consumos/expedir/"
+basicauth("teste", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "ticket_id"= "{{ticket_id}}"
+? "perfilimpressao_id"= "{{perfilimpressao_id}}"
+? "codigo_entregador"= "{{codigo}}"
+? "imprimir_comprovante"= "1"
+
+
+// Permite confirmar o recebimento de um pedido de entrega, usando as informações de pagamento informados no prépagamento.
+
+@name("Confirmar o recebimento de uma entrega")
+POST "https://{{url}}/{{version}}/consumos/recebido/"
+basicauth("teste", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "ticket_id"= "{{ticket_id}}"
+? "perfilimpressao_id"= "{{perfilimpressao_id}}"
+
+
+// Permite marcar um pedido de entrega como pronto para retirada.
+
+@name("Finalizar a produção de uma retirada")
+POST "https://{{url}}/{{version}}/consumos/finalizar_producao/"
+basicauth("teste", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "ticket_id"= "{{ticket_id}}"
+
+
+// Atualiza a origem do pedido. Utilizado quando é necessário mudar a origem de um pedido para refletir a vinculação manual à um pedido de web delivery.
+
+@name("Atualizar a origem do lançamento")
+POST "https://{{url}}/{{version}}/consumos/origem/"
+basicauth("teste", "1234")
+? "api_key"= "{{apikey}}"
+? "ticket_id"= "{{ticket_id}}"
+? "origem"= "{{origem}}"
+
+
+// Associa os dados de consumidor informados à uma venda.
+// 
+// Informe somente os dados que deseja associar.
+// 
+// A chave **itens** deve ser uma lista vazia: `"itens": []`.
+
+@name("Informar consumidor")
+POST "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+data(' {
+ 	"consumidor":
+ 	{
+ 		"cpf_cnpj":"350.645.688-87",
+ 		"email": "email@gmail.com"
+ 	},
+ 	"itens":[]
+ }')
+
+
+// Permite efetuar o checkin de cliente usando perfil e ficha.
+// 
+// O cliente será cadastrado ou atualizado se necessário.
+// 
+// A ficha e o perfil devem existir e estar ativos.
+
+@name("Fazer checkin")
+POST "https://{{url}}/{{version}}/consumos/checkin/"
+basicauth("teste", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+data('{
+	"codigo": 4,
+    "cliente": {
+	    "identificacao": "123458",
+	    "id_externo": 123,
+	    "nome": "CLIENTE NOVO",
+	    "sexo": "M",
+	    "dt_nascimento": "19850215 00:00:00",
+	    "cnpj_cpf": "22233344456",
+	    "inscricao_rg": "123456789",
+	    "endereco": "Rua Cel Artur de Godoy",
+	    "numero": 7,
+	    "complemento": "Sala 15",
+	    "bairro": "Vila Mariana",
+	    "referencia": "Prox Praça",
+	    "cep": "02432-123",
+	    "cidade": "São Paulo",
+	    "estado": "SP",
+	    "telefone": "32456785",
+	    "email": "cliente.novo@provedor.com",
+	    "fax": "",
+	    "taxa_entrega": 10.53,
+	    "regiao": 1
+	 },
+	"perfil_id": 4
+}')
+
+
+// Libera os itens marchados de um consumo para um determinado local de produção.
+
+@name("Liberar marcha")
+POST "https://{{url}}/{{version}}/consumos/liberar-marcha/"
+basicauth("super", "1234")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "local_id"= "{{local_id}}"
+
+
+// Permite bloquear um ticket ou consumo para evitar que outro terminal inicie o recebimento enquanto o consumo está sendo modificado.
+
+@name("Fazer lock de um consumo/ticket")
+POST "https://{{url}}/{{version}}/consumos/lock/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+data('{
+  "nome": "Bloqueio de Teste 8",
+  "tipo": "Teste2",
+  "dono": "PostMan",
+  "maximo": 2,
+  "timeout": 50
+}')
+
+
+// Recurso para transferir itens de um consumo para outro.
+// 
+// No corpo da requisição as chaves ``contador`` e ``indice`` são mutuamente exclusivas. Se as duas forem enviadas ao mesmo tempo, o CIS vai considerar somente a chave  ``contador``.
+// 
+// Para transferir itens parcialmente, informe o parâmetro  ``quantidade``. Para transferir o item totalmente basta omitir o parâmetro  ``quantidade``.
+
+@name("Transferir itens")
+PUT "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "codigo_destino"= "{{codigo_destino}}"
+data('{
+  "itens": [{
+    "indice": 1,
+    "quantidade": 1
+  }]
+}')
+
+
+// Recurso para reabrir um consumo que já teve a conta impressa/fechada.
+// 
+// O usuário autenticado precisa ter a permissão para reabrir contas.
+
+@name("Reabrir consumo")
+PUT "https://{{url}}/{{version}}/consumos/reabrir/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+
+
+// Permite efetuar alterar a ficha ou o perfil de um cliente que já fez checkin.
+// 
+// A ficha e o perfil devem existir e estar ativos.
+
+@name("Trocar ficha ou perfil de cliente")
+PUT "https://{{url}}/{{version}}/consumos/checkin/"
+basicauth("teste", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+data('{
+	"codigo": 4,
+	"cliente_id": "1112254154187487",
+	"perfil_id": 1
+}')
+
+
+// Permite atualizar o tempo de expiração (timeout) do bloqueio associado ao ticket. Deve ser feito antes da expiração caso contrário o CIS retornará o código ``404``.
+
+@name("Atualizar o timeout de lock de um consumo/ticket")
+PUT "https://{{url}}/{{version}}/consumos/lock/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "timeout": 200
+}')
+
+
+// Recurso para cancelar um consumo em andamento ou estornar um consumo finalizado.
+
+@name("Cancelar venda")
+DELETE "https://{{url}}/{{version}}/consumos/"
+basicauth("super", "1234")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "dispositivo_utilizado"= "{{dispositivo}}"
+? "estornar"= "false"
+
+
+
+// Recurso que permite cancelar um item de uma venda.
+// 
+// #### Cancelar um item de combo de rodízio
+// 
+// Para cancelar um item de combo de rodízio, basta enviar o parâmetro "contador" do item a ser cancelado.  
+// **Atenção**: se o combo não for do tipo "Rodízio", o sistema cancelará todo o combo.
+
+@name("Cancelar item de venda")
+DELETE "https://{{url}}/{{version}}/consumos/item/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "contador"= "{{contador}}"
+? "quantidade"= "{{quantidade}}"
+
+
+
+// Remove um lock de consumo, liberando o ticke para ser usado por outro terminal e ser recebido no caixa.
+
+@name("Apagar um lock de um consumo/ticket")
+DELETE "https://{{url}}/{{version}}/consumos/lock/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "ticket_id"= "{{ticket_id}}"
+? "lock_id"= "{{lock_id}}"
+
+
+
+

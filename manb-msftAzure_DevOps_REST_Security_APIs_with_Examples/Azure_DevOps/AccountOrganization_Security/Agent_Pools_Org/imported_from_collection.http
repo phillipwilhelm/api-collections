@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+@name("Get Agent Pool Security Groups")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roledefinitions"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("Get Current Agent Pool Groups/Users")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("List all users")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{OPAT}}")
+? "subjectTypes"= "aad,msa"
+? "api-version"= "5.1-preview.1"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// Pass vssgp.Uy0xLTgtMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1xxxx for group under {{sampleUserDescriptor}}
+// 
+// and aad.value for user
+
+@name("Get User/Group StorageKey")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/storagekeys/{{sampleUserDescriptor}}"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get Agent Pools (Org)")
+GET "https://dev.azure.com/{{organization}}/_apis/distributedtask/pools"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+@name("Add Agent Pool Existing User (with specified role) (At Org Root) ")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91aa4375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Add Agent Pool Existing User (with specified role) (At specified agent poolID)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentpoolrole/roleassignments/resources/{{poolID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91aa4375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Add Agent Pool Existing Group (with specified role) (At Org Root)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91d7be20-f3ad-4b29-b2b0-20c06b7ce820",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Add Agent Pool Existing Group (with specified role) (At specified agent poolID)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentpoolrole/roleassignments/resources/{{poolID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91d7be20-f3ad-4b29-b2b0-20c06b7ce820",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Delete Agent Pool User/Group (Org Root Level) ")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    "91d7be20-f3ad-4b29-b2b0-20c06b7ce820",
+    "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Delete Agent Pool User/Group (At specified Pool Level)")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentpoolrole/roleassignments/resources/{{poolID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    "91d7be20-f3ad-4b29-b2b0-20c06b7ce820",
+    "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+

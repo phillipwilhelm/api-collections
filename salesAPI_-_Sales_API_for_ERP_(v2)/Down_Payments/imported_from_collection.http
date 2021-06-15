@@ -1,0 +1,250 @@
+#!/usr/bin/env dothttp
+
+// #### Search down payments in ERP
+// *(sapBusinessOne=10000206/ODPI, totvsProtheus=SE1)*
+// 
+// This service will allow to search down payments in the ERP.
+// 
+// The search of down payments allows filtering the ERP by:
+// - List Search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey` {optional}
+// - Unitary Search: `erpKey` or `orderNum`  (SAPB1) or `docNum` (SAPB1)
+// 
+// If no field for unitary search (`erpKey` or `orderNum` or `docNum`) is informed in the request, the search for down payments is carried out by branch and date of creation from/to (which become mandatory).
+// 
+// The down payments service will consider down payments with:
+// - SAP Business One: ODPI.ObjType = 203
+// - TOTVS Protheus: E1_TIPO=RA
+// 
+// Comments:
+// - `branch`: SAP Business One (ODPI.BPLId), TOTVS Protheus (E1_FILIAL)
+// - `partnerKey`: SAP Business One (ODPI.CardCode), TOTVS Protheus (E1_CLIENTE+"_"+E1_LOJA)
+// - `erpKey`: SAP Business One (ODPI.DocEntry), TOTVS Protheus (E1_PREFIXO+"_"+E1_NUM)
+// - `orderNum`: SAP Business One (ODPI.NumAtCard)
+// - `docNum`: SAP Business One (ODPI.DocNum)
+// - `docStatus`: O = open, C = closed, X = canceled (SAPB1)
+// - `docSituation`: E1_SITUACA (PROTHEUS)
+// - `bankCode` + `bankBranch` + `bancAccount`: E1_PORTADO + E1_AGEDEP + E1_CONTA (PROTHEUS)
+// - `paymentMethod`: E1_TIPO (PROTHEUS)
+// 
+// Data returned in response:
+// - SAP Business One: down payments data, partner data, items (+ taxes), totals, payments, taxes
+// - TOTVS Protheus: down payments data
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the down payments list in two situations:
+// - Full Search: will result in all down payments, according to filters.
+// - Incremental Search: will result in all down payments, according to filters, which have been included and/or changed in the main register after a certain date/time provided in the request. In the Incremental Search, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which exit notes should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields for the Document record in SAP Business One (ODPI.CreateDate, ODPI.UpdateDate, ODPI.CreateTS, ODPI.UpdateTS)
+// 
+// For the use of user fields (UDF) created in the table of down payments (SAPB1: ODPI, PROTHEUS: SE1), the respective registration must be performed in the Custom Table.
+
+@name("Down Payments")
+GET "https://{{endpoint}}/downPayments"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2021-06-08"
+? "createdTo"= "2021-06-08"
+? "branch"= "1"
+? "partnerKey"= "C001"
+? "sellerKey"= "22"
+? "nfeAuthCode"= "100"
+? "erpKey"= "120"
+? "docNum"= "49084"
+? "orderNum"= "1049210322364-01"
+? "pageNum"= "2"
+? "updatedAt"= "2020-01-24T15:34:00"
+
+
+// #### Insert sales dowm payment in ERP
+// *(sapBusinessOne=203/ODPI)*
+// 
+// This service will allow to insert a new sales dowm payment in the ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales dowm payment will be insert if the informed sales order is located and validated on the ERP. The key for locating the sales order on the ERP can be:
+// - SAP Business One: ORDR.DocEntry = `baseKey` or ORDR.DocNum = `baseNum` or ORDR.NumAtCard = `orderNum`
+// 
+// Products sent to the service will be validated for the search key, order line number and quantity. Products can be identified in the ERP in 2 ways:
+// - SAP B1: OITM.CodeBars = `codeBars` or OITM.ItemCode = `productKey`
+// 
+// In addition to the sales dowm payment, the service may or may not include incoming payments. Incoming Paymnets have sources from the data received in the request in the `payments` block.
+// 
+// For the use of user fields (UDF) created in the table of sales invoices (SAPB1: ODPI), the respective registration must be performed in the Custom Table.
+// 
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |branch | number | Branch 
+// baseObject | string | Base Object (default = 17)
+// baseKey | string | Base Key
+// items | array | invoice Items Object
+// items.baseLineNum | string | Base line number
+// items.productKey | string | Product key
+// items.codeBars | string | Code bars
+// items.quantity | number | quantity
+// payments | array |  Method
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.details | object | details
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | string | Acquire
+// payments.details.tid | string | tid
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | Code
+// success | booleano | success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Down Payment - SAP Business One")
+PUT "https://{{endpoint}}/downPayments"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "1",
+    "baseKey": "000020",
+    "baseNum *": null,
+    "orderNum *": null,
+    "whsCode *": null,
+    "mainUsage *": null,
+    "docDueDate": null,
+    "comments": "",
+    "items": [
+        {
+            "baseKey *": null,
+            "baseNum *": null,
+            "orderNum *": null,
+            "baseLineNum": "01",
+            "productKey *": null,
+            "quantity *": null,
+            "unitPrice *": null,
+            "whsCode *": null,
+            "project *": null,
+            "usage *": null
+        }
+    ],
+    "payments": [
+        {
+            "paymentMethod": "cash",
+            "amount": 10.0,
+            "installments": 1
+        }
+    ]
+})
+
+
+// #### Insert sales dowm payment in ERP
+// *(sapBusinessOne=203/ODPI)*
+// 
+// This service will allow to insert a new sales dowm payment in the ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales dowm payment will be insert if the informed sales order is located and validated on the ERP. The key for locating the sales order on the ERP can be:
+// - SAP Business One: ORDR.DocEntry = `baseKey` or ORDR.DocNum = `baseNum` or ORDR.NumAtCard = `orderNum`
+// 
+// Products sent to the service will be validated for the search key, order line number and quantity. Products can be identified in the ERP in 2 ways:
+// - SAP B1: OITM.CodeBars = `codeBars` or OITM.ItemCode = `productKey`
+// 
+// In addition to the sales dowm payment, the service may or may not include incoming payments. Incoming Paymnets have sources from the data received in the request in the `payments` block.
+// 
+// For the use of user fields (UDF) created in the table of sales invoices (SAPB1: ODPI), the respective registration must be performed in the Custom Table.
+// 
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |branch | number | Branch 
+// baseObject | string | Base Object (default = 17)
+// baseKey | string | Base Key
+// items | array | invoice Items Object
+// items.baseLineNum | string | Base line number
+// items.productKey | string | Product key
+// items.codeBars | string | Code bars
+// items.quantity | number | quantity
+// payments | array |  Method
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.details | object | details
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | string | Acquire
+// payments.details.tid | string | tid
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | Code
+// success | booleano | success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Down Payment - TOTVS Protheus")
+PUT "https://{{endpoint}}/downPayments"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "01",
+    "financialNature": "5000000001",
+    "erpKey": "BOL_000000001",
+    "lineNum": "01",
+    "docDate": "2021-06-08",
+    "docDueDate": "2021-06-08",
+    "docValue": 10.0,
+    "partnerKey": "001022_01",
+    "sellerKey": "000001",
+    "bankCode": "341",
+    "bankBranch": "0132",
+    "bankAccount": "08654",
+    "baseObject_": "17",
+    "baseKey_": "000034",
+    "baseOrderNum_": "2949C",
+    "comments": "Teste Postman"
+})
+
+
+

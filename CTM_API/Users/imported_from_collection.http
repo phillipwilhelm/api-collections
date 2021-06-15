@@ -1,0 +1,163 @@
+#!/usr/bin/env dothttp
+
+// Get a list of users for the specified account
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |email|no|find user with email address|
+// |filter|no|find users that match the filter (i.e. name)|
+
+@name("list of users")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users/"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Get aggregated status details for all agents in your account
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |start_time|yes|starting time in seconds since the epoch|
+// |end_time|yes|ending time in seconds since the epoch|
+
+@name("Agent Utilization")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/agents/utilization.json"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Get a stream of events from the agent
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |user_id|yes|the internal user id for the agent|
+// |start_time|yes|starting time in seconds since the epoch|
+// |end_time|yes|ending time in seconds since the epoch|
+
+@name("Agent Events")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/agents/events.json"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Get a list of users for the specified account
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |user_id|yes|the USR id|
+// |email|no|find user with email address|
+// |filter|no|find users that match the filter (i.e. name)|
+
+@name("user details")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users/{{user_id}}"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Create a user and set their role in your account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |first_name|yes|the user's first name|
+// |last_name|yes|the user's last name (surname)|
+// |email|yes|the user's email address|
+// |role|no|one of `admin`, `report_manager`, `call_manager`, `agent`, or `billing` -- if left unset, uses `admin`|
+// |number|no|the E.164 receiving number for this user, including + and country code; must not be a tracking number|
+// |country_code|no|the numeric country code (use 1 for US) - required if number is set|
+// |send_instructions|no|set to 1 to email login instructions to the new account|
+// |password|no|the password for the new account|
+// 
+// It is recommended and more secure to use send_instructions and allow the new user to set their own password.
+
+@name("create user")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "first_name": "Barney",
+  "last_name": "Rubble",
+  "number": "+14105551212",
+  "country_code": "1",
+  "email": "brubble@example.com",
+  "role": "admin",
+  "send_instructions": "1"
+}')
+
+
+// Users can have different roles in different accounts. You can add or change a user's role in an account using this endpoint.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |user_id|yes|the user id|
+// |role|yes|one of `admin`, `report_manager`, `call_manager`, `agent`, or `billing`|
+
+@name("add or modify user role")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users/{{user_id}}/add_role"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"role": "agent"
+}')
+
+
+// Change a user's outbound number
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |user_id|yes|the USR id for the user|
+// |vid|no|the TPN ID for the tracking number
+
+@name("update outbound number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users/{{user_id}}/outbound_number"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "vid": "{{tracking_number_id}}"
+}')
+
+
+// Change a user's receiving number
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |number|yes|the receiving number in +E.164 format (i.e. +18885550001)|
+// |user_id|yes|the USR id for the user|
+// |dial_sequence|yes|if the user is on a softphone shoudl we dial that first or dial both the soft phone and the receiving number|
+
+@name("update receiving number")
+POST "https://{{host}}/{{base_path}}/users/{{user_id}}/number"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "number": "+18885550001"
+}')
+
+
+// Remove a user from an account. This does not remove a user from the platform.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |user_id|yes|the user id|
+
+@name("remove user from account")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/users/{{user_id}}/remove_user"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+

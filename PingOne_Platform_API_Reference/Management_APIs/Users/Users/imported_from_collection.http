@@ -1,0 +1,214 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/users` operation returns a list of all user resources for the specified environment.
+// 
+// ::: info
+// **Note:** This request also supports the `?expand=population` query expression to show information about the user's population assignment.
+// :::
+
+@name("READ All Users")
+GET "https://{{apiPath}}/environments/{{envID}}/users"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single user resource, the `GET /environments/{environmentId}/users/{userId}` operation returns data only for the user resource with the ID specified in the request URL.
+// 
+// ::: info
+// **Note:** This request also supports the `?expand=population` query expression to show information about the user's population assignment.
+// :::
+
+@name("READ One User")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"Authorization": "Bearer {{jwtToken}}"
+? "expand"= "population"
+
+
+// The following sample shows the `POST /environments/{environmentId}/users` operation to add a new user resource to the specified environment. This operation creates a new user but does not support an attribute to set the new user's password. To create a user and set the password, see [Import a user](#post-create-user-import).
+// 
+// New users must be assigned to a `population` resource identified by its ID, and the request must set values for the `username` and `email` attributes. If successful, the response returns a `201 Successfully created` message and shows the new user resource's property data.
+// 
+// ::: info
+// **Note:** For information about setting a user's password after creating the new user, see [Set password](#put-update-password-set).
+// :::
+// 
+
+@name("CREATE User")
+POST "https://{{apiPath}}/environments/{{envID}}/users"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "email": "tomjones@example.com",
+    "name": {
+        "given": "Tom",
+        "family": "Jones"
+    },
+    "population": {
+        "id": "{{popID}}"
+    },
+    "username": "tomjones"
+}')
+
+
+// The import users operation gives privileged applications the ability to create a new user and set the user's password. The `password` attribute in this operation uses the same format for specifying passwords as the [set password](#put-update-password-set) request, allowing both cleartext and pre-encoded password values. This endpoint requires the Identity Data Admin role.
+// 
+// The sample shows the `POST /environments/{environmentId}/users` operation to import a new user resource to the specified environment. This operation uses the `application/vnd.pingidentity.user.import+json` custom content type in the request header.
+// 
+// 
+// New users must be assigned to a `population` resource identified by its ID, and the request must set a value for the `username` attribute. In addition, this operation supports the `password` attribute, which can accept a pre-encoded password value and a `forceChange` value of false. If successful, the response returns a `201 Successfully created` message and shows the new user resource's property data.
+// 
+// ::: info
+// **Note:** Pre-encoded passwords are specified by the name of the encoding scheme followed by an encoded representation of the password (as shown in the example). Supported encoding schemes are bcrypt, scrypt, salted SHA1, salted SHA256, salted SHA384, and salted SHA512.
+// :::
+// 
+// For more information about pre-encoded passwords, see [Set password](#put-update-password-set). For import operations, if a pre-encoded password is not accepted by PingOne, then it does not conform to the supported encoding schemes described in the *Set password* topic.
+// 
+
+@name("CREATE User (Import)")
+POST "https://{{apiPath}}/environments/{{envID}}/users"
+"content-type": "application/vnd.pingidentity.user.import+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "email": "do-not-send@example.com",
+    "name": {
+        "given": "Test",
+        "family": "User"
+    },
+    "population": {
+        "id": "{{popID}}"
+    },
+    "username": "import-user_{{$timestamp}}",
+    "password": {
+        "value": "<This can be plain text or an acceptable hashed value.>",
+        "forceChange": false
+    }
+}')
+
+
+// The `POST /environments/{envId}/users/{userId}` operation action verifies the user account. The request body requires the `verificationCode` attribute identifying the verification code sent to the user's email address to check the account. This operation uses the `application/vnd.pingidentity.user.verify+json` custom content type in the request header.
+// 
+// Upon success, the `lifecycle.status` property of the user is set to `ACCOUNT_OK`.
+// 
+// 
+
+@name("Verify User")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/vnd.pingidentity.user.verify+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "verificationCode": "<code>"
+}')
+
+
+// If the user loses or did not receive the verification code, a new verification code can be sent using the `POST /environments/{envId}/users/{userId}` operation. For the code resend operation, the `application/vnd.pingidentity.user.sendVerificationCode+json` custom content type is required in the request header.
+// 
+// Upon success, a new verification code is sent and the `lifecycle.status` property of the user is set to `VERIFICATION_REQUIRED`.
+// 
+
+@name("Send/Resend User Verification Code")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/vnd.pingidentity.user.sendVerificationCode+json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+// The sample shows the `PATCH /environments/{environmentId}/users/{userId}` operation to update existing attribute properties. For the `PATCH` operation, the update operation targets only those attribute values specified in the request body. Attributes omitted from the request body are not updated or removed.
+// 
+// 
+// 
+// ::: info
+// **Note:** For PATCH requests that modify custom JSON user attributes, these custom attributes are replaced completely. This behavior follows standard JSON merge patch rules as specified by the Internet Engineering Task Force (IETF). For more information, see [RFC 7396: JSON Merge Patch](https://tools.ietf.org/html/rfc7396).
+// :::
+// 
+
+@name("UPDATE User (Patch)")
+PATCH "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "username": "PATCHED{{$timestamp}}@example.com",
+    "name": {
+        "formatted": "Formatted Name",
+        "given": "Patch",
+        "middle": "Atch",
+        "family": "Tch",
+        "honorificPrefix": "Mr.",
+        "honorificSuffix": "III"
+    },
+    "nickname": "Patchy",
+    "title": "There and Back Again",
+    "preferredLanguage": "en-gb;q=0.8, en;q=0.7",
+    "locale": "en-gb",
+    "email": "PATCHED@example.com",
+    "primaryPhone": "+1.1115553333",
+    "mobilePhone": "+1.3335551111",
+    "photo": {
+        "href": "<url-to-image>"
+    },
+    "address": {
+        "streetAddress": "123 Fake Street",
+        "locality": "Springfield",
+        "region": "Somewhere",
+        "postalCode": "78701",
+        "countryCode": "US"
+    },
+    "accountId": "5",
+    "type": "tele",
+    "timezone": "America/New_York"
+}')
+
+
+// You can use the `PUT /environments/{environmentId}/users/{userId}` operation to update existing attribute properties. For `PUT` requests, the update operation removes any existing attribute property values omitted from the request body.
+// 
+// 
+// The response data shows the updates for all attribute values specified in the request body.
+
+@name("UPDATE User (Put)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "username": "joe@example.com",
+    "name": {
+        "formatted": "Joe Smith",
+        "given": "Joe",
+        "middle": "H.",
+        "family": "Smith",
+        "honorificPrefix": "Dr.",
+        "honorificSuffix": "IV"
+    },
+    "nickname": "Putty",
+    "title": "Senior Director",
+    "preferredLanguage": "en-gb;q=0.8, en;q=0.7",
+    "locale": "en-gb",
+    "email": "joe@example.com",
+    "primaryPhone": "+1.2225554444",
+    "mobilePhone": "+1.4445552222",
+    "photo": {
+        "href": "<url-to-image>"
+    },
+    "address": {
+        "streetAddress": "123 Main Street",
+        "locality": "Springfield",
+        "region": "WA",
+        "postalCode": "98701",
+        "countryCode": "US"
+    },
+    "accountId": "5",
+    "type": "tele",
+    "timezone": "America/Los_Angeles"
+}')
+
+
+// To delete a user resource from the directory, you need to specify the environment and user IDs.
+// 
+// The sample shows the `DELETE /environments/{environmentId}/users/{userId}` operation to remove the specified user resource from the directory.
+// 
+// For successful delete operations, a `204 NO CONTENT` message is returned by the request.
+
+@name("DELETE User")
+DELETE "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

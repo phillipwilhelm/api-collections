@@ -6,7 +6,10 @@ GET "https://{{BaseURL}}/PasswordVault/api/ExtendedAccounts/{{AccountID}}/overvi
 "Content-Type": "application/json"
 
 
-// This method returns a list of all the accounts in the Vault.// // The user who runs this web service requires **List Accounts** permissions in the Safe.
+// This method returns a list of all the accounts in the Vault.
+// 
+// The user who runs this web service requires **List Accounts** permissions in the Safe.
+
 @name("Get Accounts")
 GET "https://{{BaseURL}}/PasswordVault/api/Accounts"
 "Content-Type": "application/json"
@@ -19,7 +22,10 @@ GET "https://{{BaseURL}}/PasswordVault/api/Accounts"
 ? "filter"= "safeName eq {{Safe}}"
 
 
-// This method returns information about an account identified by its ID.// // The user who runs this web service requires **List Accounts** permissions in the Safe where the account is located inside the Vault.
+// This method returns information about an account identified by its ID.
+// 
+// The user who runs this web service requires **List Accounts** permissions in the Safe where the account is located inside the Vault.
+
 @name("Get Account Details")
 GET "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}"
 "Authorization": "{{CyberArkLogonResult}}"
@@ -27,13 +33,29 @@ GET "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}"
 
 
 // This method returns the activities of a specific account that is identified by its account ID.
+
 @name("Get Account Activity")
 GET "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/Accounts/{{AccountID}}/Activities"
 "Authorization": "{{CyberArkLogonResult}}"
 "Content-Type": "application/json"
 
 
-// This method adds a new privileged account or SSH key to the Vault.// // To run this web service, a user requires the following permission in the Vault:// // * Add account// // AND either// // * Update password// // OR// // * Update password properties// // **Note:** You require an additional license to add SSH keys to the Vault. For more information, contact your CyberArk representative.
+// This method adds a new privileged account or SSH key to the Vault.
+// 
+// To run this web service, a user requires the following permission in the Vault:
+// 
+// * Add account
+// 
+// AND either
+// 
+// * Update password
+// 
+// OR
+// 
+// * Update password properties
+// 
+// **Note:** You require an additional license to add SSH keys to the Vault. For more information, contact your CyberArk representative.
+
 @name("Add Account")
 POST "https://{{BaseURL}}/PasswordVault/api/Accounts"
 "Authorization": "{{CyberArkLogonResult}}"
@@ -61,7 +83,10 @@ data('{
 }')
 
 
-// This method enables an account or SSH key that is discovered by an external scanner to be added as a pending account to the Accounts Feed. This facilitates the privileged account workflow, during which users can identify privileged accounts and determine which are onboarded to the Vault.// // **Note:** In order to add SSH keys to the Vault, you require an additional license. For more information, contact your CyberArk representative.
+// This method enables an account or SSH key that is discovered by an external scanner to be added as a pending account to the Accounts Feed. This facilitates the privileged account workflow, during which users can identify privileged accounts and determine which are onboarded to the Vault.
+// 
+// **Note:** In order to add SSH keys to the Vault, you require an additional license. For more information, contact your CyberArk representative.
+
 @name("Add Pending Account")
 POST "https://{{BaseURL}}/PasswordVault/WebServices/PIMServices.svc/PendingAccounts"
 "Authorization": "{{CyberArkLogonResult}}"
@@ -94,7 +119,15 @@ data('{
 }')
 
 
-// This method enables a user to associate a linked account to an existing source account. The linked account can be a Reconcile account, Logon account, or other type of linked account that is defined in the platform configuration.//   	// _**Note:** The type of linked accounts that are allowed are determined by the Platform settings. Each platform can support different types of linked accounts._// // To run this service, the user must have the following Safe member authorizations:// // * List accounts - For both the Safe of the linked account and the Safe of the source account// * Update account properties - For the Safe of the source account
+// This method enables a user to associate a linked account to an existing source account. The linked account can be a Reconcile account, Logon account, or other type of linked account that is defined in the platform configuration.
+//   	
+// _**Note:** The type of linked accounts that are allowed are determined by the Platform settings. Each platform can support different types of linked accounts._
+// 
+// To run this service, the user must have the following Safe member authorizations:
+// 
+// * List accounts - For both the Safe of the linked account and the Safe of the source account
+// * Update account properties - For the Safe of the source account
+
 @name("Link an Account")
 POST "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}/LinkAccount"
 "Authorization": "{{CyberArkLogonResult}}"
@@ -106,7 +139,32 @@ data('{
 }')
 
 
-// This method updates an existing account's details. It is not mandatory to send all the account’s details. Any changed values sent in the request will be updated. All other properties values will remain the same.// // On each property, the following operations can be performed:// // * Replace - replace the existing value of a property// * Remove (to remove the property from the account)// * Add (to add that property to the account)// // It is possible to set several properties using the same command using the following structure:// // ```json// [// 	{// 	    "op": "replace",// 	    "path": "/platformaccountproperties",// 	    "value": "{// 	        \"{PropertyID1}\":\"{Value}\",// 	        \"{PropertyID2}\":\"{Value}\",// 	        \"{PropertyID3}\":\"{Value}\"// 	    }"// 	}// ]// ```// // When sending several operations on the same property, only the last operation will affect the property.
+// This method updates an existing account's details. It is not mandatory to send all the account’s details. Any changed values sent in the request will be updated. All other properties values will remain the same.
+// 
+// On each property, the following operations can be performed:
+// 
+// * Replace - replace the existing value of a property
+// * Remove (to remove the property from the account)
+// * Add (to add that property to the account)
+// 
+// It is possible to set several properties using the same command using the following structure:
+// 
+// ```json
+// [
+// 	{
+// 	    "op": "replace",
+// 	    "path": "/platformaccountproperties",
+// 	    "value": "{
+// 	        \"{PropertyID1}\":\"{Value}\",
+// 	        \"{PropertyID2}\":\"{Value}\",
+// 	        \"{PropertyID3}\":\"{Value}\"
+// 	    }"
+// 	}
+// ]
+// ```
+// 
+// When sending several operations on the same property, only the last operation will affect the property.
+
 @name("Update Account")
 PATCH "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}"
 "Authorization": "{{CyberArkLogonResult}}"
@@ -130,7 +188,10 @@ data('[
 ]')
 
 
-// This method deletes a specific account in the Vault.// // The user who runs this web service requires **Delete Accounts** permissions in the Vault.
+// This method deletes a specific account in the Vault.
+// 
+// The user who runs this web service requires **Delete Accounts** permissions in the Vault.
+
 @name("Delete Account")
 DELETE "https://{{BaseURL}}/PasswordVault/api/Accounts/{{AccountID}}"
 "Authorization": "{{CyberArkLogonResult}}"

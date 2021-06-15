@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Let's say we are interested in examining COVID-19 cases over time. By using the Johns Hopkins country-level dataset's (`jhu_country`) confirmed (`cnt_confirmed`), recovered (`cnt_recovered`), and death count (`cnt_death`) variables, and specifying that we are only interested in US case data, we can easily query data that is directly consumable by our charting library (amCharts, in this case). After sending the request, you can head over to the Visualize tab to see the graph below.   
+// 
+// Of course, you can also leave off the `format` parameter to have the data returned record by record. An example of this is available in the Example Response section. Try out this query and apply your own filters in the [RDS Explorer](https://covid19.richdataservices.com/rds-explorer/explore/int/jhu_country/data?collimit=25&coloffset=0&count=true&offset=0&limit=25&where=(iso3166_1%3DUS)&cols=date_stamp,iso3166_1,cnt_confirmed,cnt_death,cnt_recovered?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis).
+// 
+// <img src="https://mtna.s3.amazonaws.com/rds/images/Postman/confirmedDeathRecoveredLineChart.png" alt="confirmedDeathRecoveredLineChart" width="800"/>
+
+@name("Visualize COVID-19 cases over time in the U.S.")
+GET "https://covid19.richdataservices.com/rds/api/query/int/jhu_country/select"
+? "cols"= "date_stamp,cnt_confirmed,cnt_death,cnt_recovered"
+? "where"= "(iso3166_1=US)"
+? "format"= "amcharts"
+? "limit"= "5000"
+
+
+// The COVID Tracking Project API pulls data from different state and national sources. Here, we are comparing the total number of positive COVID-19 tests to the total number of total COVID-19 tests performed. The visualization below is available in the "Visualize" tab if you're running the collection in the Postman app. We have also provided an example response in the default MTNA Simple Dataset format, if you are interested in using the data for other purposes.  
+// 
+// 
+// <img src="https://mtna.s3.amazonaws.com/rds/images/Postman/stateComparisonBarChart.png" alt="barChart" width="800"/>
+
+@name("Visualize positive and total COVID-19 tests per state")
+GET "https://covid19.richdataservices.com/rds/api/query/us/covidtracking_state/select"
+? "where"= "(us_state_postal=NY OR us_state_postal=CA OR us_state_postal=TX) AND (date_stamp=2020-06-17)"
+? "cols"= "us_state_postal,cnt_tested_pos,cnt_tested"
+? "format"= "amcharts"
+
+
+// This request demonstrates how RDS can automatically generate a count of all of the records that meet our criteria. In this data set from the Ohio Department of Health, we are able to zero in on a specific demographic of cases: individuals who are male and age 50 or older. Try out this query in the [RDS Explorer](https://covid19.richdataservices.com/rds-explorer/explore/us_oh/oh_doh_cases/data?collimit=25&coloffset=0&count=true&offset=0&limit=25&where=(sex%3D1)%20AND%20(age_group%3D50%20OR%20age_group%3D60%20OR%20age_group%3D70%20OR%20age_group%3D80)?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis).
+
+@name("Ohio COVID cases for males 50+")
+GET "https://covid19.richdataservices.com/rds/api/query/us_oh/oh_doh_cases/select"
+? "count"= "true"
+? "where"= "(sex=1) AND (age_group=50 OR age_group=60 OR age_group=70 OR age_group=80)"
+? "metadata"= "true"
+
+
+// All of the available parameters are listed below. Combine them as you wish to compute, order, filter, and format the data to fit your needs. 
+// 
+// Having trouble figuring out where to begin? Browse data products and play around with subgroups in the [RDS Explorer](https://covid19.richdataservices.com/rds-explorer/data-product-selection?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis), and generate your API query from the UI, using the `< >` icon at the top right.
+
+@name("Build your own select query")
+GET "http://host/api/query/{catalog}/{dataProductId}/select"
+? "collimit"= "<integer>"
+? "coloffset"= "<integer>"
+? "cols"= "<string>"
+? "count"= "<boolean>"
+? "format"= "<format enum>"
+? "groupby"= "<string array>"
+? "inject"= "<boolean>"
+? "limit"= "<number>"
+? "lock"= "<string>"
+? "metadata"= "<boolean>"
+? "offset"= "<number>"
+? "orderby"= "<string>"
+? "weights"= "<string array>"
+? "where"= "<string>"
+
+
+

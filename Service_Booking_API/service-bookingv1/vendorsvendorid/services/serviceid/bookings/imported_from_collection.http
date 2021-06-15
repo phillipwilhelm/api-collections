@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+// This endpoint retrieves a collection of bookings created by the user for a specific vendor and optionally for a specific service as a collection of Booking objects.  Based on the composition parameter, this data can be fully detailed relevant to a booking (i.e., the “booked” composition) or a summary “view”.  Since the collection size may be significant, full Collections features (i.e., filtering, sort, and paging) are indicated plus some explicit filter criteria.  Sorting should always be oldest to newest start time within any specified criteria.
+
+@name("Get Bookings")
+GET "https://{{baseUrl}}/service-booking/v1/vendors/:vendorid/services/:serviceid/bookings"
+"Accept": "application/json; charset=utf-8"
+"Accept-Encoding": "gzip"
+? "trid"= "{{trackingId}}"
+? "cmp"= "{{cmp}}"
+? "lang"= "{{lang}}"
+? "sort"= "service"
+? "offset"= "0"
+? "limit"= "10"
+? "start_time"= "2020-04-09T15:30Z"
+? "end_time"= "2020-04-16T15:30Z"
+? "status"= "1"
+
+
+// This endpoint creates a new service booking by accepting a Booking object.  The posted object should use the “new” composition; attributes not in this composition must be ignored.  Upon success, the endpoint returns a full Booking object with assigned ID, status, and descriptive subordinate objects using the “booking” composition where available.
+
+@name("Create Booking")
+POST "https://{{baseUrl}}/service-booking/v1/vendors/:vendorid/services/:serviceid/bookings"
+"Accept": "application/json; charset=utf-8"
+"Accept-Encoding": "gzip"
+"Content-Type": "application/json; charset=utf-8"
+? "trid"= "{{trackingId}}"
+data('{
+    "booking": {
+        "schedule_slot": {
+            "id": "schedule_slot_id_123"
+        },
+        "practitioner": {
+            "id": "practitioner_id_123"
+        },
+        "waitlist_ok": true,
+        "group_id": "group_id_123"
+    }
+}')
+
+
+

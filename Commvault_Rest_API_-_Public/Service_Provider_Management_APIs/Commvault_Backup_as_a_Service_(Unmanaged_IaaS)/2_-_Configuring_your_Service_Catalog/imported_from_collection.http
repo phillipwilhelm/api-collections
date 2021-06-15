@@ -1,0 +1,3583 @@
+#!/usr/bin/env dothttp
+
+@name("Adding Disk Storage")
+POST "https://{{ServerUrl}}/StoragePool"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+? "Action"= "create"
+data('{
+    "storagePolicyName": "{{DiskstoragePolicyName}}",
+    "type": 1,
+    "copyName": "{{DiskcopyName}}",
+    "numberOfCopies": 1,
+    "clientGroup": {
+        "_type_": 28,
+        "clientGroupId": 0,
+        "clientGroupName": ""
+    },
+    "storage": [
+        {
+            "path": "{{DiskstoragePath}}",
+            "mediaAgent": {
+                "_type_": 11,
+                "mediaAgentName": "{{DiskmediaAgentName}}"
+            },
+            "credentials": {},
+            "savedCredential": {
+                "credentialId": 0,
+                "credentialName": ""
+            }
+        }
+    ],
+    "storagePolicyCopyInfo": {
+        "copyType": 1,
+        "isFromGui": true,
+        "active": 1,
+        "isDefault": 1,
+        "numberOfStreamsToCombine": 1,
+        "dedupeFlags": {
+            "enableDASHFull": 1,
+            "hostGlobalDedupStore": 1,
+            "enableDeduplication": 1
+        },
+        "storagePolicyFlags": {
+            "blockLevelDedup": 1,
+            "enableGlobalDeduplication": 1
+        },
+        "retentionRules": {
+            "retainBackupDataForCycles": -1,
+            "retainArchiverDataForDays": -1,
+            "retainBackupDataForDays": -1,
+            "retentionFlags": {
+                "enableDataAging": 1
+            }
+        },
+        "DDBPartitionInfo": {
+            "maInfoList": [
+                {
+                    "mediaAgent": {
+                        "_type_": 11,
+                        "mediaAgentName": "{{DiskmediaAgentName}}"
+                    },
+                    "subStoreList": [
+                        {
+                            "diskFreeWarningThreshholdMB": 10240,
+                            "diskFreeThresholdMB": 5120,
+                            "accessPath": {
+                                "path": "{{DiskaccessPath}}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "sidbStoreInfo": {
+                "numSIDBStore": 2
+            }
+        },
+        "library": {
+            "libraryName": "{{DisklibraryName}}",
+            "_type_": 9,
+            "libraryId": 0
+        },
+        "mediaAgent": {
+            "_type_": 11,
+            "mediaAgentName": "{{DiskmediaAgentName}}"
+        }
+    }
+}')
+
+
+@name("Adding Cloud Storage ")
+POST "https://{{ServerUrl}}/StoragePool"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+? "Action"= "create"
+data('{
+    "storagePolicyName": "{{CloudstoragePolicyName}}",
+    "type": 1,
+    "copyName": "{{CloudcopyName}}",
+    "numberOfCopies": 1,
+    "clientGroup": {
+        "_type_": 28,
+        "clientGroupId": 0,
+        "clientGroupName": ""
+    },
+    "storage": [
+        {
+            "deviceType": 40,
+            "path": "{{CloudstoragePath}}",
+            "mediaAgent": {
+                "_type_": 11,
+                "mediaAgentName": "{{CloudmediaAgentName}}"
+            },
+            "credentials": {
+                "userName": "{{ClouduserName}}"
+            },
+            "savedCredential": {
+                "credentialId": 1,
+                "credentialName": "{{CloudcredentialName}}"
+            }
+        }
+    ],
+    "storagePolicyCopyInfo": {
+        "copyType": 1,
+        "isFromGui": true,
+        "active": 1,
+        "isDefault": 1,
+        "numberOfStreamsToCombine": 1,
+        "dedupeFlags": {
+            "enableDASHFull": 1,
+            "hostGlobalDedupStore": 1,
+            "enableDeduplication": 1
+        },
+        "storagePolicyFlags": {
+            "blockLevelDedup": 1,
+            "enableGlobalDeduplication": 1
+        },
+        "retentionRules": {
+            "retainBackupDataForCycles": -1,
+            "retainArchiverDataForDays": -1,
+            "retainBackupDataForDays": -1,
+            "retentionFlags": {
+                "enableDataAging": 1
+            }
+        },
+        "DDBPartitionInfo": {
+            "maInfoList": [
+                {
+                    "mediaAgent": {
+                        "_type_": 11,
+                        "mediaAgentName": "{{CloudmediaAgentName}}"
+                    },
+                    "subStoreList": [
+                        {
+                            "diskFreeWarningThreshholdMB": 10240,
+                            "diskFreeThresholdMB": 5120,
+                            "accessPath": {
+                                "path": "{{CloudaccessPath}}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "sidbStoreInfo": {
+                "numSIDBStore": 2
+            }
+        },
+        "library": {
+            "libraryName": "{{CloudlibraryName}}",
+            "_type_": 9,
+            "libraryId": 0
+        },
+        "mediaAgent": {
+            "_type_": 11,
+            "mediaAgentName": "{{CloudmediaAgentName}}"
+        }
+    }
+}')
+
+
+@name("Adding your Plans 1_Essential")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+json({
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Primary"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}"
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "1_Essential",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 1440,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "1_Essential"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 30,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+
+
+@name("Adding your Plans 2_Standard")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "2_Standard"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "2_Standard",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 1440,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "2_Standard"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 30,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}')
+
+
+@name("Adding your Plans 3_Premium")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Primary"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 1,
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Secondary"
+                    },
+                    "extendedFlags": {
+                        "useGlobalStoragePolicy": 1
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{CloudstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "3_Premium",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 480,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "3_Premium"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 15,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}')
+
+
+@name("Adding your Plans 4_Standard (+Offsite)")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Primary"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 1,
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Secondary"
+                    },
+                    "extendedFlags": {
+                        "useGlobalStoragePolicy": 1
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{CloudstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "4_Standard (+Offsite)",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 1440,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "4_Standard (+Offsite)"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 30,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}')
+
+
+@name("Adding your Plans 5_Premium (+LTR_1y)1")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Primary"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 1,
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30,
+                        "extendedRetentionRuleOne": {
+                            "isEnabled": 1,
+                            "rule": 8,
+                            "endDays": 360
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Secondary"
+                    },
+                    "extendedFlags": {
+                        "useGlobalStoragePolicy": 1
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{CloudstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "5_Premium (+LTR_1y)1",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 480,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "5_Premium (+LTR_1y)1"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 15,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}')
+
+
+@name("Adding your Plans 6remu_Premium (+LTR_7y)2")
+POST "https://{{ServerUrl}}/v2/plan"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "plan": {
+        "inheritance": {
+            "isSealed": true
+        },
+        "storage": {
+            "enableBackupCopy": true,
+            "copy": [
+                {
+                    "copyType": 1,
+                    "active": 1,
+                    "isDefault": 1,
+                    "dedupeFlags": {
+                        "enableDASHFull": 1,
+                        "useGlobalDedupStore": 1,
+                        "enableDeduplication": 1,
+                        "enableClientSideDedup": 1
+                    },
+                    "storagePolicyFlags": {
+                        "blockLevelDedup": 1
+                    },
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "enableDataAging": 1
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Primary"
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{DiskstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 1,
+                    "retentionRules": {
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 30,
+                        "extendedRetentionRuleOne": {
+                            "isEnabled": 1,
+                            "rule": 64,
+                            "endDays": 2555
+                        }
+                    },
+                    "StoragePolicyCopy": {
+                        "copyName": "Secondary"
+                    },
+                    "extendedFlags": {
+                        "useGlobalStoragePolicy": 1
+                    },
+                    "useGlobalPolicy": {
+                        "storagePolicyName": "{{CloudstoragePolicyName}}",
+                        "storagePolicyId": 0
+                    }
+                },
+                {
+                    "copyType": 3,
+                    "active": 1,
+                    "isDefault": 0,
+                    "isSnapCopy": 1,
+                    "copyPrecedence": 1,
+                    "retentionRules": {
+                        "retainBackupDataForCycles": 1,
+                        "jobs": 8,
+                        "retainArchiverDataForDays": -1,
+                        "retainBackupDataForDays": 15,
+                        "retentionFlags": {
+                            "jobBasedRetention": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "laptop": {
+            "content": {
+                "backupContent": [
+                    {
+                        "idatype": 2,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Windows subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSSForSystemState": true,
+                                        "backupSystemState": true,
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "backupSystemStateforFullBkpOnly": false,
+                                        "scanOption": 2
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "\\"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 3,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Linux subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idatype": 4,
+                        "subClientPolicy": {
+                            "backupSetEntity": {
+                                "backupsetName": "Mac subclient policy"
+                            },
+                            "subClientList": [
+                                {
+                                    "contentOperationType": 1,
+                                    "fsSubClientProp": {
+                                        "useVSS": true,
+                                        "keepAtLeastPreviousVersions": 5,
+                                        "catalogACL": true,
+                                        "scanOption": 1
+                                    },
+                                    "content": [
+                                        {
+                                            "path": "/"
+                                        }
+                                    ],
+                                    "commonProperties": {
+                                        "numberOfBackupStreams": 4,
+                                        "readBuffersize": 512,
+                                        "storageDevice": {
+                                            "softwareCompression": 2,
+                                            "deDuplicationOptions": {
+                                                "enableDeduplication": true,
+                                                "generateSignature": 1
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "database": {
+            "slaInMinutes": 240,
+            "rpoInMinutes": 240,
+            "scheduleLog": {
+                "task": {
+                    "description": "Automatic Schedules for the log backup for every 30 mins",
+                    "taskType": 4,
+                    "policyType": 0,
+                    "taskName": "Log schedule policy for the database clients",
+                    "taskFlags": {
+                        "isEdgeDrive": false
+                    }
+                },
+                "appGroup": {
+                    "appGroups": [
+                        {
+                            "appGroupName": "APPGRP_Sybase",
+                            "appGroupId": 13
+                        },
+                        {
+                            "appGroupName": "APPGRP_POSTGRES",
+                            "appGroupId": 114
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_HANA",
+                            "appGroupId": 129
+                        },
+                        {
+                            "appGroupName": "APPGRP_MySql",
+                            "appGroupId": 100
+                        },
+                        {
+                            "appGroupName": "APPGRP_DB2",
+                            "appGroupId": 11
+                        },
+                        {
+                            "appGroupName": "APPGRP_INFORMIX",
+                            "appGroupId": 111
+                        },
+                        {
+                            "appGroupName": "APPGRP_SAP_FOR_ORACLE",
+                            "appGroupId": 101
+                        },
+                        {
+                            "appGroupName": "APPGRP_SQL_POLICY",
+                            "appGroupId": 90
+                        },
+                        {
+                            "appGroupName": "APPGRP_AppTypeIndexedBased",
+                            "appGroupId": 83
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb",
+                            "appGroupId": 12
+                        },
+                        {
+                            "appGroupName": "PACKAGEGRP_DB",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_ORACLE",
+                            "appGroupId": 10
+                        },
+                        {
+                            "appGroupName": "APPGRP_XchangeDB",
+                            "appGroupId": 14
+                        },
+                        {
+                            "appGroupName": "APPGRP_NotesDb_Transaction_Log",
+                            "appGroupId": 104
+                        }
+                    ]
+                },
+                "subTasks": [
+                    {
+                        "subTask": {
+                            "subTaskName": "Incremental automatic schedule for logs",
+                            "subTaskType": 2,
+                            "flags": 65536,
+                            "operationType": 2
+                        },
+                        "pattern": {
+                            "freq_type": 1024,
+                            "timeZone": {}
+                        },
+                        "options": {
+                            "backupOpts": {
+                                "truncateLogsOnSource": false,
+                                "sybaseSkipFullafterLogBkp": false,
+                                "backupLevel": 2,
+                                "incLevel": 1,
+                                "runIncrementalBackup": true,
+                                "cumulative": false,
+                                "doNotTruncateLog": false,
+                                "dataOpt": {
+                                    "useCatalogServer": true,
+                                    "followMountPoints": true,
+                                    "enforceTransactionLogUsage": false,
+                                    "skipConsistencyCheck": false,
+                                    "daysBetweenSyntheticBackup": 7,
+                                    "autoCopy": false
+                                },
+                                "oracleOptions": {
+                                    "deleteArchLogOptions": {
+                                        "backupArchiveLogCriteria": 0
+                                    },
+                                    "backupArchLogOptions": {
+                                        "backupArchiveLogCriteria": 7,
+                                        "startLSN": 1,
+                                        "endLSN": 1,
+                                        "backupArchiveLog": true
+                                    }
+                                }
+                            },
+                            "commonOpts": {
+                                "perfJobOpts": {},
+                                "automaticSchedulePattern": {
+                                    "maxBackupInterval": 4,
+                                    "sweepStartTime": 86400,
+                                    "useStorageSpaceFromMA": false,
+                                    "minBackupIntervalMinutes": 15,
+                                    "maxBackupIntervalMinutes": 0,
+                                    "minBackupInterval": 0,
+                                    "logFileNum": {
+                                        "threshold": 50,
+                                        "enabled": true
+                                    },
+                                    "diskUsedPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    },
+                                    "logPercent": {
+                                        "threshold": 80,
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "options": {
+            "quota": 0
+        },
+        "summary": {
+            "description": "6remu_Premium (+LTR_7y)2",
+            "type": 2,
+            "slaInterval": 0,
+            "subtype": 33554437,
+            "restrictions": 1,
+            "rpoInMinutes": 480,
+            "addons": {
+                "database": true,
+                "filesystem": true,
+                "snap": true
+            },
+            "plan": {
+                "planName": "6remu_Premium (+LTR_7y)2"
+            },
+            "planOwner": {
+                "userName": "admin",
+                "userId": 1
+            }
+        },
+        "schedule": {
+            "task": {
+                "taskType": 4,
+                "taskFlags": {
+                    "isEdgeDrive": false,
+                    "isEZOperation": false,
+                    "disabled": false
+                }
+            },
+            "subTasks": [
+                {
+                    "subTask": {
+                        "subTaskName": "Incremental backup schedule",
+                        "subTaskType": 2,
+                        "flags": 65536,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 4096,
+                        "description": "Continuous schedule after 240 minutes",
+                        "active_end_time": 0,
+                        "active_start_time": 75600,
+                        "freq_interval": 240,
+                        "name": "Incremental backup schedule",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {
+                            "TimeZoneName": "Client Time Zone"
+                        }
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "bkpLatestVersion": true,
+                            "collectMetaInfo": false,
+                            "incrementalDataWithLogs": true,
+                            "backupLevel": 2,
+                            "incLevel": 1,
+                            "runIncrementalBackup": false,
+                            "autoConvertBackupLevel": true,
+                            "doNotTruncateLog": false,
+                            "cdrOptions": {
+                                "incremental": true,
+                                "dataVerificationOnly": false,
+                                "full": false
+                            },
+                            "dataOpt": {
+                                "stopWinService": true,
+                                "stopDhcpService": true,
+                                "useCatalogServer": true,
+                                "optimizedBackup": true,
+                                "followMountPoints": true,
+                                "bkpFilesProctedByFS": true,
+                                "granularrecovery": true,
+                                "verifySynthFull": true,
+                                "daysBetweenSyntheticBackup": 0
+                            },
+                            "nasOptions": {
+                                "snapShotType": 0,
+                                "backupQuotas": true
+                            },
+                            "vaultTrackerOpt": {
+                                "mediaStatus": {
+                                    "bad": true,
+                                    "overwriteProtected": true,
+                                    "full": true
+                                }
+                            },
+                            "mediaOpt": {
+                                "numberofDays": 30,
+                                "retentionJobType": 2,
+                                "waitForInlineBackupResources": true,
+                                "allowOtherSchedulesToUseMediaSet": true
+                            }
+                        },
+                        "commonOpts": {
+                            "useJobStartTimeForContinuousSchedule": true,
+                            "jobRetryOpts": {
+                                "runningTime": {
+                                    "totalRunningTime": 3600
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "subTask": {
+                        "subTaskName": "Synthetic Fulls",
+                        "subTaskType": 2,
+                        "flags": 0,
+                        "operationType": 2,
+                        "subTaskId": 1
+                    },
+                    "pattern": {
+                        "freq_subday_interval": 0,
+                        "freq_type": 1024,
+                        "description": "Based on automatic schedule settings",
+                        "active_end_time": 0,
+                        "name": "Synthetic Fulls",
+                        "freq_recurrence_factor": 0,
+                        "timeZone": {}
+                    },
+                    "options": {
+                        "backupOpts": {
+                            "truncateLogsOnSource": false,
+                            "backupLevel": 4,
+                            "incLevel": 0,
+                            "runIncrementalBackup": false,
+                            "doNotTruncateLog": false,
+                            "vsaBackupOptions": {
+                                "backupFailedVMsOnly": false
+                            },
+                            "dataOpt": {
+                                "useCatalogServer": true,
+                                "followMountPoints": true,
+                                "useMultiStream": true,
+                                "useMaximumStreams": true,
+                                "enforceTransactionLogUsage": false,
+                                "skipConsistencyCheck": false,
+                                "maxNumberOfStreams": 1,
+                                "createNewIndex": true,
+                                "daysBetweenSyntheticBackup": 15,
+                                "autoCopy": true
+                            }
+                        },
+                        "commonOpts": {
+                            "automaticSchedulePattern": {
+                                "maxBackupInterval": 72,
+                                "ignoreOpWindowPastMaxInterval": true,
+                                "minBackupIntervalMinutes": 15,
+                                "maxBackupIntervalMinutes": 0,
+                                "minSyncInterval": 0,
+                                "minBackupInterval": 0,
+                                "minSyncIntervalMinutes": 0,
+                                "stopIfOnBattery": {
+                                    "enabled": false
+                                },
+                                "acPower": {
+                                    "enabled": false
+                                },
+                                "specfificNetwork": {
+                                    "enabled": false,
+                                    "ipAddress": {
+                                        "subnet": 24,
+                                        "address": "0.0.0.0"
+                                    }
+                                },
+                                "stopSleepIfBackUp": {
+                                    "enabled": false
+                                },
+                                "newOrModifiedFile": {
+                                    "enabled": false
+                                },
+                                "wiredNetworkConnection": {
+                                    "enabled": false
+                                },
+                                "minNetworkBandwidth": {
+                                    "enabled": false
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "snapInfo": {
+            "noOfRecoveryPoints": 8,
+            "snapToTapeSchedule": {
+                "subTask": {
+                    "subTaskOrder": 0,
+                    "subTaskName": "Snap to tape",
+                    "subTaskType": 1,
+                    "flags": 0,
+                    "operationType": 4028
+                },
+                "pattern": {
+                    "freq_type": 4096,
+                    "active_start_time": 79200,
+                    "freq_interval": 240,
+                    "name": "Automatic backup copy",
+                    "freq_recurrence_factor": 1,
+                    "timeZone": {
+                        "TimeZoneName": "Client Time Zone"
+                    }
+                },
+                "options": {
+                    "backupOpts": {
+                        "sybaseSkipFullafterLogBkp": false,
+                        "backupLevel": 0,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false,
+                        "runSILOBackup": false,
+                        "doNotTruncateLog": false,
+                        "dataOpt": {
+                            "daysBetweenSyntheticBackup": 0
+                        },
+                        "mediaOpt": {
+                            "markMediaFullOnSuccess": false,
+                            "startNewMedia": false,
+                            "auxcopyJobOption": {
+                                "autoCopy": true
+                            }
+                        }
+                    },
+                    "adminOpts": {
+                        "snapToTapeOption": {
+                            "allowMaximum": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}')
+
+
+

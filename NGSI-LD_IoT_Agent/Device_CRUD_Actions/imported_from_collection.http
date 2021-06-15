@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// This example provisions an individual device. It maps the `device_id=bell002` to the entity URN `urn:ngsi-ld:Bell:002` and gives the
+// entity a type `Bell`. The IoT Agent has been informed that the device offers a single `ring` `command` and is listening on 
+// `http://context-provider:3001/iot/bell002` using HTTP. `attributes`, `lazy` attributes and `static_attributes` can also be provisioned.
+
+@name("Create a Provisioned Device")
+POST "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "devices": [
+    {
+      "device_id": "water002",
+      "entity_name": "urn:ngsi-ld:Device:water002",
+      "entity_type": "Device",
+      "protocol": "PDI-IoTA-UltraLight",
+      "transport": "HTTP",
+      "endpoint": "http://context-provider:3001/iot/water002",
+      "commands": [ 
+        {
+          "name": "on",
+          "type": "command"
+        },
+        {
+          "name": "off",
+          "type": "command"
+        }
+       ],
+       "static_attributes": [
+         {"name":"controllingAsset", "type": "Relationship","value": "urn:ngsi-ld:Building:barn002"}
+    	]
+    }
+  ]
+}
+')
+
+
+// This example obtains the full details of a provisioned device with a given `<device-id>` path.
+// 
+// The response includes all the commands and attributes mappings associated with the device
+// 
+// Provisioned Device details can be read by making a GET request to the `/iot/devices/<device-id>` endpoint.
+
+@name("Read Provisioned Device Details")
+GET "http://{{iot-agent}}/iot/devices/water002"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+// This example lists all provisioned devices by making a GET request to the `/iot/devices` endpoint.
+// 
+// The response includes all the commands and attributes mappings associated with all devices
+
+@name("List all Provisioned Devices")
+GET "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+// This example updates an existing provisioned device by making a PUT request to the `/iot/devices/<device-id>` endpoint.
+
+@name("Update a Provisioned Device")
+PUT "http://{{iot-agent}}/iot/devices/bell002"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "entity_name": "urn:ngsi-ld:Thing:bell002"
+}')
+
+
+// This example removes a provisioned device by making a DELETE request to the `/iot/services/<device-id>` endpoint.
+// 
+// The device attributes will no longer be mapped and commands can no longer be sent to the device.
+// If the device is making active measurements, they will still be handled with default values
+// if the associated service has not been deleted.
+
+@name("Delete a Provisioned Device")
+DELETE "http://{{iot-agent}}/iot/devices/bell002"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+
+

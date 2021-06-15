@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+@name("1. Create new Loopback")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/tailf-ned-cisco-ios:interface"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+data(' <Loopback>
+   <name>1337</name>
+   <description>RESTCONF CREATED LOOPBACK</description>
+   <ip>
+     <address>
+       <primary>
+         <address>10.20.50.4</address>
+         <mask>255.255.255.255</mask>
+       </primary>
+     </address>
+   </ip>
+ </Loopback>')
+
+
+@name("2. Edit New Loopback IP Address")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/tailf-ned-cisco-ios:interface/Loopback=1337/ip"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+data('
+                       <ip>
+                         <address>
+                           <primary>
+                             <address>10.0.0.5</address>
+                             <mask>255.255.255.255</mask>
+                           </primary>
+                         </address>
+                       </ip>
+')
+
+
+@name("3. Remove IP Address From Interface")
+DELETE "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/tailf-ned-cisco-ios:interface/Loopback=1337/ip/address"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+? "dry-run"= "native"
+
+
+
+@name("4. Delete new Loopback")
+DELETE "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/tailf-ned-cisco-ios:interface/Loopback=1337"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+
+
+
+@name("5. Add SNMP Community String")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+? "dry-run"= "native"
+data('                 <config>
+                   <snmp-server xmlns="urn:ios">
+                     <community>
+                       <name>NSO-STRING</name>
+                       <RW/>
+                     </community>
+                   </snmp-server>
+                 </config>')
+
+
+@name("6. Remove SNMP Community String from Device")
+DELETE "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/config/tailf-ned-cisco-ios:snmp-server"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+xml"
+
+
+
+

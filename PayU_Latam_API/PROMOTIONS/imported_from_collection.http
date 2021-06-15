@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+// Consulta las promociones vigentes, sus cobros asociados, características de la misma, y demás información relevante.
+
+@name("QUERY")
+GET "https://{{PROMOTIONS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"Authorization": "Hmac PKaC6H4cEDJD919n705L544kSU:sIxh54sANfKaxO0ugX6QwhPmZRS+TGy8gmdCwr3kjP0="
+"Date": "{{$timestamp}}"
+"x-hmac-date ": "{{$timestamp}}"
+? "accountId"= "{{ACCOUNT_ID_ARGENTINA}}"
+? "currency"= "ARS"
+? "amount"= "100"
+? "paymentMethod"= "{{PAYMENT_METHOD}}"
+
+
+// Una vez seleccionada una promoción, se debe enviar en la petición API el ID de esta en la transacción. El ID de la promoción se envía como un extra parámetro dentro de la petición API `transaction.extraParameters.PROMOTION_ID`.
+// 
+// Se envía a autorización el monto de la transacción y si es aprobada, inmediatamente se realiza la captura.
+// 
+// Franquisias disponibles para `AUTHORIZATION_AND_CAPTURE`:
+// - `VISA`
+// - `MASTERCARD`
+// - `AMEX`
+// - `SHOPPING`
+// - `CABAL`
+// - `ARGENCARD`
+// - `CENCOSUD`
+// - `NARANJA`
+
+@name("AUTHORIZATION AND CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_ARGENTINA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTORIZATION AND CAPTURE OF PAY TEST WITH CREDITCARD IN ARGENTINA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "ARS"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Buenos Aires",
+					"state": "Buenos Aires",
+					"country": "AR",
+					"postalCode": "00000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Buenos Aires",
+				"state": "Buenos Aires",
+				"country": "AR",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Buenos Aires",
+				"state": "Buenos Aires",
+				"country": "AR",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"creditCard": {
+			"number": "4097440000000004",
+			"securityCode": "123",
+			"expirationDate": "2019/12",
+			"name": "{{STATE}}"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1,
+			"PROMOTION_ID": "PROMOTION_ID"
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "AR",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+

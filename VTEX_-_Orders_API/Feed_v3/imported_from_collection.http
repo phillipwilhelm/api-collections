@@ -1,0 +1,248 @@
+#!/usr/bin/env dothttp
+
+// Get feed order events
+// 
+// > know more about [Feed v3 in VTEX Help](https://help.vtex.com/pt/tutorial/feed-v3-de-gerenciamento-de-pedidos)
+// 
+// 
+// 
+// ## Request has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `accountName` | string | Account Name |
+// | `maxLot` | integer |  Lot quantity, maximum accept value is 10 |
+// 
+// 
+// 
+// ## Response object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `eventId` | string | Feed event ID |
+// | `handle` | string |  Event handle, used in Confirm Item Feed |
+// | `domain` | integer |  Order Source |
+// | `state` | integer |  Feed event state |
+// | `orderId` | string |  Order ID |
+// | `lastChange` | date |  Date for last change |
+// | `currentChange` | date | Date of change of current status|
+// 
+// > The event will be removed if the message send retry is equal to or greater than the maximum retention period
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with viewer access
+// 
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+
+@name("Get feed order status")
+GET "https://{{accountName}}.myvtex.com/api/orders/feed"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+? "maxlot"= "{{maxLot}}"
+
+
+// Order status event acknowledge
+// 
+// > know more about [Feed v3 in VTEX Help](https://help.vtex.com/pt/tutorial/feed-v3-de-gerenciamento-de-pedidos)
+// 
+// 
+// ## Request object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `handles` | string | Event status order handle |
+// 
+// 
+// ## Response codes
+// 
+// 
+// 200 - Success
+// 
+// 429 - Too many requests
+// 
+// 403 - The credentials is not enabled to access the service
+// 
+// 404 - Not found value
+// 
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Commit item feed order status")
+POST "https://{{accountName}}.myvtex.com/api/orders/feed"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+data('{
+    "handles":[
+        "AQEBSM/bSqonHYtx+UrHdbuJ0i7M9yMbI2jtYwMIPdEc4BenuneaCTC9VEJ3dgAy1XtfQvHBvgwZTO8LvGObIKNqiKXDZiMKY25vK+pblZEqf1pWdLMugu5XoHA5ZAd4IcBcXrBcrlr1GU8uvPEBoVLOsVBP9IAxIZkkeEedIDg3K6GPyEXVuPlTEYb/0OCunEGxWF+AZ1frFdXh7ulORTcuqO5oDlBGbpD+QYzCmF4mUZtQ0VVWh9icM1QBVh6PlJ0D/lfwnJKWpBn3jf8c+DTm7sD7wb1Lcz9uWMLhDtPwvH9vue4MvKU9sCahEQe7K5jWuwwb54szGbFKdfcACsTSQ9WlyBfMdbV83c27k68G3cnaBFExkC1MLHHE9UzpQ6l4s43BT4k95ocgMXffnj/HMUYXn+OCvlvjytY59x1OCRE="
+    ]
+}')
+
+
+// Configure the filter rule to Feed V3
+// 
+// 
+// > know more about [Feed v3 in VTEX Help](https://help.vtex.com/pt/tutorial/feed-v3-de-gerenciamento-de-pedidos)
+// 
+// 
+// 
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:-------------:| ----------------------------------:|
+// | `filter`| object | Status Filter Array Details |
+// | `status`| object | The events status array to filter |
+// | `queue`| object | Array of string |
+// | `visibilityTimeoutInSeconds`| integer | Visibility Timeout in Seconds: 30 minimum and 86400 max value |
+// | `MessageRetentionPeriodInSeconds`| integer | Visibility Timeout in Seconds: 345600 minimum and 1209600 max value |
+// 
+// 
+// 
+// 
+// | Status avaible to filter    |
+// | --------------------------- |
+// |order-created order-completed|
+// |on-order-completed|
+// |payment-pending| 
+// |waiting-for-order-authorization|
+// |approve-payment|
+// |payment-approved|
+// |payment-denied|
+// |request-cancel|
+// |waiting-for-seller-decision|
+// |authorize-fulfillment|
+// |order-create-error|
+// |order-creation-error|
+// |window-to-cancel|
+// |ready-for-handling|
+// |start-handling|
+// |handling|
+// |invoice-after-cancellation-deny|
+// |order-accepted|
+// |invoice|
+// |invoiced|
+// |replaced|
+// |cancellation-requested|
+// |cancel|
+// |canceled|
+// 
+// > know more about [Order Status in VTEX Help](https://help.vtex.com/en/faq/from-to-for-order-status)
+// 
+// 
+// 
+// 
+// > The event will be removed if the message send retry is equal to or greater than the maximum retention period
+// 
+// 
+// ## Response codes
+// 
+// 
+// 200 - Success
+// 
+// 403 - The credentials is not enabled to access the service
+// 
+// 404 - Not found value
+// 
+// 429 - Too many requests
+// 
+// 
+// 
+// ## Authentication
+// 
+// 
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Feed Configuration")
+POST "https://{{accountName}}.myvtex.com/api/orders/feed/config"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+data('{
+	"filter": {
+		"status": ["order-completed","start-handling", "handling", "ready-for-handling", "waiting-ffmt-authorization", "cancel"]
+	},
+	"queue":{
+		
+		"visibilityTimeoutInSeconds": 250,
+		"MessageRetentionPeriodInSeconds":345600
+	}
+}')
+
+
+// ## Request has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `accountName` | string | Account Name |
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with viewer access
+// 
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+
+@name("Get  Feed Configuration")
+GET "https://{{accountName}}.myvtex.com/api/orders/feed/config"
+"Accept": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+
+
+// Delete Feed V3 Configuration
+// 
+// 
+// > know more about [Feed v3 in VTEX Help](https://help.vtex.com/pt/tutorial/feed-v3-de-gerenciamento-de-pedidos)
+// 
+// 
+// 
+// ## Response codes
+// 
+// 
+// 200 - Success
+// 
+// 403 - The credentials is not enabled to access the service
+// 
+// 400 Bad Request  - "Unable to check address" / "Only https scheme is accepted"
+// 
+// 404 - Not found value
+// 
+// 429 - Too many requests
+// 
+// 
+// 
+// ## Authentication
+// 
+// 
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Feed Configuration Delete")
+DELETE "https://{{accountName}}.myvtex.com/api/orders/feed/config"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+
+
+
+

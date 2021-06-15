@@ -1,0 +1,429 @@
+#!/usr/bin/env dothttp
+
+// Request resources.
+// 
+// |  **Optional Parameters** |  |
+// | --- | --- |
+// |  **.limit** | Set the offset value, and the number of results to be returned. If empty, 10 results are returned. The maximum supported value is 100.<br/>        <br/>Format: .limit(<offset>,<results>) or .limit(<results>)<br/><br/>e.g. .limit(0,100). |
+// |  **.order** | Set the field to be used for sorting the results, and the ascending/descending order. Default is ascending. :-1 is descending.<br/><br/>Format: .order(<field>) or order(<field>:-1)<br/><br/>e.g. .order(createTime:-1) for sorting results by Date Created in descending order. |
+// |  **.fields** | Restrict the fields to be returned against each result.<br/><br/>Format: .fields(<field1>,<field2>)<br/><br/>e.g. .fields(name,createTime) |
+
+@name("Resources List")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource.limit(100).order(createTime:-1)"
+"sid": "{{sid}}"
+? "searchParams[ib_folder_s]"= "{{folder_id}}"
+
+
+// Request resources and apply the same search and filtering conditions as within IntelligenceBank. Use the [Custom Resource Form GET request](https://apidoc.intelligencebank.com/?version=latest#c3200700-76cc-425e-b95e-b0fa22a72730) to get the field id of Custom Upload Fields.  
+// 
+// |     |     |
+// | --- | --- |
+// | **Optional Parameters** |     |
+// | **.limit** | Set the offset value, and the number of results to be returned. If empty, 10 results are returned. The maximum supported value is 100.<br><br>Format: .limit(,) or .limit()<br><br>e.g. .limit(0,100). |
+// | **.order** | Set the field to be used for sorting the results, and the ascending/descending order. Default is ascending. :-1 is descending.<br><br>Format: .order() or order(:-1)<br><br>e.g. .order(createTime:-1) for sorting results by Date Created in descending order. |
+// | **.fields** | Restrict the fields to be returned against each result.<br><br>Format: .fields(,)<br><br>e.g. .fields(name,createTime) |
+// 
+// |     |     |     |     |
+// | --- | --- | --- | --- |
+// | **Search Parameter** | **IntelligenceBank Field Name or Custom Field Type** | **JSON Query** | **Notes** |
+// | **CORE** |     |     |     |
+// | keywords | N/A | "searchParams": {  <br>"keywords": "{{value}} AND "{{exact match value}}"\\ OR {{other value}}"  <br>} | This is the equivalent of the IntelligenceBank search bar.  <br>Surround "" with \\ in JSON query to apply "" for exact matches. |
+// | ib\_folder\_s | N/A | "searchParams": {  <br>"ib\_folder\_s": "{{folder\_id}}",  <br>} | Apply a Folder UUID to start the search query from. Replace {{folder\_id}} with the applicable folder \_id value. |
+// | isSearching | N/A | "searchParams": {  <br>"isSearching": "true", "false"  <br>} | Not a field name - Defines whether sub-folders are included in the query or not, ie as per search behavior in the platform. |
+// | **GENERAL OPTIONS** |     |     |     |
+// | content | **Search Scope** | "searchParams": {  <br>"content":  <br>\[  <br>"ib\_description","ib\_title","content","ib\_uuid","metadata","ib\_tags"  <br>\]  <br>} | Fields that are searched as part of the "keywords" search parameter.<br><br>Leave blank for all. |
+// | extension | **File Formats OR**  <br>**File Extension** | "searchParams": {  <br>"extension":  <br>\[  <br>"bmp", "jpg", "jpeg", "png", "psd", "odg", "gif", "ai", "indd", "tif", "tiff", "svg", "eps", "arw", "orf", "cr2", "tga", "dcr", "mrw", "dng", "nef", "pef", "aac", "mp3", "wav", "ogg", "txt", "doc", "docx", "htm", "html", "sxw", "odf", "odt", "pages", "xml", "rtf", "pdf", "ppt", "pptx", "odp", "key", "pptm", "csv", "xls", "xlsx", "ods", "numbers", "srt", "vtt", "flv", "mpg", "mpeg", "swf", "wma", "wmv", "mkv", "avi", "divx", "mov", "mp4", "mxf", "zip", "bz2", "gz", "tar", "tgz", "rar"  <br>\]  <br>} | Leave blank for all. |
+// | ib\_file\_size\_l | **File Size** | "searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_file\_size\_l",  <br>"op": "equals", "less", "lessEqual", "greater", "greaterEqual"  <br>"union": "and", "or",  <br>"value": "{{integer}}"  <br>}  <br>\]  <br>\]  <br>} | Unit is MB. |
+// | **FILTERS** |     |     |     |
+// | ib\_tags\_facet | **Keywords** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field":"ib\_tags\_facet",  <br>"op":"equals",  <br>"union":"and",  <br>"value":"{{keyword}}"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_filters\_uuid | **Filter Name** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_filters\_{{uuid}}",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "{{uuid}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable filter and filter option uuid values. Use the Filters Request call (Upcoming) to retrieve these values. |
+// | uuid\_ss\_ib | **Custom Select Field ("list": Multiple Selection - Checkboxes or Multi Select Dropdown)** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_ss\_ib",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "{{uuid}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable Select Field and Select Field Options uuid values. Use the Custom Form Request call to retrieve these values. |
+// | uuid\_s\_ib | **Custom Select Field ("list": Single Selection - Radio Buttons or Single Select Dropdown)** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_s\_ib",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "{{uuid}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable Select Field and Select Field Options uuid values. Use the Custom Form Request call to retrieve these values. |
+// | **DATES** |     |     |     |
+// | ib\_assigneddate\_dt | **Assigned (Resource Date)** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_assigneddate\_dt",  <br>"switchField": "range",  <br>"op": "today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear",  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_assigneddate\_dt",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// | ib\_createtime | **Created** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_createtime",  <br>"switchField": "rangepast",  <br>"op": "today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed"  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_createtime",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// | ib\_updatetime | **Last Updated** | searchParams":  <br>{"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_updatetime",  <br>"switchField": "rangepast",  <br>"op": "today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed",  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_updatetime",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// | ib\_reviewdate\_dt | **Review** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_reviewdate\_dt",  <br>"switchField": "range",  <br>"op": "today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear",  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_reviewdate\_dt",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// | uuid\_dt\_ib | **Custom Date Field ("date")** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_dt\_ib",  <br>"switchField": "range",  <br>"op": "today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear",  <br>"union": "and", "or",  <br>"value": ““  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_dt\_ib",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "{{yyyy-MM-ddThh:hh:ss}}"  <br>}  <br>\]  <br>\]  <br>} | Replace uuid with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. ISO Date format is used. |
+// | **AUTHORS** |     |     |     |
+// | ib\_creator | **Creator** | searchParams": {  <br>"ib\_creator": \[  <br>"{{user\_id}}"  <br>\]  <br>} | Replace {{user\_id}} with the applicable user \_id value. Use the Users Request call (Upcoming) to retrieve these values. |
+// | ib\_updater | **Last Updated** | _searchParams": {_  <br>_"ib\_updater": \[_  <br>_"{{user\_id}}",_  <br>_"{{user\_id}}"_  <br>_\]_  <br>_}_ | Replace {{user\_id}} with the applicable user \_id value. Use the Users Request call (Upcoming) to retrieve these values. |
+// | **OWNERSHIP DETAILS** |     |     |     |
+// | ib\_ownership\_type\_s | **Ownership Type** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_ownership\_type\_s",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "copyright,license,undefined"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_ownername\_t | **Owner** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_ownername\_t",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains",  <br>"union": "and", "or",  <br>"value": "{{value}}"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_ownership\_usageinfo\_t | **Usage Details** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_ownership\_usageinfo\_t",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains",  <br>"union": "and", "or",  <br>"value": "{{value}}"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | **CUSTOM RULES** |     |     |     |
+// | ib\_description | **Description** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_description",  <br>"value": "{{value}}",  <br>"union": "and", "or",  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_tags | **Keywords** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_tags",  <br>"value": "{{keyword}}",  <br>"union": "and", "or",  <br>"type": "list",  <br>"op": "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_title | **Name** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_title",  <br>"value": "{{value}}",  <br>"union": "and", "or",  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_publicusetime\_dt | **Public Use Time** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_publicusetime\_dt",  <br>"value": "inactive", "active",  <br>"union": "and", "or",  <br>"type": "list",  <br>"op":"in", "notIn"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_resource\_type\_s | **Type** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_resource\_type\_s",  <br>"value": "file", "link", "url", "printui", "remote",  <br>"union": "and", "or",  <br>"type": "list",  <br>"op": "in", "notIn",  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_uuid | **UUID** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_uuid",  <br>"value": "{{resource\_id}}",  <br>"union": "and", "or",  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | ib\_resource\_url\_t | **Web URL** | searchParams": {  <br>wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_resource\_url\_t",  <br>"value": "{{value}}",  <br>"union": "and", "or"  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>} |     |
+// | uuid\_d\_ib | **Custom Number Field ("number"); Custom Currency Field ("currency")** | "searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_d\_ib",  <br>"value": "{{number}}",  <br>"union": "and", "or",  <br>"type": "number","currency",  <br>"op": "equals", "less", "lessEqual", "greater", "greaterEqual"  <br>}  <br>\]  <br>\]  <br>}" | Replace {{uuid}} value with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. |
+// | uuid\_t\_ib | **Custom Text Field ("text"); Custom Email Field ("text"); Custom Website Field ("text"); Custom Phone Field ("text")** | "searchParams": {  <br>wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}_\__t_\__ib",  <br>"value": "{{value}}",  <br>"union": "and", "or"  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>}" | Replace {{uuid}} value with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. |
+// | **Wrapped Conditions - Options Summary** | **Supported Types & Values** |     |     |
+// | "switchField" | DATE ("date")<br><br>"range", "rangepast" |     |     |
+// | "op" | SELECT ("list")<br><br>"in", "notIn"<br><br>DATE ("date") - rangepast (for date fields that can only have values in the past)<br><br>"today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed"<br><br>DATE ("date") - range (for date fields that can have values in the past or future)<br><br>"today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear"<br><br>DATE ("date")<br><br>"beforeOn", "afterOn"<br><br>TEXT ("text")<br><br>"equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"<br><br>NUMERIC ("number", "currency")<br><br>"equals", "less", "lessEqual", "greater", "greaterEqual" |     | For Dates, ISO Date and UTC timezone is always used. |
+// | "union" | ALL<br><br>"and", "or" |     | Note that the AND / OR "union" operator applies to the Condition itself and not to its relationship with the next condition. The order of conditions is irrelevant as all the AND queries will be grouped together and each OR query treated separately.<br><br>For example: _Condition A AND, Condition B OR, Condition C AND, Condition D OR, Condition E AND_, Will be read as: _(Condition A AND Condition C AND Condition E) OR (Condition B) OR (Condition D)._ |
+
+@name("Resources List With JSON Search & Filtering Conditions")
+POST "https://{{apiV3url}}/api/json"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+json({
+    "method": "GET",
+    "version": "3.0.0",
+    "client": "{{clientid}}",
+    "table": "resource.limit(0,100)",
+    "query_params": {
+        "searchParams": {
+            "ib_folder_s": "",
+            "isSearching": true,
+            "keywords": "",
+            "extension": [],
+            "wrapped_conditions": [
+                []
+            ]
+        }
+    }
+})
+
+
+// **Create a new Resource**. Use the [File Upload](https://apidoc.intelligencebank.com/?version=latest#7a0ecff5-f03a-4f8c-b4c7-2cb0736bd3d0) call first to upload the file, and use the file details returned in the body ("file" parameter) to associate the file to the new resource entry.
+// 
+// Use the [Custom Resource Form GET call](https://apidoc.intelligencebank.com/?version=latest#7a0ecff5-f03a-4f8c-b4c7-2cb0736bd3d0) to retrieve the **Custom Upload Fields** (“formData”) that are to be inputted.
+// 
+// Use the to [Filters GET call](https://apidoc.intelligencebank.com/#e6f11ebb-6f74-48ca-9ba1-f7238a96c685) retrieve the **Global Filter Fields** (“filters”) that are to be inputted.
+// 
+// **GENERAL NOTES**
+// 
+// *   **Publish Approval Requests** are not supported at this time. Only users with **Admin** permission on the **Workflow** module can publish when a **Publish Approval** is mandatory on the parent folder.
+//     
+// *   General body structure:
+//     
+//     *   **“data”**: for generic system data such as “name”, “description”, etc.
+//         
+//         *   “**filters”**: sub-section of “data” for Custom Filters as set under **Admin > Filters**.
+//             
+//             *   **Custom Filter** details information can be retrieved with the
+//                 
+//         *   **“formData”**: sub-section of “data” for Custom Upload Fields as set under **Resources > Manage Metadata**.
+//             
+//             *   **Custom Resource Form** details can be retrieved with the [Custom Resource Form GET call](https://apidoc.intelligencebank.com/#89d34073-b20a-4860-9da2-e48c1259a56e).
+//                 
+//             *   The section\_id MUST be provided when providing a field input.
+//                 
+// 
+// ```
+// "formData": {
+//             "{{section_id}}": {
+//                 "{{field_id}}": "{{field_value}}",
+//                 "{{field_id1}}": "{{field_value1}}"
+//                 },
+//             "{{section_id2}}": {
+//                 "{{field_id2}}": "{{field_value2}}"
+//                 }
+//             }
+//         } 
+// ```
+// 
+// **INPUT FIELDS**
+// 
+// |     |     |     |     |     |     |     |     |
+// | --- | --- | --- | --- | --- | --- | --- | --- |
+// | **Resource Type** | **IntelligenceBank Field** | **Body Input Field** | **Input Type** | **Expected Values** | **Mandatory** | **Note** | **Supported** |
+// | **"data"** |     |     |     |     |     |     |     |
+// | All | **Resource Type** | "type" | String | "file", "remote" | N   | Type of resource to be created.  <br>  <br>"remote" refers to Remote Files, which is usually tied to a custom external storage implementation.  <br>  <br>"file" refers to a resource that has a file upload attached to it.<br><br>If empty or missing, "file" will be automatically assumed. | Y   |
+// | All | **Parent Folder** | "folder" | String | Folder \_id (32 character string) | Y   | UUID / \_id of the destination folder where the Resource is to be created. | Y   |
+// | All | **Name** | "name" | String | Free Text (255 character limit) | Y   | Name of the resource.<br><br>If empty of missing, the Filename (without the extension) will be automatically applied.<br><br>Maximum character length is 255. | Y   |
+// | All | **Description** | "description" | String | Free Text (10,000 character limit) | N   | Description of the resource. | Y   |
+// | All | **Resource Date** | "assignedDate" | Date | ISO Date format. Time is not required and will be automatically set (or updated) to 00:00 (UTC). | N   | If empty of missing, today's date (UTC) will be automatically applied. | Y   |
+// | All | **Keywords** | "tags":  <br>\[  <br>\] | String | Values separated by commas | N   | Multiple values should be inputted as an array. e.g.<br><br>"tags":  <br>\[  <br>"70 island",  <br>"above",  <br>"aerial view",  <br>"airplane",  <br>"bay",  <br>\] | Y   |
+// | "file" | **File** | "file": {  <br>"type": "",  <br>"tmp\_name": "",  <br>"size": "",  <br>"name": "",  <br>"error": 0  <br>} | String | Response from **File Upload** call used to upload the file that is to be associated to this resource entry.<br><br>Note that ALL “file” fields returned in the File Upload call response must be included | Y   | Physical file to be associated with the Resource. | Y   |
+// | All | **Usage Details** | “ownershipUsageInfo” | String | Free Text (10,000 character limit) | N   | This field is only available against a Resource when enabled under **Admin > Settings > Resources - General > Ownership Info On**, either globally, or for Image file formats specifically. | Y   |
+// | All | **Owner** | “ownerName” | String | Free Text (255 character limit) | N   | This field is only available against a Resource when enabled under **Admin > Settings > Resources - General > Ownership Info On**, either globally, or for Image file formats specifically. | Y   |
+// | All | **Ownership Type** | “ownershipType” | String | “undefined”, “copyright”, “license” | N   | This field is only available against a Resource when enabled under **Admin > Settings > Resources - General > Ownership Info On**, either globally, or for Image file formats specifically. | Y   |
+// | All | **Review Date** | "reviewDate" | Date | ISO Date format. Time is not required and will be automatically set or updated to 00:00 (UTC). | Y/N | This field may not apply, or be mandatory based on the applicable **Review Date** settings from the parent folder. | Y   |
+// | **“filters”** |     |     |     |     |     |     |     |
+// | All | _**Custom Filter Name**_ | “filter\_uuid” | Array | Filter value uuid.<br><br>“filter\_value\_uuid” | Y/N | Multiple values should be inputted as an array.<br><br>"filter\_uuid":  <br>\[  <br>"filter\_value\_uuid",  <br>"filter\_value\_uuid",  <br>"filter\_value\_uuid",  <br>\]<br><br>**To note:** A call to request the list of **Filters** and their **Filter Values uuids** is still pending development. | Y   |
+// | **"formData"** |     |     |     |     |     |     |     |
+// | All | _**Custom Field Name**_ | "field\_uuid" | Date ("date") | ISO Date format. Time is not required and will be automatically set or updated to 00:00 (UTC). | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | String - Single or Multiple Select ("select") | Value UUID (separated by commas if multiple) | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | Number ("number") | Number | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | Number ("currency") | Number | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | String ("text") | Free Text | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | String ("email") | Email Address | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | String ("url") | Website, starting with http:// or https:// | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// | All | _**Custom Field Name**_ | "field\_uuid" | String ("phone") | Numbers, with tolerance for the following characters: ()- | Y/N | Validation requirements apply as per the custom field configuration in the Form Builder. Custom Form Request call is to be used to get the field uuid and other configuration parameters. | Y   |
+// 
+// **ERROR MESSAGES**
+// 
+// |     |     |     |     |
+// | --- | --- | --- | --- |
+// | **Error Code** | **System Message** | **Verbose Message** | **Explanation** |
+// | **404 Not Found** | "error": "error.resource.not\_found" | "error": "Not found" | The {{resource\_id}} value provided could not be found. |
+// | **400 Bad Request** | "error": {  <br>"{{fieldname}}": {  <br>"error.validator.empty": null  <br>} | "error": {  <br>"{{fieldname}}": {  <br>"This field cannot be empty": null  <br>} | Mandatory field has empty value provided. |
+// | **400 Bad Request** | "error": {  <br>"{{fieldname}}": {  <br>"error.validator.empty": null  <br>}" | "error": {  <br>"{{fieldname}}": {  <br>"This field cannot be empty": null  <br>}" | Mandatory field was not provided. |
+// | **400 Bad Request** | "error": {  <br>"type": {  <br>"Value must be a match": null  <br>} | "error": {  <br>"type": {  <br>"Value must be a match": null  <br>} | Invalid value provided when only specific values are supported. |
+// | **500 Internal Server Error** | "error": "error.service.file.not\_found" | "error": "File not uploaded" | File does not exist. |
+// | **400 Bad Request** | "error": {  <br>"{{date\_field}}": {  <br>"error.validator.is\_date": {  <br>"value": ""  <br>}  <br>} | "error": {  <br>"{{date\_field}}": {  <br>"Value must be a valid date": {  <br>"value": ""  <br>}  <br>} | Invalid Date value provided. |
+// | **400 Bad Request** | "error": "error.service.query\_params.invalid" | "error": "Bad request - query parameters are invalid" | Generic response for when query parameters are invalid. |
+// | **403 Forbidden** | "error": "error.no\_permission" | "error": "No Permission" | User does not have sufficient permission to complete the action. |
+// | **404 Not Found** | "error": "error.remote\_connector.not\_found" | "error": "Remote Connector not found" | Remote Connector \_id for the remote file entry could not be found. |
+
+@name("Create Resource")
+POST "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+json({
+    "data": {
+        "folder": "{{folder_id}}",
+        "type": "file",
+        "name": "{{name}}",
+        "description": "",
+        "assignedDate": "",
+        "reviewDate": "",
+        "tags": [],
+        "ownershipUsageInfo": "",
+        "ownerName": "",
+        "ownershipType": "",
+        "file": {
+            "type": "",
+            "tmp_name": "",
+            "size": "",
+            "name": "",
+            "error": 0
+        },
+        "filters": {
+            "{{filter_uuid}}": "{{filtervalue_uuid}}",
+            "{{filter_uuid1}}": [
+                "{{filtervalue_uuid1a}}",
+                "{{filtervalue_uuid1b}}"
+            ]
+        },
+        "formData": {
+            "{{section_id}}": {
+                "{{field_id}}": "{{field_value}}",
+                "{{field_id1}}": "{{field_value1}}"
+            },
+            "{{section_id2}}": {
+                "{{field_id2}}": "{{field_value2}}"
+            }
+        }
+    }
+})
+
+
+// **Update an existing Resource**. Use the File Upload call first to upload a new file, and use the file details returned in the body (file parameter) to associate the file to the resource entry.
+// 
+// Use the [Custom Resource Form GET call](https://apidoc.intelligencebank.com/?version=latest#7a0ecff5-f03a-4f8c-b4c7-2cb0736bd3d0) to retrieve the **Custom Upload Fields** (“formData”) that are to be inputted. To only provide input on select formData fields, **“partialFormData”: true** MUST be provided in an “options” section as per example below.
+// 
+// Use the to [Filters GET call](https://apidoc.intelligencebank.com/#e6f11ebb-6f74-48ca-9ba1-f7238a96c685) retrieve the **Global Filter Fields** (“filters”) that are to be inputted.
+// 
+// **GENERAL NOTES**
+// 
+// *   **Publish Approval Requests** are not supported at this time. Only users with **Admin** permission on the **Workflow** module can publish when a **Publish Approval** is mandatory on the parent folder.
+//     
+// *   General body structure:
+//     
+//     *   **“data”**: for generic system data such as “name”, “description”, etc.
+//         
+//         *   “**filters”**: sub-section of “data” for Custom Filters as set under **Admin > Filters**.
+//             
+//             *   **Custom Filter** details information can be retrieved with the
+//                 
+//         *   **“formData”**: sub-section of “data” for Custom Upload Fields as set under **Resources > Manage Metadata**.
+//             
+//             *   **Custom Resource Form** details can be retrieved with the [Custom Resource Form GET call](https://apidoc.intelligencebank.com/#89d34073-b20a-4860-9da2-e48c1259a56e).
+//                 
+//             *   The section\_id MUST be provided when providing a field input.
+//                 
+//             *   To only provide input on select formData fields, **“partialFormData”: true** MUST be provided in an “options” section.
+//                 
+// 
+// ```
+// "options": {
+//         "partialFormData": true
+//         },
+// "data": {
+//  		"name": "{{name}}",
+//  		"description": "",
+//  		"assignedDate": "",
+//  		"reviewDate": "",
+// 		"tags": [],
+//         "ownershipUsageInfo": "",
+//         "ownerName": "",
+//         "ownershipType", "",
+//  		"file": {
+//         	"type": "",
+//         	"tmp_name": "",
+//         	"size": "",
+//         	"name": "",
+//         	"error": 0                        
+//                  },
+//         "filters": {
+//             "{{filter_uuid}}" : "{{filtervalue_uuid}}",
+//             "{{filter_uuid1}}" : [
+//                 "{{filtervalue_uuid1a}}",
+//                 "{{filtervalue_uuid1b}}"
+//             ]
+//         },        
+//         "formData": {
+//             "{{section_id}}": {
+//                 "{{field_id}}": "{{field_value}}",
+//                 "{{field_id1}}": "{{field_value1}}"
+//                 },
+//             "{{section_id2}}": {
+//                 "{{field_id2}}": "{{field_value2}}"
+//                 }
+//             }
+//         } 
+// ```
+// 
+// **INPUT FIELDS**
+// 
+// See [Create Resource](https://apidoc.intelligencebank.com/#c0eb80e2-4ef5-441f-805a-e6fbccee7a44) documentation.
+// 
+// **ERROR MESSAGES**
+// 
+// |     |     |     |     |
+// | --- | --- | --- | --- |
+// | **Error Code** | **System Message** | **Verbose Message** | **Explanation** |
+// | **404 Not Found** | "error": "error.resource.not\_found" | "error": "Not found" | The {{resource\_id}} value provided could not be found. |
+// | **400 Bad Request** | "error": {  <br>"{{fieldname}}": {  <br>"error.validator.empty": null  <br>} | "error": {  <br>"{{fieldname}}": {  <br>"This field cannot be empty": null  <br>} | Mandatory field has empty value provided. |
+// | **400 Bad Request** | "error": {  <br>"{{fieldname}}": {  <br>"error.validator.empty": null  <br>}" | "error": {  <br>"{{fieldname}}": {  <br>"This field cannot be empty": null  <br>}" | Mandatory field was not provided. |
+// | **400 Bad Request** | "error": {  <br>"type": {  <br>"Value must be a match": null  <br>} | "error": {  <br>"type": {  <br>"Value must be a match": null  <br>} | Invalid value provided when only specific values are supported. |
+// | **500 Internal Server Error** | "error": "error.service.file.not\_found" | "error": "File not uploaded" | File does not exist. |
+// | **400 Bad Request** | "error": {  <br>"{{date\_field}}": {  <br>"error.validator.is\_date": {  <br>"value": ""  <br>}  <br>} | "error": {  <br>"{{date\_field}}": {  <br>"Value must be a valid date": {  <br>"value": ""  <br>}  <br>} | Invalid Date value provided. |
+// | **400 Bad Request** | "error": "error.service.query\_params.invalid" | "error": "Bad request - query parameters are invalid" | Generic response for when query parameters are invalid. |
+// | **403 Forbidden** | "error": "error.no\_permission" | "error": "No Permission" | User does not have sufficient permission to complete the action. |
+// | **404 Not Found** | "error": "error.remote\_connector.not\_found" | "error": "Remote Connector not found" | Remote Connector \_id for the remote file entry could not be found. |
+
+@name("Update Resource")
+PUT "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+json({
+    "options": {
+        "partialFormData": true
+    },
+    "data": {
+        "name": "{{name}}",
+        "description": "",
+        "assignedDate": "",
+        "reviewDate": "",
+        "tags": [],
+        "ownershipUsageInfo": "",
+        "ownerName": "",
+        "ownershipType": "",
+        "file": {
+            "type": "",
+            "tmp_name": "",
+            "size": "",
+            "name": "",
+            "error": 0
+        },
+        "filters": {
+            "{{filter_uuid}}": "{{filtervalue_uuid}}",
+            "{{filter_uuid1}}": [
+                "{{filtervalue_uuid1a}}",
+                "{{filtervalue_uuid1b}}"
+            ]
+        },
+        "formData": {
+            "{{section_id}}": {
+                "{{field_id}}": "{{field_value}}",
+                "{{field_id1}}": "{{field_value1}}"
+            },
+            "{{section_id2}}": {
+                "{{field_id2}}": "{{field_value2}}"
+            }
+        }
+    }
+})
+
+
+// Request the Public Share Link URL of a Resource. Only applicable if Resource is enabled for Public Sharing ("isPublic": true).
+// <br><br>
+// You can replace the 'original' portion of the URL with a Preset to apply a transformation to the public link.
+
+@name("Resource Public Share Link")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "action"= "share"
+
+
+// Request information about a Resource. Returns additional details not available in Resources List, such as the Preview Stream m3u8 URL (for videos).
+// <br><br>
+// Pending the associated features are enabled on your platform, the following video mimetypes ("file"."type") are supported for streaming: <i>"video/3gpp", "video/x-flv", "video/mp4", "application/mxf","video/mp4", "video/mpeg", "video/ogg", "video/x-ogg", "video/quicktime", "video/webm", "video/x-flv", "video/x-mng", "video/x-ms-asf", "video/x-ms-wmv", "video/x-msvideo", "video/avi", "video/x-m4v","video/x-sgi-movie"</i>.
+
+@name("Resource Info")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "action"= "info"
+
+
+// Request the Preview image of a supported file Resource. The Preview image will be watermarked as required, based on the Resource or Parent Folder settings.
+// <br><br>
+// Supported file formats are:
+// - Images with the following mimetypes: image/ application/x-photoshop; application/x-indesign or application/postscript.
+// - Documents with the following extensions: "odt", "sxw", "doc", "docx", "rtf","txt", "csv", "ods", "sxc", "xls", "xlsx","odp", "sxi", "ppt","pptx", "vsd", "html","pdf". You can use the optional "page" parameter to request a specific page.
+
+@name("Resource Preview Image(s)")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "sid"= "{{sid}}"
+? "action"= "preview"
+
+
+// Download a Resource file, including a previous version.
+
+@name("Download Resource File")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "action"= "download"
+? "sid"= "{{sid}}"
+
+
+// Download a Resource image with a transformation Preset applying. User the Presets List call to get the list of Presets and their id or _id.
+// <br/><br/>
+// Most image formats that support preview generation can user Presets for transformations to be applied.
+// <br/><br/>
+// Learn more here:<br/>
+// https://help.intelligencebank.com/hc/en-us/articles/360013682011-Manual-Transformations-of-Image-Share-Embed-URLs<br/>
+// https://help.intelligencebank.com/hc/en-us/articles/203136210-Supported-File-Formats-for-Preview-Generation<br/>
+
+@name("Download Resource Image File with Transformation Preset")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "action"= "download"
+? "preset"= "{{presetid}}"
+? "wait"= "true"
+
+
+// Download a Resource image file, applying manual transformations.
+// <br/><br/>
+// Most image formats that support preview generation can have manual transformations applied.
+// <br/><br/>
+// Learn more here:<br/>
+// https://help.intelligencebank.com/hc/en-us/articles/360013682011-Manual-Transformations-of-Image-Share-Embed-URLs<br/>
+// https://help.intelligencebank.com/hc/en-us/articles/203136210-Supported-File-Formats-for-Preview-Generation<br/>
+
+@name("Download Resource Image File with Manual Transformations")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+? "action"= "download"
+? "wait"= "true"
+
+
+// Delete a Resource. This will also delete any versions or aliases of this Resource. Public Links will be invalidated as required.
+// <br><br>
+// Note: Web Url and InDesign Template Resource types are currently not supported.
+
+@name("Delete Resource")
+DELETE "https://{{apiV3url}}/api/3.0.0/{{clientid}}/resource/{{resource_id}}"
+"sid": "{{sid}}"
+
+
+

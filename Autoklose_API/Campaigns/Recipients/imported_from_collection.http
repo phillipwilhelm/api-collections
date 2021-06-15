@@ -1,0 +1,93 @@
+#!/usr/bin/env dothttp
+
+// Provides a list of recipients in a specific campaign.
+// 
+// The available options for the expand parameter are “statistics” and “replies”.
+// 
+// The method also uses paginations parameters.
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("A list of recipients in the campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/recipients"
+? "expand[]"= "statistics"
+? "expand[]"= "replies"
+? "per_page"= "25"
+? "page"= "1"
+
+
+// Provides the information about a single recipient from a specific campaign.
+// 
+// The available option for the expand parameter is "statistics".
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("View a recipient from a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/recipients/{{recipient}}"
+? "expand"= "statistics"
+
+
+// Adds a recipient to the desired campaign. The campaign ID should be added within the URL.
+// 
+// To add a recipient that is already among the contacts, you just need to post their email address and the system will automatically add all the other information about that contact from your contact database.
+// 
+// A new recipient is automatically added to your contact list. The currently supported fields are listed in the example on the right, any new fields will be added as custom fields.
+// 
+// Returns 200 on success, if there's a validation error it will return 422 with the explanation of what went wrong.
+
+@name("Add a recipient to the campaign")
+POST "https://{{url}}/api/campaigns/{{campaign}}/recipients"
+"Content-Type": "application/json"
+data('{
+    "email": "test_recipient@gmail.com",
+    "first_name": "Mike1",
+    "last_name": "Parsons",
+    "organization": "ACME",
+    "job_title": "CEO",
+    "country": "US",
+    "state": "NY",
+    "city": "Schenectady",
+    "phone_number": "(555) 8888-888",
+    "facebook_url": "https://facebook.com/john.doe",
+    "twitter_url": "https://twitter.com/john.doe",
+    "linkedin_url": "https://linkedin.com/john.doe"
+}')
+
+
+// Adds recipients to the specific campaign by providing the campaign id.
+// 
+// If recipients have fields that can't be mapped with predefined fields, they will be automatically created as custom fields.
+// 
+// For contacts that are in your contact database, you can only POST their email address and the system will automatically fill out all data for those contacts from your contact database.
+// 
+// If you add recipients that are not in your contact list, they will be automatically added to your contact database.
+// 
+// A successful request gives 202 Accepted response which makes the request being queued for processing. 
+
+@name("Bulk insert of recipients")
+POST "https://{{url}}/api/campaigns/{{campaign}}/recipients/bulk"
+"Content-Type": "application/json"
+data('{
+	"recipients": [
+		{
+			"email": "test_contact_bulk@gmail.com"
+		},
+		{
+			"email": "test_contact2_bulk@gmail.com"
+		},
+		{
+			"email": "invalid"
+		}
+	]
+
+}
+')
+
+
+// Provides statistical information about specific recipient from campaign.
+
+@name("View recipient statistics from a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/recipients/{{recipient}}/statistics"
+
+
+

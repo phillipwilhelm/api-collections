@@ -1,0 +1,163 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |filter|no|search string to look for messages with specific callerid, caller_number, called_number, source name, etc.|
+// |start_time|no|start datetime for the search|
+// |end_time|no|end datetime for the search|
+// |direction|no|message direction (inbound/outbound)|
+// |page|no|the page number|
+// |per_page|no|the number of items per page, defaults to 10|
+
+@name("list of SMS messages")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/sms"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "item": {
+    "id": "",
+    "keypress": "3",
+    "voice_action_type": "dial",
+    "default_action": "1",
+    "physical_phone_number_id": "40109",
+    "play_message": "say:alice:da-DK:play message before action",
+    "whisper_message": "say:alice:de-DE:whisper message",
+    "tag_id": "tagme",
+    "assign_agent_id": "USR043E46722529BCB5578CA52BB780A1D2"
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |sms_id|yes|the MSG id from the SMS record|
+
+@name("SMS message details")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/sms/{{sms_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "item": {
+    "id": "",
+    "keypress": "3",
+    "voice_action_type": "dial",
+    "default_action": "1",
+    "physical_phone_number_id": "40109",
+    "play_message": "say:alice:da-DK:play message before action",
+    "whisper_message": "say:alice:de-DE:whisper message",
+    "tag_id": "tagme",
+    "assign_agent_id": "USR043E46722529BCB5578CA52BB780A1D2"
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |from|yes|the TPN id (tracking number) from which to send the message|
+// |to|yes|the phone number (in E.164 format) to which to send the message (+1dddddddddd)|
+// |msg|yes|the message, maximum of 160 characters|
+// |status|no|callback URL for updates on delivery status|
+// |message_media|no|provide a file of one of these types: "image/jpeg", "image/png", "image/jpg", "image/gif", "text/x-vcard", "text/vcard", "text/directory"; size up to 8mb|
+// |allow_create|no|set to 1 to allow a new contact record to be created by this API call; without it, the default behavior is to save contact details only if the contact already exists|
+// 
+// To send media, you'll need to submit the request as multipart/form-data.
+
+@name("send SMS message")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/sms"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "multipart/form-data"
+files(
+	("from", "{{tracking_number_id}}"),
+	("to", "{{to_number}}"),
+	("msg", "{{message}}"),
+	("message_media", "None")
+)
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |filter|no|search string to look for messages with specific callerid, caller_number, called_number, source name, etc.|
+// |agency|no|if 1 list agency opt out text/sms numbers, not just the account|
+// |page|no|the page number|
+// |per_page|no|the number of items per page, defaults to 10|
+
+@name("list opt out text/sms")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/opt_out_texts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "item": {
+    "id": "",
+    "keypress": "3",
+    "voice_action_type": "dial",
+    "default_action": "1",
+    "physical_phone_number_id": "40109",
+    "play_message": "say:alice:da-DK:play message before action",
+    "whisper_message": "say:alice:de-DE:whisper message",
+    "tag_id": "tagme",
+    "assign_agent_id": "USR043E46722529BCB5578CA52BB780A1D2"
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |message_id|yes|the sms/text/message id|
+// |page|no|the page number|
+// |per_page|no|the number of items per page, defaults to 10|
+
+@name("opt out text/sms details")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/opt_out_texts/{{message_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "item": {
+    "id": "",
+    "keypress": "3",
+    "voice_action_type": "dial",
+    "default_action": "1",
+    "physical_phone_number_id": "40109",
+    "play_message": "say:alice:da-DK:play message before action",
+    "whisper_message": "say:alice:de-DE:whisper message",
+    "tag_id": "tagme",
+    "assign_agent_id": "USR043E46722529BCB5578CA52BB780A1D2"
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |message_id|yes|the sms/text/message id|
+// |number|yes|the number to add to the do not text/sms list in e.164 format (i.e +18885551212)|
+// |agency|no|if 1 add to agency list instead of account list|
+
+@name("add opt out text/sms")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/opt_out_texts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "number": "+18885558888"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |number|yes|the phone number to remove in e.164 format|
+// |agency|no|if 1 remove number from agency opt out text/sms list, not account|
+
+@name("remove opt out text/sms")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/opt_out_texts/{{number}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+

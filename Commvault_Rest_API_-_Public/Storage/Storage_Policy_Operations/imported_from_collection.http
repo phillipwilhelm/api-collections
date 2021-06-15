@@ -1,0 +1,367 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation returns a list of storage policies.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_storage_policy.htm)
+
+@name("Storage Policy")
+GET "https://{{ServerUrl}}/V2/StoragePolicy"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+// <h2>Description</h2>
+// This operation returns the details of a storage policy.
+
+@name("Storage Policy Details")
+GET "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+? "propertyLevel"= "10"
+
+
+// <h2>Description</h2>
+// This operation returns the details of a storage policy copy.
+
+@name("Storage Policy Copy Details")
+GET "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/Copy/{{copyId}}"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns the size of a storage policy copy.
+
+@name("Storage Policy Copy Size")
+GET "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/Copy/{{copyId}}/Size"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+// <h2>Description</h2>
+// This operation returns the list of search engines associated with a storage policy.
+
+@name("Storage Policy Search Engine List")
+GET "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/SearchEngineProperties"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+// <h2>Description</h2>
+// This operation returns a list of storage policies associated with a MediaAgent.
+
+@name("Storage Policy List for a MediaAgent")
+GET "https://{{ServerUrl}}/StoragePolicyListAssociatedToMediaAgent"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+? "MediaAgent"= "{{MediaAgentId}}"
+
+
+// <h2>Description</h2>
+// This operation creates a storage policy.
+
+@name("Storage Policy")
+POST "https://{{ServerUrl}}/V2/StoragePolicy"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+  "storagePolicyName": "TestPolicy",
+  "type": 1,
+  "numberOfStreams": 100,
+  "copyName": "Primary",
+  "numberOfCopies": 1,
+  "storagePolicyCopyInfo": {
+    "copyType": 1,
+    "isFromGui": false,
+    "active": 1,
+    "isDefault": 1,
+    "numberOfStreamsToCombine": 1,
+    "dedupeFlags": {
+      "enableDASHFull": 1,
+      "useGlobalDedupStore": 1,
+      "enableDeduplication": 1,
+      "enableClientSideDedup": 1
+    },
+    "storagePolicyFlags": {
+      "blockLevelDedup": 1
+    },
+    "retentionRules": {
+      "retainBackupDataForCycles": 1,
+      "retainArchiverDataForDays": -1,
+      "retainBackupDataForDays": 30,
+      "retentionFlags": {
+        "enableDataAging": 1
+      }
+    },
+    "useGlobalPolicy": {
+      "storagePolicyId": 47,
+      "storagePolicyName": "VSAPool"
+    }
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation updates a storage policy.
+
+@name("Storage Policy")
+PUT "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+  "auxCopyAlertDays": 2,
+  "description": "",
+  "newStoragePolicyName": "",
+  "numberOfStreams": 14,
+  "forceNextBkpToFull": false,
+  "auxCopyAlertGB": 2,
+  "flag": {
+    "enableAuxCopyAlert": 2,
+    "distributeDataEvenlyAmongStreams": 2,
+    "cacheResourceReservationForJobs": 2,
+    "storagePolicyLevelMediaPassword": 2,
+    "hideStoragePolicy": 2,
+    "randomizeStream": 2
+  },
+  "StoragePolicy": {
+    "storagePolicyName": ""
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation creates a storage policy copy.
+
+@name("Storage Policy Copy")
+POST "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/Copy"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "copyName": "SPCopyTest",
+    "useGlobalPolicy": {
+        "storagePolicyName": ""
+    },
+    "storagePolicyCopyInfo": {
+        "active": 1,
+        "isDefault": 0,
+        "hardWareCompression": 0,
+        "deferAuxiliaryCopyDays": 0,
+        "spareMediaGroup": {
+            "libraryName": "",
+            "_type_": 67,
+            "spareMediaGroupName": ""
+        },
+        "mediaProperties": {
+            "multiplexingFactor": 1,
+            "mediaRefreshProperties": {
+                "percentage": 51,
+                "monthsBeforeMediaAged": {
+                    "months": 3
+                },
+                "refreshFlags": {
+                    "enableMediaRetirementThreshold": 2
+                },
+                "monthsAfterMediaWritten": {
+                    "months": 12
+                }
+            }
+        },
+        "sourceCopy": {
+            "copyName": "",
+            "storagePolicyName": "TestSP11"
+            
+        },
+        "retentionRules": {
+            "retainBackupDataForCycles": -1,
+            "retainArchiverDataForDays": -1,
+            "retainBackupDataForDays": -1,
+            "extendedRetentionRuleOne": {
+                "graceDays": 0,
+                "isEnabled": 2,
+                "rule": 2,
+                "endDays": 90
+            },
+            "extendedRetentionRuleThree": {
+                "graceDays": 2,
+                "isEnabled": 2,
+                "rule": 8,
+                "endDays": 1825
+            },
+            "financialCalendarXML": {
+                "monthStartsOn": 1,
+                "calendarId": 1,
+                "startingMonthOfYear": 0
+            },
+            "retentionFlags": {
+                "retainFullAndLastDifferential": 2,
+                "selectJobsFromPreviousTier": 2,
+                "flagsMask": 2,
+                "enableDataAging": 2,
+                "jobBasedRetention": 2,
+                "grcRemoteCopy": 2,
+                "extendedRetentionFirst": 2,
+                "enableManagedDiskSpace": 2
+            },
+            "extendedRetentionRuleTwo": {
+                "graceDays": 1,
+                "isEnabled": 2,
+                "rule": 4,
+                "endDays": 365
+            }
+        },
+        "StoragePolicyCopy": {
+            "copyName": "",
+            "storagePolicyName": ""
+            
+        },
+        "drivePool": {
+            "libraryName": "",
+            "_type_": 47,
+            "drivePoolName": ""
+        },
+        "copyFlags": {
+            "enableMediaRefresh": 2,
+            "inlineAuxCopy": 2,
+            "noAuxCopyToSameLibrary": 2,
+            "roundRobbinDataPath": 2,
+            "enableParallelCopy": 2,
+            "demultiplexOnCopy": 2,
+            "combineStreams": 2,
+            "switchIfOffline": 2,
+            "auxCopyReencryptData": 2,
+            "switchIfBusy": 2,
+            "useStreamsOverMultiplexing": 2,
+            "storeKeyOnMedia": 2,
+            "multiplexSourceStreams": 2,
+            "siloCopy": 2,
+            "autoAddDataPaths": 2,
+            "markMediaToBeErasedAfterRecycling": 2,
+            "noInlineCopyToSameLibrary": 2
+        },
+        "library": {
+            "libraryName": "CSLib"
+            
+        },
+        "startTime": {
+            "_type_": 55,
+            "TimeZoneID": 0,
+            "time": 0
+        },
+        "mediaAgent": {
+            
+            "mediaAgentName": "bdcsrvtest05"
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation updates a storage policy copy.
+
+@name("Storage Policy Copy")
+PUT "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/Copy/{{copyId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "newCopyName": "SPCopyTestModified",
+    "storagePolicyCopyInfo": {
+        "dataPathConfiguration": {
+            "resourcesOfflineWaitTimeInHoursMinutes": {},
+            "resourcesBusyWaitTimeInHoursMinutes": {}
+        },
+        "mediaProperties": {
+            "multiplexingFactor": 0,
+            "mediaRefreshProperties": {
+                "percentage": 51,
+                "monthsBeforeMediaAged": {
+                    "months": 3
+                },
+                "refreshFlags": {
+                    "enableMediaRetirementThreshold": 2
+                },
+                "monthsAfterMediaWritten": {
+                    "months": 12
+                }
+            }
+        },
+        "sourceCopy": {
+            "copyName": "",
+            "storagePolicyName": ""
+        },
+        "StoragePolicyCopy": {
+            "copyName": "",
+            "storagePolicyName": ""
+        },
+        "extendedFlags": {
+            "spaceOptimizedAuxCopy": 0,
+            "overRideGACPRetention": 2,
+            "chunkLevelAuxCopy": 2,
+            "overRideGACPEncryption": 2
+        },
+        "copyFlags": {
+            "wormCopy": 2,
+            "enableMediaRefresh": 2,
+            "archiveCheckAll": 2,
+            "inlineAuxCopy": 2,
+            "noAuxCopyToSameLibrary": 2,
+            "sourceCopyForSnapToTape": 2,
+            "enableLanFreeReservationOnly": 2,
+            "roundRobbinDataPath": 2,
+            "lastFullWait": 2,
+            "useDirectAttachedNASDrivePool": 2,
+            "enableParallelCopy": 2,
+            "demultiplexOnCopy": 2,
+            "combineStreams": 2,
+            "switchIfOffline": 2,
+            "auxCopyReencryptData": 2,
+            "switchIfBusy": 2,
+            "useStreamsOverMultiplexing": 2,
+            "deleteCopyAfterJobsAreDeleted": 2,
+            "storeKeyOnMedia": 2,
+            "multiplexSourceStreams": 2,
+            "archiveCheckBitmap": 2,
+            "siloCopy": 2,
+            "autoAddDataPaths": 2,
+            "lastFull": 2,
+            "markMediaToBeErasedAfterRecycling": 2,
+            "archiveCheckFull": 2,
+            "noInlineCopyToSameLibrary": 2,
+            "useHardwareSnapshot": 2
+        },
+        "resourcePoolsList": [
+            {
+                "operation": 1,
+                "resourcePoolName": ""
+            }
+        ],
+        "startTime": {
+            "timeValue": ""
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation deletes a storage policy copy.
+
+@name("Storage Policy Copy")
+DELETE "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}/Copy/{{copyId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+// <h2>Description</h2>
+// This operation deletes a storage policy.
+
+@name("Storage Policy")
+DELETE "https://{{ServerUrl}}/V2/StoragePolicy/{{storagePolicyId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+

@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// Possible status:
+// 
+// * `pending`: The ask has not been processed yet.
+// * `executing`: The ask is processed and could be matched.
+// * `completed`: The ask has been matched completely.
+// * `to_cancel`: You requested the cancellation but it can still be matched if a matching bid was sent previously.
+// * `cancelled`: The ask is cancelled and will not receive more matches.
+
+@name("Show Ask")
+GET "https://{{domain}}/api/asks/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+
+@name("List Asks")
+GET "https://{{domain}}/api/asks"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_nbr}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[orderbook_code]"= "{orderbook_code}"
+? "filter[user]"= "{user_id}"
+
+
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+// 
+// **Important note**: The amount of an ask is the amount of **Crypto (base currency)** to sell. E.g: In the BTC/USD market, the ask amount is the amount of BTC to be sold for USD.
+
+@name("Create Ask")
+POST "https://{{domain}}/api/asks"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+    "data": {
+      "type": "asks",
+      "attributes": {
+        "amount": 0.2,
+        "price": 150,
+        "orderbook_code": "btc_usd"
+        },
+      "relationships": {
+        "user": {
+          "data": {
+            "id": 1,
+            "type": "users"
+          }
+        }
+      }
+    }
+}')
+
+
+// This action represents an intention to cancel an Ask. Despite of this endpoint responding with a 204 status, the Ask may not have been cancelled if it was previously matched. In order to check the status of the ask, you can query all your active orders with the `/api/orders` endpoint.
+
+@name("Cancel Ask")
+POST "https://{{domain}}/api/asks/:id/cancel"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

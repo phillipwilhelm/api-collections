@@ -1,0 +1,122 @@
+#!/usr/bin/env dothttp
+
+// Lista todos os sobreavisos cadastrado para um colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ---- | -----|---------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | start_date | String | Data de início do sobreaviso |
+// | start_time | String | Horário de início do sobreaviso |
+// | end_date | String | Data de fim do sobreaviso |
+// | end_time | String | Horário de fim do sobreaviso |
+// | all_day | Boolean | O sobreaviso abrange o dia todo? (**true** - sim, **false** - não) |
+// | subject | String | Assunto do sobreaviso |
+// | created_at | Integer | Data de criação do sobreaviso |
+// | updated_at | Integer | Data de atualização do sobreaviso |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/standbys"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+
+
+// Exibe os atributos de um sobreaviso.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | standby_id | Integer | Sim | ID do sobreaviso |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ---- | -----|---------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | start_date | String | Data de início do sobreaviso |
+// | start_time | String | Horário de início do sobreaviso |
+// | end_date | String | Data de fim do sobreaviso |
+// | end_time | String | Horário de fim do sobreaviso |
+// | all_day | Boolean | O sobreaviso abrange o dia todo? (**true** - sim, **false** - não) |
+// | subject | String | Assunto do sobreaviso |
+// | created_at | Integer | Data de criação do sobreaviso |
+// | updated_at | Integer | Data de atualização do sobreaviso |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/standbys/{{standby_id}}"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+
+
+// Cria sobreavisos para um colaborador.
+// 
+// ## Estrutura do array JSON **employee_standbys** a ser enviado
+// Cada objeto, referente a um sobreaviso, deve obedecer o seguinte formato:
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | start_date | Date | Não | Data de início do sobreaviso |
+// | start_time | String | Não | Horário de início do sobreaviso |
+// | end_date | Date | Não | Data de fim do sobreaviso |
+// | end_time | String | Não | Horário de fim do sobreaviso |
+// | all_day| Boolean | Não | Caso **true**, indica que o sobreaviso compreenderá o dia inteiro e, portanto, os atributos **start_time** e **end_time** serão ignorados. Caso **false**, os atributos **start_time** e **end_time** devem ser preenchidos.|
+// | subject | String | Não | Assunto do sobreaviso |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/standbys"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+json({
+    "employee_standbys": [
+        {
+            "start_date": "2020-07-20",
+            "start_time": "08:00:00",
+            "end_date": "2020-07-20",
+            "end_time": "12:00:00",
+            "all_day": true,
+            "subject": "Lorem ipsum"
+        },
+        {
+            "start_date": "2020-07-21",
+            "start_time": "12:00:00",
+            "end_date": "2020-07-21",
+            "end_time": "13:00:00",
+            "all_day": true
+        },
+        {
+            "start_date": "2020-07-22",
+            "start_time": "04:00:00",
+            "end_date": "2020-07-22",
+            "end_time": "05:00:00",
+            "all_day": false,
+            "subject": "Lorem ipsum"
+        }
+    ]
+})
+
+
+// Remove um sobreaviso de um colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | standby_id | Integer | Sim | ID do sobreaviso |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/standbys/{{standby_id}}"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Look for the given customer's last name in the given performance.
+// 
+// #### Response
+// 
+// Shown in the "Look Up For Customers" description.
+
+@name("Look Up")
+POST "https://{{thundertix_url}}/barcode/reader.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("performance_id", "{{performance_id}}"),
+	("bar[code]", "Smith"),
+	("order_lookup", "true")
+)
+
+
+// Look for customer's orders in the selected performances.
+// 
+// #### Requirement
+// 
+// After do "GET Selected Performances", and let the user pick up the performances he/she want to scan, pass those performance IDs to this endpoint in an array called iOS_session, in this example, we are including 2 performances: 1799209 and 1799211. If any customer's order is found, then it will be included in the response.
+// 
+// #### Response
+// 
+// Shown in the "Look Up For Customers" description.
+
+@name("Look Up Selected Performances")
+POST "https://{{thundertix_url}}/barcode/read_all/{{venue_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("iOS_session[]", "{{performance_id_1}}"),
+	("iOS_session[]", "{{performance_id_2}}"),
+	("bar[code]", "Smith"),
+	("order_lookup", "true")
+)
+
+
+// Look for the given customer's last name in all performances that took place today, all day long.
+// 
+// 
+// #### Response
+// 
+// Shown in the "Look Up For Customers" description.
+
+@name("Look Up For Today")
+POST "https://{{thundertix_url}}/barcode/read_all/{{venue_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+? "clear_performances"= "true"
+files(
+	("bar[code]", "Smith"),
+	("order_lookup", "true")
+)
+
+
+

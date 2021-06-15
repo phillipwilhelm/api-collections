@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// Returns list of supported classifications. Possible values are: `Custodial`, `Funding`, `Banking`, `TermsOfUse`
+
+@name("Document classifications")
+GET "https://{{url}}/user/legal/classifications"
+
+
+// Listing of supported documents. Field `policyType` is optional indicating given document needs to be signed when updating the policy:
+// 
+// ```json
+// [{
+//   policyType: "trading|funding",
+//   id: "{unique id}",
+//   type: "{custodian specific}",
+//   signed: false
+// }]
+// ```
+
+@name("Document listing")
+GET "https://{{url}}/user/legal/documents"
+? "classification"= "TermsOfUse"
+
+
+// Lists supported policy values for given policy type - `funding`, `trading`, `acat`:
+// 
+// ```json
+// ['Allow', 'Disallow']
+// ```
+
+@name("Policy values")
+GET "https://{{url}}/user/legal/policies/listing/{type}"
+
+
+// Returns contents of the document by given ID:
+// 
+// ```json
+// [{
+//   id: "{unique id}",
+//   type: "{custodian specific}",
+//   body: "{as given}"
+// }]
+// ```
+
+@name("Document content")
+GET "https://{{url}}/user/legal/document/content"
+? "id"= "{as provided}"
+
+
+// Allows to obtain binary document contents (such as PDFs)
+
+@name("Document download")
+GET "https://{{url}}/user/legal/document/download"
+? "id"= "{as provided}"
+
+
+// Allows for signing of given legal document. `account` is optional as it is not necessary for all of the documents. `data` allows to pass any non-standard but perhaps required information.
+// 
+// Returns basic response indicating success or failure:
+// 
+// ```json
+// {"success": true}
+// ```
+
+@name("Sign the document")
+POST "https://{{url}}/user/legal/document/sign"
+json({
+    "esigned": true,
+    "documentId": "{required}",
+    "signature": "{required}",
+    "remoteDevice": "{required}",
+    "remoteAddr": "",
+    "data": {
+        "bankAccountNumber": "{conditional}"
+    },
+    "account": {
+        "accountId": 1234,
+        "accountNumber": "AC123456"
+    }
+})
+
+
+// Updates policy for given account. Type must be one of - `funding`, `trading`, `acat`
+// 
+// NOTE - API is not implemented yet
+
+@name("Updates policy on the account")
+POST "https://{{url}}/user/legal/policy/{type}"
+json({
+    "account": {
+        "accountNumber": "{optional}",
+        "accountId": 0
+    },
+    "policy": "Allow",
+    "remoteDevice": "",
+    "remoteAddr": "",
+    "esigned": true
+})
+
+
+

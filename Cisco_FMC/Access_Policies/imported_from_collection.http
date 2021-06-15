@@ -1,0 +1,150 @@
+#!/usr/bin/env dothttp
+
+@name("Get security zones")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/securityzones"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get access policies")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get example access policy")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468303352"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Create access policy")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+data('{
+    "name": "GLOBO_POLICY",
+    "description": "General VPN access and blacklist protection",
+    "type": "AccessPolicy",
+    "defaultAction": {
+        "type": "AccessPolicyDefaultAction",
+        "action": "BLOCK"
+    }
+}')
+
+
+@name("Get example access rules")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468303352/accessrules"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get example access rule")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468303352/accessrules/005056BB-0B24-0ed3-0000-000268486693"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Create inbound VPN rule")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468482451/accessrules"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+data('{
+    "name": "OUT_TO_IN_VPN",
+    "enabled": true,
+    "action": "ALLOW",
+    "destinationZones": {
+        "objects": [
+            {
+                "name": "inside-zone",
+                "id": "30b7717e-23c4-11e9-8047-ef3db50da465",
+                "type": "SecurityZone"
+            }
+        ]
+    },
+    "destinationNetworks": {
+        "objects": [
+            {
+                "name": "NETG_VPN_CONCENTRATORS",
+                "id": "005056BB-0B24-0ed3-0000-880468480522",
+                "type": "NetworkGroup"
+            }
+        ]
+    },
+    "destinationPorts": {
+        "objects": [
+            {
+                "name": "PORTG_IPSEC",
+                "id": "005056BB-0B24-0ed3-0000-880468480727",
+                "type": "PortObjectGroup"
+            }
+        ]
+    },
+    "enableSyslog": false,
+    "logFiles": false,
+    "logBegin": false,
+    "logEnd": true,
+    "sendEventsToFMC": true,
+    "type": "AccessRule"
+}')
+
+
+@name("Create outbound blacklist rule")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468482451/accessrules"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+data('{
+    "name": "IN_TO_OUT_BLACKLIST",
+    "enabled": true,
+    "action": "BLOCK",
+    "sourceZones": {
+        "objects": [
+            {
+                "name": "inside_zone",
+                "id": "30b7717e-23c4-11e9-8047-ef3db50da465",
+                "type": "SecurityZone"
+            }
+        ]
+    },
+    "destinationZones": {
+        "objects": [
+            {
+                "name": "outside_zone",
+                "id": "f2302de2-23c3-11e9-8047-ef3db50da465",
+                "type": "SecurityZone"
+            }
+        ]
+    },
+    "destinationNetworks": {
+        "objects": [
+            {
+                "name": "NETG_BLACKLIST",
+                "id": "005056BB-0B24-0ed3-0000-880468480615",
+                "type": "NetworkGroup"
+            }
+        ]
+    },
+    "logBegin": false,
+    "logEnd": true,
+    "sendEventsToFMC": true,
+    "type": "AccessRule"
+}')
+
+
+

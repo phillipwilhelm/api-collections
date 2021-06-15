@@ -1,0 +1,43 @@
+#!/usr/bin/env dothttp
+
+// Replacing **:API-KEY** with the unique license specific API-Key provided within the **INTEGRATIONS** tab of the PAVE Dashboard will generate a Session ID (case id). 
+// A new session id must be generated on the server-side for each inspection case (ie for each vehicle being inspected). We recommend you store the session IDs since they'll be used to identify the final inspection output as well.
+// 
+// Adding a **redirect_url** in the body's formdata will allow the capture UI to redirect the user back to your site when the inspection is complete.
+
+@name("Generate Session ID")
+POST "https://api.paveapi.com/v1/generate-session-id/:API-KEY"
+"Content-Type": "multipart/form-data"
+files(
+	("redirect_url", "https://www.url-to-redirect-to.com"),
+	("callback_url", "https://www.mywebsite.com"),
+	("theme_id", "THE-03"),
+	("language", "EN")
+)
+
+
+// Once you have the Session Key generated it can be used to launch the capture UI, which begins the inspection process.
+// 
+// Replace **:SESSION-ID** with the generated session id belonging to the vehicle to be inspected.
+// 
+// NOTE: Using the Header `Accept: application/json` will return the line "Inspection Complete: redirect to: redirect_url". Without it, the url redirects to the redirect_url given with the session-id generator.
+
+@name("Launch Capture UI")
+GET "https://api.paveapi.com/v1/launch/:SESSION-ID"
+"Accept": "application/json"
+
+
+// Once the inspection is complete, you may view the results in a few different ways:
+// 
+// 
+// You may access them as the full JSON with the following endpoint replacing **:SESSION-ID** with the Session Key associated with this inspection.
+//  
+// 
+// 
+// You may also view the results in the PAVE Dashboard by clicking “view results” on the session in question.
+
+@name("Inspection Result")
+GET "https://api.paveapi.com/v1/inspection-result/:SESSION-ID"
+
+
+

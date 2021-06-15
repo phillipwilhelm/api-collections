@@ -1,0 +1,537 @@
+#!/usr/bin/env dothttp
+
+// #### Search sales orders in ERP
+// *(sapBusinessOne=17/ORDR, totvsProtheus=SC5)*
+// 
+// This service will allow you to search sales orders on the ERP.
+// 
+// Searching sales orders allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey` {optional}
+// - Unitary search: by `erpKey` or `orderNum` or `docNum` or `customOrderKey`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `orderNum` or `docNum` or `customOrderKey`), the query for sales orders is carried out by creation date from/to (which become mandatory) and any other filter informed in request.
+// 
+// The orders service will consider sales orders with:
+// - SAP Business One: ORDR.ObjType = 17
+// - TOTVS Protheus: C5_TIPO IN 'N', 'C', 'I', 'P'
+// 
+// Comments:
+// - `branch`: SAP Business One (ORDR.BPLId), TOTVS Protheus (C5_FILIAL)
+// - `partnerKey`: SAP Business One (ORDR.CardCode), TOTVS Protheus (C5_CLIENTE+'_'+C5_LOJACLI)
+// - `sellerKey`: SAP Business One (ORDR.SlpCode), TOTVS Protheus (C5_VEND1)
+// - `salesAgentKey`: SAP Business One (ORDR.AgentCode), TOTVS Protheus (A3_UNIDAD)
+// - `erpKey`: SAP Business One (ORDR.DocEntry), TOTVS Protheus (C5_NUM)
+// - `orderNum`: SAP Business One (ORDR.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - `docNum`: SAP Business One (ORDR.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O = open, C = closed (PROTHEUS = all itens with C6_BLQ=R), X = canceled, B = billed, P = paid, R = returned, L = released (only PROTHEUS = with SC9)
+// - `customOrderKey`: sales order custom field definied in API Setup, and present in filter and response
+// - `customStatus`: sales order custom field definied in API Setup, and present in filter and response
+// - `customStatusNotify`: sales order custom field definied in API Setup, and present in filter and response
+// - `customShipMethod`: sales order custom field definied in API Setup, and present in filter and response
+// - `customShipType`: sales order custom field  definied in API Setup, and present in filter and response
+// - `customTrackingKey`: sales order custom field definied in API Setup, and present in response
+// - `customTrackingUrl`: sales order custom field definied in API Setup, and present in response
+// - `carrierKey`, `brand`, `packDescription`: sales order details
+// 
+// Data returned in response: Order data, Partner data, Items (+ taxes), Totals, Payments, Taxes, Sales Invoices
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the sales order list in two situations:
+// - Full Search: will result in all sales orders, according to filters.
+// - Incremental Search: will result in all sales orders, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales orders should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (ORDR.CreateDate, ORDR.UpdateDate, ORDR.CreateTS, ORDR.UpdateTS), [2] TOTVS Protheus: fields C5_USERLGI and C5_USERLGA
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: ORDR, TOTVS: SC5), the respective registration must be performed in the Custom Table.
+
+@name("Sale Orders")
+GET "https://{{endpoint}}/orders"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2021-02-24"
+? "createdTo"= "2021-02-24"
+? "branch"= "1"
+? "partnerKey"= "C001"
+? "sellerKey"= "22"
+? "salesAgentKey"= "Intergate"
+? "carrierKey"= "T002"
+? "docStatus"= "O"
+? "customStatus"= "2"
+? "customStatusNotify"= "NEW"
+? "customShipMethod"= "NEW"
+? "customShipType"= "NEW"
+? "erpKey"= "149231"
+? "docNum"= "122608"
+? "orderNum"= "1074052740415-01"
+? "customOrderKey"= "NEW"
+? "pageNum"= "2"
+? "updatedAt"= "2018-11-03T18:00:00"
+
+
+// #### Insert sales order in ERP
+// *(sapBusinessOne=17/ORDR, totvsProtheus=SC5)*
+// 
+// This service allows to insert a new sales order in the ERP, with treatment for new and existing partner, physical separation of products, sales invoice and incoming payments.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales order will be added if the sales order is not found on the ERP by branch + orderNum:
+// - SAP B1: ORDR.BPLId + ORDR.NumAtCard
+// - TOTVS Protheus: C5_FILIAL + C5_PEDECOM (note: field C5_PEDECOM is only 10 characters long and cannot be increased)
+// 
+// The key to finding the partner is through taxNumber. If the partner is located by taxNumber, the data is updated, otherwise the new partner is added in the ERP.
+// - SAP Business One: CRD7.TaxId0 (company / government) or CRD7.TaxId4 (person / employee)
+// - TOTVS Protheus: A1_CGC (customer / lead) or A2_CGC (supplier)
+// 
+// The products sent for the service will be identified in the ERP:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// The following processes can be carried out after the inclusion of the sales order in the ERP:
+// - Picklist insert (SAPB1 only): if the GlobalProperty SalesOrderInsPicklist=true in API Setup, or if insPickist=true in JSON request
+// - Custom Payments Table insert: if there is payments in JSON request, the payments are inserted in the Payments Custom Table (for further use)
+// - Marketing Document insert: if GlobalProperty SalesOrderInsMktDoc|IG_USEMKTD=invoice|downPayment|delivery in API Setup, or if insMktDoc=invoice|downPayment|delivery in JSON request (delivery only SAPB1). If the process insert invoice or downPayment, the payments array is required in JSON request, and will be inserted Incoming Payment(s) for invoice or downPayment. PROTHEUS = downPayment not yet available...
+// 
+// Comments:
+// - Customer: [1] customer/type: C = customer, S = supplier, L = lead, [2] customer/taxType: P = person, C = company, G = government, E = employee. Each PN will have 2 registered addresses (CRD1, CRD7), namely: ShipToCode (S) = /customer/fullName OR /shipment/shippingAddress/firstName + "" + /shipment/shippingAddress/lastName, BillToCode (B) = /customer/fullName OR /customer/billingAddress/firstName + "" + /customer/billingAddress/lastName. Each PN will have 3 tax identification numbers (CRD12), namely: ShipToCode, BillToCode, empty.
+// - Seller: sellerKey
+// - Discounts: in total items (priceAdjustValue), in total freight (shipAdjustValue). shipAdjustType = minus or plus
+// - items: Duplication of items on more than 1 order line is not accepted, basePrice: base/gross price, taxBasis: total value of the item (quantity * price), calculation date for tax
+// - shipment: shipment data, as shipping address, carrier primary key in ERP, shipping method and carrier message
+// - totals: netValue: net value with discounts applied, grossValue: gross value with discounts and taxes applied, baseValue: base value for tax calculation, taxValue: taxes that increase order value (IPI, ICMS-ST, ...)
+// - payments: 5 payment methods are accepted (paymentMethod): transfer, boe, creditCard (mandatory fields: cardName and authid), cash, check
+// - The ERP payment method code can be entered in the paymentMethodKey field
+// - `customStatus`: sales order custom field definied in API Setup
+// - `customStatusNotify`: sales order custom field definied in API Setup
+// - `customShipMethod`: sales order custom field definied in API Setup
+// - `customShipType`: sales order custom field  definied in API Setup
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: ORDR / RDR1, TOTVS: SC5 / SC6), the respective registration must be performed in the Custom Table.
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// branch | string | Number branch
+// orderNum | string | Number Sales Order
+// brand | string | Brand
+// sellerKey | string | Seller Primary Key in ERP 
+// salesAgentKey| string | Sales Agent Primary Key in ERP
+// carrierKey| string | Carrier Primary Key in ERP
+// mainUsage| string | Usage Primary Key in ERP
+// mainCostCenter| string | Cost Center Primary Key in ERP
+// whsCode| string | Warehouse Primary Key in ERP
+// comments| string | Comments in ERP
+// customer | object | Customer
+// customer.type | string | C=customer, S=supplier, L=lead 
+// customer.taxType | string |  P=person, C=company, G=government, E=employee
+// customer.partnerId | string | Id partner
+// customer.fullName | string | Customer full name
+// customer.aliasName | string | Customer alias name
+// customer.email | string |  Customer emai
+// customer.phone | string | Customer phone Number 
+// customer.phoneSecondary | string | Customer secondary phone number
+// customer.cellular | string | cell Customer phone number
+// customer.taxNumber | string  | Customer identification number
+// customer.stateTaxNumber | string | State customer identification number
+// customer.cityTaxNumber| string | City customer identification number
+// customer.billingAddress | object | Customer billing addresses
+// customer.billingAddress.address1 | string |  Customer billing address1
+// customer.billingAddress.address2 | string | Customer billing address2
+// customer.billingAddress.city | string | Customer billing city
+// customer.billingAddress.postalCode | string | Customer billing postal Code
+// customer.billingAddress.stateCode | string | Customer billing state Code
+// customer.billingAddress.community | string | Customer billing community
+// customer.billingAddress.exteriorNumber | string | Customer billing exterior number
+// customer.billingAddress.streetType | string | Customer billing type street
+// customer.billingAddress.countryCode | string | Customer billing country code
+// items | array | Order Items Object
+// productKey | string | Product key
+// productName | string | Product Name
+// quantity | number | Quantity
+// unit | string | Unit
+// unitPrice | number | Unit price
+// taxBasis | number | Tax Basis
+// shipment | object | Shipment
+// shipment.carrierKey | string | Carrier Primary Key in ERP
+// shipment.shippingMethod | string | Shipping method
+// shipment.carrierMessage| string | Carrier message
+// shipment.shippingAddress | array | Shipping adress
+// shippingAdress.address1 | string | Shipping first adress
+// shippingAdress.address2 | string | Shipping second adress
+// shippingAdress.city | string | Shipping city
+// shippingAdress.postalCode | string | Shipping postal Code
+// shippingAdress.stateCode | string | Shipping state Code
+// shippingAdress.community| string | Shipping community
+// shippingAdress.exteriorNumber | string| Shipping exterior number
+// shippingAdress.streetType | string | Shipping type street
+// shippingAdress.countryCode | string | Shipping country Code
+// totals | object | Totals
+// totals.orderTotal | object | Order totals
+// totals.orderTotal.netValue | number | Totals net value
+// totals.orderTotal.grossValue | number | Totals gross value
+// totals.orderTotal.baseValue |number | Totals base value 
+// totals.orderTotal.taxValue | number | Totals taxes that increase the value 
+// totals.merchandizeTotal | object | Merchandize Totals
+// totals.merchandizeTotal.netValue | number | Net value merchandize
+// totals.merchandizeTotal.grossValue | number | Gross value merchandize 
+// totals.merchandizeTotal.baseValue |number | Base value merchandize
+// totals.merchandizeTotal.taxValue | number | Taxes that increase the value merchandizeTotal
+// totals.merchandizeTotal.priceAdjustValue | number | Discounts in total items
+// totals.merchandizeTotal.priceAdjustType | string | Price adjustment type 
+// totals.merchandizeTotal.priceAdjustPromotionId | string | Price adjustment Id promotion
+// totals.merchandizeTotal.priceAdjustCouponId | string | Price adjustment Id coupon
+// totals.shippingTotal | object | Shipping totals
+// totals.shippingTotal.netValue | number | Shipping total Net value
+// totals.shippingTotal.grossValue | number | Shipping total Gross value 
+// totals.shippingTotal.baseValue |number | Shipping totals base value
+// totals.shippingTotal.taxValue | number | Shipping total Tax value
+// totals.shippingTotal.priceAdjustValue | number | Discounts on total shipping
+// totals.shippingTotal.priceAdjustType | string | Price adjust type
+// totals.shippingTotal.priceAdjustPromotionId | string | Price adjust Id promotion
+// totals.shippingTotal.priceAdjustCouponId | string | Price adjust Id coupon
+// payments | array | Payments
+// payments.paymentMethod | string | Payment Method
+// payments.installments | number| Installments
+// payments.amount | number | Amount
+// payments.details | object | Details
+// payments.details.tid | string | Tid
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | booleano | Acquirer
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// payments.gateway | object | gateway
+// payments.gateway.gatewayName | string | Gateway name 
+// payments.gateway.gatewayOrderId | string | Gateway Id order 
+// payments.gateway.gatewayPayId | string | Gateway Id payment
+// payments.paymentMethod | string | Payment Method
+// payments.installments | number | Installments
+// payments.amount | number | Amount
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp 
+// code | string | Code
+// success | booleano | Success
+// values | array | Values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erpkey
+
+@name("Sale Order")
+PUT "https://{{endpoint}}/orders"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "23",
+    "orderNum": "1013",
+    "dueDate": "",
+    "sellerKey": "",
+    "salesAgentKey": "",
+    "mainUsage": "",
+    "mainCostCenter": "",
+    "whsCode": "",
+    "paymentCondition***": "",
+    "paymentMethod***": "",
+    "carrierKey": "",
+    "packDescription": "",
+    "brand": "",
+    "customOrderStatus": "",
+    "customOrderStatusNotify": "",
+    "customShipType": "",
+    "customShipMethod": "",
+    "comments": "",
+    "remarksFooter": "",
+    "customer": {
+        "type": "C",
+        "taxType": "C",
+        "partnerId": "C001",
+        "fullName": "Sport Club Corinthians Paulista",
+        "aliasName": "Timão",
+        "email": "campeão@corinthians.com.br",
+        "phone": "2095-3000",
+        "phoneSecondary": "11",
+        "cellular": "11-9595-2000",
+        "taxNumber": "61.902.722/0001-26",
+        "stateTaxNumber": "113.440.120.113",
+        "cityTaxNumber": "",
+        "billingAddress": {
+            "address1": "São Jorge",
+            "address2": "",
+            "city": "São Paulo",
+            "postalCode": "03087-000",
+            "stateCode": "SP",
+            "community": "Tatuapé",
+            "exteriorNumber": "777",
+            "streetType": "Rua",
+            "countryCode": "BR"
+        }
+    },
+    "items": [
+        {
+            "codeBars": "",
+            "productKey": "900.000.003",
+            "productName": "Camisa Nike Flamengo I 09/10",
+            "quantity": 1,
+            "unit": "PAR",
+            "unitPrice": 49.9,
+            "taxBasis": 49.9,
+            "comments": ""
+        }
+    ],
+    "shipment": {
+        "shippingAddress": {
+            "receiverName *": null,
+            "isMain *": null,
+            "address1": "São Jorge 2",
+            "address2": "",
+            "city": "São Paulo",
+            "postalCode": "03087-000",
+            "stateCode": "SP",
+            "community": "Tatuapé",
+            "exteriorNumber": "777",
+            "streetType": "Rua",
+            "countryCode": "BR"
+        }
+    },
+    "totals": {
+        "orderTotal": {
+            "netValue": 59.71,
+            "grossValue": 59.71,
+            "baseValue": 59.71,
+            "taxValue": 0
+        },
+        "merchandizeTotal": {
+            "netValue": 49.9,
+            "grossValue": 49.9,
+            "baseValue": 49.9,
+            "taxValue": 0,
+            "priceAdjustValue": 0,
+            "priceAdjustType": "",
+            "priceAdjustPromotionId": "",
+            "priceAdjustCouponId": ""
+        },
+        "shippingTotal": {
+            "netValue": 9.81,
+            "grossValue": 9.81,
+            "baseValue": 9.81,
+            "taxValue": 0,
+            "shipAdjustValue": 0,
+            "shipAdjustType": "",
+            "shipAdjustPromotionId": "",
+            "shipAdjustCouponId": ""
+        }
+    },
+    "payments": [
+        {
+            "paymentMethod": "creditCard",
+            "installments": 3,
+            "amount": 49.71,
+            "details": {
+                "tid": "a1a33b4e-92a0-4e78-9ea7-6cd4cbe40146",
+                "cardName": "Visa",
+                "acquirer": null,
+                "authid": "11176253608FGC0S3U0B",
+                "nsu": "025479"
+            },
+            "gateway": {
+                "gatewayName": "",
+                "gatewayOrderId": "",
+                "gatewayPayId": ""
+            }
+        },
+        {
+            "paymentMethod": "transfer",
+            "installments": 1,
+            "amount": 10.0
+        }
+    ]
+})
+
+
+// #### Search sales order status changes in ERP 
+// *(sapBusinessOne=17/ORDR)*
+// 
+// This service will allow you to search sales orders status on the ERP.
+// 
+// Searching sales orders status allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey`, `sellerKey`, `salesAgentKey`, `carrierKey`, `docStatus` or any of four custom fields definied in this service {optional}
+// - Unitary search: by `erpKey` or `orderNum` or `docNum` or `customOrderKey`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `orderNum` or `docNum` or `customOrderKey`), the query for sales orders is carried out by creation date from/to (which become mandatory) and any other filter applied.
+// 
+// The orders service will consider sales orders with:
+// - SAP Business One: ORDR.ObjType = 17
+// - TOTVS Protheus: C5_TIPO IN 'N', 'C', 'I', 'P'
+// 
+// Comments:
+// - `branch`: SAP Business One (ORDR.BPLId), TOTVS Protheus (C5_FILIAL)
+// - `partnerKey`: SAP Business One (ORDR.CardCode), TOTVS Protheus (C5_CLIENTE+'_'+C5_LOJACLI)
+// - `sellerKey`: SAP Business One (ORDR.SlpCode), TOTVS Protheus (C5_VEND1)
+// - `salesAgentKey`: SAP Business One (ORDR.AgentCode), TOTVS Protheus (A3_UNIDAD)
+// - `erpKey`: SAP Business One (ORDR.DocEntry), TOTVS Protheus (C5_NUM)
+// - `orderNum`: SAP Business One (ORDR.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - `docNum`: SAP Business One (ORDR.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O=open, C=closed, X=canceled, B=billed, P=paid, R=returned
+// - `customOrderKey`: sales order custom field definied in API Setup, and present in filter and response
+// - `customStatus`: sales order custom field definied in API Setup, and present in filter and response
+// - `customStatusNotify`: sales order custom field definied in API Setup, and present in filter and response
+// - `customShipMethod`: sales order custom field definied in API Setup, and present in filter and response
+// - `customShipType`: sales order custom field  definied in API Setup, and present in filter and response
+// - `customTrackingKey`: sales order custom field definied in API Setup, and present in response
+// - `customTrackingUrl`: sales order custom field definied in API Setup, and present in response
+// 
+// This service will allow you to search the sales order status list in two situations:
+// - Full Search: will result in all orders from a specific branch that had a status change in the createdFrom/createdTo period. 
+// - Incremental Search: will result in all orders from a specific branch that have changed status in the createdFrom / createdTo period and after a given date / time provided in the request. The `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which records should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Creation Time fields of the transaction table in SAP Business One (OIVL.CreateDate and OIVL.CreateTime), [2] TOTVS Protheus: not implemented
+// 
+// The response will inform:
+// - The number of returned objects in `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum`> `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Order Status")
+GET "https://{{endpoint}}/orderStatus"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-01-01"
+? "createdTo"= "2020-12-31"
+? "branch"= "1"
+? "partnerKey"= "NEW"
+? "sellerKey"= "NEW"
+? "salesAgentKey"= "NEW"
+? "carrierKey"= "NEW"
+? "docStatus"= "NEW"
+? "erpKey"= "NEW"
+? "docNum"= "NEW"
+? "orderNum"= "NEW"
+? "customStatus"= "2"
+? "customStatusNotify"= "NEW"
+? "customShipMethod"= "NEW"
+? "customShipType"= "NEW"
+? "customOrderKey"= "NEW"
+? "pageNum"= "1"
+? "updatedAt"= "2021-06-07T10:00:00"
+
+
+// #### Search custom sales order status options in ERP 
+// *(sapBusinessOne=UFD1)*
+// 
+// This service will allow you to search custom sales orders status options on the ERP.
+// 
+// The response will inform:
+// - The number of returned objects in `count` field
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Order Status - Options")
+GET "https://{{endpoint}}/orderStatus/options"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+
+
+// #### Update sales order status in ERP
+// *(sapBusinessOne=17/ORDR, totvsProtheus=SC5)*
+// 
+// This service allows to update a sales order status in ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// Sales order status will be updated if the sales order is found on the ERP by the key informed: erpKey or docNum or orderNum.
+// 
+// In this service you can:
+// - close a sales order (`docStatus`="C")
+// - change any of five custom fields in sales order definied in API Setup (including sales order closed or canceled): `custosOrderKey`, `custosStatus`, `customStatusNotify`, `customShipMethod`, `customShipType`, `customTrackingKey`, `customTrackingUrl`
+// 
+// Comments:
+// - `erpKey`: SAP Business One (ORDR.DocEntry), TOTVS Protheus (C5_NUM)
+// - `orderNum`: SAP Business One (ORDR.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - `docNum`: SAP Business One (ORDR.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: C=closed
+// - `customOrderKey`: custom field in order definied in API Setup, and present in body
+// - `customStatus`: custom field in order definied in API Setup, and present in body
+// - `customStatusNotify`: custom field in order definied in API Setup, and present body
+// - `customShipMethod`: custom field in order definied in API Setup, and present in body
+// - `customShipType`: custom field in order definied in API Setup, and present in body
+// - `customTrackingKey`: custom field in order definied in API Setup, and present in body
+// - `customTrackingUrl`: custom field in order definied in API Setup, and present in body
+// 
+// This service does not have user field (UDF) treatment.
+// 
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// erpKey * | string | Sales Order Primary Key in ERP
+// docNum * | string | Sales Order Number in ERP
+// orderNum * | string | Sales Order Partner Number in ERP
+// carrierKey | string | Carrier Primary Key in ERP 
+// docStatus| string | Sales Order Status in ERP (accepts only C to close sales order)
+// customOrderKey| string | Custom Sales Order Key in external system in ERP (UDF definied in Setup API)
+// customStatus| string | Custom Sales Order Status in ERP (UDF definied in Setup API)
+// customStatusNotify| string | Sales Order Custom Status Notify in ERP (UDF definied in Setup API)
+// customShipMethod| string | Custom Shipping Method in ERP (UDF definied in Setup API)
+// customShipType| string | Custom Shipping Type in ERP (UDF definied in Setup API)
+// customTrackingKey| string | Custom Tracking Key in ERP (UDF definied in Setup API)
+// customTrackingUrl| string | Custom Tracking URL in ERP (UDF definied in Setup API)
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp 
+// code | string | Code
+// success | booleano | Success
+// values | array | Values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erpkey
+
+@name("Order Status")
+POST "https://{{endpoint}}/orderStatus"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "erpKey": "000019",
+    "docNum": "",
+    "orderNum": "",
+    "docStatus": "C",
+    "carrierKey": "",
+    "customOrderKey": "",
+    "customStatus": "",
+    "customStatusNotify": "",
+    "customShipMethod": "",
+    "customShipType": "",
+    "customTrackingKey": "",
+    "customTrackingUrl": ""
+})
+
+
+

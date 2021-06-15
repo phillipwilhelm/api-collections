@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+// The `POST /environments/{environmentId}/applications/{applicationId}/grants` operation creates a new resource access grant for the application specified in the request URL. You must specify the `resource` property ID to create the resource access grant. You can also identify the scopes from the resource being granted. The `scopes` property allows a list of scopes to associate with the resource access grant.
+// 
+// ::: info
+// **Note:** Worker applications (admin apps) that have the `client_credentials` grant type do not support OIDC scopes.
+// :::
+
+@name("CREATE Grant")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "resource": {
+        "id": "{{resourceID}}"
+    },
+    "scopes": [
+        {
+        	"id": "{{scopeID}}"
+        }
+    ]
+}')
+
+
+// The `GET /environments/{environmentId}/applications/{applicationId}/grants` endpoint returns a list of all resource access grants for the application specified in the request URL.
+
+@name("READ All Grants for an Application")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single application resource grant, the `GET /environments/{environmentId}/applications/{applicationId}/grants/{grantId}` operation returns data only for the application resource grant with the specified ID.
+
+@name("READ One Grant for an Application")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants/{{grantID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To update a property value associated with a selected application resource grant, use the  `PUT /environments/{environmentId}/applications/{applicationId}/grants/{grantId}` operation to modify the attribute values for the specified grant resource. For example, you can change the `scopes` attribute value to add another OIDC scope ID.
+// 
+
+@name("UPDATE Grant")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants/{{grantID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "resource": {
+        "id": "{{resourceID}}"
+    },
+    "scopes": [
+        {
+        	"id": "{{OIDCscopeID}}"
+        },
+        {
+        	"id": "{{anotherOIDCscopeID}}"
+        }
+    ]
+}')
+
+
+// To delete an application resource grant, you need to specify the environment ID, the application ID, and the grant ID. The `DELETE /environments/{environmentId}/applications/{applicationId}/grants/{grantId}` operation deletes the identified application resource grant.
+// 
+// For successful delete operations, a `204 NO CONTENT` message is returned by the request.
+
+@name("DELETE Grant")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants/{{grantID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

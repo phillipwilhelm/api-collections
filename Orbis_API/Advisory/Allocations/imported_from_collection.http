@@ -1,0 +1,119 @@
+#!/usr/bin/env dothttp
+
+@name("Search (n/a)")
+GET "https://{{url}}/api/v2/allocations/search"
+
+
+// Return details of any allocation by its reference:
+// 
+// ```javascript
+// {
+// 	quote: {
+// 		symbol: 'ZVZZT'
+// 	},
+// 	status: 'Scheduled|Pending|Locked|Completed|Cancelled|Rejected',
+// 	transaction: 'BUY|SELL',
+// 	quantity: 1000.0,
+// 	orders: [
+// 		{ /* Order objects. See orders for details. */ }
+// 	],
+// 	targets: [
+// 		{
+// 			accountId: 1234,
+// 			quantity: 100.0,
+// 			execPx: 10.0,
+// 			ourRef: 'CC123456789',
+// 			market: 'U'
+// 		}
+// 	]
+// }
+// ```
+
+@name("Details")
+GET "https://{{url}}/api/v2/allocations/details/{allocationRef}"
+
+
+@name("Cancel")
+POST "https://{{url}}/api/v2/allocations/cancel"
+"Content-Type": "application/json"
+data("{
+	allocationRef: 'CC1234'
+}")
+
+
+// Runs risk against previously created allocation:
+// 
+// ```javascript
+// {
+//   allocationRef: "CC123456789",
+//   errors: []
+// }
+// ```
+
+@name("Validation")
+POST "https://{{url}}/api/v2/allocations/validate"
+"Content-Type": "application/json"
+data('{
+  allocationRef: "CC1234",
+}')
+
+
+// Schedules allocation within the system. If allocation is for an adjustment within the model, adjustment ID should be passed in.
+// 
+// Response:
+// ```javascript
+// {
+// 	allocationRef: 'CC123456789'
+// }
+// ```
+
+@name("Scheduling")
+POST "https://{{url}}/api/v2/allocations/preallocate"
+"Content-Type": "application/json"
+data('{
+	// Optional
+	adjustment: {
+		id: 50
+	},
+	
+	// Required
+	allocation: {
+		transaction: "BUY|SELL",
+		quote: {
+			symbol: \'ZVZZT\'
+		},
+		targets: [
+			{
+				quantity: 101.1,
+				account: {
+					accountNumber: \'ABC123\'
+				}
+			},
+			{
+				quantity: 50.9,
+				account: {
+					accountNumber: \'ABC456\'
+				}
+			}
+		]
+	}
+}')
+
+
+// Triggers previously scheduled allocation:
+// 
+// ```javascript
+// {
+//   allocationRef: ‘CC1234’,
+// }
+// ```
+
+@name("Trigger")
+POST "https://{{url}}/api/v2/allocations/trigger"
+"Content-Type": "application/json"
+data('{
+  allocationRef: "CC1234",
+}')
+
+
+

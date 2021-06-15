@@ -1,0 +1,1 @@
+This REST service offers endpoints that retrieve random names from a wikipedia dump. Users can use this service to get random last, first, middle names filtered by nationality. 

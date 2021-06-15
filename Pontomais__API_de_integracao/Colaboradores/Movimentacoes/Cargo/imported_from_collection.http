@@ -1,0 +1,136 @@
+#!/usr/bin/env dothttp
+
+// Lista as movimentações de cargo colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador a ser mostrada as movimentações |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na equipe|
+// | effective_date | String | Data de notificação da demissão|
+// | job_title | Object | Cargo da movimentação (Verificar tabela descritiva do objeto)|
+// | motive | Object | Motivo da movimentação (Verificar tabela descritiva do objeto)|
+// 
+// 
+// #### Formato do objeto job_title
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome do cargo                                          |
+// 
+// #### Formato do objeto motive
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador gerado pelo sistema |
+// | name | String (60)  | Nome do motivo                                          |
+// 
+// 
+// ## Opções do objeto motive
+// 
+// | Valor | Descrição |
+// | ----- | --------- |
+// | 1     | Admissão |
+// | 2     | Demissão |
+// | 3     | Alteração de Cargo |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/employees/28/job_title_changes"
+"access-token": "{{client_token}}"
+? "attributes"= "id,job_title,date,effective_date,motive"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Detalha a movimentação do colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | job_title_change_id | Integer | Sim | ID da movimentação |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na equipe|
+// | job_title | Object | Cargo da movimentação (Verificar tabela descritiva do objeto)|
+// 
+// #### Formato do objeto job_title
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome do cargo                                          |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/job_title_changes/{{job_title_change_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,job_title,date"
+
+
+// Rota para criar uma movimentação de cargo para o colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | date | Date | Sim | Data de início na equipe|
+// | job_title_id | Integer | Sim | ID do cargo a ser movimentado |
+// | motive | Integer | Sim | Índice do motivo da movimentação (veja a tabela **Legenda de motivos de movimentação**) |
+// 
+// ## Legenda de motivos de movimentação
+// 
+// | Índice do motivo | Motivo |
+// | ---- | -----|
+// | 1 | Admissão |
+// | 2 | Demissão |
+// | 3 | Alteração de cargo |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/job_title_changes"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"job_title_change":{
+		"date":"{{date}}",
+		"motive": {{motive}},
+		"job_title_id":{{job_title_id}}
+	}
+}')
+
+
+// Exclui uma movimentação de cargo do colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | job_title_change_id | Integer | Sim | ID da movimentação |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/job_title_changes/{{job_title_change_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

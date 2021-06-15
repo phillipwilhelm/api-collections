@@ -1,0 +1,1177 @@
+#!/usr/bin/env dothttp
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|Required. The name of the site
+//  timezone|string|Timezone the site is at
+//  country_code|string|country code for the site (for AP config generation), in two-character
+//  latlng|latlng|site location
+//  address|string|full address of the site
+//  lat|float|latitude
+//  lng|float|longitude
+
+@name("getSiteInfo")
+GET "https://{{host}}/api/v1/sites/:site_id"
+
+
+// #### Response Parameters
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// num_clients|int|Number of clients associated currently
+// num_devices|int|Number of devices in connected and managed state
+
+@name("getSiteStats")
+GET "https://{{host}}/api/v1/sites/:site_id/stats"
+
+
+@name("getSiteSettings")
+GET "https://{{host}}/api/v1/sites/:site_id/setting"
+
+
+// #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  analytic.enabled|boolean|enable Advanced Analytic feature, default is false (using SUB-ANA license)
+//  app_waking|boolean|default is false
+//  auto_upgrade|object|auto upgrade
+//  bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+//  ble_config|object|BLE config (see Site:BLE Config)
+//  ble|object|BLE asset settings
+//  brightness|int|0-255, default is 255
+//  channel|int|(primary) channel for the band, 0 means auto
+//  channels|list|list of channels, null or empty array means auto
+//  device_updown_threshold|int|enable threshold-based device down delivery via 1) device-updowns webhooks topic, 2) Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 30, default is 0 (trigger immediate)
+//  flags|list|name/val pair objects for location engine to use
+//  hello_interval|float|in seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries. between 1 and 300, default is 60 seconds
+//  hello_retries|int|between 2 and 30, default is 7
+//  led.enabled|boolean|whether to enable LED, default is true
+//  led|object|LED control
+//  model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+//  config_auto_revert|boolean|whether to enable ap auto config revert, default is false
+//  mxtunnel.mtu|int|552-1500, default is 0
+//  ntp_servers|list|list of NTP servers
+//  persist_config_on_device|boolean|whether to store the config on AP, default is false
+//  power_max|int|when power=0, min tx power to use, HW-specific values will be used if not set
+//  power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+//  power|int|tx power of the radio, 0 mean auto
+//  preamble|string|short / long / auto, default is short
+//  proxy|object|Proxy Configuration for APs to talk to Mist
+//  radio_config|object|site RF settings
+//  remote_syslog|object|syslog parameters
+//  report_gatt|boolean|default is false; whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
+//  rogue|object|rogue detection parameters
+//  rtsa|object|managed mobility
+//  ssh_keys|list|when limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
+//  track_anonymous_devices|boolean|default is false; whether to track anonymous BLE assets (requires ‘track_asset’ enabled)
+//  track_asset|boolean|enable Asset Tracking, default is false (using SUB-AST license)
+//  vars|object|a dictionary of name->value, the vars can then be used in Wlans
+//  wifi|object|managed connectivity
+//  
+//  #### Occupancy Parameter
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// assets_enabled|boolean|indicate whether named BLE assets should be included in the zone occupancy calculation, default is false
+// sdkclients_enabled|boolean|indicate whether SDK clients should be included in the zone occupancy calculation, default is false
+// clients_enabled|boolean|indicate whether connected WiFi clients should be included in the zone occupancy calculation, default is true
+// unconnected_clients_enabled|boolean|indicate whether unconnected WiFi clients should be included in the zone occupancy calculation, default is false
+// min_duration|int|minimum duration, default is 3000
+// 
+// #### Zone Occupancy Alert Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// enabled|boolean|indicate whether zone occupancy alert is enabled for the site, default is false
+// threshold|int|sending zone-occupancy-alert webhook message only if a zone stays non-compliant (i.e. actual occupancy > occupancy_limit) for a minimum duration specified in the threshold, in minutes, 0 - 30, default is 5 minutes
+// email_notifiers|array of strings|list of email addresses to send email notifications when the alert threshold is reached
+// 
+//  #### Wi-Fi Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  enabled|boolean|enable WIFI feature, default is true (using SUB-MAN license)
+//  enable_arp_spoof_check|boolean|when proxy_arp is enabled, check for arp spoofing. default is false
+//  enable_channel_144|boolean|whether to enable channel 144 (some older clients may not support in US), default is false
+//  vna.enabled|boolean|enable Virtual Network Assistant, default is false (using SUB-VNA license)
+//  proxy_arp|string|default / enabled / disabled
+//  locate_unconnected|boolean|whether to locate unconnected clients, default is false
+//  mesh_enabled|boolean|whether to enable Mesh feature for the site, default is false
+//  disable_11k|boolean|whether to disable 11k, default is false
+//  
+//  #### Remote Syslog Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  enabled|boolean|whether or not remote syslog is enabled
+//  servers|list|list of syslog servers
+//  host|string|host to which syslog is sent
+//  protocol|string|udp / tcp, protocol to use for remote syslog, default is udp
+//  port|int|port on which to connect to host for syslog, default is 514 if protocol=udp, 6514 if protocol=tcp
+//  facility|string|kern / user / mail / daemon / auth / syslog / lpr / news / uucp / cron / authpriv / ftp / ntp / security / console / solaris-cron / local0 - local7, default is config
+//  severity|string|emerg / alert / crit / err / warning / notice / info / debug, default is info
+//  tag|string|optional, tag to attach to log record
+//  
+//  #### Rogue Detection Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  enabled|boolean|whether or not rogue detection is enabled
+//  honeypot_enabled|boolean|whether or not honeypot detection is enabled
+//  min_rssi|int|minimum RSSI for an AP to be considered rogue (ignoring APs that’s far away), default is -80. Minimum allowed value is -85.
+//  min_duration|int|minimum duration for a bssid to be considered rogue, maximum is 59, default is 10
+//  whitelisted_ssids|list|list of SSIDs to whitelist
+//  whitelisted_bssids|list|list of BSSIDs to whitelist
+//  
+//  #### Auto Upgrade Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  enabled|boolean|whether auto upgrade should happen, default is false (Note that Mist may auto-upgrade if the version is not supported)
+//  version|string|desired version, beta / stable / custom, default is stable
+//  time_of_day|string|any / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
+//  day_of_week|string|any / mon / tue / wed / thu / fri / sat / sun
+//  custom_versions|object|custome versions for different models
+// 
+//  #### Engagement Parameter
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// dwell_tags|object|add tags to visits within the duration (in seconds), available tags (passerby, bounce, engaged, stationed)
+// max_dwell|int|max time, default is 43200(12h), max is 68400 (18h)
+// min_dwell|int|min time, default is 0.
+// hours|object|hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun). Note: If the dow is not defined then it’s treated as 00:00-23:59.
+// 
+// 
+// **NOTE**: if hours does not exist, it’s treated as everyday of the week, 00:00-23:59. Currently we don’t allow multiple ranges for the same day
+// 
+// **NOTE**: default values for dwell_tags: passerby (1,300) bounce (301, 14400) engaged (14401, 28800) stationed (28801, 42000)
+// 
+// **NOTE**: default values for dwell_tag_names: passerby = “Passerby”, bounce = “Visitor”, engaged = “Associates”, stationed = “Assets”
+// 
+// 
+//  #### WIDS Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  threshold|int|count of events to trigger
+// duration|int|window where a trigger will be detected and action to be taken (in seconds)
+// 
+//  #### Tunnel Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  hosts|list|hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)
+// ap_subnets|list|list of subnets where we allow AP to establish Mist Tunnels from
+// protocol|list|udp / ip, default is udp
+// vlan_ids|list|list of vlan_ids that will be used
+// hello_interval|float|in seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries. between 1 and 300, default is 60 seconds
+// hello_retries|int|between 2 and 30, default is 7
+// 
+// #### Switch Related
+// Some important / cmmmon properties describing the network topology are captured in the following sections.
+// 
+// - `networks` defines local network segments (think VLAN) that will be used for the site
+// - `port_usages` defines how physical ports can be used (access/trunk, networks, whether to do dot1x)
+// - `radius_config` defines the RADIUS server configurations if dot1x is being used
+// - `switch_matching` allows definitions of some rules to provision similar swithces with same settings (see Switch Config)
+// 
+// **NOTE**: names of networks or port_usages can only use a-z, 1-9, _, -, . and up to 32 characters
+// 
+// ##### Port Usage
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// description|string|description
+// mode|string|access (default) / trunk
+// disabled|bool|whether the port is disabled, default is false
+// all_networks|bool|if mode=trunk, whether to trunk all network/vlans, default is false
+// networks|list|if mode=trunk, the list of network/vlans
+// port_network|string|native network/vlan for untagged traffic
+// stp_edge|string|when enabled, the port is not expected to receive BPDU frames
+// voip_network|string|network/vlan for voip traffic
+// port_auth|string|if dot1x is desired, set to dot1x
+// enable_mac_auth|bool|if port_auth=dot1x, whether to enable MAC Auth
+// guest_network|string|if port_auth=dot1x, which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
+// bypass_auth_when_server_down|bool|if port_auth=dot1x, whether to allow the device to connect if RADIUS server is down
+// speed|string|speed, default is auto to automatically negotiate speed
+// duplex|string|link connection mode, choices are auto (default), full, and half
+// mac_limit|int|max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
+// persist_mac|bool|if mode=access and port_auth!=dot1x, whether the port should retain dynamically learned MAC addresses, default is false
+// poe_disabled|bool|whether poe is disabled, default is false
+// storm_control|object|storm-control-profile settings
+// mtu|int|media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
+// enable_qos|bool|whether QoS is enabled, default is false. When QoS is enabled, the default QoS setting is applied.
+// 
+// ##### Storm Control
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// percentage|int|bandwidth-percentage, configures the storm control level as a percentage of the available bandwidth, default is 80
+// no_broadcast|bool|whether to disable storm control on broadcast traffic, default is false
+// no_unknown_unicast|bool|whether to disable storm control on unknown unicast traffic, default is false
+// no_multicast|bool|whether to disable storm control on multicast traffic, default is false
+// no_registered_multicast|bool|whether to disable storm control on registered multicast traffic, default is false
+// 
+// ##### Switch Matching (Draft)
+// In many scenarios, people have conventions like having port ge-0/0/0 as uplink, ge-0/0/5-42 for user devices, … for many switches in the same site. While it’s achievable by doing Switch Config on each of them, switch_matching allows them to use same setting by matching name/model/role.
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  lldp_chassis_id|string|MAC address of LLDP neighbor
+//  lldp_system_name|string|system name of LLDP neighbor
+//  lldp_serial_number|string|Serial number of LLDP neighbor
+//  lldp_hardware_revision|string|Hardware revision of LLDP neighbor
+//  lldp_manufacturer_name|string|The manufacturer of LLDP neighbor
+//  lldp_oui|string|The OUI of LLDP neighbor
+//  radius_username|string|The username of the connected supplicant.
+//  radius_usermac|string|The MAC address of the connected supplicant.
+//  radius_dynamicfilter|string|User policy filter sent by the RADIUS server.
+//  link_peermac|string|MAC address of the device directly connected to a port.
+// 
+//  #### OSPF Areas Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// osp_areas|object|OSPF areas, key is the area id
+// type|string|OSPF type, default (default) / stub / nssa
+// networks|object|networks to participate in an OSPF area, key is the network name
+// passive'|bool|whether to send OSPF-Hello, default is false
+// auth_type|string|auth type, none (default) / md5 / password
+// auth_keys|object|if auth_type==’md5’, the md5 keys
+// auth_password|string|if auth_type==’password’, the password, max length is 8
+// interface_type|string|interface type, nbma (non-broadcast multi-access) / p2p / p2mp, default is nbma
+
+@name("updateSiteSettings")
+PUT "https://{{host}}/api/v1/sites/:site_id/setting"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+data('{
+    "rtsa": {
+        "enabled": false,
+        "app_waking": false,
+        "disable_pressure_sensor": false,
+        "disable_dead_reckoning": false,
+
+        // asset tracking related
+        "track_asset": false
+    },
+    "wifi": {
+        "enabled": true,
+        "mesh_enabled": true,
+        "mesh_allow_dfs": false,
+        "cisco_enabled": true,
+        "proxy_arp": "default",
+        "enable_arp_spoof_check": false,
+        "locate_connected": false,
+        "locate_unconnected": false,
+        "enable_shared_radio_scanning": false,
+        "disable_11k": false,
+        "disable_radios_when_power_constrained": false
+    },
+    "vna": {
+        // this applied to AP / Switch / Gateway
+        "enabled": false
+    },
+    "persist_config_on_device": false,
+    "device_updown_threshold": 0,
+    "occupancy": {
+        "clients_enabled": true,
+        "sdkclients_enabled": true,
+        "assets_enabled": true,
+        "unconnected_clients_enabled": false,
+        "min_duration": 3000
+    },
+    "zone_occupancy_alert": {
+        "enabled": true,
+        "threshold": 5,
+        "email_notifiers": [
+            "foo@juniper.net",
+            "bar@juniper.net"
+        ]
+    },
+    "radio_config":  {
+        "band_24": {
+            "disabled": false,
+            "channels": [ 1, 6, 11 ],
+            "bandwidth": 20,
+            "power": 16
+        },
+        "band_5": {
+            "disabled": false,
+            "channels": null,
+            "bandwidth": 40,
+            "power": 0,
+            "preamble": "short",
+            "power_min": 10,
+            "power_max": 18
+        },
+        "ant_gain_24": 7,
+        "ant_gain_5": 4,
+
+        "model_specific": {
+            "AP61": {
+                "band_5": {
+                    "disabled": false,
+                    "channels": [ 100, 104 ],
+                    "bandwidth": 40,
+                    "power": 0
+                },
+                "ant_gain_24": 4,
+                "ant_gain_5": 5
+            },
+            "AP43": {
+                "band_24_usage": "5"
+            }
+        }
+    },
+    "ap_port_config": {
+        "model_specific": {
+            "AP32": {
+                "eth1,eth2": {
+                    // see "port_config" in Device
+                }
+            }
+        }
+    },
+    "enable_channel_144": false,
+    "rogue": {
+        "enabled": false,
+        "honeypot_enabled": true,
+        "min_rssi": -80,
+        "min_duration": 10,
+        "whitelisted_ssids": [ "NeighborSSID" ],
+        "whitelisted_bssids": [ "cc:8e:6f:d4:bf:16", "cc-8e-6f-d4-bf-16", "cc-73-*", "cc:82:*" ]
+    },
+    "led": {
+        "enabled": true,
+        "brightness": 255
+    },
+    "vars": {
+        "RADIUS_SECRET": "11s64632d",
+        "RADIUS_IP1": "172.31.2.5", 
+        "DYNAMIC_VLANS": "{\"enabled\": true,\"type\": \"airespace-interface-name\",\"vlans\":{\"131\": \"default\",\"322\": \"fast,video\"}\"default_vlan_id\": 999,\"local_vlan_ids\": []}"
+    },
+    "auto_upgrade": {
+        "enabled": true,
+        "version": "beta",
+        "time_of_day": "12:00",
+        "day_of_week": "sun",
+        "custom_versions": {
+            "AP41": "0.1.5135",
+            "AP61": "0.1.7215",
+            "AP21": "stable"
+        }
+    },
+    "status_portal": {
+        "enabled": true,
+        "hostnames": ["my.misty.com"]
+    },
+    "remote_syslog": {
+        "enabled": true,
+        "send_to_all_servers": true,
+        "servers": [
+            {
+                "host": "syslogd.internal",
+                "port": 514,
+                "protocol": "udp",
+                "facility": "config",
+                "severity": "info",
+                "tag": ""
+            }
+        ]
+    },
+    "engagement": {
+        "dwell_tags": {
+            "passerby": null,
+            "bounce": null,
+            "engaged": "300-14400",
+            "stationed": "14400-43200"
+        },
+        "max_dwell": 43200,
+        "hours": {
+            "mon": "09:00-17:00",
+            "fri": "09:00-17:00"
+        },
+        "dwell_tag_names": {
+            "passerby": "Passer By",
+            "bounce": "Bounce",
+            "engaged": "Engaged",
+            "stationed": "Stationed"
+        }
+    },
+    "analytic": {
+        "enabled": false
+    },
+    "flags": {
+        "way1": 3,
+        "way2": 0,
+        "teleport": false
+    },
+    "ble_config": {
+        "power_mode": "custom",
+        "power": 10,
+        "beacon_enabled": true,
+        "beacon_rate_mode": "custom",
+        "beacon_rate": 3,
+        "beam_disabled": [ 1, 3, 6 ],
+
+        // ibeacon
+        "ibeacon_enabled": true,
+        "ibeacon_uuid": "f3f17139-704a-f03a-2786-0400279e37c3",
+        "ibeacon_major": 13,
+        "ibeacon_minor": 138,
+        "ibeacon_adv_power": -65,
+        "ibeacon_beams": "2-4,7",  // or \'default\' to auto-set
+
+        // eddystone uid
+        "eddystone_uid_enabled": false,
+        "eddystone_uid_namespace": "2818e3868dec25629ede",
+        "eddystone_uid_instance": "5c5b35000001",
+        "eddystone_uid_freq_msec": 200,
+        "eddystone_uid_adv_power": -65,
+        "eddystone_uid_beams": "2-4,7",  // or \'default\' to auto-set
+
+        // eddystone url
+        "eddystone_url_enabled": false,
+        "eddystone_url_url": "https://www.abc.com",
+        "eddystone_url_freq_msec": 1000,
+        "eddystone_url_adv_power": -65,
+        "eddystone_url_beams": "2-4,7"  // or \'default\' to auto-set
+    },
+    "wids": {
+        "repeated_auth_failures": {
+            "threshold": 4,
+            "duration": 60
+        }
+    },
+    "proxy": {
+        "url": "http://proxy.internal:8080/"
+    },
+    "ssh_keys": [
+        "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAA...Wxa6p6UW0ZbcP john@host"
+    ],
+    "config_auto_revert": false,
+    "mxtunnel": {
+        "enabled": false,
+
+        // default mxtunnel
+        "vlan_ids": [3, 5, 6],
+        "ap_subnets": "0.0.0.0/0",  // optional, as this is hosted on-premises
+        "protocol": "udp",
+        "mtu": 1100,
+
+        "hello_interval": 60,
+        "hello_retries": 3,
+
+        // for AP, how to connect to tunterm 
+        "clusters": [
+            {
+                "name": "primary",
+                "tunterm_hosts": ["mxedge1", "mxedge2.local"]
+            }
+        ],
+
+        "additional_mxtunnels": {
+            "guest": {
+                "vlan_ids": [300, 310, 320],
+                "protocol": "udp",
+                "mtu": 1100,
+                "clusters": [
+                    {
+                        "name": "primary",
+                        "tunterm_hosts": ["mxedge_guest"]
+                    }
+                ],
+                "hello_interval": 60,
+                "hello_retries": 3
+            }
+        },
+
+        // radsec related
+        "radsec": {
+            "enabled": true,
+            "auth_servers": [
+                {
+                    "host": "1.2.3.4",
+                    "port": 1812,
+                    "secret": "testing123"
+                },
+                {
+                    "host": "radius.internal",
+                    "port": 1812,
+                    "secret": "testing123"
+                }
+            ],
+            "acct_servers": [
+                {
+                    "host": "1.2.3.4",
+                    "port": 1812,
+                    "secret": "testing123"
+                }
+            ]
+        }        
+    },
+
+    "ap_matching": {
+        "enabled": true,
+
+        "rules": [
+            {
+                "name": "AP12",
+                "match_model": "AP12",
+
+                "port_config": {
+                    "eth1,eth2": {
+                        // see Device Config\'s port_config
+                    }
+                }
+            }
+        ]
+    },
+
+    // gateway related
+    "gateway_mgmt": {
+        // consumes uplink bandwidth, requires WA license
+        "app_usage": false,
+        "app_probing": {
+            "enabled": true,
+            "apps": [ "facebook" ],  // keys from /const/applications
+            "custom_apps": [
+                {
+                    "name": "pos_app",
+                    "protocol": "http", // http (default) / tcp / udp
+                    "hostnames": [ "www.abc.com" ],
+                    "app_type": ""  // 
+                }
+            ]
+        },
+
+        // the rollback timer for commit confirmed. Default is 10, valid range should be 1-30.
+        "config_revert_timer" : 10
+    },
+
+    // skyatp
+    "skyatp": {
+        "enabled": true,
+
+        // optional
+        "send_ip_mac_mapping": true  // whether to send IP-MAC mapping to SkyATP 
+    },
+
+    // switch related
+
+    "switch_mgmt": {
+        "root_password": "asdfh61316saf",
+        // the rollback timer for commit confirmed. Default is 10, valid range should be 1-30.
+        "config_revert_timer" : 10
+    },
+
+    "ntp_servers": [
+        "pool.ntp.org"
+    ],
+
+    "dns_servers": [ "8.8.8.8", "4.4.4.4" ],
+    "dns_suffix": [ ".mist.local", ".mist.com" ],
+
+    // NOTE: if the site uses NetworkTemplate, NetworkTemplate takes precedense while this augments it
+    //       i.e. only those not defined in network templates will be used
+    "networks": {
+        // default is assumed, cannot be changed
+        "default": {
+            "vlan_id": 1
+        },
+
+        // create more
+        "corp": {
+            "vlan_id": 60
+        },
+        "guest": {
+            "vlan_id": 70,
+
+            // optional for pure switching, required when L3 / routing features are used
+            "subnet": "192.168.70.0/24"
+        },
+        "mgmt": {
+            "vlan_id": 500
+        },
+        "voip": {
+            "vlan_id": 50,
+            "subnet": "192.168.50.0/24",
+            "gateway": "192.168.50.1"
+        }
+    },
+
+    // NOTE: if the site uses NetworkTemplate, NetworkTemplate takes precedense while this augments it
+    //       i.e. only those not defined in network templates will be used
+    "port_usages": {
+        "ap": {
+            // the following parameter is assumed by default
+            "mode": "trunk",
+            "all_networks": true,
+            "stp_edge": true,
+            "port_network": "default",
+            "mtu": 9192,
+
+            // to limit networks it trunks
+            "all_networks": false,
+            "networks": [ "guest", "corp" ],
+
+            // to change the native network
+            "port_network": "mgmt",
+
+            // to make the port disabled
+            "disabled": true,
+
+            // if alternative name is desired
+            "description": "WAP",
+
+            // to add voip
+            "voip_network": "voip",
+
+            "enable_qos": true
+        },
+        "uplink": {
+            // the following parameter is assumed by default
+            "mode": "trunk",
+            "all_networks": true,
+            "stp_edge": false,
+            "port_network": "default",
+            "enable_qos": false
+        },
+        "iot": {
+            // the following parameter is assumed by default
+            "mode": "access",
+            "stp_edge": true,
+            "port_network": "default" 
+        },
+        "default": {
+            // the following parameter is assumed by default and cannot be changed
+            "mode": "access",
+            "stp_edge": false,  // we don\'t know how it will be connected at default state, not doing anything
+            "port_network": "default"
+        },
+        "dynamic": {
+            // this is a special mode where the actually usage is determined
+            // by a set of rules
+            // the port will start with `access` mode and isolated
+            // depending on the rules, if resolved, the port will have
+            // the resolved usage applied.
+            //
+            // if the port/link goes down, it goes back to the initial state
+            "mode": "dynamic",
+
+            // Control when the DPC port should be changed to the default port usage
+            // Configuring to none will let the DPC port keep at the current port usage.
+            // The default value is link_down
+            "reset_default_when": "none",   // none or link_down. 
+
+            // Control when the DPC port should be changed to the default port usage
+            // Configuring to none will let the DPC port keep at the current port usage.
+            // The default value is link_down
+            "reset_default_when": "none",   // none or link_down. 
+
+            "rules": [
+                // use LLDP attributes
+                {
+                    "src": "lldp_system_name",  // or lldp_chassis_id
+                    "expression": "[0:3]",           // "abcdef" -> "abc"
+                                 // "split(.)[1]",     // "a.b.c" -> "b"
+                                 // "split(-)[1][0:3], // "a1234-b5678-c90" -> "b56"
+                    "equals": "SENSOR"  ,
+                    "usage": "iot"
+                },
+                // use RADIUS (WIP)
+                {
+                    "src": "radius_username",  // or radius_group
+                    "expression": "[0:3]",           // "abcdef" -> "abc"
+                                  //"split(.)[1]",     // "a.b.c" -> "b"
+                                  //"split(-)[1][0:3], // "a1234-b5678-c90" -> "b56"
+                    "equals": "SENSOR",  
+                    "usage": "iot"
+                }
+            ]
+        },
+
+        // additional usages can be defined
+        "user": {
+            "mode": "access",
+            "stp_edge": true,
+            "port_network": "default",
+
+            // 802.1x
+            "port_auth": "dot1x",
+            "enable_mac_auth": false,
+            "mac_auth_only": false, //only effect once "enable_mac_auth" is true;  
+            "guest_network": null,
+            "rejected_network": null,  // when radius server reject / fails 
+            "bypass_auth_when_server_down": false,
+
+            // other port settings
+            "speed": "1g",
+            "duplex": "full",
+            "disable_autoneg": false,
+            "mac_limit": 2,
+            "poe_disabled": true,
+            "storm_control": {
+                "percentage": 80,
+                "no_multicast": false,
+                "no_unknown_unicast": true,
+                "no_broadcast": true
+            },
+
+            // dynamic vlan
+            "dynamic_vlan": {
+                "enabled": true,
+                "type": "standard",  // airespace-interface-name not supported yet
+                "networks": {
+                    "corp": null,
+                    "user": null
+                },
+                // default (unmatched) comes from `port_network` above
+                "default_network": null
+            }
+        }
+    },
+
+    "radius_config": {
+        "auth_servers_timeout": 5,
+        "auth_servers_retries": 3,
+        "auth_servers": [
+            {
+                "host": "1.2.3.4",
+                "port": 1812,
+                "secret": "testing123"
+            },
+            {
+                "host": "radius.internal",
+                "port": 1812,
+                "secret": "testing123"
+            }
+        ],
+        "acct_servers": [
+            {
+                "host": "1.2.3.4",
+                "port": 1812,
+                "secret": "testing123"
+            }
+        ],
+        "acct_interim_interval": 0,
+        // which network the RADIUS server resides
+        "network": "default"
+    },
+
+    "switch_matching": {
+        "enabled": true,
+
+        "rules": [
+            {
+                "name": "match by name",
+                "match_name[0:3]": "abc",
+                "match_model": "EX4300",
+
+                "port_config": {
+                    "ge-0/0/0": {
+                        "usage": "uplink"
+                    },
+                    "ge-0/0/8-16,ge-1/0/0-47": {
+                        "usage": "ap"
+                    },
+
+                    // this is assumed
+                    "*": {
+                        "usage": "default"
+                    }
+                },
+
+                // additional CLI commands to append if this rule matches
+                // NOTE: no check is done
+                "additional_config_cmds": [
+                    "set snmp community public"
+                ]
+            },
+            {
+                "name": "match by role",
+                "match_role": "access",
+
+                "port_config": {
+                    "ge-0/0/0": {
+                        "usage": "uplink"
+                    }
+                },
+
+                // additional CLI commands to append if this rule matches
+                // NOTE: no check is done
+                "additional_config_cmds": [
+                    "set snmp community public2"
+                ]
+            }
+        ]
+    },
+
+    // additional CLI commands to append to the generated config
+    // NOTE: no check is done   
+    "additional_config_cmds": [
+    ],
+
+    "ospf_areas": {
+        "0": {
+            "typs": "default",  // default (default) / stub / nssa
+            "networks": {
+                "corp": {
+                    "interface_type": "nbma",  // nbma (default) / p2p / p2mp
+
+                    // optional                    
+                    "auth_type": "md5",  // none (default) / md5 / password
+                    // if auth_type==\'md5\'
+                    "auth_keys": {"1": "auth-key-1"},
+                    // if auth_type==\'password                     
+                    "auth_password": "simple"
+                },
+                "iot": {
+                },
+                "guest": {
+                    "passive": true
+                }
+            }
+        }
+    },
+
+    "bgp_groups": {
+        "0": {
+            "typs": "external"   // external (default) / internal
+        }
+    },
+
+    "vrrp_groups": {
+        "0": {
+            "networks": {
+                "data": {
+                    "ip": "10.182.96.1" //ip(virtual address) need under the same interface 
+                },
+                "wap": {
+                    "ip": "10.182.102.1"
+                },
+                "mgmt": {
+                    "ip": "10.182.104.1"
+                },
+                "v10": {
+                    "ip": "10.182.104.129"
+                }
+            },
+            // optional
+            "auth_type": "md5", // md5 / simple
+            // if auth_type==\'md5\'
+            "auth_key": "auth-key-1",
+            // if auth_type==\'simple\'                     
+            "auth_password": "simple"
+        }
+    },
+
+    // vrf
+    "vrf_instances": {
+        "guest": {
+            "networks": [ "guest" ],
+            "extra_routes": {
+                "0.0.0.0/0": {"via": "192.168.31.1"}
+            }
+        }
+    },
+
+    // evpn    
+    "evpn_options": {
+        "overlay": {
+            // optional, these are defaults
+            "as": 65000
+        },
+        "underlay": {
+            "as_base": 65001,
+            "router_id_prefix": "/24",
+            "subnet": "10.255.240.0/20"
+        }
+    },
+
+    "mxedge_mgmt": {
+        "mist_password": "MIST_PASSWORD",
+        "root_password": "ROOT_PASSWORD"
+    },
+
+    "whitelist_url": "https://papi.s3.amazonaws.com/whitelist/xxx...",
+    "blacklist_url": "https://papi.s3.amazonaws.com/blacklist/xxx...",
+    "watched_station_url": "https://papi.s3.amazonaws.com/watched_station/xxx..."
+}')
+
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  usages|object|subscriptions and their quantities
+//  org_titled|object|license entitlement for the entire org
+
+@name("getSiteLicenseUsage")
+GET "https://{{host}}/api/v1/sites/:site_id/licenses/usages"
+
+
+@name("searchSiteSystemEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/events/system/search"
+
+
+@name("countSiteSystemEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/events/system/count"
+
+
+@name("deleteSite")
+DELETE "https://{{host}}/api/v1/sites/:site_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// Retrieve the current clients list from `blacklist_url` under Site:Setting
+// 
+// 
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  macs|array|list of mac addresses to blacklist
+
+@name("createSiteClientsBlocklist")
+POST "https://{{host}}/api/v1/sites/:site_id/setting/blacklist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "18-65-90-de-f4-c6",
+        "84-89-ad-5d-69-0d"
+    ]
+})
+
+
+@name("deleteSiteClientsBlocklist")
+DELETE "https://{{host}}/api/v1/sites/:site_id/setting/blacklist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// Retrieve the current clients list from `whitelist_url` under Site:Setting
+// 
+// 
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  macs|array|list of mac addresses to whitelist
+
+@name("createSiteClientsAllowlist")
+POST "https://{{host}}/api/v1/sites/:site_id/setting/whitelist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "18-65-90-de-f4-c6",
+        "84-89-ad-5d-69-0d"
+    ]
+})
+
+
+@name("deleteSiteClientsAllowlist")
+DELETE "https://{{host}}/api/v1/sites/:site_id/setting/whitelist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// Retrieve the current clients list from `watched_station_url` under Site:Setting
+// 
+// 
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  macs|array|list of mac addresses to watch
+
+@name("createSiteWatchedStations")
+POST "https://{{host}}/api/v1/sites/:site_id/setting/watched_station"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "18-65-90-de-f4-c6",
+        "84-89-ad-5d-69-0d"
+    ]
+})
+
+
+@name("deleteSiteWatchedStations")
+DELETE "https://{{host}}/api/v1/sites/:site_id/setting/watched_station"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// CURD site UI settings
+// 
+
+@name("getSiteCurdSettings")
+GET "https://{{host}}/api/v1/sites/:site_id/uisettings"
+
+
+// CURD site UI settings
+// 
+
+@name("createSiteCurdSettings")
+POST "https://{{host}}/api/v1/sites/:site_id/uisettings"
+json({
+    "isScopeLinked": true,
+    "defaultScopeId": "67970e46-4e12-11e6-9188-0242ad112847",
+    "name": "New Databoard",
+    "defaultScopeType": "site",
+    "isCustomDataboard": true,
+    "isTimeRangeLinked": true,
+    "tiles": [
+        {
+            "sortedColumns": null,
+            "rowspan": 2,
+            "chartBand": "2.4 ghz",
+            "name": "New Analysis",
+            "column": 1,
+            "colspan": 5,
+            "metric": {
+                "apiName": "client-dhcp-latency"
+            },
+            "timeRange": {
+                "end": 1508823743,
+                "name": "Past 7 Days",
+                "interval": "1d",
+                "start": 1508223600,
+                "usePreset": true,
+                "endDate": "10/23/2017",
+                "shortName": "7d"
+            },
+            "chartDirection": "tx + rx",
+            "chartRankBy": "",
+            "scopeType": "client",
+            "hideEmptyRows": true,
+            "scopeId": "e0c767834b4c",
+            "chartType": "timeSeries",
+            "vizType": "averageTimeSeriesChart",
+            "row": 1,
+            "trendType": "line",
+            "id": "7a9ab38c-cfc3-483d-b51a-0aec571fadc0-j956nurl",
+            "chartColor": "#00B4AD"
+        }
+    ],
+    "defaultTimeRange": {
+        "end": 1508828400,
+        "name": "This Week",
+        "interval": "1d",
+        "start": 1508655600,
+        "usePreset": true,
+        "endDate": "10/23/2017",
+        "shortName": "thisWeek"
+    },
+    "description": "Description of the databoard",
+    "id": "3bdcc7e8-c04d-4512-b4fc-093da9057eb0",
+    "for_site": true,
+    "site_id": "67970e46-4e12-11e6-9188-0242ad112847",
+    "org_id": "6748cfa6-4e12-11e6-9188-0242asfad8365",
+    "created_time": 1508823803,
+    "modified_time": 1508823803,
+    "purpose": "databoard"
+})
+
+
+// CURD site UI settings
+// 
+
+@name("getSiteCurdSettingDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/uisettings/:uisetting_id"
+
+
+// CURD site UI settings
+// 
+
+@name("updateSiteCurdSetting")
+POST "https://{{host}}/api/v1/sites/:site_id/uisettings/:uisetting_id"
+json({
+    "isScopeLinked": true,
+    "defaultScopeId": "67970e46-4e12-11e6-9188-0242ad112847",
+    "name": "New Databoard",
+    "defaultScopeType": "site",
+    "isCustomDataboard": true,
+    "isTimeRangeLinked": true,
+    "tiles": [
+        {
+            "sortedColumns": null,
+            "rowspan": 2,
+            "chartBand": "2.4 ghz",
+            "name": "New Analysis",
+            "column": 1,
+            "colspan": 5,
+            "metric": {
+                "apiName": "client-dhcp-latency"
+            },
+            "timeRange": {
+                "end": 1508823743,
+                "name": "Past 7 Days",
+                "interval": "1d",
+                "start": 1508223600,
+                "usePreset": true,
+                "endDate": "10/23/2017",
+                "shortName": "7d"
+            },
+            "chartDirection": "tx + rx",
+            "chartRankBy": "",
+            "scopeType": "client",
+            "hideEmptyRows": true,
+            "scopeId": "e0c767834b4c",
+            "chartType": "timeSeries",
+            "vizType": "averageTimeSeriesChart",
+            "row": 1,
+            "trendType": "line",
+            "id": "7a9ab38c-cfc3-483d-b51a-0aec571fadc0-j956nurl",
+            "chartColor": "#00B4AD"
+        }
+    ],
+    "defaultTimeRange": {
+        "end": 1508828400,
+        "name": "This Week",
+        "interval": "1d",
+        "start": 1508655600,
+        "usePreset": true,
+        "endDate": "10/23/2017",
+        "shortName": "thisWeek"
+    },
+    "description": "Description of the databoard",
+    "purpose": "databoard"
+})
+
+
+// CURD site UI settings
+// 
+
+@name("deleteSiteCurdSetting")
+DELETE "https://{{host}}/api/v1/sites/:site_id/uisettings/:uisetting_id"
+
+
+// Get both site UI settings(for_site=true) and org UI settings (for_site=false)
+// 
+
+@name("getSiteDerivedCurdSetting")
+GET "https://{{host}}/api/v1/sites/:site_id/uisettings/derived"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// type|string|success / fail / none
+// 
+// #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// timestamp|string|timestamp of the event in nsec
+// type|string|success / fail / none / poor/ pingpong / slow
+// next|string|the link to query next set of results. value is null if no next page exists.
+// 
+// Note: 
+// * success: List of successful 11R events. 
+// * fail: List of failed 11R events. 
+// * none: List of roams where Clients that are capable of doing fast roam did a slow roam on a SSID where fast roam is enabled. 
+// * slow: List of roams on a SSID where there is no fast roaming enabled.
+
+@name("getSiteRoamingEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/events/fast_roam"
+
+
+

@@ -1,0 +1,1057 @@
+#!/usr/bin/env dothttp
+
+// Use this API Call to add Credentials like username, password, protocol, etc.
+
+@name("Add Credentials")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/credentials"
+"Content-Type": "application/json"
+data('{"data": [
+  {
+	"profile": "csm",
+    "user_pass": [
+       {
+          "user_name": "cw-admin",
+          "password": "cisco123",
+          "type": "ROBOT_USERPASS_SSH"
+                          
+        }
+    ]
+  },
+  {
+      "profile": "ubuntu",
+      "user_pass": [
+        {
+          "user_name": "cw-admin",
+          "password": "C1sco12345",
+          "type": "ROBOT_USERPASS_HTTP"
+        }
+        ]
+  },
+  {
+    "profile": "external",
+    "user_pass": [
+        {
+            "user_name": "cw-admin",
+            "password": "cisco123",
+            "type": "ROBOT_USERPASS_ADMIN"
+        }
+    ]
+  },
+  {
+	"profile": "nso1",
+    "user_pass": [
+       {
+          "user_name": "root",
+          "password": "C1sco12345",
+          "type": "ROBOT_USERPASS_NETCONF"
+                          
+        },
+        {
+          "user_name": "admin",
+          "password": "admin1",
+          "type": "ROBOT_USERPASS_HTTP"
+                          
+        }
+    ]
+  },
+  {	
+  "profile": "demo",
+  "v2_info": {
+    "read_community": "cisco",
+    "write_community": "cisco"
+  },
+  "user_pass": [
+    {
+      "user_name": "cisco",
+      "password": "cisco",
+      "type": "ROBOT_USERPASS_SSH"
+    },
+    {
+      "user_name": "cisco",
+      "password": "cisco",
+      "type": "ROBOT_USERPASS_TELNET"
+    },
+    {
+      "user_name": "cisco",
+      "password": "cisco",
+      "type": "ROBOT_USERPASS_ADMIN"
+    },
+    { 
+       "user_name":"cisco",
+       "password":"cisco",
+       "type":"ROBOT_USERPASS_NETCONF"
+    }
+  ]
+  }
+  ],
+"user": "admin"
+}')
+
+
+// Use this API Call to add/onboard a provider on Crosswork.
+
+@name("Add a Provider")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/providers"
+"Content-Type": "application/json; charset=UTF-8"
+data('{
+"providers": [
+    {
+    "name": "nso201",
+    "provider_device_key": "ROBOT_PROVDEVKEY_NODE_IP",
+    "profile": "nso1",
+    "family": "ROBOT_PROVIDER_NSO",
+    "connectivity_info": [
+    	{
+        "type": "ROBOT_MSVC_TRANS_NETCONF",
+        "ipaddrs": [
+        	{
+            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+            "inet_addr": "172.23.193.116",
+            "mask": "24"
+            }
+        ],
+        "port": 2022
+        },
+        {
+        "type": "ROBOT_MSVC_TRANS_HTTP",
+        "ipaddrs": [
+        	{
+            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+            "inet_addr": "172.23.193.116",
+            "mask": "24"
+            }
+        ],
+        "port": 8080
+        }
+    ],
+	"supported_models": [
+		{
+		"model_prefix": "Cisco-IOS-XR",
+		"model_version": "7.13.9"
+		}
+    ]
+}
+]}')
+
+
+// Use this API Call to create a Tag on Crosswork.
+
+@name("Create a TAG")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/tags"
+"Content-Type": "application/json"
+json({
+    "tags": [
+        {
+            "name": "tagtest",
+            "category": "REST",
+            "created_by": "admin"
+        }
+    ]
+})
+
+
+// Use this API Call to add/onboard a device on Crosswork system.
+
+@name("Onboard a Device")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes"
+"Content-Type": "application/json"
+data('{"data": [
+	{
+        "inv_key_type": "NODE_IP",
+        "node_ip": {
+            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+            "inet_addr": {{R8_ip}},
+            "mask": "24"
+        },
+        "host_name": {{R8_name}},
+        "profile" :"demo",
+            "admin_state": "ROBOT_ADMIN_STATE_UP",
+            "connectivity_info": [
+                {
+                    "type": "ROBOT_MSVC_TRANS_SSH",
+                    "ipaddrs": [
+                        {
+                            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                            "inet_addr": {{R8_ip}},
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 22,
+                    "timeout": "10",
+                    "reachability_state": "CONN_STATE_UNREACHABLE"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_SNMP",
+                    "ipaddrs": [
+                        {
+                            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                            "inet_addr": {{R8_ip}},
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 161,
+                    "timeout": "10",
+                    "reachability_state": "CONN_STATE_UNREACHABLE"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_TELNET",
+                    "ipaddrs": [
+                        {
+                            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                            "inet_addr": {{R8_ip}},
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 23,
+                    "timeout": "10",
+                    "reachability_state": "CONN_STATE_UNREACHABLE"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_NETCONF",
+                    "ipaddrs": [
+                        {
+                            "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                            "inet_addr": {{R8_ip}},
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 830,
+                    "timeout": "10",
+                    "reachability_state": "CONN_STATE_UNREACHABLE"
+                }
+            ],
+            "product_info": {
+                "software_type": "IOS XR",
+                "software_version": "6.5.3",
+                "product_type": "Cisco XRV9000",
+                "product_family": "Cisco XRv9K",
+                "product_series": "Cisco XRV9000 Series Virtual Routers",
+                "manufacturer": "Cisco Systems",
+                "capability": ["YANG_MDT", "SNMP", "YANG_CLI"],
+				"device_type": "NODE_TYPE_ROUTER"
+
+            },
+			"geo_info": {
+			    "coordinates": {
+			    	"longitude": -75.5277,
+                	"latitude": 38.9108,
+			    	"altitude" : 0
+			    },
+			    "range_incr": {}
+			  },
+			  "routing_info": {
+				"mgmt_intf_ip": [
+					{
+						"inet_af": 1,
+						"inet_addr": {{R8_ip}},
+						"mask": "24"
+					}
+				],
+				"mgmt_vrf": "default"
+			  },
+	            "provider":{
+	            	"ROBOT_PROVIDER_CFG_LOCAL":{
+	            		"provider_name":"nso201",
+	            		"provider_node_id":{{R8_name}}
+	            	}
+	        	},
+        	"reachability_check": "REACH_CHECK_ENABLE"
+    }
+  ],
+  "user": "admin"
+}')
+
+
+// Use this API Call to get the detailed information about the onboarded devices.
+
+@name("Info about Onboarded Devices")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes/query"
+"Content-Type": "application/json"
+data('{
+    "filter": {},
+    "filterData": {
+        "PageSize": 30,
+        "PageNum": 0,
+        "Criteria": ""
+    }
+}')
+
+
+// Use this API Call to update the device information on Crosswork system.
+
+@name("Update Device Info")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes"
+"Content-Type": "application/json"
+data('{
+    "data": [
+        {
+            "inventory_id": "",
+            "node_ip": {
+                "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                "inet_addr": "192.168.123.29",
+                "mask": "24"
+            },
+            "uuid": "01515bc3-eee9-4009-a823-3b8433040a76",
+            "mac": "",
+            "serial_number": "",
+            "host_name": "R1.virl.info",
+            "profile": "demo",
+            "reachability_check": "REACH_CHECK_ENABLE",
+            "admin_state": "ROBOT_ADMIN_STATE_UP",
+            "connectivity_info": [
+                {
+                    "type": "ROBOT_MSVC_TRANS_SSH",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 22,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_SNMP",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 161,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_NETCONF",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 830,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                }
+            ],
+            "tags": [],
+            "product_info": {
+                "software_type": "IOS XE",
+                "software_version": "16.9.1",
+                "product_type": "ciscoCSR1000v",
+                "product_family": "Cloud Services Routers",
+                "product_series": "Cloud Routers Series",
+                "manufacturer": "Cisco Systems Inc.",
+                "sys_object_id": "1.3.6.1.4.1.9.1.1537",
+                "hw_change_timestamp": "0w0d0h0m0s",
+                "config_change_timestamp": "",
+                "device_type": "NODE_TYPE_ROUTER",
+                "capability": [
+                    "YANG_MDT",
+                    "SNMP",
+                    "YANG_CLI"
+                ]
+            },
+            "geo_info": {
+                "coordinates": {
+                    "longitude": -96.7898,
+                    "latitude": 46.8772,
+                    "altitude": null
+                },
+                "building": "",
+                "street": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "region": "",
+                "zip": "",
+                "range_incr": {
+                    "longitude": null,
+                    "latitude": null,
+                    "altitude": null
+                }
+            },
+            "routing_info": {
+                "global_isis_system_id": "",
+                "global_ospf_router_id": "",
+                "te_router_id": "",
+                "telemetry_intf_src_vrf": ""
+            },
+            "contact": "",
+            "uptime": "1806w3d12h43m37s",
+            "last_upd_time": 1589877128,
+            "provider": {
+                "ROBOT_PROVIDER_CFG_LOCAL": {
+                    "provider_name": "nso201",
+                    "provider_node_id": "R1"
+                }
+            },
+            "mapped_dg": {
+                "duuid": "181daf23-5826-4cc9-b5a4-e1dc191eb2d8",
+                "name": "cdg",
+                "config_data": {
+                    "description": "cdg32",
+                    "version": "1.1.2 (branch dg112 - build number 50)",
+                    "interfaces": [
+                        {
+                            "name": "eth0",
+                            "mac": "00:50:56:a8:26:2d",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "172.23.193.115",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth1",
+                            "mac": "00:50:56:a8:fb:f5",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.123.101",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth2",
+                            "mac": "00:50:56:a8:fc:30",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.12.236",
+                                    "mask": "24"
+                                }
+                            ]
+                        }
+                    ],
+                    "cert_chain": {
+                        "certificate": "MIIFYzCCA0ugAwIBAgIJAI3HP7Pvrr6wMA0GCSqGSIb3DQEBDQUAMEgxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTERMA8GA1UEBwwIU2FuIEpvc2UxCzAJBgNVBAoMAkRHMQwwCgYDVQQDDANjZGcwHhcNMjAwNTE5MDc0NDAzWhcNNDAwNTE0MDc0NDAzWjBIMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExETAPBgNVBAcMCFNhbiBKb3NlMQswCQYDVQQKDAJERzEMMAoGA1UEAwwDY2RnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAhfdluI7a2d9PM1dq5l2tzM2naupXe3at3E5CUTcl1Bo0d5LFNTZuC4EDI514gAs9yxFURWnAeXBps84fo6lvka58kca9K14x6/8g+1QPnQua22BDMPnWynER+uH0M9HR7NjG9TUPNwns1H85X/Hj4Ekr3a+O87e7N+kz5wBgna730eGdF5QazA28BXtAfLK6XPGZ5Qv9/eYE/uc00GY4wZEWh4GXAoVPD3RakNFk5MZq4iiNvrq6exJbf2TBFAbYCQujtHwjfsYxB/tMkewLzc77/G+ZOCQ+6zIQJqgOM8QFDvVseZYFlauGkvLzxmhYUYHiz3Gup2cPLae8KvCWfDvlUEakjAE7YnHVGnDQ5+SiSEef3yB8otJ+6oZu9B/usgmbSxUYj4YnekErSoXliBuKaOPS3R/ohw3gahudOcAFEnrRXoTENyZiB90MAdsBZCal7pPKMjl/FHmyJk13CPf4E/V30qqhidxJ6UO5nzOeR82r8Kb5F2qta5DUAJouexb6XABgv0TI4aAJp1wJ4O3Z4p79mNJ23mdKYEpDbJu3OauWtNr4/BDkEnGe39j5ro5DlJZjiAtTb2S8SntjHQkHqcoJKtaT/bp0bHcItlDoXUy7LD9dCjC9Xaxo+x9a66Kz4EySdHeEm1brw4PYCaLEHKCEAzarmyKJDmczSDECAwEAAaNQME4wHQYDVR0OBBYEFNOUEOkvq7WdlOkWzecx8Ozfv3jnMB8GA1UdIwQYMBaAFNOUEOkvq7WdlOkWzecx8Ozfv3jnMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggIBAATgqPPkQG4JvgaBYDE7kjIL8nBm5btyJvl8d7AI9FiAsF5/ZGb5yx9/CB+4XQilti4+e5dzmSmHu+4IMiAR4krLaqc4KI6/Tq4FOIIyNMCtU4jYpe4yJT8ZxLrK6bn6wfmklasLHdU/cggU8lFBD8skKhbs30yZhKEA0SuhlnUUqwu1BbSSYSvuZfe2bPHkc+FKGrhYhxms0ez4LCcqd2owwy7AvzDXaQg+2VPixVgqHxvMVFyiMONZN767sEqaGYWrXQUIXYhoAeby9IRThXfei+oVVQ4TwFr0wcMHN3qqMiQgtoWZ3xRoidoMzK00vQwpQiEAtG6y6NHRzhVJ/drLjW5QRvj2a895yNFVYc5JFfd9RPDgF+GqyxrNItR2kpJ0tq0HEWX3IzVUyBGoq/R4yZOpLwR5bJNnWvskFBzRjbs7kGBVRXwEadphTR5sk668UHpTcf5Dr/pDyFPGTu86Sf++1QySGeFQ1pyabi/PhZfiW8JEcTdNCbxThZJ7GFR9KS0U9zzLYsUCFQbYyfKrwmK0fRaaHhO/F7XbBioEPXMOo98tZOwMseKg8s6TzN0O64nvrj7swh3DAVPobp/nIeHP6Pjh9mTayyI5d+jfN53zWdosgFAS/gypNejAy90uTvAg/HdUXqcMV6F1MaThGAvfSyak9PQ/ot8W4gFP"
+                    },
+                    "profile": {
+                        "cpu": 8,
+                        "memory": 31,
+                        "nics": 3
+                    },
+                    "role": "ACTIVE",
+                    "admin_state": "AS_UP"
+                },
+                "operational_data": {
+                    "oper_state": "OS_UP",
+                    "oper_state_details": [
+                        {
+                            "component_name": "cli-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "snmp-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "mdt-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "route-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "image-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        }
+                    ],
+                    "last_updated_time": "1589877268985333950"
+                }
+            }
+        }
+    ]
+}')
+
+
+// Use this API Call to get the detailed information about the devices tagged with a specific Tag.
+
+@name("Devices with Specific Tag")
+POST "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes/query"
+"Content-Type": "application/json"
+json({
+    "limit": 100,
+    "filter": {
+        "tags": [
+            {
+                "name": "tagtest"
+            }
+        ]
+    },
+    "filterData": {}
+})
+
+
+// Use this API Call to flap device.
+
+@name("Flap the Device")
+PUT "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes"
+"Content-Type": "application/json"
+data('{
+    "data": [
+        {
+            "inventory_id": "",
+            "node_ip": {
+                "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                "inet_addr": "192.168.123.29",
+                "mask": "24"
+            },
+            "uuid": "01515bc3-eee9-4009-a823-3b8433040a76",
+            "mac": "",
+            "serial_number": "",
+            "host_name": "R1.virl.info",
+            "profile": "demo",
+            "reachability_check": "REACH_CHECK_ENABLE",
+            "admin_state": "ROBOT_ADMIN_STATE_UP",
+            "connectivity_info": [
+                {
+                    "type": "ROBOT_MSVC_TRANS_SSH",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 22,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_SNMP",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 161,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_NETCONF",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.29",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 830,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                }
+            ],
+            "tags": [],
+            "product_info": {
+                "software_type": "IOS XE",
+                "software_version": "16.9.1",
+                "product_type": "ciscoCSR1000v",
+                "product_family": "Cloud Services Routers",
+                "product_series": "Cloud Routers Series",
+                "manufacturer": "Cisco Systems Inc.",
+                "sys_object_id": "1.3.6.1.4.1.9.1.1537",
+                "hw_change_timestamp": "0w0d0h0m0s",
+                "config_change_timestamp": "",
+                "device_type": "NODE_TYPE_ROUTER",
+                "capability": [
+                    "YANG_MDT",
+                    "SNMP",
+                    "YANG_CLI"
+                ]
+            },
+            "geo_info": {
+                "coordinates": {
+                    "longitude": -96.7898,
+                    "latitude": 46.8772,
+                    "altitude": null
+                },
+                "building": "",
+                "street": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "region": "",
+                "zip": "",
+                "range_incr": {
+                    "longitude": null,
+                    "latitude": null,
+                    "altitude": null
+                }
+            },
+            "routing_info": {
+                "global_isis_system_id": "",
+                "global_ospf_router_id": "",
+                "te_router_id": "",
+                "telemetry_intf_src_vrf": ""
+            },
+            "contact": "",
+            "uptime": "1806w5d8h19m14s",
+            "last_upd_time": 1589914112,
+            "provider": {
+                "ROBOT_PROVIDER_CFG_LOCAL": {
+                    "provider_name": "nso201",
+                    "provider_node_id": "R1"
+                }
+            },
+            "mapped_dg": {
+                "duuid": "181daf23-5826-4cc9-b5a4-e1dc191eb2d8",
+                "name": "cdg",
+                "config_data": {
+                    "description": "cdg32",
+                    "version": "1.1.2 (branch dg112 - build number 50)",
+                    "interfaces": [
+                        {
+                            "name": "eth0",
+                            "mac": "00:50:56:a8:26:2d",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "172.23.193.115",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth1",
+                            "mac": "00:50:56:a8:fb:f5",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.123.101",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth2",
+                            "mac": "00:50:56:a8:fc:30",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.12.236",
+                                    "mask": "24"
+                                }
+                            ]
+                        }
+                    ],
+                    "cert_chain": {
+                        "certificate": "MIIFYzCCA0ugAwIBAgIJAI3HP7Pvrr6wMA0GCSqGSIb3DQEBDQUAMEgxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTERMA8GA1UEBwwIU2FuIEpvc2UxCzAJBgNVBAoMAkRHMQwwCgYDVQQDDANjZGcwHhcNMjAwNTE5MDc0NDAzWhcNNDAwNTE0MDc0NDAzWjBIMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExETAPBgNVBAcMCFNhbiBKb3NlMQswCQYDVQQKDAJERzEMMAoGA1UEAwwDY2RnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAhfdluI7a2d9PM1dq5l2tzM2naupXe3at3E5CUTcl1Bo0d5LFNTZuC4EDI514gAs9yxFURWnAeXBps84fo6lvka58kca9K14x6/8g+1QPnQua22BDMPnWynER+uH0M9HR7NjG9TUPNwns1H85X/Hj4Ekr3a+O87e7N+kz5wBgna730eGdF5QazA28BXtAfLK6XPGZ5Qv9/eYE/uc00GY4wZEWh4GXAoVPD3RakNFk5MZq4iiNvrq6exJbf2TBFAbYCQujtHwjfsYxB/tMkewLzc77/G+ZOCQ+6zIQJqgOM8QFDvVseZYFlauGkvLzxmhYUYHiz3Gup2cPLae8KvCWfDvlUEakjAE7YnHVGnDQ5+SiSEef3yB8otJ+6oZu9B/usgmbSxUYj4YnekErSoXliBuKaOPS3R/ohw3gahudOcAFEnrRXoTENyZiB90MAdsBZCal7pPKMjl/FHmyJk13CPf4E/V30qqhidxJ6UO5nzOeR82r8Kb5F2qta5DUAJouexb6XABgv0TI4aAJp1wJ4O3Z4p79mNJ23mdKYEpDbJu3OauWtNr4/BDkEnGe39j5ro5DlJZjiAtTb2S8SntjHQkHqcoJKtaT/bp0bHcItlDoXUy7LD9dCjC9Xaxo+x9a66Kz4EySdHeEm1brw4PYCaLEHKCEAzarmyKJDmczSDECAwEAAaNQME4wHQYDVR0OBBYEFNOUEOkvq7WdlOkWzecx8Ozfv3jnMB8GA1UdIwQYMBaAFNOUEOkvq7WdlOkWzecx8Ozfv3jnMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggIBAATgqPPkQG4JvgaBYDE7kjIL8nBm5btyJvl8d7AI9FiAsF5/ZGb5yx9/CB+4XQilti4+e5dzmSmHu+4IMiAR4krLaqc4KI6/Tq4FOIIyNMCtU4jYpe4yJT8ZxLrK6bn6wfmklasLHdU/cggU8lFBD8skKhbs30yZhKEA0SuhlnUUqwu1BbSSYSvuZfe2bPHkc+FKGrhYhxms0ez4LCcqd2owwy7AvzDXaQg+2VPixVgqHxvMVFyiMONZN767sEqaGYWrXQUIXYhoAeby9IRThXfei+oVVQ4TwFr0wcMHN3qqMiQgtoWZ3xRoidoMzK00vQwpQiEAtG6y6NHRzhVJ/drLjW5QRvj2a895yNFVYc5JFfd9RPDgF+GqyxrNItR2kpJ0tq0HEWX3IzVUyBGoq/R4yZOpLwR5bJNnWvskFBzRjbs7kGBVRXwEadphTR5sk668UHpTcf5Dr/pDyFPGTu86Sf++1QySGeFQ1pyabi/PhZfiW8JEcTdNCbxThZJ7GFR9KS0U9zzLYsUCFQbYyfKrwmK0fRaaHhO/F7XbBioEPXMOo98tZOwMseKg8s6TzN0O64nvrj7swh3DAVPobp/nIeHP6Pjh9mTayyI5d+jfN53zWdosgFAS/gypNejAy90uTvAg/HdUXqcMV6F1MaThGAvfSyak9PQ/ot8W4gFP"
+                    },
+                    "profile": {
+                        "cpu": 8,
+                        "memory": 31,
+                        "nics": 3
+                    },
+                    "role": "ACTIVE",
+                    "admin_state": "AS_UP"
+                },
+                "operational_data": {
+                    "oper_state": "OS_UP",
+                    "oper_state_details": [
+                        {
+                            "component_name": "cli-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "snmp-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "mdt-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "route-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "image-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        }
+                    ],
+                    "last_updated_time": "1589877268985333950"
+                }
+            }
+        }
+    ]
+}')
+
+
+// Use this API Call to update the tags for onboarded device.
+
+@name("Update Device Tag")
+PUT "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes"
+"Content-Type": "application/json"
+json({
+    "data": [
+        {
+            "inventory_id": "",
+            "node_ip": {
+                "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                "inet_addr": "192.168.123.31",
+                "mask": "24"
+            },
+            "uuid": "14db76e5-951b-437c-a364-1aa446d3c11e",
+            "mac": "",
+            "serial_number": "",
+            "host_name": "R3.virl.info",
+            "profile": "demo",
+            "reachability_check": "REACH_CHECK_ENABLE",
+            "admin_state": "ROBOT_ADMIN_STATE_UP",
+            "connectivity_info": [
+                {
+                    "type": "ROBOT_MSVC_TRANS_SSH",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.31",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 22,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_SNMP",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.31",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 161,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_TELNET",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.31",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 23,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                },
+                {
+                    "type": "ROBOT_MSVC_TRANS_NETCONF",
+                    "ipaddrs": [
+                        {
+                            "inet_af": 0,
+                            "inet_addr": "192.168.123.31",
+                            "mask": "24"
+                        }
+                    ],
+                    "port": 830,
+                    "reachability_state": "CONN_STATE_REACHABLE",
+                    "timeout": "30"
+                }
+            ],
+            "tags": [
+                {
+                    "name": "tagtest"
+                }
+            ],
+            "product_info": {
+                "software_type": "IOS XE",
+                "software_version": "16.9.1",
+                "product_type": "ciscoCSR1000v",
+                "product_family": "Cloud Services Routers",
+                "product_series": "Cloud Routers Series",
+                "manufacturer": "Cisco Systems Inc.",
+                "sys_object_id": "1.3.6.1.4.1.9.1.1537",
+                "hw_change_timestamp": "0w0d0h0m0s",
+                "config_change_timestamp": "",
+                "device_type": "NODE_TYPE_ROUTER",
+                "capability": [
+                    "YANG_MDT",
+                    "SNMP",
+                    "YANG_CLI"
+                ]
+            },
+            "geo_info": {
+                "coordinates": {
+                    "longitude": -110.58885,
+                    "latitude": 44.42,
+                    "altitude": null
+                },
+                "building": "",
+                "street": "",
+                "city": "",
+                "state": "",
+                "country": "",
+                "region": "",
+                "zip": "",
+                "range_incr": {
+                    "longitude": null,
+                    "latitude": null,
+                    "altitude": null
+                }
+            },
+            "routing_info": {
+                "global_isis_system_id": "",
+                "global_ospf_router_id": "",
+                "te_router_id": "",
+                "telemetry_intf_src_vrf": ""
+            },
+            "contact": "",
+            "uptime": "1896w2d14h6m36s",
+            "last_upd_time": 1589991637,
+            "provider": {
+                "ROBOT_PROVIDER_CFG_LOCAL": {
+                    "provider_name": "nso201",
+                    "provider_node_id": "R3.virl.info"
+                }
+            },
+            "mapped_dg": {
+                "duuid": "181daf23-5826-4cc9-b5a4-e1dc191eb2d8",
+                "name": "cdg",
+                "config_data": {
+                    "description": "cdg32",
+                    "version": "1.1.2 (branch dg112 - build number 50)",
+                    "interfaces": [
+                        {
+                            "name": "eth0",
+                            "mac": "00:50:56:a8:26:2d",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "172.23.193.115",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth1",
+                            "mac": "00:50:56:a8:fb:f5",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.123.101",
+                                    "mask": "24"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "eth2",
+                            "mac": "00:50:56:a8:fc:30",
+                            "ip_addr": [
+                                {
+                                    "inet_af": "ROBOT_INET_ADDR_TYPE_v4",
+                                    "inet_addr": "192.168.12.236",
+                                    "mask": "24"
+                                }
+                            ]
+                        }
+                    ],
+                    "cert_chain": {
+                        "certificate": "MIIFYzCCA0ugAwIBAgIJAI3HP7Pvrr6wMA0GCSqGSIb3DQEBDQUAMEgxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDQTERMA8GA1UEBwwIU2FuIEpvc2UxCzAJBgNVBAoMAkRHMQwwCgYDVQQDDANjZGcwHhcNMjAwNTE5MDc0NDAzWhcNNDAwNTE0MDc0NDAzWjBIMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExETAPBgNVBAcMCFNhbiBKb3NlMQswCQYDVQQKDAJERzEMMAoGA1UEAwwDY2RnMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAhfdluI7a2d9PM1dq5l2tzM2naupXe3at3E5CUTcl1Bo0d5LFNTZuC4EDI514gAs9yxFURWnAeXBps84fo6lvka58kca9K14x6/8g+1QPnQua22BDMPnWynER+uH0M9HR7NjG9TUPNwns1H85X/Hj4Ekr3a+O87e7N+kz5wBgna730eGdF5QazA28BXtAfLK6XPGZ5Qv9/eYE/uc00GY4wZEWh4GXAoVPD3RakNFk5MZq4iiNvrq6exJbf2TBFAbYCQujtHwjfsYxB/tMkewLzc77/G+ZOCQ+6zIQJqgOM8QFDvVseZYFlauGkvLzxmhYUYHiz3Gup2cPLae8KvCWfDvlUEakjAE7YnHVGnDQ5+SiSEef3yB8otJ+6oZu9B/usgmbSxUYj4YnekErSoXliBuKaOPS3R/ohw3gahudOcAFEnrRXoTENyZiB90MAdsBZCal7pPKMjl/FHmyJk13CPf4E/V30qqhidxJ6UO5nzOeR82r8Kb5F2qta5DUAJouexb6XABgv0TI4aAJp1wJ4O3Z4p79mNJ23mdKYEpDbJu3OauWtNr4/BDkEnGe39j5ro5DlJZjiAtTb2S8SntjHQkHqcoJKtaT/bp0bHcItlDoXUy7LD9dCjC9Xaxo+x9a66Kz4EySdHeEm1brw4PYCaLEHKCEAzarmyKJDmczSDECAwEAAaNQME4wHQYDVR0OBBYEFNOUEOkvq7WdlOkWzecx8Ozfv3jnMB8GA1UdIwQYMBaAFNOUEOkvq7WdlOkWzecx8Ozfv3jnMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQENBQADggIBAATgqPPkQG4JvgaBYDE7kjIL8nBm5btyJvl8d7AI9FiAsF5/ZGb5yx9/CB+4XQilti4+e5dzmSmHu+4IMiAR4krLaqc4KI6/Tq4FOIIyNMCtU4jYpe4yJT8ZxLrK6bn6wfmklasLHdU/cggU8lFBD8skKhbs30yZhKEA0SuhlnUUqwu1BbSSYSvuZfe2bPHkc+FKGrhYhxms0ez4LCcqd2owwy7AvzDXaQg+2VPixVgqHxvMVFyiMONZN767sEqaGYWrXQUIXYhoAeby9IRThXfei+oVVQ4TwFr0wcMHN3qqMiQgtoWZ3xRoidoMzK00vQwpQiEAtG6y6NHRzhVJ/drLjW5QRvj2a895yNFVYc5JFfd9RPDgF+GqyxrNItR2kpJ0tq0HEWX3IzVUyBGoq/R4yZOpLwR5bJNnWvskFBzRjbs7kGBVRXwEadphTR5sk668UHpTcf5Dr/pDyFPGTu86Sf++1QySGeFQ1pyabi/PhZfiW8JEcTdNCbxThZJ7GFR9KS0U9zzLYsUCFQbYyfKrwmK0fRaaHhO/F7XbBioEPXMOo98tZOwMseKg8s6TzN0O64nvrj7swh3DAVPobp/nIeHP6Pjh9mTayyI5d+jfN53zWdosgFAS/gypNejAy90uTvAg/HdUXqcMV6F1MaThGAvfSyak9PQ/ot8W4gFP"
+                    },
+                    "profile": {
+                        "cpu": 8,
+                        "memory": 31,
+                        "nics": 3
+                    },
+                    "role": "ACTIVE",
+                    "admin_state": "AS_UP"
+                },
+                "operational_data": {
+                    "oper_state": "OS_UP",
+                    "oper_state_details": [
+                        {
+                            "component_name": "cli-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "snmp-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "mdt-collector",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "route-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        },
+                        {
+                            "component_name": "image-manager",
+                            "state": "CS_UP",
+                            "image_tag": "1.1.2"
+                        }
+                    ],
+                    "last_updated_time": "1590123648560976427"
+                }
+            }
+        }
+    ]
+})
+
+
+// Use this API Call to delete the onboarded device/devices using the device UUID
+
+@name("Delete Devices")
+DELETE "https://{{crosswork_ip}}/crosswork/inventory/v1/nodes"
+"Content-Type": "application/json"
+data('{
+    "data": [
+        {
+            "uuid": "56d88be2-115e-4805-845c-779c877a7b8d"
+        }
+    ]
+}')
+
+
+// Use this API Call to delete the onboarded provider/providers.
+
+@name("Delete Providers")
+DELETE "https://{{crosswork_ip}}/crosswork/inventory/v1/providers"
+"Content-Type": "application/json"
+data('{
+    "providers": [
+        {
+            "name": "nso201"
+        },
+        {
+            "name": "SitMan"
+        }
+    ]
+}')
+
+
+// Use this API Call to delete the credentails
+
+@name("Delete Credentails")
+DELETE "https://{{crosswork_ip}}/crosswork/inventory/v1/credentials"
+"Content-Type": "application/json"
+data('{
+    "data": [
+        {
+            "profile": "csm",
+            "user_pass": [
+                {
+                    "user_name": "cw-admin",
+                    "password": "******",
+                    "enable_password_data": "",
+                    "type": "ROBOT_USERPASS_SSH"
+                }
+            ]
+        },
+        {
+            "profile": "ubuntu",
+            "user_pass": [
+                {
+                    "user_name": "cw-admin",
+                    "password": "******",
+                    "type": "ROBOT_USERPASS_HTTP"
+                }
+            ]
+        },
+        {
+            "profile": "ubu-89",
+            "user_pass": [
+                {
+                    "user_name": "cw-admin",
+                    "password": "******",
+                    "type": "ROBOT_USERPASS_HTTP"
+                }
+            ]
+        },
+        {
+            "profile": "external"
+        },
+        {
+            "profile": "nso1",
+            "user_pass": [
+                {
+                    "user_name": "nso",
+                    "password": "******",
+                    "type": "ROBOT_USERPASS_NETCONF"
+                }
+            ]
+        },
+        {
+            "profile": "demo",
+            "v2_info": {
+                "read_community": "******",
+                "write_community": "******"
+            },
+            "user_pass": [
+                {
+                    "user_name": "cisco",
+                    "password": "******",
+                    "enable_password_data": "",
+                    "type": "ROBOT_USERPASS_SSH"
+                },
+                {
+                    "user_name": "cisco",
+                    "password": "******",
+                    "enable_password_data": "",
+                    "type": "ROBOT_USERPASS_TELNET"
+                },
+                {
+                    "user_name": "cisco",
+                    "password": "******",
+                    "type": "ROBOT_USERPASS_NETCONF"
+                }
+            ]
+        }
+    ]
+}')
+
+
+// Use this API Call to delete the Tags/Tags.
+
+@name("Delete a TAG")
+DELETE "https://{{crosswork_ip}}/crosswork/inventory/v1/tags"
+"Content-Type": "application/json"
+data('{
+    "tags": [
+        {
+            "name": "cxs",
+            "category": "acx",
+            "created_by": "admin"
+        },
+        {
+            "name": "XRV102",
+            "category": "REST",
+            "created_by": "admin"
+        }
+    ]
+}')
+
+
+

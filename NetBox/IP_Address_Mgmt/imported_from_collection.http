@@ -1,0 +1,156 @@
+#!/usr/bin/env dothttp
+
+@name("Get VLANs")
+GET "{{protocol}}://{{netbox}}/api/ipam/vlans/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create DC mgmt VLAN")
+POST "{{protocol}}://{{netbox}}/api/ipam/vlans/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "site": 3,
+  "vid": 4002,
+  "name": "Management",
+  "status": "reserved",
+  "description": "DC management network"
+}')
+
+
+@name("Get IP prefixes")
+GET "{{protocol}}://{{netbox}}/api/ipam/prefixes/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create DC mgmt IPv4 prefix")
+POST "{{protocol}}://{{netbox}}/api/ipam/prefixes/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "prefix": "203.0.113.0/24",
+  "site": 3,
+  "vlan": 1,
+  "status": "reserved",
+  "description": "DC management network"
+}')
+
+
+@name("Create DC mgmt IPv6 prefix")
+POST "{{protocol}}://{{netbox}}/api/ipam/prefixes/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "prefix": "2001:db8::/64",
+  "site": 3,
+  "vlan": 1,
+  "status": "reserved",
+  "description": "DC management network"
+}')
+
+
+@name("Get IP addresses")
+GET "{{protocol}}://{{netbox}}/api/ipam/ip-addresses/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create router IPv4 address")
+POST "{{protocol}}://{{netbox}}/api/ipam/ip-addresses/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "address": "203.0.113.254/24",
+    "status": "reserved"
+}')
+
+
+@name("Create router IPv6 address")
+POST "{{protocol}}://{{netbox}}/api/ipam/ip-addresses/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "address": "2001:db8::254/64",
+    "status": "reserved"
+}')
+
+
+@name("Get interfaces")
+GET "{{protocol}}://{{netbox}}/api/dcim/interfaces/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create router mgmt interface")
+POST "{{protocol}}://{{netbox}}/api/dcim/interfaces/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "device": 1,
+    "name": "Router OOBM",
+    "label": "GigabitEthernet0",
+    "type": "1000base-t",
+    "enabled": true,
+    "mtu": 1500,
+    "mac_address": "00:00:00:00:00:01",
+    "mgmt_only": true,
+    "connection_status": true,
+    "mode": "access"
+}')
+
+
+@name("Assign IPv4 address to router")
+PATCH "{{protocol}}://{{netbox}}/api/ipam/ip-addresses/6/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "assigned_object_type": "dcim.interface",
+    "assigned_object_id": 1
+}')
+
+
+@name("Assign IPv6 address to router")
+PATCH "{{protocol}}://{{netbox}}/api/ipam/ip-addresses/7/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "assigned_object_type": "dcim.interface",
+    "assigned_object_id": 1
+}')
+
+
+@name("Update router's primary IPv4/v6 addresses")
+PATCH "{{protocol}}://{{netbox}}/api/dcim/devices/1/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "primary_ip4": 6,
+    "primary_ip6": 7
+}')
+
+
+@name("Get router device (verify)")
+GET "{{protocol}}://{{netbox}}/api/dcim/devices/1/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+
+
+

@@ -1,0 +1,210 @@
+#!/usr/bin/env dothttp
+
+@name("List all repos")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/git/repositories"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// The Security Namespace for Repo Security is "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87"
+// 
+// Token format for project level permissions : 'repoV2/PROJECT_ID'
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Edit/Set Group Permissions at Repo Root")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1467745822-1688732485-2988xxx475-4250966785-1-26591xxxxx-1911274xxx-243212xxxx-58787xxxx",
+            "allow": 0,
+            "deny": 2048,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Repo Security is "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87"
+// 
+// Token format for repository level permissions : 'repoV2/PROJECT_ID/REPO_ID'
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Edit/Set Group Permissions at Specified Repo")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/8d095fc2-7c59-4f25-9387-9d60e709c080",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1467745822-1688732485-2988xxx475-4250966785-1-26591xxxxx-1911274xxx-243212xxxx-58787xxxx",
+            "allow": 0,
+            "deny": 4096,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Repo Security is "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87"
+// 
+// Token format for repository level permissions : 'repoV2/PROJECT_ID/REPO_ID/refs/tags'
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name('Edit/Set Group Permissions at "all tags"')
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/8d095fc2-7c59-4f25-9387-9d60e709c080/refs/tags",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1467745822-1688732485-2988xxx475-4250966785-1-26591xxxxx-1911274xxx-243212xxxx-58787xxxx",
+            "allow": 0,
+            "deny": 8,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Repo Security is "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87"
+// 
+// Token format for repository level permissions : 'repoV2/PROJECT_ID/REPO_ID/refs/heads/<path of branch in *UTF-16 little endian*>'
+// 
+// https://www.mobilefish.com/services/latin_utf_base64_to_hex/latin_utf_base64_to_hex.php#text_hex_output
+// 
+// example, a branch path users/name/feature becomes 
+// 75007300650072007300/6e0061006d006500/6600650061007400750072006500
+// (leave / as is, it's understood as the seperator)
+// 
+// So the token becomes
+// "repoV2/PROJECT_ID/REPO_ID/refs/heads/75007300650072007300/6e0061006d006500/6600650061007400750072006500"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Edit/Set Group Permissions at specified branches")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/8d095fc2-7c59-4f25-9387-9d60e709c080/refs/heads/75007300650072007300/6e0061006d006500/6600650061007400750072006500",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-1467745822-1688732485-2988xxx475-4250966785-1-26591xxxxx-1911274xxx-243212xxxx-58787xxxx",
+            "allow": 0,
+            "deny": 8200,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Repo Security is "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87"
+// 
+// Token format for project level permissions : 'repoV2/PROJECT_ID'
+// 
+// 
+// For AAD users (including MSA guests in the tenant), you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantID\\user@domain.com as the descriptor.
+// 
+// 
+// Example 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity;82f988bf-86f1-41af-91ab-2d7cd011db47\\user@company.com
+// 
+// For MSA users, you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;PUID@Live.com.
+// 
+// If all you have is the aad.value or msa.value descriptor for the user, you can use this API to convert it to tenant\\UPN or PUID@Live.com: https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/subject%20lookup/lookup%20subjects?view=azure-devops-rest-5.1. For msa.value descriptors, the PUID would be the originId.
+
+@name("Edit/Set User Permissions at Repo Root (other edits follow similar steps)")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenant\\user@company.com",
+            "allow": 0,
+            "deny": 2048,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+

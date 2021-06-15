@@ -1,0 +1,501 @@
+#!/usr/bin/env dothttp
+
+// Through Click-to-Call, you can connect two users on the call. Let's say the customer can request for a phone call from the company's executive and Kaleyra triggers a bridge call connecting the executive and the customer. You can also bridge the call between the customer and IVR.
+// 
+// > You can choose who the call first connects to and add that number in the "From" field. The next connecting call is initiated to the "To" number once the "From" answers the call.
+// 
+// > Once you use Click-to-Call API, we'll connect the call between the agent and the customer through a bridge number.
+// 
+// # Prerequisites
+// 1. An active API Key
+// 2. An Active DID number
+// 3. Caller and Receiver Number
+// 
+// # API Parameters (Optional)
+// 
+// |Parameter Name	| Description	| Expected Value	|
+// |-------|-------|--------|
+// | format	| Output response format | Default text. Supports JSON and XML	|
+// | retry	| Number of retry to be made if caller(First Leg) doesn't answer the call. Ex Usage:"&retry=X"	| Numeric value, default 0 (max 2)	|
+// | callback	| URL that needs to be triggered at first leg answer & at the end of the call, supported with replaceable variables. Ex  Usage:"&callback=http%3A%2F%2Fcallback%2F%3Fcaller%3D{caller}"	| URLencoded API URL 	|
+// | delay	| Time delay from the API is triggered and call is initiated. Ex Usage: "&delay=X"	| Time in seconds, default 0	|
+// | return	| Flag to indicate if Call ID need to be returned on API response. ID is an alphanumeric value with max length 50.Ex Usage: "&return=X"	| Numeric value 1.Default 0	|
+// | caller_id	| Phone number to be used as caller ID, can be any number assigned to given account	| 10 Digit number. Default first active number assigned to the account	|
+// | meta	| JSON metadata or additional parameters | Sample JSON	|
+// | custom | Custom reference ID for call	| Alpha-numeric ID |
+// 
+// # Response Data
+// | Status | Message |
+// |-----|----------|
+// | It indicates the success or failure of your request. 200 is success, others are failure | It indicates the success or failure message |
+// 
+// # Callback & Replaceable Variables
+// Callback is a functionality to get notified through an API call when a call is answered and completed. One needs to follow below steps to achieve valid callback.
+// 
+// 1. Define sample callback API with sample values.
+// > https://callback-dot-com/callback/?from=9988xxxx&to=9877xxxx&duration=10&status=ANSWER
+// 
+// 2. Carefully find and replace values with respective variables. Note that all the replaced values shall be in URL encoded format only
+// > https://callback-dot-com/callback/?from={caller}&to={receiver}&duration={duration}&status={status1}
+// 
+// 3. Append callback value with Click2Call API.
+// > &callback=http%3A%2F%2Fcallback-dot-com%2Fcallback%2F%3Ffrom%3D%7Bcaller%7D%26to%3D%7Breceiver%7D%26duration%3D%7Bduration%7D%26status%3D%7Bstatus1%7D
+// 
+// # List of variables supported over callback API
+// The following are the variables that are supported over a callback API.
+// 
+// | Parameter | Description |
+// |-----------|------------|
+// | {caller} | Caller (first leg) number |
+// | {receiver} | Receiver (second leg) number |
+// | {starttime} | Call start time EPOCH format |
+// | {endtime} | Call end time EPOCH format |
+// | {duration} | Call duration in seconds for caller (first leg) |
+// | {billsec} | Call duration in seconds for receiver (second leg) |
+// | {status} | Consolidate status for C2C outcome |
+// | {status1} | Call status for caller (first leg) |
+// | {status2} | Call status for receiver (second leg) |
+// | {recordpath} | Recording file URL |
+// | {callerid} | Caller ID used to dial |
+
+@name("Click-to-Call")
+GET "https://{{base_url}}/{{version}}/"
+? "api_key"= "{{api_key}}"
+? "method"= "{{dial.click-to-call}}"
+? "format"= "xml"
+? "caller"= "{{number}}"
+? "receiver"= "{{number}}"
+
+
+// # What can you do with this API?
+// Through this API, you will be able to request for the list of calls that have been connected through your account. 
+// 
+// > Last 3 days call logs only will be accessible 
+// 
+// 
+// 
+// # Prerequisites
+// 1. An active API Key
+// 2. Active Kaleyra Voice account
+// 
+// 
+// # API Parameters
+// The mandatory parameters are needed to use the API. If they are not configured API can not be submitted. Optional parameters may or may not be configured for the API to work.
+// 
+// | Parameter Name | Description | Expected Value |
+// |------------|----------|---------|
+// | format | Output response format | Default text. Supports JSON and XML |
+// | fromdate | Results starting from this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// | todate | Results up to this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// | call to | Called to number | 10-digit mobile number |
+// | limit | Number of result per request | Numeric. Default 50 |
+// | page | Page number from where you want the results | Numeric. Default 1 |
+// | id | Call ID to get specific call data | Valid call ID issued by API |
+// 
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data |
+// | dial | Each call’s data is wrapped in dial tag |
+// | callfrom | Calling number |
+// | callto | Recipient number |
+// | billsec | Duration of call for recipient |
+// | notes | Notes if any made for the call |
+// | provider | Mobile number service provider |
+// | location | The location of the caller mobile |
+// | credits | Credits charged for the call |
+// | uniqid | This is the unique id to each call |
+// | duration | Duration of call for caller |
+// | date | Date time when the call was initiated |
+// | status | Call status for Caller (first leg) |
+// | status2 | Call status for Receiver (second leg) |
+// 
+// # Expected Call Status values
+// | Status (first leg) | Status2 (second leg) |
+// |------------|------------|
+// | ANSWER | ANSWER |
+// | BUSY | BUSY |
+// | CANCEL | CANCEL |
+// | FAILED | FAILED |
+// | CONGESTION | CONGESTION |
+// | NOANSWER | NOANSWER |
+
+@name("Click-to-Call Status")
+GET "https://{{base_url}}/{{version}}/"
+? "method"= "{{click-to-call}}"
+? "format"= "xml"
+? "api_key"= "{{api_key}}"
+
+
+// # What can you do with this API?
+// Through this API, you can get the details of the call including dial time.
+// 
+// > This API will only provide the details of the incoming calls which are forwarded to agent numbers.
+// 
+// 
+// # Prerequisites
+// 1. Active Kaleyra Voice account
+// 2. Active API key
+// 
+// # API Parameters
+// 
+// | Parameter Name | Description | Expected Value |
+// |------------|----------|---------|
+// | format | Output response format | Default text. Supports JSON and XML |
+// | fromdate | Results starting from this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// | todate | Results up to this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// | call to | Called to number | 10-digit mobile number |
+// | limit | Number of result per request | Numeric. Default 50 |
+// | page | Page number from where you want the results | Numeric. Default 1 |
+// | id | Call ID to get specific call data | Valid call ID issued by API |
+// 
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data |
+// | dial | Each call’s data is wrapped in dial tag |
+// | id | Unique Record id |
+// | parentid | Parent id for the call |
+// | callfrom | Calling number |
+// | callto | Recipient number |
+// | billsec | Duration of call for recipient |
+// | starttime | Call start time |
+// | endtime | Call end time |
+// | duration | Duration of call for caller |
+// | notes | Notes if any made for the call |
+// | provider | Mobile number service provider |
+// | location | The location of the caller mobile |
+// | credits | Credits charged for the call |
+// | uniqid | This is the unique id to each call |
+// | duration | Duration of call for caller |
+// | date | Date time when the call was initiated |
+// | status | Call status for Caller (first leg) |
+// | status2 | Call status for Receiver (second leg) |
+// | recording | Recording URL |
+
+@name("Get Call Details")
+GET "https://{{base_url}}/{{version}}/"
+? "method"= "{{dial}}"
+? "format"= "xml"
+? "api_key"= "{{api_key}}"
+
+
+// # What can you do with this API?
+// With this API, you can blacklist a number from an account. Businesses often need to blacklist numbers that consume redundant time in execution of the process. This API helps you achieve the same by blacklisting a single number or pool of numbers.
+// > To blacklist multiple numbers, you can add multiple numbers separated by a comma (,).
+// 
+// 
+// # Prerequisites
+// 1. Active Kaleyra Voice account
+// 2. Active API key
+// 3. Phone number(s) that needs to be blacklisted
+// 
+// # API Parameters
+// 
+// | Parameter Name | Description | Expected Value |
+// |------------|----------|---------|
+// | format | Output response format | Default text. Supports JSON and XML |
+// 
+// # Response Data
+// | Status | Message |
+// |-----|----------|
+// | It indicates the success or failure of your request. 200 is success, others are failure | It indicates the success or failure message |
+
+@name("Blacklist a Number")
+GET "https://{{base_url}}/{{version}}/"
+? "method"= "{{block}}"
+? "api_key"= "{{api_key}}"
+? "number"= "{{number}}"
+? "format"= "xml"
+
+
+// # What can you do with this API?
+// Through this API, you can remove any number/ group from the blacklisted category. Once you do this, the number can call you or reach you out as usual.
+// 
+// # Prerequisites
+// 1. Active Kaleyra Voice account
+// 2. Active API key
+// 3. Phone number(s) that needs to be removed from blacklist
+// 
+// # API Parameters
+// 
+// | Parameter Name | Description | Expected Value |
+// |------------|----------|---------|
+// | format | Output response format | Default text. Supports JSON and XML |
+// 
+// # Response Data
+// | Status | Message |
+// |-----|----------|
+// | It indicates the success or failure of your request. 200 is success, others are failure | It indicates the success or failure message |
+// | message | It indicates the success or failure message |
+
+@name("Undo Number Blacklist")
+GET "https://{{base_url}}/{{version}}/"
+? "method"= "{{block}}"
+? "api_key"= "{{api_key}}"
+? "number"= "{{number}}"
+? "format"= "xml"
+? "action"= "delete"
+
+
+// # What can you do with this API?
+// Through this API, you can create call follow up that reminds you to create an auto call with the customer on the due date. Let's say Agent has to follow up with the customer next month on the same date, all he has to do is use this API to auto generate a call. Once API is created, an auto call is generated to the customer's number on the due date.
+// 
+// # Prerequisites
+// 1. An active Kaleyra Voice Account
+// 2. An active API Key
+// 3. Date and Time of the Follow Up call
+// 4. Phone Number to be dialed on the day of follow up
+// 5. Name of the phone receiver (customer)
+// 
+// # API Parameters (Optional)
+// 
+// |Parameter Name	| Description	| Expected Value	|
+// |-------|-------|--------|
+// | format	| Output response format | Default text. Supports JSON and XML	|
+// | autocall | Initiates a follow up call between follower and follow-up phone number at the ontime mentioned | 1 - Initiates an autocall. 0 - No call is initiated. Default- 0 |
+// | notes | Important Notes corresponding to the followup call | Text, url encoded |
+// 
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data tag |
+// | id | Follow up ID, can be used for modification |
+
+@name("Create Call Follow Up")
+GET "https://{{base_url}}/{{version}}/"
+? "api_key"= "{{api_key}}"
+? "method"= "{{followup}}"
+? "phone"= "{{number}}"
+? "name"= "{{name}}"
+? "format"= "xml"
+? "follower"= "{{number}}"
+? "ontime"= "{{time}}"
+? "autocall"= "1"
+
+
+// # What can you do with this API?
+// Once the Follow Up auto call is created, you can edit it at any point of time through this API.
+// 
+// # Prerequisites
+// 1. An active Voice Account
+// 2. The Follow Up ID of the call that needs to be edited
+// 3. Date and time of the call
+// 4. Phone number and Name of the user to whom the auto call is to be initiated
+// 5. API Key
+// 
+// # API Parameters (Optional)
+// 
+// |Parameter Name	| Description	| Expected Value	|
+// |-------|-------|--------|
+// | format	| Output response format | Default text. Supports JSON and XML	|
+// | autocall | Initiates a follow up call between follower and follow-up phone number at the ontime mentioned | 1 - Initiates an autocall. 0 - No call is initiated. Default- 0 |
+// | notes | Important Notes corresponding to the followup call | Text, url encoded |
+// | action | To be used to delete the followup record. Ex usage: "&action=delete" | delete |
+// 
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data tag |
+// | id | Follow up ID, can be used for modification |
+// 
+// # Mandatory Parameters
+
+@name("Edit a Call Follow Up")
+GET "https://{{base_url}}/{{version}}/"
+? "api_key"= "{{api_key}}"
+? "method"= "{{followup}}"
+? "phone"= "{{number}}"
+? "name"= "{{name}}"
+? "format"= "xml"
+? "follower"= "{{number}}"
+? "ontime"= "{{time}}"
+? "autocall"= "1"
+? "id"= "{{id}}"
+
+
+// # What can you do with this API?
+// Through this API, you can get a consolidated report of the Follow Up calls that have been connected through the account.
+// 
+// > This API is valid only if the user has a call follow up created before
+// 
+// 
+// # Prerequisites
+// 1. An active Voice Account
+// 2. API Key
+// 
+// |Parameter Name	| Description	| Expected Value	|
+// |-------|-------|--------|
+// | format	| Output response format | Default text. Supports JSON, PHP and XML	|
+// | follower | Follower number to filter | Numeric 10 digit |
+// | number | Follow-up number to filter | Numeric 10 digit |
+// | fromdate | Results starting from this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// | todate | Results up to this date | Format: YYYY/MM/DD OR DD/MM/YYYY |
+// 
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data tag |
+// | followup | Each follow up data is contained in follow up tag |
+// | id | Followup id |
+// | Phone | Followup phone number |
+// | name | Follow-up name |
+// | follower | Follower number |
+// | note | Notes corresponding to followup |
+// | ontime | Time when the follow up is scheduled |
+
+@name("Get Call Follow Up Report")
+GET "https://{{base_url}}/{{version}}/"
+? "method"= "{{followup.reports}}"
+? "api_key"= "{{api_key}}"
+? "format"= "json"
+
+
+// # What can you do with this API?
+// Through this API, you can get a consolidated report of the health status of incidents from the network servers.
+// 
+// # Prerequisites
+// 1. An active Voice Account
+// 2. API Key
+// 
+// # Description Fields
+// | Parameter | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | Data array contain all the incidents |
+// | incidents | Region wise incident listing |
+// | region | Server region |
+// | region-code | Region codes, for example KA-IN for Karnataka-India |
+// | type | Status of the server (Operational, Warning or Critical) |
+// | service | It can be incoming, outgoing or all |
+// | numbers | User subscribed number(s) |
+// 
+// 
+// # Response Codes
+// | Response | Description | Example Response |
+// |------------|-----------|----------- |
+// | E542 | Plugin not subscribed for user | User Plugin not found or inactive |
+// | E701 | If Incidents not present |No incidents found |
+// | 200 |For valid response with data |Message : OK |
+// 
+// > For generic error codes, refer to this page: 
+// https://developers.kaleyra.com/docs/api-error-codes-for-voice
+
+@name("Health status API")
+GET "https://{{base_url}}/{{version}}/"
+? "api_key"= "{{api_key}}"
+? "method"= "{{monitor}}"
+? "format"= "xml"
+
+
+// # What can you do with this API?
+// This API enables you to initiate an outbound call using JSON data to call a similar message to multiple numbers or different messages to different numbers
+// 
+// > Call can be sent using the JSON API by posting values to the preceding URL by the POST method with URL encoded JSON data.
+// 
+// 
+// # Prerequisites
+// 1. An API Key
+// 2. JSON Data
+// 
+// |Parameter Name	| Description	| Expected Value	|
+// |-------|-------|--------|
+// | format | Output response format | Default text. Supports JSON, JSONP, XML and PHP |
+// | group | Contact group ID or group name from where the number has to be picked. If given, overrides numbers parameter (above) | Numeric Group ID(comma separated for multiple) or Group Name (single) |
+// | to | Number(s) for generating OBD call. Multiple numbers separated by "," | 10 Digit phone number. Single or multiple(comma separated) |
+// | play | Valid sound file reference OR an IVR created in given account | Sound file ID. (Ex: 123.sound)      Format of IVR on second leg: ivr:id (Ex: ivr:1234 or 1234.ivr) |
+// | message | Message in text format (English only) to be verbalized over an outbound call. Play configuration (above) takes the priority over message | URL encoded text, English only |
+// | retries | Number of retry to be made if caller(First Leg) doesn't answer the call. Ex Usage: "&retry=X" | Numeric value, default 0 (max 2) |
+// | campaign | Campaign name of the given API call | URL encoded text |
+// | scheduletime | Date time value when the call has to be scheduled. Minimum, 15 mins from current time is accepted (max upto 2 month) | EPOCH or datetime in YYYY-MM-DD HH:mm:SS or DD/MM/YYYY HH:MM AM format |
+// | delay | Numeric time delay (in seconds) to be introduced before initiating the current request | Numeric, max 900 |
+// | custom | Custom reference ID for call | Alpha-numeric ID, Comma separated for multiple numbers |
+// | meta | JSON metadata or additional parameters | {"param1":"value1"} |
+// | callback | Callback URL to be triggered at the end of the call | http://callback.com/?obdid={obdid} |
+// 
+// # Example Data
+// 
+// 
+// ## Sending to multiple numbers with the same message
+// 
+// 	{
+// 	"play": "123.sound",
+// 	"campaign": "campaign-name",
+// 	"scheduletime": "2019-07-01 10:00:00",
+// 	"callback": "http://www.example.com/xyz",
+// 	"call":[
+// 	{
+// 	"to": "95XXXXXXXX,97XXXXXXXX",
+// 	"play": "1122.sound",
+// 	"message": "test sms",
+// 	"custom": "ABC12",
+// 	"meta": {
+// 	       "param1":"value1"
+// 	        }
+// 	}] 
+// 	}
+// 	
+// ## Sending to multiple numbers with a different message
+// 
+// 
+//         {
+// 	"campaign": "campaign-name",
+// 	"scheduletime": "2019-07-01 10:00:00",
+// 	"callback": "http://callback.com/xyz",
+// 	"call": [
+//         {
+// 	"to": "97xxxx,86xxxx",
+// 	"play": "1122.sound",
+// 	"custom": "ABC124",
+// 	"meta": {
+// 	       "param1":"value1"
+// 	      }
+// 	},
+// 	{
+// 	"group": "4477",
+// 	"play": "1122.sound",
+// 	"custom": "ABC124",
+// 	"meta": {
+// 	       "param1":"value1",
+// 	       "param2":"value2"
+// 	      }
+// 	},
+// 	{
+// 	"to": "96xxxx,85xxxx",
+// 	"message": "this is message",
+// 	"callback": "http://callback.com/xyz/abc"
+// 	}
+// 	]
+//         }
+// 	
+// # Response Data
+// | Response | Description |
+// |------------|-----------|
+// | status | It indicates the success or failure of your API request. 200 is success, others are failure |
+// | message | It indicates the success or failure message |
+// | data | All the response is wrapped inside data |
+// | id | Unique call ID, numeric with symbols |
+// | mobile | Recipient number |
+// | status | Call status code |
+// | senttime | Call sent time in YYYY-MM-DD HH:mm:SS format |
+
+@name("Outbound call using JSON data")
+POST "https://{{base_url}}/{{version}}/"
+? "method"= "{{voice.json}}"
+? "api_key"= "{{api_key}}"
+? "format"= "json"
+data('{{json}}')
+
+
+

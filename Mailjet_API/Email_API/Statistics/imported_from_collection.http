@@ -1,0 +1,206 @@
+#!/usr/bin/env dothttp
+
+// Get aggregated statistics for a specific campaign, list of API Key. Both message-based and event-based stats can be retrieved.
+// 
+// Note: This is a new endpoint. Only available for campaigns sent after April 5th, 2018.
+// 
+
+@name("Retrieve Stats for Campaign, List or API Key")
+GET "https://api.mailjet.com/v3/REST/statcounters"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "CounterSource"= "{{Campaign, List, Sender or APIKey}}"
+? "CounterTiming"= "{{Message or Event}}"
+? "CounterResolution"= "{{Lifetime, Day, Hour or Highest (5 minutes)}}"
+? "SourceID"= "{{CampaignID, ListID}}"
+? "FromTs"= "2018-01-01T00:00:00"
+? "ToTS"= "2018-01-01T00:00:00"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve a list of overall aggregated delivery and engagement statistics, grouped by contact.
+
+@name("Retrieve Aggregates Stats Grouped by Contact")
+GET "https://api.mailjet.com/v3/REST/contactstatistics"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Blocked"= "true"
+? "Bounced"= "false"
+? "Click"= "true"
+? "Deferred"= "false"
+? "Hardbounced"= "true"
+? "LastActivityAt"= "2018-01-01T00:00:00"
+? "MaxLastActivityAt"= "2018-01-01T00:00:00"
+? "MinLastActivityAt"= "2018-01-01T00:00:00"
+? "Open"= "false"
+? "Queued"= "true"
+? "Recalculate"= "false"
+? "Sent"= "true"
+? "Spam"= "false"
+? "Softbounced"= "true"
+? "Unsubscribed"= "false"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve a list of overall aggregated delivery and engagement statistics for a specific contact.
+
+@name("Retrieve Aggregates Stats for a Single Contact")
+GET "https://api.mailjet.com/v3/REST/contactstatistics/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Retrieve a list of overall aggregated delivery and engagement statistics for all list recipients. A list recipient object manages the relationship between a `contact` and a `contactslist` - every instance of a contact being added to a list creates a new list recipient.
+
+@name("Retrieve Stats Grouped by List Recipient")
+GET "https://api.mailjet.com/v3/REST/listrecipientstatistics"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Blocked"= "true"
+? "Bounced"= "false"
+? "Click"= "true"
+? "Contact"= "{{ContactID}}"
+? "ContactsList"= "{{ListID}}"
+? "DateFormat"= "{{DateFormat}}"
+? "IsExcludedFromCampaigns"= "false"
+? "IsUnsubscribed"= "true"
+? "LastActivityAt"= "2018-01-01T00:00:00"
+? "MaxLastActivityAt"= "2018-01-01T00:00:00"
+? "MaxUnsubscribedAt"= "2018-01-01T00:00:00"
+? "MinLastActivityAt"= "2018-01-01T00:00:00"
+? "MinUnsubscribedAt"= "2018-01-01T00:00:00"
+? "Open"= "false"
+? "Queued"= "true"
+? "Sent"= "false"
+? "ShowExtraData"= "true"
+? "Spam"= "true"
+? "TimeZone"= "{{TimeZone}}"
+? "Unsubscribed"= "false"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve a list of overall aggregated delivery and engagement statistics for a specific list recipient.
+
+@name("Retrieve Stats for a Single List Recipient")
+GET "https://api.mailjet.com/v3/REST/listrecipientstatistics/{{listrecipient_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Retrieve aggregated open and click statistics, grouped by recipient country.
+
+@name("Retrieve Stats Grouped by Recipient Country")
+GET "https://api.mailjet.com/v3/REST/geostatistics"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "CampaignID"= "{{CampaignID}}"
+? "ContactsList"= "{{ListID}}"
+? "CustomCampaign"= "{{CustomValue}}"
+? "From"= "{{FromEmail}}"
+? "FromDomain"= "{{FromDomain}}"
+? "FromID"= "{{FromID}}"
+? "FromTS"= "2018-01-01T00:00:00"
+? "FromType"= "2"
+? "IsDeleted"= "false"
+? "IsNewsletterTool"= "true"
+? "IsStarred"= "false"
+? "MessageStatus"= "2"
+? "Period"= "Month"
+? "ToTS"= "2018-01-01T00:00:00"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve aggregated click statistics for a campaign, grouped by URL links. Links will be identified by their URL and position index within the campaign template.
+// 
+// Note: This is a new endpoint. Only available for accounts created after April 5th, 2018.
+
+@name("Retrieve Stats for all Clicked Links in a Campaign")
+GET "https://api.mailjet.com/v3/REST/statistics/link-click"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "CampaignID"= "{{CampaignID}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "property_value DESC"
+
+
+// Retrieve a list of overall aggregated click statistics, grouped by URL.
+// 
+// Note: If no query parameters are used, will return stats with FromTS equal to the current day at 00:00 UTC.
+
+@name("Retrieve Stats for all Clicked Links")
+GET "https://api.mailjet.com/v3/REST/toplinkclicked"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "ActualClicks"= "true"
+? "CampaignID"= "{{CampaignID}}"
+? "Contact"= "{{ContactID}}"
+? "ContactsList"= "{{ListID}}"
+? "CustomCampaign"= "{{CustomValue}}"
+? "From"= "{{FromEmail}}"
+? "FromDomain"= "{{FromDomain}}"
+? "FromID"= "{{FromID}}"
+? "FromTS"= "2018-01-01T00:00:00"
+? "FromType"= "2"
+? "IsDeleted"= "false"
+? "IsNewsletterTool"= "true"
+? "IsStarred"= "false"
+? "Message"= "{{MessageID}}"
+? "Period"= "month"
+? "ToTS"= "2018-01-01T00:00:00"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Get aggregated delivery and engagement statistics, grouped by recipient Email Service Provider (ESP).
+// 
+// Note: This is a new endpoint. Only available for accounts created after April 5th, 2018.
+
+@name("Retrieve Recipient Domain Stats for a Campaign")
+GET "https://api.mailjet.com/v3/REST/statistics/recipient-esp"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "CampaignID"= "{{CampaignID}}"
+? "ESP_Name"= "{{ESPName}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve a list of open or click statistics, grouped by web browser or email client.
+// 
+// Note: If no query parameters are used, will return stats with FromTS equal to the current day at 00:00 UTC.
+
+@name("Retrieve Open/Click Stats Grouped by Web Browser")
+GET "https://api.mailjet.com/v3/REST/useragentstatistics"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "CampaignID"= "{{CampaignID}}"
+? "ContactsList"= "{{ListID}}"
+? "CustomCampaign"= "{{CustomValue}}"
+? "Event"= "{{open or click}}"
+? "ExcludePlatform"= "{{Platform_Name}}"
+? "From"= "{{FromEmail}}"
+? "FromDomain"= "{{FromDomain}}"
+? "FromID"= "{{FromID}}"
+? "FromTS"= "2018-01-01T00:00:00"
+? "FromType"= "2"
+? "IsDeleted"= "true"
+? "IsNewsletterTool"= "false"
+? "IsStarred"= "true"
+? "Period"= "month"
+? "Platform"= "{{PlatformName}}"
+? "ToTS"= "2018-01-01T00:00:00"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+

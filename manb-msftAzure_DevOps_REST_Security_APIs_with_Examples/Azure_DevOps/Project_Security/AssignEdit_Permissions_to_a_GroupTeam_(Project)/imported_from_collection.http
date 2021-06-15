@@ -1,0 +1,174 @@
+#!/usr/bin/env dothttp
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// Reference: https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query?view=azure-devops-rest-5.1#all-security-namespaces
+
+@name("List the Security Namespaces ")
+GET "https://dev.azure.com/{{organization}}/_apis/securitynamespaces"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// To get the existing ACL for the group
+
+@name("Get ACL/Tokens")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// The Security Namespace for Project Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Edit/Set Group Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688",
+            "allow": 513,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Team Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Edit/Set Team Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-565318467-3458427471-220710xxxx-2427475818-1-xxxx4768-1296617548-2979981725-2255xxxxxx",
+            "allow": 1048576,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Project Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Unset/Delete Group Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "token"= "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+? "descriptors"= "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-565318467-3458427471-220710xxxx-2427475818-1-xxxx4768-1296617548-2979981725-2255xxxxxx"
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688",
+            "allow": 513,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Project Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Unset/Delete Team Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectGroupsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "token"= "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+? "descriptors"= "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-565318467-3458427471-220710xxxx-2427475818-1-xxxx4768-1296617548-2979981725-2255xxxxxx"
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688",
+            "allow": 513,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+

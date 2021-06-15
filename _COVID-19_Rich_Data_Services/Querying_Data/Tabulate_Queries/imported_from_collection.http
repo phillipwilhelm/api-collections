@@ -1,0 +1,76 @@
+#!/usr/bin/env dothttp
+
+// Compare how COVID-19 cases have increased over time in different countries. [See it in the tabulation engine](https://covid19.richdataservices.com/rds-tabengine/analysis/int/jhu_country/custom-tables;showTotals=true,true,false,false;sortRows=NAME,ASC;sortCols=NAME,ASC;filterEmpty=true?cols=iso3166_1&rows=date_stamp&where=(year_stamp%3D2020)%20AND%20(iso3166_1%3DUS%20OR%20iso3166_1%3DCA%20OR%20iso3166_1%3DES%20OR%20iso3166_1%3DIT%20OR%20iso3166_1%3DCN)&measure=cnt_confirmed:SUM(cnt_confirmed)?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis), or click over to the Visualize tab in the Postman app to see the graph displayed below.  
+// 
+// Of course, you can also leave off the format parameter to have the data returned cell by cell. An example of this is available in the Example Responses section.
+// 
+// <img src="https://mtna.s3.amazonaws.com/rds/images/Postman/countryComparisonLineGraph.png" alt="countryComparison" width="800"/>
+
+@name("Visualize confirmed cases in 2020 for Canada, China, Spain, Italy, and USA")
+GET "https://covid19.richdataservices.com/rds/api/query/int/jhu_country/tabulate"
+? "dims"= "date_stamp,iso3166_1"
+? "where"= "(year_stamp=2020) AND (iso3166_1=US OR iso3166_1=CA OR iso3166_1=ES OR iso3166_1=IT OR iso3166_1=CN)"
+? "measure"= "cnt_confirmed:SUM(cnt_confirmed)"
+? "inject"= "true"
+? "metadata"= "true"
+? "orderBy"= "date_stamp ASC,iso3166_1 ASC"
+? "totals"= "true"
+? "format"= "amcharts"
+
+
+// One benefit of looking at COVID-19 data reported by state agencies is that they often contain more information around testing and case information than national datasets. For this data reported by the New York Department of Health, we will calculate at the number of new tests performed each day in each county. [See it in the Tabulation Engine](https://covid19.richdataservices.com/rds-tabengine/analysis/us_ny/ny_doh_tests/custom-tables;showTotals=true,true,true,true;sortRows=VALUE,ASC;sortCols=NAME,ASC;filterEmpty=true?cols=us_county_fips&rows=date_stamp&where=(us_county_fips%3D36047%20OR%20us_county_fips%3D36061)&measure=cnt_confirmed_new:SUM(cnt_confirmed_new)?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis).
+
+@name("Confirmed cases per day in NY & Kings counties")
+GET "https://covid19.richdataservices.com/rds/api/query/us_ny/ny_doh_tests/tabulate"
+? "dims"= "date_stamp,us_county_fips"
+? "where"= "(date_stamp>=2020-03-01) AND (us_county_fips=36061 OR us_county_fips=36047)"
+? "measure"= "cnt_confirmed_new:SUM(cnt_confirmed_new)"
+? "inject"= "true"
+? "metadata"= "true"
+? "orderBy"= "date_stamp ASC,us_county_fips ASC"
+? "totals"= "true"
+
+
+// Here, we are using a dataset from Statistics Canada that contains record level data about COVID-19 cases. Each row (record) in the data file represents a single reported confirmed case. Data like this can be more interesting, but also larger, more difficult to parse, and requires a bit of extra work to make meaningful comparisons. 
+// 
+// By specifying amCharts as our format, we can plug this request into our JavaScript code and cut out all of the data manipulation we would otherwise need to deal with, as RDS takes care of the calculations and formatting. Check out the full code for this and other data visualizations [on our RDS-JavaScript examples page](https://mtna.github.io/rds-js-examples/#tabulate-query).  
+// 
+// In this visualization, we are comparing the number of confirmed cases (indicated by the shade of blue defined on the scale) for each gender (the four reported categories on the horizontal axis) and age group (categories defined on the vertical axis). You can also see this query in the [Tabulation Engine](https://covid19.richdataservices.com/rds-tabengine/analysis/ca/ca_statcan_cases/custom-tables;showTotals=true,true,true,true;sortRows=VALUE,DESC;sortCols=NAME,ASC;filterEmpty=true?cols=gender&rows=age_group&measure=COUNT:COUNT(*)?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis).
+// 
+// 
+// <img src="https://mtna.s3.amazonaws.com/rds/images/Postman/plotlyheatmap.png" alt="plotlyHeatmap" width="600"/> 
+//   
+// *Data as of 5/27/2020*
+
+@name("Tabulate confirmed cases, across gender and age in Canada.")
+GET "http://covid19.richdataservices.com/rds/api/query/ca/ca_statcan_cases/tabulate"
+? "dims"= "gender,age_group"
+? "measure"= "COUNT:COUNT(*)"
+? "format"= "amcharts"
+? "inject"= "true"
+? "orderby"= "gender ASC, age_group DESC"
+
+
+// There are many options for customizing your tabulation. Use the parameters below to subset, compute, order,
+// filter and format the results and return aggregate level data. 
+// 
+// If you're having trouble getting started, try building your query first in [Tabulation Engine](https://covid19.richdataservices.com/rds-tabengine/?utm_source=postman&utm_medium=postmanlabs&utm_campaign=covid_19_apis). It can then generate the API query you need, and you can fine-tune it from there.
+
+@name("Build your own tabulate query")
+GET "http://covid19.richdataservices.com/rds/api/query/{catalog}/{dataProductId}/tabulate"
+? "count"= "<boolean>"
+? "dims"= "<string>"
+? "format"= "<formatEnum>"
+? "groupby"= "<string>,<string>"
+? "inject"= "<boolean>"
+? "limit"= "<number>"
+? "measure"= "<string>"
+? "metadata"= "<boolean>"
+? "offset"= "<number>"
+? "orderby"= "<string>"
+? "totals"= "<boolean>"
+? "weights"= "<string>,<string>"
+? "where"= "<string>"
+
+
+

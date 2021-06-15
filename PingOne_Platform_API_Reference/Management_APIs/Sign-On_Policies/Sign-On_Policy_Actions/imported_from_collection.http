@@ -1,0 +1,236 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation returns information about all actions associated with the specified sign-on policy resource.
+
+@name("READ All Sign-On Policy Actions")
+GET "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data about a single action associated with a specific sign-on policy, the `GET /environments/{environmentId}/signOnPolicies/{policyId}/actions/{actionId}` operation returns information about the identified action associated with the specified sign-on policy resource.
+
+@name("READ One Sign-On Policy Action")
+GET "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
+// 
+// ::: info
+// **Note:** The `condition` property for the sign-on policy action specifies the conditions associated with the action. At least one condition must be met to execute the action. If the `conditions` attribute is omitted from the sign-on policy action, the action is always executed.
+// :::
+// 
+// The sample shows the a sign-on policy action with the `type` attribute set to `LOGIN`.
+// 
+
+@name("CREATE Sign-On Policy Action (LOGIN)")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "priority": 10,
+    "type": "LOGIN",
+    "condition": {
+        "not": {
+        "ipRange": [
+            "10.1.1.1/8",
+            "10.0.0.0/8"
+        ],
+        "contains": "${flow.request.http.remoteIp}"
+     }
+    },
+    "recovery": {
+    	"enabled": true
+    }
+}')
+
+
+// The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
+// 
+// ::: info
+// **Note:** The `condition` property for the sign-on policy action specifies the conditions associated with the action. At least one condition must be met to execute the action. If the `conditions` attribute is omitted from the sign-on policy action, the action is always executed.
+// :::
+// 
+// A POST request for a sign-on policy action with the `type` attribute set to `MULTI_FACTOR_AUTHENTICATION` requires a value for at least one of the `email`, `sms` or `applications`  authenticators. The following sample shows the request body for an MFA sign-on policy action:
+// 
+
+@name("CREATE Sign-On Policy Action (MFA)")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "priority": 30,
+  "type": "MULTI_FACTOR_AUTHENTICATION",
+  "condition": {
+    "anonymousNetwork" : ["1.1.1.1/10"],
+    "valid": "${flow.request.http.remoteIp}"
+    },
+  "recovery": {
+    "enabled": false
+  },
+  "sms": {
+    "enabled": true
+  },
+  "email": {
+    "enabled": true
+  },
+  "applications": [
+    {
+      "id": "{{appID}}",
+      "autoEnrollment": {
+        "enabled": true
+      },
+      "deviceAuthorization": {
+        "enabled": true,
+        "extraVerification": "permissive"
+      }
+    }
+  ]
+}')
+
+
+// The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
+// 
+// ::: info
+// **Note:** The `condition` property for the sign-on policy action specifies the conditions associated with the action. At least one condition must be met to execute the action. If the `conditions` attribute is omitted from the sign-on policy action, the action is always executed.
+// :::
+// 
+// The sample shows the request for an `IDENTIFIER_FIRST` action type.
+// 
+// 
+
+@name("CREATE Sign-On Policy Action (IDENTIFIER_FIRST)")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "type": "IDENTIFIER_FIRST",
+    "condition": {
+        "greater": 600,
+        "secondsSince": "${session.lastSignOn.withAuthenticator.pwd.at}"
+    },
+    "priority": 10,
+    "recovery": {
+        "enabled": false
+    },
+    "registration": {
+        "enabled": true,
+        "population": {
+            "id": "{{popID}}"
+        }
+    },
+    "socialProviders": [
+        {
+            "id": "{{providerID}}"
+        }
+    ]
+}')
+
+
+// The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
+// 
+// ::: info
+// **Note:** The `condition` property for the sign-on policy action specifies the conditions associated with the action. At least one condition must be met to execute the action. If the `conditions` attribute is omitted from the sign-on policy action, the action is always executed.
+// :::
+// 
+// The sample shows the request for a `PROGRESSIVE_PROFILING` action type.
+// 
+// ::: info
+// **Note:** If all attributes configured for the progressive profiling action are defined as optional (`"required": false`), users can skip this action in the authentication flow.
+// :::
+// 
+
+@name("CREATE Sign-On Policy Action (PROGRESSIVE_PROFILING)")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "priority": 40,
+    "type": "PROGRESSIVE_PROFILING",
+    "condition": {
+                "or": [
+                    {
+                        "value": "${user.population.id}",
+                        "equals": "{{popID}}"
+                    },
+                    {
+                        "value": "${user.type}",
+                        "equals": "Customer"
+                    }
+                ]
+            },
+    "promptText": "For the best experience, we need a couple things from you.",
+    "promptIntervalSeconds": 3600,
+    "preventMultiplePromptsPerFlow": false,
+    "attributes": [
+        {
+            "name": "address.postalCode",
+            "required": false
+        }
+    ]
+}')
+
+
+// The `PUT /environments/{environmentId}/signOnPolicies/{policyId}/actions/{actionId}` operation updates the sign-on policy action resource specified by its ID in the request URL.
+// 
+
+@name("UPDATE Sign-On Policy Action")
+PUT "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "priority": 2,
+  "condition": {
+    "or": [
+      {
+        "not": {
+          "ipRange": [
+            "10.5.3.72/24"
+          ],
+          "contains": "${flow.request.http.remoteIp}"
+        }
+      },
+      {
+        "secondsSince": "${session.lastSignOn.withAuthenticator.pwd.at}",
+        "greater": 50400
+      },
+      {
+        "value": "${user.population.id}",
+        "equals": "3985fb03-df09-4b00-a01f-89fd529c9de2"
+      },
+      {
+        "value": "${user.email}",
+        "equals": "joe@pingidentity.com"
+      },
+      {
+        "ipRisk": {
+          "minScore": 80,
+          "maxScore": 100
+        },
+        "valid": "${flow.request.http.remoteIp}"
+      },
+      {
+        "geoVelocity": "${flow.request.http.remoteIp}",
+        "valid": {
+          "previousSuccessfulAuthenticationTime": "${user.lastSignOn.at}",
+          "previousSuccessfulAuthenticationIp": "${user.lastSignOn.remoteIp}"
+        }
+      }
+    ]
+  }
+}
+')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/signOnPolicies/{policyId}/actions/{actionId}` operation to delete the sign-on policy action.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Sign-On Policy Action")
+DELETE "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

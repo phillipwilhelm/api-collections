@@ -1,0 +1,139 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of all templates and their configuration settings.
+// 
+
+@name("Retrieve All Templates")
+GET "https://api.mailjet.com/v3/REST/template"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Categories"= "{{Categories}}"
+? "CategoriesSelectionMethod"= "{{SelectionMethod}}"
+? "EditMode"= "1"
+? "Name"= "{{Template_Name}}"
+? "OwnerType"= "apikey"
+? "Purposes"= "marketing"
+? "PurposesSelectionMethod"= "containsany"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve the configuration settings for a specific template.
+// 
+
+@name("Retrieve a Single Template")
+GET "https://api.mailjet.com/v3/REST/template/{{template_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new email template object and select its basic configuration settings.
+// 
+
+@name("Create a Template")
+POST "https://api.mailjet.com/v3/REST/template"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Author": "John Doe",
+    "Categories": [
+        "commerce"
+    ],
+    "Copyright": "John Doe",
+    "Description": "Used for discount promotion.",
+    "EditMode": 1,
+    "IsStarred": true,
+    "IsTextPartGenerationEnabled": true,
+    "Locale": "en_US",
+    "Name": "Promo Code",
+    "OwnerType": "apikey",
+    "Presets": "{\"h1\":{\"fontFamily\":\"\'Arial Black\', Helvetica, Arial, sans-serif\"}}",
+    "Purposes": [
+        "marketing"
+    ]
+}')
+
+
+// Update the configuration settings of an email template.
+// 
+
+@name("Update a Template")
+PUT "https://api.mailjet.com/v3/REST/template/{{template_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Author": "John Doe",
+    "Categories": [
+        "commerce"
+    ],
+    "Copyright": "John Doe",
+    "Description": "Used for discount promotion.",
+    "EditMode": 1,
+    "IsStarred": true,
+    "IsTextPartGenerationEnabled": true,
+    "Locale": "en_US",
+    "Name": "Promo Code",
+    "OwnerType": "apikey",
+    "Presets": "{\"h1\":{\"fontFamily\":\"\'Arial Black\', Helvetica, Arial, sans-serif\"}}",
+    "Purposes": [
+        "marketing"
+    ]
+}')
+
+
+// Delete an email template.
+// 
+
+@name("Delete a Template")
+DELETE "https://api.mailjet.com/v3/REST/template/{{template_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Retrieve the contents of an email template. It will be split between a Text part, HTML part, MJML content and/or additional headers.
+// 
+
+@name("Retrieve the Contents of a Template")
+GET "https://api.mailjet.com/v3/REST/template/{{template_ID}}/detailcontent"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create the contents of an email template. You can select a Text part, HTML part, MJML content, as well as additional headers.
+// 
+
+@name("Create the Contents of a Template")
+POST "https://api.mailjet.com/v3/REST/template/{{template_ID}}/detailcontent"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Headers": {
+        "Subject": "Hello There!",
+        "From": "John Doe <email@example.com>",
+        "Reply-To": ""
+    },
+    "Html-part": "<html><body><p>Hello {{var:name}}</p></body></html>",
+    "Text-part": "Hello {{var:name}}",
+    "Mjml-part": ""
+}')
+
+
+// Update the contents of an email template - the Text part, HTML part, MJML content and/or the additional headers.
+// 
+
+@name("Update the Contents of a Template")
+PUT "https://api.mailjet.com/v3/REST/template/{{template_ID}}/detailcontent"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Headers": {
+        "Subject": "Hello There!",
+        "From": "John Doe <email@example.com>",
+        "Reply-To": ""
+    },
+    "Html-part": "<html><body><p>Hello {{var:name}}</p></body></html>",
+    "Text-part": "Hello {{var:name}}",
+    "Mjml-part": ""
+}')
+
+
+

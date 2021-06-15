@@ -1,0 +1,124 @@
+#!/usr/bin/env dothttp
+
+// Create discount voucher without code
+
+@name("Create voucher without code")
+POST "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "type": "DISCOUNT_VOUCHER",
+    "discount": {
+        "percent_off": "10.0",
+        "type": "PERCENT"
+    },
+    "redemption": {
+        "quantity": "1" 
+    },
+    "category": "postman-tc3",
+    "code_config": {
+      "pattern": "TC4-PROMO-#######"
+    }
+}')
+
+
+@name("Validate voucher for given customer order")
+POST "https://{{url}}/vouchers/{{voucher-code}}/validate"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "tracking_id": "shop@myshop.com",
+  "order": {
+    "amount": 10000,
+    "items": []
+  }
+}')
+
+
+@name("Redeem")
+POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "tracking_id"= "{{customer-tracking-id}}"
+data('{
+  "order": {
+    "amount": 10000,
+    "items": []
+  }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Get  redemption")
+GET "https://{{url}}/vouchers/{{voucher-code}}/redemption"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+@name("Get  customer")
+GET "https://{{url}}/customers/{{customer-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+// Your business logic may include a case when you need to undo a redemption. You can revert a redemption by calling this API endpoint.
+
+@name("Rollback redemption")
+POST "https://{{url}}/redemptions/{{redemption-id}}/rollback"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "tracking_id"= "{{customer-tracking-id}}"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+// Do redemption once again and update customer data.
+
+@name("Redeem 2nd time after rollback")
+POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "customer": {
+    "id": "{{customer-id}}",
+    "name": "Test Customer Postman",
+    "email": "test@myshop.com"
+  },
+  "order": {
+    "amount": 10000,
+    "items": []
+  }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Delete voucher")
+DELETE "https://{{url}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+

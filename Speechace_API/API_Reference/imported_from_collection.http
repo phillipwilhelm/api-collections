@@ -1,0 +1,264 @@
+#!/usr/bin/env dothttp
+
+// **In this example we score pronunciation of a word or sentence**
+// 
+// Scoring pronunciation provides a quality score for the speaker's pronunciation for the entire utterance and for each word, syllable, phoneme. This allows overall activity scoring and pin-pointed feedback on pronunciation mistakes.
+// 
+// In this request JSON result includes the following fields:
+// 
+// Field | Description
+// :------:|:-----:
+// quality_score | An overall pronunciation score for the the entire utterance on a scale of 0 to 100. See [guide](https://docs.speechace.com/#b41375b3-a9e6-48f0-aa92-a9a1a0aed116) for detail on score rubric.
+// syllable_score_list[] | a list of syllables in each word in the word_score_list[], each with it's own quality_score
+// word_score_list[] | a list of words in the utterance, each with it's own quality_score
+// syllable_score_list[] | a list of syllables in each word in the word_score_list[], each with it's own quality_score
+// phone_score_list[] | a list of phonemes in each word in the word_score_list[], each with it's own quality_score
+// extent[] | start and end boundaries of a syllable or phoneme in units of 10 msec.
+
+@name("Score Pronunciation")
+POST "https://api.speechace.co/api/scoring/text/v0.5/json"
+? "key"= "{{speechacekey}}"
+? "dialect"= "en-us"
+? "user_id"= "XYZ-ABC-99001"
+files(
+	("text", "Some parents admire famous athletes as strong role models, so they name their children after them."),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'")
+)
+
+
+// **In this example we score the speaking fluency for a 45 second audio sample**
+// 
+// *This functionality requires a Speechace PRO API license*
+// 
+// Scoring fluency estimates the IELTS and PTE speaking scores based on the pronunciation and fluency of the speaker. In addition it identifies speaking segments (e.g. sentences) where the speaking fluency is lower and needs additional practice.
+// 
+// In this request in addition to pronunciation scores, a fluency node in the JSON result is included with the following metrics:
+// 
+// 
+// Field | Description
+// :------:|:-----:
+// fluency_score | An overall fluency score for the  utterance on a scale of 0 to 100
+// ielts_estimate | an estimate of the IELTS Speaking Fluency of the speaker
+// pte_estimate | an estimate of the PTE Read-Aloud Speaking Fluency of the speaker
+// duration | total length of speech in seconds
+// articulation | total length of articulation (speech minus pauses, hesitations and non-speech events such as laughter). Excludes beginning silence on very first segment and ending silence on very last segment.
+// speech_rate | speaking rate in syllables per second.
+// articulation_rate | articulation rate in syllables per second.
+// syllable_count | Count of syllables in this segmtent
+// word_count | Count of words in this segment
+// correct_syllable_count | Count of correctly spoken syllables in this segment
+// correct_word_count | Count of correctly spoken words in this segment
+// syllable_correct_per_minute | correct_syllable_count / duration in mins
+// word_correct_per_minute | correct_word_count / duration in mins
+// all_pause_count | count of all pauses (filled and unfilled) which are longer than the minimum pause threshold 
+// all_pause_duration | total duration of all pauses (filled and unfilled) in seconds
+// all_pause_list[] | a list of all the pauses with the begin/end markers for each in extents of 10 msecs
+// mean_length_run | mean length of run in syllables between pauses
+// max_length_run | max length of run in syllables between pauses
+// segment_metrics_list[] |  A list of segments within the overall text/audio with the fluency metrics for each segment.
+
+@name("Score Fluency")
+POST "https://api.speechace.co/api/scoring/text/v0.5/json"
+? "key"= "{{speechace_prokey}}"
+? "user_id"= "XYZ-ABC-99001"
+? "dialect"= "en-us"
+files(
+	("text", "Yes, I do. Travel today is vastly different than what it used to be. In the past, a traveller had little idea about what to expect when they arrived at their destination. These days, the internet connects our world in ways previous generations could only dream about. We can instantly review destination information and make travel arrangements. Also, in the past, people could only travel by land or sea and travelling was often long and unsafe.
+"),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'"),
+	("include_fluency", "1")
+)
+
+
+// **In this example we score the IELTS Speaking Fluency and obtain the IELTS Vocabulary subscore**
+// 
+// *This functionality requires a Speechace PRO API license*
+// 
+// Scoring Vocabulary is typically done in Spontaneous speaking [Transcribe & Score](https://docs.speechace.com/#b81a186a-b26e-4378-9967-388aa68985b1) requests. In this example we demonstrate how it can be done on scripted speech request as well.
+// 
+// In this request in addition to fluency and pronunciation scores, the fluency node in the JSON result includes the following scores:
+// 
+// 
+// Field | Description
+// :------:|:-----:
+// ielts_estimate | an estimate of the IELTS Speaking Fluency of the speaker.
+// pte_estimate | an estimate of the PTE Read-Aloud Speaking Fluency of the speaker.
+// ielts_subscore.vocab | an estimate of the Vocabulary IELTS band of the text submitted.
+// segment_metrics_list[] |  A list of segments within the overall text/audio with the fluency and ielt_subscore.vocab scores for each segment.
+
+@name("Beta - Score Vocabulary")
+POST "https://api.speechace.co/api/scoring/text/v0.5/json"
+? "key"= "{{speechace_prokey}}"
+? "user_id"= "XYZ-ABC-99001"
+? "dialect"= "en-us"
+files(
+	("text", "Yes, I do. Travel today is vastly different than what it used to be. In the past, a traveller had little idea about what to expect when they arrived at their destination. These days, the internet connects our world in ways previous generations could only dream about. We can instantly review destination information and make travel arrangements. Also, in the past, people could only travel by land or sea and travelling was often long and unsafe.
+"),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'"),
+	("include_fluency", "1"),
+	("include_ielts_subscore", "1")
+)
+
+
+// **In this example we transcribe a free speaking audio and score fluency, pronunciation, and vocabulary (beta)**
+// 
+// *This functionality requires a Speechace PREMIUM API license*
+// 
+// This API is used in a spontaneous (free) speaking learning activity where the student is openly responding to a question or prompt.
+// 
+// The API will transcribe the response and then provide a pronunciation score, a fluency score, and a vocabulary score (beta) for the speaker. The API does not evaluate the coherence, grammar or relevance of the speaker's answer. This allows overall activity scoring and pin-pointed feedback on fluency and pronunciation mistakes.
+// 
+// In this request JSON result includes the following fields:
+// 
+// Field | Description
+// :------:|:-----:
+// transcript | The speech-to-text transcript of what the user has said.
+// ielts_estimate | an estimate of the IELTS Speaking Fluency of the speaker
+// ielts_subscore.vocab | an estimate of the IELTS Vocabulary level of the speaker's response
+// pte_estimate | an estimate of the PTE Read-Aloud Speaking Fluency of the speaker
+// quality_score | An overall pronunciation score for the the utterance on a scale of 0 to 100. See [guide](https://docs.speechace.com/#b41375b3-a9e6-48f0-aa92-a9a1a0aed116) for detail on score rubric.
+// duration | total length of speech in seconds
+// articulation | total length of articulation (speech minus pauses, hesitations and non-speech events such as laughter). Excludes beginning silence on very first segment and ending silence on very last segment.
+// speech_rate | speaking rate in syllables per second.
+// articulation_rate | articulation rate in syllables per second.
+// syllable_count | Count of syllables in this segmtent
+// word_count | Count of words in this segment
+// correct_syllable_count | Count of correctly spoken syllables in this segment
+// correct_word_count | Count of correctly spoken words in this segment
+// syllable_correct_per_minute | correct_syllable_count / duration in mins
+// word_correct_per_minute | correct_word_count / duration in mins
+// all_pause_count | count of all pauses (filled and unfilled) which are longer than the minimum pause threshold 
+// all_pause_duration | total duration of all pauses (filled and unfilled) in seconds
+// all_pause_list[] | a list of all the pauses with the begin/end markers for each in extents of 10 msecs
+// mean_length_run | mean length of run in syllables between pauses
+// max_length_run | max length of run in syllables between pauses
+// segment_metrics_list[] |  A list of segments within the overall text/audio with the IELTS scores, subscrores, and fluency metrics for each segment.
+// syllable_score_list[] | a list of syllables in each word in the word_score_list[], each with it's own quality_score
+// word_score_list[] | a list of words in the utterance, each with it's own quality_score
+// syllable_score_list[] | a list of syllables in each word in the word_score_list[], each with it's own quality_score
+// phone_score_list[] | a list of phonemes in each word in the word_score_list[], each with it's own quality_score
+// extent[] | start and end boundaries of a syllable or phoneme in units of 10 msec.
+
+@name("Transcribe & Score")
+POST "https://api.speechace.co/api/scoring/speech/v0.5/json"
+? "key"= "{{speechace_premiumkey}}"
+? "dialect"= "en-us"
+? "user_id"= "XYZ-ABC-99001"
+files(
+	("user_audio_file", "None"),
+	("include_fluency", "1"),
+	("include_ielts_subscore", "1"),
+	("include_unknown_words", "1")
+)
+
+
+// **This is beta functionality and subject to change.**
+// 
+// In this example we evaluate lexical (word) stress and intonation (sentence stress) in a given sentence.
+// 
+// The JSON result includes the following additional Elements:
+// 
+// Element | Field | Description
+// :-----:|:------:|:-----:
+// syllable_score_list[]| stress_level | Expected (Correct) lexical stress level based on the Lexicon. <br>**Values:**<ul><li>0: unstressed</li><li>1: primary stress</li><li>2: secondary stress</li></ul>
+// syllable_score_list[]| predicted_stress_level | Detected lexical stress level based on the user audio. <br>**Values:**<ul><li>0: unstressed</li><li>1: primary stress</li><li>2: secondary stress</li></ul>
+// syllable_score_list[]| stress_score | Floating point number between 0 and 100 indicating the correctness of the user's stress level.
+// syllable_score_list[]| pitch_range[] | [begin_pitch,end_pitch] recorded for this syllable in Hertz.
+// word_intonation_list[]| syllable_intonation_list[] | [pitch_change_from_previous, pitch_change_in_current] <br> **pitch_change_from_previous:** indicates whether the pitch of a word rises, falls, or more or less unchanged. If we can’t recognize the syllable (due to error from our side or due to user not saying the syllable), the value is null. If we can recognize the syllable but couldn’t determine the pitch (due to error from our side or due to user reducing the sound to unvoiced), the value is REDUCED. <br> **pitch_change_in_current:** is null unless one of the following cases occurs: If the pitch of the syllable falls, but the starting pitch of the syllable is higher than the ending pitch of previous syllable, secondary intonation is RISE while primary intonation is FALL. If the pitch of the syllable rises, but the starting pitch of the syllable is lower than the ending pitch of the previous syllable, secondary intonation is FALL while primary intonation is RISE. <br>**Values:**<ul><li>RISE</li><li>FALL</li><li>FLAT</li><li>REDUCED</li><li>null</li></ul>
+
+@name("Beta - Score Lexical Stress & Intonation")
+POST "https://api.speechace.co/api/scoring/text/v0.5/json"
+? "key"= "{{speechacekey}}"
+? "dialect"= "en-us"
+? "user_id"= "XYZ-ABC-99001"
+files(
+	("text", "Some parents admire famous athletes as strong role models, so they name their children after them."),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'"),
+	("include_intonation", "1"),
+	("stress_version", "0.8")
+)
+
+
+// **In this example we score the multiple choice:**
+// 
+// apple
+// banana
+// orange
+// 
+// Note that the **text** parameter contains the multiple choice options separated by the newline character '\n'
+// 
+// Speechace will return the score of the submitted audio against the closest option from the multiple choices matched by the audio. This allows you to identify which answer the user spoke and how well they spoke the answer.
+// 
+// **Copy the example code and be sure to:**
+// 
+// 1. Add your Speechace API key
+// 2. Add a valid file path in the **user_audio_file** parameter. *For example in curl the you would add something like @/tmp/orang_16k.wav*
+// 
+// You can download a sample *orang_16k.wav* file [here](https://s3-us-west-2.amazonaws.com/speechace-public/sample-audio/orang_16k.wav).
+
+@name("Score a Multiple Choice Text")
+POST "https://api.speechace.co/api/scoring/text/v0.5/json"
+? "key"= "{{speechacekey}}"
+? "user_id"= "XYZ-ABC-99001"
+? "dialect"= "en-us"
+files(
+	("text", ""apple
+orange
+banana""),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'")
+)
+
+
+// **In this example we score the term:**
+// 
+// "gotcha" /g/ao1/ch/ah0
+// 
+// Since **gotcha** is an american vernacular and not a valid dictionary word we use the phoneme list API to score it. 
+// 
+// The phoneme list uses a different url endpoint and expects the list of phonemes in [Arpabet notation](https://en.wikipedia.org/wiki/Arpabet).
+// 
+// Note that we specify phoneme stress as 0,1,2 per Arpabet notation. This API allows you to score any word or sentence that can phonetically expressed in Arpabet.
+// 
+// **Copy the example code and be sure to:**
+// 
+// 1. Add your Speechace API key
+// 2. Add a valid file path in the **user_audio_file** parameter. *For example in curl the you would add something like @/tmp/gotcha_16k.wav*
+// 
+// You can download a sample *gotcha_16k.wav* file [here](https://s3-us-west-2.amazonaws.com/speechace-public/sample-audio/gotcha_16k.wav).
+
+@name("Score a Phoneme list")
+POST "https://api.speechace.co/api/scoring/phone_list/v0.5/json"
+? "key"= "{{speechacekey}}"
+? "user_id"= "XYZ-ABC-99001"
+? "dialect"= "en-us"
+files(
+	("phone_list", "g|ao|ch|ah"),
+	("user_audio_file", "None"),
+	("question_info", "'u1/q1'")
+)
+
+
+// In this example we validate whether all the words in the text exist in the Speechace lexicon. This API allows you to quickly check whether authored content will be able to be scored with Speechace. This is useful to use at the time of text authoring to avoid errors later on.
+// 
+// Out of lexicon terms can be reported to support@speechace.com for inclusion. Or you can see the phoneme list API as an alternative.
+// 
+// **Copy the example code and be sure to:**
+// 
+// 1. Add your Speechace API key
+// 2. Replace text with the text you wish to validate.
+// 3. Set the dialect parameter to the dialect you will use when scoring. If you are not sure which dialect will be used then validate once using each available dialect.
+
+@name("Validate Text")
+POST "https://api.speechace.co/api/validating/text/v0.5/json"
+? "key"= "{{speechacekey}}"
+? 'text'= '"Validate these words existeee."'
+? "dialect"= "en-us"
+
+
+
+

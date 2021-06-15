@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// Now that the application has a temporary authorization code, it can request an access token with `POST https://auth.videoask.com/oauth/token`, sending the temporary authorization code, `client_id`, `client_secret`, and `redirect_uri` in the request body.
+// 
+// Your application's https://auth.videoask.com/oauth/token request, including the body, might look like this:
+// 
+// ```
+// curl --request POST \
+//   --url https://auth.videoask.com/oauth/token \
+//   --data-urlencode 'grant_type=authorization_code' \
+//   --data-urlencode 'code={temporary_authorization_code}' \
+//   --data-urlencode 'client_id={your_client_id}' \
+//   --data-urlencode 'client_secret={your_client_secret}' \
+//   --data-urlencode 'redirect_uri=https://your-example-app.com/callback'
+// ```
+// 
+// 
+// Your applications should then pass the access token in the Authorization header of every request.
+// 
+// After the token expires, your application won't be able to make requests with that token. You will need to get a new token either through the OAuth2 authentication process or by using the token refresh process (below).
+
+@name("Get an access token")
+POST "https://{{auth_url}}/oauth/token"
+data({
+    "grant_type": [
+        "authorization_code"
+    ],
+    "code": [
+        "{temporary_authorization_code}"
+    ],
+    "client_id": [
+        "{your_client_id}"
+    ],
+    "client_secret": [
+        "{your_client_secret}"
+    ],
+    "redirect_uri": [
+        "https://your-example-app.com/callback"
+    ]
+})
+
+
+// If your application needs to call the VideoAsk API over longer periods of time without user involvement, your application can request a special refresh token during the first authentication call, then use this refresh token to obtain new access tokens without asking for user permission each time.
+// 
+// To receive a refresh token in the first place, your application must pass an extra `offline` scope during the authorization code request:
+// 
+// ```
+// https://auth.videoask.com/authorize?response_type=code&audience=https://api.videoask.com/&client_id=${your_client_id}&scope=openid%20profile%20email%20offline_access&redirect_uri=${your_redirect_url}
+// ```
+// 
+// 
+// If the user agrees to grant your application the required permissions, in the authorization code response to the access token exchange request, your application will receive the `access_token` and an extra parameter called `refresh_token`. You can use the value of this `refresh_token` parameter to obtain a new access token at any time as per [RFC 6749](https://tools.ietf.org/html/rfc6749#section-6).
+// 
+// ```
+// curl --request POST \
+//   --url https://auth.videoask.com/oauth/token \
+//   --data-urlencode 'grant_type=refresh_token' \
+//   --data-urlencode 'refresh_token={your_refresh_token}' \
+//   --data-urlencode 'client_id={your_client_id}' \
+//   --data-urlencode 'client_secret={your_client_secret}' \
+//   --data-urlencode 'scope=openid+profile+email+offline_access'
+// ```
+// 
+// 
+// The response for this request is nearly identical to the response for the authorization code to the access token exchange request. The only difference that this response will always include the `refresh_token` parameter, which will contain the newly generated refresh token.
+
+@name("Refresh your application's tokens")
+POST "https://{{auth_url}}/oauth/token"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "refresh_token": [
+        "{refresh_token}"
+    ],
+    "client_id": [
+        "{your_client_id}"
+    ],
+    "client_secret": [
+        "{your_client_secret}"
+    ]
+})
+
+
+

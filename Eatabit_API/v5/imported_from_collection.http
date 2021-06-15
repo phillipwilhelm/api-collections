@@ -1,0 +1,507 @@
+#!/usr/bin/env dothttp
+
+// Create a new Job.
+// 
+// ### Parameters
+// ---
+// #### id
+// An ID that means something to you.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|254|
+// 
+// ---
+// #### body
+// The text which will be printed on paper.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|30000|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|254|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the status_url.
+// 
+// |Type|Required|Default|One of|
+// |:---:|:---:|:---:|:---:|
+// |String|false|POST|'POST', 'PUT'|
+// 
+// ---
+// #### expire_seconds
+// The number of seconds, after which, a Job that has not been printed, will be marked as expired.
+// 
+// |Type|Required|Default|In range|
+// |:---:|:---:|:---:|:---:|
+// |Integer|false|300|60..1800|
+// 
+// ---
+// #### double_print
+// Print two copies of the same Job at once, one after the other.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Boolean|false|false|
+// 
+// ---
+// #### subtotal
+// The subtotal of the Job in cents USD.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Integer|true|0|
+// 
+// ---
+// #### tax
+// The tax of the Job in cents USD.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Integer|true|0|
+// 
+// ---
+// #### tip
+// The tip of the Job in cents USD.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Integer|true|0|
+// 
+// ---
+// #### total
+// The total of the Job in cents USD.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Integer|true|0|
+// 
+// ---
+// #### fees
+// An Array of Fee objects.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Array|false|[]|
+// 
+// ___
+// ### Fee object
+// A fee assessed on the Job.
+// 
+// |Key|Type|Required|Default|
+// |:---:|:---:|:---:|:---:|
+// |name|String|true|n/a|
+// |amount|Integer|true|n/a|
+
+@name("Job")
+POST "https://{{BASE_URL}}/v5/account/{{SID}}/printers/{{PRINTER_ID}}/jobs"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+data('{
+    "id": "a2f68817-baba-40e8-90ac-12bb797f3406",
+    "body": "One large pepperoni pizza",
+    "status_url": "{{STATUS_URL}}",
+    "status_url_method": "POST",
+    "expire_seconds": 300,
+    "double_print": false,
+    "subtotal": 1000,
+    "tax": 100,
+    "tip": 100,
+    "total": 1200,
+    "fees": [
+        {
+            "name": "delivery",
+            "amount": 100
+        }
+    ]
+}')
+
+
+// Update a printer assigned to you.
+// 
+// ### Request Attributes
+// ---
+// #### autoprint
+// Immediately print an order without the need for pressing the Print button.
+// 
+// |type|required|example|
+// |---|---|---|
+// |boolean|true|true|
+// 
+// ---
+// #### light
+// The intensity level of the printer's lights.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### sound
+// The intensity level of the printer's sound.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### tag
+// A string which you can apply to Printers and use to return tagged results in the `GET#printers` request.
+// 
+// |type|required|maximum|example|
+// |---|---|---|---|
+// |[string, null]|false|254|charleston-sushi|
+
+@name("Printer")
+PUT "https://api.eatabit.io/v5/account/{{SID}}/printers/{{PRINTER_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+data('{
+    "autoprint": false,
+    "sound": 0,
+    "light": 1,
+    "tag": "charleston-sushi"
+}')
+
+
+// Returns a list of printers.
+
+@name("Printers")
+GET "https://api.eatabit.io/v5/account/{{SID}}/printers"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Returns Job information
+// 
+// ### Parameters
+// ---
+// #### id
+// The Eatabit internal ID of the Job. This ID can be used in the `GET Job` request.
+// 
+// |Type|Example|
+// |:---:|:---:|
+// |integer|1234|
+// 
+// ---
+// #### state
+// The current state of the Job.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[queued, downloaded, printed, expired]|queued|
+// 
+// ---
+// #### body
+// The text which will be printed on paper.
+// 
+// |Type|Example|
+// |:---:|:---:|
+// |string|One large pepperoni pizza|
+// 
+// ---
+// #### environment
+// The `production` or `development` Account credentials used when the Job was created. Jobs created using `development` environment credentials will not actually be sent to the printer.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[development, production]|production|
+// 
+// ---
+// #### fulfill_at
+// The UTC ISO 8601 time at which the printer user specified that the order will be ready. For printer models: v5, v6 and v7, this value is calculated as (the time the Job was created + the current Printer `fulfillment` value in minutes).
+// 
+// |type|example|
+// |:---:|:---:|
+// |[timestamp, null]|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job.
+// 
+// |Type|Example|
+// |:---:|:---:|
+// |string|https://api.rds.com/eatabit|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the `status_url`.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[post, put]|post|
+// 
+// ---
+// #### expire_seconds
+// If a Job is not printed in this number of seconds from now, mark the Job state as `expired` and fire callbacks.
+// 
+// |type|example|
+// |:---:|:---:|
+// |integer|60|
+// 
+// ---
+// #### external_id
+// The ID of the order in your system.
+// 
+// |type|example|
+// |:---:|:---:|
+// |string|1234567890|
+// 
+// ---
+// #### double_print
+// Print two copies of the same Job at once, one after the other.
+// 
+// |Type|Default|
+// |:---:|:---:|
+// |boolean|false|
+// 
+// ---
+// #### subtotal
+// The subtotal of the Job in cents USD.
+// 
+// |Type|Default|
+// |:---:|:---:|
+// |integer|0|
+// 
+// ---
+// #### tax
+// The tax of the Job in cents USD.
+// 
+// |Type|Default|
+// |:---:|:---:|
+// |integer|0|
+// 
+// ---
+// #### tip
+// The tip of the Job in cents USD.
+// 
+// |Type|Default|
+// |:---:|:---:|
+// |integer|0|
+// 
+// ---
+// #### total
+// The total of the Job in cents USD.
+// 
+// |Type|Default|
+// |:---:|:---:|
+// |integer|0|
+// 
+// ---
+// #### account
+// A partial Account object.
+// 
+// |Type|
+// |:---:|
+// |object|
+// 
+// ___
+// ### Account object
+// 
+// |Key|Type|
+// |:---:|:---:|
+// |sid|uuid|
+// 
+// ---
+// #### printer
+// A partial Printer object.
+// 
+// |Type|
+// |:---:|
+// |object|
+// 
+// ___
+// ### Printer object
+// 
+// |Key|Type|
+// |:---:|:---:|
+// |fulfillment|integer|
+// 
+// ---
+// #### fees
+// An Array of Fee objects.
+// 
+// |Type|
+// |:---:|
+// |array|
+// 
+// ___
+// ### Fee object
+// 
+// |Key|Type|
+// |:---:|:---:|
+// |name|string|
+// |amount|integer|
+// 
+// ---
+// #### created_at
+// The UTC ISO 8601 time at which the job was created.
+// 
+// |type|example|
+// |:---:|:---:|
+// |timestamp|2020-09-29T00:32:14Z|
+
+@name("Job")
+GET "https://api.eatabit.io/v5/account/{{SID}}/printers/{{PRINTER_ID}}/jobs/{{JOB_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Returns an Account.
+
+@name("Account")
+GET "https://api.eatabit.io/v5/account/{{SID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Just a convenience endpoint if you want to test authentcation headers.
+
+@name("Auth")
+GET "https://api.eatabit.io/v5/auth"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Returns printer information.
+// 
+// ### Response Attributes
+// ---
+// #### id
+// The ID of the printer.
+// 
+// |type|example|
+// |---|---|
+// |uuid|650523e1-c876-42bd-bef6-6ea9cc5bb6c6|
+// 
+// ---
+// #### fulfillment
+// The current number of fulfillment minutes set by the Printer user on the LCD of the device. It represents the locations average time for fulfilling orders.
+// 
+// |type|example|
+// |---|---|
+// |integer|15|
+// 
+// ---
+// #### enabled
+// Whether the Printer is allowed to reveive and print Jobs.
+// 
+// |type|example|
+// |---|---|
+// |boolean|true|
+// 
+// ---
+// #### name
+// A friendly name for the Printer.
+// 
+// |type|example|minLength|maxLength
+// |---|---|---|---|
+// |string|Printer 1234|1|254|
+// 
+// ---
+// #### autoprint
+// Immediately print an order without the need for pressing the Print button.
+// 
+// |type|example|
+// |---|---|
+// |boolean|true|
+// 
+// ---
+// #### hardware_version
+// The Printer model number.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|5|8|7|
+// 
+// ---
+// #### lease_start_at
+// The ISO 8601 datetime that the printer's lease started. May not apply to all printers.
+// 
+// |type|default|example|
+// |---|---|---|
+// |[timestamp, null]|null|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### light
+// The intensity level of the printer's lights.
+// 
+// |type|minimum|maximum|default|example|
+// |---|---|---|---|---|
+// |integer|0|2|1|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### paper
+// The current presence of paper in the printer.
+// 
+// |type|example|
+// |---|---|
+// |boolean|false|
+// 
+// ---
+// #### sound
+// The intensity level of the printer's sound.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### tag
+// A way to tag printers for your own organizational needs and to use as a filter parameter for the `GET Printers` request.
+// 
+// |type|maxLength|example|
+// |---|---|---|
+// |[string, null]|254|pizza-chicago-il|
+
+@name("Printer")
+GET "https://api.eatabit.io/v5/account/{{SID}}/printers/{{PRINTER_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+

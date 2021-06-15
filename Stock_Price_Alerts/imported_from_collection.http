@@ -1,19 +1,28 @@
 #!/usr/bin/env dothttp
 
-// A Base (database) and a table are created in Airtable (www.airtable.com) with schema of stock_symbol, company_name, and lower_threshold.// // You may reference the following page for Airtable APIs.// https://airtable.com/appI2Ti60CrGYkBM7/api/docs#curl/introduction// 
+// A Base (database) and a table are created in Airtable (www.airtable.com) with schema of stock_symbol, company_name, and lower_threshold.
+// 
+// You may reference the following page for Airtable APIs.
+// https://airtable.com/appI2Ti60CrGYkBM7/api/docs#curl/introduction
+// 
+
 @name("Get User-Input Stock Kickers and Thresholds")
 GET "https://api.airtable.com/v0/{{airtable_stocks_table_id}}/stocks"
 ? "api_key"= "{{airtable_api_key}}"
 
 
 // Run the request, calling the public stock market APIs multiple times based on how many records you have in your Airtable table (i.e., how many stocks you monitor). 
+
 @name("Get Real-Time Stock Quote")
 GET "https://finnhub.io/api/v1/quote"
 ? "symbol"= "{{stock_symbol}}"
 ? "token"= "{{stock-api-token}}"
 
 
-// Call Slack Webhook APIs and send messages to a Slack channel. // // Please see the instruction on the help page on the Slack Website: https://api.slack.com/messaging/webhooks 
+// Call Slack Webhook APIs and send messages to a Slack channel. 
+// 
+// Please see the instruction on the help page on the Slack Website: https://api.slack.com/messaging/webhooks 
+
 @name("Post to Slack (as alerts triggered)")
 POST "https://{{slack_webhook_url}}/"
 data('{{alert_post_body}}

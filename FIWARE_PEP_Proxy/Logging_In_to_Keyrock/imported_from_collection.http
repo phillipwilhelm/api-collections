@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+// The following example logs in using the Admin Super-User - it is the equivalent of using the log-in screen of the GUI.
+// 
+// The response header returns an `X-Subject-token` which identifies who has logged on the application.
+// This token is required in all subsequent requests to gain access.
+
+@name("Create token with Password")
+POST "http://{{keyrock}}/v1/auth/tokens"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+  "name": "alice-the-admin@test.com",
+  "password": "test"
+}')
+
+
+// You can use the long-lasting  `X-Auth-token=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` to pretend to be Alice throughout this
+// tutorial. 
+// 
+// The presence of a (time-limited) token is sufficient to find out more information about the user.
+// To find information about Bob, use the long-lasting token `X-Subject-token=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
+// 
+// This request indicates that *the
+// user authorized with the token `{{X-Auth-token}}` (i.e Alice) is enquiring about the user holding the token  `{{X-Subject-token}}`* i.e Bob 
+// 
+// The response will return the details of the associated user. As you can see Bob holds a long-lasting token until 2026.
+
+@name("Get token info")
+GET "http://{{keyrock}}/v1/auth/tokens"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+"X-Subject-token": "{{X-Subject-token}}"
+
+
+
+

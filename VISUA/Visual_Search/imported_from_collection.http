@@ -1,0 +1,159 @@
+#!/usr/bin/env dothttp
+
+// Add an image to the visual index.
+// 
+// The image can be submitted using one of the following methods:
+// * _URL:_ the image is accessible via a URL and the URL is supplied as a POST parameter called `mediaUrl`
+// * _Base64:_ the image bytes are encoded in [Base64 format](https://en.wikipedia.org/wiki/Base64) and the resulting string is supplied as a POST parameter called `mediaBase64`
+// 
+// The optional field `meta` allows you to attach custom information, such as your internal identifier or a custom property, to an item. The `meta` information will be included every time the item is returned as part of a response.
+// 
+// The optional field `name` allows you to label the item as depicting a specific visual concept. The field `name` together with its unique identifier `visualClassId` will be included every time the item is returned as part of a response.
+// 
+// The field `crop` is also optional and you can use it to specify a region of the image to be used as the item. The expected format is a 4-dimensional array `[x1, y1, x2, y2]` representing, in pixel coordinates, the top-left and bottom-right corner of the region.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. The single entry of the array is a JSON object corresponding to the item just inserted.
+
+@name("Add Item")
+POST "https://{{socket}}/search/items"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-visualsearch-add-1.jpg"
+    ],
+    "meta": [
+        "{\"myId\":132,\"brand\":\"nike\"}"
+    ],
+    "name": [
+        "shoe"
+    ],
+    "crop": [
+        "[0, 0, 100, 100]"
+    ]
+})
+
+
+// Remove an item from the visual index.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to the most similar items to the one just removed.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// The field `confidence` (ranging between 0 and 1) represents the level of similarity between the query and the item. Depending on your use case, you might want to apply a threshold on this value. For example retaining items with confidence > 0.9 will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with confidence > 0.3 will favour recall over precision.
+// 
+// The field `meta` contains custom key/value pairs that you can assign to each item via the [Add Item](https://docs.visua.com/?version=latest#63b493c5-6a8c-45d0-a394-7fd847796dff) endpoint.
+
+@name("Delete Item")
+DELETE "https://{{socket}}/search/items/:id"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Return the list of items currently present in your index.
+// 
+// The `page` parameter controls which page of the result set should be returned. When pagination reaches the end of the result set or if any subsequent page is requested the endpoint responds with status code `204 No Content`.
+// 
+// #### Response
+// 
+// The field `items` contains a list of every item currently present in your index. Each item is characterized by its `id` together with a visual identifier called `visualClassId` and its corresponding `name` in case you assigned one via the [Add Item](https://docs.visua.com/?version=latest#63b493c5-6a8c-45d0-a394-7fd847796dff) endpoint.
+// 
+// The field `mediaUrl` contains a link to the original image while `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that define the image region the item refers to.
+// 
+// If you have previously defined custom meta tags via [Add Item](https://docs.visua.com/?version=latest#63b493c5-6a8c-45d0-a394-7fd847796dff) they will be returned in the optional field `meta`.
+// 
+// The field `X-Total-Count` in the header contains the total number of elements.
+
+@name("Items")
+GET "https://{{socket}}/search/items"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+? "page"= "1"
+
+
+// Associate custom tags to an item in your index. These custom tags, expressed as key/value pairs, can be used to link your internal identifiers or for example to specify additional properties of an item.
+// 
+// Once your custom tags have been set they will be returned in every detection of the item within the `meta` key.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. The single entry of the array is a JSON object corresponding to the item just updated.
+
+@name("Item Meta")
+PUT "https://{{socket}}/search/items/:id/meta"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "meta": [
+        "{\"myId\":132,\"brand\":\"nike\"}"
+    ]
+})
+
+
+// Retrieve the most similar items from your index based on a user-submitted image or an existing item id.
+// 
+// The optional field `crop` lets you specify a region of the image to be used as a query. The expected format is a 4-dimensional array `[x1, y1, x2, y2]` representing, in pixel coordinates, the top-left and bottom-right corner of the region.
+// 
+// The image can be submitted using one of the following methods:
+// * _URL:_ the image is accessible via a URL and the URL is supplied as a POST parameter called `mediaUrl`
+// * _Base64:_ the image bytes are encoded in [Base64 format](https://en.wikipedia.org/wiki/Base64) and the resulting string is supplied as a POST parameter called `mediaBase64`
+// * _File:_ the image bytes are uploaded as a parameter of type File called `mediaFile`. This requires that the request `Content-Type` is set to [multipart/form-data](https://en.wikipedia.org/wiki/MIME#Form-Data)
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to a match between the query and an index item.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// The field `confidence` (ranging between 0 and 1) represents the level of similarity between the query and the item. Depending on your use case, you might want to apply a threshold on this value. For example retaining items with `confidence > 0.9` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.3` will favour recall over precision.
+// 
+// The field `meta` contains custom key/value pairs that you can assign to each item via the [Add Item](https://docs.visua.com/?version=latest#63b493c5-6a8c-45d0-a394-7fd847796dff) endpoint.
+// 
+// We strongly recommend that you store the unique `sessionId` field returned with each response because it references the specific request in our system. This can be used for support queries with our team at <support@visua.com>.
+
+@name("Query")
+POST "https://{{socket}}/detect"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-visualsearch-detect-1.jpg"
+    ],
+    "itemId": [
+        "2212905623"
+    ],
+    "crop": [
+        "[0, 0, 100, 100]"
+    ]
+})
+
+
+// Visually compare two images.
+// 
+// The images can be submitted using one of the following methods:
+// * _URL:_ the images are accessible via URLs and the URLs are supplied as POST parameters called `mediaUrl` and `mediaCompareUrl`
+// * _Base64:_ the image bytes are encoded in [Base64 format](https://en.wikipedia.org/wiki/Base64) and the resulting strings are supplied as a POST parameters called `mediaBase64` and `mediaCompareBase64`
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. The single entry of the array is a JSON object where the field `confidence` represents the visual similarity between the two input images.
+
+@name("Compare")
+POST "https://{{socket}}/search/compare"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-visualsearch-add-1.jpg"
+    ],
+    "mediaCompareUrl": [
+        "http://s3.visua.com/pub/test-visualsearch-add-2.jpg"
+    ]
+})
+
+
+

@@ -50,7 +50,87 @@ data('{
 }')
 
 
-// Returns a JSON package that includes health information for one or more connectors.//             Each connector contains a health status from one or more regions within the connector.//             There will always be a region which reports on the general health of the connector.  I.e. each connector includes a 'ConnectorInfo' region which will have a 'Status'.//             There may be other regions that report on the health of specific features within the connector.  E.g. if the connector supports AD, there will be an 'AdInfo' section that covers AD. //             When determining the overall heath of a connector, examine the 'Status' of each region.  It is possible for regions to have different statuses.  E.g. the 'ConnectorInfo' region may have a Status of 'Healthy' while the 'AdInfo' region has a status of 'Unhealthy'.//             The list of regions returned will vary based on various factors.  E.g. if the cloud cannot reach the connector, the 'ConnectorInfo' Status will be 'Unhealthy' and there will be no 'AdInfo' region.//             Additional regions may be added in the future without a Version change (if they follow the format of the existing regions).//             Return package breakdown://             The top level object contains a list of Connectors and a package Version//             { //               "Connectors": [ ... ], //               "Version": "1.0" //             } //             Each connector in the array contains a generic 'ConnectorInfo' region and might contain additional regions like 'AdInfo' (depending upon how the connector is configured)://             {//               "ConnectorInfo": { ... },//               "AdInfo": { ... }//               ...//             }//             The 'ConnectorInfo' region contains information that other identification data, a list of enabled features and the status of the connector itself (without considering AD)://             "ConnectorInfo"://             {//               "Id": "31dfe79d-2c7f-4e40-9b1b-2e897f6f0ca1", //               "Version": "1.0.0.0", //               "MachineName": "clouddev-dev1", //               "FeaturesEnabled": [ "adwatcher", "mobile.gpupdate", "mobile.stateSync" ], //               "Name": "clouddev-dev1", //               "Status": "Healthy" //             }//             All regions will contain a 'Status' ('Healthy', 'Unhealthy' or 'NotApplicable') and may contain additional fields that help explain the status://             "...Info"://             { //               "Status": "Unhealthy", //               "Reason": "Exception", //               "Exception": "The server is not operational." //             }//             Other regions may contain additional information appropriate to the region being queried.  E.g.://             "AdInfo"://             { //               "Status": "Healthy", //               "ForestUuid": "fbefa7535168f04cb764cf1f92d90363", //               "Forest": "clouddev.test" //             }//             Example return package (2 connectors, the first is online, the second is not)://             {//               "Connectors": //               [//                 {//                   "ConnectorInfo": //                   {//                     "Id": "31dfe79d-2c7f-4e40-9b1b-2e897f6f0ca1",//                     "Version": "1.0.0.0",//                     "MachineName": "clouddev-dev1",//                     "FeaturesEnabled": ["adwatcher", "mobile.gpupdate", "mobile.stateSync"],//                     "Name": "clouddev-dev1",//                     "Status": "Healthy"//                   },//                   "AdInfo": //                   {//                     "Status": "Healthy",//                     "ForestUuid": "fbefa7535168f04cb764cf1f92d90363",//                     "Forest": "clouddev.test"//                   }//                 },//                 {//                   "ConnectorInfo": //                   {//                     "Id": "98dff19d-23cf-ef41-91cc-2f811e6cbab2",//                     "Version": "1.0.0.0",//                     "MachineName": "clouddev-dev2",//                     "FeaturesEnabled": ["adwatcher", "mobile.gpupdate", "mobile.stateSync"],//                     "Name": "clouddev-dev2",//                     "Status": "Unhealthy",//                     "Exception": "Remote side of connection is not available",//                     "Reason": "Health check failed"//                   },//                 }//               ],//               "Version": "1.0"//             }
+// Returns a JSON package that includes health information for one or more connectors.
+//             Each connector contains a health status from one or more regions within the connector.
+//             There will always be a region which reports on the general health of the connector.  I.e. each connector includes a 'ConnectorInfo' region which will have a 'Status'.
+//             There may be other regions that report on the health of specific features within the connector.  E.g. if the connector supports AD, there will be an 'AdInfo' section that covers AD. 
+//             When determining the overall heath of a connector, examine the 'Status' of each region.  It is possible for regions to have different statuses.  E.g. the 'ConnectorInfo' region may have a Status of 'Healthy' while the 'AdInfo' region has a status of 'Unhealthy'.
+//             The list of regions returned will vary based on various factors.  E.g. if the cloud cannot reach the connector, the 'ConnectorInfo' Status will be 'Unhealthy' and there will be no 'AdInfo' region.
+//             Additional regions may be added in the future without a Version change (if they follow the format of the existing regions).
+//             Return package breakdown:
+//             The top level object contains a list of Connectors and a package Version
+//             { 
+//               "Connectors": [ ... ], 
+//               "Version": "1.0" 
+//             } 
+//             Each connector in the array contains a generic 'ConnectorInfo' region and might contain additional regions like 'AdInfo' (depending upon how the connector is configured):
+//             {
+//               "ConnectorInfo": { ... },
+//               "AdInfo": { ... }
+//               ...
+//             }
+//             The 'ConnectorInfo' region contains information that other identification data, a list of enabled features and the status of the connector itself (without considering AD):
+//             "ConnectorInfo":
+//             {
+//               "Id": "31dfe79d-2c7f-4e40-9b1b-2e897f6f0ca1", 
+//               "Version": "1.0.0.0", 
+//               "MachineName": "clouddev-dev1", 
+//               "FeaturesEnabled": [ "adwatcher", "mobile.gpupdate", "mobile.stateSync" ], 
+//               "Name": "clouddev-dev1", 
+//               "Status": "Healthy" 
+//             }
+//             All regions will contain a 'Status' ('Healthy', 'Unhealthy' or 'NotApplicable') and may contain additional fields that help explain the status:
+//             "...Info":
+//             { 
+//               "Status": "Unhealthy", 
+//               "Reason": "Exception", 
+//               "Exception": "The server is not operational." 
+//             }
+//             Other regions may contain additional information appropriate to the region being queried.  E.g.:
+//             "AdInfo":
+//             { 
+//               "Status": "Healthy", 
+//               "ForestUuid": "fbefa7535168f04cb764cf1f92d90363", 
+//               "Forest": "clouddev.test" 
+//             }
+//             Example return package (2 connectors, the first is online, the second is not):
+//             {
+//               "Connectors": 
+//               [
+//                 {
+//                   "ConnectorInfo": 
+//                   {
+//                     "Id": "31dfe79d-2c7f-4e40-9b1b-2e897f6f0ca1",
+//                     "Version": "1.0.0.0",
+//                     "MachineName": "clouddev-dev1",
+//                     "FeaturesEnabled": ["adwatcher", "mobile.gpupdate", "mobile.stateSync"],
+//                     "Name": "clouddev-dev1",
+//                     "Status": "Healthy"
+//                   },
+//                   "AdInfo": 
+//                   {
+//                     "Status": "Healthy",
+//                     "ForestUuid": "fbefa7535168f04cb764cf1f92d90363",
+//                     "Forest": "clouddev.test"
+//                   }
+//                 },
+//                 {
+//                   "ConnectorInfo": 
+//                   {
+//                     "Id": "98dff19d-23cf-ef41-91cc-2f811e6cbab2",
+//                     "Version": "1.0.0.0",
+//                     "MachineName": "clouddev-dev2",
+//                     "FeaturesEnabled": ["adwatcher", "mobile.gpupdate", "mobile.stateSync"],
+//                     "Name": "clouddev-dev2",
+//                     "Status": "Unhealthy",
+//                     "Exception": "Remote side of connection is not available",
+//                     "Reason": "Health check failed"
+//                   },
+//                 }
+//               ],
+//               "Version": "1.0"
+//             }
+
 @name("{{baseUrl}}/Core/CheckProxyHealth")
 POST "https://{{baseUrl}}/Core/CheckProxyHealth"
 ? "proxyUuid"= "<string>"
@@ -62,6 +142,7 @@ POST "https://{{baseUrl}}/Core/CreateDirectory"
 
 
 // The user must have AdminUI rights.
+
 @name("{{baseUrl}}/Core/CreateTenantReportsDirectory")
 POST "https://{{baseUrl}}/Core/CreateTenantReportsDirectory"
 
@@ -216,6 +297,7 @@ POST "https://{{baseUrl}}/Core/GetCdsAliasesForTenant"
 
 
 // If not specified uses CloudCA.cer
+
 @name("{{baseUrl}}/Core/GetCloudCACert")
 POST "https://{{baseUrl}}/Core/GetCloudCACert"
 ? "filename"= "<string>"
@@ -240,6 +322,7 @@ POST "https://{{baseUrl}}/Core/GetDefaultGlobalAppSigningCert"
 
 
 // The resulting list of subdirectories include the full path to each directory.
+
 @name("{{baseUrl}}/Core/GetDirectories")
 POST "https://{{baseUrl}}/Core/GetDirectories"
 ? "path"= "<string>"
@@ -304,7 +387,13 @@ POST "https://{{baseUrl}}/Core/GetLocTag"
 ? "qualifier"= "<string>"
 
 
-// This API is overloaded to get domains and OUs in a domain across AD directories with and without cache//             API variations (excluding useCache variations)//             1. id = null, directoryServiceUuid = null - fetches domains seen by cloud across directory services//             2. id = null, directoryServiceUuid != null - fetches domains specified by directory service uuid//             3. id != null, directoryServiceUuid = null - failure case//             4. id != null, directoryServiceUuid != null - gets ou under domain specified by id using directory service uuid passed in
+// This API is overloaded to get domains and OUs in a domain across AD directories with and without cache
+//             API variations (excluding useCache variations)
+//             1. id = null, directoryServiceUuid = null - fetches domains seen by cloud across directory services
+//             2. id = null, directoryServiceUuid != null - fetches domains specified by directory service uuid
+//             3. id != null, directoryServiceUuid = null - failure case
+//             4. id != null, directoryServiceUuid != null - gets ou under domain specified by id using directory service uuid passed in
+
 @name("{{baseUrl}}/Core/GetOUTreeContents")
 POST "https://{{baseUrl}}/Core/GetOUTreeContents"
 ? "id"= "<string>"
@@ -329,6 +418,7 @@ POST "https://{{baseUrl}}/Core/GetProxyIwaSettings"
 
 
 // List of product licenses, by group and with counts.
+
 @name("{{baseUrl}}/Core/GetPurchasedLicenses")
 POST "https://{{baseUrl}}/Core/GetPurchasedLicenses"
 
@@ -355,7 +445,11 @@ POST "https://{{baseUrl}}/Core/GetTenantConfig"
 ? "dflt"= "<string>"
 
 
-// If there is a collision, integers will be added. //             Example: path "~/", name "MyFile.txt"//             If MyFile.txt already exists in ~/, this endpoint will return MyFile (1).txt, //             assuming MyFile (1).txt also doesn't exist.
+// If there is a collision, integers will be added. 
+//             Example: path "~/", name "MyFile.txt"
+//             If MyFile.txt already exists in ~/, this endpoint will return MyFile (1).txt, 
+//             assuming MyFile (1).txt also doesn't exist.
+
 @name("{{baseUrl}}/Core/GetUniqueFileName")
 POST "https://{{baseUrl}}/Core/GetUniqueFileName"
 ? "path"= "<string>"
@@ -378,6 +472,7 @@ POST "https://{{baseUrl}}/Core/GetZsoHostInfo"
 
 
 // Customers will not call this directly.
+
 @name("{{baseUrl}}/Core/HandleTwilioSmsReceipt")
 POST "https://{{baseUrl}}/Core/HandleTwilioSmsReceipt"
 "Content-Type": "application/json"
@@ -520,6 +615,7 @@ POST "https://{{baseUrl}}/Core/StoreAlias"
 
 
 // Caller must provide either user name or guid.
+
 @name("{{baseUrl}}/Core/StoreUser")
 POST "https://{{baseUrl}}/Core/StoreUser"
 ? "name"= "<string>"
@@ -540,6 +636,7 @@ data('{
 
 
 // This changes the search order of services used when authenticating a customer.
+
 @name("{{baseUrl}}/Core/UpdateDirectoryServicesPrecedence")
 POST "https://{{baseUrl}}/Core/UpdateDirectoryServicesPrecedence"
 ? "precedence"= "<string>"

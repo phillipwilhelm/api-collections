@@ -1,0 +1,147 @@
+#!/usr/bin/env dothttp
+
+// simple ping to see if NodeAPI is up (no auth needed)
+
+@name("0a test ping (no auth)")
+GET "https://demo.asperasoft.com/ping"
+
+
+// check if you NodeAPI user/password (HTTP basic) works
+
+@name("0b test info (basic auth)")
+GET "https://demo.asperasoft.com/info"
+basicauth("aspera", "demoaspera")
+
+
+// Browse the source host dir.  This sample uses /aspera-test-dir-tiny
+
+@name("1a  browse source host / dir - demo")
+POST "https://demo.asperasoft.com/files/browse"
+basicauth("aspera", "demoaspera")
+"Content-Type": "application/json"
+data('{ 
+  "path": "/aspera-test-dir-tiny"
+}    ')
+
+
+// Browse the target host dir.  This sample uses /Upload
+
+@name("1b  browse target host / dir - eudemo")
+POST "https://eudemo.asperademo.com/files/browse"
+basicauth("aspera", "demoaspera")
+"Content-Type": "application/json"
+data('{ 
+  "path": "/Upload"
+}    ')
+
+
+// api call to ask *eudemo* to download a file from *demo* using hardcoded ssh user and password
+
+@name("2a  n2n transfer ssh auth")
+POST "https://eudemo.asperademo.com/ops/transfers"
+basicauth("asperaweb", "demoaspera")
+"Content-Type": "application/json"
+data('{
+    "direction": "receive",                               
+    "remote_host": "demo.asperasoft.com",                          
+    "remote_user" : "asperaweb",
+    "remote_password" : "demoaspera",
+    "paths": [
+        {
+            "source" : "/aspera-test-dir-tiny/200KB.1",
+            "destination" : "/Upload/200KB.1"
+        },
+        {
+            "source" : "/aspera-test-dir-tiny/200KB.2",
+            "destination" : "/Upload/200KB.2"
+        }
+    ],
+    "title" : "n2n_sample1_ssh_auth",
+    "overwrite" : "always"
+}')
+
+
+// api call to ask *demo* to upload a file to *eudemo* using hardcoded http basic auth (eudemo nodeApi credentials) as authentication in the token.
+
+@name("2b  n2n transfer basic token auth")
+POST "https://demo.asperasoft.com/ops/transfers"
+basicauth("aspera", "demoaspera")
+"Content-Type": "application/json"
+data('{
+    "direction": "send",
+    "remote_host": "eudemo.asperademo.com",
+    "remote_user": "asperaweb",
+    "token": "Basic YXNwZXJhd2ViOmRlbW9hc3BlcmE=",
+    "paths": [ 
+    	{	"source": "/aspera-test-dir-tiny/200KB.1", "destination": "/Upload/200KB.1" }
+    ],
+    "overwrite": "always",
+    "target_rate_kbps": 1000
+}')
+
+
+// api call to ask *demo* for a download authentication token for valid for a specific file 
+// the response is a transfer_spec JSON the we need in the next call
+
+@name("3a  n2n  download_setup (request tranfer token)")
+POST "https://demo.asperasoft.com/files/download_setup"
+basicauth("aspera", "demoaspera")
+"Content-Type": "application/json"
+data('{
+  "transfer_requests": [{
+      "transfer_request": {
+      	"paths": [ 
+    		{ "source": "/aspera-test-dir-tiny/200KB.1", "destination": "/Upload/200KB.1" }
+    	]
+      }
+  	}]
+}')
+
+
+// api call to ask *eudemo* to download a file from *demo* using a transfer token.
+// 
+// for this call we cut&paste the transfer_spec JSON from the last `/files/download_setup` call to the post body. `response.body.transfer_specs[0].transfer_spec`
+
+@name("3b  n2n transfer transfer token auth")
+POST "https://eudemo.asperademo.com/ops/transfers"
+basicauth("asperaweb", "demoaspera")
+"Content-Type": "application/json"
+data('    		 {
+                 "paths": [
+                    {
+                        "source": "/aspera-test-dir-tiny/200KB.1",
+                        "destination": "/Upload/200KB.1"
+                    }
+                ],
+                "source_root": "",
+                "destination_root": "",
+                "token": "ATM2_ACs3MKq9NtEWqzSLcRSElgJ6i486KeMqS3gBRZ_FHijI8gAAHDdrDn0U58JRLKjhWVjj2q_2MTA",
+                "direction": "receive",
+                "target_rate_cap_kbps": 2000000,
+                "cipher": "aes-128",
+                "tags": null,
+                "rate_policy_allowed": "fixed",
+                "rate_policy": "fair",
+                "target_rate_kbps": 1000,
+                "min_rate_kbps": 0,
+                "remote_host": "demo.asperasoft.com",
+                "remote_user": "aspera",
+                "sshfp": null,
+                "ssh_port": 33001,
+                "fasp_port": 33001,
+                "http_fallback": true,
+                "http_fallback_port": 8443
+            }')
+
+
+// check the transfer stauts
+// 
+// cut&paste the transfer session-id from the last `/ops/transfers` call to the url get `response.body.id`
+
+@name("4 check transfer status (cut&paste session id)")
+GET "https://eudemo.asperademo.com/ops/transfers/7822d42d-53e7-4c23-9072-37e46114c46b"
+basicauth("asperaweb", "demoaspera")
+"Content-Type": "application/json"
+
+
+

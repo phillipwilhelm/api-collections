@@ -1,0 +1,998 @@
+#!/usr/bin/env dothttp
+
+@name("getSiteWlans")
+GET "https://{{host}}/api/v1/sites/:site_id/wlans"
+
+
+@name("getSiteWlanDerived")
+GET "https://{{host}}/api/v1/sites/:site_id/wlans/derived"
+? "resolve"= "{{resolve}}"
+
+
+@name("getSiteWlanDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id"
+
+
+// Create a WLAN
+//  #### Body Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// ssid|string|the name of the SSID
+// enabled|boolean|if this wlan is enabled, default is True
+// auth|object|authentication/security policies
+// type|string|open / psk / wep / eap / psk-tkip / psk-wpa2-tkip, default is open
+// pairwise|list|when type=psk / eap, one of more of wpa2-ccmp / wpa1-tkip / wpa1-ccmp / wpa2-tkip, default is [wpa2-ccmp]
+// psk|string|when type=psk, 8-64 characters, or 64 hex characters
+// wep\_as\_secondary_auth|boolean|enable WEP as secondary auth
+// keys|list|when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
+// key_idx|int|when type=wep, 1 to 4, default is 1
+// multi\_psk\_only|boolean|whether to only use multi_psk, default is false
+// private\_wlan|boolean|whether private wlan is enabled. only applicable to multi_psk mode
+// enable\_mac\_auth|boolean|whether to enable MAC Auth, uses the same auth_servers, default is false
+// eap_reauth|boolean|whether to trigger EAP reauth when the session ends, default is false
+// roam_mode|string|none (default) / OKC / 11r
+// apply_to|string|site / wxtags / aps
+// wxtag\_ids|list|list of wxtag_ids
+// ap_ids|list|list of device ids
+// band|string|which radio the wlan should apply to, both (default) / 24 / 5
+// band\_steer|boolean|whether to enable band_steering, this works only when band==both, default is false
+// band\_steer\_force_band5|boolean|force dual-band capable client to connect to 5G, default is false
+// isolation|boolean|whether to allow clients to talk to each other, defualt is false
+// arp_filter|boolean|whether to enable smart arp filter, default is false
+// limit_bcast|boolean|whether to limit broadcast packets going to wireless (i.e. only allow certain bcast packets to go through), default is false
+// allow\_mdns|boolean|only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through, default is false
+// allow\_ipv6\_ndp|boolean|only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through, default is true
+// no\_static_ip|boolean|whether to only allow client that we've learned from DHCP exchange to talk, default is false
+// no\_static_dns|boolean|whether to only allow client to use DNS that we've learned from DHCP response, default is false
+// enable\_wireless_bridging|boolean|whether to enable wireless bridging, which allows more broadcast packets to go through
+// block\_blacklist_clients|boolean|whether to block the clients in the blacklist (up to first 256 macs)
+// vlan_enabled|boolean|if vlan tagging is enabled, default is false
+// vlan_id|int|Jan-94
+// vlan_pooling|boolean|vlan pooling allows AP to place client on different VLAN using a deterministic algorithm, default is false
+// vlan_ids|list|list of VLAN ids
+// hide_ssid|boolean|whether to hide SSID in beacon, default is false
+// schedule|object|WLAN operating schedule, default is disabled
+// hours|object|time ranges, the key is mon / tue / wed / thu / fri / sat / sun, the value is time range in HH:MM-HH:MM (24-hour format), the minimum resolution is 30 minute
+// max_idletime|int|max idle time in seconds, default is 1800. valid range is 60-86400
+// sle_excluded|boolean|whether to exclude this WLAN from SLE metrics, default is false
+// 
+// NOTE: specifically, enable\_wireless_bridging allows forwarding of DHCP response to client not associated with the AP
+// 
+//  #### RADIUS Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// Name|Type|Description
+// auth\_servers\_nas_id|string|optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
+// auth\_servers\_nas_ip|string|optional, NAS-IP-ADDRESS to use
+// auth\_servers_timeout|int|radius auth session timeout, default is 5
+// auth\_servers_retries|int|radius auth session retries, default is 3
+// auth_servers|list|list of RADIUS authentication servers, at least one is needed if auth type == eap, order matters where the first one is treated as primary
+// host|string|ip / hostname of RADIUS server
+// port|int|port of RADIUS server, default is 1812 for auth server and 1813 for acct server
+// secret|string|secret of RADIUS server
+// acct_servers|list|list of RADIUS accounting servers, optional, order matters where the first one is treated as primary
+// acct\_interim_interval|int|how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
+// coa_server|object|COA (change of authorization) server, optional
+// disable\_event\_timestamp_check|boolean|whether to disable Event-Timestamp Check, which is used to replay-protection, default is false (i.e. for better security)
+// dynamic_vlan|object|for 802.1x
+// enabled|boolean|whether to enable dynamic vlan, default is false
+// type|string|standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
+// vlans|object|map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
+// default\_vlan\_id|int|vlan_id to use when there's no match from RADIUS, default is 999
+// local\_vlan\_ids|list|vlan_ids to be locally bridged
+// radsec|object|RadSec related, once enabled, auth\_servers / acct\_servers / coa_server will be ignored
+// server_name|string|name of the server to verify (against the cacerts in Org Setting)
+// dns\_server\_rewrite|object|for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)
+// radius\_groups|object|map between radius_group and the desired DNS server (IPv4 only)
+// dynamic_psk|object|for dynamic PSK where we get per-user PSK from Radius / Cloud WLC
+// default_psk|string|default PSK to use if cloud WLC is not available, 8-63 characters
+// 
+// #### Airwatch Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// airwatch|object|Airwatch related
+// console_url|string|console URL
+// api_key|string|API Key
+// username|string|username
+// password|string|password
+// 
+// #### Cisco CWA Parameters 
+// Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA (https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html).
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// cisco_cwa|object|Cisco CWA Related
+// enabled|boolean|whether to enable CWA,
+// allowed_subnets|list|list of CIDRs
+// allowed_hostnames|list|list of hostnames without http(s):// (matched by substring)
+// 
+// #### QoS Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// overwrite|boolean|whether to overwrite QoS
+// class|string|background / best_effort (default) / video / voice
+// 
+// #### Bonjour Parameters
+// **Note:** bonjour settings supercedes allow_mdns
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// bonjour|object|bonjour-related
+// enabled|boolean|whether to enable bonjour for this WLAN, default is false. Once enabled, ```limit_bcast``` is assumed true, ```allow_mdns``` is assumed false
+// services|object|what services are allowed
+// scope|string|how bonjour services should be discovered for the same WLAN, same_site (default) / same_map / same_ap
+// radius_groups|list|optional, if the service is further restricted for certain RADIUS groups
+// additional_vlan_ids|list|additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
+// 
+// #### Hostpot 2.0 Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// hotspot20|object|hotspot 2.0
+// enabled|boolean|whether to enable hotspot 2.0 config
+// operators|list|list of operators to support, options: att, google, tmobile, charter, boingo, default is att
+// venue_name|string|venue name, default is site name
+// 
+// #### Data Tunnels Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// interface|string|where this WLAN will be connected to. all (all external ports, default) / eth0 / eth1 / wxtunnel / mxtunnel / site_mxedge
+// wxtunnel_id|string|when interface=wxtunnel, id of the WXLAN Tunnel
+// wxtunnel_remote_id|string|when interface=wxtunnel, remote tunnel identifier
+// mxtunnel_id|string|when interface=mxtunnel, id of the Mist Tunnel
+// mxtunnel_name|string|when interface=site_medge, name of the mxtunnel that in mxtunnels under Site Setting, default is default
+// mxtunnel|object|when interface=site_medge, the definition of the Mist Tunnels (key is the name)
+// 
+// #### Others Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// dtim|int|dtim, default is 2
+// disable_wmm|boolean|whether to disable WMM, default is false
+// disable_uapsd|boolean|whether to disable U-APSD, default is false
+// use_eapol_v1|boolean|if auth.type=='eap' or 'psk', should only be set for legacy client, such as pre-2004, 802.11b devices
+// legacy_overds|boolean|legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn't support it). Warning! Enabling this will cause problem for iOS devices.
+// hostname_ie|boolean|include hostname inside IE in AP beacons / probe responses, default is false
+// 
+// #### Data Rates Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// rateset|object|rateset (data rates to support)
+// min_rssi|int|Minimum RSSI for client to connect, 0 means not enforcing
+// template|string|no-legacy (basically no 11b and only supports 6 or 12 and up for 11a/g) / compatible (allow more, the default for now) / high-density (only 11n and 11ac) / custom / legacy-only (disable HT/VHT IEs)
+// legacy|list|list of supported rates (IE=1) and extended supported rates (IE=50), append 'b' at the end to indicate it being basic/mandatory
+// ht|string|MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g.'00ff 00f0 001f'limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+// vht|string|MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g.'03ff 01ff 00ff'limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
+// disable_11ax|boolean|some old WLAN drivers may not be compatible , default is false
+// 
+// #### Rate Limit Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// wlan_limit_up_enabled|boolean|if uplink limiting for whole wlan is enabled, default is false
+// wlan_limit_up|int|kbps
+// wlan_limit_down_enabled|boolean|if downlink limiting for whole wlan is enabled, default is false
+// wlan_limit_down|int|kbps
+// client_limit_up_enabled|boolean|if uplink limiting per-client is enabled, default is false
+// client_limit_up|int|kbps
+// client_limit_down_enabled|boolean|if downlink limiting per-client is enabled, default is false
+// client_limit_down|int|kbps
+// app_limit|object|bandwidth limiting for apps (applies to up/down)
+// apps|object|map from app key to bandwidth in kbps. app key defined in'Get Application List
+// wxtag_ids|object|map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps
+// 
+// #### Guest Portal Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// portal|object|portal-related configurations
+// enabled|boolean|whether guest portal is enabled, default is false
+// auth|string|authentication scheme, none (default, supporting multi auth) / external (external portal) / sso
+// forward|boolean|whether to forward the user to another URL after authorized, default is false, this takes precedence
+// forward_url|string|the URL to forward the user to
+// external_portal_url|string|external portal URL (e.g. https://host/url) where we can append our query parameters to
+// privacy|boolean|if enabled, personal information will not be stored (email, name, fields*), default is false
+// password|string|passphrase
+// sms_enabled|boolean|when auth=multi, whether sms is enabled
+// passphrase_enabled|boolean|whether password is enabled
+// facebook_enabled|boolean|whether facebook is enabled as a login method
+// facebook_client_id|string|facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
+// facebook_client_secret|string|facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
+// facebook_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// google_enabled|boolean|whether google is enabled as login method
+// google_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// amazon_enabled|boolean|whether amazon is enabled as a login method
+// amazon_client_id|string|amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
+// amazon_client_secret|string|amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
+// amazon_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// microsoft_enabled|boolean|whether microsoft 365 is enabled as a login method
+// microsoft_client_id|string|microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
+// microsoft_client_secret|string|microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
+// microsoft_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// azure_enabled|boolean|whether Azure Active Directory is enabled as a login method
+// azure_tenant_id|string|azure active directory tenant id.
+// azure_client_id|string|azure active directory app client id
+// azure_client_secret|string|azure active directory app client secret
+// sms_enabled|boolean|whether sms is enabled as a login method
+// email_enabled|boolean|whether email (access code verification) is enabled as a login method
+// sms_provider|string|how the sms is routed. choices are manual and twilio. default is manual, where user has to select carrier.
+// twilio_sid|string|Account SID provided by Twilio
+// twilio_auth_token|string|Auth token account with twilio account
+// twilio_phone_number|string|Twilio phone number associated with the account. See example for accepted format.
+// expire|long|how long to remain authorized, in minutes, default is 1440 (24 hours)
+// sponsor_enabled|boolean|whether sponsor is enabled
+// sponsor_email_domains|list|list of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is `empty`.
+// sponsors|object|object of allowed sponsors email with name. Required if `sponsor_enabled` is `true` and `sponsor_email_domains` is `empty`.
+// sponsor_link_validity_duration|int|how long to remain valid sponsored guest request approve/deny link received in email, in minutes, default is 60 minutes, min is 5 minutes and max is 60 minutes.
+// portal_api_secret|string|api secret (auto-generated) that can be used to sign guest authorization requests
+// portal_image|string|Url of portal background image
+// thumbnail|string|Url of portal background image thumbnail
+// portal_allowed_subnets|list|list of CIDRs
+// portal_allowed_hostnames|list|list of hostnames without http(s):// (matched by substring)
+// portal_denied_hostnames|list|list of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
+// bypass_when_cloud_down|boolean|whether to bypass the guest portal when cloud not reachable (and apply the default policies), default is false
+// facebook_client_id|string|facebook OAuth2 app id. This is optional. If not provided, it will use a default one.
+// facebook_client_secret|string|facebook OAuth2 app secret. If facebook_client_id was provided, provide a correspoinding value. Else leave blank.
+// facebook_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// google_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// amazon_client_id|string|amazon OAuth2 client id. This is optional. If not provided, it will use a default one.
+// amazon_client_secret|string|amazon OAuth2 client secret. If amazon_client_id was provided, provide a correspoinding value. Else leave blank.
+// amazon_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// microsoft_client_id|string|microsoft 365 OAuth2 client id. This is optional. If not provided, it will use a default one.
+// microsoft_client_secret|string|microsoft 365 OAuth2 client secret. If microsoft_client_id was provided, provide a correspoinding value. Else leave blank.
+// microsoft_email_domains|list|Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.
+// azure_tenant_id|string|azure active directory tenant id.
+// azure_client_id|string|azure active directory app client id
+// azure_client_secret|string|azure active directory app client secret
+// sso_issuer|string|IDP issuer URL
+// sso_idp_cert|string|IDP Cert (used to verify the signed response)
+// sso_idp_sso_url|string|IDP Single-Sign-On URL
+// sso_idp_sign_algo|string|signing algorithm for SAML Assertion
+// sso_nameid_format|string|email (default) / unspecified
+// sso_default_role|string|default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
+// portal_sso_url|string|for SAML, this is used as the ACS URL
+
+@name("createSiteWlan")
+POST "https://{{host}}/api/v1/sites/:site_id/wlans"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "ssid": "corporate",
+    "enabled": true,
+    "auth": {
+        "type": "psk",
+
+        // type is psk
+        "psk": "foryoureyesonly",
+        "enable_mac_auth": false,
+        "multi_psk_only": false,
+        "pairwise": [ "wpa1-ccmp", "wpa2-tkip", "wpa1-tkip", "wpa2-ccmp", "wpa3" ],
+        "wep_as_secondary_auth": false,
+
+        // type = wep
+        "keys": [ "1234567890", null, "0987654321", null ],
+        "key_idx": 1,
+
+        // type = eap
+        "eap_reauth": false,
+
+        // type = open
+        "owe": "enabled",  // disabled (default) / enabled (transitional) / required
+        "private_wlan": true
+    },
+
+    "dynamic_psk": {
+        // dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...)
+        // thus following configurations are assumed (currently)
+        // - PSK will come from RADIUS server if source is radius
+        //   - AP sends client MAC as username ans password (i.e. `enable_mac_auth` is assumed)
+        //   - AP sends BSSID:SSID as Caller-Station-ID
+        //   - `auth_servers` is required
+        // - PSK will come from cloud WLC if source is cloud_psks
+        //   - default_psk will be used if cloud WLC is not available
+        // - `multi_psk_only` and `psk` is ignored
+        // - `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)
+        "enabled": true,
+
+        "source": "radius",  // radius (default), cloud_psks
+        "default_vlan_id": 999,
+        "default_psk": "foryoureyesonly",  // 8-63 characters
+        "private_wlan": true
+    },
+
+    "roam_mode": "none",
+
+    // radius-related
+    "auth_servers_nas_id": "5c5b350e0101-nas",
+    "auth_servers_nas_ip": "15.3.1.5",
+    "auth_servers_timeout": 5,
+    "auth_servers_retries": 3,
+    "auth_server_selection": "ordered",
+    "auth_servers": [
+        {
+            "host": "1.2.3.4",
+            "port": 1812,
+            "secret": "testing123"
+        },
+        {
+            "host": "radius.internal",
+            "port": 1812,
+            "secret": "testing123"
+        }
+    ],
+    "acct_servers": [
+        {
+            "host": "1.2.3.4",
+            "port": 1812,
+            "secret": "testing123"
+        }
+    ],
+    "acct_interim_interval": 0,
+    "dynamic_vlan": {
+        "enabled": true,
+        "type": "airespace-interface-name",
+        "vlans": {
+            "131": "default",
+            "322": "fast,video"
+        },
+        "default_vlan_id": 999,
+        "local_vlan_ids": []
+    },
+    "dns_server_rewrite": {
+        "enabled": true,
+        "radius_groups": {
+            "contractor": "172.1.1.1",
+            "guest": "8.8.8.8"
+        }
+    },
+    "coa_servers": [
+        {
+            "enabled": false,
+            "ip": "1.2.3.4",
+            "port": 3799,
+            "secret": "testing456",
+            "disable_event_timestamp_check": false
+        }
+    ],
+    "radsec": {
+        "enabled": true,
+
+        // either specific the list of radsec servers    
+        "server_name": "radsec.abc.com",
+        "servers": [
+            {
+                "host": "1.1.1.1",
+                "port": 1812
+            },
+            {
+                "host": "radsec",
+                "port": 1812
+            }
+        ],
+
+        // or if this WLAN uses mxtunnel, mxedge can be used as radsecproxy
+        "use_mxedge": true
+    },
+    "airwatch": {
+        "enabled": true,
+        "console_url": "https://hs1.airwatchportals.com",
+        "api_key": "aHhlbGxvYXNkZmFzZGZhc2Rmc2RmCg==",
+        "username": "user1",
+        "password": "test123"
+    },
+    "cisco_cwa": {
+        "enabled": false,
+
+        "allowed_subnets": [
+            "63.5.3.0/24"
+        ],
+        "allowed_hostnames": [
+            "snapchat.com",
+            "ibm.com"
+        ]
+    },
+
+    "band": "24",
+    "band_steer": true,
+    "band_steer_force_band5": true,
+
+    "rateset": {
+        "24": {
+            "min_rssi": 0,
+            "template": "default",
+            "legacy": [ "1", "2b", "5.5", "11", "6", "9", "12", "18", "24", "36", "48", "54" ],
+            "ht": "00ff00ff00ff"
+        },
+        "5": {
+            "min_rssi": -70,
+            "template": "custom",
+            "legacy": [ "6", "9", "12", "18", "24b", "36", "48", "54" ],
+            "ht": "00ff00ff00ff",
+            "vht": "03ff03ff03ff01ff"
+        }
+    },
+    // no-legacy (no 11b, copied from Cisco):
+    //    2.4: 6(B), 9, 12, 18, 24, 36, 48, 54 + HT + VHT
+    //    5:   6(B), 9, 12(B), 18, 24(B), 36, 48, 54 + HT + VHT
+
+    // compatible (all, like before, default setting that Broadcom/Atheros used):
+    //    2.4: 1(B), 2(B), 5.5(B), 6, 9, 11(B), 12, 18, 24, 36, 48, 54 + HT + VHT
+    //    5:   6(B), 9, 12(B), 18, 24(B), 36, 48, 54 + HT + VHT
+
+    // high-density (no 11b, no low rates):
+    //    2.4: 24(B), 36, 48, 54 + HT/MCS3-7,11-15,19-23,27-31 + VHT/MCS3-9
+    //    5:   24(B), 36, 48, 54 + HT/MCS3-7,11-15,19-23,27-31 + VHT/MCS3-9
+
+    // for disable ht or vht rates (boolean)
+    "disable_ht_vht_rates": true, 
+
+    // for model supporting 11AX only
+    "disable_11ax": false,
+
+    // if interface is all / eth0 / eth1 / eth2 / eth3, vlan can be specified
+    "interface": "all",
+    "vlan_enabled": false,
+    "vlan_id": 3,
+
+    // vlan pooling allows AP to place client on different VLAN using a deterministic algorithm
+    "vlan_pooling": false,
+    "vlan_ids": [3, 4, 5],
+
+    // data tunnel - L2TP/IPSec tunnel
+    "interface": "wxtunnel",
+    "wxtunnel_id": "7dae216d-7c98-a51b-e068-dd7d477b7216",
+    "wxtunnel_remote_id": "wifiguest",
+
+    // data tunnel - Mist Tunnel
+    "interface": "mxtunnel",
+    "mxtunneL_id": "08cd7499-5841-51c8-e663-fb16b6f3b45e",
+
+    // data tunnel = Mist Tunnel over Site MXEdges
+    "interface": "site_mxedge",
+    "mxtunnel_name": "default",
+
+    // whether to hide SSID
+    "hide_ssid": false,
+
+    // other advanced options
+    "dtim": 2,
+    "disable_wmm": false,
+    "disable_uapsd": false,
+    "use_eapol_v1": false,
+    "legacy_overds": false,
+    "hostname_ie": false,
+
+    // filters
+    "isolation": false,
+    "arp_filter": true,
+    "limit_bcast": false,
+    "allow_mdns": false,
+    "allow_ipv6_ndp": true,
+    "no_static_ip": false,
+    "no_static_dns": false,
+    "enable_wireless_bridging": false,
+    "limit_probe_response": false,
+
+    // access control,
+    "block_blacklist_clients": false,
+
+    // apply_to
+    "apply_to": "site",
+    "wxtag_ids": [],
+    "ap_ids": [],
+
+    // bandwidth limiting
+    "wlan_limit_up_enabled": true,
+    "wlan_limit_up": 10240,
+    "wlan_limit_down_enabled": true,
+    "wlan_limit_down": 20480,
+    "client_limit_up_enabled": true,
+    "client_limit_up": 512,
+    "client_limit_down_enabled": true,
+    "client_limit_down": 1024,
+
+    "schedule": {
+        "enabled": true,
+        "hours": {
+            "mon": "09:00-17:00",
+            "fri": "09:00-17:00"
+        }
+    },
+
+    "qos": {
+        "overwrite": true,
+        // same access class for all traffic
+        "class": "best_effort"
+    },
+
+    "app_limit": {
+        "enabled": true,
+        "apps": {
+            "netflix": 60,
+            "dropbox": 300
+        },
+        "wxtag_ids": {
+            "f99862d9-2726-931f-7559-3dfdf5d070d3": 30
+        }
+    },
+
+    "app_qos": {
+        "enabled": true,
+        "apps": {
+            "skype-business-voice": {
+                // all optional
+                "dscp": 46 // a reasonable default will be used if omitted
+            },
+            "skype-business-video": {
+                // all optional
+                "dscp": 32,
+                "src_subnet": "10.2.0.0/16", // subnet filter is not required but helps AP to only inspect certain traffic (thus reducing AP load)
+                "dst_subnet": "10.2.0.0/16"
+            }
+        },
+        "others": [
+            {
+                "protocol": "udp",
+                "src_subnet": "10.2.0.0/16",
+                "dst_subnet": "10.2.0.0/16",
+                "port_ranges": "80,1024-65535",
+                "dscp": 32
+            }
+        ]
+    },
+
+    // bonjour support is draft/experimental/subject to change
+    "bonjour": {
+        "enabled": true,
+        "services": {
+            "airprint": {
+                "scope": "same_map"  // same_ap, same_map, same_site (default)
+            },
+            "airplay": {
+                "scope": "same_ap",
+
+                // optional 
+                "radius_groups": ["teachers"]
+            }
+        },
+        "additional_vlan_ids": [80],
+        // to prevent wireless clients to discover bonjour devices on the same WLAN
+        "disable_local": false
+    },
+
+    "hotspot20": {
+         "enabled": true,
+         "operators": ["google", "att"],
+         "venue_name": "some_name",
+         "domain_name": ["mist.com"],
+         "rcoi": ["5A03BA0000"],
+         "nai_realms":[
+          {
+            "id":"mistsys.com",
+            "eap_type":"tls"
+          }
+        ]
+    },
+
+    "max_idletime": 1800,
+
+    "sle_excluded": false,
+
+    // portal - none / password / multi
+    "portal": {
+        "enabled": true,
+        "bypass_when_cloud_down": false,
+        "auth": "multi",
+        "passphrase_enabled": true,
+        "password": "let me in",
+        "forward": true,
+        "forward_url": "http://abc.com/promotions",
+        "expire": 1440,
+        "privacy": false,
+
+        "facebook_enabled": true,
+        "facebook_client_id": "...",
+        "facebook_client_secret": ".....",
+        "facebook_email_domains": [],
+
+        "google_enabled": true,
+        "google_email_domains": ["mydomain.edu", "mydomain.org"],
+
+        "amazon_enabled": false,
+        "amazon_client_id": "...",
+        "amazon_client_secret": ".....",
+        "amazon_email_domains": [],
+
+        "microsoft_enabled": false,
+        "microsoft_client_id": "....",
+        "microsoft_client_secret": ".....",
+        "microsoft_email_domains": [],
+
+        "azure_enabled": true,
+        "azure_tenant_id": ".....",
+        "azure_client_id": "....",
+        "azure_client_secret": ".....",
+
+        "sponsor_enabled": false,
+        "sponsor_email_domains": ["reserved.net", "reserved.org"],
+        "sponsors": {"sponsor1@company.com": "FirstName1 LastName1", "sponsor2@company.com": "FirstName2 LastName2"},
+        "sponsor_link_validity_duration": 30,
+
+        "sms_enabled": true,
+        "sms_provider": "twilio",
+        "twilio_sid":  "AC72ec6ba0ec5af30e6731c5e47abcdefgh",
+        "twilio_auth_token": "af9dac44c344a875ab5d31cb7abcdefg",
+        "twilio_phone_number": "+18548888888",
+        "broadnet_user_id": "juniper",
+        "broadnet_password": "password",
+        "broadnet_sid": "string", //default is \'MIST\'
+        "clickatell_api_key": "string",
+        "puzzel_service_id": "string",
+        "puzzel_username": "string",
+        "puzzel_password": "string",
+        "gupshup_userid": "string",
+        "gupshup_password": "string",
+
+        "email_enabled": false
+    },
+    "portal_template_url": "https://......",
+    "portal_image": "https://url/to/image.png",
+    "thumbnail": "https://url/to/image.png",
+
+    // portal - external
+    "portal": {
+        "enabled": true,
+        "auth": "external",
+        "external_portal_url": "http://myportal.abc.com"
+    },
+    "portal_api_secret": "EIfPMOykI3lMlDdNPub2WcbqT6dNOtWwmYHAd6bY",
+
+    // portal - sso
+    "portal": {
+        "enabled": true,
+        "auth": "sso",
+        "sso_issuer": "https://app.onelogin.com/saml/metadata/138130",
+        "sso_idp_cert": "-----BEGIN CERTIFICATE-----\nMIIFZjCCA06gAwIBAgIIP61/1qm/uDowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----",
+        "sso_idp_sign_algo": "sha256",
+        "sso_idp_sso_url": "https://yourorg.onelogin.com/trust/saml2/http-post/sso/138130",
+        "sso_nameid_format": "email",
+        // optional
+        "sso_forced_role": "desired",  // ignore any Role attributes and use this instead
+        "sso_default_role": "guest" // use this role if Role attribute not returned (when sso_forced_role is not defined)
+    },
+    "portal_sso_url": "https://portal.mist.com/saml/be22bba7-8e22-e1cf-5185-b880816fe2cf/login",
+
+    // portal - none / multi / external
+    "portal_allowed_subnets": [
+        "63.5.3.0/24"
+    ],
+    "portal_allowed_hostnames": [
+        "snapchat.com",
+        "ibm.com"
+    ],
+    "portal_denied_hostnames": [
+        "msg.snapchat.com"
+    ]
+}')
+
+
+// N.B portal_template will be forked out of wlan objects soon. To fetch portal_template, please query portal_template_url. To update portal_template, use Wlan Portal Template.
+
+@name("editSiteWlan")
+PUT "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "auth": {
+        "type": "psk",
+        "psk": "foryoureyesonly"
+    }
+})
+
+
+@name("deleteSiteWlan")
+DELETE "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// Portal template will be separated from Wlan object and storage of portal_template object in Wlan object will soon be deprecated
+// 
+// #### Body Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// pageTitle|string|'Welcome'
+// message|string|'Please enjoy the complimentary Wifi'
+// color|string|'#1074bc'
+// colorDark|string|'#0b5183'
+// colorLight|string|'#3589c6'
+// alignment|string|defines alignment on portal. 'left' is default.
+// passphraseLabel|string|Passphrase
+// passphraseError|string|error message when invalid passphrase is provided
+// tos|boolean|default is true
+// tosText|string|text of the Terms of Service
+// tosAcceptLabel|string|prefix of the label of the link to go to /tos
+// tosLink|string|label of the link to go to /tos
+// tosError|string|error message when tos not accepted
+// backLink|string|label of the link to go back to /logon
+// signInLabel|string|label of the button to /signin
+// poweredBy|string|"whether to show 'Powered by Mist', default is true"
+// email|boolean|"whether email field is required, default is false"
+// emailLabel|string|label of email field
+// emailError|string|error message when email not provided
+// name|boolean|"whether name field is required, default is false"
+// nameLabel|string|label of name field
+// nameError|string|error message when name not provided
+// company|boolean|"whether company field is required, default is false"
+// companyLabel|string|label of company field
+// companyError|string|error message when company not provided
+// requiredFieldLabel|string|label to denote required field
+// field1|boolean|whether to ask field1
+// field1Label|string|label of field1
+// field1Required|boolean|whether field1 is required field
+// field1Error|string|error message when field1 not provided
+// field2|boolean|whether to ask field2
+// field2Label|string|label of field2
+// field2Required|boolean|whether field2 is required field
+// field2Error|string|error message when field2 not provided
+// field3|boolean|whether to ask field3
+// field3Label|string|label of field3
+// field3Required|boolean|whether field3 is required field
+// field3Error|string|error message when field3 not provided
+// field4|boolean|whether to ask field4
+// field4Label|string|label of field4
+// field4Required|boolean|whether field4 is required field
+// field4Error|string|error message when field4 not provided
+// optout|boolean|whether to display 'Do Not Store My Personal Information'
+// optoutLabel|string|label for 'Do Not Store My Personal Information'
+// authButtonPassphrase|string|label for passphrase auth button
+// passphraseTitle|string|Title for passphrase details page
+// passphraseMessage|string|'Login using passphrase'
+// passphraseSubmit|string|'Sign in'
+// passphraseCancel|string|'Cancel'
+// authButtonGoogle|string|label for Google auth button
+// authButtonFacebook|string|label for Facebook auth button
+// authButtonSms|string|label for SMS auth button
+// emailAccessDomainError|string|error message when a user has valid social login but doesn't match specified email domains.
+// smsNumberFieldLabel|string|label for field to provide mobile number
+// smsCarrierFieldLabel|string|label for mobile carrier drop-down list
+// smsNumberSubmit|string|label for submit button for code generation
+// smsNumberCancel|string|label for canceling mobile details for SMS auth
+// smsNumberTitle|string|Title for phone number details
+// smsCodeMessage|string|'Enter the confirmation code'
+// smsCodeFieldLabel|string|'Confirmation Code'
+// smsCodeSubmit|string|Label for confirmation code submit button
+// smsCodeCancel|string|Label for cancel confirmation code submission
+// smsCodeError|string|error message when confirmation code is invalid
+// smsHaveAccessCode|string|Label for checkbox to specify that the user has access code
+// smsValidityDuration|int|how long confirmation code should be considered valid (in minutes)
+// smsMessageFormat|string|format of access code sms message.'{{code}}'and'{{duration}}'are place holders and should be retained as is.
+// sponsorEmail|string|label for Sponsor Email
+// sponsorName|string|label for Sponsor Name
+// sponsorSubmit|string|submit button label to notify sponsor about guest request
+// sponsorStatusDenied|string|text to display when sponsor denies request
+// sponsorStatusApproved|string|text to display if sponsor approves request
+// sponsorStatusPending|string|text to display if request is still pending
+// sponsorEmailError|string|'Please provide valid sponsor email'
+// sponsorNameError|string|'Please provide sponsor's name'
+// sponsorBackLink|string|'Go back and edit request form'
+// sponsorCancel|string|'Cancel'
+// sponsorInfoApproved|string|'Your request was approved by'
+// sponsorInfoDenied|string|'Your request was denied by'
+// sponsorInfoPending|string|'Your notification has been sent to'
+// sponsorNotePending|string|'Please wait for them to acknowledge.'
+// authButtonSponsor|string|label for Sponsor auth button
+// authButtonAmazon|string|label for Amazon auth button
+// authButtonAzure|string|label for Azure auth button
+// authButtonEmail|string|label for Email auth button
+// authButtonMicrosoft|string|label for Microsoft auth button
+// smsCarrierDefault|string|'Please Select'
+// smsCarrierError|string|'Please select a mobile carrier'
+// smsCodeTitle|string|'Access Code'
+// smsCountryFieldLabel|string|'Country Code'
+// smsCountryFormat|string|'+1'
+// smsNumberError|string|'Invalid Mobile Number'
+// smsNumberFormat|string|'2125551212 (digits only)'
+// smsNumberMessage|string|'We will send an access code to your mobile number which you can use to connect to the WiFi network. Message and data rates may apply.'
+// smsUsernameFormat|string|'username'
+// accessCodeAlternateEmail|string|'Use alternate email address'
+// emailMessage|string|'We will email you an authentication code which you can use to connect to the WiFi network.'
+// emailCodeError|string|'Please provide valid alternate email'
+// emailCancel|string|'Cancel'
+// emailFieldLabel|string|'Enter your email address'
+// emailTitle|string|'Sign in with Email'
+// emailSubmit|string|'Send Access Code'
+// authLabel|string|'Connect to WiFi with'
+// sponsorEmailTemplate|string|html template to replace/override default sponsor email template
+// 
+// #### Sponsor Email Template Parameters 
+// Sponsor Email Template supports following template variables:
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// approve_url|Renders URL to approve the request; optionally &minutes=N query param can be appended to change the Authorization period of the guest, where N is a valid integer denoting number of minutes a guest remains authorized
+// deny_url|Renders URL to reject the request
+// guest_email|Renders Email ID of the guest
+// guest_name|Renders Name of the guest
+// field1|Renders value of the Custom Field 1
+// field2|Renders value of the Custom Field 2
+// sponsor_link_validity_duration|Renders validity time of the request (i.e. Approve/Deny URL)
+// auth_expire_minutes|Renders Wlan-level configured Guest Authorization Expiration time period (in minutes), If not configured then default (1 day in minutes)
+
+@name("editSiteWlanPortalTemplate")
+PUT "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id/portal_template"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "pageTitle": "Welcome",
+    "message": "Please enjoy the complimentary Wifi",
+    "authLabel": "Connect to WIFI with",
+    "color": "#1074bc",
+    "colorDark": "#0b5183",
+    "colorLight": "#3589c6",
+    "alignment": "left",
+
+    "passphraseCancel": "Cancel",
+    "passphraseLabel": "Passphrase",
+    "passphraseError": "Invalid Passphrase",
+    "passphraseMessage": "Enter the secret passphrase to access the WiFi network.",
+    "passphraseSubmit": "Sign In",
+    "passphraseTitle": "Sign in with Passphrase",
+
+    "tos": true,
+    "tosText": "terms of service",
+    "tosAcceptLabel": "I accept the Terms of Service",
+    "tosLink": "Terms of Service",
+    "backLink": "Back to Sign In",
+    "tosError": "Please review and accept terms of service",
+
+    "optout": false,
+    "optoutLabel": "Do not store"
+
+    "email": true,
+    "emailLabel": "Email",
+    "emailError": "Please provide valid email",
+
+    "name": true,
+    "nameLabel": "Name",
+    "nameError": "Please provide your name",
+
+    "company": true,
+    "companyLabel": "Company",
+    "companyError": "Please provide company name",
+
+    "field1": true,
+    "field1Label": "Custom1",
+    "field1Required": true,
+    "field1Error": "Please provide field1",
+    "field2": true,
+    "field2Label": "Custom1",
+    "field2Required": false,
+    "field2Error": "Please provide field2",
+    "field3": true,
+    "field3Label": "Custom1",
+    "field3Required": false,
+    "field3Error": "Please provide field3",
+    "field4": true,
+    "field4Label": "Custom1",
+    "field4Required": false,
+    "field4Error": "Please provide field4",
+
+    "requiredFieldLabel": "required",
+
+    "signInLabel": "Sign In",
+
+    "poweredBy": true,
+
+    "authButtonAmazon": "Sign in with Amazon",
+    "authButtonAzure": "Sign in with Azure",
+    "authButtonEmail": "Sign in with Email",
+    "authButtonMicrosoft": "Sign in with Microsoft",
+    "authButtonPassphrase": "Sign in with Passphrase",
+    "authButtonGoogle": "Sign in with Google",
+    "authButtonFacebook" : "Sign in with Facebook",
+    "authButtonSms": "Sign in with Text Message",
+
+    "emailAccessDomainError": "Access is restricted by email domain",
+
+    "smsNumberFieldLabel": "Mobile Number",
+    "smsCarrierFieldLabel": "Mobile Carrier",
+    "smsCarrierDefault": "Please Select",
+    "smsCarrierError": "Please select a mobile carrier",
+    "smsNumberSubmit": "Sign In",
+    "smsNumberCancel": "Cancel",
+    "smsNumberTitle": "Text Message Confirmation",
+    "smsCodeMessage": "Enter the confirmation code",
+    "smsCodeFieldLabel": "Confirmation Code",
+    "smsCodeSubmit": "Sumbit Code",
+    "smsCodeCancel": "Cancel",
+    "smsCodeError": "Invalid Access Code",
+    "smsCodeTitle": "Access Code",
+    "smsCountryFieldLabel": "Country Code",
+    "smsCountryFormat": "+1",
+    "smsHaveAccessCode": "I have an access code",
+    "smsValidityDuration": 5,
+    "smsMessageFormat": "Code {{code}} expires in {{duration}} minutes.",
+    "smsNumberError": "Invalid Mobile Number",
+    "smsNumberFormat": "2125551212 (digits only)",
+    "smsNumberMessage": "We will send an access code to your mobile number which you can use to "
+                            "connect to the WiFi network. Message and data rates may apply.",
+    "smsUsernameFormat": "username",                           
+    "emailTitle": "Sign in with Email",
+    "emailMessage": "We will email you an authentication code which you can use to connect to the WiFi network.",
+    "accessCodeAlternateEmail": "Use alternate email address",
+    "emailFieldLabel": "Enter your email address" ,
+    "emailSubmit": "Send Access Code",
+    "emailCancel": "Cancel",
+    "emailCodeError": "Please provide valid alternate email",
+
+    "authButtonSponsor": "Sign in as Guest",
+    "sponsorEmailError": "Please provide valid sponsor email",
+    "sponsorNameError": "Please provide sponsor name",
+    "sponsorBackLink": "Go back and edit request form",
+    "sponsorCancel": "Cancel",
+    "sponsorEmail": "Sponsor Email",
+    "sponsorName": "Sponsor Name",
+    "sponsorInfoApproved": "Your request was approved by",
+    "sponsorInfoDenied": "Your request was denied by",
+    "sponsorInfoPending": "Your notification has been sent to",
+    "sponsorNotePending": "Please wait for them to acknowledge.",
+    "sponsorStatusApproved": "Your request was approved",
+    "sponsorStatusDenied": "Your request was denied",
+    "sponsorStatusPending": "Notification Sent",
+    "sponsorSubmit": "Notify Sponsor",
+    // Email Customization
+    "sponsorEmailTemplate": "<html template to replace/override default sponsor email template>",
+}')
+
+
+// #### Request
+// A multi-part POST
+// 
+// ```
+// "json": a JSON string describing your upload
+// "file": a binary file
+// ```
+
+@name("uploadSiteWlanPortalImage")
+POST "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id/portal_image"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+@name("deleteSiteWlanPortalImage")
+DELETE "https://{{host}}/api/v1/sites/:site_id/wlans/:wlan_id/portal_image"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// Test Twilio Setup
+// #### Body Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  twilio_sid|string|Twilio Account SID
+//  twilio_auth_token|string|Auth Token associated with twilio account
+//  from|string|One of the numbers you have in your Twilio account
+//  to|string|Phone number of the recipient of SMS
+//  
+// In case of success, a text message confirming successful setup should be received. In case of error, twilio error code and message are returned.
+
+@name("testSiteWlanTwilioSetup")
+POST "https://{{host}}/api/v1/utils/test_twilio"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "twilio_sid": "AC5f4366878d193fb4865ab151739999eb",
+    "twilio_auth_token": "2135be04736a1a0a314bce432d61721a",
+    "from": "+185051234567",
+    "to": "+19999999999"
+})
+
+
+

@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Schemas")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas"
+
+
+// #### `expand` Parameter
+// Can set to `attributes` to have the Schema's Attributes included in `_embedded`.
+
+@name("READ One Schema")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}"
+
+
+@name("READ All (Schema) Attributes")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes"
+
+
+// #### Attribute Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | N | Y | String; must begin with a letter and contain only ASCII letters and digits | Cannot be one of the reserved names: `devices`, `linkedAccounts`, `pairingCodes`, `password`, `roleAssignments`
+// displayName | Y | N | String; must not be an empty string. Valid characters consists of any Unicode letter, mark (e.g. accent, umlaut), numeric character, punctuation character, or space. | 
+// description | Y | N | String | 
+// type | N | N | One of: `STRING`, `JSON`; default `STRING` | 
+// unique | Y | Y | Boolean | Only `STRING` type attributes may have unique set to `true`
+// enabled | Y | Y | Boolean | 
+
+@name("CREATE Attribute")
+POST "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes"
+"Content-Type": "application/json"
+data('{
+    "description": "my custom attribute",
+    "enabled": true,
+    "name": "customAttribute",
+    "required": false,
+    "schemaType": "CUSTOM",
+    "type": "STRING",
+    "unique": false
+}')
+
+
+@name("READ One Attribute")
+GET "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Attribute (Patch)")
+PATCH "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+data('{
+    "unique": true,
+    "enabled": false,
+    "required": true
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Attribute (Put)")
+PUT "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+data('{
+	"name": "customAttribute",
+    "unique": true,
+    "enabled": false,
+    "required": true
+}')
+
+
+@name("DELETE Attribute")
+DELETE "https://{{apiPath}}/environments/{{envID}}/schemas/{{schemaID}}/attributes/{{attributeID}}"
+"Content-Type": "application/json"
+
+
+
+

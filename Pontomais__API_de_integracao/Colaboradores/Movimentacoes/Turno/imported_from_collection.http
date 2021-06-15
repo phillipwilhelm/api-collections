@@ -1,0 +1,150 @@
+#!/usr/bin/env dothttp
+
+// Lista as movimentações de turno colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início no turno |
+// | shift | Object | Turno da movimentação (Verifique a tabela descritiva do objeto)|
+// | shift_day | Object | Dia de início no turno (Verifique a tabela descritiva do objeto)|
+// 
+// 
+// #### Formato do objeto shift
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome do turno                                          |
+// | code | String (60)  | Código identificador do turno |
+// 
+// #### Formato do objeto shift_day
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | cyclic_day | Integer  | Número do dia                                         |
+// | shift_id | Integer  | ID do turno |
+// | periods | Array | Conjuntos de períodos do dia (Verifique a tabela descritiva dos objetos do array **periods**) |
+// 
+// #### Formato dos objetos do array periods
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | enter_time   | String | Horário de início do período |
+// | leave_time | String  | Horário de fim do período                              |
+// | main_interval_after | Boolean  | Após o intervalo principal da jornada? |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/shift_changes"
+"access-token": "{{client_token}}"
+? "attributes"= "id,shift,date,shift_day"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Rota para detalhar a movimentação de turno do colaborador
+// 
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | shift_change_id | Integer | Sim | ID da movimentação |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início no turno |
+// | shift | Object | Turno da movimentação (Verificar tabela descritiva do objeto)|
+// | shift_day | Object | Dia de início no turno (Verifique a tabela descritiva do objeto)|
+// 
+// 
+// #### Formato do objeto shift
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome do turno                                          |
+// | code | String (60)  | Código identificador do turno |
+// 
+// #### Formato do objeto shift_day
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | cyclic_day | Integer  | Número do dia                                         |
+// | shift_id | Integer  | ID do turno |
+// | periods | Array | Conjuntos de períodos do dia (Verifique a tabela descritiva dos objetos do array **periods**) |
+// 
+// #### Formato dos objetos do array periods
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | enter_time   | String | Horário de início do período |
+// | leave_time | String  | Horário de fim do período                              |
+// | main_interval_after | Boolean  | Após o intervalo principal da jornada? |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/shift_changes/{{shift_change_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,shift,date,shift_day"
+
+
+// Cria uma movimentação de turno para o colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | date | Date | Sim | Data de início no turno |
+// | shift_id | Integer | Sim | ID do turno a ser movimentado |
+// | shift_day_id | Integer | Não | ID do dia inicial, somente para os turnos (12h/36h, 24h/72h, 5d/1d). **[Consultar os dias do turno](#daca1e16-cdd2-4021-9538-d382c3b3c0a5)**.
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/shift_changes"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"shift_change":{
+		"date":"{{date}}",
+		"shift_id":{{shift_id}},
+		"shift_day_id": {{shift_day_id}}		
+	}
+}')
+
+
+// Exclui uma movimentação de turno do colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | shift_change_id | Integer | Sim | ID da movimentação |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/shift_changes/{{shift_change_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

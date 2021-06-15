@@ -1,0 +1,155 @@
+#!/usr/bin/env dothttp
+
+// View an array of all Services added to your Statping instance.
+
+@name("All Services")
+GET "https://{{endpoint}}/api/services"
+
+
+// View a specific service, this will include the service's failures and checkins.
+
+@name("View Service")
+GET "https://{{endpoint}}/api/services/1"
+"Content-Type": "application/json"
+
+
+// View the chart data for the service's latency. The response returns an array of objects as `timeframe` for timestamp, and `amount` for value in ascending order.
+// 
+// ## Grouping Data
+// You can group the chart data by using the `group` parameter. For example, if you want to group hits in 12 hours, you could use `12h`. You can also group by minutes like `15m` for 15 minutes.
+
+@name("View Service Chart Data")
+GET "https://{{endpoint}}/api/services/1/hits_data"
+"Content-Type": "application/json"
+? "start"= "{{start_time}}"
+? "end"= "{{end_time}}"
+? "group"= "1h"
+
+
+// View the chart data for the service's ping response time. The response returns an array of objects as `timeframe` for timestamp, and `amount` for value in ascending order.
+// 
+// ## Grouping Data
+// You can group the chart data by using the `group` parameter. For example, if you want to group hits in 12 hours, you could use `12h`. You can also group by minutes like `15m` for 15 minutes.
+
+@name("View Service Ping Data")
+GET "https://{{endpoint}}/api/services/1/ping_data"
+"Content-Type": "application/json"
+? "start"= "{{start_time}}"
+? "end"= "{{end_time}}"
+? "group"= "12h"
+
+
+// View the data service failures in a heatmap. The response returns an array of objects as `timeframe` for timestamp, and `amount` for value in ascending order.
+// 
+// ## Grouping Data
+// You can group the chart data by using the `group` parameter. For example, if you want to group hits in 12 hours, you could use `12h`. You can also group by minutes like `15m` for 15 minutes.
+
+@name("View Service Failure Data")
+GET "https://{{endpoint}}/api/services/1/failure_data"
+"Content-Type": "application/json"
+? "start"= "{{start_time}}"
+? "end"= "{{end_time}}"
+? "group"= "12h"
+
+
+// Returns an array of failures for this service. It includes the error message, http status code, and the ping response time.
+
+@name("View Service Failures")
+GET "https://{{endpoint}}/api/services/1/failures"
+"Content-Type": "application/json"
+? "start"= "{{start_time}}"
+? "end"= "{{end_time}}"
+
+
+// Returns on array of all the successful hits for this service.
+
+@name("View Service Hits")
+GET "https://{{endpoint}}/api/services/1/hits"
+"Content-Type": "application/json"
+? "start"= "{{start_time}}"
+? "end"= "{{end_time}}"
+
+
+// Reorder services in a specific order for the index page.
+
+@name("Reorder Services")
+POST "https://{{endpoint}}/api/reorder/services"
+"Content-Type": "application/json"
+data('[{"service":1,"order":1},{"service":2,"order":3},{"service":3,"order":4},{"service":4,"order":5}]')
+
+
+// View a specific service, this will include the service's failures and checkins.
+// 
+// #### Service Type Field
+// - `http` - HTTP Service
+// - `tcp` - TCP Service
+// - `udp` - UDP Service
+// - `icmp` - ICMP Service
+// - `grpc` - gRPC Service
+// - `static` - Static Service
+
+@name("Create Service")
+POST "https://{{endpoint}}/api/services"
+"Content-Type": "application/json"
+data('{
+    "name": "New Service",
+    "domain": "https://statping.com",
+    "expected": "",
+    "expected_status": 200,
+    "check_interval": 30,
+    "type": "http",
+    "method": "GET",
+    "post_data": "",
+    "port": 0,
+    "timeout": 30,
+    "order_id": 0
+}')
+
+
+// Update a service with new values and begin monitoring.
+
+@name("Update Service")
+POST "https://{{endpoint}}/api/services/{{service_id}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Brand New Service",
+    "domain": "https://google.net",
+    "expected": "heyyyy",
+    "expected_status": 200,
+    "check_interval": 20,
+    "type": "http",
+    "method": "GET",
+    "post_data": "",
+    "port": 0,
+    "timeout": 10,
+    "order_id": 0
+}')
+
+
+// Update a Static Service by setting it's online status to true or false. If false, you can include a issue string in the `issue` JSON field.
+
+@name("Update Static Service")
+PATCH "https://{{endpoint}}/api/services/7"
+"Content-Type": "application/json"
+data('{
+    "online": false,
+    "latency": 30500,
+    "issue": "This is a failure string you can create"
+}')
+
+
+// Delete all the service failures.
+
+@name("Delete Service Failures")
+DELETE "https://{{endpoint}}/api/services/{{service_id}}/failures"
+
+
+
+// Delete a service and stops monitoring.
+
+@name("Delete Service")
+DELETE "https://{{endpoint}}/api/services/{{service_id}}"
+
+
+
+

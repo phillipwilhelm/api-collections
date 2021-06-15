@@ -1,0 +1,317 @@
+#!/usr/bin/env dothttp
+
+// #### Search good receipts in ERP
+// *(sapBusinessOne=59/OIGN, totvsProtheus=SD3)*
+// 
+// This service will allow you to search good receipts on the ERP.
+// 
+// Searching good receipts allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `productKey` {optional}
+// - Unitary search: by `erpKey` or `docNum` or `erpId` (Protheus only)
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `docNum` or `erpId`), the query for good receipts is carried out by creation date from/to (which become mandatory).
+// 
+// The good receipts service will consider good receipts with:
+// - SAP Business One: OIGN.ObjType = 59
+// - TOTVS Protheus: D3_CF IN 'DE' AND NOT 'DE4'/'DE7'
+// 
+// Comments:
+// - `branch`: SAP Business One (OIGN.BPLId), TOTVS Protheus (D3_FILIAL)
+// - `productKey`: SAP Business One (IGN1.ItemCode), TOTVS Protheus (D3_COD)
+// - `erpKey`: SAP Business One (OIGN.DocEntry), TOTVS Protheus (D3_NUMSEQ)
+// - `erpId`: TOTVS Protheus (R_E_C_N_O_)
+// - `docNum`: SAP Business One (OIGN.DocNum), TOTVS Protheus (D3_DOC)
+// - `status`: O = open, S = storned (D3_ESTORNO=S)
+// - `lineStatus`: O = open, S = storned (D3_ESTORNO=S)
+// 
+// Data returned in response: Order data, Partner data, Items (+ taxes), Totals, Payments, Taxes, good receipts
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the sales order list in two situations:
+// - Full Search: will result in all sales orders, according to filters.
+// - Incremental Search: will result in all sales orders, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the updatedAt field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales orders should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OIGN.CreateDate, OIGN.UpdateDate, OIGN.CreateTS, OIGN.UpdateTS), [2] TOTVS Protheus: fields D3_USERLGI and D3_USERLGA
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Good Receipts")
+GET "https://{{endpoint}}/goodReceipts"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-01"
+? "createdTo"= "2020-11-30"
+? "branch"= "2"
+? "productKey"= "MP000001"
+? "erpKey"= "53929"
+? "docNum"= "000001011"
+? "pageNum"= "2"
+? "updatedAt"= "2020-08-26T00:00:00"
+
+
+// #### Search good issues in ERP
+// *(sapBusinessOne=60/OIGE, totvsProtheus=SD3)*
+// 
+// This service will allow you to search good issues on the ERP.
+// 
+// Searching good issues allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `productKey` {optional}
+// - Unitary search: by `erpKey` or `docNum`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `docNum`), the query for good issues is carried out by creation date from/to (which become mandatory).
+// 
+// The good issues service will consider good issues with:
+// - SAP Business One: [1] OIGE.ObjType='60'
+// - TOTVS Protheus: [1] D3_CF IN 'RE' AND NOT 'RE4'/'RE7'
+// 
+// Comments:
+// - `branch`: SAP Business One (OIGE.BPLId), TOTVS Protheus (D3_FILIAL)
+// - `productKey`: SAP Business One (IGE1.ItemCode), TOTVS Protheus (D3_COD)
+// - `erpKey`: SAP Business One (OIGE.DocEntry), TOTVS Protheus (D3_NUMSEQ)
+// - `erpId`: TOTVS Protheus (R_E_C_N_O_)
+// - `docNum`: SAP Business One (OIGE.DocNum), TOTVS Protheus (D3_DOC)
+// - `status`: O = open, S = storned (D3_ESTORNO=S)
+// - `lineStatus`: O = open, S = storned (D3_ESTORNO=S)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the good issues list in two situations:
+// - Full Search: will result in all good issues, according to filters.
+// - Incremental Search: will result in all good issues according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which good  issues should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OIGE.CreateDate, OIGE.UpdateDate, OIGE.CreateTS, OIGE.UpdateTS), [2] TOTVS Protheus: fields D3_USERLGI and D3_USERLGA
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Good Issues")
+GET "https://{{endpoint}}/goodIssues"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-10"
+? "createdTo"= "2020-11-10"
+? "branch"= "1"
+? "productKey"= "PA00311"
+? "erpKey"= "53929"
+? "docNum"= "121313"
+? "pageNum"= "1"
+? "updatedAt"= "2020-08-26T00:00:00"
+
+
+// #### Insert good issue in ERP
+// *(sapBusinessOne=60/OIGE, totvsProtheus=SD3)*
+// 
+// ## <<< NOT YET AVAILABLE. RELEASE IN 2020 Q4 >>>
+// 
+// This service will allow you to insert a new good issue on the ERP.
+// 
+// To insert a new good issue you need to inform branch and items. Optionally you can inform whsCode, reference and comments.
+// 
+// Products sent to the service will be validated for the search key. Products can be identified in the ERP in 2 ways:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// This service does not have user field (UDF) treatment.
+// 
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |branch | number | Branch 
+// baseKey | string | Base Key
+// totalWeight | number | Total Weight
+// totalVolume | number | Total Volume
+// totalCubage | number | Total cubage
+// items | array | invoice Items Object
+// items.lineNum | string | number line  
+// items.productKey | string | Product key
+// items.codeBars | string | Code bars
+// items.quantity | number | quantity
+// payments | array |  Method
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.details | object | details
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | string | Acquire
+// payments.details.tid | string | tid
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | Code
+// success | booleano | success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Good Issues*")
+PUT "https://{{endpoint}}/goodIssues"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+data('{
+    "branch": "3",
+    "#whsCode": "05",
+    "reference":"ks-15",
+    "comments":"TAIS NASCIMENTO DA SILVA",
+    "items": [
+        {
+            "#lineNum": 1,
+            "productKey": "PA00013",
+            "quantity": 40,
+            "issueReason": "07",
+            "batchNumbers": [
+                {
+                    "batchCode": "200661",
+                    "expirationDate": "2021-03-06",
+                    "quantity": 40
+                }
+            ]
+        }
+    ]
+}')
+
+
+// #### Search stock transfers in ERP
+// *(sapBusinessOne=67/OWTR, totvsProtheus=SD3)*
+// 
+// This service will allow you to search stock transfers on the ERP.
+// 
+// Searching stock transfers allows you to filter the ERP by:
+// - List search: by `branch` and `createdFrom` + `createdTo`, by `productKey` {optional}
+// - Unitary search: by `erpKey` or `docNum`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `docNum`), the query for sales orders is carried out by creation date from/to (which become mandatory).
+// 
+// The stock transfers service will consider stock transfers with:
+// - SAP Business One: OWTR.ObjType = 67
+// - TOTVS Protheus: D3_CF IN DE4 RE4 DE7 RE7
+// 
+// Comments:
+// - `branch`: SAP Business One (OWTR.BPLId), TOTVS Protheus (D3_FILIAL)
+// - `productKey`: SAP Business One (OWTR.CardCode), TOTVS Protheus (D3_COD)
+// - `erpKey`: SAP Business One (OWTR.DocEntry), TOTVS Protheus (D3_NUMSEQ)
+// - `erpId`: TOTVS Protheus (R_E_C_N_O_)
+// - `docNum`: SAP Business One (OWTR.DocNum), TOTVS Protheus (D3_DOC)
+// - `status`: O = open, S = storned (D3_ESTORNO=S)
+// - `lineStatus`: O = open, S = storned (D3_ESTORNO=S)
+// - `quantity`, `totalCost`: positive for transfer receipts, negative for transfer issues
+// 
+// Data returned in response: stock transfer data
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the stock transfers list in two situations:
+// - Full Search: will result in all stock transfers, according to filters.
+// - Incremental Search: will result in all stock transfers, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the updatedAt field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which stock transfers should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OWTR.CreateDate, OWTR.UpdateDate, OWTR.CreateTS, OWTR.UpdateTS), [2] TOTVS Protheus: fields D3_USERLGI and D3_USERLGA
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Stock Transfers")
+GET "https://{{endpoint}}/stockTransfers"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-10"
+? "createdTo"= "2020-11-10"
+? "branch"= "1"
+? "productKey"= "C001"
+? "erpKey"= "53929"
+? "docNum"= "121313"
+? "pageNum"= "2"
+? "updatedAt"= "2020-08-26T00:00:00"
+
+
+// #### Search inventory countings in ERP
+// *(sapBusinessOne=1470000065/OINC, totvsProtheus=SB7)*
+// 
+// This service will allow you to search inventory countings on the ERP.
+// 
+// Searching inventory countings allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `productKey` {optional}
+// - Unitary search: by `erpKey` or `docNum`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `docNum`), the query for inventory countings is carried out by creation date from/to (which become mandatory).
+// 
+// The inventory countings service will consider inventory countings with:
+// - SAP Business One: [1] OINC.ObjType='1470000065'
+// - TOTVS Protheus: 
+// 
+// Comments:
+// - `branch`: SAP Business One (OINC.BPLId), TOTVS Protheus (B7_FILIAL)
+// - `productKey`: SAP Business One (INC1.ItemCode), TOTVS Protheus (B7_COD)
+// - `erpKey`: SAP Business One (OINC.DocEntry), TOTVS Protheus (B7_DOC)
+// - `docNum`: SAP Business One (OINC.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O = open, C = closed, X=canceled
+// 
+// Data returned in response: inventory countings data
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the inventory countings list in two situations:
+// - Full Search: will result in all inventory countings, according to filters.
+// - Incremental Search: will result in all inventory countings, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales orders should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OINC.CreateDate, OINC.UpdateDate, OINC.CreateTS, OINC.UpdateTS), [2] TOTVS Protheus: fields B7_USERLGI and B7_USERLGA
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Inventory Countings")
+GET "https://{{endpoint}}/inventoryCountings"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-10"
+? "createdTo"= "2020-11-10"
+? "branch"= "1"
+? "productKey"= "MP000002"
+? "erpKey"= "53929"
+? "docNum"= "121313"
+? "pageNum"= "2"
+? "updatedAt"= "2020-08-26T00:00:00"
+
+
+

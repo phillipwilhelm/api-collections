@@ -1,0 +1,162 @@
+#!/usr/bin/env dothttp
+
+// Request for product price lists. 
+// 
+// This call will initiate a process that will generate price lists asynchronously in a requested format and email you a link to an address of your choice.
+// 
+// The email body will contain a link which will be accessible for 24 hours only. On  clicking the link a `data.zip` file will be downloaded which will include the price list files in either JSON or CSV format from the production data set.
+// 
+// To get a "delta" (any changes to pricing) you can specify the fromDate field with the query date. The call will generate a `data.zip` containing only the product price lists which have had any price changes since the specified date.
+// 
+// Please note that the Sandbox environment pricelist contains limited range of products. The products IDs returned are different between the Sandbox and the Live environments.
+// 
+// ### Request Body Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |email|string|yes|The target Email to which to send the generated price lists, e.g. customer@company.com|
+// |markup|number|no|The price markup expressed in percentage, e.g. `15` = 15%. Set it to 0 to disregard applying markup to the prices.|
+// |format|string|yes|The requested file format. This can be either `json` or `csv`.|
+// |productNames|string|no|Optional filter which accepts a string array and allows you to specify which price lists for which products to send. If nothing specified all available products will be returned, e.g. `["Flyers", "Comp slips"]`. These are solely for testing purposes.|
+// |fromDate|string|no|Optional date field in the `DD/MM/YYYY` formay which allows you to get a "delta" for your price list.|
+// 
+// **The product name example provided are solely for testing purposes.**
+
+@name("Request Price Lists for Multiple Products")
+POST "https://{{environmentUrl}}/v2/products-v2"
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1OTAwNTAzMTAsImV4cCI6MTU5MDA4MjcxMH0.32hwlFliE-R1-IIzVED96J1aWlTcVoRUN5LxZooCgM8"
+"Content-Type": "application/json"
+data('{
+	"email": "pjfernandes@tradeprint.co.uk",
+	"productNames": [
+		"Triplex BC"
+	],
+	"markup": null,
+	"format": "json",
+	"fromDate": "{{fromDate}}"
+}')
+
+
+// Gets a signed S3 URL which you can use to download your product price list.
+
+@name("Request Price List for Single Product")
+POST "https://{{environmentUrl}}/v2/products-v2/{{productName}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"format": "{{format}}",
+	"markup": {{markup}},
+	"fromDate": "{{fromDate}}"
+}')
+
+
+// This call will return all products' attributes from the customer's pricelist.
+
+@name("Get All Products Attributes")
+GET "https://{{environmentUrl}}/v2/products-v2/attributes-v2"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+
+
+// This call will return specific product attributes from the customer's price list.
+
+@name("Get Attributes for Specific Product")
+GET "https://{{environmentUrl}}/v2/products-v2/attributes-v2/{{productName}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+
+
+// This call will return the specific product quantity values.
+
+@name("Request Product Quantities")
+POST "https://{{environmentUrl}}/v2/products-v2/quantities-v2"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"productId": "{{productId}}",
+	"serviceLevel": "{{serviceLevel}}",
+	"productionData": "{{productionData}}"
+}')
+
+
+// Get the expected delivery date for a product selection.
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`productId`|string|yes|Tradeprint Product ID.|
+// |`productionData`|object|yes|Relevant production attributes can be found within your pricelist and add a link to products endpoint.|
+// |`serviceLevel`|string|yes|Manufacturing speed (`Saver`, `Standard`, `Express`, `Same Day`).|
+// |`quantity`|number|yes|The quantity to be manufactured.|
+// |`artworkService`|string|yes|Supply the artwork service: `Just Print`, `File Check`, `File Assist` or `File Check with Proofing`.|
+// |`deliveryAddress`|object|no|Optional delivery address details for precise location-based expected delivery date calculation.|
+// 
+// ### Delivery Address ###
+// 
+// `deliveryAddress` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`postcode`|string|yes|The postcode to determine where the item is meant to be delivered too, e.g. `DD2 1TP`.|
+
+@name("Get Expected Delivery Date")
+POST "https://{{environmentUrl}}/v2/products/expectedDeliveryDate"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"productId": "{{productId}}",
+	"productionData": {
+		"Lamination": "None",
+	    "Paper Type": "400gsm Art Board Silk Finish",
+	    "Round Corners": "Yes",
+	    "Sets": "1",
+	    "Sides Printed": "Double Sided",
+	    "Spot Uv": "None"
+	},
+	"serviceLevel": "{{serviceLevel}}",
+	"quantity": {{quantity}},
+	"artworkService": "{{artowrkService}}",
+	"deliveryAddress": {
+		"postcode": "{{postcode}}"
+	}
+}')
+
+
+// Request for product price. 
+// 
+// This call will initiate a process that will fetch price for the provided product id, production data and quantity
+// 
+// Please note that the Sandbox environment pricelist contains limited range of products. The products IDs are different between the Sandbox and the Live environments.
+// 
+// ### Request Body Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |productId|string|yes|product id|
+// |productionData|object|yes|production data|
+// |quantity|number|yes|quantity|
+// |serviceLevel|string|no|service level should be either one [Standard, Express, Saver, Same Day] |
+
+@name("Get product price using production data")
+POST "https://sandbox.orders.tradeprint.io/v2/products/prices"
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBhdWxUZXN0IiwiaWF0IjoxNjA4NzExODYwLCJleHAiOjE2MDg3NDA2NjB9.ofK0H7v7SwzzfKD16dDFg4Bt7YGTvpCMNFuL5DH04tc"
+"Content-Type": "application/json"
+json({
+    "productId": "PRD-MVFQKWCI",
+    "productionData": {
+        "Size": "A5",
+        "Drilling": "2 hole",
+        "Paper Type": "4 Part NCR",
+        "Sides Printed": "Black Only Double Sided",
+        "Starting Number": "0",
+        "NCR 2nd Copy Colour": "White",
+        "NCR 3rd Copy Colour": "Yellow",
+        "NCR Top Copy Colour": "White",
+        "Fixed Writing Shield": "No",
+        "Binding or Gluing edge": "Short Edge",
+        "NCR Bottom Copy Colour": "Pink"
+    },
+    "quantity": 1000
+})
+
+
+

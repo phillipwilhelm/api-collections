@@ -1,0 +1,74 @@
+#!/usr/bin/env dothttp
+
+// Within the GUI, a role can be added to an application by selecting the application, clicking on **Manage Roles**
+// and then pressing the plus next to the Role label.
+// 
+// ![](https://fiware.github.io/tutorials.Roles-Permissions/img/create-role.png)
+// 
+// Just fill out the wizard and click save.
+// 
+// To create a new role via the REST API, send a POST request to the `/applications/{{application-id}}/roles` endpoint
+// containing the `name` of the new role, with the `X-Auth-token` header from a previously logged in user.
+// 
+// The details of the created role are returned
+
+@name("Create a Role")
+POST "http://{{keyrock}}/v1/applications/{{application-id}}/roles"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "role": {
+    "name": "Management"
+  }
+}')
+
+
+// The `/applications/{{application-id}}/roles/{role-id}}` endpoint will return the role
+// listed under that id. The `X-Auth-token` must be supplied in the headers.
+// 
+// The response returns the details of the requested role.
+
+@name("Read Role details")
+GET "http://{{keyrock}}/v1/applications/{{application-id}}/roles/{{role-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+@name("List Roles")
+GET "http://{{keyrock}}/v1/applications/{{application-id}}/roles"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+// It is possible to amend the name of a role using a  PATCH request is sent to the `/applications/{{application-id}}/permissions/{permission-id}}`  endpoint.
+// 
+// The response contains a list of the fields which have been amended.
+
+@name("Update a Role")
+PATCH "http://{{keyrock}}/v1/applications/{{application-id}}/roles/{{role-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "role": {
+    "name": "Security Team"
+  }
+}')
+
+
+// Application roles can also be deleted - this will also remove the role from any users.
+
+@name("Delete a Role")
+DELETE "http://{{keyrock}}/v1/applications/{{application-id}}/roles/{{role-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+

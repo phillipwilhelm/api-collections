@@ -1,0 +1,89 @@
+#!/usr/bin/env dothttp
+
+// This method allows the developer to send a text or picture message (Or Both!) to an opted-in subscriber from the store you assign within your auth string.  By default, all calls to this method will go out on the communication short code that the customer is assigned to by cloudwi.re for the requested store.  This method is not to be utilized for sending bulk campaigns.
+// 
+// Any message attempted to a subscriber who is not in an opted-in state will be reported as an error in the Get Status method and delivered to the store call back URL.
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>If the subscriber is not opted-in cloudwi.re won't attempt a message.</li>
+// <li>Messages are limited to 1600 characters, but we advise 160. </li>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Message Status in the Messaging Folder.</li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>cloudwi.re Supports .JPG, .GIF and .PNG files.  Read the Supported Media guide for more information.</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// <li>We have unpublished features for one and two way mobile alerts.  Contact <a href="mailto:support@cloudwi.re">support@cloudwi.re</a>.</li>
+// </ul>
+
+@name("Send Message")
+POST "https://moonbeamapi.cloudwi.re/message/send/message"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("mobileId", "{{mobileId}}"),
+	("message", "Your message."),
+	("mediaUrl", "The MMS URL")
+)
+
+
+// This method allows the developer to send a response to a subscriber that has sent a responder keyword to a cloudwi.re marketing short code.  Keep in mind that cloudwi.re can automate this task for you using the Edit Responder Keyword Content in the Keyword Creation & Management resource.  
+// 
+// But for those developers who wish to reply to responder keywords dynamically, this method will come in handy.  cloudwi.re will validate your parameters for spam prevention.  But if your parameters show the keyword and short code you request as belonging to your store, cloudwi.re will send the message and it will go out regardless of the opt-in status of the subscriber. 
+// 
+// The subscriber is requesting only one response.  Any additional follow-up messages utilizing this method to a subscriber is not compliant and is a violation of the cloudwi.re terms & conditions.  
+// 
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>Messages are limited to 1600 characters, but we advise 160. </li>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Message Status in the Messaging Folder.</li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>cloudwi.re Supports .JPG, .GIF and .PNG files.  Read the Supported Media guide for more information.</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// <li>We have unpublished features for one and two way mobile alerts.  Contact <a href="mailto:support@cloudwi.re">support@cloudwi.re</a>.</li>
+// </ul>
+
+@name("Send Responder Keyword Message")
+POST "https://moonbeamapi.cloudwi.re/message/send/responderkeywordmessage"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("mobileId", "The Mobile Number"),
+	("keywordId", "{{keywordId}}"),
+	("message", "your message"),
+	("mediaUrl", "The MMS URL")
+)
+
+
+// This method allows the developer to retrieve the status of any outbound mobile terminated message sent to the SMS API that involves the Single Messaging Class.  That includes the subscriber opt-in methods, Send Message and Send Responder Keyword Message.  When using the mentioned methods, cloudwi.re will respond with a tranasactionId.  The transactionId will be used in the URL when calling Get Message Status.
+// 
+// It does not include any messages sent via Send Campaign.  Status reports for any campaigns can be retrieved in the Campaign Folder using Get Campaign Status.
+// 
+// cloudwi.re recommends to developers that a timer set to a minimum of 5 seconds be set and allowed to pass before retrieving message status.  Although generally, the carriers report the final status in less than a second, this process can sometimes take longer during high queuing events. 
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>This method will check delivery status from Opt-in, Opt-out, Send Message and Send Responder Keyword messages.</li>
+// <li>Set a timer to check individual deliveries at least 5 seconds after you attempt the send.</li>
+// <li>During high usage events, you may get messages that are queued.  You may flip back and check again at your leisure.</li>
+// </ul>
+
+@name("Message Status")
+GET "https://moonbeamapi.cloudwi.re/message/status/{{messageId}}"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "57fefdefd16a10e24608ad9a"),
+	("mobileId", "14155964193"),
+	("message", "Hi there!  Ok I'm here.")
+)
+
+
+

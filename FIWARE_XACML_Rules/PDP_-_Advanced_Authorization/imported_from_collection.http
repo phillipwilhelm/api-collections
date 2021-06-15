@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// In order to identify themselves, every user must obtain an access token, in
+// order to do so, they must use one of the OAuth2 access grants described in a
+// [previous tutorial](https://github.com/Fiware/tutorials.Securing-Access).
+// 
+// To log in using the user-credentials flow send a POST request to the
+// `oauth2/token` endpoint of **Keyrock** with the `grant_type=password`
+// 
+// The response returns an `access_token` to identify the user (in this case Bob
+// the Manager)
+
+@name("Keyrock - User Obtains an Access Token")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=bob-the-manager@test.com&password=test&grant_type=password')
+
+
+// If a user has logged in, the `access_token` can be used in combiniation with the `/user` endpoint
+// to obtain access permissions to a resouce. This example retrieves Bobs's permissions to a given
+// resource.
+// 
+// Where :
+// 
+// -   `{{access-token}}` is the current access token of a logged in user (e.g.
+//     `08fef363c429cb34cfff3f56dfe751a8d1890690`)
+// -   `{{app-id}}` holds the application to request
+//     `tutorial-dckr-site-0000-xpresswebapp` and `authzforce=true` indicates that
+//     we want to obtain an **Authzforce** Domain from **Keyrock**
+// 
+// The response include an `authorization_decision` attribute which denies direct
+// access for the request, but includes additional information so that an
+// additional request a decision from **Authzforce**
+// 
+// In the example below the access token used belonged to Bob the manager, and his
+// roles and the `app_azf_domain` associated to the `app-id` are returned.
+
+@name("Keyrock - Obtain Roles and Domain")
+GET "http://{{keyrock}}/user"
+"Accept": "application/json"
+? "access_token"= "{{access-token-bob}}"
+? "app_id"= "{{app-id}}"
+? "authzforce"= "true"
+
+
+// To request a decision from Authzforce, a structured request containing all
+// relevant information must be sent to the `domains/{domain-id}/pdp` endpoint. In
+// this case, the Body of the request includes information such as the roles that
+// the User has (`managers-role-0000-0000-000000000000`), the application id that
+// is being requested (`tutorial-dckr-site-0000-xpresswebapp`) and the HTTP verb
+// and resource that are being requested ( a POST request on the `/v2/entities`
+// URL)
+// 
+// The response includes a `<Decision>` element which will either `Permit` or
+// `Deny` the request.
+
+@name("Authzforce - Apply a Policy to a Request")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pdp"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" CombinedDecision="false" ReturnPolicyIdList="false">
+   <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">managers-role-0000-0000-000000000000</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tutorial-dckr-site-0000-xpresswebapp</AttributeValue>
+      </Attribute>
+      <Attribute AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">/v2/entities</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POST</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" />
+</Request>')
+
+
+

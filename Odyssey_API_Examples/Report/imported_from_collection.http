@@ -1,0 +1,123 @@
+#!/usr/bin/env dothttp
+
+// # Email a Report
+// 
+// This method allows you to run a report and have it emailed as a PDF document after it has been generated. The list of parameters must include every parameter that the report is expecting to use, otherwise the report will generate an error and not run. Even if the value of a parameter is blank, it still must be included in the list of parameters. If you don’t specify CompanyID as one of your parameters, you can only run reports in the company that you are logged into. Report Series, and the Company override to determine which report to run will be determined based on the company that you log into and not the company that you specify as a parameter.
+// 
+// ## This example, and required parameters
+// 
+// You must provide all parameters that are defined in your Crystal Report - even those which are blank or left as their default values. This example shows how to run the PC7200, Scrap Analysis by Reason report. Even some of the report parameters which are filled in by Odyssey's interface must be supplied when running the report through the Odyssey API.
+// 
+// # Parameters
+// ---
+// 
+// **Report** - Type *string* **:**
+// The name of the report you are running.
+// 
+// **ParameterList** - Type*List<ReportParameter>* **:**
+// The list of report parameters that a user can provide. See below for a description of the *ReportParameter* object.
+// 
+// **EmailTo** - Type *string* **:**
+// This is a list of comma, or semi-colon separated email addresses.
+// 
+// **Subject** - Type *string* **:**
+// This will be the subject of the email.
+// 
+// **Body** - Type *string* **:**
+// This specifies the body or content of the email.
+// 
+// **CompanyID** - Type *string* **:**
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+// 
+// # ReportParameter Object
+// 
+// **ParameterName** - Type *string* **:**
+// The name of this parameter in the report.
+// 
+// **ParameterValue** - Type *string* **:**
+// The value of the parameter in the report.
+// 
+// **ParameterDataType** - Type *string* **:**
+// The DataType for this parameter in the report.
+
+@name("/Email")
+POST "https://{{ServerPath}}/Report/Email"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+data('{
+    "Report": "PC7200.RPT",
+    "ParameterList": [
+        {
+            "ParameterName": "ScrapType",
+            "ParameterValue": "",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "Type",
+            "ParameterValue": "B",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "Year",
+            "ParameterValue": "2017",
+            "ParameterDataType": "Number"
+        },
+        {
+            "ParameterName": "CompanyID",
+            "ParameterValue": "{{CompanyID}}",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "UsersID",
+            "ParameterValue": "{{UserID}}",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "Dollars",
+            "ParameterValue": "true",
+            "ParameterDataType": "Boolean"
+        },
+        {
+            "ParameterName": "FromPeriod",
+            "ParameterValue": "0",
+            "ParameterDataType": "Number"
+        },
+        {
+            "ParameterName": "ThruPeriod",
+            "ParameterValue": "999",
+            "ParameterDataType": "Number"
+        },
+        {
+            "ParameterName": "FromGrpCD",
+            "ParameterValue": "a",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "ToGrpCD",
+            "ParameterValue": "zzz",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "FromClass",
+            "ParameterValue": "",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "ToClass",
+            "ParameterValue": "",
+            "ParameterDataType": "String"
+        },
+        {
+            "ParameterName": "Industry",
+            "ParameterValue": "F",
+            "ParameterDataType": "String"
+        }
+    ],
+    "EmailTo": "test@test.com",
+    "Subject": "Report email via the Odyssey API",
+    "Body": "See your report, attached",
+    "CompanyID": "{{CompanyID}}"
+}')
+
+
+

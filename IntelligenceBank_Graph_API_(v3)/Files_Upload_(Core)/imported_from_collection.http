@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// Upload a file so it can then be attached/associated to a Database Record (via Create/Update Record calls) or a Resource (via Create/Update Resource calls).
+
+@name("Upload File (Standard)")
+POST "https://{{apiV3url}}/api/3.0.0/{{clientid}}/file"
+"sid": "{{sid}}"
+? "target"= "{{target}}"
+files(
+	("file", "None")
+)
+
+
+// Initiate a chunked upload of a file, that can then be attached to a Database Record (via Create/Update Record calls) or a Resource (via Create/Update Resource calls).
+// <br><br>
+// A chunked upload consists of uploading a (typically large) file in multiple parts, or chunks.
+// It is recommended for chunks to be 10MB in size, for cross-compatibility with the web platform front end upload, should you want to start and resume a file upload across both the API and the web.
+// <br><br>
+// Use the "id" value returned in this GET call to start uploading the chunks of the file via the subsequent Chunks Upload POST calls. This value will typically be 0, unless you uploaded parts of that same file before, in which case a different "id" will be returned to indicate where to resume the upload from. If the file has already been entirely uploaded, the file information will be directly returned in the response. Incomplete file chunks will be kept for 14 days from the date of the first chunk upload (i.e. first active state).
+// <br><br>
+// NOTE: The API client will be required to provide the 32 char md5 file hash value and split the file into Chunks.
+// <br><br>
+// Here are steps you can use to emulate the process via MacOSX Terminal:
+// 
+// - Given a file on your disk.
+// - Input the following command in your terminal: <i>md5 filepath/filename.ext</i>
+// - This will output the {{filehash}} value. e.g. 031B64F7612BC03C0523DDAF37A560C9
+// - Input the following command in your terminal: <i>split -b 10240k filepath/filename.ext</i> (where 10240k is the chunk size - 10MB * 1024kb in this instance)
+// - This will split the file into chunks in the same location (the original file will remain untouched)
+// - Input the required values in the <b>Initiate Chunked File Upload<b> GET call
+// - Upload the chunks via the <b>Upload Chunks</b> Upload POST call
+
+@name("Initiate Chunked File Upload (start_upload)")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/file"
+"sid": "{{sid}}"
+? "target"= "{{target}}"
+? "action"= "start_upload"
+? "fileHash"= "{{fileHash}}"
+
+
+
+// Upload a file in chunks of 10MB. Upon uploading the final chunk, the file will be automatically merged together, and the file information to be used in the Create/Update Resource or Create/Update Record calls will be returned.
+// <br><br>
+// It is critical for the chunks to be provided in the current order, and with the correct byte position for the merging process to complete successfully. The merged file filehash value will be the same as the filehash value provided during the Initiate Chunked File Upload.
+// <br><br>
+// Before proceeding to the uploading of chunks, complete the Initiate Chunked File Upload request to obtain the required id value.
+
+@name("Upload Chunks (upload_chunk)")
+POST "https://{{apiV3url}}/api/3.0.0/{{clientid}}/file"
+"sid": "{{sid}}"
+? "action"= "upload_chunk"
+files(
+	("file", "None"),
+	("target", "{{target}}"),
+	("fileHash", "{{fileHash}}"),
+	("pos", "0"),
+	("id", "0")
+)
+
+
+

@@ -1,0 +1,168 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |filter|no|a filter to use for searching by name|
+
+@name("list of geo routers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "transfer_type": "transfer",
+    "route_to": "queue_id",
+    "queue_id": "{{queue_id}}"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |geo_route_id|yes|the geo router id|
+
+@name("geo router detail")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/{{geo_route_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "transfer_type": "transfer",
+    "route_to": "queue_id",
+    "queue_id": "{{queue_id}}"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |geo_config_id|yes|the geo router id|
+// |name|yes|set to: `transfer`|
+// |play_message|yes|a voice message or audio recording to playback e.g. say: .. play:...|
+// |route_by|yes|how to route either 'zipcode' or 'areacode'|
+
+@name("Update Geo Router")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/{{geo_router_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "transfer_type": "transfer",
+    "route_to": "queue_id",
+    "queue_id": "{{queue_id}}"
+}')
+
+
+// #### You can use the batch geo processing interface to easily setup a large geo router using a simple command based interface to
+//  add, update and remove receiving numbers from your geo router.
+//  
+//  ```
+//  curl -XPUT-uAPI:SEC --upload-file commands.txt \
+//  https://api.calltrackingmetrics.com/api/v1/accounts/{account_id}/geo_routes/{geo_router_id}/batch
+//  ```
+// #### example commands.txt
+// ```
+// create +15555553232 todd cell phone
+// update +15555553232 updated phone label
+// addzip +15555553232 21146 21144
+// delzip +15555553232 21144
+// clearzips +15555553232
+// remove +15555553232
+// mark   +15555553232
+// purge log
+// ```
+// 
+// The following options can be included in your request URL to adjust how we process each command
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |global|no|when passed as 1 - we will treat receiving numbers as global to your account instead of scoping to the geo router.|
+// |create|no|when passed as 1 - will always create a new receiving number, otherwise create will actually just operate like update.  The default 0 is usually what you want|
+// 
+// Adding a post_back_url or a post_back_email will trigger a web service POST request to the post_back_url, that will include the resulting status of the transaction of batched commands.
+// 
+// |command|description|
+// |----------|--------|
+// |create|find or create the number associating it to the geo router|
+// |update|update the provided numbers label|
+// |addzip|add one or more zip codes to the provided number|
+// |delzip|delete one or more zip codes from the provided number|
+// |clearzips|remove all associated zipcode data from the provided number|
+// |remove|remove the provided number from the given geo router|
+// |mark|mark this number so it is not purged
+// |purge|purge will remove, delete or log to indicate which numbers were not marked that exist within the geo router|
+// 
+// 
+// ### Mark and Purge
+// Mark and Purge work together allowing you to indicate the numbers you want to retain
+// by calling mark (number)
+// and at the end of your file calling purge will remove any non-marked numbers from the geo router
+// 
+// 
+// *mark  number* - marks this number to keep it any number not marked will be eligible for purge
+// 
+// *purge remove* - removes the number but does not delete it from your geo router
+// 
+// *purge delete* - deletes the number and removes it from your geo router
+// 
+// *purge log*    - logs the number we would delete log will include purge_list in the post_back_url request json data
+
+@name("Batch GEO Processing")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/{{geo_router_id}}/batch"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |name|yes|set to: `transfer`|
+// |play_message|yes|a voice message or audio recording to playback e.g. say: .. play:...|
+// |route_by|yes|how to route either 'zipcode' or 'areacode'|
+// |default_state|yes|how to route incoming callers either prompt, number or always.  number will never prompt, so make sure the default is configured.  always will always prompt.  prompt will conditionally prompt when no data on the incoming caller is available.|
+// |retry_prompt_count|no|how many times should we reprompt when prompting. e.g. 1 or 2 times|
+// |input_verify|no|boolean value to indicate whether we should prompt the caller to verify their input.|
+// |default_route_to|no|if we do not have a valid location or we have no geo data to route by and we did not get a valid prompt entry - where should we route the incoming caller?  Options: hangup, receiving_number, voice_menu.   When choosing receiving_number or voice_menu see the default_number_id and voice_menu_id respectively.|
+// |voice_menu_id|no|a default voice menu to route callers to without geo data.|
+// |default_number_id|no|a default receiving number to route callers to without geo data.|
+// |multi_route_preference|no|simultaneous, round robin, or sequential - this option allows you to specify how we should handle routing to a geo graphic location that has multiple overlapping receiving numbers.  The default is simultaneous.  round robin will alternate the starting number based on the previous call.  sequential works like round robin but instead of locking to a single receiving number will cascade to the other set of numbers automatically after 9 seconds of ringing.|
+// |default_match_radius|no|default 100 miles.  This is a match radius if we do not have an exact match we can do a geo graphic distance calculation to select the nearest numbers to the given location.|
+
+@name("Create Geo Router")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "id": "GEO...",
+    "name": "your api name"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |geo_route_id|yes|the geo router id|
+// |ppn_id|yes|the ppn_id of the phone number|
+
+@name("pause number")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/{{geo_route_id}}/pause_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "ppn_id"= "{{ppn_id}}"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |geo_route_id|yes|the geo router id|
+// |ppn_id|yes|the ppn_id of the phone number|
+
+@name("resume number")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/geo_routes/{{geo_route_id}}/resume_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "ppn_id"= "{{ppn_id}}"
+
+
+
+

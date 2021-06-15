@@ -1,0 +1,136 @@
+#!/usr/bin/env dothttp
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// admin_id|string|admin id
+// first_name|string|first name
+// last_name|string|last name
+// privileges|list|list of privileges the admin has on the MSP / Orgs / OrgGroups
+// scope|string|msp / org / orggroup
+// role|string|admin / write / read / helpdesk
+
+@name("getMspAdmins")
+GET "https://{{host}}/api/v1/msps/:msp_id/admins"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// admin_id|string|admin id
+// first_name|string|first name
+// last_name|string|last name
+// privileges|list|list of privileges the admin has on the MSP / Orgs / OrgGroups
+// scope|string|msp / org / orggroup
+// role|string|admin / write / read / helpdesk
+
+@name("getMspAdminDetails")
+GET "https://{{host}}/api/v1/msps/:msp_id/admins/:admin_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// first_name|string|first name
+// last_name|string|last name
+// privileges|list|list of privileges the admin has on the MSP / Orgs / OrgGroups
+// scope|string|msp / org / orggroup
+// role|string|admin / write / read / helpdesk
+
+@name("updateMspAdmin")
+PUT "https://{{host}}/api/v1/msps/:msp_id/admins/:admin_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "privileges": [
+        { "scope":"msp", "role": "admin" },
+        { "scope":"org", "org_id": "2818e386-8dec-2562-9ede-5b8a0fbbdc71", "role": "admin" },
+        { "scope":"orggroup", "orggroup_id": "507f1bab-13ba-73e2-f291-2bcb8d1362b0", "role": "read" }
+    ]
+}')
+
+
+// This removes all privileges this admin has against the MSP. This goes deep all the way to the sites
+// 
+
+@name("revokeMspAdmin")
+DELETE "https://{{host}}/api/v1/msps/:msp_id/admins/:admin_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// email|string|email - admin_id is not exposed
+// name|string|name, used in the invitation text
+// privileges|list|list of privileges the admin has on the MSP / Orgs / OrgGroups
+// scope|string|msp / org / orggroup
+// role|string|admin / write / read
+// hours|int|optional, how long the invite should be valid, default is 1 day. Max is capped at 1 week.
+// 
+// 
+// Note: An email will also be sent to the user with a link to https://manage.mist.com/verify/invite?token=:token
+// 
+
+@name("inviteMspAdmin")
+POST "https://{{host}}/api/v1/msps/:msp_id/invites"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "email": "joe@abc.com",
+    "name": "Richard",
+    "hours": 24,
+    "privileges": [
+        {
+            "scope": "msp",
+            "role": "admin"
+        },
+        {
+            "scope": "org",
+            "org_id": "2818e386-8dec-2562-9ede-5b8a0fbbdc71",
+            "role": "admin"
+        },
+        {
+            "scope": "orggroup",
+            "orggroup_id": "507f1bab-13ba-73e2-f291-2bcb8d1362b0",
+            "role": "read"
+        }
+    ]
+})
+
+
+@name("uninviteMspAdmin")
+DELETE "https://{{host}}/api/v1/msps/:msp_id/invites/:invite_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+@name("updateMspAdminInvite")
+PUT "https://{{host}}/api/v1/msps/:msp_id/invites/:invite_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "hours": 24,
+    "privileges": [
+        {
+            "scope": "org",
+            "org_id": "2818e386-8dec-2562-9ede-5b8a0fbbdc71",
+            "role": "read"
+        }
+    ]
+})
+
+
+// NOTE: another call to ```GET /api/v1/self``` is required to see the new set of privileges
+// 
+
+@name("verifyMspAdminInvite")
+POST "https://{{host}}/api/v1/invite/verify/:token"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,181 @@
+#!/usr/bin/env dothttp
+
+// Create reservation API, aims to book the room first before it proceeds to the order API.
+// 
+// It returns the room available based on request body parameters.
+
+@name("Create Reservation")
+POST "https://api.tiketsandbox.net/b2b-gateway/tix-hotel-cart-b2b/cart/create"
+basicauth("testing006@tiket.com", "$2b$10$zUBeCVtloP0Q5qHC.KsoOedtbTjgy9Bzh7rGRIQXNx9TqbamRPLdK")
+"Content-Type": "application/xml"
+"channelId": "(DESKTOP/MOBILE)"
+"requestId": "{YOUR REQ ID}"
+"serviceId": "gateway"
+"username": "{YOUR USERNAME}"
+"lang": "(en/id)"
+"currency": "(IDR/USD)"
+"storeId": "{YOUR STORE ID}"
+"resellerId": "{YOUR RESELLER ID}"
+data('<OTA_HotelResRQ Version="2.1" PrimaryLangID="en-us" EchoToken="201403211401" RetransmissionIndicator="true"
+    xmlns="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+    <POS>
+        <Source>
+            <RequestorID ID="testing006@tiket.com" MessagePassword="$2b$10$zUBeCVtloP0Q5qHC.KsoOedtbTjgy9Bzh7rGRIQXNx9TqbamRPLdK" Type="5">
+                <CompanyName Code="C" CodeContext="600"></CompanyName>
+            </RequestorID>
+        </Source>
+    </POS>
+    <UniqueID ID="{{affiliate_id}}" Type="501" />
+    <HotelReservations>
+        <HotelReservation>
+            <RoomStays>
+                <RoomStay>
+                    <RoomTypes>
+                        <RoomType RoomTypeCode="{{room_type_code}}" />
+                    </RoomTypes>
+                    <RatePlans>
+                        <RatePlan RatePlanCode="{{rate_plan_code}}" PrepaidIndicator="true">
+                            <RatePlanDescription> <Text Language="en-us" TextFormat="PlainText">Chrismas
+                                    Promotion</Text> </RatePlanDescription>
+                        </RatePlan>
+                    </RatePlans>
+                    <RoomRates>
+                        <RoomRate RatePlanCode="{{rate_plan_code}}" RatePlanCategory="501"
+                            NumberOfUnits="{{room}}">
+                            <Rates>
+                                <Rate EffectiveDate="{{start_date}}" ExpireDate="{{end_date}}">
+                                    <Base AmountBeforeTax="1191807.00" AmountAfterTax="1191807.00"
+                                        CurrencyCode="IDR">
+                                    </Base>
+                                </Rate>
+                            </Rates>
+                        </RoomRate>
+                    </RoomRates>
+                    <BasicPropertyInfo HotelCode="{{hotel_id}}" HotelName="{{hotel_name}}" />
+                </RoomStay>
+            </RoomStays>
+            <ResGuests>
+                <ResGuest ArrivalTime="14:30">
+                    <Profiles>
+                        <ProfileInfo>
+                            <Profile>
+                                <Customer>
+                                    <PersonName AgeQualifyingCode="10" Gender="M" Age="28">
+                                        <GivenName>Li</GivenName>
+                                        <MiddleName>Yana</MiddleName>
+                                        <Surname>Hua</Surname>
+                                    </PersonName>
+                                    <ContactPerson ContactType="non">
+                                        <PersonName>
+                                            <GivenName>Fika</GivenName>
+                                            <Surname>Thalia</Surname>
+                                        </PersonName>
+                                        <Telephone PhoneNumber="85714030373" />
+                                        <Email>bliblicomsandbox@gmail.com</Email>
+                                    </ContactPerson>
+                                </Customer>
+                            </Profile>
+                        </ProfileInfo>
+                    </Profiles>
+                </ResGuest>
+            </ResGuests>
+            <ResGlobalInfo>
+                <GuestCounts>
+                    <GuestCount Count="{{guest}}" />
+                </GuestCounts>
+                <TimeSpan Start="2020-05-16 0:00:00" End="2020-05-17 0:00:00" />
+                <SpecialRequests>
+                    <SpecialRequest> <Text Language="en-us" TextFormat="PlainText"> need 2 towel. </Text>
+                        <ListItem Listitem="1"> must be nonsmoking room</ListItem>
+                        <ListItem Listitem="2"> try to arrange nonsmoking room</ListItem>
+                    </SpecialRequest>
+                </SpecialRequests>
+                <DepositPayments>
+                    <GuaranteePayment>
+                        <AcceptedPayments>
+                            <AcceptedPayment>
+                                <PaymentCard />
+                            </AcceptedPayment>
+                        </AcceptedPayments>
+                    </GuaranteePayment>
+                </DepositPayments>
+                <Total AmountAfterTax="1191807.00" CurrencyCode="IDR" />
+                <TPA_Extensions>
+                    <IsReserved>false</IsReserved>
+                </TPA_Extensions>
+                <HotelReservationIDs>
+                    <HotelReservationID ResID_Type="501" ResID_Value="{{affiliate_id}}" />
+                </HotelReservationIDs>
+            </ResGlobalInfo>
+        </HotelReservation>
+    </HotelReservations>
+</OTA_HotelResRQ>')
+
+
+// To enable the partner to cancel the existing order, CancelPenalties may vary and applied when searching the hotel and room inventory from the API.
+// 
+// Cancel Order can be multiple, put the cancel order id on tag UniqueID if want to add multiple order to cancel.
+
+@name("Cancel Order")
+POST "https://api.tiketsandbox.net/b2b-gateway/tix-hotel-cart-b2b/cart/cancel"
+"Content-Type": "application/xml"
+"channelId": "(DESKTOP/MOBILE)"
+"requestId": "{YOUR REQ ID}"
+"serviceId": "gateway"
+"username": "{YOUR USERNAME}"
+"lang": "(en/id)"
+"currency": "(IDR/USD)"
+"storeId": "{YOUR STORE ID}"
+"resellerId": "{YOUR RESELLER ID}"
+"login": "(1/0)"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OTA_CancelRQ Version="2.1" PrimaryLangID="en-us" EchoToken="201403211421"
+xmlns="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance">
+ <POS>
+ <Source>
+<RequestorID ID="{Your ID Credential}" MessagePassword="{Your Password Credential}" Type="5">
+ <CompanyName Code="C" CodeContext="600"></CompanyName>
+ </RequestorID>
+ </Source>
+ </POS>
+ <UniqueID ID="Test17" Type="501"/>
+ <UniqueID ID="325-2003576" Type="502"/>
+ <Reasons>
+ <Reason>business plan changed</Reason>
+ </Reasons>
+</OTA_CancelRQ>')
+
+
+// To enable retrieve an existing booking generated before, to request a reservation when the booking id number has been specified.
+
+@name("Read Order - Existing Order")
+POST "https://api.tiketsandbox.net/b2b-gateway/tix-hotel-cart-b2b/cart/read-reservation"
+"Content-Type": "application/xml"
+"channelId": "(DESKTOP/MOBILE)"
+"requestId": "{YOUR REQ ID}"
+"serviceId": "gateway"
+"username": "{YOUR USERNAME}"
+"lang": "(en/id)"
+"currency": "(IDR/USD)"
+"storeId": "{YOUR STORE ID}"
+"resellerId": "{YOUR RESELLER ID}"
+"login": "(1/0)"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OTA_ReadRQ xmlns="http://www.opentravel.org/OTA/2003/05" PrimaryLangID="en-us"  EchoToken="201703292247" TimeStamp="2017-03-29T22:47:58.1708455+08:00" Version="2.2" ReservationType="Hotel">
+    <POS>
+        <Source>
+            <RequestorID ID="{Your ID Credential}" MessagePassword="{Your Password Credential}" Type="5">
+                <CompanyName Code="C" CodeContext="134" />
+            </RequestorID>
+        </Source>
+    </POS>
+    <ReadRequests>
+        <ReadRequest>
+            <UniqueID ID="Test17" Type="501" />
+            <UniqueID ID="325-2003576" Type="502" />
+        </ReadRequest>
+    </ReadRequests>
+</OTA_ReadRQ>')
+
+
+

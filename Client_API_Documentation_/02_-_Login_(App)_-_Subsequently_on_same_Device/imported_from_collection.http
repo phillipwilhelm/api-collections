@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+// # CreateSession
+// Create a new authenticated session by passing an AuthendicatonKey and DeviceId.
+// 
+// The response will contain:
+// 
+// * a new AuthendicatonKey that must replace the existing AuthendicatonKey and then used on the next CreateSession of this type.
+// * a device level authenticated (level 4) SessionId.
+// 
+// # Security
+// 
+// This method requires HTTPS. Any request without SSL will be rejected.
+// Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 117 | AccessDenied | The session does not have rights to the requested resource
+// | 806 | DeviceNotFound | Fault indicating that a device could not be found.
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// | 113 | LoginExists | The requested login already exists |
+// | 1145 | SecurityTokenValidationFailed | Fault indicating that an external security token could not be validated |
+// | 115 | PasswordStrengthViolation | The requested password failed the password complexity rules |
+// |116 | NonUniquePasswordViolation | The requested password failed to meet the password history rules |
+// | 126 | AlternateCountryNotFound | The alternate country provided in the request headers is not valid. |
+// | 812 | DuplicateDeviceNickname | Fault indicating that the device's nickname is already used by the subscriber on another device |
+// 
+// # Request
+
+@name("CreateSession (AuthenticationKey)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/CreateSession"
+"CD-SystemId": "{{CD_SYSTEM_ID}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+  "DeviceCredentials" : 
+    {
+        "AuthenticationKey" : "{{AUTHENTICATION_KEY}}",        
+        "DeviceId" : "{{DEVICE_ID}}"
+    }   
+}')
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// The product list form of RPC enables mutliple products to be checked for entitlement in a single call. Entitled pricing plans are identified by the "EntitledPricingPlanId" property in the response.
+// 
+// The "IncludeOrderablePricingPlans" property in not currently supported in this form of the RPC call.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+// 
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReferences": [
+        "XYZ_Access_Monthly",
+        "XYZ_Access_Annual",
+        "XYZ_TV_Access_Monthly",
+        "XYZ_TV_Access_Annual",
+        "XYZ_TV_Pro_Monthly",
+        "XYZ_TV_Pro_Annual"
+    ],
+    "IncludeEntitlementContext": true
+}')
+
+
+

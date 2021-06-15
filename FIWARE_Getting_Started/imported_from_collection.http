@@ -1,0 +1,181 @@
+#!/usr/bin/env dothttp
+
+// Once the Orion Context Broker is running, You can check the status by making an HTTP request to the exposed port. 
+// If the response is blank, this is usually because the MongoDB database holding the context information is not running or not connected.
+// 
+// >**Troubleshooting:** What if the response is blank ?
+// >
+// > * To check that a docker container is running try
+// >
+// >```bash
+// >docker ps
+// >```
+// >
+// >You should see two containers running. If orion is not running, you can restart the containers as necessary.
+
+@name("Obtaining Version Information")
+GET "http://{{orion}}/version/"
+
+
+// ## Creating Context Data
+// 
+// At its heart, FIWARE is a system for managing context information, so lets add some context data into the system by creating a  new entity (a store in **Berlin**). Any entity must have a `id` and `type` attributes, additional attributes are optional and will depend on the system being described. Each additional attribute should also have a defined `type` and a `value` attribute.
+
+@name("Creating your first Data Entity")
+POST "http://{{orion}}/v2/entities/"
+"Content-Type": "application/json"
+data('{
+    "id": "urn:ngsi-ld:Store:001",
+    "type": "Store",
+    "address": {
+        "type": "PostalAddress",
+        "value": {
+            "streetAddress": "Bornholmer Straße 65",
+            "addressRegion": "Berlin",
+            "addressLocality": "Prenzlauer Berg",
+            "postalCode": "10439"
+        },
+        "metadata": {
+    		"verified": {
+        		"value": true,
+        		"type": "Boolean"
+    		}
+    	}
+    },
+    "location": {
+        "type": "geo:json",
+        "value": {
+             "type": "Point",
+             "coordinates": [13.3986, 52.5547]
+        }
+    },
+    "name": {
+        "type": "Text",
+        "value": "Bösebrücke Einkauf"
+    }
+}')
+
+
+@name("Creating your Second Data Entity")
+POST "http://{{orion}}/v2/entities/"
+"Content-Type": "application/json"
+data('{
+  "type": "Store",
+    "id": "urn:ngsi-ld:Store:002",
+    "address": {
+        "type": "PostalAddress",
+        "value": {
+            "streetAddress": "Friedrichstraße 44",
+            "addressRegion": "Berlin",
+            "addressLocality": "Kreuzberg",
+            "postalCode": "10969"
+        },
+        "metadata": {
+    		"verified": {
+        		"value": true,
+        		"type": "Boolean"
+    		}
+    	}
+    },
+    "location": {
+        "type": "geo:json",
+        "value": {
+             "type": "Point",
+             "coordinates": [13.3903, 52.5075]
+        }
+    },
+    "name": {
+        "type": "Text",
+        "value": "Checkpoint Markt"
+    }
+}')
+
+
+// This example returns the full data context
+
+@name("Retrieving Context Information")
+GET "http://{{orion}}/v2/entities"
+
+
+// This example returns the context data of `store1`. The `id` of the entity should be unique or the `type` parameter should also be used.
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` elements.
+
+@name("Obtain Entity Data by id")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Store:001"
+? "options"= "keyValues"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+// This example returns the data of all `Store` entities within the context data. 
+// 
+// The `type` parameter limits the response to store entities only.
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` elements.
+
+@name("Obtain Entity Data by type")
+GET "http://{{orion}}/v2/entities/"
+? "type"= "Store"
+? "options"= "keyValues"
+? "attrs"= "name"
+
+
+// ## Filter context data by comparing the values of an attribute
+// 
+// This example returns the data of all `Store` entities found with the name *Checkpoint Markt*. 
+// 
+// Filtering can be done using the `q` parameter - if a string has spaces in it, it can be URL encoded and held within single quote characters `'` = `%27`
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` and `metadata` elements.
+
+@name("Filter context data by attribute value")
+GET "http://{{orion}}/v2/entities/"
+? "q"= "name=='Checkpoint Markt'"
+? "type"= "Store"
+? "options"= "keyValues"
+? "attrs"= "name"
+
+
+// ## Filter context data by comparing the values of an attribute
+// 
+// This example returns the data of all `Store` entities found in the **Kreuzberg** district of Berlin.
+// 
+// Filtering can be done using the `q` parameter - sub-attributes are annotated using the dot syntax e.g. `address.addressLocality`
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` and `metadata` elements.
+
+@name("Filter context data by sub-attribute value")
+GET "http://{{orion}}/v2/entities/"
+? "q"= "address.addressLocality=='Kreuzberg'"
+? "type"= "Store"
+? "options"= "keyValues"
+
+
+// ## Filter context data by comparing the values of an metadata attribute
+// 
+// This example returns the data of all `Store` entities with a verified address.
+// 
+// Metadata queries can be made using the `mq` parameter.
+
+@name("Filter context data by querying metadata")
+GET "http://{{orion}}/v2/entities/"
+? "mq"= "address.verified==true"
+? "type"= "Store"
+? "options"= "keyValues"
+
+
+// ## Filter context data by comparing the values of a geo:point attribute
+// 
+// This example returns the data of all `Store` entities found within 1.5km the **Brandenburg Gate**  in **Berlin** (*52.5162N 13.3777W*)
+
+@name("Filter context data by distance")
+GET "http://{{orion}}/v2/entities/"
+? "georel"= "near;maxDistance:1500"
+? "geometry"= "point"
+? "coords"= "52.5162,13.3777"
+? "type"= "Store"
+? "options"= "keyValues"
+? "attrs"= "name"
+
+
+

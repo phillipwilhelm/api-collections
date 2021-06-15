@@ -1,0 +1,126 @@
+#!/usr/bin/env dothttp
+
+// **Api utilizada para processar um acúmulo de milhas para um determinado cliente.**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | *(Required)* Canal de entrada |
+// | memberCPF     | String      | 11       | *(Required)* CPF do cliente que irá receber o acumulo de milhas |
+// | transactionDate | DateTime  | 23       | *(Required)* Data em que o cliente solicitou o acumulo de milhas |
+// | amount        | Integer     | 6        | *(Required)* Valor em milhas a ser acumulado |
+// | productName   | String      | 50       | *(Required)* Nome do produto *(enviado pela Smiles)* |
+// | comments      | String      | 50       | *(Required)* Um comentário qualquer sobre esta transação |
+// | partnerAlias  | String      | 20       | *(Required)* Código do parceiro *(enviado pela Smiles)* |
+// | partnerTransactionId | String | 12     | *(Required)* Este é um número único que identifique a transação do lado do parceiro |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+// | 30     | CPF não cadastrado. |
+
+@name("ProcessAccrual")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Services/AccumulateMilesV2"
+"Content-Type": "text/xml"
+"Authorization": "{{access_token}}"
+data('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.smiles.com.br/EBO/Common/V1" xmlns:v2="http://www.smiles.com.br/Services/AccumulateMiles/V2">
+  <soapenv:Header>
+    <v1:SmilesHeader xmlns:v1="http://www.smiles.com.br/EBO/Common/V1">
+      <v1:channel>PARTNER</v1:channel>
+    </v1:SmilesHeader>
+  </soapenv:Header>
+  <soapenv:Body>
+    <v2:ProcessAccrualRequest xmlns:v2="http://www.smiles.com.br/Services/AccumulateMiles/V2">
+      <v2:memberCPF>30617509832</v2:memberCPF>
+      <v2:transactionDate>2020-03-20T11:00:00.000</v2:transactionDate>
+      <v2:amount>200</v2:amount>
+      <v2:productName>{{accrual_productName}}</v2:productName>
+      <v2:comments>8709</v2:comments>
+      <v2:partnerAlias>{{accrual_partnerAlias}}</v2:partnerAlias>
+      <v2:partnerTransactionId>8852609-V</v2:partnerTransactionId>
+    </v2:ProcessAccrualRequest>
+  </soapenv:Body>
+</soapenv:Envelope>')
+
+
+// **Api utilizada para obtenção do status de uma transação de acúmulo.**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | *(Required)* Canal de entrada |
+// | partnerAlias  | String      | 20       | *(Required)* Código do parceiro *(enviado pela Smiles)* |
+// | soaTransactionId | String  | 30       | *(Required)* Dado recebido na resposta da API "ProcessAccrual" |
+// | partnerTransactionId | String | 12     | *(Required)* Este é um número único que identifique a transação do lado do parceiro (O mesmo valor enviado na API "ProcessAccrual") |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+// | 7      | Informação não localizada. |
+// | 06     | Product Not Found |
+// | 11     | Status not permitted to accrual |
+// | 07     | Member Number Not Found |
+// | 12     | CPF not found |
+
+@name("GetAccrualTransaction")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Services/AccumulateMilesV2"
+"Content-Type": "text/xml"
+"Authorization": "{{access_token}}"
+data('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.smiles.com.br/EBO/Common/V1" xmlns:v2="http://www.smiles.com.br/Services/AccumulateMiles/V2">
+   <soapenv:Header>
+      <v1:SmilesHeader>
+         <v1:channel>PARTNER</v1:channel>
+      </v1:SmilesHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v2:GetAccrualTransactionRequest>
+         <v2:partnerAlias>{{accrual_partnerAlias}}</v2:partnerAlias>
+         <v2:soaTransactionId>1570822054988482232383bd252b47</v2:soaTransactionId>
+         <v2:partnerTransactionId>8852609-V</v2:partnerTransactionId>
+      </v2:GetAccrualTransactionRequest>
+   </soapenv:Body>
+</soapenv:Envelope>')
+
+
+// **Api utilizada para o cancelamento de uma transação de acúmulo.**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | *(Required)* Canal de entrada |
+// | siebelTransactionId | String | 30      | *(Required)* Dado obtido na API "GetAccrualTransaction" ou "NotifyTransactionAccrual" (caso esteja utilizando a solução de notificação) |
+// | comments      | String      | 50       | *(Required)* Um comentário qualquer sobre esta transação |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+// | 15     | Transação não encontrada. |
+// | 60     | A transação informada já foi processada anteriormente, com sucesso. |
+// | 9      | Erro ao cancelar transação. |
+
+@name("CancelAccrualTransaction")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Services/AccumulateMilesV2"
+"Content-Type": "text/xml"
+"Authorization": "{{access_token}}"
+data('<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.smiles.com.br/EBO/Common/V1" xmlns:v2="http://www.smiles.com.br/Services/AccumulateMiles/V2">
+   <soapenv:Header>
+      <v1:SmilesHeader>
+         <v1:channel>PARTNER</v1:channel>
+      </v1:SmilesHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v2:CancelAccrualTransactionRequest>
+         <v2:siebelTransactionId>1-1M0PMS3W</v2:siebelTransactionId>
+         <v2:comments>Cancelar</v2:comments>
+      </v2:CancelAccrualTransactionRequest>
+   </soapenv:Body>
+</soapenv:Envelope>')
+
+
+

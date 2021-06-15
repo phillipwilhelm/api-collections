@@ -1,0 +1,1 @@
+Explore all endpoints that ship out-of-the-box with Apiato API. Reduce your development time with these preprepared API calls. Postman allows you to interact with the Apiato API using GET, POST and DELETE request. Enjoy your new API.

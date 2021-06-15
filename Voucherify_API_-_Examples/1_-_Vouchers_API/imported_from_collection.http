@@ -1,0 +1,175 @@
+#!/usr/bin/env dothttp
+
+// Create gift voucher with a given code
+
+@name("Create gift voucher with a given code")
+POST "https://{{url}}/vouchers/{{gift-voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "type": "GIFT_VOUCHER",
+    "gift": {
+      "amount": 10000,
+      "balance": 10000
+  },
+    "redemption": {
+        "quantity": "1" 
+    },
+    "category": "{{test-category}}"
+}')
+
+
+// Create discount voucher without code
+
+@name("Create voucher without code")
+POST "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "type": "DISCOUNT_VOUCHER",
+    "discount": {
+        "percent_off": "10.0",
+        "type": "PERCENT"
+    },
+    "redemption": {
+        "quantity": "1" 
+    },
+    "category": "{{test-category}}"
+}')
+
+
+// Update voucher metadata
+
+@name("Update voucher")
+PUT "https://{{url}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "metadata": {
+      "special_offer": "true"
+    }
+}')
+
+
+@name("Disable voucher")
+POST "https://{{url}}/vouchers/{{voucher-code}}/disable"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "campaign": "100k-test",
+    "channel": "MailChimp"
+}')
+
+
+@name("Enable voucher")
+POST "https://{{url}}/vouchers/{{voucher-code}}/enable"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Get voucher")
+GET "https://{{url}}/vouchers/:voucher-code"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "metadata": {
+        "update_time": "{{$timestamp}}" 
+    }
+}')
+
+
+@name("List vouchers")
+GET "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "category"= "{{test-category}}"
+? "limit"= "10"
+data('{
+    "metadata": {
+        "update_time": "{{$timestamp}}" 
+    }
+}')
+
+
+@name("List vouchers (v2017-01-01)")
+GET "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-01-01"
+? "category"= "{{test-category}}"
+? "limit"= "10"
+data('{
+    "metadata": {
+        "update_time": "{{$timestamp}}" 
+    }
+}')
+
+
+@name("List vouchers  (client side)")
+GET "https://{{clientUrl}}/vouchers"
+"X-Client-Application-Id": "{{X-Client-Application-Id}}"
+"X-Client-Token": "{{X-Client-Token}}"
+"Content-Type": "application/json"
+"Origin": "origin"
+data('{
+  "event": "postman-test-event",
+  "customer": {
+    "source_id": "{{test-customer-email}}",
+    "email": "{{test-customer-email}}"
+  }
+}')
+
+
+@name("List vouchers - paging")
+GET "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "category"= "{{test-category}}"
+? "limit"= "1"
+? "page"= "2"
+data('{
+    "metadata": {
+        "update_time": "{{$timestamp}}" 
+    }
+}')
+
+
+@name("Delete voucher")
+DELETE "https://{{url}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Get voucher - non-existent")
+GET "https://{{url}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "metadata": {
+        "update_time": "{{$timestamp}}" 
+    }
+}')
+
+
+@name("Delete gift voucher")
+DELETE "https://{{url}}/vouchers/{{gift-voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+

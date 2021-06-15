@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a single user or account given its identifier (Hull ID).
+
+@name("Retrieve a single object")
+GET "https://{{ORG_NAMESPACE}}.hullapp.io/api/v1/:objectId"
+"Hull-App-Id": "{{CONNECTOR_ID}}"
+"Hull-Access-Token": "{{CONNECTOR_SECRET}}"
+
+
+// Searches users by exact match of the email address. Email addresses are all lowercase.
+// 
+// Replace __TEST@EXAMPLE.COM__ with the email address you are looking for.
+
+@name("Search users by email")
+POST "https://{{ORG_NAMESPACE}}.hullapp.io/api/v1/search/user_reports"
+"Hull-App-Id": "{{CONNECTOR_ID}}"
+"Hull-Access-Token": "{{CONNECTOR_SECRET}}"
+"Content-Type": "application/json"
+data('{
+    "query": {
+        "constant_score": {
+            "query": {
+                "match_all": {}
+            },
+            "filter": {
+                "and": {
+                    "filters": [
+                        {
+                            "term": {
+                                "email.raw": "TEST@EXAMPLE.COM"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "sort": {
+        "created_at": "desc"
+    },
+    "raw": true,
+    "page": 1,
+    "per_page": 100,
+    "include": [
+        "name",
+        "email",
+        "created_at",
+        "external_id",
+        "first_name",
+        "id",
+        "anonymous_ids"
+    ]
+}')
+
+
+// Login to Hull with your user credentials
+
+@name("Login User")
+POST "https://super.hullapp.io/api/v1/users/login"
+"Content-Type": "application/json"
+data('{
+	"login": "test@hull.io",
+	"password": "somesecret"
+}')
+
+
+

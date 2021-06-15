@@ -1,0 +1,103 @@
+#!/usr/bin/env dothttp
+
+// Emit a Boleto for payments in other institiontions. Rechargable Boleto.
+
+@name("Emit a Boleto for recharge")
+POST "https://{{API_BASE_URL}}/boletos/emit"
+data('{
+    "destination": "1f1aa63c-a5a0-4634-afd6-9e66bc6cb0dc", //walletID to receive the amounts
+    "asset": "BRLP",
+    "provider": "bs2",
+    "amount": "10.11",
+    "expiresAt": "2021-10-13",
+    "payer": { //who will pay the Boleto
+        "firstName": "Name of Third Person",
+        "lastName": "Da Silva",
+        "consumer": {
+            "phones": [
+                {
+                    "code": "11",
+                    "number": "888999555"
+                }
+            ],
+            "taxId": "12345678899",
+            "email": "email@email.com",
+            "addresses": [
+                {
+                    "code": "06414007",
+                    "state": "SP",
+                    "street": "Avenida Sebastiap",
+                    "neighborhood": "Jardim Tupanci",
+                    "city": "Barueri",
+                    "number": "1200"
+                }
+            ]
+        }
+    }
+}')
+
+
+// Emit a Boleto payment for payments to third parties. The amounts paid by third parties will be received for the wallet declared in the **body**
+// 
+// </br>
+// Necessary SCOPE to perform `wallets:write`
+// 
+// `GHERKING`
+// 
+// ```
+// GIVEN consumer is logged
+// GIVEN consumer has a active wallet
+// WHEN consumer perform the action
+// THEN the response should be 200
+// AND the digitableLine filed should be visible
+// ```
+
+@name("Emit a Boleto to a payer")
+POST "https://{{API_BASE_URL}}/boletos/emit"
+data('{
+	"destination": "1f1aa63c-a5a0-4634-afd6-9e66bc6cb0dc", //walletID that will receive the amount
+	"asset": "BRLP",
+    "provider": "bs2",
+	"amount": "10.11",
+    "expiresAt": "2021-10-13",
+    "payer": {
+        "firstName": "Name of The Payer",
+        "lastName": "Last Name",
+        "consumer": {
+            "phones": [{
+                "code": "11",
+                "number": "888999555"
+            }],
+            "taxId": "12345678985",
+            "email": "email@email.com",
+            "addresses": [{
+                "code": "06414007",
+                "state": "SP",
+                "street": "Avenida Sebastiao",
+                "neighborhood": "Jardins",
+                "city": "Barueri",
+                "number": "1300"
+            }]
+        }
+    }
+}')
+
+
+// Request a list of all emitted boletos starting from a specific date.
+
+@name("Find  Boleto")
+GET "https://{{API_BASE_URL}}/boletos/find"
+? "start"= "02/02/2021"
+? "walletId"= "4c5f0c35-0041-47d6-8c48-6c024fd26343"
+? "skip"= "0"
+? "limit"= "50"
+? "asset"= "BRLB"
+
+
+// Request a list of all emitted boletos starting from a specific date.
+
+@name("View  Boleto")
+GET "https://{{API_BASE_URL}}/boletos/:id"
+
+
+

@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// 
+// The returned addresses will include a sid field that can be used with other address API endpoints.
+
+@name("list of addresses")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/number_address/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |name|no|the business name (defaults to agency name)|
+// |street|yes|street portion of the address|
+// |city|yes|city portion of the address|
+// |region|yes|region portion of the address|
+// |postal_code|yes|postal code for the address|
+// |country|yes|name or ISO code (UK, DE, etc) of the country|
+// 
+// The returned address will include a sid field that can be used with other address API endpoints.
+
+@name("create a new address")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/number_address/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "name": "Example Company",
+  "street": "123 Main St",
+  "city": "Munich",
+  "region": "Bayern",
+  "postal_code": "80335",
+  "country": "Germany"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |address_sid|yes|the address sid (AD_________) as provided by the list/create endpoints|
+
+@name("delete an address")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/number_address/{{address_sid}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+
+@name("address for tracking number")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/number_address/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// |address_sid|yes|the AD address ID to associate with the number|
+
+@name("update tracking number address")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/update_number_address/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"address_sid": "ADxxxxxxxxxxxxxxxxxxxx"
+}')
+
+
+

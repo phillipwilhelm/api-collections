@@ -1,0 +1,93 @@
+#!/usr/bin/env dothttp
+
+@name("list of triggers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/triggers"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+@name("trigger detail")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/triggers/{{trigger_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |name|yes|The name of the trigger|
+// |description|no|A longer description of the trigger|
+// |position|yes|One of `start`, `answered`, `session`, `hangup`, `manual_update`, `end`, `end_delayed`, `sale`, `form`, `paid`, `geokey`, or `keyword` which determines when the trigger will fire. See below for more information.|
+// |always_run|no|`true` or `false` trigger for all calls|
+// |routing_rules|no|See below for information about this object|
+// 
+// routing_rules is an array of rules and actions
+// 
+// ```
+// "automater": {
+// 	"routing_rules": [
+//     	{
+//         	"actions": [
+//             	{
+//                 	"type": "ga_event",
+//                 	"category_name": "Calls",
+//                 	"action_name": "{{source}}",
+//                 	"event_value": "{{talk_time}}",
+//                 	"web_property": "UA-12345-98"
+//             	}
+//         	]
+//     	}
+// 	]
+// }
+// ```
+// 
+// # Notes on Position
+// * **answered**: When an agent answers a call within a call queue
+// * **session**: When a website session is associated to the call record
+// * **hangup**: When the caller hangs up the call early
+// * **manual\_update**: Trigger when call data is manually updated
+// * **end**: Once all information about the call is captured
+// * **end_delayed**: 1 hour after call data is captured (for Google Analytics)
+// * **sale**: Whenever sale data is updated for any call
+// * **form**: When a FormReactor call is created
+// * **paid**: When PPC data is retrieved for a call
+// * **geokey**: When a caller inputs their zip code or area code for a Geo Router
+// * **keyword**: When a keyword is spotted within a call
+
+@name("create trigger")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/triggers"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('"automater": {
+	"routing_rules": [
+    	{
+        	"actions": [
+            	{
+                	"type": "ga_event",
+                	"category_name": "Calls",
+                	"action_name": "{{source}}",
+                	"event_value": "{{talk_time}}",
+                	"web_property": "UA-12345-98"
+            	}
+        	]
+    	}
+	]
+}')
+
+
+@name("update trigger")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}/triggers/{{trigger_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+@name("delete trigger")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/triggers/{{trigger_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+

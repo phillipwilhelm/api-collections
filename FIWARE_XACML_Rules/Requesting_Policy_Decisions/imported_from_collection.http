@@ -1,0 +1,75 @@
+#!/usr/bin/env dothttp
+
+// To request a decision from Authzforce, make a POST requets to the
+// `domains/{domain-id}/pdp` endpoint. In this case the user has the
+// `managers-role-0000-0000-000000000000` and is requesting access the the
+// `/app/price-change` resource.
+// 
+// The `managers-role-0000-0000-000000000000` permits access to the
+// `/app/price-change` endpoint. The response for a successful request includes a
+// `<Decision>` element to `Permit` access to the resource.
+
+@name("Permit Access to a Resource")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pdp"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" CombinedDecision="false" ReturnPolicyIdList="false">
+   <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">managers-role-0000-0000-000000000000</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tutorial-dckr-site-0000-xpresswebapp</AttributeValue>
+      </Attribute>
+      <Attribute AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">/app/price-change</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" />
+</Request>')
+
+
+// To request a decision from Authzforce, make a POST requets to the
+// `domains/{domain-id}/pdp` endpoint. In this case the user has the
+// `security-role-0000-0000-000000000000` and is requesting access the the
+// `/app/price-change` resource.
+// 
+// The `security-role-0000-0000-000000000000` does not permit access to the
+// `/app/price-change` endpoint. The response for an unsuccessful request includes
+// a `<Decision>` element which will `Deny` access to the resource.
+
+@name("Deny Access to a Resource")
+POST "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pdp"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" CombinedDecision="false" ReturnPolicyIdList="false">
+   <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">security-role-0000-0000-000000000000</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">tutorial-dckr-site-0000-xpresswebapp</AttributeValue>
+      </Attribute>
+      <Attribute AttributeId="urn:thales:xacml:2.0:resource:sub-resource-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">/app/price-change</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+      <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+         <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
+      </Attribute>
+   </Attributes>
+   <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:environment" />
+</Request>')
+
+
+

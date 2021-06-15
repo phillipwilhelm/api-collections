@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+@name("Get assurance events")
+GET "https://{{dnac}}/dna/intent/api/v1/events"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "tags"= "ASSURANCE"
+
+
+@name("Create webhook subscription for events")
+POST "https://{{dnac}}/dna/intent/api/v1/event/subscription"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('[
+    {
+        "name": "webhook_test",
+        "subscriptionEndpoints": [
+            {
+                "subscriptionDetails": {
+                    "connectorType": "REST",
+                    "name": "webhook.site",
+                    "description": "Great for testing",
+                    "method": "POST",
+                    "url": "https://webhook.site/885c4fbb-eda9-4d60-a2fb-010d2bde776f"
+                }
+            }
+        ],
+        "filter": {
+            "eventIds": [
+                "NETWORK-DEVICES-3-103",
+                "NETWORK-DEVICES-3-207",
+                "NETWORK-NETWORKS-2-318",
+                "NETWORK-DEVICES-2-201",
+                "NETWORK-FABRIC_WIRED-1-310",
+                "NETWORK-FABRIC_WIRED-2-309",
+                "NETWORK-DEVICES-3-105",
+                "NETWORK-DEVICES-3-252",
+                "NETWORK-DEVICES-3-208",
+                "NETWORK-NON-FABRIC_WIRED-1-250"
+            ]
+        }
+    }
+]')
+
+
+@name("Get event status")
+GET "https://{{dnac}}/dna/intent/api/v1/event/api-status/10b193fe-a0e8-4204-b0e3-1586fd07740b"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+@name("Get all webhook subscriptions")
+GET "https://{{dnac}}/dna/intent/api/v1/event/subscription"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+@name("Delete webhook subscription")
+DELETE "https://{{dnac}}/dna/intent/api/v1/event/subscription"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "subscriptions"= "24896658-7569-415f-b383-8c29d178834d"
+
+
+

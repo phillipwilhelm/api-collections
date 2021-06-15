@@ -1,0 +1,129 @@
+#!/usr/bin/env dothttp
+
+// Apply a search via querystring `q` querystring parameter.
+// 
+// > Note: Queries can be applied across multiple types.
+
+@name("/:app/_search?q")
+GET "https://{{host}}/{{app}}/{{type}}/_search"
+"Authorization": "Basic {{credentials_64}}"
+? "q"= "*:*"
+
+
+// In order to get scroll_id for, initial search request can be made with scroll param. This param tells ElasticSearch how long it should keep search context. Check more about scroll context values [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#scroll-search-context).
+
+@name("/:app/_search?scroll=1m")
+GET "https://{{host}}/{{app}}/_search"
+"Authorization": "Basic {{credentials_64}}"
+? "scroll"= "1m"
+
+
+// While a search request returns a single “page” of results, the scroll API can be used to retrieve large numbers of results (or even all results) from a single search request, in much the same way as you would use a cursor on a traditional database.
+// 
+// > Note: scroll_id can be obtained using GET `/:app/_search?scroll=1m`
+
+@name("/:app/_search/scroll?scroll_id")
+GET "https://{{host}}/{{app}}/_search/scroll"
+"Authorization": "Basic {{credentials_64}}"
+? "scroll_id"= "*:*"
+? "scroll"= "1m"
+
+
+// Apply a search via the request `body`. The request body is constructed using the [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/query-dsl.html).
+// 
+// Popular queries include:
+// 
+// 1. [Full-text search](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/full-text-queries.html)
+// 2. [Term Queries](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/term-level-queries.html)
+// 3. [Compound Queries](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/compound-queries.html)
+// 4. [Geo Queries](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/geo-queries.html)
+// 5. [Query Joins](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/joining-queries.html)
+// 6. [Span Queries](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/span-queries.html)
+// 
+// > Note: Queries can be applied across multiple types.
+
+@name("/:app/_search")
+POST "https://{{host}}/{{app}}/{{type}}/_search"
+"Authorization": "Basic {{credentials_64}}"
+"Content-Type": "application/json"
+data('{
+	"query": {
+		"term": {
+			"original_title": ""
+		}
+	}
+}')
+
+
+// While a search request returns a single “page” of results, the scroll API can be used to retrieve large numbers of results (or even all results) from a single search request, in much the same way as you would use a cursor on a traditional database.
+// 
+// > Note: scroll_id can be obtained using GET `/:app/_search?scroll=1m`
+
+@name("/:app/_search/scroll")
+POST "https://{{host}}/{{app}}/_search/scroll"
+"Authorization": "Basic {{credentials_64}}"
+"Content-Type": "application/json"
+data('{
+    "scroll" : "1m", 
+    "scroll_id" : "DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAAAD4WYm9laVYtZndUQlNsdDcwakFMNjU1QQ==" 
+}')
+
+
+// Update the documents that match the specified query. Read more [here](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/docs-update-by-query.html).
+// 
+// | Variable       | Description                           |
+// |----------------|---------------------------------------|
+// | app            | App name                              |
+// | credentials_64 | App's credentials encoded with base64 |
+
+@name("/:app/_doc/_update_by_query")
+POST "https://{{host}}/{{app}}/{{type}}/_update_by_query"
+"Authorization": "Basic {{credentials_64}}"
+"Content-Type": "application/json"
+data('{
+	"script" : {
+        "inline": "ctx._source.text += params.tag",
+        "params" : {
+            "tag" : " I am an additional sentence."
+        }
+    },
+    "query": {
+    	"match": {
+    		"name": "appbase.io"
+    	}
+    }
+}')
+
+
+// Delete documents that match the query in the request `body`. The request body is constructed using the [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl.html).
+// 
+// | Variable       | Description                           |
+// |----------------|---------------------------------------|
+// | app            | App name                              |
+// | credentials_64 | App's credentials encoded with base64 |
+// 
+// Queries can be applied across multiple types by not using the `type` variable in the URL.
+// 
+// 
+// > **Note:** This query has changed starting v5.x. It used to require a plugin and had a different endpoint signature in Elasticsearch v2.x.
+
+@name("/:app/_delete_by_query")
+POST "https://{{host}}/{{app}}/{{type}}/_delete_by_query"
+"Authorization": "Basic {{credentials_64}}"
+"Content-Type": "application/json"
+data('{
+	"query": {
+		"match": {
+			"name": "appbase.io"
+		}
+	}
+}')
+
+
+// Multi-search - Send one or more search requests together
+
+@name("/:app/_msearch")
+GET "https://{{host}}/"
+
+
+

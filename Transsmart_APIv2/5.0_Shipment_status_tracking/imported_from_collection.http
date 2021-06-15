@@ -1,0 +1,36 @@
+#!/usr/bin/env dothttp
+
+// https://devdocs.transsmart.com/#_retrieve_status_for_a_shipment_per_reference_without_detailed_information
+// 
+// Endpoint expects the {reference} of the shipment as a path parameter at the end of the url.
+// Make sure to properly urlencode special characters in the shipment reference.
+
+@name("5.1 For a single shipment")
+GET "https://{{base_url}}/v2/statuses/{{account}}/shipments/{{reference}}"
+? "isDetailed"= "false"
+? "currentStatusOnly"= "false"
+? "withPod"= "false"
+
+
+// https://devdocs.transsmart.com/#_retrieve_status_for_shipments_based_on_query_parameters_without_detailed_information
+// 
+// The endpoint takes a few parameters into consideration to filter the results.
+// 
+// The maxResults parameter can be used to reduce the number of matching shipment status updates. This helps in query performance and in response generation.
+// Sidenote : any status update on package level will mean that the complete shipment (including the other packages) is returned as part of the response.
+// 
+// When setting the isIncremental parameter to true, the system will flag the retrieved status updates. They will not be included in any subsequent calls to the endpoint. That way it is possible to continue doing batch retrieval of updates with the same set of parameters until no more results are returned. An empty response is an indication that all status updates for that specific filter have been retrieved.
+
+@name("5.2 For multiple shipments")
+GET "https://{{base_url}}/v2/statuses/{{account}}/shipments"
+? "dateFrom"= "{{dateFrom}}"
+? "dateTo"= "{{dateTo}}"
+? "carrier"= "DHP,UPS"
+? "maxResults"= "10"
+? "withPod"= "false"
+? "isIncremental"= "true"
+? "currentStatusOnly"= "false"
+? "isDetailed"= "false"
+
+
+

@@ -1,0 +1,84 @@
+#!/usr/bin/env dothttp
+
+// The first step in connecting a device to a user's account is done by using the `pre-register` query.
+// 
+// The query requires a device `id` that must be provided by the client. The device `id` can be any value (such as a UUID), but *must* be unique across *all* devices.
+// 
+// **Note**: The device `type` is determined by the `x-byub-client` header, but you can also include the type in the query.
+// 
+// **Note**: `retryInterval` and `retryDuration` are both in seconds.
+
+@name("pre-register device")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+// After a device makes a pre-registration call, it will remain in a pending state until a user registers the device to their account.
+// 
+// A device is registered to a user when the `register device` query is called with proper authorization (via a JWT that is obtained during the normal login process).
+
+@name("register device (web)")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"Authorization": "{{access-token}}"
+"x-byub-client": "{{byub-web-client-header}}"
+
+
+
+// After a device makes a "pre-registration" call, it should poll the server to check if the registration process has finished. 
+// 
+// The *next* successive `link device` query *after* the device has been registered will return an `accessToken` and `refreshToken`. This is the **only time a refresh token will be issued to the device**, so it is imperitive that it gets stored in non-volatile memory. Refresh tokens have a very long expiration time on them (several years).
+
+@name("link device")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+// Gets device information. Requires `accessToken` in the `Authorization` header.
+
+@name("get device")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"Authorization": "{{device-token}}"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+// Updates the device. Requires a valid `accessToken`.
+// 
+// **Note**: Currently, the only attribute you can update on a device is `firmwareVersion`.
+
+@name("update device")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"Authorization": "{{device-token}}"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+// Use the `refreshToken` to get a new `accessToken`.
+
+@name("refresh access token")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+// Deletes a device.
+// 
+// If the device `id` is not specified in the mutation, then the device associated with the access token used in the request will be deleted.
+
+@name("delete device")
+POST "https://{{public-url}}/"
+"Content-Type": "application/json"
+"Authorization": "{{device-token}}"
+"x-byub-client": "{{byub-firetv-client-header}}"
+
+
+
+

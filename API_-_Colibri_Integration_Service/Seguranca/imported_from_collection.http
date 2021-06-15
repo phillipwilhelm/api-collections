@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// Retorna os dados do usuário atualmente logado. O usuário logado sempre é definido pelo ``usuario:senha`` enviado no header da requisição.
+
+@name("Usuário")
+GET "https://{{url}}/{{version}}/sessao/usuario/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+
+
+// Retorna a _senha do dia_ da data informada.
+// 
+// Esta senha é diferente a cada dia e geralmente é utilizada pelas equipes de suporte para acessar algum recurso ou tela que não podem ter uma senha fixa devido ao risco da mesma ser revelada à pessoas não autorizadas.
+// 
+// Você pode solicitar a senha do dia, por exemplo, para dar acesso à uma tela de configuração com informações sensíveis que só pode ser utilizada por seu time de suporte. 
+// 
+// **Nota:** Execute sem o parâmetro ``data`` para retornar a senha de hoje ou use a string ``hoje`` como valor do parâmetro.
+
+@name("Senha do dia")
+GET "https://{{url}}/{{version}}/sessao/senhadodia/"
+? "api_key"= "{{apikey}}"
+? "data"= "hoje"
+
+
+// Retorna uma lista de todas as permissões do sistema e à qual modo de venda a permissão se aplica.
+// 
+// No Colibri, as permissões podem estar relacionadas ou não a um modo de venda. Isso é indicado pela chave ``modo_venda``.
+// 
+// | Modo venda | Tipo |
+// |:----------:|:-----|
+// | 0 | Permissão não relacionada a um modo de venda |
+// | 1 | Permissão utilizada em balcão |
+// | 2 | Permissão utilizada em entrega |
+// | 3 | Permissão utilizada em mesa |
+// | 4 | Permissão utilizada em ficha |
+// 
+// Algumas permissões podem ser utilizadas em mais de um modo de venda. Neste caso o endpoint retorna um dicionario para cada modo de venda em separado (veja exemplo a seguir).
+
+@name("Listar as permissões")
+GET "https://{{url}}/{{version}}/permissoes/listar/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "hierarquico"= "{{hierarquico}}"
+
+
+// Resource para obter as permissões do sistema.
+
+@name("Consultar permissão")
+GET "https://{{url}}/{{version}}/permissoes/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "id"= "{{permissao_id}}"
+? "modo_venda"= "{{modo_venda}}"
+
+
+

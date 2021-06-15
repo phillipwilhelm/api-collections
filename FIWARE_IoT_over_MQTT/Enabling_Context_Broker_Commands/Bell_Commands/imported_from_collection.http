@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// This example registers the `ring` command for the entity with the `id="urn:ngsi-ld:Bell:001"`
+// 
+// To register the command we need to inform Orion that the URL `http://orion:1026/v1` is able to provide
+// the missing `ring` attribute. This will then be forwarded on to the IoT Agent. As you see this is an NGSI v1 
+// endpoint and therefore the `legacyForwarding` attribute must also be set.
+
+@name("Register Bell Commands")
+POST "http://{{orion}}/v2/registrations"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+? "type"= "Store"
+? "attrs"= "name"
+data('{
+  "description": "Bell Commands",
+  "dataProvided": {
+    "entities": [
+      {
+        "id": "urn:ngsi-ld:Bell:001", "type": "Bell"
+      }
+    ],
+    "attrs": ["ring"]
+  },
+  "provider": {
+    "http": {"url": "http://orion:1026/v1"},
+    "legacyForwarding": true
+  }
+}')
+
+
+// To invoke the `ring` command, the `ring` attribute must be updated in the context.
+// 
+// If you are viewing the device monitor page, you can also see the state of the bell change.
+// 
+// ![](https://fiware.github.io/tutorials.IoT-Agent/img/bell-ring.gif)
+
+@name("Ring Bell")
+PATCH "http://{{orion}}/v2/entities/urn:ngsi-ld:Bell:001/attrs"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+	"ring": {
+    	"type" : "command",
+    	"value" : ""
+	}
+}')
+
+
+// The result of the command to ring the bell can be read by querying the entity within the Orion Context Broker. 
+// 
+// The `TimeInstant` shows last the time any command associated with the entity has been invoked. the result of `ring` command can be see in the value of the `ring_info` attribute
+
+@name("Bell Status")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Bell:001"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+? "options"= "keyValues"
+data('{
+	"ring": {
+    	"type" : "command",
+    	"value" : ""
+	}
+}')
+
+
+

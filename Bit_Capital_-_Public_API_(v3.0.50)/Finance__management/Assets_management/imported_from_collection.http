@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+@name("List assets")
+GET "https://{{API_BASE_URL}}/assets"
+
+
+@name("identify root asset")
+GET "https://{{API_BASE_URL}}/assets/root"
+
+
+@name("Get asset code by id")
+GET "https://{{API_BASE_URL}}/assets/:id"
+
+
+@name("Get asset id by code")
+GET "https://{{API_BASE_URL}}/assets/:code"
+
+
+// > this only can be perfomed by `admin`
+
+@name("Create asset")
+POST "https://{{API_BASE_URL}}/assets"
+"Content-Type": "application/json"
+data('{
+	"name": "Test Coin", //name (optional)
+	"code": "TCN" //must be 4 CHAR upppercase
+}')
+
+
+@name("Emit assets")
+POST "https://{{API_BASE_URL}}/assets/:idOrCode/emit"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+data('{
+	"amount": "10.00",
+	"destination": "5417cfab-7c73-4d67-84d3-450319455081" //walletID
+}')
+
+
+@name("Destroy assets")
+POST "https://{{API_BASE_URL}}/assets/:idOrCode/destroy"
+"Content-Type": "application/json"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+data('{
+	"amount": "10.00", 
+	"source": "5417cfab-7c73-4d67-84d3-450319455081" //walletID
+}')
+
+
+@name("Register asset to a wallet")
+POST "https://{{API_BASE_URL}}/assets/:idOrCode/register"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+data('{
+	"wallet": "725e3634-e2fe-46f0-af05-0d04bdbef1b3"
+}')
+
+
+

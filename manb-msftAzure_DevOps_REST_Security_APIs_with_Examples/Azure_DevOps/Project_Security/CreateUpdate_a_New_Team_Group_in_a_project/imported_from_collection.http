@@ -1,0 +1,54 @@
+#!/usr/bin/env dothttp
+
+@name("List all projects")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{storageKey}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get all teams under a Project (optional)")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("Create a new Team under a project")
+POST "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+json({
+    "name": "My new project team",
+    "description": "Description of my team"
+})
+
+
+// 
+
+@name("Update team")
+PATCH "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams/{{teamID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+json({
+    "description": "New Description of my team"
+})
+
+
+@name("Get team by ID")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams/{{teamID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+@name("Get Team Descriptors")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{teamID}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Delete Team")
+DELETE "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams/{{teamID}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+

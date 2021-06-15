@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// Within the GUI, a permission can be added to an application by selecting the application, clicking on **Manage Roles**
+// and then pressing the plus next to the Permissions label.
+// 
+// ![](https://fiware.github.io/tutorials.Roles-Permissions/img/create-permission.png)
+// 
+// Just fill out the wizard and click save.
+// 
+// To create a new permission via the REST API, send a POST request to the `/applications/{{application-id}}/permissions` endpoint containing the `action`and `resource` along with the `X-Auth-token` header from a previously logged in user.
+// 
+// The response returns the details of the newly created permission.
+
+@name("Create a Permission")
+POST "http://{{keyrock}}/v1/applications/{{application-id}}/permissions"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Content-Type": "{{Content-Type}}"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "permission": {
+    "name": "Access Price Changes",
+    "action": "POST",
+    "resource": "/price-change"
+  }
+}')
+
+
+// The `/applications/{{application-id}}/permissions/{permission-id}}` endpoint will return the permission
+// listed under that id. The `X-Auth-token` must be supplied in the headers.
+// 
+// The response returns the details of the requested permission.
+
+@name("Read Permission details")
+GET "http://{{keyrock}}/v1/applications/{{application-id}}/permissions/{{permission-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+// Listing the permissions with an application  can be done by making a GET request to
+// the  `/v1/applications/{{application-id}}/permissions/` endpoint.
+// 
+// The complete list of permissons includes any custom permissions created  previously plus all the standard permissions which are avaiable by default
+
+@name("List Permissions")
+GET "http://{{keyrock}}/v1/applications/{{application-id}}/permissions"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+// To amend the details of an existing permission, a  PATCH request is send to the `/applications/{{application-id}}/permissions/{permission-id}}`  endpoint.
+// 
+// The response contains a list of the fields which have been amended.
+
+@name("Update a Permission")
+PATCH "http://{{keyrock}}/v1/applications/{{application-id}}/permissions/{{permission-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "permission": {
+    "name": "Ring Alarm Bell",
+    "action": "POST",
+    "resource": "/ring"
+  }
+}')
+
+
+// Deleting a permission from an application automatically removes that permission from any associated roles.
+
+@name("Delete a Permission")
+DELETE "http://{{keyrock}}/v1/applications/{{application-id}}/permissions/{{permission-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+

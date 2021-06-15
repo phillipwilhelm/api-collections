@@ -1,0 +1,109 @@
+#!/usr/bin/env dothttp
+
+// The root API endpoint to view basic Statping configuration including Name, URL, database type, and other useful fields.
+
+@name("Statping Details")
+GET "https://{{endpoint}}/api"
+
+
+// This endpoint will return a list of the last 1,000 logs.
+
+@name("Logs")
+GET "https://{{endpoint}}/api/logs"
+
+
+// This endpoint will return the config.yml configuration without database credentials.
+
+@name("View Configuration")
+GET "https://{{endpoint}}/api/settings/configs"
+
+
+// This endpoint will update the config.yml configuration.
+
+@name("Update Configuration")
+GET "https://{{endpoint}}/api/settings/configs"
+data('api_secret: demoapisecret123
+language: en
+allow_reports: true
+location: /root/go/src/github.com/statping/statping
+disable_http: false
+demo_mode: false
+disable_logs: false
+use_assets: false
+sample_data: true
+use_cdn: false
+disable_colors: false
+')
+
+
+// This endpoint will return the last line in the logs.
+
+@name("Logs Last Line")
+GET "https://{{endpoint}}/api/logs"
+
+
+// Check the status of your Statping instance. If everything is healthy, it will return a status code of 200 with the following JSON response.
+
+@name("Health Check")
+GET "https://{{endpoint}}/health"
+
+
+// Point your Prometheus endpoint to `/metrics`, it will include most data from all elements including golang processes. View more information by checking out the [Prometheus Wiki](https://github.com/statping/statping/wiki/Prometheus-Exporter).
+
+@name("Prometheus Metrics")
+GET "https://{{endpoint}}/metrics"
+
+
+// You can create custom badges with dynamic information by using [Shields.io](https://shields.io/) and parsing JSON fields with [JSONPath](http://jsonpath.com/). 
+// 
+// ## Examples
+// 
+// #### Service Uptime Percent
+// <img src="https://img.shields.io/badge/dynamic/json?color=blue&label=%20Statping%20Uptime&query=%24.online_24_hours&url=https%3A%2F%2Fdemo.statping.com%2Fapi%2Fservices%2F2&suffix=%">
+// 
+// - URL: [https://demo.statping.com/api/services/2](https://demo.statping.com/api/services/2)
+// - JSON Path: `$.online_24_hours`
+// - Suffix: `%`
+// 
+// ```
+// https://img.shields.io/badge/dynamic/json?color=blue&label=%20Statping%20Uptime&query=%24.online_24_hours&url=https%3A%2F%2Fdemo.statping.com%2Fapi%2Fservices%2F2&suffix=%
+// ```
+// 
+// #### Count Services
+// <img src="https://img.shields.io/badge/dynamic/json?color=purple&label=Demo%20Site&query=%24.services&url=https://demo.statping.com/health&suffix=%20services">
+// 
+// - URL: [https://demo.statping.com/health](https://demo.statping.com/health)
+// - JSON Path: `$.services`
+// - Suffix: ` services`
+// 
+// ```
+// https://img.shields.io/badge/dynamic/json?color=purple&label=Demo%20Site&query=%24.services&url=https://demo.statping.com/health&suffix=%20services
+// ```
+
+@name("Shields.io Badge")
+GET "https://img.shields.io/badge/dynamic/json"
+? "color"= "blue"
+? "label"= "Statping Uptime 24/hr"
+? "query"= "$.online_24_hours"
+? "url"= "https://demo.statping.com/api/services/1"
+? "suffix"= "%"
+
+
+// Send a push notification to the Statping mobile app using your Firebase device identifier.
+
+@name("Send Push Notification")
+POST "https://push.statping.com/api/push"
+json({
+    "notifications": [
+        {
+            "tokens": [
+                "dBLB1WvTJkiWl3ZPjP0-BS:APA91bGXUbKy65CaN1XqExHXZ892jik2k9XORXSiqdUyXhcQ5RDiJ6LfXrckuH3StYJFcma4UCDr_N038YUtxYsRIHYx_8vWZ6D2uq3199LegWXGl5tz-9zk3M4WZGX8WGxIRUJ31QtW"
+            ],
+            "platform": 2,
+            "message": "This notification will go to iOS and Android platform via Firebase!"
+        }
+    ]
+})
+
+
+

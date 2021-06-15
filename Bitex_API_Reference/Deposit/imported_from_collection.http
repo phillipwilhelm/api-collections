@@ -1,0 +1,104 @@
+#!/usr/bin/env dothttp
+
+// - `cost` is the amount taken from your deposit by third-party institutions (such as banks and/or the government)
+// - `fee` is the amount taken by the local digital wallet associated to your Bitex account.
+// - `amount` is the amount received, which is the same as `net_amount`. The `gross_amount` is the result of adding the `net_amount`, the `fee` and the `cost`.
+
+@name("List Cash Deposits")
+GET "https://{{domain}}/api/cash_deposits"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[from]"= "{yyyy-mm-dd}"
+? "filter[user]"= "{user_id}"
+
+
+// - `cost` is the amount taken from your deposit by third-party institutions (such as banks and/or the government)
+// - `fee` is the amount taken by the local digital wallet associated to your Bitex account.
+// - `amount` is the amount received, which is the same as `net_amount`. The `gross_amount` is the result of adding the `net_amount`, the `fee` and the `cost`.
+
+@name("Show Cash Deposit")
+GET "https://{{domain}}/api/cash_deposits/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// <div class="alert alert-danger">
+// 	<b>Experimental endpoint:</b> This endpoint may not be supported in further releases of the API. If your integration relies on it, please contact us at <a href="mailto:developers@bitex.la">developers@bitex.la</a> explaining your use case, in order to provide you with better support.
+// </div>
+
+@name("List Cash Deposit Instructions")
+GET "https://{{domain}}/api/cash_deposit_instructions"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+@name("List Coin Deposits")
+GET "https://{{domain}}/api/coin_deposits"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[from]"= "{yyyy-mm-dd}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Coin Deposits")
+GET "https://{{domain}}/api/coin_deposits/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+@name("List Bitcoin Addresses")
+GET "https://{{domain}}/api/bitcoin_addresses"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Bitcoin Address")
+GET "https://{{domain}}/api/bitcoin_addresses/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// It is not necessary to announce Cash deposits unless Bitex requires it for your integration. Usually we will credit your deposits when they show up in our bank account.
+
+@name("Announce Cash Deposit")
+POST "https://{{domain}}/api/cash_deposits"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+  "data": {
+    "type": "cash_deposits",
+    "attributes": {
+      "requested_amount": 1000,
+      "deposit_method": "bank"
+    },
+    "relationships": {
+      "user": {
+        "data": {
+          "id": 1,
+          "type": "users"
+        }
+      }
+    }
+  }
+}
+')
+
+
+

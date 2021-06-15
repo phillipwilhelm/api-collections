@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// Request an event lock for single event occurrence.
+// 
+// This endpoint expects an `application/json` request body with these parameters:
+// * __eventIdentifier__: identifier of the event being locked
+// * __participants__: how many slots should this event lock reserve, for multi-user events (optional)
+// * __userIdentifier__: shared identifier between locks created for events that are intended to be booked together
+// 	*	Tip: supply `userIdentifier` that you get from the first response from this endpoint to consequent requests (for one user and booking session)	 
+// 
+// **Getting an event lock guarantees that no else will be able to book or lock your slot(s) before this lock is removed (by you) or expired**
+// 
+// > Please refer to example response and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn of the request structure response fields
+// 
+// **You can override or set desired event identifier in the `Pre-request Script` tab** 
+// 
+// > Event lock identifier from this endpoint response is used to automatically overwrite `eventLock` Postman variable
+
+@name("Request for single event")
+POST "https://{{domain}}/api/v3/eventLocks"
+"Content-Type": "application/json"
+data('{
+  "eventIdentifier": "{{eventIdentifier}}",
+  "participants": 1
+}')
+
+
+// Request event locks for multiple event occurrences. User identifier will be shared among all of the locks (to be used for multi-booking `Events` endpoints
+// 
+// This endpoint expects an `application/json` request body with these fields:
+// * __events__: array of individual lock requests. See `Request for single event` documentation for possible values
+// * __userIdentifier__: shared identifier to be shared for created locks (optional, will be automatically generated)
+// 
+// > If this is not your first request to the endpoint in the booking session and you want to keep the locks together, you should supply previous `userIdentifier` to subsequent requests
+// 
+// **Getting an event lock guarantees that no else will be able to book or lock your slot(s) before this lock is removed (by you) or expired**
+// 
+// > Please refer to example response and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn of the request structure response fields
+// 
+// Event lock identifier and user identifier from this endpoint response is used to automatically overwrite `eventLock` and `userIdentifier` Postman variables
+
+@name("Request for multiple events")
+POST "https://{{domain}}/api/v3/eventLocks/multi"
+"Content-Type": "application/json"
+data('{
+	"events": [
+		{
+			"participants": 1,
+			"eventIdentifier" : "{{eventIdentifier}}"
+		}
+	]
+}')
+
+
+// Get a single event lock entity by its identifier. Can be used to check an expiration or other lock parameters
+// 
+// **You can override or set desired event lock identifier in the `Pre-request Script` tab**
+
+@name("Get by identifier")
+GET "https://{{domain}}/api/v3/eventLocks/{{eventLock}}"
+
+
+
+// Delete a single event lock by its identifier.
+// 
+// Immediately after receiving HTTP 204 response event slot that has been locked by deleted lock is free to be booked or locked by anyone.
+// 
+// **You can override or set desired event lock identifier in the `Pre-request Script` tab**
+
+@name("Delete by identifier")
+DELETE "https://{{domain}}/api/v3/eventLocks/{{eventLock}}"
+
+
+// Delete event locks that were locked with supplied user identifier. Useful for freeing up all of the locks at once
+// 
+// Immediately after receiving HTTP 204 response event slot that has been locked by deleted lock is free to be booked or locked by anyone.
+// 
+// **You can override or set desired user identifier in the `Pre-request Script` tab**
+
+@name("Delete by user identifier")
+DELETE "https://{{domain}}/api/v3/eventLocks/user/{{userIdentifier}}"
+
+
+
+

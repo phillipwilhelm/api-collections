@@ -1,0 +1,37 @@
+#!/usr/bin/env dothttp
+
+// Kloudless Object IDs are symmetrically encrypted by Kloudless prior to being provided via the API. This encoding ensures that IDs can always be treated as arbitrary strings. The encryption further guarantees that malicious users are less likely to be able to guess or provide an expected ID to the API.
+// 
+// The API sometimes returns raw decoded IDs from upstream services, such as when requesting raw data, or using the pass-through API. These IDs may also be retrieved by querying the upstream API directly.
+// 
+// Convert raw IDs to Kloudless Object IDs first using this endpoint prior to using the ID in an API request. This allows the Kloudless API to accept the object identifier.
+// 
+// For most services, the decrypted ID is the ID provided by that service’s API. In this case, the only identification information required to generate the Kloudless Object ID would be the object’s raw ID, provided via the `id` attribute. Any minor variations, such as a trailing slash suffix for S3, will be documented below.
+// 
+// Here are the attributes to send to this endpoint:
+// 
+// * `id`: An object’s decoded upstream ID.
+// * `api`: The object’s Kloudless API category. Defaults to `storage`.
+// * `type`: The object’s Kloudless Type. Options currently include `object`, `user`, and `group`. Most IDs have the   type object` unless they correspond to a specific type mentioned here, such as user. Defaults to `object`.
+// * Any extra attributes documented below that are specific to this service.
+// 
+// The Kloudless API also returns the `api` and `type` in all objects that include an `id`. You can determine them along with an object’s raw ID by retrieving raw data with `X-Kloudless-Raw-Data: true` and checking `raw` -> `object` -> `id` for the ID.
+// 
+// Alternatively, the fully assembled ID that Kloudless encodes is available at `raw` -> `id`. This string can be provided directly to the API to encode by using the `raw_id` instead of the `id`. This is most valuable when objects identified via raw data in Kloudless API responses need to be used with the unified Kloudless API.
+// 
+// The id attribute also accepts the following special IDs:
+// 
+// * `root`: The root folder. Only applicable to the `storage` API.
+// * `trash`: The Trash, Recycle Bin or equivalent. Also intended for the `storage` API.
+//  
+// For cloud-service specific information, [check our documentation](https://developers.kloudless.com/docs/v1/core#raw-data-and-the-pass-through-api-raw-data-kloudless-id)
+
+@name("Encode Raw ID")
+POST "https://{{base-url}}/me/encode_raw_id"
+"Content-Type": "application/json"
+files(
+	("id", "")
+)
+
+
+

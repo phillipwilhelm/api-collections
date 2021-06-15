@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+// Returns a session token that is specific to a client/platform and follows token expiration and refresh rules.
+
+@name("Login")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v3/login"
+"Content-Type": "application/json"
+"Skore-Request-Metadata": "{"city": "São Paulo"}"
+"Content-Type": "application/json"
+data('{
+    "email": "jose@skore.io",
+    "password": "skore123",
+    "company_id": 114
+}')
+
+
+// Generates a new token for the current session.
+
+@name("Refresh token")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/refresh_token"
+"Content-Type": "application/json"
+data('{
+	"token": "{{TOKEN}}",
+	"token_refresh": "{{TOKEN_REFRESH}}"
+}')
+
+
+// Sends an email to the user to reset his password.
+
+@name("Recover password")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/recover_password"
+"Content-Type": "application/json"
+? "company_id"= "{{COMPANY_ID}}"
+? "email"= "recoverpwd@skore.io"
+
+
+// Changes an user's password.
+
+@name("Update password")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/change_password"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "current_password"= "secret123"
+? "new_password"= "secret123"
+? "password_confirmation"= "secret123"
+
+
+@name("Recover password v2")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/users/recover_password"
+"Content-Type": "application/json"
+data('{
+    "company_id": {{COMPANY_ID}},
+    "credential": "recoverpwd@skore.io"
+}')
+
+
+@name("Current user")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/current"
+"Skore-Request-Metadata": "{"app_version_string":"1.6.2","browser":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36","browser_version":"5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36","client_type":"web","os":"MacIntel","current_url":"http://skore.beta-staging.skore.io/","screen_height":978,"screen_width":1448,"referrer":""}"
+"Authorization": "{{TOKEN}}"
+
+
+

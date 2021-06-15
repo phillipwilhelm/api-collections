@@ -1,0 +1,282 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the existing device for the current user shared with the other users.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key     | Value       | Description               | 
+// | ------- | ----------- | ------------------------- |
+// | guestid | {{guestid}} | Device shared with this user id
+// | did     | {{did}}     | Device id 
+// | label   | {{label}}   | Label used to identify the sharing between device and user
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Device List Shared With")
+GET "{{protocol}}://{{host}}/api/v2/devices/shared/with"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns all the existing devices for the current user shared by the other users.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list of shared devices by other users.
+// 
+// The available filters are:
+// 
+// | Key     | Value       | Description               | 
+// | ------- | ----------- | ------------------------- |
+// | guestid | {{guestid}} | Device shared with this user id
+// | did     | {{did}}     | Device id 
+// | label   | {{label}}   | Label used to identify the sharing between device and user
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Device List Shared By")
+GET "{{protocol}}://{{host}}/api/v2/devices/shared/by"
+"Authorization": "Bearer {{token}}"
+
+
+// This API creates a new sharing for the device.
+// 
+// The reponse will contain the created object with the created sharing device.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "label": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this shared device relation"
+//     },
+//     "GuestId": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "description": "Identifies the user on which add the device"
+//     },
+//     "ids": {
+//       "type": "array",
+//       "minItems": 1,
+//       "items": {
+//         "type": "integer"
+//       },
+//       "description": "Array of device id"
+//     },
+//     "GuestEmail": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "format": "email",
+//       "description": "The email of the user on which add the device"
+//     }
+//   },
+//   "oneOf": [{
+//       "required": [
+//         "GuestId"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "GuestEmail"
+//       ]
+//     }
+//   ],
+//   "required": [
+//     "ids",
+//     "label"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property            | Type       | Required     | Nullable | Defined by    |
+// | ------------------- | ---------- | ------------ | -------- | ------------- |
+// | [GuestId](#guestid) | `integer`  | **Required** | No       | (this schema) |
+// | [GuestEmail](#guestemail) | `string`  | **Required** | No       | (this schema) |
+// | [ids](#ids)         | `integer[]` | **Required** | No       | (this schema) |
+// | [label](#label)     | `string`   | **Required** | No       | (this schema) |
+// 
+// ## GuestId
+// 
+// Identifies the user on which add the device
+// 
+// `GuestId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### GuestId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## GuestEmail
+// 
+// Identifies the user on which add the device
+// 
+// `GuestEmail`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### GuestEmail Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## ids
+// 
+// Array of device id
+// 
+// `ids`
+// 
+// - is **required**
+// - type: `integer[]`
+// - at least `1` items in the array
+// - defined in this schema
+// 
+// ### ids Type
+// 
+// Array type: `integer[]`
+// 
+// All items must be of the type: `integer`
+// 
+// ## label
+// 
+// The label is a field used to describe this shared device relation
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Share Device")
+POST "{{protocol}}://{{host}}/api/v2/device-share"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"GuestId": {{guest-uid}},
+	"ids": [{{gid}}],
+	"label": "{{share-label}}"
+}')
+
+
+// This API allows to update the information of the own device identified by `{{dsid}}`.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change label.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//         "label": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "The label is a field used to describe this shared device relation"
+//         }
+//     },
+//     "required": [
+//         "label"
+//     ],
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property        | Type     | Required     | Nullable | Defined by    |
+// | --------------- | -------- | ------------ | -------- | ------------- |
+// | [label](#label) | `string` | **Required** | No       | (this schema) |
+// 
+// ## label
+// 
+// The label is a field used to describe this shared device relation
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Update Device Shared Information")
+PUT "{{protocol}}://{{host}}/api/v2/device-share/{{dsid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label": "{{new-share-label}}"
+}')
+
+
+// This API removes an existing sharing relation for the device.
+// 
+// The device share to delete is passed in the URL using the DeviceShareId as `{{dsid}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The device share to delete is identified in the url by `{{dsid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Remove Device Sharing")
+DELETE "{{protocol}}://{{host}}/api/v2/device-share/{{dsid}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+

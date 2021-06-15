@@ -1,0 +1,120 @@
+#!/usr/bin/env dothttp
+
+// Returns all content in a Confluence instance.
+// 
+// By default, the following objects are expanded: `space`, `history`, `version`.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to access the Confluence site ('Can use' global permission).
+// Only content that the user has permission to view will be returned.
+
+@name("Get content")
+GET "https://{{baseUrl}}/api/content"
+? "type"= "page"
+? "spaceKey"= "<string>"
+? "title"= "<string>"
+? "status"= "current"
+? "postingDay"= "<string>"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "trigger"= "<string>"
+? "orderby"= "<string>"
+? "start"= "0"
+? "limit"= "25"
+
+
+// Creates a new piece of content or publishes an existing draft.
+// 
+// To publish a draft, add the `id` and `status` properties to the body of the request.
+// Set the `id` to the ID of the draft and set the `status` to 'current'. When the
+// request is sent, a new piece of content will be created and the metadata from the
+// draft will be transferred into it.
+// 
+// By default, the following objects are expanded: `space`, `history`, `version`.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**: 'Add' permission for the
+// space that the content will be created in, and permission to view the draft if publishing a draft.
+
+@name("Create content")
+POST "https://{{baseUrl}}/api/content"
+"Content-Type": "application/json"
+? "status"= "current"
+? "expand"= "<string>"
+? "expand"= "<string>"
+data('{
+    "title": "<string>",
+    "type": "<string>",
+    "space": {
+        "key": "<string>"
+    },
+    "body": {
+        "editor2": {
+            "value": "<string>",
+            "representation": "<string>"
+        }
+    },
+    "id": "<string>",
+    "status": "current",
+    "ancestors": [
+        {
+            "id": "<string>"
+        },
+        {
+            "id": "<string>"
+        }
+    ]
+}')
+
+
+// Returns the list of content that matches a Confluence Query Language
+// (CQL) query. For information on CQL, see:
+// [Advanced searching using CQL](https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/).
+// 
+// Example initial call:
+// ```
+// https://your-domain.atlassian.net/wiki/rest/api/content/search?cql=type=page&limit=25
+// ```
+// 
+// Example response:
+// ```
+// {
+//   "results": [
+//     { ... },
+//     { ... },
+//     ...
+//     { ... }
+//   ],
+//   "limit": 25,
+//   "size": 25,
+//   ...
+//   "_links": {
+//     "base": "<url>",
+//     "context": "<url>",
+//     "next": "/rest/api/content/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg",
+//     "self": "<url>"
+//   }
+// }
+// ```
+// 
+// When additional results are available, returns `next` and `prev` URLs to retrieve them in subsequent calls. The URLs each contain a cursor that points to the appropriate set of results. Use `limit` to specify the number of results returned in each call.
+// Example subsequent call (taken from example response):
+// ```
+// https://your-domain.atlassian.net/wiki/rest/api/content/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg
+// ```
+// The response to this will have a `prev` URL similar to the `next` in the example response.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to access the Confluence site ('Can use' global permission).
+// Only content that the user has permission to view will be returned.
+
+@name("Search content by CQL")
+GET "https://{{baseUrl}}/api/content/search"
+? "cql"= "<string>"
+? "cqlcontext"= "<string>"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "cursor"= "<string>"
+? "limit"= "25"
+
+
+

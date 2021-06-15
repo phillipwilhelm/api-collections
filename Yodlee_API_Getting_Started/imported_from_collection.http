@@ -1,0 +1,52 @@
+#!/usr/bin/env dothttp
+
+// This step calls the auth endpoint and saves a token for you.
+// Call it for the first time before you start and whenever your token expires.
+// Note: Please update your clientId, secret, and userName in the environment section before you make this API call.
+
+@name("Generate Token")
+POST "https://{{host}}auth/token"
+"Api-Version": "1.1"
+"loginName": "{{userName}}"
+data({
+    "clientId": [
+        "{{clientId}}"
+    ],
+    "secret": [
+        "{{secret}}"
+    ]
+})
+
+
+// Get the list of Banks and Financial Instutitions available in your environment.
+
+@name("Get Providers")
+GET "https://{{host}}providers/"
+"Api-Version": "1.1"
+"Content-Type": "application/json"
+? "top"= "4"
+
+
+
+// Get a user's accounts. If the response is blank, no accounts have been linked. You can use FastLink to link accounts. See the <b>linking financial data</b> tab for details.
+
+@name("Get Accounts")
+GET "https://{{host}}accounts/"
+"Content-Type": "application/json"
+"Api-Version": "1.1"
+? "status"= "ACTIVE"
+? "container"= "bank"
+? "accountId"= "1234"
+
+
+// Get Transactions for the accounts that you have linked. If you get empty response, try increasing the duration and also remove any filters that you might be passing.
+
+@name("Get Transactions")
+GET "https://{{host}}transactions/"
+"Content-Type": "application/json"
+"Api-Version": "1.1"
+? "fromDate"= "2019-01-01"
+? "container"= "bank"
+
+
+

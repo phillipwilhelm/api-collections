@@ -1,0 +1,343 @@
+#!/usr/bin/env dothttp
+
+@name("Get payment methods")
+GET "https://{{url}}/api.php"
+basicauth("{{user_name}}", "{{api_key}}")
+? "_d"= "extendedcheckout/{{customer_id}}"
+? "view"= "checkout"
+? "edit_step"= "step_four"
+? "width"= "{{width}}"
+? "lang_code"= "{{lang_code}}"
+? "currency_code"= "{{currency_code}}"
+? "shipping_id"= "1"
+? "ship_to_another"= "0"
+? "wallet_system"= "0"
+? "total_cash"= "0"
+? "display_subtotal"= "0.0"
+? "format_display_subtotal"= "0.0USD"
+? "recharge_amount"= "0.0USD"
+
+
+
+@name("Get Shipping Method")
+PUT "https://{{url}}/api/extendedcheckout/{{customer_id}}"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+    "company_id": "1",
+    "currency_code": "SAR",
+    "gc": "[]",
+    "lang_code": "en",
+    "profile_id": "1421",
+    "select_gdpr_agreement": "Y",
+    "ship_to_another": 1,
+    "update_user_data": "Y",
+    "user_data": {
+        "s_address": "tesst",
+        "s_city": "test",
+        "s_country": "SA",
+        "s_email": "",
+        "s_firstname": "tast",
+        "s_lastname": "test",
+        "s_phone": "9999999999",
+        "s_state": "RH",
+        "s_zipcode": "12345",
+        "b_firstname": "firstname",
+        "b_lastname": "b_lastname",
+        "profile_name": "Main",
+        "ship_to_another": 0,
+        "user_id": "1418"
+    },
+    "user_type": "C",
+    "view": "checkout",
+    "display_subtotal": 0,
+    "wallet_system": 0
+}')
+
+
+@name("Get Shipping Method for the guest")
+PUT "https://{{url}}/api/extendedcheckout/{{guest_id}}"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+  "company_id": "1",
+  "currency_code": "USD",
+  "gc": "",
+  "guest_checkout": "Y",
+  "lang_code": "en",
+  "profile_id": "",
+  "ship_to_another": 0,
+  "user_data": {
+    "b_address": "add",
+    "b_city": "ci",
+    "b_country": "AF",
+    "b_email": "",
+    "b_firstname": "rajat",
+    "b_lastname": "agarwal",
+    "b_phone": "123456789",
+    "b_state": "a",
+    "b_zipcode": "1234",
+    "s_address": "",
+    "s_city": "",
+    "s_country": "",
+    "s_firstname": "",
+    "s_lastname": "",
+    "s_phone": "",
+    "s_state": "",
+    "s_zipcode": ""
+  },
+  "user_type": "C",
+  "view": "checkout",
+  "display_subtotal": 0,
+  "wallet_system": 0
+}')
+
+
+// Note: this is used after selecting the payment method
+
+@name("Place the Order by user")
+POST "https://{{url}}/api.php"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+? "_d"= "extendedcheckout"
+data('{
+    "after_coupon_code_total": "105.33",
+    "apply_wallet_cash": false,
+    "company_id": "0",
+    "currency_code": "USD",
+    "current_cash": 0,
+    "gc": "[]",
+    "guest_checkout": {
+        "company_id": "0",
+        "currency_code": "USD",
+        "gc": "[]",
+        "lang_code": "en",
+        "profile_id": "15",
+        "select_gdpr_agreement": "Y",
+        "ship_to_another": 0,
+        "update_user_data": "Y",
+        "user_data": {
+            "b_address": "test",
+            "b_city": "test",
+            "b_country": "SA",
+            "b_email": "",
+            "b_firstname": " rajat",
+            "b_lastname": "agarwal",
+            "b_phone": "123456789",
+            "b_state": "Aseer",
+            "b_zipcode": "12345",
+            "profile_name": "Main",
+            "ship_to_another": 0,
+            "user_id": "14"
+        },
+        "user_type": "C",
+        "view": "checkout",
+        "display_subtotal": 0,
+        "wallet_system": 0
+    },
+    "lang_code": "en",
+    "payment_id": "13",
+    "ship_to_another": 0,
+    "shipping_id": ["1"],
+    "used_cash": 0,
+    "user_id": "14",
+    "display_subtotal": 0,
+    "wallet_system": 0
+}')
+
+
+@name("place an order by guest")
+POST "https://{{url}}/api/extendedcheckout"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+    "after_coupon_code_total": "11.8",
+    "apply_wallet_cash": false,
+    "company_id": "1",
+    "currency_code": "EUR",
+    "current_cash": 0,
+    "gc": "[]",
+    "guest_checkout": {
+        "company_id": "1",
+        "currency_code": "EUR",
+        "gc": "[]",
+        "guest_checkout": "Y",
+        "lang_code": "en",
+        "profile_id": "",
+        "ship_to_another": 0,
+        "user_data": {
+            "b_address": "fsg",
+            "b_city": "gzhs",
+            "b_country": "AS",
+            "b_email": "aa@bb.com",
+            "b_firstname": "tets",
+            "b_lastname": "y",
+            "b_phone": "21378",
+            "b_state": "gzj",
+            "b_zipcode": "12345",
+            "profile_name": "",
+            "s_address": "fsg",
+            "s_city": "gzhs",
+            "s_country": "AS",
+            "s_firstname": "tets",
+            "s_lastname": "y",
+            "s_phone": "21378",
+            "s_state": "gzj",
+            "s_zipcode": "12345",
+            "ship_to_another": 0,
+            "user_id": "1487594689"
+        },
+        "user_type": "C",
+        "view": "checkout",
+        "display_subtotal": 0,
+        "wallet_system": 0
+    },
+    "lang_code": "en",
+    "payment_id": "2",
+    "ship_to_another": 0,
+    "shipping_id": ["1"],
+    "used_cash": 0,
+    "user_id": "1487594689",
+    "display_subtotal": 0,
+    "wallet_system": 0
+}')
+
+
+// https://git.webkul.com/snippets/214
+
+@name("checkout profile data")
+GET "https://{{url}}/api/Extendedusers/{{customer_id}}"
+basicauth("{{user_name}}", "{{api_key}}")
+? "get_user_profiles"= "Y"
+? "width"= "720"
+? "lang_code"= "{{lang_code}}"
+? "currency_code"= "QAR"
+? "view"= "checkout"
+
+
+
+@name("")
+GET "None"
+basicauth("{{user_name}}", "{{api_key}}")
+data('{
+    "after_coupon_code_total": "100.0",
+    "apply_wallet_cash": false,
+    "company_id": "0",
+    "currency_code": "RUB",
+    "current_cash": 0,
+    "gc": "[]",
+    "guest_checkout": {
+        "company_id": "0",
+        "currency_code": "RUB",
+        "gc": "[]",
+        "lang_code": "en",
+        "profile_id": "103",
+        "recharge_amount": "100",
+        "ship_to_another": 0,
+        "update_user_data": "Y",
+        "user_data": {
+            "b_address": "tetz",
+            "b_city": "test",
+            "b_country": "RU",
+            "b_email": "",
+            "b_firstname": "test",
+            "b_lastname": "test",
+            "b_phone": "+1(111)223-34-66",
+            "b_state": "SVE",
+            "b_zipcode": "12345",
+            "profile_name": "Main",
+            "ship_to_another": 0,
+            "user_id": "102"
+        },
+        "user_type": "C",
+        "view": "checkout",
+        "format_display_subtotal": "100 \u0420",
+        "wallet_cart_id": "405911012",
+        "display_subtotal": 100,
+        "wallet_system": 1,
+        "total_cash": "100"
+    },
+    "lang_code": "en",
+    "payment_id": "13",
+    "recharge_amount": "100",
+    "ship_to_another": 0,
+    "shipping_id": [""],
+    "used_cash": 0,
+    "user_id": "102",
+    "format_display_subtotal": "100 \u0420",
+    "wallet_cart_id": "405911012",
+    "display_subtotal": 100,
+    "wallet_system": 1,
+    "total_cash": "100"
+}')
+
+
+// Note: this is used after selecting the payment method
+
+@name("Place the Order for wallet")
+POST "https://{{url}}/api/extendedcheckout"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+    "after_coupon_code_total": "100.0",
+    "apply_wallet_cash": false,
+    "company_id": "0",
+    "currency_code": "USD",
+    "current_cash": 0,
+    "gc": "[]",
+    "guest_checkout": {
+        "company_id": "0",
+        "currency_code": "USD",
+        "gc": "[]",
+        "lang_code": "en",
+        "profile_id": "48",
+        "recharge_amount": "100",
+        "ship_to_another": 0,
+        "update_user_data": "Y",
+        "user_data": {
+            "b_address": "test",
+            "b_city": "test",
+            "b_country": "TM",
+            "b_email": "",
+            "b_firstname": "test",
+            "b_lastname": "test",
+            "b_phone": "789461321",
+            "b_state": "Ax",
+            "b_zipcode": "789456",
+            "profile_name": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439",
+            "ship_to_another": 0,
+            "user_id": "42"
+        },
+        "user_type": "C",
+        "view": "checkout",
+        "format_display_subtotal": "$100.00",
+        "wallet_cart_id": "3696896283",
+        "display_subtotal": 100,
+        "wallet_system": 1,
+        "total_cash": "100"
+    },
+    "lang_code": "en",
+    "payment_id": "16",
+    "recharge_amount": "100",
+    "ship_to_another": 0,
+    "shipping_id": [""],
+    "used_cash": 0,
+    "user_id": "42",
+    "format_display_subtotal": "$100.00",
+    "wallet_cart_id": "3696896283",
+    "display_subtotal": 100,
+    "wallet_system": 1,
+    "total_cash": "100"
+}')
+
+
+// Note: this is used after selecting the payment method
+
+@name("dixipay magnit ")
+POST "https://{{url}}/api/extendedcheckout"
+basicauth("{{user_name}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{"after_coupon_code_total":"182.0","apply_wallet_cash":false,"company_id":"1","currency_code":"USD","current_cash":0,"gc":"[]","guest_checkout":{"company_id":"1","currency_code":"USD","gc":"[]","lang_code":"ru","profile_id":"424","ship_to_another":0,"update_user_data":"Y","user_data":{"b_address":"test","b_city":"123456","b_country":"TM","b_email":"","b_firstname":"test","b_lastname":"test","b_phone":"9999999999","b_state":"Ax","b_zipcode":"test","profile_name":"\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439","ship_to_another":0,"user_id":"418"},"user_type":"C","view":"checkout","display_subtotal":0,"wallet_system":0},"lang_code":"ru","payment_id":"14","ship_to_another":0,"shipping_id":[""],"used_cash":0,"user_id":"418","display_subtotal":0,"wallet_system":0,"card_data":{"expiry_month":"04","expiry_year":"22","card_number":"4111111111111111","cvv2" : "123","cardholder_name":"test"}}')
+
+
+

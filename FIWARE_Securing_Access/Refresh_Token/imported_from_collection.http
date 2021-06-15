@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// Check to see if Refresh Token flow is available, merely log in using one of the other grant types,
+// for example to log in using the user-credentials flow send a POST request to the `oauth2/token` endpoint
+//  with the `grant_type=password`
+//  
+//  Along with the `access_token` identifying the user, the response returns an `refresh_token`
+
+@name("Availability Check")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=alice-the-admin@test.com&password=test&grant_type=password')
+
+
+// The  `refresh_token=05e386edd9f95ed0e599c5004db8573e86dff874` from the response above 
+// is stored for later use. To obtain a new `access_token`  (for example once the previous
+// one has expired) the `refresh_token` is used in the OAuth2 refresh token flow and a `grant_type=refresh_token`
+// 
+// **Note** - this request will only be successful if the value of the `refresh_token` 
+// has been updated.
+
+@name("Refresh Access Token")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=alice-the-admin@test.com&password=test&grant_type=password')
+
+
+

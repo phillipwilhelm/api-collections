@@ -1,0 +1,54 @@
+#!/usr/bin/env dothttp
+
+// This request demonstrates how to get tracking information for a package. The `carrier_code` and `tracking_number` are provided via query parameters.
+
+@name("Track a package")
+GET "https://api.shipengine.com/v1/tracking"
+? "carrier_code"= "stamps_com"
+? "tracking_number"= "{{tracking_number}}"
+? "carrier_code"= "ups"
+? "tracking_number"= "1Z6Y21Y60300230257"
+
+
+// If you created the shipping label using ShipEngine, then tracking a package is even easier. No need to specify the `carrier_code` and `tracking_number`. All you need is the `label_id`.
+
+@name("Track using a label ID")
+GET "https://api.shipengine.com/v1/labels/{{label_id}}/track"
+
+
+// To subscribe to real-time tracking updates from ShipEngine, the first step is to setup a webhook.  This is a **one-time step** that can be performed via the API or manually in the ShipEngine dashboard.
+
+@name("Setup a tracking webhook")
+POST "https://api.shipengine.com/v1/environment/webhooks"
+"Content-Type": "application/json"
+data('{
+	"event": "track",
+	"url": "https://your-domain-here.com/some/path"
+}')
+
+
+// This request lists all of the webhooks that you've setup, either via the API or the ShipEngine web dashboard.
+
+@name("List your webhooks")
+GET "https://api.shipengine.com/v1/environment/webhooks"
+
+
+// Once you've setup a tracking webhook, you can start subscribing to tracking updates for packages.  Your webhook will be notified whenever any tracking events occur on a subscribed package.
+
+@name("Subscribe to tracking updates for a package")
+POST "https://api.shipengine.com/v1/tracking/start"
+? "carrier_code"= "stamps_com"
+? "tracking_number"= "{{tracking_number}}"
+
+
+// This request shows how to stop receiving tracking updates for a package.
+// 
+// > **Note:** ShipEngine automatically unsubscribes from tracking updates once a package is delivered, or when a delivery exception occurs. So you don't need to explicitly unsubscribe in these cases.
+
+@name("Unsubscribe from tracking updates")
+POST "https://api.shipengine.com/v1/tracking/stop"
+? "carrier_code"= "stamps_com"
+? "tracking_number"= "{{tracking_number}}"
+
+
+

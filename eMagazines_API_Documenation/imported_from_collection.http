@@ -1,0 +1,113 @@
+#!/usr/bin/env dothttp
+
+// The Subscribe call is used for adding a new subscription order. This call requires the eMagazines program key and customer email, and also accepts several optional customer fields. Source and channel fields are used in attribution report breakdowns.
+// The Subscribe call returns an entitlement link that gives the customer immediate access to the latest digital edition. The entitlement link provides a single customer access to a single issue.
+// The Subscribe call also returns a latest-issue link that can be used to display a customer’s most recent entitled issue for that program. The latest-issue link enables partners handling their own emailing to make just a single API Subscribe call at the outset and store it to provide access throughout the life of the customer’s subscription.
+// Note: the Subscribe API does not support multiple subscriptions across customers or programs. To set up bulk file subscription imports, contact eMagazines support to learn about the Bulk FTP API.
+
+@name("Subscribe")
+POST "https://dfapi.emagazines.com/subscribe"
+"Content-Type": "application/json"
+data('{
+	key: "YourKey",
+	programKey: "YourProgramKey",
+	email: "test@emagazines.com"
+}')
+
+
+// To cancel a customer’s subscriptions to a particular program, include the customer’s email and the program key. If there is more than one program for the same title (eg. 6 issues vs 12 issues due), make multiple calls to the Cancel API, one for each program.
+// To cancel all subscriptions for a given customer across all partner programs, include the customer’s email, but leave out the program key. 
+
+@name("Cancel")
+POST "https://dfapi.emagazines.com/cancel"
+"Content-Type": "application/json"
+data('{
+	key: "YourKey",
+	programKey: "YourProgramKey",
+	email: "test@emagazines.com"
+}')
+
+
+// The Issue call requests data about the current active issue for a given title. This API call can be used to get the latest cover image URL.
+// If a partner is managing its own email notifications, the partner can poll the Issue API periodically until it changes, signaling that a new issue has been activated and it is time to send out email notifications to subscribers.
+
+@name("Issue")
+POST "https://dfapi.emagazines.com/issue"
+"Content-Type": "application/json"
+data('{
+    key: "YourKey",
+	programKey: "YourProgramKey"
+}')
+
+
+// Partners may host the eMagazines digital library on their own web page, either by framing the default eMagazines library view or requesting the raw data for custom display.
+// To request a customer’s full digital library across all partner programs, include only the customer’s email. To get the back issues only for a given title, include the program key for that title.
+
+@name("Library")
+POST "https://dfapi.emagazines.com/library"
+"Content-Type": "application/json"
+data('{
+    key: "YourKey",
+	email: "test@emagazines.com"
+}')
+
+
+// The Reset API end-point provides a way to reset the entitlement link (per-issue device list) in case a customer uses up all five entitled devices (or other program-configured limit). To reset access to an issue from the server-side, include the API Key and entitlement link returned by the Subscribe or Library call.
+// From the client-side (browser), use the LibraryToken returned in the Library API call.
+
+@name("Reset")
+POST "https://dfapi.emagazines.com/reset"
+"Content-Type": "application/json"
+data('{
+     "key": "Yourkey",
+	 "entitlementLink": "https://link.emagazines.com?t=5B55668F-A950-4D1F-9171-D7A0D060F456",
+}')
+
+
+// Customer records are created automatically upon the first Subscribe call for a given email. The Customer call is a way to update customer data such as name and address, or often to do an email change. Once the customer’s email is changed, any other API calls that use the email, such as the Library API, should subsequently use the new email.
+
+@name("Customer")
+POST "https://dfapi.emagazines.com/customer"
+"Content-Type": "application/json"
+data('{
+     "key": "YourKey",
+	 "email": "test@emagazines.com",
+	 "firstName": "Bob",
+	 "lastName": "Smith",
+	 "address1": "123 Street"
+	 "address2": "",
+	 "city": "Chicago",
+	 "state": "IL",
+	 "zipCode": "60647",
+	 "Source": "test",
+	 "Channel": "test"
+}')
+
+
+// Partners may grant permission to the full archive for a title by requesting an all-access token. The token should be requested on the server-side, and the IFrame URL returned should be put into an Iframe pixel on the client-side. The IFrame’s GET request will assign the secure cookies that grant a consumer permission to view the archive. The IFrame URL is “consumed” after a single GET request, so it should not be saved or re-used.
+// Expiration hours should be set to at least one hour. It is recommended to set an expiration time equal to the length of the website’s authenticated session.
+// Once access is granted, the partner provides links to issues in the archive. The full title archive can be loaded using the Archive end-point below.
+
+@name("All Access")
+POST "https://dfapi.emagazines.com/allaccesstoken"
+"Content-Type": "application/json"
+data('{
+	key: "YourKey",
+	programKey: "YourProgramKey",
+	ExpirationHours: 24
+}')
+
+
+// Partners load a title’s full archive using the Archive end-point. This API call will return a collection of all active issues across the history of the title.
+// It is recommended to store the results on the local system, and then poll the Archive (or Issue) API periodically for changes to the latest active issue. That way it is not necessary to load the full archive every time a consumer logs in.
+
+@name("Archive")
+POST "https://dfapi.emagazines.com/archive"
+"Content-Type": "application/json"
+data('{
+	key: "YourKey",
+	programKey: "YourProgramKey"
+}')
+
+
+

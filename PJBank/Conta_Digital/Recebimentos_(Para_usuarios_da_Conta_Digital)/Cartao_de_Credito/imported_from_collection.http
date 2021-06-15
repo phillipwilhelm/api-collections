@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// Tokeniza um cartão de crédito.
+// 
+// * IMPORTANTE: Este endpoint só deve ser utilizado por quem é PCI compliance. Se não for o seu caso, use a tokenização pelo browser que é segura para sua necessidade.
+// 
+// * O primeiro passo para receber de seus cliente é converter o número do cartão de crédito para uma representação armazenável, o token. Este processo é chamado de tokenização do número do cartão.
+// 
+// * O token é válido apenas para sua empresa/cartão então é inútil se for roubado. Desta forma, é possível armazená-lo em qualquer banco de dados sem representar risco de segurança ou de conformidade com PCI.
+// 
+// * O token deve ser armazenado para futuramente efetivar o pagamento.
+
+@name("Criar um token de cartão de crédito")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/tokens"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+data({
+    "nome_cartao": [
+        "Cliente Exemplo"
+    ],
+    "numero_cartao": [
+        "4012001037141112"
+    ],
+    "mes_vencimento": [
+        "05"
+    ],
+    "ano_vencimento": [
+        "2027"
+    ],
+    "cpf_cartao": [
+        "64111456529"
+    ],
+    "email_cartao": [
+        "api@pjbank.com.br"
+    ],
+    "celular_cartao": [
+        "978456723"
+    ],
+    "codigo_cvv": [
+        "123"
+    ]
+})
+
+
+// É responsável por criar uma transação de cartão de crédito utilizando um cartão tokenizado que pode ser gerado no endpoint `[POST] /recebimentos/{credenciar}/tokens` ou diretamente no browser do cliente.
+// 
+// * É recomendado usar o endpoint com token sempre, ou com o cartão apenas no primeiro pagamento.
+
+@name("Criar uma transação utilizando um token")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token_cartao": [
+        "edd4705894591f3d513e626a6a65bf4d642c142f"
+    ],
+    "valor": [
+        "10"
+    ],
+    "parcelas": [
+        "2"
+    ],
+    "descricao_pagamento": [
+        "Pagamento de teste"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ]
+})
+
+
+// É responsável por criar uma transação de cartão de crédito sem a necessidade de um `token_cartao`, utilizando os dados reais do cartão. Para isso, a empresa precisa ser [PCI Compliance](https://pt.pcisecuritystandards.org/).
+// 
+// * É recomendado tokenizar no browser sempre, pois elimina a necessidade de ter contato com os dados do portador do cartão. Isto elimina a necessidade de ser PCI Compliance.
+
+@name("Criar uma transação utilizando os dados do cartão")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+data({
+    "numero_cartao": [
+        "4012001037141112"
+    ],
+    "nome_cartao": [
+        "Cliente Exemplo"
+    ],
+    "mes_vencimento": [
+        "05"
+    ],
+    "ano_vencimento": [
+        "2027"
+    ],
+    "cpf_cartao": [
+        "37843514171"
+    ],
+    "email_cartao": [
+        "api@pjbank.com.br"
+    ],
+    "celular_cartao": [
+        "1187906534"
+    ],
+    "codigo_cvv": [
+        "123"
+    ],
+    "valor": [
+        "1"
+    ],
+    "parcelas": [
+        "1"
+    ],
+    "descricao_pagamento": [
+        "Pagamento de teste "
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ]
+})
+
+
+// O cancelamento de um pagamento também pode ser feito por esta API.
+// 
+// No entanto, existem regras dos adquirentes, bandeiras e banco que podem impactar no sucesso da operação.
+// 
+// Quanto antes for feito, maior a chance de sucesso.
+
+@name("Cancelar uma transação")
+DELETE "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes/{{tid-cartao}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+
+
+
+

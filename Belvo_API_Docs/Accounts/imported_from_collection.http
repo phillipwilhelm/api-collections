@@ -1,0 +1,74 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of all existing accounts in your Belvo account. We return up to 100 results per page.
+// 
+// **Filterable fields**
+// 
+// Please see the table below for an alphabetized list of fields that you can filter your responses by. For more information on how to use filters, see our [Filtering responses](https://developers.belvo.com/docs/searching-and-filtering) article.
+// 
+// |Field| Available Filters|
+// |---|---|
+// |`balance__available`|`=`, `gt`, `gte`, `lt`, `lte`, `range`|
+// |`balance__current`|`=`, `gt`, `gte`, `lt`, `lte`, `range`|
+// |`bank_product_id`|`=`|
+// |`category`|`=`, `in`|
+// |`collected_at`|`=`, `gt`, `gte`, `lt`, `lte`, `range`|
+// |`currency`|`=`, `in`|
+// |`id`|`=`, `in`|
+// |`institution`|`=`, `in`|
+// |`internal_identification`|`=`|
+// |`link`|`=`, `in`|
+// |`name`|`=`, `icontains`|
+// |`number`|`=`, `in`|
+// |`public_identification_name`|`=`|
+// |`public_identification_value`|`=`|
+// |`type`|`=`, `in`|
+
+@name("List")
+GET "https://{{baseUrl}}/api/accounts/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+? "page"= "1"
+
+
+// Retrieve accounts from an existing link.
+
+@name("Retrieve")
+POST "https://{{baseUrl}}/api/accounts/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "link": "2ccd5e15-194a-4a19-a45a-e7223c7e6717",
+    "token": "1234ab",
+    "save_data": true
+}')
+
+
+// Used to resume an Account retrieve session that was paused because an MFA token was required by the institution.
+
+@name("Resume")
+PATCH "https://{{baseUrl}}/api/accounts/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "session": "39cd6a88-8ee3-4e59-a861-b8a2187e0f4c",
+    "token": "1234ab",
+    "link": "683005d6-f45c-4adb-b289-f1a12f50f80c",
+    "save_data": true
+}')
+
+
+// Get the details of a specific account.
+
+@name("Detail")
+GET "https://{{baseUrl}}/api/accounts/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+// Delete a specific account and all associated transactions, as well as owners, from your Belvo account.
+
+@name("Destroy")
+DELETE "https://{{baseUrl}}/api/accounts/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+

@@ -1,0 +1,133 @@
+#!/usr/bin/env dothttp
+
+// This endpoint can also be used in machine-to-machine integration (M2M)
+// [See more](https://documenter.getpostman.com/view/557358/RzfmG7QJ).
+
+@name("Create user")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+data('{
+    "email": "user+{{$timestamp}}@email.com",
+    "name": "Name",
+    "password": "secret123",
+    "role": "student",
+    "username": ""
+}')
+
+
+// List all users of a company.
+// 
+// This endpoint can also be used in machine-to-machine integration (M2M)
+// [See more](https://documenter.getpostman.com/view/557358/RzfmG7QJ).
+
+@name("List users v2")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/users"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "username__eq"= "roma"
+? "email__eq"= "roma@skore.io"
+? "limit"= "2"
+? "continuation"= "DnF1ZXJ5VGhlbkZldGNoBQAAAAAEuzRAFktfc1Bwb21JUjUyVGZveUZwSEg5b0EAAAAABUFncxZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZnAAAAAAVBZ3QWR0xxeGV0R1FUNXU0NmVsQW5KRlM2ZwAAAAAEuzRBFktfc1Bwb21JUjUyVGZveUZwSEg5b0EAAAAABUFndRZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZn"
+
+
+// 
+// This endpoint can also be used in machine-to-machine integration (M2M)
+// [See more](https://documenter.getpostman.com/view/557358/RzfmG7QJ).
+
+@name("User details")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// List all subordinates of any given leader.
+
+@name("List User Subordinates")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}/subordinates"
+"Content-Type": "application/json"
+"Authorization": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3Rva2VuIjoiaXh2ZVBZNF9GNDZvSVE5aWR4bkxJdyJ9.NDT6I0E-8xdM7wf9ZqFge88u3KkSwjofWMMgTQQDOHw"
+
+
+// Update user attributes. This route is also used to enable or disable a user's access through the active flag. Role statuses: 'student', 'admin' and 'expert. The team_ids will be dropped and re-created. If the team_ids parameter is not present, we will only delete the teams.
+// 
+// This endpoint can also be used in machine-to-machine integration (M2M)
+// [See more](https://documenter.getpostman.com/view/557358/RzfmG7QJ).
+
+@name("Update user")
+PATCH "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{JWT_TOKEN}}"
+data('{
+    "email": "joao@skore.io",
+    "name": "João Paulo",
+    "role": "admin",
+    "password": "secret123",
+	"username": "joao",
+	"team_ids": [],
+	"active": true,
+    "metadata": {
+        "cargo": "developer"
+    },
+    "merge_metadata": true // if false, the metadata will be overwritten
+}')
+
+
+// All notifications from user
+
+@name("Notifications v2")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/users/{{VV_USER_ID}}/notifications"
+"Content-Type": "application/json"
+"Authorization": "{{VV_USER_TOKEN}}"
+"skore-request-metadata": "{"a": "notifications 1"}"
+? "continuation"= "DnF1ZXJ5VGhlbkZldGNoBQAAAAAFjx3"
+? "sort_by"= "created_at:desc"
+? "limit"= "1"
+
+
+// Update the `status` of notification.
+
+@name("Update notification")
+PUT "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{VV_USER_ID}}/notifications/{{NOTIFICATION_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{VV_USER_TOKEN}}"
+data('{
+	"status": "read"
+}')
+
+
+// List all bookmarks from user
+
+@name("User bookmarks")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}/bookmarks"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "sort_by"= "position:desc"
+? "limit"= "1"
+? "continuation"= "DnF1ZXJ5VGhlbkZldGNoBQAAAAAFGy5lFkdMcXhldEdRVDV1NDZlbEFuSkZTNmcAAAAABRsuZhZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZnAAAAAASU-3IWS19zUHBvbUlSNTJUZm95RnBISDlvQQAAAAAElPtzFktfc1Bwb21JUjUyVGZveUZwSEg5b0EAAAAABRsuZxZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZn"
+
+
+// Add a device to user
+
+@name("Add devices")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{VV_USER_ID}}/devices"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+data('{
+    "app_uid": "fjmQSqWsyd4:APA91bEUsmDyAMX1u3eEoc1lER7qlxg3nMPJJ-9U883h5OHGvW2tTKMiydWcokGj1SqssOva45nyyvp5UmGcnvWnqksY4pErEkiPURTituqoZbZWMRbnN01B7XqDVIMIbHiLMX7jm4M5",
+    "app_version": "1.0",
+    "token": "APA91bF5FS4crwP0ABz1hDqo_ujiE7YxVlrFTxh17QektzS6mFpmXbawyjbvv8_yrg35avXjxtObghyvFkYwW0iAtU-FoRR2Cw-0ajP-L7702aukuuJakfFwsRnaKyyCJF-usPdoSor8",
+    "platform": "android"
+}')
+
+
+@name("User preferences")
+PATCH "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/preferences"
+"Authorization": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('  {
+    "newsletter": true
+  }')
+
+
+

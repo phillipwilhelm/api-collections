@@ -1,0 +1,144 @@
+#!/usr/bin/env dothttp
+
+// Submitting images for detection can be done in _Real-time_ or _On-demand_.
+// 
+// _Real-time_ is ideal if your use case demands quick and predictable detection times. Prime examples for this category are consumer-facing applications like augmented reality and ad serving. _Real-time_ mode is synchronous in that results are returned as response to your initial detection request.
+// 
+// _On-demand_ detection is recommended whenever the volume of data to analyze is hard to predict and subject to large variations over time. _On-demand_ offers infinite scalability by registering requests asynchronously. Each request is identified by a unique `requestHash` that is then used to retrieve the detection result via the [response endpoint](https://docs.visua.com/?version=latest#085477a2-1eec-46e1-8a70-15159545d03c).
+// 
+// The image can be submitted using one of the following methods:
+// * _URL:_ the image is accessible via a URL and the URL is supplied as a POST parameter called `mediaUrl`
+// * _Base64:_ the image bytes are encoded in [Base64 format](https://en.wikipedia.org/wiki/Base64) and the resulting string is supplied as a POST parameter called `mediaBase64`
+// * _File:_ the image bytes are uploaded as a parameter of type File called `mediaFile`. This requires that the request `Content-Type` is set to [multipart/form-data](https://en.wikipedia.org/wiki/MIME#Form-Data)
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to a detection in the query image.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// The field `confidence` (ranging between 0 and 1) represents how likely the detection is a correct match based on your library. Depending on your use case, you might want to apply a threshold on this value. For example retaining detections with `confidence > 0.95` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.7` will favour recall over precision.
+// 
+// The field `meta` contains custom key/value pairs that you can assign to each brand via the [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) endpoint.
+// 
+// We strongly recommend that you store the unique `sessionId` field returned with each response as it references the specific request in our system. This can be used for support queries with our team at <support@visua.com>.
+
+@name("Detect in Image")
+POST "https://{{socket}}/detect"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-logo.jpg"
+    ],
+    "mediaBase64": [
+        "data:image/png;base64,YOURMEDIAENCODED"
+    ]
+})
+
+
+// If you submitted an image [On-demand](https://docs.visua.com/?version=latest#3dfadb11-a78d-411e-9309-fce55b3c96e6) you have received a `requestHash` which is an unique identifier for you request. Using the `requestHash` you can now query this endpoint to retrieve the detection results. Detection results will be availble for 48 hours after which they expire.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to a detection in the query image.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// The field `confidence` (ranging between 0 and 1) represents how likely the detection is a correct match based on your library. Depending on your use case, you might want to apply a threshold on this value. For example retaining detections with `confidence > 0.95` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.7` will favour recall over precision.
+// 
+// The field `meta` contains custom key/value pairs that you can assign to each brand via the [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) endpoint.
+// 
+// We strongly recommend that you store the unique `sessionId` field returned with each response as it references the specific request in our system. This can be used for support queries with our team at <support@visua.com>.
+
+@name("Detect in Image Response")
+GET "https://{{socket}}/detect/:requestHash/response"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Brand detection _in video_ enables accurate measurement of time on screen and location tracking of brand exposures in video footage of any length. This endpoint is highly scalable and supports a variety of formats with adjustable turnaround time depending on the velocity of your content.
+// 
+// #### Response
+// 
+// The detect response confirms that the video has been submitted. The unique identifier contained in the field `requestHash` can be used to query the [Detect in Video Response](https://docs.visua.com/?version=latest#72f92177-4865-4968-8ddb-b6ae1940f026) endpoint to retrieve the resulting detections once the processing has been completed.
+
+@name("Detect in Video")
+POST "https://{{socket}}/detect"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "mediaUrl": [
+        "http://s3.visua.com/pub/test-video-lowres.mp4"
+    ]
+})
+
+
+// If you have submitted a video via the [Detect in Video](https://docs.visua.com/?version=latest#1753573b-cce1-4756-b56b-71b233f73ebe) endpoint, you have received a `requestHash` which is an unique identifier for you request. Using the `requestHash` you can now query this endpoint to retrieve the detection results.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `detections` within the `data` section of the response. Each entry of the array is a JSON object corresponding to a detection in the query video.
+// 
+// The field `coordinates` contains 4 x-y pairs representing the corners of the quadrilateral that encloses the detection, sorted in clockwise order from the top-left corner. One set of coordinates is returned for every frame in which the brand is visible.
+// 
+// The field `confidence` (ranging between 0 and 1) represents how likely the detection is a correct match based on your library. Depending on your use case, you might want to apply a threshold on this value. For example retaining detections with `confidence > 0.95` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.7` will favour recall over precision.
+// 
+// The field `meta` contains custom key/value pairs that you can assign to each brand via the [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) endpoint.
+// 
+// The field `trackId` is a numeric identifier that uniquely identifies the detection within the video. This information can be useful for referencing a specific detection with our support team and it's required when providing feedback via the [Detect Feedback](https://docs.visua.com/?version=latest#cb99cb47-8123-4380-a3f4-2ba1d4faca8f) endpoint.
+// 
+// The field called `renderedMediaUrl` points to a visual rendition of the detections overlaid on the original video. The rendering happens asynchronously after the response is generated hence it might become visible at a later stage depending on the duration of the video. The field called `csvUrl` points to a summary in CSV format ideal for analysis in a spreadsheet. The `renderedMediaUrl` and `csvUrl` remain accessible for 30 days.
+// 
+// We strongly recommend that you store the unique `sessionId` field returned with each response as it references the specific request in our system. This can be used for support queries with our team at <support@visua.com>.
+
+@name("Detect in Video Response")
+GET "https://{{socket}}/detect/:requestHash/response"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Submit a collection of media URLs for detection. The `mediaUrlsFile` parameter should contain one URL per row. The maximum number of URLs supported in a single file is 20000.
+// 
+// #### Response
+// 
+// The endpoint acknowledges the successful receipt of your media URLs.
+
+@name("Detect Multiple")
+POST "https://{{socket}}/detect/multiple"
+"X-DEVELOPER-KEY": ""
+files(
+	("mediaUrlsFile", "None")
+)
+
+
+// Retrieve detections over a given date range. This endpoint can also be used as an alternative to polling for on-demand submissions for both [images](https://docs.visua.com/?version=latest#3dfadb11-a78d-411e-9309-fce55b3c96e6) and [videos](https://docs.visua.com/?version=latest#1753573b-cce1-4756-b56b-71b233f73ebe).
+// 
+// The `dateBegin` and `dateEnd` parameters are expressed in `yyyy-mm-dd` format and defined in the [UTC timezone](https://en.wikipedia.org/wiki/Coordinated_Universal_Time). The date interval can span no more than 31 days and if that is exceeded the endpoint responds with a _malformed request_ error.
+// 
+// The `page` parameter controls which page of the result set should be returned. When pagination reaches the end of the result set or if any subsequent page is requested the endpoint responds with status code `204 No Content`.
+// 
+// #### Response
+// 
+// The response consists of a JSON array called `feed` within the `data` section of the response.
+// 
+// In case your developer key is configured for video each entry of the `feed` array is a JSON object containing properties related to each video submitted during the specified period. The field `progress` indicates the completion percentage. For completed videos (i.e., `progress` is `100`) additional fields such as `mediaInfo`, `renderedMediaUrl`, `csvUrl` are available. For more details about these fields can be found in [Detect in Video Response](https://docs.visua.com/?version=latest#72f92177-4865-4968-8ddb-b6ae1940f026).
+// 
+// If instead your developer key is configured for images each entry of the `feed` array is a JSON object containing detections found in a specific image.
+// 
+// Within each JSON object the field `mediaUrl` contains the URL of the specific image and its unique identifier `sessionId`, which can be used for support queries to our team at <support@visua.com>.
+// 
+// The field `coordinates` contains a series of 4 x-y pairs representing the corners of the polygon that encloses the detection, sorted in clockwise order from the top-left corner.
+// 
+// The field `confidence` (ranging between 0 and 1) represents how likely the detection is a correct match based on your library. Depending on your use case, you might want to apply a threshold on this value. For example retaining detections with `confidence > 0.95` will ensure the lowest rate of false positives while allowing some weaker true positives to be rejected (precision favored over recall). Conversely retaining detections with `confidence > 0.7` will favour recall over precision.
+
+@name("Detect Feed")
+GET "https://{{socket}}/detect/feed"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+? "dateBegin"= "2018-01-15"
+? "dateEnd"= "2018-01-17"
+? "page"= "1"
+
+
+

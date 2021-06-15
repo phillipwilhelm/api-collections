@@ -1,0 +1,1791 @@
+#!/usr/bin/env dothttp
+
+// Rota para extração do relatório de jornada
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date  | string | Data inicial do período | Sim |
+// | end_date    | string | Data final do período   | Sim |
+// | group_by    | string | Tipo do agrupamento ver disponíveis abaixo | Sim |
+// | row_filters | string | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns     | string | Colunas, ver dispoíveis abaixo | para multiplas, separar por virgula | Sim |
+// | format      | string | formato do relatório, ver disponíveis abaixo | Sim |
+// | business_unit_id | number | Filtra pelo ID da Unidade de negócio | Não |
+// | team_id | number | number | Filtra pelo ID da equipe| Não |
+// | employee_id | number | Filtra pelo ID do colaborador |
+// | cost_center_id | number | Filtra pelo ID do centro de custo |
+// | status_id | number | Filtra pelo Motivo |
+// 
+// 
+// **Agrupamentos disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Sim |  Agrupamento por colaborador |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | date | Sim | Data |
+// | shift_name | Não | Nome do turno |
+// | shift_appointments | Não | Jornada prevista |
+// | time_cards | Não | Pontos |
+// | summary | Não | Totais da jornada |
+// | extra_time | Não | Total de H. Extras |
+// | total_time | Não | Horas totais |
+// | shift_time | Não | Horas previstas |
+// | custom_interval_time | Não | Horas intrajornada |
+// | over_limit | Não | Horas excedentes |
+// | daylight_extra_time | Não | Total de H.E. Diurnas |
+// | overnight_time | Não | Adicional noturno |
+// | overnight_extra_time | Não | Total de H.E. Noturnas |
+// | registration_number | Não | Matrícula |
+// | time_balance | Sim | Saldo |
+// | time_balance_entries | Não | Lançamento de horas |
+// | time_balance_factors | Não | Fatores acumulativos |
+// | motive | Não | Motivo/Observação |
+// | employee_id | Não | id do colaborador |
+// | employee_name | Não | Nome do colaborador |
+// | team_name | Não | Nome da equipe |
+// | job_title_name | Não | Nome do cargo |
+// | managers_names | Não | Nome dos gestores da equipe |
+// | reduced_overnight_time | Não | Hora noturna reduzida |
+// | holiday | Não | Feriado |
+// | standby_time | Não | Total de horas em sobreaviso |
+// | standby_planned_time | Não | Total de horas planejadas em sobreaviso |
+// | standby_worked_time | Não | Total de horas trabalhadas em sobreaviso |
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Inclui colaboradores inativos |
+// | has_time_cards | Não |  Inclui colaboradores que não registram ponto |
+// | holidays_only | Não |  Lista somente jornadas em dias de feriado |
+
+@name("Jornada")
+POST "https://{{server_url}}/external_api/v1/reports/work_days"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+    "report": {
+        "start_date": "2020-10-01",
+        "end_date": "2020-10-05",
+        "group_by": "employee",
+        "row_filters": "with_inactives,has_time_cards",
+        "columns": "date,shift_name,shift_appointments,time_cards,summary,extra_time,total_time,shift_time,custom_interval_time,overnight_time,registration_number,time_balance,motive, employee_id",
+        "format": "json"
+    }
+}')
+
+
+// Exibe o relatório de abonos.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | start_date          | String  | Sim | Data inicial do período                                                                 |
+// | end_date            | String  | Sim | Data final do período                                                                   |
+// | group_by            | String  | Sim | Tipo do agrupamento ver disponíveis abaixo                                              |
+// | row_filters         | String  | Não | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador |
+// | columns             | String  | Sim | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      |
+// | format              | String  | Sim | Formato do relatório, ver disponíveis abaixo                                            |
+// | business_unit_id    | Integer  | Não | Filtra pelo ID da Unidade de negócio                                                    |
+// | team_id             | Integer  | Não | Filtra pelo ID da equipe                                                                |
+// | employee_id         | Integer  | Não | Filtra pelo ID do colaborador                                                           |
+// | cost_center_id      | Integer  | Não | Filtra pelo ID do centro de custo                                                       |
+// | status_id           | Integer  | Não | Filtra pelo Motivo                                                                      |
+// | solicitation_status | Integer  | Não | Status                                                                                  |
+// | solicitation_source | Integer  | Não | Origem                                                                                  |
+// | proposal_status     | Integer  | Não | Motivo                                                                                  |
+// | all_day             | Boolean | Não | Dia todo? *(true - sim, false - não)*                                                                               |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// #### Filtros adicionais disponíveis
+// 
+// Indisponíveis.
+// 
+// #### Colunas disponíveis
+// 
+// Separe com uma vírgula as colunas desejadas.
+// 
+// | Nome  				| Obrigatório	| Descrição						|
+// | --------------------- | -------------	|------------------------------ |
+// | employee_name     	| Sim			| Nome              			|
+// | date              	| Sim			| Data              			|
+// | all_day           	| Não			| Dia todo          			|
+// | start_time        	| Não			| Hora de início    			|
+// | end_time          	| Não			| Hora de término   			|
+// | exemption_type    	| Não			| Origem            			|
+// | solicitation_status	| Não			| Status            			|
+// | observation       	| Não			| Observação        			|
+// | answered_by       	| Não			| Quem ajustou      			|
+// | updated_at        	| Não			| Data da alteração 			|
+// | status            	| Não			| Motivo            			|
+// | answer_motive     	| Não			| Motivo de reprovação			|
+// | has_attachment    	| Não			| Possui anexo?     			|
+// | team_name             | Não           | Nome da equipe                |
+// | job_title_name        | Não           | Nome do cargo                 |
+
+@name("Abonos")
+POST "https://{{server_url}}/external_api/v1/reports/exemptions"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-01-02",
+    "end_date": "2020-02-05",
+    "group_by": "team",
+    "row_filters": "with_inactives,has_time_cards, file",
+    "columns": "employee_name, file",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de absenteísmo
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access-token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | absense_with_permission | Não | Incluir faltas justificadas                                  |
+// | positive_time_balance   | Não | Não incluir falta quando há saldo positivo de banco de horas |
+// | compensatory            | Não | Utilizar compensação de tempo diária (H.E - H.F)             |
+// | missing_time_1h         | Não | Incluir até 1 H.F/dia                                        |
+// | missing_time_2h         | Não | Incluir de 1 a 2 H.F/dia                                     |
+// | missing_time_3h         | Não | Incluir de 2 a 3 H.F/dia                                     |
+// | missing_time_4h         | Não | Incluir de 3 a 4 H.F/dia                                     |
+// | missing_time_5h         | Não | Incluir de 4 a 5 H.F/dia                                     |
+// | missing_time_6h         | Não | Incluir de 5 a 6 H.F/dia                                     |
+// | missing_time_7h         | Não | Incluir de 6 a 7 H.F/dia                                     |
+// | missing_time_8h         | Não | Incluir de 7 a 8 H.F/dia                                     |
+// | with_inactives          | Não | Incluir colaboradores inativos?                              |
+// | with_intermittent    | Não | Considerar colaboradores horistas (turnos intermitentes) |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | total_missing_time | Sim | Ausência         |
+// | percent_abs        | Sim | ABS              |
+// | cost_center        | Não | Centro de custos |
+// | leaders            | Não | Gestores         |
+// | registration_number | Não | Matrícula |
+// | name               | Sim | Nome             |
+// | total_working_time | Sim | Previsto         |
+// | total_worked_time  | Sim | Presença         |
+// | team_name | Não | Nome da equipe |
+// | job_title_name | Não | Nome do cargo |
+
+@name("Absenteísmo")
+POST "https://{{server_url}}/external_api/v1/reports/absenteeism"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-08-20",
+    "end_date": "2018-09-19",
+    "group_by": "team",
+    "row_filters": "compensatory,missing_time_1h,missing_time_2h,missing_time_3h,missing_time_4h,missing_time_5h,missing_time_6h,missing_time_7h,missing_time_8h",
+    "columns": "name,cost_center,leaders,total_working_time,total_missing_time,total_worked_time,percent_abs",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de Afastamento e férias
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access-token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Incluí colaboradores inativos |
+// | has_time_cards | Não |  Incluí colaboradores que não registram ponto |
+// 
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name          | Sim | Nome                   |
+// | registration_number    | Não | Matrícula              |
+// | team_name              | Não | Nome da equipe         |
+// | shift_name             | Não | Turno                  |
+// | department_name        | Não | Departamento           |
+// | start_date             | Sim | Data de início         |
+// | end_date               | Sim | Data de término        |
+// | observation            | Sim | Notas                  |
+// | absence_type           | Não | Tipo do afastamento    |
+// | total_days             | Não | Quant. de dias         | 
+// | is_medical_certificate | Não | É atestado?            |   
+// | crm                    | Não | CRM                    |
+// | medical_name           | Não | Nome do médico?        |
+// | clinic_name            | Não | Local de atendimento   |
+// | cid                    | Não | CID                    |
+// | has_attachment         | Não | Possui anexo?          |
+// | file                   | Não | Imagem                 |
+// | job_title              | Não | Nome do cargo          |
+// | admission_date         | Não | Data de admissão       |
+// | business_unit          | Não | Unidade de negócio     |
+// | business_unit_cnpj     | Não | CNPJ da Un. de Negócio |
+
+@name("Afastamentos e férias")
+POST "https://{{server_url}}/external_api/v1/reports/absences"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-10-20",
+    "end_date": "2020-12-19",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "employee_name,job_title_name,team_name,start_date,end_date,observation",
+    "format": "json"
+  }
+}
+')
+
+
+// Exibe o relatório de afastamento e férias.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | start_date          | Date  | Sim | Data inicial do período                                                               |
+// | end_date            | Date  | Sim | Data final do período                                                                 |
+// | group_by            | String (8) | Sim | Tipo do agrupamento (consulte a tabela **Agrupamentos disponíveis**)				|
+// | row_filters         | String  | Não | Filtros adicionais (consulte a tabela **Filtros adicionais disponíveis**)			|
+// | columns             | String  | Sim | Colunas (consulte a tabela **Colunas disponíveis**)									|
+// | format              | String  | Sim | Formato do relatório (json, csv ou html)											|
+// | business_unit_id    | Integer  | Não | Filtra pelo ID da Unidade de negócio                                               |
+// | team_id             | Integer  | Não | Filtra pelo ID da equipe                                                           |
+// | employee_id         | Integer  | Não | Filtra pelo ID do colaborador                                                      |
+// | cost_center_id      | Integer  | Não | Filtra pelo ID do centro de custo                                                  |
+// 
+// 
+// ### Agrupamentos disponíveis
+// 
+// | Nome     | Descrição |
+// | -------- |---------- |
+// | employee | Agrupamento por colaborador |
+// | team	   | Agrupamento por equipe		|
+// 
+// ### Filtros adicionais disponíveis
+// 
+// É possível utilizar mais de um filtro, separando-os com uma vírgula.
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | all_changes	 | Não |  Incluí todas as alterações				   |
+// | with_inactives | Não |  Incluí colaboradores inativos 			   |
+// | has_time_cards | Não |  Incluí colaboradores que não registram ponto |
+// 
+// 
+// ### Colunas disponíveis
+// 
+// É possível utilizar mais de um filtro, separando-os com uma vírgula.
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name       | Sim | Nome                 |
+// | registration_number | Não | Matrícula            |
+// | team_name           | Não | Nome da equipe       |
+// | job_title_name      | Não | Nome do cargo        |
+// | date                | Sim | Data                 |
+// | time_cards          | Sim | Pontos               |
+// | answered_by         | Não | Quem ajustou/aprovou |
+// | updated_at          | Não | Data da alteração    |
+// | status              | Sim | Motivo               |
+// | is_solicitation     | Não | É solicitação        |
+
+@name("Ajustes de ponto")
+POST "https://{{server_url}}/external_api/v1/reports/proposals"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-01-01",
+    "end_date": "2020-02-01",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "employee_name,registration_number,team_name,date,time_cards,answered_by,updated_at,status,is_solicitation",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de assinaturas
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não | Incluí colaboradores inativos 					|
+// | has_time_cards | Não | Incluir colaboradores que não registram ponto? |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name         | Sim | Nome  |
+// | employee_code         | Não | Matrícula  |
+// | team_name             | Não | Time  |
+// | closing_number        | Não | Número do Fechamento  |
+// | closing_period        | Não | Período (Fechamento)  |
+// | signed                | Não | Assinado?  |
+// | signature_protocol    | Não | Protocolo da Assinatura |
+// | signature_ip          | Não | IP da Assinatura  |
+// | signature_date        | Não | Data da Assinatura  |
+// | signature_platform    | Não | Plataforma da Assinatura |
+// | signature_image       | Não | URL da Imagem da Assinatura  |
+// | manager_name          | Não | Nome do Gestor  |
+// | validated             | Não | Validado?  |
+// | validation_protocol   | Não | Protocolo da Validação  |
+// | validation_date       | Não | Data da Validação  |
+// | validation_ip         | Não | IP da Validação  |
+// | validation_platform   | Não | Plataforma da Validação |
+// 
+// 
+
+@name("Assinaturas")
+POST "https://{{server_url}}/external_api/v1/reports/signatures"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"report": {
+		"start_date":"2020-05-15",
+		"end_date":"2020-07-15",
+		"columns":"employee_code,team_name,closing_number,closing_period,signed,signed_date,manager_name,validated,validated_date",
+		"row_filters":"",
+		"format":"json"
+		}
+}')
+
+
+// Exibe o relatório de Atrasos.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome             | Tipo    | Obrigatório | Descrição                                                                               |
+// |------------------|---------|-------------|-----------------------------------------------------------------------------------------|
+// | start_date       | String  | Sim         | Data inicial do período                                                                 |
+// | end_date         | String  | Sim         | Data final do período                                                                   |
+// | group_by         | String  | Sim         | Tipo do agrupamento ver disponíveis abaixo                                              |
+// | row_filters      | String  | Não         | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador |
+// | columns          | String  | Sim         | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      |
+// | format           | String  | Sim         | Formato do relatório, ver disponíveis abaixo                                            |
+// | business_unit_id | Integer | Não         | Filtra pelo ID da Unidade de negócio                                                    |
+// | team_id          | Integer | Não         | Filtra pelo ID da equipe                                                                |
+// | employee_id      | Integer | Não         | Filtra pelo ID do colaborador                                                           |
+// | cost_center_id   | Integer | Não         | Filtra pelo ID do centro de                                                             |
+// | department_id    | Integer | Não         | Filtra pelo Departamento                                                                |
+// 
+// #### Filtros adicionais disponíveis
+// 
+// Indisponíveis.
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome       | Obrigatório | Descrição                    |
+// |------------|-------------|------------------------------|
+// | employee   | Não         | Agrupamento por colaborador  |
+// | team       | Não         | Agrupamento por equipe       |
+// 
+// 
+// 
+// #### Colunas disponíveis
+// 
+// Separe com uma vírgula as colunas desejadas.
+// 
+// | Nome  				| Obrigatório	  | Descrição						|
+// | ------------- | -------------	|------------------------------ |
+// | employee_name | sim |Nome|
+// | registration_number | não |Matrícula|
+// | team_name | Não | Nome da equipe |
+// | job_title_name | Não | Nome do cargo |
+// | cpf | não |CPF|
+// | date | não |Data|
+// | cost_center | não |Centro de custos|
+// | department | não |Departamento|
+// | business_unit | não |Unidade de negócio|
+// | shift | não |Turno|
+// | time_card_expected | não |Primeiro ponto previsto|
+// | time_card_done | não |Primeiro ponto realizado|
+// | delay_time | não |Tempo de atraso|
+// | tolerance_time | não |Tempo de tolerância considerado|
+
+@name("Atrasos")
+POST "https://{{server_url}}/external_api/v1/reports/delays"
+"Content-Type": "application/json"
+"access-token": "{{external_token}}"
+data('{
+  "report": {
+    "start_date": "2020-10-02",
+    "end_date": "2020-11-05",
+    "group_by": "",
+    "row_filters": "employee_name, cpf, shift, time_card_expect, time_card_done, delays_time",
+    "columns": "",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de Auditoria
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | less_then_one_hour	 | Não |  -1 hora de intervalo |
+// | less_then_thirtye_minutes | Não |  -30 minutos de intervalo |
+// | more_then_ten_hours | Não |  +10 horas de jornada |
+// | more_then_two_extra | Não |  +2 Horas Extras |
+// | consecutives_work_days | Não |  +6 dias de trabalho |
+// | uninterrupteds_work_hours | Não |  +6 horas ininterruptas de trabalho |
+// | overnight_time | Não |  Adicional Noturno |
+// | missing_work_days | Não |  Falta |
+// | night_extra_time | Não |  Hora extra Noturna |
+// | extra_time | Não |  Horas Extras |
+// | missing_time | Não |  Horas Faltantes |
+// | missing_rest_time | Não |  Interjornada insuficiente |
+// 
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | date       | Sim | Data                |
+// | worked_hours | Não | Horas trabalhadas |
+// | employee_id | Não | ID do colaborador  |
+// | registration_number | Não | Matrícula |
+// | name       | Sim | Nome do colaborador |
+// | occurrence | Sim | Ocorrência          |
+// | value | Sim | Valor                    |
+// | team_name | Não | Nome da equipe |
+// | job_title_name | Não | Nome do cargo |
+
+@name("Auditoria")
+POST "https://{{server_url}}/external_api/v1/reports/audit"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-08-01",
+    "end_date": "2020-09-10",
+    "group_by": "team",
+    "additional_row_filters": "without_allowances",
+    "row_filters": "consecutives_work_days,more_then_ten_hours,less_then_one_hour,missing_work_days,missing_time,missing_rest_time,more_then_two_extra",
+    "columns": "name,date,occurrence,value,worked_hours,employee_id",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de Banco de Horas
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Incluí colaboradores inativos 			   |
+// | has_time_cards | Não |  Incluí colaboradores que não registram ponto |
+// 
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | name                | Sim | Nome                  |
+// | registration_number | Não | Matrícula             |
+// | date                | Sim | Data                  |
+// | extra_time          | Não | Total de horas extras |
+// | missing_time        | Não | Horas faltantes       |
+// | interval_time       | Não | Horas em intervalo    |
+// | regular_time        | Não | Horas normais         |
+// | time_balance        | Sim | Saldo                 |
+// | business_unit_name  | Não | Unidade de negócio    |
+// | department_name     | Não | Departamento          |
+// | team_name           | Não | Nome da equipe        |
+// | job_title_name      | Não | Nome do cargo         |
+
+@name("Banco de horas")
+POST "https://{{server_url}}/external_api/v1/reports/time_balances"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-09-01",
+    "end_date": "2018-09-05",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "name,registration_number,date,extra_time,missing_time,interval_time,regular_time,time_balance",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de benefícios
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access-token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives                 | Não | Incluí colaboradores inativos                              |
+// | has_time_cards                 | Não | Incluir colaboradores que não registram ponto?             |
+// | worked_more_than_total_time_1h | Não | Considerar igual ou mais de 1 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_2h | Não | Considerar igual ou mais de 2 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_3h | Não | Considerar igual ou mais de 3 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_4h | Não | Considerar igual ou mais de 4 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_5h | Não | Considerar igual ou mais de 5 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_6h | Não | Considerar igual ou mais de 6 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_7h | Não | Considerar igual ou mais de 7 H.T/dia como dia de trabalho |
+// | worked_more_than_total_time_8h | Não | Considerar igual ou mais de 8 H.T/dia como dia de trabalho |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name         | Sim | Nome do Colaborador         |
+// | team_name             | Não | Nome da equipe              |
+// | job_title_name        | Não | Nome do cargo               |
+// | registration_number   | Sim | Matrícula                   |
+// | foreseen_days         | Sim | Dias previstos              |
+// | discounted_days       | Sim | Dias descontados            |
+// | total_working_days    | Sim | Dias trabalhados            |
+// | total                 | Sim | Total de benefícios         |
+// | days_with_exemption   | Não | Dias com abono              |
+// | days_with_proposals   | Não | Dias com ajustes            |
+// | days_with_absence     | Não | Dias com férias/afastamento |
+
+@name("Benefícios")
+POST "https://{{server_url}}/external_api/v1/reports/benefits"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"report": {
+		"start_date":"2020-07-08",
+		"end_date":"2020-09-08",
+		"columns":"employee_name,team_name,registration_number,foreseen_days,discounted_days,total_working_days,total",
+		"row_filters":"",
+		"format":"json"
+		}
+}')
+
+
+// Exibe o relatório de colaboradores.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | group_by            | String  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | String  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | String  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | String  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | Integer | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | Integer | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | Integer | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | Integer | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// 
+// #### Filtros adicionais disponíveis
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Inclui colaboradores inativos |
+// 
+// 
+// #### Colunas disponíveis
+// 
+// | Nome  			  | Obrigatório | Descrição 				|
+// | ------------------- | ----------- |-------------------------- |
+// | name                | Sim 		| Nome                      |
+// | pis                 | Não 		| PIS                       |
+// | registration_number | Não 		| Matricula                 |
+// | job_title           | Não 		| Cargo                     |
+// | team                | Não 		| Equipe                    |
+// | shift               | Não 		| Turno                     |
+// | is_clt              | Não 		| É CLT                     |
+// | has_time_cards      | Não 		| Registra ponto            |
+// | use_qrcode          | Não 		| Usa QR Ponto              |
+// | time_card_source    | Não 		| Método de ponto           |
+// | cpf                 | Não 		| CPF                       |
+// | email               | Não 		| E-mail                    |
+// | cost_center         | Não 		| Centro de custo           |
+// | admission_date      | Não 		| Data de admissão          |
+// | resignation_date    | Não 		| Data de demissão          |
+// | has_system_access   | Não 		| Acessa o sistema          |
+// | group               | Não 		| Grupo                     |
+// | employee_status     | Não 		| Ativo                     |
+// | last_closed_date    | Não 		| Data do último fechamento |
+// | face_id             | Não 		| Rosto identificado        |
+
+@name("Colaboradores")
+POST "https://{{server_url}}/external_api/v1/reports/employees"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "group_by": "",
+    "row_filters": "with_inactives,has_time_cards",
+    "columns": "resignation_date, name,pis,registration_number,job_title,team,shift,is_clt,has_time_cards,use_qrcode,time_card_source,cpf,email,cost_center,admission_date,has_system_access,group,employee_status,last_closed_date,face_id",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de equipes
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | business_unit_id	  | number  | Filtra pelo ID da unidade de negócio													  | Não |	
+// | leader_id      	  | number  | Filtra pelo ID da gestor           													  | Não |	
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// Indisponível
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// Indisponível
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | name              | Sim | Nome                     |
+// | business_unit     | Não | Unidade de negócio       |
+// | leaders			| Não | Gestores                 |
+
+@name("Equipes")
+POST "https://{{server_url}}/external_api/v1/reports/teams"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "group_by": "",
+    "row_filters": "",
+    "columns": "name,business_unit,leaders",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de equipes
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Incluí colaboradores inativos 			   |
+// | has_time_cards | Não |  Incluí colaboradores que não registram ponto |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | name                | Sim | Nome      |
+// | nis                 | Não | PIS       |
+// | registration_number | Não | Matrícula |
+// | job_title           | Não | Cargo     |
+// | team                | Não | Equipe    |
+// | shift               | Não | Turno     |
+// | date                | Sim | Data      |
+// | missing_type        | Não | É abono ? |
+// | missing_motive      | Não | Motivo    |
+
+@name("Faltas")
+POST "https://{{server_url}}/external_api/v1/reports/missing_days"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-09-01",
+    "end_date": "2018-09-05",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "name,nis,registration_number,job_title,team,shift,date,missing_type,missing_motive",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de horas extras
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não |  Incluí colaboradores inativos 			   |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name       | Sim | Nome              | 
+// | registration_number | Não | Matrícula         | 
+// | team_name           | Não | Nome da equipe    |
+// | job_title_name      | Não | Nome do cargo     |
+// | date                | Sim | Data              | 
+// | time_cards          | Não | Pontos            | 
+// | regular_time        | Sim | Horas normais     | 
+// | extra_time          | Sim | Total de H.extras | 
+// | motive              | Sim | Motivo            |
+
+@name("Horas Extras")
+POST "https://{{server_url}}/external_api/v1/reports/extra_times"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-09-01",
+    "end_date": "2018-09-10",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "employee_name,registration_number,team_name,date,time_cards,regular_time,extra_time,motive",
+    "format": "json"
+  }
+}
+')
+
+
+// Exibe o relatório de Horista
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome             | Tipo    | Obrigatório                                                                             | Descrição |
+// |------------------|---------|-----------------------------------------------------------------------------------------|-----------|
+// | group_by         | String  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim       |
+// | row_filters      | String  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não       |
+// | columns          | String  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim       |
+// | format           | String  | formato do relatório, ver disponíveis abaixo                                            | Sim       |
+// | business_unit_id | Integer | Filtra pelo ID da Unidade de negócio                                                    | Não       |
+// | team_id          | Integer | Filtra pelo ID da equipe                                                                | Não       |
+// | employee_id      | Integer | Filtra pelo ID do colaborador                                                           | Não       |
+// | cost_center_id   | Integer | Filtra pelo ID do centro de custo                                                       | Não       |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Obrigatório | Descrição                   |
+// |----------|-------------|-----------------------------|
+// | team     | Não         | Agrupamento por equipe      |
+// 
+// 
+// #### Filtros adicionais disponíveis
+// 
+// | Nome                      | Obrigatório | Descrição                                     |
+// |---------------------------|-------------|-----------------------------------------------|
+// | with_inactives            | Não         | Inclui colaboradores inativos                 |
+// | has_time_cards            | Não         | Inclui colaboradores que não registram ponto? |
+// | only_days_with_time_cards | Não         | Incluir somente dias com registro de ponto?   |
+// | exceeded_limits           | Não         | Mostrar apenas registros com limite excedido? |
+// 
+// 
+// #### Colunas disponíveis
+// 
+// | Nome                | Obrigatório | Descrição                |
+// |---------------------|-------------|--------------------------|
+// | registration_number | Não         | Matrícula                |
+// | employee_name       | Sim         | Nome                     |
+// | start_date          | Não         | Data inicial             |
+// | end_date            | Não         | Data final               |
+// | limit_type          | Não         | Tipo de limite           |
+// | limit_amount        | Não         | Limite Contratado (L.C)  |
+// | shift_time          | Não         | Horas previstas (H.P)    |
+// | total_time          | Não         | Horas totais             |
+// | working_delta       | Não         | Horas Totais (H.T - H.P) |
+// | delta               | Não         | Delta (H.T - L.C)        |
+// | summary             | Não         | Totais da jornada        |
+// | extra_time          | Não         | Total de H. Extras       |
+// | overnight_time      | Não         | Adicional noturno        |
+// | team_name           | Não         | Nome da equipe           |
+// | job_title_name      | Não         | Nome do cargo            |
+
+@name("Horista")
+POST "https://{{server_url}}/external_api/v1/reports/hourly"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-09-01",
+    "end_date": "2018-09-10",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "end_date,start_date,delta,shift_time,working_delta,total_time,limit_amount,employee_name,limit_type,summary,extra_time",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de ocorrências
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives                          | Não |  Incluí colaboradores inativos 			        |
+// | has_time_cards                          | Não |  Incluir colaboradores que não registram ponto    |
+// | less_than_expected_number_of_times_cards | Não |  Incluir número de pontos menor do que o previsto |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name     					| Sim | Nome                | 
+// | registration_number					| Não | Matrícula           |
+// | pis                                   | Sim | Nome                | 
+// | team_name         					| Não | Equipe              |
+// | team_leader                           | Não | Gestor responsável  |
+// | date              					| Sim | Data                | 
+// | status            					| Sim | Motivo              | 
+// | last_solicitation_proposal_status     | Sim | Ação pendente       |
+// | leader_name                           | Não | Gestores      |
+// | job_title_name                        | Não | Nome do cargo |
+
+@name("Ocorrências")
+POST "https://{{server_url}}/external_api/v1/reports/occurrences"
+"Content-Type": "application/json"
+"access-token": "{{external_token}}"
+? "group_by"= "employee"
+? "row_filters"= "with_inactives"
+? 'columns'= 'employee_name,registration_number,team_name,date,status,last_solicitation_proposal_status"'
+data('{
+  "report": {
+"start_date": "2020-05-30",
+"end_date": "2020-08-03",
+"columns": "employee_name,date,job_title_name",
+"filters":"with_inactives",
+"format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de provisionamento
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access-token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador		|
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives            | Não | Incluír colaboradores inativos 			    |
+// | has_time_cards            | Não | Incluir colaboradores que não registram ponto? |
+// | only_employees_diff_zero  | Não | Apenas colaboradores com valor hora diferente de zero? |
+// | only_days_diff_zero       | Não | Apenas dias com valor total diferente de zero? |
+// | format_time_in_centesimal | Não | Formatar em centesimal? |                    
+// | include_codes             | Não | Incluir códigos? |
+// | extra_time_total          | Não | Total de horas extras? |
+// | extra_time_total_factors  | Não | Total de horas extras por fator? |
+// | missing_time_total        | Não | Total de horas faltantes? |
+// | provision_total           | Não | Total de provisionamento? |
+// | provision_total_factors   | Não | Total de provisionamento por fator? |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | job_title           | Não | Cargo               |
+// | employee_name       | Sim | Colaborador         |
+// | cpf                 | Não | CPF                 |
+// | date                | Sim | Data                |
+// | department_name     | Não | Departamento        |
+// | team_name           | Não | Time                |  
+// | registration_number | Não | Matrícula           |
+// | shift_name          | Não | Turno               |
+// | business_unit_name  | Não | Unidade de negócio  |
+// | missing_value       | Não | Valor faltantes     |
+// | hourly_rate         | Sim | Valor Hora          |
+// | extra_time          | Não | Valor por fator     |
+// | total_value         | Não | Valor total         |
+// | expiration          | Não | Vencimento do banco |
+
+@name("Provisionamento")
+POST "https://{{server_url}}/external_api/v1/reports/provisions"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-11-01",
+    "end_date": "2020-12-05",
+    "row_filters": "",
+    "columns": "employee_name,date,team_name,hourly_rate,total_value,extra_time",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de registros de ponto
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date            | string  | Data inicial do período                                                                 | Sim |
+// | end_date              | string  | Data final do período                                                                   | Sim |
+// | group_by              | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters           | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns               | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format                | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id      | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id               | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id           | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id        | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// | location_reference_id | number  | Filtra pelo ID do Ponto de referência                                                   | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não | Incluí colaboradores inativos 					|
+// | has_time_cards | Não | Incluir colaboradores que não registram ponto? |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name        | Sim | Nome                      |
+// | pis                  | Não | PIS                       |
+// | registration_number  | Não | Matrícula                 |
+// | job_title_name       | Não | Cargo                     |
+// | team_name            | Não | Equipe                    |
+// | shift_name           | Não | Turno                     |
+// | date                 | Sim | Data                      |
+// | time                 | Sim | Hora                      |
+// | source               | Não | Método                    |
+// | original_address     | Não | Endereço aprox. detectado |
+// | edited_address       | Não | Endereço aprox. editado   |
+// | manually_changed     | Não | Ajustado                  |
+// | motive               | Não | Motivo do ajuste          |
+// | updated_by           | Não | Quem ajustou              |
+// | image                | Não | Fotografia                |
+// | ip                   | Não | IP                        |
+// | time_card_index      | Não | Tipo do registro          |
+// | software_method      | Não | Origem                    |
+// | local_date_time      | Não | Horário Local             |
+// | accuracy             | Não | Precisão (m               |
+// | geolocation          | Não | Geolocalização            |
+// | original_geolocation | Não | Geolocalização original   |
+// | time_clock_sequence_number | Não | NSR			     |
+// | untreated_id         | Não | Número do recibo          |
+// | device_uuid         | Não | UUID (número de identificação único) do dispositivo         |
+// | device_platform     | Não | Plataforma do dispositivo registrado          |
+// | device_description | não | Descrição do dispositivo |
+
+@name("Registros de ponto")
+POST "https://{{server_url}}/external_api/v1/reports/time_cards"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-09-04",
+    "end_date": "2020-11-05",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "employee_name,pis,registration_number,job_title_name,team_name,shift_name,date,time,source,original_address,edited_address,manually_changed,motive,updated_by,image,ip,time_card_index,software_method,local_date_time,accuracy,geolocation,original_geolocation,device_description",
+    "format": "json"
+  }
+}
+')
+
+
+// Rota para extração do relatório de registros de pausa
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | access-token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee | Não |  Agrupamento por colaborador |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não | Incluí colaboradores inativos 					|
+// | has_time_cards | Não | Incluir colaboradores que não registram ponto? |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | employee_name        | Sim | Nome |
+// | registration_number  | Não | Matrícula |
+// | team_name            | Não | Nome da equipe |
+// | job_title_name       | Não | Nome do cargo |
+// | shift_name           | Não | Turno |
+// | date                 | Sim | Data da pausa |
+// | shift_appointments   | Não | Turno previsto |
+// | time_cards           | Não | Pontos registrados |
+// | employee_breaks      | Não | Pausas previstas |
+// | time_breaks          | Sim | Pausas registradas |
+// | occurrences          | Não | Ocorrências |
+// | main_interval        | Não | Intervalo Principal previsto |
+
+@name("Registros de pausas")
+POST "https://{{server_url}}/external_api/v1/reports/time_breaks"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"report": {
+		"start_date":"2020-07-01",
+		"end_date":"2020-09-01",
+		"columns":"employee_name,date,shift_appointments,occurrences,time_breaks",
+		"row_filters":"",
+		"format":"json"
+		}
+}')
+
+
+// Rota para extração do relatório de registros de ponto
+// 
+// **Variáveis na URL**
+// 
+// | Nome | Descrição |
+// | ---- |---------- |
+// | csv_token | Token do cliente |
+// 
+// 
+// **Estrutura do objeto JSON a ser enviado:**
+// 
+// | Nome | Tipo | Descrição | Obrigatório |
+// | ---- | -----|---------- | ----------- |
+// | start_date          | string  | Data inicial do período                                                                 | Sim |
+// | end_date            | string  | Data final do período                                                                   | Sim |
+// | group_by            | string  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim |
+// | row_filters         | string  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não |
+// | columns             | string  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim |
+// | format              | string  | formato do relatório, ver disponíveis abaixo                                            | Sim |
+// | business_unit_id    | number  | Filtra pelo ID da Unidade de negócio                                                    | Não |
+// | team_id             | number  | Filtra pelo ID da equipe                                                                | Não |
+// | employee_id         | number  | Filtra pelo ID do colaborador                                                           | Não |
+// | cost_center_id      | number  | Filtra pelo ID do centro de custo                                                       | Não |
+// 
+// 
+// **Agrupamentos disponíveis:*
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | team	   | Não |  Agrupamento por equipe		|
+// 
+// **Filtros adicionais disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não | Incluí colaboradores inativos 					|
+// | has_time_cards | Não | Incluir colaboradores que não registram ponto? |
+// 
+// **Colunas disponíveis:**
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | registration_number  | Não | Matrícula             |
+// | employee_name        | Sim | Nome                  |
+// | shift_time           | Não | Horas previstas       |
+// | summary              | Não | Totais da jornada     |
+// | extra_time           | Não | Total de H. extras    |
+// | total_time           | Não | Horas totais          |
+// | initial_time_balance | Não | Saldo inicial         |
+// | final_time_balance   | Não | Saldo final           |
+// | custom_interval_time | Não | Horas intrajornada    |
+// | overnight_time       | Não | Adicional noturno     |
+// | exemptions           | Não | Quantidade de abonos  |
+// | missing_days         | Não | Quantidade de faltas  |
+// | proposals            | Não | Quantidade de ajustes |
+// | team_name            | Não | Nome da equipe        |
+// | job_title_name       | Não | Nome do cargo         |
+// | standby_time       | Não | Total de horas em sobreaviso         |
+// | standby_planned_time       | Não | Total de horas planejadas em sobreaviso         |
+// | standby_worked_time       | Não | Total de horas trabalhadas em sobreaviso         |
+
+@name("Resumo de jornada")
+POST "https://{{server_url}}/external_api/v1/reports/period_summaries"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2018-09-01",
+    "end_date": "2018-09-05",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "registration_number,employee_name,shift_time,summary,extra_time,total_time,initial_time_balance,final_time_balance,custom_interval_time,overnight_time,exemptions,missing_days,proposals",
+    "format": "json"
+  }
+}
+')
+
+
+// Exibe o relatório de **Sobreaviso**.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | start_date          | Date  | Sim | Data inicial do período                                                               |
+// | end_date            | Date  | Sim | Data final do período                                                                 |
+// | group_by            | String (8) | Sim | Tipo do agrupamento (consulte a tabela **Agrupamentos disponíveis**)				|
+// | row_filters         | String  | Não | Filtros adicionais (consulte a tabela **Filtros adicionais disponíveis**)			|
+// | columns             | String  | Sim | Colunas (consulte a tabela **Colunas disponíveis**)									|
+// | format              | String  | Sim | Formato do relatório (json, csv ou html)											|
+// | business_unit_id    | Integer  | Não | Filtra pelo ID da Unidade de negócio                                               |
+// | team_id             | Integer  | Não | Filtra pelo ID da equipe                                                           |
+// | employee_id         | Integer  | Não | Filtra pelo ID do colaborador                                                      |
+// | cost_center_id      | Integer  | Não | Filtra pelo ID do centro de custo                                                  |
+// | solicitation_status_id | Integer  | Não | ID do status                                                                                  |
+// | answered_by_id         | Integer  | Não | ID do gestor                                                                                  |
+// | solicitation_type_id   | Integer  | Não | ID do tipo de solicitação                                                                     |
+// | status_id              | Integer  | Não | ID do motivo                                                                                 |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Descrição |
+// | -------- |---------- |
+// | employee | Agrupamento por colaborador |
+// | team	   | Agrupamento por equipe		|
+// 
+// 
+// #### Colunas disponíveis
+// 
+// Separe com uma vírgula as colunas desejadas.
+// 
+// | Nome  				| Obrigatório	| Descrição 					|
+// | --------------------- | -------------	|------------------------------ |
+// | subject           	| Não			| Assunto                  		|
+// | start_date		    | Sim			| Data da inicial               |
+// | end_date          	| Sim			| Data final             		|
+// | all_day           	| Sim			| Dia inteiro?             		|
+// | team_name             | Não           | Nome da equipe                |
+// | job_title_name        | Não           | Nome do cargo                 |
+// | start_time        	| Sim			| Hora inicial            		|
+// | end_time          	| Sim			| Hora final               		|
+// | standby_hours 	    | Não			| Horas em sobreaviso   		|
+// | planned_hours       	| Não		    | Horas planejadas (em sobreaviso)  |
+// | created_at        	| Não			| Data da criação        		|
+// | worked_hours        	| Não		    | Horas trabalhadas (em sobreaviso) |
+// | registration_number  	| Não			| Matrícula              		|
+// | employee_name         | Sim			| Nome                   		|
+// | shift_name         	| Não		    | Turno    		                |
+
+@name("Sobreaviso")
+POST "https://{{server_url}}/external_api/v1/reports/standby"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+json({
+    "report": {
+        "start_date": "2020-01-01",
+        "end_date": "2020-02-01",
+        "group_by": "team",
+        "row_filters": "",
+        "columns": "employee_name,registration_number,team_name,date,time_cards,solicitation_status,solicitation_type,answered_by,updated_at,observation,status,file",
+        "format": "json"
+    }
+})
+
+
+// Exibe o relatório de solicitações.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | start_date          | Date  | Sim | Data inicial do período                                                               |
+// | end_date            | Date  | Sim | Data final do período                                                                 |
+// | group_by            | String (8) | Sim | Tipo do agrupamento (consulte a tabela **Agrupamentos disponíveis**)				|
+// | row_filters         | String  | Não | Filtros adicionais (consulte a tabela **Filtros adicionais disponíveis**)			|
+// | columns             | String  | Sim | Colunas (consulte a tabela **Colunas disponíveis**)									|
+// | format              | String  | Sim | Formato do relatório (json, csv ou html)											|
+// | business_unit_id    | Integer  | Não | Filtra pelo ID da Unidade de negócio                                               |
+// | team_id             | Integer  | Não | Filtra pelo ID da equipe                                                           |
+// | employee_id         | Integer  | Não | Filtra pelo ID do colaborador                                                      |
+// | cost_center_id      | Integer  | Não | Filtra pelo ID do centro de custo                                                  |
+// | solicitation_status_id | Integer  | Não | ID do status                                                                                  |
+// | answered_by_id         | Integer  | Não | ID do gestor                                                                                  |
+// | solicitation_type_id   | Integer  | Não | ID do tipo de solicitação                                                                     |
+// | status_id              | Integer  | Não | ID do motivo                                                                                 |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Descrição |
+// | -------- |---------- |
+// | employee | Agrupamento por colaborador |
+// | team	   | Agrupamento por equipe		|
+// 
+// 
+// #### Filtros adicionais disponíveis
+// 
+// É possível utilizar mais de um filtro, separando-os com uma vírgula.
+// 
+// | Nome     | Obrigatório | Descrição |
+// | ----     | ----------- |---------- |
+// | with_inactives | Não | Incluí colaboradores inativos 					|
+// | with_refuseds  | Não | Incluir solicitações reprovadas?				|
+// | has_time_cards | Não | Incluir colaboradores que não registram ponto? |
+// 
+// 
+// #### Colunas disponíveis
+// 
+// Separe com uma vírgula as colunas desejadas.
+// 
+// | Nome  				| Obrigatório	| Descrição 					|
+// | --------------------- | -------------	|------------------------------ |
+// | employee_name     	| Sim			| Nome                  		|
+// | file					| Não			| Arquivo anexado à solicitação |
+// | registration_number	| Não			| Matrícula             		|
+// | team_name             | Não           | Nome da equipe                |
+// | job_title_name        | Não           | Nome do cargo                 |
+// | date              	| Sim			| Data                  		|
+// | time_cards        	| Não			| Pontos                		|
+// | solicitation_status	| Sim			| Status                		|
+// | solicitation_type 	| Não			| Tipo de solicitação   		|
+// | answered_by       	| Não			| Quem aprovou/reprovou 		|
+// | created_at        	| Não			| Data da criação        		|	
+// | updated_at        	| Não			| Data da alteração     		|	
+// | observation       	| Não			| Observação            		|
+// | status            	| Sim			| Motivo                		|
+// | disapproval_reason   	| Não			| Motivo da reprovação     		|
+
+@name("Solicitações")
+POST "https://{{server_url}}/external_api/v1/reports/solicitations"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-01-01",
+    "end_date": "2020-02-01",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "employee_name,registration_number,team_name,date,time_cards,solicitation_status,solicitation_type,answered_by,updated_at,observation,status,file",
+    "format": "json"
+  }
+}
+')
+
+
+// Exibe o relatório de Turnos.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome             | Tipo    | Obrigatório                                                                              | Descrição |
+// |------------------|---------|------------------------------------------------------------------------------------------|-----------|
+// | group_by         | String  | Tipo do agrupamento. Veja disponíveis abaixo                                             | Sim       |
+// | row_filters      | String  | Filtros adicionais. Para mais de um utilizar ',' como separador. Veja disponíveis abaixo | Não       |
+// | columns          | String  | Colunas. Para multiplas, separe por virgula. Veja disponíveis abaixo                     | Sim       |
+// | format           | String  | Formato do relatório. Veja os disponíveis abaixo                                         | Sim       |
+// | employee_id      | Integer | Filtra pelo ID do colaborador                                                            | Não       |
+// | shift_type_id    | Integer | Filtra pelo ID do tipo de turno. Ver disponíveis abaixo                                  | Não       |
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome             | Obrigatório | Descrição                  |
+// |------------------|-------------|----------------------------|
+// | shift            | Não         | Agrupamento por turno |
+// 
+// 
+// #### Filtros adicionais disponíveis
+// 
+// | Nome           | Obrigatório | Descrição                                     |
+// |----------------|-------------|-----------------------------------------------|
+// | with_inactives | Não         | Incluir turnos indisponíveis?                 |
+// 
+// 
+// #### Colunas disponíveis
+// 
+// | Nome               | Obrigatório | Descrição                                          |
+// |--------------------|-------------|----------------------------------------------------|
+// | code               | Sim         | Código                                             |
+// | description        | Não         | Descrição                                          |
+// | shift_day          | Não         | Dia                                                |
+// | schedules          | Não         | Horários                                           |
+// | ignore_holidays    | Não         | Ignora feriados                                    |
+// | flexible_interval  | Não         | Intervalo flexível                                 |
+// | auto_interval      | Não         | Intervalo pré-assinalado                           |
+// | main_interval      | Não         | Intervalo principal                                |
+// | flexible           | Não         | Jornada flexível                                   |
+// | overtime_limit     | Não         | Limite de horas extras                             |
+// | status             | Não         | Status                                             |
+// | type               | Não         | Tipo                                               |
+// | flexible_allowance | Não         | Tolerância em jornada flexível                     |
+// | advanced_shift     | Não         | Turno avançado                                     |
+// | shift_turn         | Não         | Virada do turno                                    |
+
+@name("Turnos")
+POST "https://{{server_url}}/external_api/v1/reports/shifts"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "group_by": "shift",
+    "row_filters": "with_inactives",
+    "columns": "code,description,schedules,main_interval",
+    "format": "json"
+  }
+}
+')
+
+
+// Exibe o relatório de Vigencia de Banco de Horas.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome             | Tipo    | Obrigatório                                                                             | Descrição |
+// |------------------|---------|-----------------------------------------------------------------------------------------|-----------|
+// | group_by         | String  | Tipo do agrupamento ver disponíveis abaixo                                              | Sim       |
+// | row_filters      | String  | Filtros adicionais, ver disponíveis abaixo, para mais de um utilizar ',' como separador | Não       |
+// | columns          | String  | Colunas, ver dispoíveis abaixo,para multiplas, separar por virgula                      | Sim       |
+// | format           | String  | formato do relatório, ver disponíveis abaixo                                            | Sim       |
+// | business_unit_id | Integer | Filtra pelo ID da Unidade de negócio                                                    | Não       |
+// | team_id          | Integer | Filtra pelo ID da equipe                                                                | Não       |
+// | employee_id      | Integer | Filtra pelo ID do colaborador                                                           | Não       |
+// | cost_center_id   | Integer | Filtra pelo ID do centro de custo                                                       | Não       |
+// 
+// 
+// #### Agrupamentos disponíveis
+// 
+// | Nome     | Obrigatório | Descrição                   |
+// |----------|-------------|-----------------------------|
+// | employee | Não         | Agrupamento por colaborador |
+// | team     | Não         | Agrupamento por equipe      |
+// 
+// 
+// #### Filtros adicionais disponíveis
+// 
+// | Nome           | Obrigatório | Descrição                                     |
+// |----------------|-------------|-----------------------------------------------|
+// | with_inactives | Não         | Inclui colaboradores inativos                 |
+// | has_time_cards | Não         | Inclui colaboradores que não registram ponto? |
+// 
+// 
+// #### Colunas disponíveis
+// 
+// | Nome                 | Obrigatório | Descrição                                          |
+// |----------------------|-------------|----------------------------------------------------|
+// | employee_name        | Sim         | Nome do colaborador                                |
+// | first_time_card      | Sim         | Data de ínicio                                     |
+// | closing_period       | Sim         | Data referente a ultima quitação de horas do banco |
+// | time_balance_closing | Sim         | Saldo de Horas, podendo ser positivo ou negativo   |
+// | expiration           | Sim         | Vencimento                                         |
+// | team_name            | Não         | Nome da equipe                                     |
+// | job_title_name       | Não         | Nome do cargo                                      |
+// | registration_number  | Não         | Matrícula                                          |
+
+@name("Vigencia de Banco de Horas")
+POST "https://{{server_url}}/external_api/v1/reports/time_balances_validity"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "report": {
+    "start_date": "2020-01-01",
+    "end_date": "2020-02-01",
+    "group_by": "team",
+    "row_filters": "",
+    "columns": "first_time_card,closing_period,employee_name,time_balance_closing,expiration",
+    "format": "json"
+  }
+}
+')
+
+
+

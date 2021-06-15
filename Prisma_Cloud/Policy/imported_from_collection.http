@@ -1,0 +1,72 @@
+#!/usr/bin/env dothttp
+
+// Get all available policies (system default and custom).
+
+@name("List Policies")
+GET "https://{{api-endpoint}}/policy"
+"accept": "application/json; charset=UTF-8"
+"x-redlock-auth": "{{token}}"
+
+
+// Add new policy (check body for details)
+
+@name("Add Policy")
+POST "https://{{api-endpoint}}/policy"
+"accept": "*/*"
+"content-type": "application/json"
+"x-redlock-auth": "{{token}}"
+data('{
+  "name": "APITestRule Firewall allows internet traffic to SSH port (22)",
+  "policyType": "config",
+  "description": "Checks to ensure that Firewall does not allow inbound traffic on SSH port (22) from public internet. Allowing access from arbitrary internet IP addresses to this port increases the attack surface of your network.",
+  "severity": "high",
+  "rule": {
+    "name": "GCP Firewall allows internet traffic to SSH port (22)",
+   
+    "criteria": "config where api.name=\'gcloud-compute-firewall-rules-list\' AND json.rule=\'$.sourceRanges[*] contains 0.0.0.0/0 and $.allowed[*].ports[*] == 22\'",
+    "parameters": {
+      "savedSearch": "false"
+    },
+    "type": "Config"
+  },
+  "recommendation": "1. Login to GCP Console and from Networking, select VPC network.\n2. Go to Firewall rules and click on Ingress.\n3. Select the rules that have \'Source filters\' set to \'IP ranges: 0.0.0.0/0\' and \'Protocols / ports\' to \'tcp:22\'.\n4. Delete the specific rule.",
+  "cloudType": "gcp",
+  "complianceMetadata": [
+    {
+      "standardName": "SOC2",
+      "requirementId": "CC6",
+      "requirementName": "Logical and Physical Access Controls",
+      "sectionId": "CC6.1",
+      "sectionDescription": "The entity implements logical access security software, infrastructure, and architectures over protected information assets to protect them from security events to meet the entity\'s objectives. ",
+      "policyId": "49a154e8-6049-4317-bbb5-0c90cb078f94",
+      "complianceId": "72bcd5c2-2a68-4364-a8ef-82eaf3f566f9",
+      "sectionLabel": "1",
+      "customAssigned": false
+    },
+    {
+      "standardName": "SOC2",
+      "requirementId": "CC6",
+      "requirementName": "Logical and Physical Access Controls",
+      "sectionId": "CC6.6",
+      "sectionDescription": "The entity implements logical access security measures to protect against threats from sources outside its system boundaries.  ",
+      "policyId": "49a154e8-6049-4317-bbb5-0c90cb078f94",
+      "complianceId": "ccb75284-13a3-4587-a69d-edd4163807f0",
+      "sectionLabel": "6",
+      "customAssigned": false
+    }
+  ],
+  "labels": [
+    "GCP"
+  ]
+}')
+
+
+// Returns detailed compliance standards that Prisma Cloud supports.
+
+@name("List Policy Compliance Standards")
+GET "https://{{api-endpoint}}/policy/compliance"
+"accept": "*/*"
+"x-redlock-auth": "{{token}}"
+
+
+

@@ -1,0 +1,538 @@
+#!/usr/bin/env dothttp
+
+// Autenticação do usuário e obtenção do token de acesso.
+// 
+// ## Parâmetros
+// 
+// | Parâmetro | Descrição |
+// | --------- | --------- |
+// | username | Nome do usuário. |
+// | password | Senha do usuário. |
+// 
+// 
+// ## Resposta
+// | Chave | Descrição |
+// | ----- | --------- |
+// | token | Token de acesso a ser usado na autenticação das demais requisições. |
+
+@name("authentication")
+POST "https://{{API_ENDPOINT}}/authentication/"
+"Content-Type": "application/json"
+data('
+{
+	"username": "hansolo",
+	"password": "millenniumfalcon"
+}
+')
+
+
+// Pesquisa de débitos de um veículo.
+// 
+// ## Parâmetros
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | --------- | ------- | --------- | ----------- |
+// | state     | String | Estado de origem do veículo. | Sim |
+// | license_plate | String | Placa do veículo. | Depende\* |
+// | renavam   | String | Renavam do veículo. | Depende\* |
+// | document | String | CPF ou CNPJ do proprietário do veículo. | Depende\* |
+// | customer | Objeto Customer | Dados do proprietário do veículo | Não
+// | custom_field1 | String | Parâmetro genérico, cuja função pode ser acordada com a Zapay | Não |
+// | custom_data | Objeto CustomData | Informações complementares a respeito do cliente que realiza a pesquisa. | Não.
+// 
+// \* Com exceção do parâmetro state, cada estado possui seus próprios parâmetros obrigatórios. Consulte abaixo.
+// 
+// ## Estados
+// O parâmetro state aceita os seguintes valores:
+// 
+// + AL (Alagoas)
+// + BA (Bahia)
+// + CE (Ceará)
+// + DF (Distrito Federal)
+// + ES (Espírito Santo)
+// + GO (Goiás)
+// + MG (Minas Gerais)
+// + MT (Mato Grosso)
+// + MS (Mato Grosso do Sul)
+// + PB (Paraíba)
+// + PE (Pernambuco)
+// + PI (Piauí)
+// + PR (Paraná)
+// + RJ (Rio de Janeiro)
+// + RN (Rio Grande do Norte)
+// + RS (Rio Grande do Sul)
+// + SC (Santa Catarina)
+// + SP (São Paulo)
+// 
+// Os parâmetros obrigatórios de cada estado são::
+// 
+// | Estado | Parâmetros |
+// | ------ | ---------- |
+// | AL | license_plate<br>renavam |
+// | BA | renavam |
+// | CE | license_plate<br>renavam |
+// | DF | license_plate<br>renavam |
+// | ES | license_plate<br>renavam |
+// | GO | license_plate<br>renavam |
+// | MG | license_plate<br>renavam |
+// | MT | license_plate<br>renavam |
+// | MS | license_plate<br>renavam |
+// | PB | license_plate<br>renavam |
+// | PE | license_plate<br>document|
+// | PI | license_plate<br>renavam |
+// | PR | license_plate<br>renavam |
+// | RN | license_plate<br>renavam |
+// | RS | license_plate<br>renavam |
+// | RJ | license_plate<br>renavam |
+// | SC | license_plate<br>renavam |
+// | SP | license_plate<br>renavam |
+// 
+// ## Resposta
+// 
+// |Chave | Formato | Descrição |
+// | ---- | ------- | ---------- |
+// | protocol | String | O protocolo da operação.
+// | debts | Array de Debt | Lista de débitos do veículo.
+// | vehicle | Lista | Lista de informações do veículo.
+// 
+// 
+// ## Objeto Customer
+// 
+// |Chave | Formato | Descrição | Obrigatório no objeto | 
+// | ---- | ------- | --------- | --------------------- |
+// | email | String | E-mail do proprietário do veículo | Sim
+// | phone | String | Telefone do proprietário do veículo, no formato "99999999999" | Sim
+// 
+// ## Objeto Debt
+// 
+// O objeto Debt poderá conter chaves diferentes dependendo do estado selecionado. As chaves possíveis são:
+// 
+// |Chave | Formato | Descrição |
+// | ---- | ------- | ---------- |
+// |id | String | A ID do débito. Importante para a coleta de boleto (código de barras). |
+// |amount | Float | O valor do débito. |
+// |type | String | O tipo do débito (Licenciamento, Multa, Seguro Obrigatório ou IPVA). |
+// |description | String | A descrição do débito (aplicável principalmente para multas). |
+// |expiration_date | Datetime | A data de validade do boleto da multa. |
+// |required| Boolean| Indica a obrigatoriedade da quitação do débito
+// |depends_on| Array[IDs]| Indica a dependência de outros débitos.
+// |distinct| Array[IDs]|Indica débitos que não devem ser pagos juntos.
+// 
+// ### Filtros
+// Alguns débitos estão atrelados a regras de negócio específicas, chamadas de filtros. Os filtros são:
+//  -  `required`: pode ser verdadeiro ou falso, e indica a obrigatoriedade daquele débito no pagamento. É comum em cenários onde o usuário deseja licenciar o carro.
+//  -  `depends_on`: é uma lista de IDs de outros débitos, indica a necessidade daquele débito estar acompanhado de outros no pagamento. Exemplo: ao pagar um Licenciamento, todas as multas do mesmo ano devem ser pagas em conjunto.
+//  -  `distinct`: é uma lista de IDs de outros débitos, indica débitos que *não* devem ser pagos em conjunto. É comum em casos em que a cota única e as cotas parceladas de um mesmo IPVA são apresentadas na mesma pesquisa.
+// 
+// 
+// ## Objeto CustomData
+// 
+// |Chave | Formato | Descrição | Obrigatório |
+// | ---- | ------- | ---------- | ---------- |
+// |dealership| String | Nome da entidade parceira responsável pela operação. | Não|
+// |dealership| String | Documento (CNPJ) da entidade parceira responsável pela operação. | Não|
+// |customer_score | Int | Valor de 0 a 100 representando o score de confiabilidade do cliente, de acordo com a entidade parceira responsável pela operação. | Não |
+// |customer_age | Int | Valor numérico representando o tempo do cliente na base de dados do parceiro. | Não |
+// |seller_age | Int | Valor numérico representando o tempo do lojista na base de dados do parceiro. | Não |
+// |active_customer | Bool | Informa se o cliente é ativo na base de dados do parceiro. | Não |
+// |defaulting_customer | Bool | Informa se o cliente é inadimplente, de acordo com o parceiro. | Não |
+// 
+// 
+// ## Objeto Vehicle
+// 
+// O objeto Vehicle poderá conter chaves diferentes dependendo do estado selecionado. As chaves possíveis são:
+// 
+// |Chave | Formato | Descrição |
+// | ---- | ------- | ---------- |
+// |renavam | String | Renavam do veículo selecionado. |
+// |license_plate | String | Placa do veículo. |
+// |document | String | Documento cpf ou cnpj do proprietário. |
+// |owner | String | Proprietário do veículo. |
+// |model | String | Modelo do veículo. |
+// |color | String | Cor do veículo. |
+// |fabrication_year | Integer | Ano de fabricação do veículo. |
+// |model_year | Integer | Ano do modelo do veículo. |
+// |chassi | String | Chassi do veículo. |
+// |venal_value | String | Valor estimado do veículo. |
+
+@name("debts")
+POST "https://{{API_ENDPOINT}}/zapi/debts/"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+"Content-Type": "application/json"
+data('{
+	"state": "DF",
+	"license_plate": "ABC1234",
+	"renavam": "00000000000",
+    "customer": {
+        "phone": "99999999999",
+        "email": "lando.calrissian@bespin.com"
+    },
+    "custom_field1": "generic"
+}')
+
+
+// Pesquisa assíncrona de débitos de um veículo.
+// 
+// ## Parâmetros
+// 
+// Os mesmos do método debts.
+// 
+// ## Parâmetros GET
+// 
+// Para a pesquisa assíncrona, é necessário enviar `async=true` como parâmetro GET na requisição.
+// 
+// ## Retorno
+// 
+// O stauts retornado na resposta síncrona do método será sempre "processing".
+// 
+// O método async debts retorna o resultado da pesquisa de forma assíncrona para o endpoint cadastrado (consultar o método webhook register).
+// O formato da resposta é o seguinte:
+// 
+// ```
+// {
+//     "protocol": "ABCDEFZP",
+//     "status": "SEARCH_COMPLETE",
+//     "zapay_id": "d2a43745-b31f-4b81-b790-4631f753079e",
+//     "data": {
+//         ...
+//     }
+// }
+// ```
+// 
+// * O parâmetro status será sempre SEARCH_COMPLETE.
+// * O parâmetro zapay_id é o ID da Zapay associado ao seu usuário, enviado em todas as comunicações via Webhook (consultar o método webhook register).
+// * O parâmetro data contém o mesmo retorno normalmente observado no método debts, mesmo em casos de veículo não encontrado, ou veículo sem débitos.
+
+@name("async debts")
+POST "https://{{API_ENDPOINT}}/zapi/debts/"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+"Content-Type": "application/json"
+? "async"= "true"
+data('{
+	"state": "DF",
+    "license_plate": "ABC1234",
+    "renavam": "00000000000"
+}')
+
+
+// Confirma os débitos que deverão ser pagos após a pesquisa.
+// 
+// ## Parâmetros
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | --------- | ------- | --------- | ------------|
+// | protocol  | String | Protocolo da operação, fornecido pelo método de pesquisa. | Sim |
+// | state  | String | Estado de origem do veículo. | Sim |
+// | ids  | Lista de ID`s | Lista de ids dos débitos que deverão ser pagos. | Sim |
+// 
+// ## Resposta
+// 
+// | Chave | Formato | Descrição |
+// | ----- | ------- | --------- |
+// | confirmation | Lista de Débitos confirmados | Lista contendo os débitos confirmados para pagamento. |
+// 
+// ## Objeto Confirmation
+// 
+// | Chave | Formato | Descrição |
+// | ----- | ------- | --------- |
+// | id | String  | A ID do débito confirmado. |
+// | amount | Float | O valor do débito confirmado. |
+// | year | String | O ano referente ao débito confirmado. |
+// | type | String | O tipo específico do débito confirmado. |
+
+@name("confirmation")
+POST "https://{{API_ENDPOINT}}/zapi/confirmation/"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+"Content-Type": "application/json"
+data('{
+	"protocol": "FXBFSIZP",
+	"state": "DF",
+	"ids": [
+		"50168957043",
+        "50176029702"
+	]
+}')
+
+
+// Verifica o status do protocolo e dos débitos confirmados, se houverem.
+// 
+// ## Parâmetros
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | --------- | ------- | --------- | ------------|
+// | protocol  | String | Protocolo da operação, fornecido pelo método de pesquisa. | Sim |
+// 
+// ## Resposta
+// 
+// | Chave | Formato | Descrição |
+// | ----- | ------- | --------- |
+// | order | Dicionário | Contem o status do protocolo |
+// | bills | Lista de Débitos confirmados | Lista contendo os débitos confirmados para pagamento e seus status. |
+// 
+// ## Objeto Order
+// 
+// | Chave | Formato | Descrição |
+// | ----- | ------- | --------- |
+// | status | String  | Status do pedido. |
+// 
+// ## Objeto Bills
+// 
+// | Chave | Formato | Descrição |
+// | ----- | ------- | --------- |
+// | id | String  | A ID do débito. |
+// | amount | Float | O valor do débito. |
+// | status | String | O status do débito confirmado. Pode ser awaiting_payment ou settled. |
+// | authorization_code | String | O código de autenticação de pagamento do boleto referente ao débito. |
+
+@name("check_order")
+POST "https://{{API_ENDPOINT}}/zapi/order/"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+"Content-Type": "application/json"
+data('{
+	"protocol": "BOCZX6ZP"
+}')
+
+
+// Simula as parcelas dos débitos inseridos como parâmetro.
+// 
+// ## Parâmetros:
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | -- | -- | -- | -- |
+// |protocol|String|Protocolo do pedido|Sim|
+// |debts|Lista de strings|Lista de débitos do veículo (ids em formato de string)|Sim|
+// |promotional_ticket|String|Código do cupom de desconto fornecido pela Zapay, que reduz o valor de juros|Não
+// 
+// 
+// ## Resposta:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |installmentsPlans|Array de parcelas|Lista de parcelas|
+// 
+// 
+// ## Objeto installmentsPlans:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |installments|Int|Quantidade de parcelas.|
+// |amount|Float|Valor da parcela.|
+// |totalAmount|Float|Valor total com juros. Esta escrita em camelCase está obsoleta.|
+// |total_amount|Float|Valor total com juros.
+// |type|String|Tipo de pagamento. Seu valor é "credit".
+// |fee|Inteiro|Juros aplicado sobre o valor total dos débitos.
+// |coupon|Boolean|Verdadeiro se for possível aplicar cupom de desconto nesta parcela, falso do contrário.
+// |monthly_fee|Float|CET aplicado na parcela.
+
+@name("installments")
+POST "https://{{API_ENDPOINT}}/zapi/installments/"
+"Content-Type": "application/json"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+data('{
+    "protocol": "QMYJKZP",
+    "debts": [
+        "MS16P95Q7043",
+        "TJI0B213SGW4"
+    ]
+}')
+
+
+// Realiza o pagamento dos débitos do veículo. É possível realizar o pagamento com cartão de crédito ou PIX.
+// 
+// ## Parâmetros:
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | -- | -- | -- | -- |
+// |protocol|String|Protocolo do pedido|Sim|
+// |debts|Array de String|Lista de débitos do veículo (ids em formato de string)|Sim|
+// |card|Objeto Card|Objeto com os dados do cartão|Sim, exceto para pagamento com PIX|
+// |installmentPlan|Inteiro|Quantidade de parcelas para o pagamento|Sim, exceto para pagamento com PIX|
+// promotional_ticket|String|Código do cupom de desconto fornecido pela Zapay, que reduz o valor dos juros.|Não|
+// |client_details|Objeto ClientDetails|Possui informações úteis para a proteção contra fraudes. O envio deste parâmetro deve ser acordado com a Zapay. | Não
+// |customer | Objeto Customer |Dados do proprietário do veículo | Não
+// |pix | Objeto PIX | Contém informações necessárias para pagamento com PIX. Este parâmetro só deve ser enviado quando se deseja realizar um pagamento com PIX. | Não
+// 
+// 
+// ## Objeto Card:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |document|String|CPF ou CNPJ do pagador|
+// |number|String|Número do cartão (sem pontuação)|
+// |brand|String|Bandeira do cartão|
+// |holder|String|Nome do pagador|
+// |expirationDate|String|Data de expiração no formato ("MêsAno" - "0721")|
+// |cvv|String|CVV (Card Verification Value) do cartão|
+// |billingAddress|Objeto BillingAddress|Dados do endereço de pagamento.|
+// 
+// ## Opções de bandeira:
+// 
+// | Bandeira | Valor |
+// | -- | -- |
+// |Mastercard|"mastercard"|
+// |Visa|"visa"|
+// |American Express|"american-express"|
+// |Elo|"elo"|
+// |Hipercard|"hipercard"|
+// 
+// ## Objeto Customer
+// 
+// |Chave | Formato | Descrição | Obrigatório no objeto | 
+// | ---- | ------- | --------- | --------------------- |
+// | email | String | E-mail do proprietário do veículo | Sim
+// | phone | String | Telefone do proprietário do veículo, no formato "99999999999" | Sim
+// 
+// ## Objeto BillingAddress:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |zipCode|String|CEP|
+// |address|String|Endereço|
+// |neighborhood|String|Bairro|
+// |city|String|Cidade|
+// |number|String|Número do apartamento ou casa|
+// 
+// ## Objeto ClientDetails
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |cart_token|String|Token contendo informações úteis para a prevenção de fraudes. Consulte a Zapay para saber como obtê-lo.|
+// 
+// 
+// ## Objeto PIX
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |name |String|Nome do pagador |
+// |document |String|Documento (CPF ou CNPJ) do pagador. Esta é a chave PIX usada para pagamento. |
+// 
+// 
+// 
+// Quanto feito com cartão de crédito, o processo de pagamento passa por duas fases: a de autorização pelo gateway e a de aprovação pelo anti-fraude.
+// 
+// <br>
+// 
+// A *Autorização* pelo gateway de pagamento valida os dados do cartão de crédito, o limite, se existe ou não um bloqueio para compras etc. Um pagamento nesta fase pode ser *autorizado* ou *recusado*.
+// 
+// > Em homologação, para conseguir um pagamento autorizado, utilize um cartão de crédito cujo número termine com o dígito 1.
+// <br>
+// 
+// A *Aprovação* pelo anti-fraude valida as informações do cliente e do cartão de crédito, na tentativa de detectar comportamento suspeito. Um pagamento nesta fase pode ser *aprovado*, *rejeitado* ou ficar *sob análise*.
+// 
+// > Em homologação, para conseguir um pagamento aprovado, selecione uma parcela cujos centavos do VALOR TOTAL esteja entre 1 e 30. Já para obter um pagamento sob análise, os centavos devem estar entre 31 e 60. Por fim, um pagamento rejeitado pede centavos entre 61 e 99.
+// <br>
+// 
+// Quando feito com PIX, o pagamento é automaticamente aprovado, não havendo análise de anti-fraude.
+// 
+// 
+// ## Resposta:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |success|Booleano|true para pagamento bem sucedido, false para pagamento mau sucedido.|
+// |message|String|Dá detalhes sobre a transação realizada.|
+// |status|String|Pode assumir três valores: `CHECKOUT_SUCCESS` para pagamento autorizado e aprovado ; `IN_ANALYSIS` para pagamento autorizado e sob análise; e `CHECKOUT_FAIL` para pagamento recusado, ou aprovado mas rejeitado.
+
+@name("checkout")
+POST "https://{{API_ENDPOINT}}/zapi/checkout/"
+"Content-Type": "application/json"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+data('{
+    "protocol": "S6B2BZZP",
+    "promotional_ticket": "TICKET50OFF",
+    "debts": [
+        "9O84657WCAW4",
+        "BD34927AKTQ4"
+    ],
+    "installmentPlan": 4,
+    "card": {
+        "document": "00000000000",
+        "number": "0000000000000000",
+        "brand": "mastercard",
+        "holder": "Leia Morgana",
+        "expirationDate": "0721",
+        "cvv": "508",
+        "billingAddress": {
+            "zipCode": "70658196",
+            "address": "SHCES Quadra 1109 Bloco F",
+            "neighborhood": "Cruzeiro Novo",
+            "city": "Brasília",
+            "number": "221"
+        }
+    },
+    "client_details": {
+        "cart_token": "a0327484-332d-4e15-8150-7a66365759f4"
+    },
+    "customer": {
+        "phone": "99999999999",
+        "email": "lando.calrissian@bespin.com"
+    }
+}')
+
+
+// Realiza o cadastro de endpoints para receber atualizações de status do pedido.
+// 
+// ## Parâmetros:
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | -- | -- | -- | -- |
+// |url|String|Endpoint que irá receber os feedbacks|Sim|
+// 
+// **Header**:
+// 
+// * **Authorization**: JWT <token>
+// * **Content-Type**: application/json
+// 
+// ## Resposta:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |success|Booleano|Verifica se o cadastro foi realizado com sucesso!|
+// 
+// 
+// ## Importante:
+// 
+// O Webhook espera receber uma resposta com retorno 200. Qualquer código diferente disso vai ser considerado uma falha.
+// 
+// Em caso de falha, o webhook tentará enviar a mesma notificação mais três vezes.
+
+@name("webhook register")
+POST "https://{{API_ENDPOINT}}/zapi/endpoint-register/"
+"Content-Type": "application/json"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+data('{
+    "url": "https://mydomain.com/"
+}')
+
+
+// Coleta informações sobre o veículo informado, como seu renavam e estado de origem.
+// 
+// **Importante**: Nem todos os veículos são encontrados por este método. Caso um veículo não seja encontrado, o retorno será:
+// 
+// ```javascript
+// {
+//     "detail": "Tente novamente mais tarde",
+//     "error": "Erro ao buscar o veículo"
+// }
+// ```
+// 
+// 
+// ## Parâmetros (na URL):
+// 
+// | Parâmetro | Formato | Descrição | Obrigatório |
+// | -- | -- | -- | -- |
+// |license_plate|String|Placa do veículo a ser buscado.|Sim|
+// 
+// ## Resposta:
+// 
+// | Chave | Formato | Descrição |
+// | -- | -- | -- |
+// |license_plate|String|Placa do veículo buscado.|
+// |renavam|String|Renavam do veículo buscado.|
+// |uf|String|Sigla do estado ao qual o veículo buscado pertence.
+
+@name("vehicle")
+GET "https://{{API_ENDPOINT}}/zapi/vehicle/{{LICENSE_PLATE}}"
+"Authorization": "JWT {{ZAPI_JWT_TOKEN}}"
+
+
+

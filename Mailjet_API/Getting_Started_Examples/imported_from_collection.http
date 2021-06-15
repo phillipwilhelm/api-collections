@@ -1,0 +1,52 @@
+#!/usr/bin/env dothttp
+
+@name("Send Your First Email")
+POST "https://api.mailjet.com/v3.1/send"
+basicauth("{{Insert your API Key here}}", "{{Insert your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Messages": [
+        {
+            "From": {
+                "Email": "sender@example.com",
+                "Name": "Me"
+            },
+            "To": [
+                {
+                    "Email": "recipient@example.com",
+                    "Name": "You"
+                }
+            ],
+            "Subject": "My first Mailjet Email!",
+            "TextPart": "Greetings from Mailjet!",
+            "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet!</a></h3><br />May the delivery force be with you!"
+        }
+    ]
+}')
+
+
+@name("Retrieve Your Sent Message")
+GET "https://api.mailjet.com/v3/REST/message/{{message_ID}}"
+basicauth("{{Insert your API Key here}}", "{{Insert your Secret Key here}}")
+
+
+@name("Retrieve Messages Sent to a Specific Email Address")
+GET "https://api.mailjet.com/v3/REST/message"
+basicauth("{{Insert your API Key here}}", "{{Insert your Secret Key here}}")
+? "ContactAlt"= "{{Recipient_Email}}"
+
+
+@name("View Message Event History")
+GET "https://api.mailjet.com/v3/REST/messagehistory/{{message_ID}}"
+basicauth("{{Insert your API Key here}}", "{{Insert your Secret Key here}}")
+
+
+@name("Retrieve Aggregated Statistics for an API Key")
+GET "https://api.mailjet.com/v3/REST/statcounters"
+basicauth("{{Insert your API Key here}}", "{{Insert your Secret Key here}}")
+? "CounterSource"= "APIKey"
+? "CounterTiming"= "Message"
+? "CounterResolution"= "Lifetime"
+
+
+

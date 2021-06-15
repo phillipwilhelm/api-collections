@@ -1,0 +1,151 @@
+#!/usr/bin/env dothttp
+
+// The `GET /{environmentId}/flows/{flowID}` operation retrieves information about a flow specified by the flow ID in the request URL.
+// 
+// 
+// The `status` property in the response specifies the next action in the authentication flow.
+// 
+// For a `status` value of `USERNAME_PASSWORD_REQUIRED`, the response includes the following HAL links to initiate the next operation in the flow, depending on the sign-on policy:
+// 
+// *  `usernamePassword.check`
+// 
+//   An action to authenticate with a username and password.
+// 
+// * `user.register`
+// 
+//   An action to register a new user.
+// 
+// * `password.forgot`
+// 
+//   An action to recover a user's forgotten password.
+// 
+// * `authenticate`
+// 
+//   An action to sign on using an external authentication provider.
+// 
+// 
+// #### Log in with external authentication
+// 
+// PingOne supports login integration between external identity providers (such as Facebook) and PingOne authentication flows. For example, if Facebook is specified as an external identity provider, users have the ability to sign on to their PingOne account using their Facebook credentials and Facebook's account sign-on flow.
+// 
+// When external authentication is enabled, the flow initialization response includes the  `socialProviders` embedded resource, which provides the following information about each external identity provider that can be used by the user to sign on:
+// 
+// ```
+// "socialProviders" : [ {
+//   "id" : "179a9005-6f26-4294-9388-fcb0e9323353",
+//   "name" : "Facebook",
+//   "type" : "FACEBOOK",
+//   "_links" : {
+//     "authenticate" : {
+//       "href" : "https://auth.pingone.com/4fda72e8-0490-4e2a-96ba-2b0a4cf25ddd/rp/authenticate?providerId=179a9005-6f26-4294-9388-fcb0e9323353&flowId=ff50b02c-48dd-4fbf-9c6d-82e8cc9e70c6"
+//     }
+//   }
+// } ]
+// 
+// ```  
+// 
+// The `authenticate` HAL link can be used to redirect the browser to initiate authentication with the associated external identity provider.
+// 
+// ::: info
+// **Note:** For a flow `status` value of `EXTERNAL_AUTHENTICATION_REQUIRED`, users must authenticate with an external identity provider to continue the authentication workflow.
+// :::
+// 
+// 
+
+@name("READ Flow")
+GET "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Cookie": "ST={{sessionToken}}"
+
+
+// The  `POST /{environmentId}/flows/{flowID}` operation updates (or resets) a flow session. This operation uses the `application/vnd.pingidentity.session.reset+json` custom media type as the content type in the request header.
+
+@name("Reset Flow")
+POST "https://{{flowPath}}/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.session.reset+json"
+"Cookie": "ST={{sessionToken}}"
+
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to allow users to login with a username and password. The request body requires the `username` and `password` attributes. The values for these properties provided by the user are verified in this action. This operation uses the `application/vnd.pingidentity.usernamePassword.check+json` custom media type as the content type in the request header.
+// 
+// If there is a user already associated with the current flow, and a `username` value is provided in the request body, then the value of `username` must identify the user associated with the session.
+// 
+// In the response data, the `status` property value indicates that the one-time password validation step used in a multi-factor authentication flow is a required action. The `validateOTP` HAL link to initiate this required step is also included in the response.
+// 
+// ::: info
+// **Note:** This action is also used with the `ACCOUNT_LINKING_REQUIRED` status. When linking to an existing user, the `usernamePassword.check` action is required.
+// :::
+// 
+
+@name("Check Username/Password")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.usernamePassword.check+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "username": "xxxxx",
+    "password": "2Federate!"
+}')
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to allow users to sign on with a username. The request body requires only the `username` attribute. The `username` value is verified in this action. This operation uses the `application/vnd.pingidentity.user.lookup+json` custom media type as the content type in the request header.
+// 
+// ::: info
+// **Note:** You must create a new sign-on policy with the appropriate sign-on policy actions to use this sign-on flow.
+// :::
+// 
+// 
+// The `status` property value in the response indicates that the one-time password validation step used in a multi-factor authentication flow is a required action. The response includes the `validateOTP` HAL link to initiate this required step.
+
+@name("Sign On with a Username")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.lookup+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "username": "xxxxx",
+    "password": "2Federate!"
+}')
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to change (or reset) the user's password. The request body requires the `currentPassword` and `newPassword` attributes. This operation uses the `application/vnd.pingidentity.password.reset+json` custom media type as the content type in the request header.
+
+@name("Reset Password")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.password.reset+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "currentPassword": "xxxxx",
+    "newPassword": "xxxxx"
+}')
+
+
+// PingOne supports email and SMS-capable device types for use in a multi-factor authentication flow. To enable multi-factor authentication, a user resource must have a device ID associated with its user ID.
+// 
+// The following sample shows the `POST /{environmentId}/flows/{flowId}` operation to specify a device ID to use in the multi-factor authentication flow. This operation uses the `application/vnd.pingidentity.device.select+json` custom media type as the content type in the request header.
+
+@name("Select Device")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.device.select+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "device": {
+        "id": "{{deviceID}}"
+    }
+}')
+
+
+// The multi-factor authentication flow uses a one-time password (OPT) sent to the user's device to continue the login flow. The user receives the OTP and submits it as a step in the login process. The MFA actions service validates the OTP to complete the authentication flow.
+// 
+// The following sample shows the `POST /{environmentId}/flows/{flowId}` operation to validate the OTP used in the multi-factor authentication flow. This operation uses the `application/vnd.pingidentity.otp.check+json` custom media type as the content type in the request header.
+// 
+// If completed successfully, and if this action is the last action of the authentication flow, the `status` property shows a value of `COMPLETED`.
+
+@name("Check One-Time Password (OTP)")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.otp.check+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "otp": "xxxxxx"
+}')
+
+
+

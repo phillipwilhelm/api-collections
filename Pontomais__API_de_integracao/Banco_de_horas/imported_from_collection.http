@@ -1,0 +1,176 @@
+#!/usr/bin/env dothttp
+
+// Lista os lançamentos manuais do banco de horas.
+// 
+// ## Parâmetros na URL
+// | Nome  	| Tipo  	| Descrição                                                  	|
+// | -------- 	| ---------	| -----------------------------------------------------------	|
+// | employee_id | Integer	| ID do colaborador a ser filtrado   					        |
+// | withdraw  | Boolean	| Filtragem de lançamentos por tipo de operação, crédito e débito. *(**true** - lista apenas débitos / **false** - lista apenas créditos)* |
+// | page  	| Integer	| Número da página atual										|
+// | per_page  | Integer	| Quantidade de unidades de negócio por página					|
+// | count		| Boolean	| Total de lançamentos retornados na listagem.  *(**true** - exibe contador / **false** - oculta contador)* |
+// | sort_property  | String	| Atributo que a listagem deve considerar para ordenar os lançamentos |
+// | sort_direction  | String	| Direção em que a listagem deve classificar os lançamentos. *(**asc** - ascendente / **desc** - descendente)* |
+// | attributes  | String	| Atributos, separados por vírgula, a serem exibidos em cada lançamento. **Veja abaixo os atributos disponíveis** |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | created_at         | Timestamp | Data e horário de criação do lançamento |
+// | updated_at         | Timestamp | Data e horário de atualização do lançamento |
+// | date | Date | Data a qual o lançamento se refere |
+// | withdraw | Boolean | Indica se a operação é débito. *(**true** - débito / **false** - crédito)*  |
+// | amount | Float | Valor do lançamento em segundos |
+// | signed_amount | Float | Valor do lançamento em segundos e com sinalização  |
+// | signed_amount_humanized | String | Valor do lançamento em formato de horário e com sinalização  |
+// | work_day_id | Integer | ID da consolidação |
+// | employee_id | Integer | ID do colaborador |
+// | updated_by | Object | Colaborador que realizou o lançamento. **Veja abaixo o formato do objeto**. |
+// | observation | String | Motivo do lançamento |
+// 
+// #### Formato do objeto updated_by
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String | Nome do colaborador |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/time_balance_entries"
+"access-token": "{{client_token}}"
+? "employee_id"= "{{employee_id}}"
+? "withdraw"= "true"
+? "count"= "true"
+? "page"= "1"
+? "per_page"= "10"
+? "sort_property"= "date"
+? "sort_direction"= "desc"
+? "attributes"= "id,date,withdraw,amount,employee_id,observation,updated_by"
+
+
+// Exibe os atributos de um lançamento de banco de horas.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | time_balance_entry_id | Integer | Sim | ID do lançamento |
+// 
+// 
+// ## Parâmetros na URL
+// Todos os parâmetros são opcionais.
+// 
+// | Nome  	| Tipo  	| Descrição                                                  	|
+// | -------- 	| ---------	| -----------------------------------------------------------	|
+// | attributes  | String	| Atributos, separados por vírgula, a serem exibidos em cada lançamento. **Veja abaixo os atributos disponíveis** |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | created_at         | Timestamp | Data e horário de criação do lançamento |
+// | updated_at         | Timestamp | Data e horário de atualização do lançamento |
+// | date | Date | Data a qual o lançamento se refere |
+// | withdraw | Boolean | Indica se a operação é débito. *(**true** - débito / **false** - crédito)*  |
+// | amount | Float | Valor do lançamento em segundos |
+// | signed_amount | Float | Valor do lançamento em segundos e com sinalização  |
+// | signed_amount_humanized | String | Valor do lançamento em formato de horário e com sinalização  |
+// | work_day_id | Integer | ID da consolidação |
+// | employee_id | Integer | ID do colaborador |
+// | updated_by | Object | Colaborador que realizou o lançamento. **Veja abaixo o formato do objeto**. |
+// | observation | String | Motivo do lançamento |
+// 
+// #### Formato do objeto updated_by
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String | Nome do colaborador |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/time_balance_entries/{{time_balance_entry_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,date,withdraw,amount,employee_id,observation,updated_by"
+
+
+// Cria um lançamento de banco de horas.
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----| ----------- | --------- |
+// | amount | Float | Sim | Valor do lançamento em segundos |
+// | date | Date | Sim | Data a qual o lançamento se refere |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | observation | String | Sim | Motivo do lançamento |
+// | withdraw | Boolean | Não | Indica se a operação é débito. Se o atributo não estiver presente, o lançamento será do tipo crédito. *(**true** - débito / **false** - crédito)*  |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/time_balance_entries"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "time_balance_entry":
+  {
+    "amount": {{amount}},
+    "date": "{{date}}",
+    "employee_id": {{employee_id}},
+    "observation": "{{observation}}",
+    "withdraw": {{withdraw}}
+  }
+}')
+
+
+// Edita um lançamento de banco de horas.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | time_balance_entry_id | Integer | Sim | ID do lançamento |
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----| ----------- | --------- |
+// | amount | Float | Não | Valor do lançamento em segundos |
+// | date | Date | Não | Data a qual o lançamento se refere |
+// | employee_id | Integer| Não  | ID do colaborador |
+// | observation | String | Não | Motivo do lançamento |
+// | withdraw | Boolean | Não | Indica se a operação é débito. Se o atributo não estiver presente, o lançamento será do tipo crédito. *(**true** - débito / **false** - crédito)*  |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/time_balance_entries/59"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "time_balance_entry":
+  {
+    "amount": {{amount}},
+    "date": "{{date}}",
+    "observation": "{{observation}}",
+    "withdraw": {{withdraw}}
+  }
+}')
+
+
+// Exclui um lançamento de banco de horas.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | time_balance_entry_id | Integer | Sim | ID do lançamento |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/time_balance_entries/{{time_balance_entry_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

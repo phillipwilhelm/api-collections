@@ -1,0 +1,181 @@
+#!/usr/bin/env dothttp
+
+// 
+// Schedule E covers the line item expenditures for independent expenditures. For example, if a super PAC
+// bought ads on TV to oppose a federal candidate, each ad purchase would be recorded here with
+// the expenditure amount, name and id of the candidate, and whether the ad supported or opposed the candidate.
+// 
+// An independent expenditure is an expenditure for a communication "expressly advocating the election or
+// defeat of a clearly identified candidate that is not made in cooperation, consultation, or concert with,
+// or at the request or suggestion of, a candidate, a candidate’s authorized committee, or their agents, or
+// a political party or its agents."
+// 
+// Aggregates by candidate do not include 24 and 48 hour reports. This ensures we don't double count expenditures
+// and the totals are more accurate. You can still find the information from 24 and 48 hour reports in
+// `/schedule/schedule_e/`.
+// 
+// Due to the large quantity of Schedule E filings, this endpoint is not paginated by
+// page number. Instead, you can request the next page of results by adding the values in
+// the `last_indexes` object from `pagination` to the URL of your last request. For
+// example, when sorting by `expenditure_amount`, you might receive a page of
+// results with the following pagination information:
+// 
+// ```
+//  "pagination": {
+//     "count": 152623,
+//     "last_indexes": {
+//       "last_index": "3023037",
+//       "last_expenditure_amount": -17348.5
+//     },
+//     "per_page": 20,
+//     "pages": 7632
+//   }
+// }
+// ```
+// 
+// To fetch the next page of sorted results, append `last_index=3023037` and
+// `last_expenditure_amount=` to the URL.  We strongly advise paging through
+// these results by using the sort indices (defaults to sort by disbursement date,
+// e.g. `last_disbursement_date`), otherwise some resources may be unintentionally
+// filtered out.  This resource uses keyset pagination to improve query performance
+// and these indices are required to properly page through this large dataset.
+// 
+// Note: because the Schedule E data includes many records, counts for
+// large result sets are approximate; you will want to page through the records until no records are returned.
+
+@name("/schedules/schedule_e/")
+GET "https://{{baseUrl}}/schedules/schedule_e/"
+? "candidate_office_district"= "<string>"
+? "candidate_office_district"= "<string>"
+? "sort_nulls_last"= "false"
+? "payee_name"= "<string>"
+? "payee_name"= "<string>"
+? "support_oppose_indicator"= "<string>"
+? "support_oppose_indicator"= "<string>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "min_filing_date"= "<date>"
+? "sort"= "-expenditure_date"
+? "min_amount"= "<string>"
+? "most_recent"= "<boolean>"
+? "max_date"= "<date>"
+? "min_dissemination_date"= "<date>"
+? "line_number"= "<string>"
+? "min_date"= "<date>"
+? "max_filing_date"= "<date>"
+? "max_image_number"= "<string>"
+? "candidate_office"= "<string>"
+? "candidate_office"= "<string>"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "max_dissemination_date"= "<date>"
+? "is_notice"= "<boolean>"
+? "is_notice"= "<boolean>"
+? "sort_hide_null"= "false"
+? "min_image_number"= "<string>"
+? "per_page"= "20"
+? "candidate_party"= "<string>"
+? "candidate_party"= "<string>"
+? "candidate_office_state"= "<string>"
+? "candidate_office_state"= "<string>"
+? "api_key"= "DEMO_KEY"
+? "max_amount"= "<string>"
+? "image_number"= "<string>"
+? "image_number"= "<string>"
+? "filing_form"= "<string>"
+? "filing_form"= "<string>"
+? "candidate_id"= "<string>"
+? "candidate_id"= "<string>"
+
+
+// 
+// Schedule E receipts aggregated by recipient candidate. To avoid double
+// counting, memoed items are not included.
+
+@name("/schedules/schedule_e/by_candidate/")
+GET "https://{{baseUrl}}/schedules/schedule_e/by_candidate/"
+? "per_page"= "20"
+? "office"= "<string>"
+? "state"= "<string>"
+? "district"= "<string>"
+? "election_full"= "true"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "candidate_id"= "<string>"
+? "candidate_id"= "<string>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "page"= "1"
+? "sort_hide_null"= "false"
+
+
+// 
+// Efiling endpoints provide real-time campaign finance data received from electronic filers. Efiling endpoints only contain the most recent four months of data and don't contain the processed and coded data that you can find on other endpoints.
+
+@name("/schedules/schedule_e/efile/")
+GET "https://{{baseUrl}}/schedules/schedule_e/efile/"
+? "min_expenditure_amount"= "<integer>"
+? "candidate_office_district"= "<string>"
+? "candidate_office_district"= "<string>"
+? "candidate_office"= "<string>"
+? "sort_nulls_last"= "false"
+? "max_expenditure_date"= "<date>"
+? "payee_name"= "<string>"
+? "payee_name"= "<string>"
+? "support_oppose_indicator"= "<string>"
+? "support_oppose_indicator"= "<string>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "max_dissemination_date"= "<date>"
+? "is_notice"= "<boolean>"
+? "max_filed_date"= "<date>"
+? "sort_hide_null"= "false"
+? "sort"= "-expenditure_date"
+? "per_page"= "20"
+? "min_filed_date"= "<date>"
+? "spender_name"= "<string>"
+? "spender_name"= "<string>"
+? "filing_form"= "<string>"
+? "filing_form"= "<string>"
+? "max_expenditure_amount"= "<integer>"
+? "min_expenditure_date"= "<date>"
+? "candidate_party"= "<string>"
+? "candidate_party"= "<string>"
+? "candidate_office_state"= "<string>"
+? "candidate_office_state"= "<string>"
+? "min_dissemination_date"= "<date>"
+? "api_key"= "DEMO_KEY"
+? "image_number"= "<string>"
+? "image_number"= "<string>"
+? "most_recent"= "<boolean>"
+? "page"= "1"
+? "candidate_id"= "<string>"
+? "candidate_id"= "<string>"
+? "candidate_search"= "<string>"
+? "candidate_search"= "<string>"
+
+
+// 
+// Total independent expenditure on supported or opposed candidates by cycle or candidate election year.
+
+@name("/schedules/schedule_e/totals/by_candidate/")
+GET "https://{{baseUrl}}/schedules/schedule_e/totals/by_candidate/"
+? "per_page"= "20"
+? "election_full"= "true"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "candidate_id"= "<string>"
+? "candidate_id"= "<string>"
+? "sort_null_only"= "false"
+? "page"= "1"
+? "sort_hide_null"= "false"
+
+
+

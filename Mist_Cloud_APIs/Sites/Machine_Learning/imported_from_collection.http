@@ -1,0 +1,145 @@
+#!/usr/bin/env dothttp
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  duration|string|1d, 30m, 5h, where the start time will be calculated (with end time is now), default is 1h
+//  type|string|sdkclient / client / asset, default is sdkclient
+//  map_id|string|map_id (filter by map_id)
+//  resolution|string|default / fine
+//  client_type|string|client_type (as filter. optional)
+//  
+//   #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  beams_means|list|list of [x, y, mean]s, x/y are in meters (UI would need to use map.ppm to calulate the pixel location from top-left).
+//  gridsize|float|the size of grid, in meter
+//  results|list|list of results, see result_def.
+//  result_def|list|list of names annotating the fields in results
+
+@name("getSiteBeamCoverageOverview")
+GET "https://{{host}}/api/v1/sites/:site_id/location/coverage"
+? "map_id"= "{{map_id}}"
+
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  device_id|stirng|id of device if this ML is for Mist AP
+//  beacon_id|string|id of beacon if this ML is for 3rd party beacon
+//  current|object|ml stats, per client_type
+//  level|int|level of learning
+//  completed|int|learning completeness to the next level
+//  ple|float|internal
+//  int|float|internal
+//  quality|int|from 0 - 4, 4 being most accurate
+//  src|string|where the PLF comes from. machine (PLF from last learning) / device (last learnt PLF from this device) / model (model of the client device) / overwrite (from ML overwrite)
+//  timestamp|long|epoch, last updated
+
+@name("getSiteMachineLearningCurrentStat")
+GET "https://{{host}}/api/v1/sites/:site_id/location/ml/current"
+? "map_id"= "{{map_id}}"
+
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  ple|float|internal
+//  int|float|internal
+//  quality|int|from 0 - 4, 4 being most accurate
+
+@name("getSiteDefaultPlfForModels")
+GET "https://{{host}}/api/v1/sites/:site_id/location/ml/defaults"
+
+
+//  #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  ple|float|internal
+//  int|float|internal
+//  quality|int|from 0 - 4, 4 being most accurate
+//  
+//  
+//  To clear ML overwrite for a certain model, call above api with plf value as null. { "iOS": null }
+// 
+
+@name("overwriteSiteMlForDevice")
+PUT "https://{{host}}/api/v1/sites/:site_id/location/ml/device/:device_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "iOS": {
+        "ple": -3,
+        "int": 6
+    },
+    "iPod": {
+        "ple": -5,
+        "int": -10
+    }
+})
+
+
+@name("clearSiteMlOverwriteForDevice")
+DELETE "https://{{host}}/api/v1/sites/:site_id/location/ml/device/:device_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+@name("overwriteSiteMlForMap")
+PUT "https://{{host}}/api/v1/sites/:site_id/location/ml/map/:map_id"
+json({
+    "iOS": {
+        "ple": -3,
+        "int": 6
+    },
+    "iPod": {
+        "ple": -5,
+        "int": -10
+    }
+})
+
+
+@name("clearSiteMlOverwriteForMap")
+DELETE "https://{{host}}/api/v1/sites/:site_id/location/ml/map/:map_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  start|long|start time, in epoch,
+//  end|long|start time, default is now()
+//  duration|string|instead of start, you can use 1d, 30m, 5h, where the start will be calculated
+//  map_id|string|map_id (as filter, optional)
+//  device_id|string|device_id (as filter, optional)
+//  client_type|string|client_type (as filter, optional)
+//  
+//  
+//   #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  device_id|stirng|id of device
+//  client_type|string|type of client, for each client type, we store a set of parameters/stats
+//  level|int|level of learning
+//  completed|int|learning completeness to the next level
+//  ple|float|internal
+//  int|float|internal
+//  timestamp|long|epoch, time of update
+
+@name("getSiteMachineLearningEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/location/ml/updates"
+? "device_id"= "{{device_id}}"
+
+
+@name("resetSiteMlStatsByMap")
+POST "https://{{host}}/api/v1/sites/:site_id/location/ml/reset/map/:map_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

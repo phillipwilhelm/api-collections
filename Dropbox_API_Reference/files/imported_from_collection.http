@@ -1,0 +1,897 @@
+#!/usr/bin/env dothttp
+
+// [copy](https://www.dropbox.com/developers/documentation/http/documentation#files-copy)
+// 
+// scope: `files.content.write`
+// 
+// Copy a file or folder to a different location in the user's Dropbox.
+// If the source path is a folder all its contents will be copied.
+
+@name("copy")
+POST "https://api.dropboxapi.com/2/files/copy_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "from_path": "/Homework/math", 
+    "to_path": "/Homework/algebra", 
+    "allow_shared_folder": false, 
+    "autorename": false, 
+    "allow_ownership_transfer": false
+}')
+
+
+// [copy_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-copy_batch)
+// 
+// scope: `files.content.write`
+// 
+// Copy multiple files or folders to different locations at once in the user's Dropbox.
+// This route will replace `copy_batch:1`. The main difference is this route will return status for each entry, while `copy_batch:1` raises failure if any entry fails.
+// This route will either finish synchronously, or return a job ID and do the async copy job in background. Please use `copy_batch/check:2` to check the job status.
+
+@name("copy_batch")
+POST "https://api.dropboxapi.com/2/files/copy_batch_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "from_path": "/Homework/math", 
+            "to_path": "/Homework/algebra"
+        }
+    ], 
+    "autorename": false
+}')
+
+
+// [copy_batch/check](https://www.dropbox.com/developers/documentation/http/documentation#files-copy_batch-check)
+// 
+// scope: `files.content.write`
+// 
+// Returns the status of an asynchronous job for `copy_batch:2`. It returns list of results for each entry.
+
+@name("copy_batch/check")
+POST "https://api.dropboxapi.com/2/files/copy_batch/check_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [copy_reference/get](https://www.dropbox.com/developers/documentation/http/documentation#files-copy_reference-get)
+// 
+// scope: `files.content.write`
+// 
+// Get a copy reference to a file or folder. This reference string can be used to save that file or folder to another user's Dropbox by passing it to `copy_reference/save`.
+
+@name("copy_reference/get")
+POST "https://api.dropboxapi.com/2/files/copy_reference/get"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/video.mp4"
+}')
+
+
+// [copy_reference/save](https://www.dropbox.com/developers/documentation/http/documentation#files-copy_reference-save)
+// 
+// scope: `files.content.write`
+// 
+// Save a copy reference returned by `copy_reference/get` to the user's Dropbox.
+
+@name("copy_reference/save")
+POST "https://api.dropboxapi.com/2/files/copy_reference/save"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "copy_reference": "z1X6ATl6aWtzOGq0c3g5Ng", 
+    "path": "/video.mp4"
+}')
+
+
+// [create_folder](https://www.dropbox.com/developers/documentation/http/documentation#files-create_folder)
+// 
+// scope: `files.content.write`
+// 
+// Create a folder at a given path.
+
+@name("create_folder")
+POST "https://api.dropboxapi.com/2/files/create_folder_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math", 
+    "autorename": false
+}')
+
+
+// [create_folder_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-create_folder_batch)
+// 
+// scope: `files.content.write`
+// 
+// Create multiple folders at once.
+// This route is asynchronous for large batches, which returns a job ID immediately and runs the create folder batch asynchronously. Otherwise, creates the folders and returns the result synchronously for smaller inputs. You can force asynchronous behaviour by using the `CreateFolderBatchArg.force_async` flag.  Use `create_folder_batch/check` to check the job status.
+
+@name("create_folder_batch")
+POST "https://api.dropboxapi.com/2/files/create_folder_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "paths": [
+        "/Homework/math"
+    ], 
+    "autorename": false, 
+    "force_async": false
+}')
+
+
+// [create_folder_batch/check](https://www.dropbox.com/developers/documentation/http/documentation#files-create_folder_batch-check)
+// 
+// scope: `files.content.write`
+// 
+// Returns the status of an asynchronous job for `create_folder_batch`. If success, it returns list of result for each entry.
+
+@name("create_folder_batch/check")
+POST "https://api.dropboxapi.com/2/files/create_folder_batch/check"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [delete](https://www.dropbox.com/developers/documentation/http/documentation#files-delete)
+// 
+// scope: `files.content.write`
+// 
+// Delete the file or folder at a given path.
+// If the path is a folder, all its contents will be deleted too.
+// A successful response indicates that the file or folder was deleted. The returned metadata will be the corresponding `FileMetadata` or `FolderMetadata` for the item at time of deletion, and not a `DeletedMetadata` object.
+
+@name("delete")
+POST "https://api.dropboxapi.com/2/files/delete_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math/Prime_Numbers.txt"
+}')
+
+
+// [delete_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-delete_batch)
+// 
+// scope: `files.content.write`
+// 
+// Delete multiple files/folders at once.
+// This route is asynchronous, which returns a job ID immediately and runs the delete batch asynchronously. Use `delete_batch/check` to check the job status.
+
+@name("delete_batch")
+POST "https://api.dropboxapi.com/2/files/delete_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "path": "/Homework/math/Prime_Numbers.txt"
+        }
+    ]
+}')
+
+
+// [delete_batch/check](https://www.dropbox.com/developers/documentation/http/documentation#files-delete_batch-check)
+// 
+// scope: `files.content.write`
+// 
+// Returns the status of an asynchronous job for `delete_batch`. If success, it returns list of result for each entry.
+
+@name("delete_batch/check")
+POST "https://api.dropboxapi.com/2/files/delete_batch/check"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [download](https://www.dropbox.com/developers/documentation/http/documentation#files-download)
+// 
+// scope: `files.content.read`
+// 
+// Download a file from a user's Dropbox.
+
+@name("download")
+POST "https://content.dropboxapi.com/2/files/download"
+"Dropbox-API-Arg": "{
+    "path": "/Homework/math/Prime_Numbers.txt"
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [download_zip](https://www.dropbox.com/developers/documentation/http/documentation#files-download_zip)
+// 
+// scope: `files.content.read`
+// 
+// Download a folder from the user's Dropbox, as a zip file. The folder must be less than 20 GB in size and have fewer than 10,000 total files. The input cannot be a single file. Any single file must be less than 4GB in size.
+
+@name("download_zip")
+POST "https://content.dropboxapi.com/2/files/download_zip"
+"Dropbox-API-Arg": "{
+    "path": "/Homework/math"
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+
+
+// [export](https://www.dropbox.com/developers/documentation/http/documentation#files-export)
+// 
+// scope: `files.content.read`
+// 
+// Export a file from a user's Dropbox. This route only supports exporting files that cannot be downloaded directly  and whose `ExportResult.file_metadata` has `ExportInfo.export_as` populated.
+
+@name("export")
+POST "https://content.dropboxapi.com/2/files/export"
+"Dropbox-API-Arg": "{
+    "path": "/Homework/math/Prime_Numbers.gsheet"
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [get_file_lock_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-get_file_lock_batch)
+// 
+// scope: `files.content.read`
+// 
+// Return the lock metadata for the given list of paths.
+
+@name("get_file_lock_batch")
+POST "https://api.dropboxapi.com/2/files/get_file_lock_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "path": "/John Doe/sample/test.pdf"
+        }
+    ]
+}')
+
+
+// [get_metadata](https://www.dropbox.com/developers/documentation/http/documentation#files-get_metadata)
+// 
+// scope: `files.metadata.read`
+// 
+// Returns the metadata for a file or folder.
+// Note: Metadata for the root folder is unsupported.
+
+@name("get_metadata")
+POST "https://api.dropboxapi.com/2/files/get_metadata"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math", 
+    "include_media_info": false, 
+    "include_deleted": false, 
+    "include_has_explicit_shared_members": false
+}')
+
+
+// [get_preview](https://www.dropbox.com/developers/documentation/http/documentation#files-get_preview)
+// 
+// scope: `files.content.read`
+// 
+// Get a preview for a file.
+// Currently, PDF previews are generated for files with the following extensions: .ai, .doc, .docm, .docx, .eps, .gdoc, .gslides, .odp, .odt, .pps, .ppsm, .ppsx, .ppt, .pptm, .pptx, .rtf.
+// HTML previews are generated for files with the following extensions: .csv, .ods, .xls, .xlsm, .gsheet, .xlsx.
+// Other formats will return an unsupported extension error.
+
+@name("get_preview")
+POST "https://content.dropboxapi.com/2/files/get_preview"
+"Dropbox-API-Arg": "{
+    "path": "/word.docx"
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [get_temporary_link](https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_link)
+// 
+// scope: `files.content.read`
+// 
+// Get a temporary link to stream content of a file. This link will expire in four hours and afterwards you will get 410 Gone. This URL should not be used to display content directly in the browser. The Content-Type of the link is determined automatically by the file's mime type.
+
+@name("get_temporary_link")
+POST "https://api.dropboxapi.com/2/files/get_temporary_link"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/video.mp4"
+}')
+
+
+// [get_temporary_upload_link](https://www.dropbox.com/developers/documentation/http/documentation#files-get_temporary_upload_link)
+// 
+// scope: `files.content.write`
+// 
+// Get a one-time use temporary upload link to upload a file to a Dropbox location.
+// 
+// This endpoint acts as a delayed `upload`. The returned temporary upload link may be used to make a POST request with the data to be uploaded. The upload will then be perfomed with the `CommitInfo` previously provided to `get_temporary_upload_link` but evaluated only upon consumption. Hence, errors stemming from invalid `CommitInfo` with respect to the state of the user's Dropbox will only be communicated at consumption time. Additionally, these errors are surfaced as generic HTTP 409 Conflict responses, potentially hiding issue details. The maximum temporary upload link duration is 4 hours. Upon consumption or expiration, a new link will have to be generated. Multiple links may exist for a specific upload path at any given time.
+// 
+// The POST request on the temporary upload link must have its Content-Type set to "application/octet-stream".
+// 
+// Example temporary upload link consumption request:
+// 
+// curl -X POST https://content.dropboxapi.com/apitul/1/bNi2uIYF51cVBND
+// --header "Content-Type: application/octet-stream"
+// --data-binary @local_file.txt
+// 
+// A successful temporary upload link consumption request returns the content hash of the uploaded data in JSON format.
+// 
+// Example succesful temporary upload link consumption response:
+// {"content-hash": "599d71033d700ac892a0e48fa61b125d2f5994"}
+// 
+// An unsuccessful temporary upload link consumption request returns any of the following status codes:
+// 
+// HTTP 400 Bad Request: Content-Type is not one of application/octet-stream and text/plain or request is invalid.
+// HTTP 409 Conflict: The temporary upload link does not exist or is currently unavailable, the upload failed, or another error happened.
+// HTTP 410 Gone: The temporary upload link is expired or consumed.
+// 
+// Example unsuccessful temporary upload link consumption response:
+// Temporary upload link has been recently consumed.
+
+@name("get_temporary_upload_link")
+POST "https://api.dropboxapi.com/2/files/get_temporary_upload_link"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "commit_info": {
+        "path": "/Homework/math/Matrices.txt", 
+        "mode": "add", 
+        "autorename": true, 
+        "mute": false, 
+        "strict_conflict": false
+    }, 
+    "duration": 3600
+}')
+
+
+// [get_thumbnail](https://www.dropbox.com/developers/documentation/http/documentation#files-get_thumbnail)
+// 
+// scope: `files.content.read`
+// 
+// Get a thumbnail for a file.
+
+@name("get_thumbnail")
+POST "https://content.dropboxapi.com/2/files/get_thumbnail_v2"
+"Dropbox-API-Arg": "{
+    "resource": {
+        ".tag": "path", 
+        "path": "/a.docx"
+    }, 
+    "format": "jpeg", 
+    "size": "w64h64", 
+    "mode": "strict"
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [get_thumbnail_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-get_thumbnail_batch)
+// 
+// scope: `files.content.read`
+// 
+// Get thumbnails for a list of images. We allow up to 25 thumbnails in a single batch.
+// This method currently supports files with the following file extensions: jpg, jpeg, png, tiff, tif, gif and bmp. Photos that are larger than 20MB in size won't be converted to a thumbnail.
+
+@name("get_thumbnail_batch")
+POST "https://content.dropboxapi.com/2/files/get_thumbnail_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "path": "/image.jpg", 
+            "format": "jpeg", 
+            "size": "w64h64", 
+            "mode": "strict"
+        }
+    ]
+}')
+
+
+// [list_folder](https://www.dropbox.com/developers/documentation/http/documentation#files-list_folder)
+// 
+// scope: `files.metadata.read`
+// 
+// Starts returning the contents of a folder. If the result's `ListFolderResult.has_more` field is `true`, call `list_folder/continue` with the returned `ListFolderResult.cursor` to retrieve more entries.
+// If you're using `ListFolderArg.recursive` set to `true` to keep a local cache of the contents of a Dropbox account, iterate through each entry in order and process them as follows to keep your local state in sync:
+// For each `FileMetadata`, store the new entry at the given path in your local state. If the required parent folders don't exist yet, create them. If there's already something else at the given path, replace it and remove all its children.
+// For each `FolderMetadata`, store the new entry at the given path in your local state. If the required parent folders don't exist yet, create them. If there's already something else at the given path, replace it but leave the children as they are. Check the new entry's `FolderSharingInfo.read_only` and set all its children's read-only statuses to match.
+// For each `DeletedMetadata`, if your local state has something at the given path, remove it and all its children. If there's nothing at the given path, ignore this entry.
+// Note: `auth.RateLimitError` may be returned if multiple `list_folder` or `list_folder/continue` calls with same parameters are made simultaneously by same API app for same user. If your app implements retry logic, please hold off the retry until the previous request finishes.
+
+@name("list_folder")
+POST "https://api.dropboxapi.com/2/files/list_folder"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math", 
+    "recursive": false, 
+    "include_media_info": false, 
+    "include_deleted": false, 
+    "include_has_explicit_shared_members": false, 
+    "include_mounted_folders": true, 
+    "include_non_downloadable_files": true
+}')
+
+
+// [list_folder/continue](https://www.dropbox.com/developers/documentation/http/documentation#files-list_folder-continue)
+// 
+// scope: `files.metadata.read`
+// 
+// Once a cursor has been retrieved from `list_folder`, use this to paginate through all files and retrieve updates to the folder, following the same rules as documented for `list_folder`.
+
+@name("list_folder/continue")
+POST "https://api.dropboxapi.com/2/files/list_folder/continue"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu"
+}')
+
+
+// [list_folder/get_latest_cursor](https://www.dropbox.com/developers/documentation/http/documentation#files-list_folder-get_latest_cursor)
+// 
+// scope: `files.metadata.read`
+// 
+// A way to quickly get a cursor for the folder's state. Unlike `list_folder`, `list_folder/get_latest_cursor` doesn't return any entries. This endpoint is for app which only needs to know about new files and modifications and doesn't need to know about files that already exist in Dropbox.
+
+@name("list_folder/get_latest_cursor")
+POST "https://api.dropboxapi.com/2/files/list_folder/get_latest_cursor"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math", 
+    "recursive": false, 
+    "include_media_info": false, 
+    "include_deleted": false, 
+    "include_has_explicit_shared_members": false, 
+    "include_mounted_folders": true, 
+    "include_non_downloadable_files": true
+}')
+
+
+// [list_folder/longpoll](https://www.dropbox.com/developers/documentation/http/documentation#files-list_folder-longpoll)
+// 
+// scope: `files.metadata.read`
+// 
+// A longpoll endpoint to wait for changes on an account. In conjunction with `list_folder/continue`, this call gives you a low-latency way to monitor an account for file changes. The connection will block until there are changes available or a timeout occurs. This endpoint is useful mostly for client-side apps. If you're looking for server-side notifications, check out our [webhooks documentation](https://www.dropbox.com/developers/reference/webhooks).
+
+@name("list_folder/longpoll")
+POST "https://notify.dropboxapi.com/2/files/list_folder/longpoll"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu", 
+    "timeout": 30
+}')
+
+
+// [list_revisions](https://www.dropbox.com/developers/documentation/http/documentation#files-list_revisions)
+// 
+// scope: `files.metadata.read`
+// 
+// Returns revisions for files based on a file path or a file id. The file path or file id is identified from the latest file entry at the given file path or id. This end point allows your app to query either by file path or file id by setting the mode parameter appropriately.
+// In the `ListRevisionsMode.path` (default) mode, all revisions at the same file path as the latest file entry are returned. If revisions with the same file id are desired, then mode must be set to `ListRevisionsMode.id`. The `ListRevisionsMode.id` mode is useful to retrieve revisions for a given file across moves or renames.
+
+@name("list_revisions")
+POST "https://api.dropboxapi.com/2/files/list_revisions"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/root/word.docx", 
+    "mode": "path", 
+    "limit": 10
+}')
+
+
+// [lock_file_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-lock_file_batch)
+// 
+// scope: `files.content.write`
+// 
+// Lock the files at the given paths. A locked file will be writable only by the lock holder. A successful response indicates that the file has been locked. Returns a list of the locked file paths and their metadata after this operation.
+
+@name("lock_file_batch")
+POST "https://api.dropboxapi.com/2/files/lock_file_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "path": "/John Doe/sample/test.pdf"
+        }
+    ]
+}')
+
+
+// [move](https://www.dropbox.com/developers/documentation/http/documentation#files-move)
+// 
+// scope: `files.content.write`
+// 
+// Move a file or folder to a different location in the user's Dropbox.
+// If the source path is a folder all its contents will be moved.
+// Note that we do not currently support case-only renaming.
+
+@name("move")
+POST "https://api.dropboxapi.com/2/files/move_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "from_path": "/Homework/math", 
+    "to_path": "/Homework/algebra", 
+    "allow_shared_folder": false, 
+    "autorename": false, 
+    "allow_ownership_transfer": false
+}')
+
+
+// [move_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-move_batch)
+// 
+// scope: `files.content.write`
+// 
+// Move multiple files or folders to different locations at once in the user's Dropbox. Note that we do not currently support case-only renaming.
+// This route will replace `move_batch:1`. The main difference is this route will return status for each entry, while `move_batch:1` raises failure if any entry fails.
+// This route will either finish synchronously, or return a job ID and do the async move job in background. Please use `move_batch/check:2` to check the job status.
+
+@name("move_batch")
+POST "https://api.dropboxapi.com/2/files/move_batch_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "from_path": "/Homework/math", 
+            "to_path": "/Homework/algebra"
+        }
+    ], 
+    "autorename": false, 
+    "allow_ownership_transfer": false
+}')
+
+
+// [move_batch/check](https://www.dropbox.com/developers/documentation/http/documentation#files-move_batch-check)
+// 
+// scope: `files.content.write`
+// 
+// Returns the status of an asynchronous job for `move_batch:2`. It returns list of results for each entry.
+
+@name("move_batch/check")
+POST "https://api.dropboxapi.com/2/files/move_batch/check_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [permanently_delete](https://www.dropbox.com/developers/documentation/http/documentation#files-permanently_delete)
+// 
+// scope: `files.permanent_delete`
+// 
+// Permanently delete the file or folder at a given path (see https://www.dropbox.com/en/help/40).
+// Note: This endpoint is only available for Dropbox Business apps.
+
+@name("permanently_delete")
+POST "https://api.dropboxapi.com/2/files/permanently_delete"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/Homework/math/Prime_Numbers.txt"
+}')
+
+
+// [restore](https://www.dropbox.com/developers/documentation/http/documentation#files-restore)
+// 
+// scope: `files.content.write`
+// 
+// Restore a specific revision of a file to the given path.
+
+@name("restore")
+POST "https://api.dropboxapi.com/2/files/restore"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/root/word.docx", 
+    "rev": "a1c10ce0dd78"
+}')
+
+
+// [save_url](https://www.dropbox.com/developers/documentation/http/documentation#files-save_url)
+// 
+// scope: `files.content.write`
+// 
+// Save the data from a specified URL into a file in user's Dropbox.
+// Note that the transfer from the URL must complete within 5 minutes, or the operation will time out and the job will fail.
+// If the given path already exists, the file will be renamed to avoid the conflict (e.g. myfile (1).txt).
+
+@name("save_url")
+POST "https://api.dropboxapi.com/2/files/save_url"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "path": "/a.txt", 
+    "url": "http://example.com/a.txt"
+}')
+
+
+// [save_url/check_job_status](https://www.dropbox.com/developers/documentation/http/documentation#files-save_url-check_job_status)
+// 
+// scope: `files.content.write`
+// 
+// Check the status of a `save_url` job.
+
+@name("save_url/check_job_status")
+POST "https://api.dropboxapi.com/2/files/save_url/check_job_status"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [search](https://www.dropbox.com/developers/documentation/http/documentation#files-search)
+// 
+// scope: `files.metadata.read`
+// 
+// Searches for files and folders.
+// Note: `search:2` along with `search/continue:2` can only be used to retrieve a maximum of 10,000 matches.
+// Recent changes may not immediately be reflected in search results due to a short delay in indexing. Duplicate results may be returned across pages. Some results may not be returned.
+
+@name("search")
+POST "https://api.dropboxapi.com/2/files/search_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "query": "cat", 
+    "include_highlights": false
+}')
+
+
+// [search/continue](https://www.dropbox.com/developers/documentation/http/documentation#files-search-continue)
+// 
+// scope: `files.metadata.read`
+// 
+// Fetches the next page of search results returned from `search:2`.
+// Note: `search:2` along with `search/continue:2` can only be used to retrieve a maximum of 10,000 matches.
+// Recent changes may not immediately be reflected in search results due to a short delay in indexing. Duplicate results may be returned across pages. Some results may not be returned.
+
+@name("search/continue")
+POST "https://api.dropboxapi.com/2/files/search/continue_v2"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu"
+}')
+
+
+// [unlock_file_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-unlock_file_batch)
+// 
+// scope: `files.content.write`
+// 
+// Unlock the files at the given paths. A locked file can only be unlocked by the lock holder or, if a business account, a team admin. A successful response indicates that the file has been unlocked. Returns a list of the unlocked file paths and their metadata after this operation.
+
+@name("unlock_file_batch")
+POST "https://api.dropboxapi.com/2/files/unlock_file_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "path": "/John Doe/sample/test.pdf"
+        }
+    ]
+}')
+
+
+// [upload](https://www.dropbox.com/developers/documentation/http/documentation#files-upload)
+// 
+// scope: `files.content.write`
+// 
+// Create a new file with the contents provided in the request.
+// Do not use this to upload a file larger than 150 MB. Instead, create an upload session with `upload_session/start`.
+// Calls to this endpoint will count as data transport calls for any Dropbox Business teams with a limit on the number of data transport calls allowed per month. For more information, see the [Data transport limit page](https://www.dropbox.com/developers/reference/data-transport-limit).
+
+@name("upload")
+POST "https://content.dropboxapi.com/2/files/upload"
+"Dropbox-API-Arg": "{
+    "path": "/Homework/math/Matrices.txt", 
+    "mode": "add", 
+    "autorename": true, 
+    "mute": false, 
+    "strict_conflict": false
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [upload_session/append](https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-append)
+// 
+// scope: `files.content.write`
+// 
+// Append more data to an upload session.
+// When the parameter close is set, this call will close the session.
+// A single request should not upload more than 150 MB. The maximum size of a file one can upload to an upload session is 350 GB.
+// Calls to this endpoint will count as data transport calls for any Dropbox Business teams with a limit on the number of data transport calls allowed per month. For more information, see the [Data transport limit page](https://www.dropbox.com/developers/reference/data-transport-limit).
+
+@name("upload_session/append")
+POST "https://content.dropboxapi.com/2/files/upload_session/append_v2"
+"Dropbox-API-Arg": "{
+    "cursor": {
+        "session_id": "1234faaf0678bcde", 
+        "offset": 0
+    }, 
+    "close": false
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [upload_session/finish](https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-finish)
+// 
+// scope: `files.content.write`
+// 
+// Finish an upload session and save the uploaded data to the given file path.
+// A single request should not upload more than 150 MB. The maximum size of a file one can upload to an upload session is 350 GB.
+// Calls to this endpoint will count as data transport calls for any Dropbox Business teams with a limit on the number of data transport calls allowed per month. For more information, see the [Data transport limit page](https://www.dropbox.com/developers/reference/data-transport-limit).
+
+@name("upload_session/finish")
+POST "https://content.dropboxapi.com/2/files/upload_session/finish"
+"Dropbox-API-Arg": "{
+    "cursor": {
+        "session_id": "1234faaf0678bcde", 
+        "offset": 0
+    }, 
+    "commit": {
+        "path": "/Homework/math/Matrices.txt", 
+        "mode": "add", 
+        "autorename": true, 
+        "mute": false, 
+        "strict_conflict": false
+    }
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+// [upload_session/finish_batch](https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-finish_batch)
+// 
+// scope: `files.content.write`
+// 
+// This route helps you commit many files at once into a user's Dropbox. Use `upload_session/start` and `upload_session/append:2` to upload file contents. We recommend uploading many files in parallel to increase throughput. Once the file contents have been uploaded, rather than calling `upload_session/finish`, use this route to finish all your upload sessions in a single request.
+// `UploadSessionStartArg.close` or `UploadSessionAppendArg.close` needs to be true for the last `upload_session/start` or `upload_session/append:2` call. The maximum size of a file one can upload to an upload session is 350 GB.
+// This route will return a job_id immediately and do the async commit job in background. Use `upload_session/finish_batch/check` to check the job status.
+// For the same account, this route should be executed serially. That means you should not start the next job before current job finishes. We allow up to 1000 entries in a single request.
+// Calls to this endpoint will count as data transport calls for any Dropbox Business teams with a limit on the number of data transport calls allowed per month. For more information, see the [Data transport limit page](https://www.dropbox.com/developers/reference/data-transport-limit).
+
+@name("upload_session/finish_batch")
+POST "https://api.dropboxapi.com/2/files/upload_session/finish_batch"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "entries": [
+        {
+            "cursor": {
+                "session_id": "1234faaf0678bcde", 
+                "offset": 0
+            }, 
+            "commit": {
+                "path": "/Homework/math/Matrices.txt", 
+                "mode": "add", 
+                "autorename": true, 
+                "mute": false, 
+                "strict_conflict": false
+            }
+        }
+    ]
+}')
+
+
+// [upload_session/finish_batch/check](https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-finish_batch-check)
+// 
+// scope: `files.content.write`
+// 
+// Returns the status of an asynchronous job for `upload_session/finish_batch`. If success, it returns list of result for each entry.
+
+@name("upload_session/finish_batch/check")
+POST "https://api.dropboxapi.com/2/files/upload_session/finish_batch/check"
+"Content-Type": "application/json"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [upload_session/start](https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-start)
+// 
+// scope: `files.content.write`
+// 
+// Upload sessions allow you to upload a single file in one or more requests, for example where the size of the file is greater than 150 MB.  This call starts a new upload session with the given data. You can then use `upload_session/append:2` to add more data and `upload_session/finish` to save all the data to a file in Dropbox.
+// A single request should not upload more than 150 MB. The maximum size of a file one can upload to an upload session is 350 GB.
+// An upload session can be used for a maximum of 48 hours. Attempting to use an `UploadSessionStartResult.session_id` with `upload_session/append:2` or `upload_session/finish` more than 48 hours after its creation will return a `UploadSessionLookupError.not_found`.
+// Calls to this endpoint will count as data transport calls for any Dropbox Business teams with a limit on the number of data transport calls allowed per month. For more information, see the [Data transport limit page](https://www.dropbox.com/developers/reference/data-transport-limit).
+
+@name("upload_session/start")
+POST "https://content.dropboxapi.com/2/files/upload_session/start"
+"Dropbox-API-Arg": "{
+    "close": false
+}"
+"Dropbox-API-Path-Root": "{".tag": "namespace_id", "namespace_id": "2"}"
+"Dropbox-API-Select-User": "dbmid:FDFSVF-DFSDF"
+"Dropbox-API-Select-Admin": "dbmid:FDFSVF-DFSDF"
+
+
+

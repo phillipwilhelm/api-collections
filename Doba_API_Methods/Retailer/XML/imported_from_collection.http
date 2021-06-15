@@ -1,0 +1,566 @@
+#!/usr/bin/env dothttp
+
+// Adds a retailer (aka lead, member, user, merchant) to the Doba platform.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'addRetailer' in order to use this method.
+//     	* **addRetailer** - The method name.
+//     * **ip_address** - IP address of the retailer, not the partner. Must be in dotted decimal notation (11.12.13.14). 
+// * Optional
+// 	* **accept_terms** - Set to true if the retailer has accepted Doba's terms and conditions. If not set, the retailer will be required to accept the Terms and Conditions upon their first login to http://www.doba.com.
+// 	* **additional_data** - An array of data.
+// 		* **data** - Any additional information to be sent to Doba about the retailer. This will be stored and visible to Doba employees.
+// 			* **param** - The title to display of the additional data. It's essentially the 'key' in a key-value pair.
+// 			* **value** - The information about the retailer. It's essentially the 'value' in a key-value pair.
+// 	* **billing_city** - The city on the Credit Card account.
+// 	* **billing_country** - US = United States, CA = Canada, AU = Australia, BB = Barbados, IE = Ireland, MY = Malaysia, SG = Singapore, GB = United Kingdom, DE = Germany, PR = Puerto Rico, NZ = New Zealand - No other options are currently allowed.
+// 	* **billing_postal** - The postal/zip code on the Credit Card account.
+// 	* **billing_state** - Two character abbreviation of the state on the Credit Card account.
+// 	* **billing_street** - The billing street on the Credit Card account.
+// 	* **campaign_code** - If used, this indicates the campaign code that the retailer was signed up under. This could possibily be used for reporting purposes. 
+// 	* **credit_card_exp_month** - 2 Digits - The month the Credit Card expires. Found on the front of the card.
+// 	* **credit_card_exp_year** - 4 Digits - The year the Credit Card expires. Found on the front of the card.
+// 	* **credit_card_number** - The 15 or 16 digit Credit Card number on the face of the card.
+// 	* **cvv2** - The CVV2 Code found on the back of the Credit Card.
+// 	* **email** - The retailers email address.
+// 	* **firstname** - The retailers first name.
+// 	* **lastname** - The retailers last name.
+// 	* **phone** - The retailers phone number. Format = XXX-XXX-XXXX
+// 	* **subscriptions** - An array of subscription. *If no subscriptions are provided, the retailer will be considered a lead and they will not be given access to Doba services.*
+// 		* **subscription** - An object representing a subscription 
+// 			* **api_code** - The code provided by your account manager. Possible values include 'DPLUS', 'BASIC', 'ADV', 'PRO', 'ENT', and 'ADVP'.
+// 			* **billing_responsibility** - Determines who will pay for the subscription. P = Partner, R = Retailer. If the partner opts to pay for the subscription, the account is owned by the partner and the retailer cannot cancel their account. In this case, only the partner can cancel the account and must do so using the API or the Partner Portal at http://www.doba.com/partner
+// 			* **frequency** - This determines how often the retailer, or the partner, is billed for the subscription. The current options are M = Monthly, T = 3-Month Intro, Q = Quartly, S = Semi-Yearly, Y = Yearly, 2 = 2-Year Intro, L = Lifetime.
+// 			* **trial** - The length of the trial. 7, 14, or 30 day trials are allowed. If not set, the 7 day trial will be used as default. If the partner will be financially responsible, a 30 day trial will always be used.
+// 	* **username** - The desired username for the retailer.
+// 	
+// ## Response Parameters
+// 
+// * **change_password_url** - varchar(100) - Used to allow the retailer to set their password. The URL expires after 24 hours so its best if the retailer uses the URL at the time that the account is created so that they can set their password for their Doba account.
+// * **retailer_id** - integer(11) - The merchants retailer_id.
+// * **username** - varchar(32) - The username of the retailer.
+
+@name("addRetailer")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>addRetailer</action>
+    <ip_address>192.168.0.15</ip_address>
+    <email>mrbailey@doba.com</email>
+    <firstname>Matt</firstname>
+    <lastname>Bailey</lastname>
+    <phone>8017656997</phone>
+    <additional_data>
+      <data>
+    	<param>Passcode</param>
+    	<value>87-true-operations</value>	
+      </data>
+      <data>
+      	<param>Coach Name</param>
+      	<value>Carl Avery</value>
+      </data>
+      <data>
+      	<param>Close Date</param>
+      	<value>9/6/19</value>
+      </data>
+    </additional_data>
+    <subscriptions>
+      <subscription>
+        <api_code>BASIC</api_code>
+        <frequency>T</frequency>
+        <billing_responsibility>R</billing_responsibility>
+        <trial>7</trial>
+      </subscription>
+    </subscriptions>
+  </request>
+</dce>')
+
+
+// Gets an array of retailers registered to the partner.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'getRetailers' in order to use this method.
+//     	* **getRetailers** - The method name.
+// * Optional
+// 	* **retailer_id** - The merchant's retailer_id.
+//     * **email** - The retailers email address.
+// 	* **from_date** - Records newer than the date provided will be included in the response.
+// 	* **lastname** - The retailers last name.
+// 	* **limit** - The maximum number of records that will be returned.
+// 	* **offset** - Determines where the results will begin within the paginated results.
+// 	* **to_date** - Records newer than the date provided will not be included in the response.
+// 	
+// 	
+// ## Response Parameters
+// 
+// * **limit** - integer(11) - The maximum number of records that will be returned.
+// * **offset** - integer(11) - Determines where the results will begin within the paginated results.
+// * **retailers** - an array of retailer
+// 	* **retailer** - an object representing a retailer
+// 		* **address1** - varchar(32) - Line 1 of the merchant's address.
+// 		* **address2** - varchar(32) - Line 2 of the merchant's address.
+// 		* **billing_responsibility** - varchar(9) - The billing responsibility for the account(Partner/Retailer).
+// 		* **city** - varchar(32) - The city on the merchant Credit Card account.
+// 		* **country** - varchar(2) - The country code on the merchant Credit Card account.
+// 		* **email** - varchar(32) - The email associated with this merchant.
+// 		* **first_name** - varchar(32) - The first name on the merchant Credit Card account.
+// 		* **last_name** - varchar(32) - The last name on the merchant Credit Card account
+// 		* **paid_through_date** - date(YYYY-MM-DD) - The date that the merchant account will explire without furthur payment.
+// 		* **phone** - XXX-XXX-XXXX - The phone number for the owner of the Credit Card.
+// 		* **postal_code** - varchar(32) - The postal/zip code on the Credit Card account.
+// 		* **register_date** - date(YYYY-MM-DD) - The date that the merchant registerd with Doba.
+// 		* **retailer_id** - integer(11) - The merchants retailer_id.
+// 		* **state** - varchar(2) - Two character abbreviation of the state on the Credit Card account.
+// 		* **status** - varchar(32) - The merchant status limbo, expired, or active.
+// 		* **subscription_type** - varchar(32) - The name of the active merchant subscription.
+// * **total** - integer(11) - The total number of merchants that match the search criteria.
+
+@name("getRetailers")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>getRetailers</action>
+    <limit>2</limit>
+    <email>{{EMAIL}}</email>
+  </request>
+</dce>')
+
+
+// Upgrades the retailer to a new subscription.
+// 
+// Will only be allowed if the partner has responsibility for the account.
+// 
+// Note: The please contact your account representative at Doba to get a list of api_code's that work with your account.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'addRetailer' in order to use this method.
+//     	* **addRetailer** - The method name.
+//     * **subscription** - object representing the subscription
+// 		* **api_code** - The code provided by your account manager. Examples: SP250 = Startup Subscription, AD1K = Advanced Subscription
+// 		* **frequency** - This determines how often the retailer, or the partner, is billed for the subscription. M = Monthly, Y = Yearly
+// 
+// ## Response Parameters
+// 
+// * **api_code** - The api_code assigned to the retailers subscription.
+// * **cost** - The period cost for this retailer.
+// * **expiration** - The date that the retailer will expire without additional payment.
+// * **frequency** - The billing frequency for this account subscription. M = Monthly, Y = Yearly, L = Lifetime
+
+@name("upgradeRetailer")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>upgradeRetailer</action>
+    <retailer_id>5555187</retailer_id>
+    <subscription>
+    	<api_code>ADV</api_code>
+    	<frequency>M</frequency>
+    </subscription>
+  </request>
+</dce>')
+
+
+// Re-assumes financial responsibility for a retailer.
+// 
+// Can only be done if the partner originally created the account.
+// 
+// Note: The please contact your account representative at Doba to get a list of api_code's that work with your account.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'reactivateRetailer' in order to use this method.
+//     	* **reactivateRetailer** - The method name.
+// * Optional
+// 	* **subscriptions** - An array of subscription. *If no subscriptions are provided, the retailer will be considered a lead and they will not be given access to Doba services.*
+// 		* **subscription** - An object representing a subscription 
+// 			* **api_code** - The code provided by your account manager. Possible values include 'DPLUS', 'BASIC', 'ADV', 'PRO', 'ENT', and 'ADVP'.
+// 			* **billing_responsibility** - Determines who will pay for the subscription. P = Partner, R = Retailer. If the partner opts to pay for the subscription, the account is owned by the partner and the retailer cannot cancel their account. In this case, only the partner can cancel the account and must do so using the API or the Partner Portal at http://www.doba.com/partner
+// 			* **frequency** - This determines how often the retailer, or the partner, is billed for the subscription. The current options are M = Monthly, T = 3-Month Intro, Q = Quartly, S = Semi-Yearly, Y = Yearly, 2 = 2-Year Intro, L = Lifetime.
+// 			* **trial** - The length of the trial. 7, 14, or 30 day trials are allowed. If not set, the 7 day trial will be used as default. If the partner will be financially responsible, a 30 day trial will always be used.
+// 	
+// 	
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("reactivateRetailer")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>reactivateRetailer</action>
+    <retailer_id>5555187</retailer_id>
+    <subscription>
+    	<api_code>DPLUS</api_code>
+    	<billing_responsibility>P</billing_responsibility>
+    	<frequency>L</frequency>
+    </subscription>
+  </request>
+</dce>')
+
+
+// Retrieves user access and status information.
+// 
+// If your partner account has a valid authorization with the retailer_id and the retailer account is not active it will return an api_code of "EXPIRED". This means that the retailer will need to re-activate their account in order for them to access the Doba catalog through your software or directly at www.doba.com.
+// 
+// If your partner account has a valid authorization with the retailer_id but you don't own the account, and the account is active, it will return a blank api_code. This means that the retailer does have access to the catalog but they are paying for their own account.
+// 
+// If your partner account has a valid authorization with the retailer_id and you own the account, meaning that you are financially responsible for the account, not the customer, then we will return the api_code on the account.
+// 
+// If you do not have a valid authorization link, it will return "Error 380: Retailer ID does not exist or you do not have access to this retailer." as an error. This means that you must request authorization from this retailer, using the requestPartnerPermission API method, in order to make API calls on their behalf.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'getRetailerAccessInfo' in order to use this method.
+//     	* **getRetailerAccessInfo** - The method name.
+// 	* **retailer_ids** - An array of retailer_id
+// 		* **retailer_id** - The merchant's retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **access_sub_api_code** - The api_code assigned to the retailers subscription.
+// * **activated_product_limit** - integer(11) - The max number of products that the retailer can have in lists.
+// * **activated_product_total** - integer(11) - The number of current active products.
+// * **list_limit** - integer(11) - The max number of lists that the retailer can have.
+// * **remaining** - integer(11) - The number of products that can still be added to the retialer lists.
+// * **retailer_id** - integer(11) - The merchants retailer_id.
+// * **search_limit** - integer(11) - The max number of saved searches the retailer can have.
+
+@name("getRetailerAccessInfo")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>getRetailerAccessInfo</action>
+    <retailer_ids>
+    	<retailer_id>5555187</retailer_id>
+    </retailer_ids>
+  </request>
+</dce>')
+
+
+// Submits a request to the retailer requesting confirmation to allow the partner to submit API calls on behalf of the retailer.
+// 
+// The retailer_id of the retailer is required for this method. Retailers can retrive their retailer_id using the following insctructions:
+// 
+// 1. Log into your Doba account.
+// 2. Your Retailer ID will be listed in the top-right-hand corner.
+// The retailer will need to log into their Doba account at http://www.doba.com in order to accept/deny the request. If they are already logged in, they can go to the "Settings" page and select "Profile". There they can accept/denie any open authorization reqests.
+// 
+// A callback will be submitted to the partners system upon acceptance/denial by the retailer. For more information, see Retailer/Partner Permission Acceptance
+// 
+// Note: Retailers have the ability to revoke Partner Permissions from within their Doba account. If a retailer chooses to revoke your permission, we will issue a callback to your callback URL on file.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'requestPartnerPermission' in order to use this method.
+//     	* **requestPartnerPermission** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("requestPartnerPermission")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>requestPartnerPermission</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Returns the permissions given to the partner on behalf of a retailer. Used to determine if a retailer has given a partner permission to submit API calls, such as product information calls and order create calls, on their behalf.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'hasPartnerPermission' in order to use this method.
+//     	* **hasPartnerPermission** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **has_permission** - varchar(30) - Determines whether the retailer has given authorization to the partner to submit API calls on the retailers behalf. If "accepted", the retailers has given their authorization. If "declined", the retailer has denied the authorization. If "pending", the retailer has not yet taken action and needs to log into their Doba account so that they may accept or deny the authorization. If "missing request", the partner needs to request the authorization again as it has either not been previously requested or the retailer has deleted the authorization from their account.
+// * **retailer_id** - integer(11) - The merchants retailer_id.
+
+@name("hasPartnerPermission")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>hasPartnerPermission</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Removes permissions granted by the retailer to the partner. If permissions are removed, all future API calls submitted by this partner on behalf of the retailer will be denied. To request that permissions be re-instated, use the requestPartnerPermission function.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'removePartnerPermission' in order to use this method.
+//     	* **removePartnerPermission** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("removePartnerPermission")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>removePartnerPermission</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Adds a note the the retailers account that can be seen by Doba personnel.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'createRetailerNote' in order to use this method.
+//     	* **createRetailerNote** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 	* **note** - The text of the note you wish to add to the retailer's account.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("createRetailerNote")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>createRetailerNote</action>
+    <retailer_id>5555187</retailer_id>
+    <note>This retailer is sharp! We should keep an eye on him!</note>
+  </request>
+</dce>')
+
+
+// Returns a link that will allow instant login to the doba website as this merchant.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'getAutoLoginLink' in order to use this method.
+//     	* **getAutoLoginLink** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("getAutoLoginLink")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>getAutoLoginLink</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Returns a link that will allow the merchant to reset the password to the account.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'getAutoLoginLink' in order to use this method.
+//     	* **getPasswordResetLink** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("getPasswordResetLink")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>getPasswordResetLink</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Returns a list of upgrade options available to the retailer.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'getAutoLoginLink' in order to use this method.
+//     	* **getUpgradeOptions** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **response**
+//     * **outcome** - string - indicates _success_ or _failure
+//     * **option** - array of option objects
+//         * **api_code** - string - indicates api_code to be used in conjunction with upgrading or reactivating a retailer
+//         * **name** - string - indicates the friendly name of the package
+//         * **description** - string - description of the package
+//         * **prices** - array of price objects
+//             * **price** - object representing the package amount and frequency of billing
+//                 * **frequency** - enum (M,Q,Y,L) - monthly, quarterly, yearly, or lifetime frequency at which the client or responsible billing party is billed
+//                 * **amount** - double - cost of the package per the frequency
+
+@name("getUpgradeOptions")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>getUpgradeOptions</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+// Ends financial responsibility for a partner. This call can only be utilized when a partner is paying for the retailers subscription. Upon success, the retailer will be billed when the subscription expires. The retailer's account will continue to be active until the expiration date.
+// 
+// In some circumstances the request will fail. This typically means that the account has already been canceled or the partner is not financially responsible for the account which means they are not allowed to cancel the account. Typically, if this response is seen, there was no reason for the request to be made in the first place and can be accepted as successful.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **action** - Make sure to use 'cancelRetailer' in order to use this method.
+//     	* **cancelRetailer** - The method name.
+// 	* **retailer_id** - The merchants retailer_id.
+// 
+// ## Response Parameters
+// 
+// * **value** - bool(1) - Returns 1 on success, 0 on failure.
+
+@name("cancelRetailer")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_partner_api.php"
+"Content-Type": "application/xml"
+data('<dce>  
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <action>cancelRetailer</action>
+    <retailer_id>5555187</retailer_id>
+  </request>
+</dce>')
+
+
+

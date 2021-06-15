@@ -1,0 +1,37 @@
+#!/usr/bin/env dothttp
+
+// The following sample shows the `GET /environments/{environmentId}` operation to show the properties of the specified environment resource. The `{environmentId}` placeholder in the request URL is the application's environment ID that you obtained from the Admin Console.
+// 
+// ::: info
+// **Note:** In code samples, the access token is identified in the `Authorization` request header as `jwtToken`.
+// :::
+// 
+
+@name("READ Environment API test")
+GET "https://{{apiPath}}/environments/{{envID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// If you have already created a worker application using the PingOne Admin Console with a `client_credentials` grant type, and if you know your environment ID, application ID, and application secret, you can use this `POST /{{envID}}/as/token` request to obtain an access token. The token request uses `Basic` authentication. In this case, the base64url-encoded application ID and application secret property values for the worker application are passed in to the `Authorization` HTTP header as the `username:password`, respectively.
+// 
+// The request must also identify the `grant_type` property with a value of `client_credentials` in the request body. 
+// 
+// For more information about access token requests for a Worker application, see [Token Admin App (client_credentials)](#post-token-admin-app-client_credentials).
+// 
+// ::: info
+// **Note:** This document's **Try a Request** feature encodes the plain text application ID and application secret automatically in the `Authorization` HTTP header on submitting the request to the resource server.
+// :::
+
+@name("GET a Worker Application Access Token")
+POST "https://{{authPath}}/{{envID}}/as/token"
+basicauth("{{workerAppID}}", "{{workerAppSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Basic {{appID:appSecret}}"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+

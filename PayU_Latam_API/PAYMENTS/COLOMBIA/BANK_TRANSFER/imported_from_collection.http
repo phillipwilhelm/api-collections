@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// Consulta el listado de bancos disponibles, con el objetivo de mostrarlos al pagador y permitirle seleccionar el banco en donde se debitará el dinero
+
+@name("PSE - GET BANK LIST")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "GET_BANKS_LIST",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"bankListInformation": {
+		"paymentMethod": "PSE",
+		"paymentCountry": "CO"
+	}
+}')
+
+
+// Se envía a autorización el monto de la transacción y si es aprobada, inmediatamente se realiza la captura.
+
+@name("PSE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_COLOMBIA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "PAY TEST WITH PSE IN COLOMBIA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 20000,
+					"currency": "COP"
+				},
+				"TX_TAX": {
+					"value": 3800,
+					"currency": "COP"
+				},
+				"TX_TAX_RETURN_BASE": {
+					"value": 16800,
+					"currency": "COP"
+				}
+			},
+			"buyer": {
+				"emailAddress": "buyer@test.com"
+			}
+		},
+		"payer": {
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "0000000"
+		},
+		"extraParameters": {
+			"RESPONSE_URL": "http://www.test.com/response",
+			"PSE_REFERENCE1": "127.0.0.1",
+			"FINANCIAL_INSTITUTION_CODE": "1007",
+			"USER_TYPE": "N",
+			"PSE_REFERENCE2": "CC",
+			"PSE_REFERENCE3": "123456789"
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "PSE",
+		"paymentCountry": "CO",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+

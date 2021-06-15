@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+@name("SLAS - Public Client - Ecom User - Auth Code")
+POST "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/login"
+basicauth("{{ecom_customer_id}}", "{{ecom_customer_pw}}")
+"Content-Type": "application/x-www-form-urlencoded"
+? "client_id"= "{{public_client_id}}"
+? "channel_id"= "RefArch"
+? "redirect_uri"= "{{redirect_url}}"
+? "code_challenge"= "{{PUBLIC_ECOM_CODE_CHALLENGE}}"
+
+
+@name("SLAS - Public Client - Ecom User - Access Token")
+POST "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/token"
+basicauth("{{public_client_id}}", "")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "code": [
+        "{{public_ecom_auth_code}}"
+    ],
+    "grant_type": [
+        "authorization_code_pkce"
+    ],
+    "redirect_uri": [
+        "{{redirect_url}}"
+    ],
+    "code_verifier": [
+        "{{PUBLIC_ECOM_CODE_VERIFIER}}"
+    ],
+    "channel_id": [
+        "RefArch"
+    ]
+})
+
+
+@name("Create Basket with Public Client Ecom User")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets"
+"Authorization": "{{slas_guest_jwt}}"
+"Content-Type": "application/json"
+? "siteId"= "SiteGenesis"
+? "client_id"= "{{public_client_id}}"
+data('{}')
+
+
+@name("Add item to basket with Public Client Ecom User")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}/items"
+"Content-Type": "application/json"
+data('[{
+  "product_id" : "nikon-d60-wlensM",
+  "quantity" : 2.00
+}]')
+
+
+@name("Get Basket with Public Client Ecom User")
+GET "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+@name("Delete Basket with Public Client Ecom User")
+DELETE "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+

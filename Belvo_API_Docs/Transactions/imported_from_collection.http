@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of all existing transactions in your Belvo account. We return up to 100 results per page.
+
+@name("List")
+GET "https://{{baseUrl}}/api/transactions/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+? "page"= "1"
+
+
+// Retrieve transactions for one or more accounts from a specific link.
+// 
+// ℹ️ When retrieving transactions, it is important to understand that the available transaction data ranges depend on each institution. 
+// If you try to access older information than what we can access, we will return all the data we can read within that date range. For example, if you request transactions for the last year and we can only access the last six months, we will return the information corresponding to these six months of data.
+
+@name("Retrieve")
+POST "https://{{baseUrl}}/api/transactions/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "date_from": "2020-08-05",
+    "date_to": "2020-10-05",
+    "link": "2ccd5e15-194a-4a19-a45a-e7223c7e6717",
+    "token": "1234ab",
+    "save_data": true,
+    "account": "d4617561-1c01-4b2f-83b6-a594f7b3bc57"
+}')
+
+
+// Used to resume a Transaction retrieve session that was paused because an MFA token was required by the institution.
+
+@name("Resume")
+PATCH "https://{{baseUrl}}/api/transactions/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "session": "39cd6a88-8ee3-4e59-a861-b8a2187e0f4c",
+    "token": "1234ab",
+    "link": "683005d6-f45c-4adb-b289-f1a12f50f80c",
+    "save_data": true
+}')
+
+
+// Get the details of a specific transaction.
+
+@name("Detail")
+GET "https://{{baseUrl}}/api/transactions/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+// Delete a specific transaction from your Belvo account.
+
+@name("Destroy")
+DELETE "https://{{baseUrl}}/api/transactions/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+

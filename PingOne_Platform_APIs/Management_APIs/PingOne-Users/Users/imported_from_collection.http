@@ -1,0 +1,203 @@
+#!/usr/bin/env dothttp
+
+// #### User Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// population | Y* | Y | UUID | *Can only be updated via the `UPDATE User Population` endpoint
+// accountId | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// address | | |
+// -- countryCode | Y | N | String; must be in ISO 3166-1 “alpha-2” code format [ISO3166], `[A-Z]{2}`
+// -- locality | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// -- postalCode | Y | N | String; max 40 characters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// -- region | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// -- streetAddress | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}\p{Z}\p{P}\r\n]*$`
+// email | Y | N | String; see section 3.4 of [RFC 2822](http://www.faqs.org/rfcs/rfc2822.html)
+// enabled | Y* | N | Boolean; default `true` | *Can only be updated via the `UPDATE User MFA Enabled` endpoint
+// externalId | Y | N | String
+// locale | Y | N | String; must be a valid language tag as defined in [RFC 5646](https://tools.ietf.org/html/rfc5646). Examples: `fr`, `en-US`, `es-419`, `az-Arab`, `x-pig-latin`, `man-Nkoo-GN`
+// mfaEnabled | Y* | N | Boolean; default `false` | *Can only be updated via the `UPDATE User Enabled` endpoint
+// mobilePhone | Y | N | String; must consist of a leading plus sign, 1 to 3-digit country code, dot separator, 4 to 14-digit phone number, and optional 1 to 8-digit extension*
+// name | | | | Name subfields can take a hyphen, but not an em or en dash
+// -- family | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}' .-]*$`
+// -- formatted | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}' .-]*$`
+// -- given | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}' .-]*$`
+// -- honorificPrefix | Y | N | String
+// -- honorificSuffix | Y | N | String
+// -- middle | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}' .-]*$`
+// -- nickname | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}' .-]*$`
+// photo | | |
+// -- href | Y | N | URL
+// preferredLanguage | Y | N | String; must be a valid language range and is specified in Section 5.3.5 of [RFC 7231](https://tools.ietf.org/html/rfc7231). Example: `en-US, en-gb;q=0.8, en;q=0.7`
+// primaryPhone | Y | N | String; must consist of a leading plus sign, 1 to 3-digit country code, dot separator, 4 to 14-digit phone number, and optional 1 to 8-digit extension*
+// timezone | Y | N | String; must conform with the IANA Time Zone database format [RFC6557](https://tools.ietf.org/html/rfc6557). Example: `America/Los_Angeles`, `^\w+\/\w+$`
+// title | Y | N | String; max 256 chracters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// type | Y | N | String; max 256 characters, `^[\p{L}\p{M}\p{N}\p{P}\p{Zs}]*$`
+// username | Y | Y | String; must be unique w/in Env, max 128 characters, `^[\p{L}0-9\p{M}._-]+$`
+
+@name("CREATE User")
+POST "https://{{apiPath}}/environments/{{envID}}/users"
+"content-type": "application/json"
+data('{
+    "email": "do-not-send@example.com",
+    "name": {
+        "given": "Test",
+        "family": "User"
+    },
+    "population": {
+        "id": "{{popID}}"
+    },
+    "username": "user_{{$timestamp}}"
+}')
+
+
+// In addition to the normal User fields, using the Import endpoint allows you to set some extra fields.
+// 
+// See standard `CREATE User` request for base data model.
+// 
+// #### Additional Import Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// lifecycle | | |
+// --status | N | N | One of: `ACCOUNT_OK`, `VERIFICATION_REQUIRED`, default `ACCOUNT_OK` | If setting lifecycle.status to `VERIFICATION_REQUIRED`, must include an email.
+// password | | |
+// --value | N | N | String; either cleartext or pre-encoded | Pre-encoded passwords must be provided using the userPassword syntax supported by PingDirectory. See example below.
+// --forceChange | N | N | Boolean; default `false`
+
+@name("CREATE User (Import)")
+POST "https://{{apiPath}}/environments/{{envID}}/users"
+"content-type": "application/vnd.pingidentity.user.import+json"
+data('{
+    "email": "do-not-send@example.com",
+    "name": {
+        "given": "Test",
+        "family": "User"
+    },
+    "population": {
+        "id": "{{popID}}"
+    },
+    "username": "import-user_{{$timestamp}}",
+    "password": {
+        "value": "<This can be plain text or an acceptable hashed value.>",
+        "forceChange": false
+    }
+}')
+
+
+// #### `filter` Parameter
+// Can be set to a [SCIM filtering expression](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) to indicate the Users to be returned, for example `username sw "a" and email sw "b"`.
+// 
+// The following attributes can be used in filter expressions:
+// 
+// Attribute | Operators | Notes
+// --------- | --------- | -----
+// enabled | eq | Boolean
+// population.id | eq | UUID of the Population to which the User belongs
+// linkedAccounts | | Supports combining its sub-attributes, e.g. `linkedAccounts{identityProvider.id eq "<idpID>" and externalId eq "<externalID>"}`
+// --externalID | eq | Depends on the external IdP
+// --identityProvider.id | eq | UUID
+// (any String-valued User attribute) | eq, sw | Can also use String-valued sub-attributes, e.g. `name.formatted`
+// 
+// * Text inside quotes will be used for a case-insensitive seach.
+// * Attribute names _are_ case-sensitive.
+// 
+// #### `limit` Parameter
+// Optional, and defaults to 100 if provided value is invalid or not included. Must be an integer from 1-1000 (inclusive).
+// 
+// #### `expand` Parameter
+// Can set to `populations` to have a set of Populations included in `_embedded` (as well as to have each User's Population included in `_embedded`).
+
+@name("READ All Users")
+GET "https://{{apiPath}}/environments/{{envID}}/users"
+
+
+// #### `expand` Parameter
+// Can set to `population` to have the User's Population included in `_embedded`.
+
+@name("READ One User")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+
+
+// See `CREATE User` request for data model.
+
+@name("UPDATE User (Patch)")
+PATCH "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/json"
+data('{
+    "username": "PATCHED{{$timestamp}}@example.com",
+    "name": {
+        "formatted": "Formatted Name",
+        "given": "Patch",
+        "middle": "Atch",
+        "family": "Tch",
+        "honorificPrefix": "Mr.",
+        "honorificSuffix": "III"
+    },
+    "nickname": "Patchy",
+    "title": "There and Back Again",
+    "preferredLanguage": "en-gb;q=0.8, en;q=0.7",
+    "locale": "en-gb",
+    "email": "PATCHED@example.com",
+    "primaryPhone": "+1.1115553333",
+    "mobilePhone": "+1.3335551111",
+    "photo": {
+        "href": "<url-to-image>"
+    },
+    "address": {
+        "streetAddress": "123 Fake Street",
+        "locality": "Springfield",
+        "region": "Somewhere",
+        "postalCode": "78701",
+        "countryCode": "US"
+    },
+    "accountId": "5",
+    "type": "tele",
+    "timezone": "America/New_York"
+}')
+
+
+// See `CREATE User` request for data model.
+
+@name("UPDATE User (Put)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/json"
+data('{
+    "username": "PUTTED{{$timestamp}}@example.com",
+    "name": {
+        "formatted": "Formatted Name",
+        "given": "Put",
+        "middle": "Ut",
+        "family": "T",
+        "honorificPrefix": "Dr.",
+        "honorificSuffix": "IV"
+    },
+    "nickname": "Putty",
+    "title": "The Hobbit",
+    "preferredLanguage": "en-gb;q=0.8, en;q=0.7",
+    "locale": "en-gb",
+    "email": "PUTTED@example.com",
+    "primaryPhone": "+1.2225554444",
+    "mobilePhone": "+1.4445552222",
+    "photo": {
+        "href": "<url-to-image>"
+    },
+    "address": {
+        "streetAddress": "123 Fake Street",
+        "locality": "Springfield",
+        "region": "Somewhere",
+        "postalCode": "78701",
+        "countryCode": "US"
+    },
+    "accountId": "5",
+    "type": "tele",
+    "timezone": "America/Los_Angeles"
+}')
+
+
+@name("DELETE User")
+DELETE "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+
+
+
+

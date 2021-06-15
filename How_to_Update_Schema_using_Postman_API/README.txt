@@ -1,0 +1,1 @@
+In order to update your API Schema - run the requests one after the other and saving the required value in a dedicated environment.

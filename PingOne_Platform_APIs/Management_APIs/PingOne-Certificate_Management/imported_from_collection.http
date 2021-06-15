@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+@name("GET Keys")
+GET "https://{{apiPath}}/environments/{{envID}}/keys"
+
+
+// #### Key Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | N | N | String | 
+// serialNumber | N | N | Integer |
+// issuerDN | N | N | String; defaults to subjectDN | [Distinguished Name](https://ldapwiki.com/wiki/Distinguished%20Names).
+// subjectDN | N | Y | String | [Distinguished Name](https://ldapwiki.com/wiki/Distinguished%20Names).
+// algorithm | N | Y | One of: `RSA` | `EC`, `UNKNOWN` possible values supported in the future.
+// keyLength | N | Y | Integer | For `RSA`, one of: `2048`, `3072`, `7680`. For `EC` (future?), one of: `224`, `256`, `384`.
+// validityPeriod | N | N | Integer; default `0` | Days until key expiration.
+// signatureAlgorithm | N | Y | One of: `SHA256withRSA`, `SHA512withRSA` | 
+// usageType | Y | Y | One of: `SIGNING`, `ENCRYPTION`
+// status | N | Y | One of: `VALID`, `EXPIRED`, `NOT_YET_VALID`, `REVOKED` | `EXPIRED`, `NOT_YET_VALID` will be ignored and set to `VALID`
+// default | Y | N | Boolean; default `false` | 
+
+@name("CREATE Key")
+POST "https://{{apiPath}}/environments/{{envID}}/keys"
+"Content-Type": "application/json"
+data('{
+  "name": "test cert",
+  "serialNumber": 1541164068511,
+  "issuerDN": "CN=Ping Identity, OU=Ping Identity, O=Ping Identity, C=US",
+  "subjectDN": "CN=org_name, OU=Ping Identity, O=Ping Identity, C=US",
+  "algorithm": "RSA",
+  "keyLength": 2048,
+  "startsAt": "2018-11-02T13:07:48.511Z",
+  "validityPeriod": 365,
+  "signatureAlgorithm": "SHA256withRSA",
+  "defaultKey": "SIGNING",
+  "status": "VALID"
+}')
+
+
+// #### `Accept` Header
+// Can be set to `application/json`, `application/hal+json`, or `application/x-pkcs7-certificates`.
+
+@name("GET Key")
+GET "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+
+
+// See `CREATE` request for data model.
+// 
+// *_Omitting "default" is the same as explicitly setting it to `false`_
+
+@name("UPDATE Key")
+PUT "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Content-Type": "application/json"
+data('{
+  "defaultKey": "ENCRYPTION"
+}')
+
+
+@name("CREATE Key with PKCS12 File")
+POST "https://{{apiPath}}/environments/{{envID}}/keys"
+"Content-Type": "application/x-pkcs12-certificates"
+
+
+
+@name("GET Certificates")
+GET "https://{{apiPath}}/environments/{{envID}}/certificates"
+
+
+// #### `Accept` Header
+// Can be set to `application/json`, `application/hal+json`, or `application/x-pkcs7-certificates`.
+
+@name("GET Certificate")
+GET "https://{{apiPath}}/environments/{{envID}}/certificates/{{certID}}"
+
+
+@name("CREATE Certificate with PKCS7 File")
+POST "https://{{apiPath}}/environments/{{envID}}/certificates"
+"Content-Type": "application/x-pkcs7-certificates"
+
+
+
+

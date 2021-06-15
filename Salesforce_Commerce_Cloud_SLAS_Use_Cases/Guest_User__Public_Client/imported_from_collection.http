@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+@name("SLAS - Public Client - Guest - Authorize")
+GET "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/authorize"
+? "client_id"= "{{public_client_id}}"
+? "redirect_uri"= "{{redirect_url}}"
+? "channel_id"= "RefArch"
+? "hint"= "guest"
+? "code_challenge"= "{{PUBLIC_GUEST_CODE_CHALLENGE}}"
+
+
+@name("SLAS - Public Client - Access Token")
+POST "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "code": [
+        "{{public_guest_auth_code}}"
+    ],
+    "grant_type": [
+        "authorization_code_pkce"
+    ],
+    "redirect_uri": [
+        "{{redirect_url}}"
+    ],
+    "code_verifier": [
+        "{{PUBLIC_GUEST_CODE_VERIFIER}}"
+    ],
+    "channel_id": [
+        "RefArch"
+    ],
+    "client_id": [
+        "{{public_client_id}}"
+    ]
+})
+
+
+@name("Create Basket  with Public Client Guest")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets"
+"Authorization": "{{slas_guest_jwt}}"
+"Content-Type": "application/json"
+? "siteId"= "RefArch"
+? "client_id"= "{{public_client_id}}"
+data('{}')
+
+
+@name("Add item to basket with Public Client Guest")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}/items"
+"Content-Type": "application/json"
+data('[{
+  "product_id" : "nikon-s60M",
+  "quantity" : 1.00
+}]')
+
+
+@name("Get Basket with Public Client Guest User")
+GET "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+@name("Delete Basket  with Public Client Guest")
+DELETE "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+

@@ -1,0 +1,657 @@
+#!/usr/bin/env dothttp
+
+// Lista as unidades de negócio do cliente.
+// 
+// ## Parâmetros na URL
+// | Nome  	| Tipo  	| Descrição                                                  	|
+// | -------- 	| ---------	| -----------------------------------------------------------	|
+// | page  	| Integer	| Número da página atual										|
+// | per_page  | Integer	| Quantidade de unidades de negócio por página					|
+// | name		| String	| Nome da unidade de negócio									|
+// | code		| Integer	| Código da unidade de negócio									|
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id                 | Integer   | Identificador sequencial gerado automaticamente pelo sistema |
+// | created_at         | Timestamp | Data e horário de criação da unidade de negócio              |
+// | updated_at         | Timestamp | Data e horário de atualização da unidade de negócio          |
+// | code               | Code (60) | Código identificador da unidade de negócio                   |
+// | name               | String (100) | Nome da empesa ou pessoa                                     |
+// | cpf                | String (14) | CPF no caso de pessoa física                                 |
+// | cnpj               | String (18) | CNPJ no caso de pessoa jurídica                              |
+// | cei                | String (13) | Matricula CEI ou o seu CNO (Cadastro Nacional de Obras)      |
+// | state_inscription  | String (18) | Inscrição Estadual                                           |
+// | corporate_name     | String (120) | Razão Social                                                 |
+// | is_employer        | Boolean   | É empregadora? Ou seja, é uma pessoa jurídica ou física que registra, administra e paga colaboradores? |
+// | is_construction    | Boolean   | É construtora?                                               |
+// | person_type        | Object    | Tipo do registro (Verificar tabela descritiva do objeto)     |
+// | coop_type          | Object    | Tipo de cooperativa (Verificar tabela descritiva do objeto)  |
+// | tax_classification | Object    | Classificação tributária (Verificar tabela descritiva do objeto) |
+// | juridical_nature   | Object    | Natureza jurídica (Verificar tabela descritiva do objeto)    |
+// | phone              | Phone (16)    | Telefone para contato                                        |
+// | address            | Object    | Endereço (Verificar tabela descritiva do objeto)             |
+// | observation        | String | Observação                                                   |
+// | brand              | Object    | Logotipo para espelho ponto (Verificar tabela descritiva do objeto) |
+// | timezone           | Object    | Fuso horário para batidas de ponto via software              |
+// | client_preference  | Object    | Configurações de controle de ponto                           |
+// | employees_count    | Integer   | Quantidade de colaboradores                                  |
+// 
+// #### Formato do objeto person_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo do registro                                             |
+// 
+// 
+// 
+// #### Formato do objeto coop_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo de cooperativa                                          |
+// 
+// 
+// 
+// #### Formato do objeto tax_classification
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code    | Código da classificação tributária                           |
+// | name | String  | Nome da classificação tributária                             |
+// 
+// 
+// 
+// #### Formato do objeto juridical_nature
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code    | Código da natureza jurídica                                  |
+// | name | String  | Nome da natureza jurídica                                    |
+// 
+// 
+// 
+// #### Formato do objeto address
+// 
+// | Nome         | Tipo   | Descrição                                                    |
+// | ------------ | ------ | ------------------------------------------------------------ |
+// | street       | String | Endereço                                                     |
+// | number       | String | Número                                                       |
+// | complement   | String | Complemento                                                  |
+// | district     | String | Bairro                                                       |
+// | zip          | String | Cep                                                          |
+// | address_type | Object | Tipo de endereço (verificar tabela descritiva do objeto e a tabela **Tipo de endereço**) |
+// | street_type  | Object | Tipo de local (verificar tabela descritiva do objeto e a tabela **Tipo de local**) |
+// | city         | Object | Cidade (verificar tabela descritiva do objeto)               |
+// | state        | Object | Estado (verificar tabela descritiva do objeto)               |
+// | country      | Object | País (verificar tabela descritiva do objeto)                 |
+// 
+// 
+// 
+// #### Formato do objeto address_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo do endereço                                             |
+// 
+// 
+// 
+// #### Tipo de endereço
+// 
+// | Valor | Nome                       |
+// | ----- | -------------------------- |
+// | 1     | Unidade                    |
+// | 2     | Local do colaborador       |
+// | 3     | Estrangeiro do colaborador |
+// | 4     | Cliente                    |
+// | 5     | Faturamento                |
+// 
+// 
+// 
+// #### Formato do objeto street_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo de local                                                |
+// 
+// 
+// 
+// #### Tipo de local
+// 
+// | Valor | Nome       |
+// | ----- | ---------- |
+// | 1     | Alameda    |
+// | 2     | Avenida    |
+// | 3     | Balneário  |
+// | 4     | Bloco      |
+// | 5     | Chácara    |
+// | 7     | Condomínio |
+// | 6     | Conjunto   |
+// | 8     | Estrada    |
+// | 9     | Fazenda    |
+// | 10    | Galeria    |
+// | 11    | Granja     |
+// | 12    | Jardim     |
+// | 13    | Largo      |
+// | 14    | Loteamento |
+// | 17    | Parque     |
+// | 16    | Praia      |
+// | 15    | Praça      |
+// | 18    | Quadra     |
+// | 23    | Rodovia    |
+// | 19    | Rua        |
+// | 20    | Setor      |
+// | 21    | Travessa   |
+// | 22    | Vila       |
+// 
+// 
+// 
+// #### Formato do objeto city
+// 
+// | Nome  | Tipo    | Descrição                                                    |
+// | ----- | ------- | ------------------------------------------------------------ |
+// | id    | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name  | String  | Nome da cidade                                               |
+// | state | String  | ID do estado (verificar a tabela **Lista de estados**)       |
+// 
+// 
+// 
+// #### Formato do objeto state
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | String | Sigla de identificação do estado |
+// | name | String | Nome do estado                   |
+// 
+// 
+// 
+// #### Formato do objeto country
+// 
+// | Nome | Tipo   | Descrição                      |
+// | ---- | ------ | ------------------------------ |
+// | id   | String | Sigla de identificação do país |
+// | name | String | Nome do país                   |
+// 
+// 
+// 
+// #### Lista de estados
+// 
+// | ID   | Estado              |
+// | ---- | ------------------- |
+// | AC   | Acre                |
+// | AL   | Alagoas             |
+// | AM   | Amazonas            |
+// | AP   | Amapá               |
+// | BA   | Bahia               |
+// | CE   | Ceará               |
+// | DF   | Distrito Federal    |
+// | ES   | Espírito Santo      |
+// | GO   | Goiás               |
+// | MA   | Maranhão            |
+// | MG   | Minas Gerais        |
+// | MS   | Mato Grosso do Sul  |
+// | MT   | Mato Grosso         |
+// | PA   | Pará                |
+// | PB   | Paraíba             |
+// | PE   | Pernambuco          |
+// | PI   | Piauí               |
+// | PR   | Paraná              |
+// | RJ   | Rio de Janeiro      |
+// | RN   | Rio Grande do Norte |
+// | RO   | Rondônia            |
+// | RR   | Roraima             |
+// | RS   | Rio Grande do Sul   |
+// | SC   | Santa Catarina      |
+// | SE   | Sergipe             |
+// | SP   | São Paulo           |
+// | TO   | Tocantins           |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/business_units"
+"access-token": "{{client_token}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Exibe os atributos de uma unidade especifica.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | business_unit_id | Integer | Sim | ID da unidade de negócio |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id                 | Integer   | Identificador sequencial gerado automaticamente pelo sistema |
+// | created_at         | Timestamp | Data e horário de criação da unidade de negócio              |
+// | updated_at         | Timestamp | Data e horário de atualização da unidade de negócio          |
+// | code               | String (60) | Código identificador da unidade de negócio                   |
+// | name               | String (100) | Nome da empesa ou pessoa                                     |
+// | cpf                | String (14) | CPF no caso de pessoa física                                 |
+// | cnpj               | String (18) | CNPJ no caso de pessoa jurídica                              |
+// | cei                | String (13) | Matricula CEI ou o seu CNO (Cadastro Nacional de Obras)      |
+// | state_inscription  | String (18) | Inscrição Estadual                                           |
+// | corporate_name     | String (120) | Razão Social                                                 |
+// | is_employer        | Boolean   | É empregadora? Ou seja, é uma pessoa jurídica ou física que registra, administra e paga colaboradores? |
+// | is_construction    | Boolean   | É construtora?                                               |
+// | person_type        | Object    | Tipo do registro (Verificar tabela descritiva do objeto)     |
+// | coop_type          | Object    | Tipo de cooperativa (Verificar tabela descritiva do objeto)  |
+// | tax_classification | Object    | Classificação tributária (Verificar tabela descritiva do objeto) |
+// | juridical_nature   | Object    | Natureza jurídica (Verificar tabela descritiva do objeto)    |
+// | phone              | Phone (16)    | Telefone para contato                                        |
+// | address            | Object    | Endereço (Verificar tabela descritiva do objeto)             |
+// | observation        | String | Observação                                                   |
+// | brand              | Object    | Logotipo para espelho ponto (Verificar tabela descritiva do objeto) |
+// | timezone           | Object    | Fuso horário para batidas de ponto via software              |
+// | client_preference  | Object    | Configurações de controle de ponto                           |
+// | employees_count    | Integer   | Quantidade de colaboradores                                  |
+// 
+// #### Formato do objeto person_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo do registro                                             |
+// 
+// 
+// 
+// #### Formato do objeto coop_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo de cooperativa                                          |
+// 
+// 
+// 
+// #### Formato do objeto tax_classification
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code    | Código da classificação tributária                           |
+// | name | String  | Nome da classificação tributária                             |
+// 
+// 
+// 
+// #### Formato do objeto juridical_nature
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | Code    | Código da natureza jurídica                                  |
+// | name | String  | Nome da natureza jurídica                                    |
+// 
+// 
+// 
+// #### Formato do objeto address
+// 
+// | Nome         | Tipo   | Descrição                                                    |
+// | ------------ | ------ | ------------------------------------------------------------ |
+// | street       | String | Endereço                                                     |
+// | number       | String | Número                                                       |
+// | complement   | String | Complemento                                                  |
+// | district     | String | Bairro                                                       |
+// | zip          | String | Cep                                                          |
+// | address_type | Object | Tipo de endereço (verificar tabela descritiva do objeto e a tabela **Tipo de endereço**) |
+// | street_type  | Object | Tipo de local (verificar tabela descritiva do objeto e a tabela **Tipo de local**) |
+// | city         | Object | Cidade (verificar tabela descritiva do objeto)               |
+// | state        | Object | Estado (verificar tabela descritiva do objeto)               |
+// | country      | Object | País (verificar tabela descritiva do objeto)                 |
+// 
+// 
+// 
+// #### Formato do objeto address_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo do endereço                                             |
+// 
+// 
+// 
+// #### Tipo de endereço
+// 
+// | Valor | Nome                       |
+// | ----- | -------------------------- |
+// | 1     | Unidade                    |
+// | 2     | Local do colaborador       |
+// | 3     | Estrangeiro do colaborador |
+// | 4     | Cliente                    |
+// | 5     | Faturamento                |
+// 
+// 
+// 
+// #### Formato do objeto street_type
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String  | Tipo de local                                                |
+// 
+// 
+// 
+// #### Tipo de local
+// 
+// | Valor | Nome       |
+// | ----- | ---------- |
+// | 1     | Alameda    |
+// | 2     | Avenida    |
+// | 3     | Balneário  |
+// | 4     | Bloco      |
+// | 5     | Chácara    |
+// | 7     | Condomínio |
+// | 6     | Conjunto   |
+// | 8     | Estrada    |
+// | 9     | Fazenda    |
+// | 10    | Galeria    |
+// | 11    | Granja     |
+// | 12    | Jardim     |
+// | 13    | Largo      |
+// | 14    | Loteamento |
+// | 17    | Parque     |
+// | 16    | Praia      |
+// | 15    | Praça      |
+// | 18    | Quadra     |
+// | 23    | Rodovia    |
+// | 19    | Rua        |
+// | 20    | Setor      |
+// | 21    | Travessa   |
+// | 22    | Vila       |
+// 
+// 
+// 
+// #### Formato do objeto city
+// 
+// | Nome  | Tipo    | Descrição                                                    |
+// | ----- | ------- | ------------------------------------------------------------ |
+// | id    | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name  | String  | Nome da cidade                                               |
+// | state | String  | ID do estado (verificar a tabela **Lista de estados**)       |
+// 
+// 
+// 
+// #### Formato do objeto state
+// 
+// | Nome | Tipo   | Descrição                        |
+// | ---- | ------ | -------------------------------- |
+// | id   | String | Sigla de identificação do estado |
+// | name | String | Nome do estado                   |
+// 
+// 
+// 
+// #### Formato do objeto country
+// 
+// | Nome | Tipo   | Descrição                      |
+// | ---- | ------ | ------------------------------ |
+// | id   | String | Sigla de identificação do país |
+// | name | String | Nome do país                   |
+// 
+// 
+// 
+// #### Lista de estados
+// 
+// | ID   | Estado              |
+// | ---- | ------------------- |
+// | AC   | Acre                |
+// | AL   | Alagoas             |
+// | AM   | Amazonas            |
+// | AP   | Amapá               |
+// | BA   | Bahia               |
+// | CE   | Ceará               |
+// | DF   | Distrito Federal    |
+// | ES   | Espírito Santo      |
+// | GO   | Goiás               |
+// | MA   | Maranhão            |
+// | MG   | Minas Gerais        |
+// | MS   | Mato Grosso do Sul  |
+// | MT   | Mato Grosso         |
+// | PA   | Pará                |
+// | PB   | Paraíba             |
+// | PE   | Pernambuco          |
+// | PI   | Piauí               |
+// | PR   | Paraná              |
+// | RJ   | Rio de Janeiro      |
+// | RN   | Rio Grande do Norte |
+// | RO   | Rondônia            |
+// | RR   | Roraima             |
+// | RS   | Rio Grande do Sul   |
+// | SC   | Santa Catarina      |
+// | SE   | Sergipe             |
+// | SP   | São Paulo           |
+// | TO   | Tocantins           |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/business_units/{{business_unit_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,corporate_name,is_employer,person_type"
+
+
+// Cria uma unidade de negócio.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | person_type | Integer | Sim | Tipo do registro (*1 - Pessoa física, 2 - Pessoa Jurídica*) |
+// | code | Code (60) | Não | Código identificador da unidade de negócio |
+// | observation | String | Não | Observação |
+// | name | String (100) | Sim | Nome da empesa ou pessoa|
+// | cpf ou cnpj | CPF: String (14), CNPJ: String (18) | Sim | CPF no caso de pessoa física, CNPJ no caso de pessoa jurídica |
+// | state_inscription | String (18) | Não | Inscrição Estadual |
+// | corporate_name | String (120) | Não | Razão Social |
+// | is_employer | Boolean | Não | É empregadora? Ou seja, é uma pessoa jurídica ou física que registra, administra e paga colaboradores? *true - sim, false - não*) |
+// | is_construction | Boolean | Não | É construtora? (*true - sim, false - não*)
+// | phone | Phone (16) | Não | Telefone para contato |
+// | address | Objeto | Sim | Verificar tabela descritiva do objeto |
+// | client_preference_id | Integer | Sim | Configuração de controle de ponto. Clique [aqui](https://documenter.getpostman.com/view/4785048/RWMCvVxN?version=latest#c6b7384e-8d05-451e-989e-58a78b2e5e4a) para obter a relação de configurações. |
+// | timezone | Integer | Não | ID do fuso horário para batidas de ponto via software |
+// | tax_classification_id | Integer | Não | ID da classificação tributária |
+// | juridical_nature_id | Integer | Não | ID da natureza jurídica |
+// | coop_type | Integer | Não | ID do tipo de cooperativa |
+// 
+// 
+// 
+// #### Formato do objeto address
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | ---- | ----------- | ----------|
+// | street | String | Sim | Endereço |
+// | number | String | Sim | Número |
+// | complement | String | Não | Complemento |
+// | district | String | Sim | Bairro |
+// | zip | String | Sim | CEP |
+// | street_type | Integer | Não | Tipo do endereço (veja a tabela **Tipo de endereço**) |
+// | city_id | Integer | Sim | ID da cidade (ver rota para pesquisar IDs das cidades) |
+// 
+// 
+// #### Tipo de endereço
+// 
+// | Valor | Nome |
+// | ------- | ------ |
+// | 1 | Alameda | 
+// | 2 | Avenida | 
+// | 3 | Balneário | 
+// | 4 | Bloco | 
+// | 5 | Chácara | 
+// | 7 | Condomínio | 
+// | 6 | Conjunto | 
+// | 8 | Estrada | 
+// | 9 | Fazenda | 
+// | 10 | Galeria | 
+// | 11 | Granja | 
+// | 12 | Jardim | 
+// | 13 | Largo | 
+// | 14 | Loteamento | 
+// | 17 | Parque | 
+// | 16 | Praia | 
+// | 15 | Praça | 
+// | 18 | Quadra | 
+// | 23 | Rodovia | 
+// | 19 | Rua | 
+// | 20 | Setor | 
+// | 21 | Travessa | 
+// | 22 | Vila |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/business_units"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "business_unit":
+  {
+    "person_type": 2,
+    "code": "0002",
+    "observation": "Lorem ipsum...",
+    "name": "Empresa teste 2",
+    "cnpj": "99.999.999/9999-99",
+    "state_inscription": "isenta",
+    "corporate_name": "Empresa Teste 2",
+    "is_construction": false,
+    "is_employer": true,
+    "phone": "(99) 99999-9999",
+    "timezone": 2,
+    "coop_type": 0,
+    "juridical_nature_id": 1,
+    "tax_classification_id": 1
+  },
+  "address":
+  {
+    "street": "Padre Anchieta",
+    "number": "2310",
+    "complement": "Condomínio",
+    "district": "Bigorrilho",
+    "zip": "80730-000",
+    "street_type": 19,
+    "city_id": 4106902
+  }
+}')
+
+
+// Edita uma unidade de negócio.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | business_unit_id | Integer | Sim | ID da unidade de negócio |
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | person_type | Integer | Não | Tipo do registro (*1 - Pessoa física, 2 - Pessoa Jurídica*) |
+// | code | Code (60) | Não | Código identificador da unidade de negócio |
+// | observation | String | Não | Observação |
+// | name | String (100) | Não | Nome da empesa ou pessoa|
+// | cpf ou cnpj | CPF: String (14), CNPJ: String (18) | Não | CPF no caso de pessoa física, CNPJ no caso de pessoa jurídica |
+// | state_inscription | String (18) | Não | Inscrição Estadual |
+// | corporate_name | String (120) | Não | Razão Social |
+// | is_employer | Boolean | Não | É empregadora? Ou seja, é uma pessoa jurídica ou física que registra, administra e paga colaboradores? *true - sim, false - não*) |
+// | is_construction | Boolean | Não | É construtora? (*true - sim, false - não*) |
+// | phone | Phone (16) | Não | Telefone para contato |
+// | address | Objeto | Não | Verificar tabela descritiva do objeto |
+// | client_preference_id | Integer | Não | Configuração de controle de ponto |
+// | timezone | Integer | Não | ID do fuso horário para batidas de ponto via software |
+// | tax_classification_id | Integer | Não | ID da classificação tributária |
+// | juridical_nature_id | Integer | Não | ID da natureza jurídica |
+// | coop_type | Integer | Não | ID do tipo de cooperativa |
+// 
+// 
+// #### Formato do objeto address
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | ---- | ----------- | ----------|
+// | street | String | Não | Endereço |
+// | number | String | Não | Número |
+// | complement | String | Não | Complemento |
+// | district | String | Não | Bairro |
+// | zip | String | Não | CEP |
+// | street_type | Integer | Não | Tipo do endereço (veja a tabela **Tipo de endereço**) |
+// | city_id | Integer | Não | ID da cidade (ver rota para pesquisar IDs das cidades) |
+// 
+// 
+// #### Tipo de endereço
+// 
+// | Valor | Nome |
+// | ------- | ------ |
+// | 1 | Alameda |
+// | 2 | Avenida |
+// | 3 | Balneário |
+// | 4 | Bloco |
+// | 5 | Chácara |
+// | 7 | Condomínio |
+// | 6 | Conjunto |
+// | 8 | Estrada |
+// | 9 | Fazenda |
+// | 10 | Galeria |
+// | 11 | Granja |
+// | 12 | Jardim |
+// | 13 | Largo |
+// | 14 | Loteamento |
+// | 17 | Parque |
+// | 16 | Praia |
+// | 15 | Praça |
+// | 18 | Quadra |
+// | 23 | Rodovia |
+// | 19 | Rua |
+// | 20 | Setor |
+// | 21 | Travessa |
+// | 22 | Vila |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/business_units/{{business_unit_id}}"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+json({
+    "business_unit": {
+        "person_type": 2,
+        "code": 201,
+        "observation": "Lorem Ipsum",
+        "name": "Empresa Teste",
+        "cnpj": "99.999.999/9999-99",
+        "state_inscription": "",
+        "corporate_name": "Empresa Teste",
+        "is_construction": true,
+        "is_employer": true,
+        "phone": "(99) 99999-9999"
+    },
+    "address": {
+        "street": "Padre Anchieta",
+        "number": "2310",
+        "complement": "Condomínio",
+        "district": "Bigorrilho",
+        "zip": "80730-000",
+        "street_type": 19,
+        "city_id": 4106902
+    }
+})
+
+
+// Inativa uma unidade de negócio.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- | ----------- | --------- |
+// | business_unit_id | Integer | Sim | ID da unidade de negócio |
+
+@name("Inativar")
+DELETE "https://{{server_url}}/external_api/v1/business_units/{{business_unit_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

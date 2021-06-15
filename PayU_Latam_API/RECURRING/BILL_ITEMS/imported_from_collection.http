@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// Adiciona cargos extras a la factura correspondiente al periodo actual.
+// `SUBSCRIPTION_ID`: Identificación de la suscripción
+
+@name("CREATE")
+POST "https://{{RECURRING_API}}/subscriptions/SUBSCRIPTION_ID/recurringBillItems"
+"Host": "sandbox.api.payulatam.com"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json"
+"Accept-Language": "{{LANGUAGE}}"
+"Content-Length": "length"
+"Authorization": "Basic {{RECURRING_AUTHORIZATION}}"
+data('{
+    "description": "BILL ITEM TEST",
+    "additionalValues": [
+        {
+            "name": "ITEM_VALUE",
+            "value": 20000,
+            "currency": "COP"
+        },
+        {
+            "name": "ITEM_TAX",
+            "value": 3800,
+            "currency": "COP"
+        },
+        {
+            "name": "ITEM_TAX_RETURN_BASE",
+            "value": 16200,
+            "currency": "COP"
+        }
+    ]
+}')
+
+
+// Consulta la información del cargo extra de una factura a partir de su identificador.
+// `RECURRING_BILL_ITEM_ID`: Identificador del cargo extra.
+
+@name("QUERY BY RECURRING BILL ITEM ID")
+GET "https://{{RECURRING_API}}/recurringBillItems/RECURING_BILL_ITEM_ID"
+"Host": "sandbox.api.payulatam.com"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json"
+"Accept-Language": "{{LANGUAGE}}"
+"Content-Length": "length"
+"Authorization": "Basic {{RECURRING_AUTHORIZATION}}"
+
+
+// Consulta los cargos extras de las facturas del comercio que cumplen con los filtros estipulados. Los filtros disponibles se muestra a continuación y deben ser enviados como named parameters dentro de la URL:
+// `SUBSCRIPTION_ID`: Identificación de la suscripción.
+// `DESCRIPTION`: Descripción ingresada en el cargo extra.
+
+@name("QUERY")
+GET "https://{{RECURRING_API}}/recurringBillItems"
+"Host": "sandbox.api.payulatam.com"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json"
+"Accept-Language": "{{LANGUAGE}}"
+"Content-Length": "length"
+"Authorization": "Basic {{RECURRING_AUTHORIZATION}}"
+? "subscriptionId"= "SUBSCRIPTION_ID"
+? "description"= "DESCRIPTION"
+
+
+// Actualiza la información del cargo extra de una factura.
+// `RECURRING_BILL_ITEM_ID`: Identificador del cargo extra.
+
+@name("UPDATE")
+PUT "https://{{RECURRING_API}}/recurringBillItems/RECURING_BILL_ITEM"
+"Host": "sandbox.api.payulatam.com"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json"
+"Accept-Language": "{{LANGUAGE}}"
+"Content-Length": "length"
+"Authorization": "Basic {{RECURRING_AUTHORIZATION}}"
+data('{
+	"description": "BILL ITEM TEST UPDATE",
+	"additionalValues": [
+		{
+			"name": "ITEM_VALUE",
+			"value": 20000,
+			"currency": "COP"
+		},
+		{
+			"name": "ITEM_TAX",
+			"value": 3800,
+			"currency": "COP"
+		},
+		{
+			"name": "ITEM_TAX_RETURN_BASE",
+			"value": 16200,
+			"currency": "COP"
+		}
+	]
+}')
+
+
+// Elimina un cargo extra de una factura.
+// `RECURRING_BILL_ITEM_ID`: Identificador del cargo extra.
+
+@name("REMOVE")
+DELETE "https://{{RECURRING_API}}/recurringBillItems/RECURING_BILL_ITEM"
+"Host": "sandbox.api.payulatam.com"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json"
+"Accept-Language": "{{LANGUAGE}}"
+"Content-Length": "length"
+"Authorization": "Basic {{RECURRING_AUTHORIZATION}}"
+
+
+

@@ -1,0 +1,130 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Sign-On Policy Actions")
+GET "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+
+
+@name("READ One Sign-On Policy Action")
+GET "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+
+
+@name("DELETE Sign-On Policy Action")
+DELETE "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+
+
+
+// #### Base Action Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// type | Y | Y | One of: `IDENTITY_FIRST`, `LOGIN`, `MULTI_FACTOR_AUTHENTICATION`, `PROGRESSIVE_PROFILING`
+// condition | Y | N | Object | Condition for action to be executed.<br>Uses the [P14C policy condition language](https://docs.google.com/document/d/11QdFVuYXC3IyUjgQ1GEsiyJfJCPsYg4jR-SqF0Lycyw/edit#heading=h.xlzj5sgxgj4q).<br>If none specified, action is **always** executed.
+// priority | Y | Y | Integer (1 - {maxInt}) | Actions will be evaluated from lowest -> highest `priority`. Ties broken with (Action) `id`.
+// 
+// #### Additional ID First Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// recovery | | | |
+// --enabled | Y | N | Boolean; default `true` | When enabled, allows use of the Forgot Password flow.
+// registration | | | |
+// --enabled | Y | N | Boolean; default `false` | When enabled, allows use of the Register User flow.
+// --population | | | |
+// -- --id | Y | N | UUID | ID of the Pop to assign newly registered Users to.
+// socialProviders | | | Array | A list of objects that reference the IdPs that may be used for social login.
+// --id | Y | N | UUID |
+// discoveryRules | | | Array; max 100 rules | A list of IdP discovery rule objects that will be evaluated _in order_ when no User is found with the User identifier.
+// --condition | Y | Y | Object | The condition under which this IdP will be used to authenticate a User.<br>Uses the [P14C policy condition language](https://docs.google.com/document/d/11QdFVuYXC3IyUjgQ1GEsiyJfJCPsYg4jR-SqF0Lycyw/edit#heading=h.xlzj5sgxgj4q). Only supports the `contains` operator in value comparison rules against `${user.username}`.
+// --identityProvider | | | |
+// -- --id | Y | Y | UUID |
+// 
+// #### Additional MFA Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// email | | | |
+// --enabled | Y | Y | Boolean | When enabled, permits User to authenticate via email.
+// sms | | | |
+// --enabled | Y | Y | Boolean | When enabled, permits User to authenticate via SMS.
+// applications | | | Array | A list of objects that reference the Apps that may be used for MFA authentication.
+// --id | Y | N | UUID | Only `CUSTOM_APP` or `NATIVE` type Apps with a `bundleId` and/or `packageName` value set can be selected.
+// --autoEnrollment | | | | If missing, will behave as if `autoEnrollment.enabled` is `false`.
+// ----enabled | Y | N | Boolean | Allows User's device to be enrolled in MFA during first-time authentication.<br>If missing, will behave as if `false`.
+// 
+// * At least _one_ method must be enabled.
+// 
+// #### Additional Login Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// recovery | | | |
+// --enabled | Y | N | Boolean; default `true` | When enabled, allows use of the Forgot Password flow.
+// registration | | | |
+// --enabled | Y | N | Boolean; default `false` | When enabled, allows use of the Register User flow.
+// --population | | | |
+// -- --id | Y | N | UUID | ID of the Pop to assign newly registered Users to.
+// socialProviders | | | Array | A list of objects that reference the IdPs that may be used for social login.
+// --id | Y | N | UUID |
+// 
+// #### Additional Progressive Profiling Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// promptText | Y | Y | String | Text to display to User when prompting for attribute values. Validated using `@Description`
+// promptIntervalSeconds | Y | Y | Integer (0 - {maxInt}) | Minimum time before asking User for attribute value(s) for which they have already been prompted by a `PROGRESSIVE_PROFILING` Action.
+// preventMultiplePromptsPerFlow | Y | Y | Boolean | If `true`, _this_ Action will not be executed if another `PROGRESSIVE_PROFILING` Action has already been executed during the current flow.
+// attributes | | | Array | A list of objects that reference the Attributes to request.
+// --id | Y | Y | UUID |
+// --required | Y | Y | Boolean | Whether or not User is required to provide a value for the Attribute to complete the Action.
+
+@name("CREATE Sign-On Policy Action")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+data('{
+    "priority": 10,
+    "type": "LOGIN",
+    "condition": {
+        "not": {
+        "ipRange": [
+            "10.1.1.1/8",
+            "10.0.0.0/8"
+        ],
+        "contains": "${flow.request.http.remoteIp}"
+     }
+    },
+    "recovery": {
+    	"enabled": true
+    }
+}')
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Sign-On Policy Action")
+PUT "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
+"Content-Type": "application/json"
+data('{
+    "priority": 99,
+    "type": "LOGIN",
+    "condition": {
+        "not": {
+        "ipRange": [
+            "10.1.1.1/8",
+            "10.0.0.0/8"
+        ],
+        "contains": "${flow.request.http.remoteIp}"
+     }
+    },
+    "recovery": {
+    	"enabled": false
+    },
+    "#registration": {
+    	"enabled": true,
+    	"population": {
+    		"id": "{{popID}}"
+    	}
+    }
+}')
+
+
+

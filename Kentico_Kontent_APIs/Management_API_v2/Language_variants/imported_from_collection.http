@@ -1,0 +1,95 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of [language variants](https://docs.kontent.ai/link-to/language_variants) of a content item.
+// 
+// If the variant contains both a published and draft version, the API will return the draft version since the draft is considered as the latest version.
+// 
+// If you want to retrieve metadata information about the parent content item, see how to [Retrieve a content item](https://docs.kontent.ai/link-to/retrieve_a_content_item_94197e9).
+
+@name("Retrieve language variants of an item")
+GET "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier/variants"
+
+
+// Retrieve a dynamically paginated list of [language variants](https://docs.kontent.ai/link-to/language_variants) for a specified content type.
+// 
+// If the variant contains both a published and draft version, the API will return the draft version since the draft is considered as the latest version.
+
+@name("List language variants by type")
+GET "https://manage.kontent.ai/v2/projects/:project_id/types/:type_identifier/variants"
+"x-continuation": "<string>"
+
+
+// Retrieve a dynamically paginated list of [language variants](https://docs.kontent.ai/link-to/language_variants) that have components based on the specified content type.
+// 
+// You may want to get language variants with specific components when migrating content based on a specific type from your project.
+// 
+// If the variant contains both a published and draft version, the API will return the draft version since the draft is considered as the latest version.
+// 
+// <!--Callout type=Info-->
+// 
+// <p>The returned language variants may be based on any type in your project as long as the variants contain at least one component of the specified type.</p>
+// 
+// <!--Callout-end-->
+
+@name("List language variants containing components by type")
+GET "https://manage.kontent.ai/v2/projects/:project_id/types/:type_identifier/components"
+"x-continuation": "<string>"
+
+
+// Retrieve content of a [language variant](https://docs.kontent.ai/link-to/language_variants) of a content item.
+// 
+// If the variant contains both a published and draft version, the API will return the draft version since the draft is considered as the latest version.
+// 
+// If you want to retrieve metadata information about the content item, see how to [retrieve a content item](https://docs.kontent.ai/link-to/retrieve_a_content_item_94197e9).
+
+@name("Retrieve a language variant")
+GET "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier/variants/:language_identifier"
+
+
+// Add content to a [language variant](https://docs.kontent.ai/link-to/language_variants) in an active language, or update an existing language variant. You cannot update an existing language variant if its [workflow](https://docs.kontent.ai/link-to/workflow_and_publishing) step is set to Archived, Published, or Scheduled.
+// 
+// <!--Callout type=Info-->
+// 
+// <p><strong>Updating content of elements</strong></p>
+// <p>Only the elements specified in the request body will be modified.</p>
+// 
+// <!--Callout-end-->
+// 
+// When copying or migrating language variants, you can take the language variant object returned by a [GET request](https://docs.kontent.ai/link-to/retrieve_a_language_variant) and use it as-is in the body of this request.
+
+@name("Upsert a language variant")
+PUT "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier/variants/:language_identifier"
+"Content-Type": "application/json"
+data('{
+    "elements": [
+        {
+            "element": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "value": [
+                {
+                    "id": "<uuid>",
+                    "codename": "<string>",
+                    "external_id": "<string>"
+                }
+            ]
+        }
+    ]
+}')
+
+
+// Deletes a specific [language variant](https://docs.kontent.ai/link-to/language_variants). If you want to delete all language variants of a content item, see how to [Delete a content item](https://docs.kontent.ai/link-to/delete_a_content_item).
+// 
+// <!--Callout type=Info-->
+// 
+// <p>When you delete the last variant of a content item, the whole content item is deleted.</p>
+// 
+// <!--Callout-end-->
+
+@name("Delete a language variant")
+DELETE "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier/variants/:language_identifier"
+
+
+

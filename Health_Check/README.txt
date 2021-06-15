@@ -1,0 +1,1 @@
+This collection checks the status of your endpoint daily with the help of monitor and inform you if your endpoint if returning status code other than 200

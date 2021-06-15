@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// Esta chamada deve ser utilizada para a criação de ordens a mercado ou limitada.
+// 
+// Todos os parâmetros são **obrigatórios**.
+// 
+// Exemplo de ordem de **compra a mercado**:
+// 
+// <pre>
+// Comprando R$ 10,42 de Bitcoin
+// 
+// {
+//     "coin_pair": "BRLBTC",
+//     "type": "buy",
+//     "order_type": "market",
+//     "amount": 10.42,
+//     "price": 1
+// }
+// </pre>
+
+@name("Create Order")
+POST "https://brasilbitcoin.com.br/api/create_order"
+"Authentication": "Api_key"
+"Content-Type": "application/json"
+files(
+	("coin_pair", "BRLBCH"),
+	("type", "sell"),
+	("order_type", "limited"),
+	("amount", "0.5"),
+	("price", "2000")
+)
+
+
+// Realiza envio de criptomoedas.
+
+@name("Withdraw")
+POST "https://brasilbitcoin.com.br/api/send"
+"Authentication": "{{API_Key}}"
+files(
+	("coin", "BTC"),
+	("amount", "0.789063"),
+	("address", "1BraSiLbqis8WYq9DcZnsijDRGF5LxMTms"),
+	("priority", "medium"),
+	("tag", "jnjsnajsndkansdwuyye")
+)
+
+
+// Retorna a taxa aproximada para envio de criptomoeda.
+// 
+// #### <code>priority</code>
+// 
+// <code>low</code>: Estimativa de taxa que deve ser paga aos mineradores para que o envio seja confirmado em 6 blocos;
+// 
+// <code>medium</code>: Estimativa de taxa que deve ser paga aos mineradores para que o envio seja confirmado em 3 blocos;
+// 
+// <code>high</code>: Estimativa de taxa que deve ser paga aos mineradores para que o envio seja confirmado no próximo bloco.
+// 
+// #### Atenção
+// 
+// Os valores são **estimativas** para moedas baseadas no Bitcoin e seus derivados, como Litecoin e Bitcoin Cash, por exemplo. Não existe uma certeza de que a transação realmente será confirmada no numero de blocos informados, uma vez que esse parâmetro depende apenas da rede de mineração.
+
+@name("Estimate Send Fee")
+GET "https://brasilbitcoin.com.br/api/fee/send/<moeda>/<quantidade>"
+"Authentication": "chave api"
+? "priority"= "medium"
+
+
+// Retorna o valor unitário para compra da quantidade informada de criptomoeda.
+
+@name("Estimate Price")
+GET "https://brasilbitcoin.com.br/api/estimate/sell/BTC/0.01"
+"Authentication": "7LA2LP2ZIGJS54QTXONW42EI7VGVAON4"
+
+
+
+// Esta chamada cancela uma ordem do livro de ofertas.
+
+@name("Remove Order")
+GET "https://brasilbitcoin.com.br/api/remove_order/{{idOrdem}}"
+"Authentication": "Api_key"
+
+
+

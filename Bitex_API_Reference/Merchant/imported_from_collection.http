@@ -1,0 +1,92 @@
+#!/usr/bin/env dothttp
+
+@name("List Payments")
+GET "https://{{domain}}/api/merchants/payments"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// Possible `status` value:
+// 
+// * `pending`: Just created.
+// * `seen`: The expected_quantity is in transit.
+// * `done`: The expected_quantity was received.
+// * `settled`: Funds were credited to your balance
+// * `expired`: Payment was not seen before expiration date.
+// * `cancelled`: Payment was seen but didn't confirm for 2 hours, due to unknown or unexpected circumstances.
+
+@name("Show Payment")
+GET "https://{{domain}}/api/merchants/payments/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// Send us an amount and currency, and we'll quote it in bitcoin and give you an address where the payment is expected. The bitcoins will credit to your Bitex account and can be sold automatically to get the original amount in your requested currency.
+// 
+// Payments have an expiration of 1 hour, the bitcoin transaction must be initiated within that timeframe, if your customer takes longer you can always create a new payment and get a new quote and bitcoin address. If someone pays to an address after the payment is expired the bitcoin quantity will still be credited to your Bitex account, so it's possible for you to issue a refund and/or forward the received bitcoin to a new payment address yourself.
+// 
+// At the moment, the payments are only accepted in BTC and are transferred to the merchant in USD (unless he keeps 100% in BTC), no matter the amount or the currency specified in the payment.
+// 
+// * `amount`: Amount that the customer should pay.
+// * `currency_code`: Payment currency. One of [`BTC`, `USD`, `ARS`, `UYU`, `CLP`, `PYG`]
+// * `keep`: Percentage of the received money to keep in BTC instead of converting it to USD.
+// * `callback_url`: You can provide a `callback_url` to get notifications about a payment. When a `callback_url` is set for a payment Bitex will POST updates to it everytime a payment status changes.Your callback_url must be HTTPS because we want to make sure we're only contacting you, and it will include your first active API key in it, so that you know it's us sending the callback. Your API key is our shared secret, so you may want to handle it the same way you handle your users login credentials, hiding it from web server request logs for example. Our request's content type will be `application/json` and the content will be a structure containing your API key and the payment as it would be returned when querying its status.
+// * `customer_reference`: A customer-facing reference to show in the Point of Sale.
+// * `merchant_reference`: A sale reference for the merchant, generally to identify the sale.
+
+@name("Create Payment")
+POST "https://{{domain}}/api/merchants/payments"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+    "data": {
+        "type": "payments",
+        "relationships": {
+            "user": {
+                "data": {
+                    "id": 692,
+                    "type": "users"
+                }
+            }
+        },
+        "attributes": {
+            "amount": 100,
+            "currency_code": "USD",
+            "keep": 10,
+            "callback_url": "https://mystore.com/webhook",
+            "customer_reference": "Purchase at My Store",
+            "merchant_reference": "Sale id: 2212"
+        }
+    }
+}')
+
+
+// This endpoint should be use both for creating and updating the POS and it includes all default configurations for the payments to be received.
+// 
+// * `merchant_keep`: Percentage to keep in BTC instead of converting them to USD.
+
+@name("Setup Point of Sale")
+POST "https://{{domain}}/api/merchants/pos"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+  "data": {
+    "type": "pos",
+    "attributes": {
+      "merchant_keep": 10,
+      "merchant_logo": "https://mystore.com/logo.png",
+      "merchant_name": "My Store",
+      "merchant_site": "https://mystore.com",
+      "merchant_slug": "my-store"
+    }
+  }
+}')
+
+
+

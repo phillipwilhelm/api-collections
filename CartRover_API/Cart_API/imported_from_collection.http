@@ -1,0 +1,488 @@
+#!/usr/bin/env dothttp
+
+// Returns the order with the specified CUST_REF, which is guaranteed to be unique for all orders for a merchant.
+// 
+// The format of the order returned will match the format of an order passed to the [New Order](#665d1346-78f2-4a6d-a723-2723cdfff7ed) API Endpoint.
+// 
+// It will also have a shipments element containing an array of tracking information matching the shipments format from the View Order Status Endpoint.
+// 
+// ### Filters
+// |    Argument    |    Description    |
+// |--------------------|-----------------------|
+// |    include_filtered_items    |    Y or N. Default N   If Y, items that should not be shipped will   be included in response. The filtered_sku field will be set to Y for   these items.    |
+// |    include_order_extras    |    Y or N. Default N   If Y, order header meta data fields (from   original order source) will be returned.    |
+// |    include_line_extras    |    Y or N. Default N   If Y, line item meta data fields (from   original order source) will be returned.    |
+// |    include_aliases    |    Y or N. Default N   If Y, any known aliases will be returned   with the item record, including the WMS Master SKU.    |
+// 
+// **Any filters should be passed with the URL as GET arguments**
+
+@name("View Order")
+GET "https://{{BASE_URL}}/v1/cart/orders/{{CUST_REF}}"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// This will return the order status and tracking information for the specified CUST_REF.
+// 
+// CUST_REF is guaranteed to be unique for all orders for a merchant.
+// 
+// ### Response Fields
+// 
+// |    Field                    |    Data Type    |    Length    |    Description                                                             |
+// |-----------------------------|-----------------|--------------|----------------------------------------------------------------------------|
+// |    cust_ref                 |    String       |    16        |                                                                            |
+// |    cust_po_no               |    String       |    45        |                                                                            |
+// |    delivered_to_wms_date    |    Timestamp    |              |                                                                            |
+// |    order_status             |    Enum         |              |    One of: new, at_wms, shipped, confirmed, error, canceled    |
+// |    shipments                |    **Array**        |              |    Array of 0 or more shipments                              |
+// 
+// #### Shipments Array Fields
+// 
+// |    Field                      |    Data Type    |    Length              |    Description                                   |
+// |-------------------------------|-----------------|------------------------|--------------------------------------------------|
+// |    carrier                    |    String       |    45                  |    Carrier reported by WMS                       |
+// |    method                     |    String       |    45                  |    Ship Method reported by WMS                   |
+// |    tracking_no                |    String       |    45                  |    Primary tracking #                            |
+// |    tracking_no_secondary      |    String       |    45                  |    Optional secondary tracking #                 |
+// |    sscc_barcode               |    String       |    45                  |    Carton Barcode for EDI Orders                 |
+// |    bill_of_lading             |    String       |    45                  |                                                  |
+// |    total_cost                 |    Float        |    2 decimal places    |    Shipping cost with all fees                   |
+// |    package_weight_lbs         |    Float        |    2 decimal places    |    Actual shipment weight                        |
+// |    dim_weight_lbs             |    Float        |    2 decimal places    |    Optional dimensional weight                   |
+// |    zone                       |    String       |    4                   |    Ship-to zone                                  |
+// |    delivery_surcharge_type    |    String       |    45                  |    Defined by WMS                                |
+// |    whs_location               |    String       |    45                  |    Identifies which warehouse shipped package    |
+// |    box_length_in              |    Float        |    2 decimal places    |    Length in Inches                              |
+// |    box_width_in               |    Float        |    2 decimal places    |    Width in Inches                               |
+// |    box_height_in              |    Float        |    2 decimal places    |    Height in Inches                              |
+// |    date                       |    Timestamp    |                        |    Shipping date                                 |
+// |    tracking_url               |    String       |                        |    URL to track shipment                         |
+// |    custom_1                   |    String       |    45                  |    Defined by WMS                                |
+// |    items                      |    **Array**        |                        |    List of items in package if known             |
+// 
+// #### Items Array Fields
+// 
+// |    Field                      |    Data Type    |    Length              |    Description                                   |
+// |-------------------------------|-----------------|------------------------|--------------------------------------------------|
+// |    carrier                    |    String       |    45                  |   Product SKU - Must match SKU on original order      |
+// |    quantity                    |    Int       |                      |     Quantity of item in package     |
+// |    carton_code                    |    String       |    45                  |    Carton code/barcode (eg: SSCC-18)      |
+// |    carton_num                    |    String       |    45                  |      Carton number (eg: 1, 2, 3, etc)        |
+// |    box_length_in                    |    Float       |    2 decimal places          |    Length in Inches    |
+// |    box_width_in                    |    Float       |    2 decimal places          |     Width in Inches       |
+// |    box_height_in                    |    Float       |    2 decimal places          |     Height in Inches       |
+// |    package_weight_lbs                    |    Float       |    2 decimal places          |     	Carton weight in lbs        |
+
+@name("View Order Status")
+GET "https://{{BASE_URL}}/v1/cart/orders/status/{{CUST_REF}}"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+
+
+
+// Returns all orders matching the given status for this cart.
+// 
+// Possible statuses: new, at_wms, shipped, confirmed, error, canceled, new_or_at_wms, shipped_or_confirmed, any
+// ***
+// **Any filters should be passed with the URL as GET arguments.**
+// 
+// ### Filters
+// |    Argument    |    Description    |
+// |------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    from_date    |    Optional Timestamp    |
+// |    to_date    |    Optional Timestamp    |
+// |    order_source    |    Optional. To get a list call List Setup   Carts: /cart/list   Warning: some sources like CSV carts allow   for multiple order sources in the same cart. There is no way to lookup if   additional sources have been used by a CSV cart. It is not recommended to use   this filter.    |
+// |    limit    |    Number of orders to return at once. Default 20, max 100    |
+// |    page    |    Page of results to return. Default 1    |
+// |    include_filtered_items    |    Y or N. Default N   If Y, items that should not be shipped will   be included in response. The filtered_sku field will be set to Y for   these items.    |
+// |    include_order_extras    |    Y or N. Default N   If Y, order header meta data fields (from   original order source) will be returned.    |
+// |    include_line_extras    |    Y or N. Default N   If Y, line item meta data fields (from   original order source) will be returned.    |
+// |    include_aliases    |    Y or N. Default N   If Y, any known aliases will be returned   with the item record, including the WMS Master SKU.    |
+// 
+// ### Date Time Filters
+// 
+// The from_date and to_date fields perform a different search depending on the status you are searching. These are designed so you only have to search back though the time of your last successful API call in order to get all the new results. 
+// 
+// |    Status    |    Date   Filter Searches By:    |
+// |----------------------------|-----------------------------------|
+// |    new    |    Order Created Date    |
+// |    at_wms    |    Order Delivered to WMS Date    |
+// |    new_or_at_wms    |    Order Created Date    |
+// |    partial    |    Shipment Loaded Date    |
+// |    shipped    |    Shipment Loaded Date    |
+// |    confirmed    |    Date Shipment Sent to Cart    |
+// |    shipped_or_confirmed    |    Shipment Loaded Date    |
+// |    error    |    Error Raised Date    |
+// |    canceled    |    Canceled Date    |
+// |    any    |    Order Created Date    |
+// 
+// **Note:** If you have a lot of orders and your API response time is slow, use narrower date ranges. For example, only search the past hour for shipments instead of the past day. Also consider the [Order Update Webhook](#0c5837a3-56d2-4357-bca1-4166fd366c94)
+// 
+// ### Response Fields
+// 
+// The response will contain an array of orders with the format/fields of each order matching the [New Order](#665d1346-78f2-4a6d-a723-2723cdfff7ed) endpoint POST data.
+// 
+// Orders may also contain shipment records (if the order is shipped). The `shipments` element of each order will match to the `shipments` element of the [View Order Status](#e90bdb31-6c37-47fc-8a91-56e6a840f61e) endpoint response.
+
+@name("List Cart Orders By Status")
+GET "https://{{BASE_URL}}/v1/cart/orders/list/at_wms"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+
+
+
+// This endpoint expects a json object containing a single order with the fields listed below. The bolded headers are for reference and are not sub-objects. All fields are on the top level except for item information
+// 
+// ## Note
+// Your warehouse may not pick up or use all of these fields. Any fields they do not use will be ignored.
+// 
+// ## Order Fields
+// 
+// | Field | Data Type | Length | Required? | Description |
+// |---------|-------------|---------|---------|---------|
+// | cust_ref | String | 16 | Y | Unique Order Number. Always check the cust_ref field field in the response! There are multiple reasons CartRover may accept the order, but change the cust_ref value. The most common reasons are: 1) The cust_ref sent was over 16 chars in length and had to be shortened. 2) The cust_ref was already used by a different order source for this merchant and has been modified to ensure uniqueness. |
+// | cust_po_no | String | 45 |  | Optional additional unique order number. Order will reject if value is not unique. This can generally be set to the same value as `cust_ref`, but supports longer order numbers. |
+// | # Shipping Address # | | | | Not a field |
+// | ship_company | String |  |  | Required if ship_first_name or ship_last_name not set |
+// | ship_title | String |  |  |  |
+// | ship_first_name | String |  |  | Required if ship_company or ship_last_name not set |
+// | ship_last_name | String |  |  | Required if ship_company or ship_first_name not set |
+// | ship_address_1 | String |  | Y |  |
+// | ship_address_2 | String |  |  |  |
+// | ship_address_3 | String |  |  |  |
+// | ship_city | String |  | Y |  |
+// | ship_state | String |  | Y |  |
+// | ship_zip | String |  | Y |  |
+// | ship_country | String |  | Y | ISO 2 or 3 character code preferred. If full name is passed, best effort will be made to convert it to an ISO code. |
+// | ship_phone | String |  |  |  |
+// | ship_e_mail | String |  |  |  |
+// | ship_address_type | ENUM |  |  | R - Residential, C - Commercial |
+// | ship_is_billing | Boolean |  |  | If true, billing address will be set to the same as the shipping address. Any values passed for billing address will be ignored. |
+// | # Billing Address # | | | | Not a field |
+// | cust_company |  |  |  | Required if cust_first_name or cust_last_name not set |
+// | cust_title |  |  |  |  |
+// | cust_first_name |  |  |  | Required if cust_company or cust_last_name not set |
+// | cust_last_name |  |  |  | Required if cust_company or cust_first_name not set |
+// | cust_address_1 |  |  |  |  |
+// | cust_address_2 |  |  |  |  |
+// | cust_address_3 |  |  |  |  |
+// | cust_city |  |  |  |  |
+// | cust_state |  |  |  |  |
+// | cust_zip |  |  |  |  |
+// | cust_country |  |  |  |  |
+// | cust_phone |  |  |  |  |
+// | cust_e_mail |  |  |  |  |
+// | special_services |  |  |  |  |
+// | customer_id |  |  |  |  |
+// | order_date | String |  |  | Format: YYYY-MM-DD Defaults to current date if not provided. |
+// | shipping_instructions |  |  |  |  |
+// | ship_account_no |  |  |  |  |
+// | ship_code |  |  |  | Shipping Method to be used by the warehouse |
+// | ship_code_description |  |  |  |  |
+// | weight |  |  |  |  |
+// | gift_message |  |  |  |  |
+// | gift_wrap | ENUM | Y/N |  |  |
+// | carrier |  |  |  |  |
+// | routing_sw | ENUM | Y/N |  | Request warehouses system to perform additional routing if supported |
+// | # Price Information # | | | | Not a field |
+// | sub_total |  |  |  |  |
+// | order_discount |  |  |  |  |
+// | shipping_handling |  |  |  | The total shipping charge for the order. This has no relation to the order line shipping_surcharge field. |
+// | tax_exempt_sw |  |  |  |  |
+// | sales_tax |  |  |  | If tax is set on the order line then this should match the sum of all order line taxes. |
+// | grand_total |  |  |  |  |
+// | balance |  |  |  |  |
+// | currency_code | String | 3 |  | ISO 4217 Currency Code - Most systems will assume a default of the local currency |
+// |  |  |  |  |  |
+// | promo_code |  |  |  |  |
+// | custom_field_1 |  |  |  |  |
+// | custom_field_2 |  |  |  |  |
+// | custom_field_3 |  |  |  |  |
+// | custom_field_4 |  |  |  |  |
+// | custom_field_5 |  |  |  |  |
+// | # Payment Information # | | | | Not a field |
+// | token_sw | ENUM | Y/N |  | Y - means credit_card_no is provided and is already tokenized. If passing Credit Card data, this must by Y. CartRover does not allow untokenized credit cards. |
+// | pay_type |  |  |  |  |
+// | credit_card_no |  |  |  | NOTE: CartRover is not PCI Compliant. You may not pass us un-tokenized credit card numbers. |
+// | cc_last_four |  |  |  |  |
+// | expiration_date |  |  |  |  |
+// | cvv |  |  |  |  |
+// | pre_auth_code |  |  |  |  |
+// | pre_auth_amt |  |  |  |  |
+// | pre_auth_id |  |  |  |  |
+// | gift_card_sw |  |  |  |  |
+// | check_account_no |  |  |  |  |
+// | check_type |  |  |  |  |
+// | check_no |  |  |  |  |
+// | check_bank_id |  |  |  |  |
+// | check_cust_bank |  |  |  |  |
+// | check_cust_id_num |  |  |  |  |
+// | check_cust_id_state |  |  |  |  |
+// | check_cust_id_mm |  |  |  |  |
+// | check_cust_id_dd |  |  |  |  |
+// | check_cust_id_yy |  |  |  |  |
+// | check_cust_id_type |  |  |  |  |
+// | installment_program |  |  |  |  |
+// | prepaid_order |  |  |  |  |
+// | black_list |  |  |  |  |
+// | credit_score |  |  |  |  |
+// | fraud_score |  |  |  |  |
+// | ifraud_error_code |  |  |  |  |
+// | xfraud_error_code |  |  |  |  |
+// | credit_error_code |  |  |  |  |
+// |  |  |  |  |  |
+// | cass_code_ship |  |  |  |  |
+// | cass_error_ship |  |  |  |  |
+// | cass_code_cust |  |  |  |  |
+// | cass_error_cust |  |  |  |  |
+// | cass_date |  |  |  |  |
+// | ncoa_code_ship |  |  |  |  |
+// | ncoa_code_cust |  |  |  |  |
+// | ncoa_date |  |  |  |  |
+// | resubmit_date |  |  |  |  |
+// |  |  |  |  |  |
+// | media_week |  |  |  |  |
+// | order_source |  |  |  | Warning: This will override any Order Source value defined in CartRover |
+// | ani_phone |  |  |  |  |
+// | vendor_phone |  |  |  |  |
+// | location |  |  |  |  |
+// | load_override_sw |  |  |  |  |
+// | fail_action |  |  |  |  |
+// | action_dt |  |  |  |  |
+// | filename |  |  |  |  |
+// | call_queue |  |  |  |  |
+// | clerk_disposition |  |  |  |  |
+// | clerk_disp_dt |  |  |  |  |
+// | rep_disposition |  |  |  |  |
+// | rep_disp_dt |  |  |  |  |
+// | duplicate_sw | ENUM | Y/N |  |  |
+// | org_file_no |  |  |  |  |
+// | # Optional Routing Information # | | | | Not a field |
+// | regional_center |  |  |  |  |
+// | regional_order_no |  |  |  |  |
+// | regional_ship_date |  |  |  |  |
+// | first_attempt |  |  |  |  |
+// | expected_delivery_date | String |  |  | Format: YYYY-MM-DD  (Can also be submitted as Timestamp) |
+// | requested_ship_date | String |  |  | Format: YYYY-MM-DD  (Can also be submitted as Timestamp) |
+// | extra_fields | Array | 30 |  | Key-Value list of Order extra field names and values to post. Max 30. Eg: `{"extra_fields": {"some_custom_name":"Some Custom Value", "another_custom_name":"Some Other Custom Value"}}` |
+// |  |  |  |  |  |
+// | items | Array |  | Y | The Items element should contain an array of Items following the format in the Item Fields table below. |
+// 
+//  ## Item Fields
+//  An array of items should be listed in the order's items field. Below are the fields allowed for each item.
+// 
+// | Field | Data Type | Length | Required? | Description |
+// |---------|-------------|---------|---------|---------|
+// | line_no | Int |  |  | Optional Line Number |
+// | item | String | 45 | Y | Product SKU - Must match product in warehouse |
+// | Description | String | 250 |  | Note the capital "D". It's there due to legacy stuff. |
+// | price | Float |  |  | Up to 4 decimals places |
+// | quantity | Int |  | Y |  |
+// | discount | Float |  |  | The discount amount for a single unit or item. Up to 4 decimals places |
+// | addl_discount | Float |  |  |An additional post-tax discount applied to the line item total. Up to 4 decimals places |
+// | extended_amount | Float |  |  | 2 decimals places |
+// | tax | Float |  |  | 2 decimals places |
+// | shipping_surcharge | Float |  |  | 2 decimals places |
+// | line_comment | String | 250 |  |  |
+// | lot_number | String | 45 |  |  |
+// | line_item_id | String | 14 |  | Optional additional line ID from cart |
+// | extra_fields | Array | 10 |  | Key-Value list of Line Item extra field names and values to post. Max 10. Eg: `{"extra_fields": {"some_custom_name":"Some Custom Value", "another_custom_name":"Some Other Custom Value"}}` |
+
+@name("New Order")
+POST "https://{{BASE_URL}}/v1/cart/orders/cartrover"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+    "cust_ref" : "TEST02",
+    "ship_company" : "Will Town",
+    "ship_address_1" : "351 Hitchcock Way",
+    "ship_address_2" : "Suite B140",
+    "ship_city" : "Santa Barbara",
+    "ship_state" : "CA",
+    "ship_zip" : "93105",
+    "ship_country" : "USA",
+    "ship_is_billing" : true,
+    "items" : 
+    [
+        {
+            "item" : "C100",
+            "quantity" : 2
+        },
+        {
+            "item" : "C300",
+            "quantity" : 1
+        }
+    ]
+}')
+
+
+// This will attempt to cancel the specified order in both CartRover and the WMS. The response will specify whether or not the order was able to be canceled.
+// 
+// **Note**: This call may take longer than others because CartRover will reach out to the WMS in real time and wait for a response.
+// 
+// ### Array Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |---------------|-----------------|--------------|---------------------------------------------------|
+// |    success    |    Boolean    |  |    Was cancellation successful?    |
+// |    message    |    String    |  |    Reason why cancellation was not successful.    |
+
+@name("Cancel Order In WMS")
+GET "https://{{BASE_URL}}/v1/cart/orders/wms_cancel/{{CUST_REF}}"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+
+
+
+// Updates the status of the order/shipments with the specified cust_ref.
+// 
+// ### Status Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |--------------------|-----------------|-----------------|---------------------------------------|--------------------------------------------------------------|
+// |    order\_status    |    ENUM    |  |    Y    |    confirmed    |
+// |    shipments    |    Array    |  |    Y    |    List of tracking records for order to mark confirmed    |
+// 
+// ### Shipment Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |--------------------|-----------------|-----------------|---------------------------------------|--------------------------------------------------------------|
+// |    tracking_no    |    String    |  |    Y    |    Tracking Number to Confirm    |
+
+@name("Update Order Status - Confirmed")
+POST "https://{{BASE_URL}}/v1/cart/orders/update/{{CUST_REF}}"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+    "order_status":"confirmed",
+    "shipments": [
+       {"tracking_no":"ABC123456"},
+       {"tracking_no":"XYZ789012"}
+    ]
+}')
+
+
+// Returns inventory levels for all products from the warehouse.
+// <br/><br/>
+// **Note:** Any filters should be passed with the URL as GET arguments. 
+// ### Filters
+// |    Argument    |    Description    |
+// |----------------|-----------------------------------------------------------------|
+// |    from_date    |    Optional Timestamp. Filters by the warehouse loaded_datetime, returning inventory updates loaded in CartRover after the timestamp.    |
+// |    to_date    | Optional Timestamp. Filters by the warehouse loaded_datetime, returning inventory updates loaded in CartRover before the timestamp. The from_date parameter must be included.   |
+// |    limit    |    Number of products to return at once. Default 20, max 100    |
+// |    page    |    Page of results to return. Default 1    |
+// |    include_aliases    |    N, Y, or ALL. Default N   If Y, aliases will be returned as key-value pairs. If ALL, a numeric list will be returned, each containing: code_type, code    |
+// 
+// ### Array Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |---------------------|-----------------|--------------|---------------------------------------------------------------------------|
+// |    sku    |    String    |    45    |         |
+// |    qty_available    |    Int    |         |    Total quantity available. Can be negative if item is   backordered.    |
+// |    qty_on_hand    |    Int    |         |    Total quantity on hand. Available plus committed or on   hold.    |
+// |    wms_datetime    |    Timestamp    |         |    Time warehouse last verified qty    |
+// |    aliases    |    Array    |         |    List of aliases for this product. Only if include_aliases param is passed.    |
+// |    warehouses    |    Array    |  |    Breakdown of inventory by warehouse    |
+// 
+// ### Warehouse Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |---------------------|-----------------|--------------|--------------------------------------------|
+// |    warehouse    |    String    |    100    |    Warehouse name as setup in CartRover    |
+// |    qty_available    |    Int    |  |    Quantity for just this warehouse    |
+// |    qty_on_hand    |    Int    |  |    Quantity for just this warehouse    |
+// |    loaded_datetime    |    Timestamp    |  |    Time CartRover received this quantity from the WMS    |
+// |    wms_datetime    |    Timestamp    |  |    Time warehouse last verified qty    |
+// 
+// ### Response Headers
+// |    Field    |    Description    |
+// |---------------------|---------------------------------------------------------------------------------------------------|
+// |    Total-Records    |    Contains the total number of records that would have been   returned if there was no limit.    |
+
+@name("List Inventory")
+GET "https://{{base_url}}/v1/merchant/inventory"
+basicauth("{{api_user}}", "{{api_key}}")
+? "limit"= "20"
+? "page"= "1"
+? "from_date"= "2018-12-14T20:00:00+00:00"
+? "to_date"= "2020-12-14T21:00:00+00:00"
+
+
+// This will return product and alias details for the specified product from the warehouse.
+// 
+// **Note:** The SKU you use to lookup the product can be either a Master SKU in CartRover, or an alias code. Either match will return the product result.
+// 
+// **Note:** Any filters should be passed with the URL as GET arguments. 
+// ### Filters
+// |    Argument    |    Description    |
+// |----------------|-----------------------------------------------------------------|
+// |    include_parent_details    |    Accepts 'Y' or 'N'. When 'Y' is passed the response will include the parent product details as well.    |
+// 
+// ### Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |-----------------------------|-----------------|--------------|------------------------------------------------------------|
+// |    sku    |    String    |    45    |    Always provided    |
+// |    name    |    String    |    150    |    Name if known    |
+// |    description    |    Long Text    |  |    Description if known    |
+// |    retail_price    |    Float    |  |  |
+// |    wholesale_price    |    Float    |  |  |
+// |    weight_lbs    |    Float    |  |  |
+// |    wms_product_main_id    |    String    |  |    Optional additional identifier provided by warehouse    |
+// |    last_updated_datetime    |    Timestamp    |  |    Time product data last changed    |
+// |    aliases    |    Array    |  |    List of aliases for this product    |
+// |    extra_fields    |    Array    |  |    List of product details    |
+// |    parent    |    Array    |  |    List of parent product details   |
+// 
+// ### Alias Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |-----------------|-----------------|--------------|-------------------------------|
+// |    code_type    |    String    |    45    |    Code type name. Eg: UPC    |
+// |    code    |    String    |    45    |    Alias code value    |
+
+@name("Get Product Info")
+GET "https://{{BASE_URL}}/v1/merchant/product/{{SKU}}"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// This will return inventory levels for the specified product from the warehouse.
+// 
+// ### Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |---------------------|-----------------|--------------|----------------------------------------------|
+// |    sku    |    String    |    45    |  |
+// |    qty_available    |    Int    |  |    Can be negative if item is backordered    |
+// |    qty_on_hand    |    Int    |  |  |
+// |    wms_datetime    |    Timestamp    |  |    Time warehouse last verified qty    |
+// |    warehouses    |    Array    |  |    Breakdown of inventory by warehouse    |
+// 
+// The qty\_available inventory levels of each warehouse entry when added together may not match the summary qty\_available field. This is because recent sales for each location cannot be subtracted from available quantity for a specific location if CartRover does not know how they will route. The summary inventory level will always be accurate.
+// 
+// ***
+// 
+// ### Warehouse Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |---------------------|-----------------|--------------|--------------------------------------------|
+// |    warehouse    |    String    |    100    |    Warehouse name as setup in CartRover    |
+// |    qty_available    |    Int    |  |    Quantity for just this warehouse    |
+// |    qty_on_hand    |    Int    |  |    Quantity for just this warehouse    |
+// |    wms_datetime    |    Timestamp    |  |    Time warehouse last verified qty    |
+
+@name("Get Product Inventory")
+GET "https://{{BASE_URL}}/v1/merchant/inventory/{{SKU}}"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// Returns an array of acceptable warehouse ship methods. No parameters are required.
+// <br/><br/>
+// **Note:** This list is unlikely to change often, or ever at all. We recommend you cache/store this list and either update it occasionally or as needed on-demand
+// 
+// ### Response Fields
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    code    |    String    |    64    |    Code Sent to Warehouse    |
+// |    description    |    String    |    255    |    Description of Ship Method    |
+// |    carrier    |    String    |        |    Carrier Code (Optional)    |
+// 
+// **Note:** The codes and descriptions returned are defined by the warehouse and not CartRover. They may differ from what you see here.
+
+@name("List WMS Ship Methods")
+GET "https://{{BASE_URL}}/v1/wms/shipmethod/list"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+

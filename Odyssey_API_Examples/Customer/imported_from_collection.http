@@ -1,0 +1,188 @@
+#!/usr/bin/env dothttp
+
+// # Customer Search
+// ---
+// 
+// Returns up to 1,000 matching, Active Customers from the MainDB.Customer table.
+// 
+// If a search text value is provided, records will be returned where the ID, or COName match the given value (using a wild-card matches search).
+// 
+// # Parameters
+// ---
+// 
+// **SearchText** - Type *string* **:**
+// This value, if supplied, will be used to filter your results. This value will be searched using a MATCHES operator on the ID OR COName fields in the Customer table.
+// 
+// **CompanyID** - Type *string* **:**
+// The optional CompanyID that will be used to authenticate your request. This value is required if you're using a non-company-specific API Key.
+
+@name("{GET}")
+GET "https://{{ServerPath}}/Customer"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+
+
+
+// # Fetch a Specific Customer
+// ---
+// 
+// Fetch a specific customer from the Odyssey database from the MainDB.Customer table.
+// 
+// # Route Parameters
+// 
+// *These parameters are automatically passed to the API call because they're included as part of the URL to access the API endpoint*
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the customer you are searching for. This customer can exist in any company you have access to.
+// 
+// # Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The optional CompanyID that will be used to authenticate your request. This value is required if you're using a non-company-specific API Key.
+
+@name("/{UniqueID}")
+GET "https://{{ServerPath}}/Customer/{{CustomerUniqueID}}"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+
+
+
+// # Get Customer Plant Fields
+// ---
+// 
+// Returns a list of plant-level fields that a controlling company can change for a specific Customer and their current values.
+// 
+// # Route Parameters
+// 
+// *These parameters are automatically passed to the API call because they're included as part of the URL to access the API endpoint*
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the customer you are fetching fields for. This customer should exist within the HQ company.
+// 
+// # Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The optional CompanyID. If you're using a company-specific APIKey, this value is not required. The CompanyID associated with your APIKey will be used to fetch the plant-level fields. If you're using a non-company-specific APIKey, then this value is required.
+
+@name("/{UniqueID}/PlantFields")
+GET "https://{{ServerPath}}/Customer/{{CustomerUniqueID}}/PlantFields"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+
+
+
+// # Save Customer Plant Fields
+// ---
+// 
+// Allows for updating plant-level fields from a Headquaters company for a selected Customer.
+// 
+// # Route Parameters
+// 
+// *These parameters are automatically passed to the API call because they're included as part of the URL to access the API endpoint*
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the customer you are fetching fields for. This customer should exist within the HQ company.
+// 
+// # URL Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The optional CompanyID. If you're using a company-specific APIKey, this value is not required. The CompanyID associated with your APIKey will be used to fetch the plant-level fields. If you're using a non-company-specific APIKey, then this value is required.
+// 
+// # Request Parameters
+// ---
+// 
+// **PlantList** - Type *string array* **:**
+// This is a list of the CompanyID's of the plants to be updated.
+// 
+// **Fields** - Type **PlantFieldUpdateModel array* **:**
+// This is an array of all the fields that are being returned containing information the front-end will use to build the screen
+// 
+// # PlantFieldUpdateModel
+// 
+// **FieldValue** - Type *string* **:**
+// The new value of the field you wish to apply to all the plants in the PlantList
+// 
+// **Field** - Type *PlantFieldModel* **:**
+// The entire field object that you are updating.
+// 
+// # PlantFieldModel
+// 
+// **FieldName** - Type *string* **:**
+// The name of the field
+// 
+// **FieldLabel** - Type *string* **:**
+// The label of the field
+// 
+// **DataType** - Type *string* **:**
+// The data type of the field. Integer, String, Boolean, etc
+// 
+// **Format** - Type *string* **:**
+// The display format of the field. The possible values are: - Boolean Values - yes/no - This format represents a value that is either true or false. These values are typically represented as checkboxes. - Character Values - X(number) - This format means that you can input a character string of "number" length. For example, X(10) means that you can enter a string of up to 10 characters, and only the first 10 characters of the value will be displayed. - Integer Or Decimal Values - >>>,>>>, -99,999, >>>>, etc - This format represents how long the field is and where any commas may be present. It also indicates if if the field supports negative (-) numbers or not. - Date Values - MM/DD/YY, DD/MM/YYYY, MM/DD/YYYY HH:MM:SS, etc - This format indicates how the date and associated time, if any, will be displayed.
+// 
+// **FieldValue** - Type *string* **:**
+// The current value of this field
+// 
+// **Options** - Type *string* **:**
+// The list of possible options for this field, if this field's DataType is 'List'.
+// 
+// **PlantValues** - Type *Dictionary<string, string>* **:**
+// A list of all plants in this organization, and the value for this field in that plant, if it exists.
+
+@name("/{UniqueID}/PlantFields")
+POST "https://{{ServerPath}}/Customer/{{CustomerUniqueID}}/PlantFields"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+data('{
+    "PlantList": [
+        "P1",
+        "P2"
+    ],
+    "Fields": [
+        {
+            "Field": {
+                "FieldName": "WeightType",
+                "FieldLabel": "Weight Type",
+                "DataType": "List",
+                "Format": "x(1)",
+                "FieldValue": "N",
+                "Options": [
+                    {
+                        "Text": "Gross",
+                        "Value": "G"
+                    },
+                    {
+                        "Text": "Net",
+                        "Value": "N"
+                    },
+                    {
+                        "Text": "Ship",
+                        "Value": "S"
+                    },
+                    {
+                        "Text": "Weight of Record",
+                        "Value": "R"
+                    }
+                ],
+                "PlantValues": {
+                    "P1": "S",
+                    "P2": "G"
+                },
+                "originalFieldValue": "S",
+                "forceChange": false,
+                "valueMismatched": true,
+                "OptionsRaw": "Gross|G,Net|N,Ship|S,Weight of Record|R"
+            },
+            "FieldValue": "N"
+        }
+    ]
+}')
+
+
+

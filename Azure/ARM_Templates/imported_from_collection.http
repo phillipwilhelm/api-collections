@@ -1,0 +1,53 @@
+#!/usr/bin/env dothttp
+
+// [Deploy resources with REST API and template - Azure Resource Manager | Microsoft Docs](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-rest#deploy-with-the-rest-api)
+
+@name("Deploy ARM template")
+PUT "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}/providers/Microsoft.Resources/deployments/{{deploymentName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+json({
+    "properties": {
+        "templateLink": {
+            "uri": "{{templateLinkUri}}",
+            "contentVersion": "1.0.0.0"
+        },
+        "parametersLink": {
+            "uri": "{{parametersLinkUri}}",
+            "contentVersion": "1.0.0.0"
+        },
+        "mode": "Incremental"
+    }
+})
+
+
+// [Deployments - Get (Azure Resource Management) | Microsoft Docs](https://docs.microsoft.com/en-us/rest/api/resources/deployments/get)
+
+@name("Get status of ARM template deployment")
+GET "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}/providers/Microsoft.Resources/deployments/{{deploymentName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+
+
+// Delete all resources in a Resource Group by deploying an empty ARM template in comlete mode.
+// 
+// [Deployment modes - Azure Resource Manager | Microsoft Docs](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-modes)
+// 
+// [Deploy resources with REST API and template - Azure Resource Manager | Microsoft Docs](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-rest#deploy-with-the-rest-api)
+
+@name("Delete all Resources in RG")
+PUT "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}/providers/Microsoft.Resources/deployments/{{deploymentName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+json({
+    "properties": {
+        "templateLink": {
+            "uri": "https://raw.githubusercontent.com/www42/arm/master/templates/empty.json",
+            "contentVersion": "1.0.0.0"
+        },
+        "mode": "complete"
+    }
+})
+
+
+

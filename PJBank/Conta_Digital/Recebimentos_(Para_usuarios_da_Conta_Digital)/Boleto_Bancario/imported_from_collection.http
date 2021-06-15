@@ -1,0 +1,389 @@
+#!/usr/bin/env dothttp
+
+// * IMPORTANTE: O parâmetro `id_unico` é um numero de identificação interno do boleto dentro do PJBank. Você deve usar este número para identificar os boletos que foram pagos. Então, gravá-lo do seu lado é muito importante;
+// * Você pode enviar uma identificação própria no parâmetro `pedido_numero`. 
+// * Informando o parâmetro `pedido_numero`, você poderá editar o boleto via API sem o risco de duplicá-lo, uma vez que o sistema não vai gerar outro boleto caso o mesmo existir. Ou seja, o sistema não vai criar dois boletos com o mesmo `pedido_numero` para a mesma credencial.
+// * A identificação pelo parâmetro `grupo` serve para fazer a impressão em lote de um grupo de boletos. Ao informá-la você receberá um segundo link para impressão em grupo;
+// * Você pode enviar uma URL de uma imagem no parâmetro `logo_url` para gerar um boleto com o logo da sua empresa. 
+// * Você pode incluir um texto livre no parâmetro `texto` para inserir uma mensagem ou observações customizadas para seus clientes.
+// 
+// 
+// O campo `id_unico_original` é usado em duas situações:
+// 
+// * Pagamentos duplicados, neste caso o campo `duplicado` terá valor `1`;
+// 
+// * Quando o boleto for alterado (e houver necessidade de registrar um novo boleto no sistema bancário).
+// A mudança deve entrar em produção imediatamente. Por favor, entre em contato com nosso time para mais detalhes.
+// 
+// 
+// ## Espécies de Documento 
+// 
+// No parâmetro `especie_documento` é possível informar a sigla do tipo do serviço da cobrança que está sendo gerada de acordo com o banco. Os tipos disponíveis são: 
+// 
+// 
+// ### SANTANDER
+// 
+//             
+// `AP` => `Apolice de Seguro`
+// 
+// `CH` => `Cheque`
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `LC` => `Letra de Cambio`
+// 
+// `ND` => `Nota Promissoria Direta`
+// 
+// `NP` => `Nota Promissoria`
+// 
+// `NR` => `Nota Promissoria Rural`
+// 
+// `RC` => `Recibo`  
+// 
+// 
+// ### ITAU
+// 
+// 
+// `CT` => `Contrato`
+// 
+// `CS` => `Consessionaria de Seguro`
+// 
+// `CPS` => `Conta de Prestação de Serviços`
+// 
+// `DD` => `Documento de Dívida`
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `EC` => `Encargo Condominiais`
+// 
+// `LC` => `Letra de Cambio`
+// 
+// `ME` => `Mensalidade Escolar`
+// 
+// `ND` => `Nota de Débitos`
+// 
+// `NP` => `Nota Promissoria`
+// 
+// `NS` => `Nota de Seguro`
+// 
+// `RC` => `Recibo`  
+//            
+//            
+//             
+// ### SICOOB
+// 
+// 
+// `AP` => `Apolice de Seguro`
+// 
+// `CH` => `Cheque`
+// 
+// `DD` => `Documento de Dívida`
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DMI` => `Duplicata Mercantil/Indicação`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `DSI` => `Duplicata de Serviço/Indicação`,
+// 
+// `DR` => `Duplicata Rural`
+// 
+// `FAT` => `Fatura`
+//                   
+// `LC` => `Letra de Cambio`
+// 
+// `NCC` => `Nota de Crédto Comercial`
+// 
+// `NCE` => `Nota de Crédito a Exportação`
+// 
+// `NCI` => `Nota de Crédito Industrial`
+// 
+// `NCR` => `Nota de Crédito Rural`
+// 
+// `NPR` => `Nota Promissoria Rural`
+// 
+// `TM` => `Triplicata Mercantil`
+// 
+// `TS` => `Triplicata de Serviço`
+// 
+// `ND` => `Nota de Débitos`
+// 
+// `NF` => `Nota Fiscal`
+// 
+// `NP` => `Nota Promissoria`
+// 
+// `NR` => `Nota Promissoria Rural`
+// 
+// `NS` => `Nota de Seguro`
+// 
+// `ME` => `Mensalidade Escolar`
+// 
+// `RC` => `Recibo`
+// 
+// `PC` => `Parcela`
+// 
+// 
+// 
+// ### BRADESCO
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `LC` => `Letra de Cambio`
+// 
+// `ND` => `Nota de Débitos`
+// 
+// `NP` => `Nota Promissoria`
+// 
+// `NS` => `Nota de Seguro`
+// 
+// `RC` => `Recibo`
+
+@name("Emitir um boleto ou Pix")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "vencimento": [
+        "12/30/2019"
+    ],
+    "valor": [
+        "50.75"
+    ],
+    "juros": [
+        "0"
+    ],
+    "multa": [
+        "0"
+    ],
+    "desconto": [
+        ""
+    ],
+    "nome_cliente": [
+        "Cliente de Exemplo"
+    ],
+    "cpf_cliente": [
+        "62936576000112"
+    ],
+    "endereco_cliente": [
+        "Rua Joaquim Vilac"
+    ],
+    "numero_cliente": [
+        "509"
+    ],
+    "complemento_cliente": [
+        ""
+    ],
+    "bairro_cliente": [
+        "Vila Teixeira"
+    ],
+    "cidade_cliente": [
+        "Campinas"
+    ],
+    "estado_cliente": [
+        "SP"
+    ],
+    "cep_cliente": [
+        "13301510"
+    ],
+    "logo_url": [
+        "http://wallpapercave.com/wp/xK64fR4.jpg"
+    ],
+    "texto": [
+        "Texto opcional"
+    ],
+    "grupo": [
+        "Boletos001"
+    ],
+    "pedido_numero": [
+        "89724"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ],
+    "especie_documento": [
+        "DS"
+    ],
+    "pix": [
+        "pix-e-boleto"
+    ]
+})
+
+
+// Você tem a opção de gerar boletos em lote, enviando os mesmos dentro de um array chamado `cobrancas`. 
+// Os boletos serão retornados individualmente dentro de outro array de resposta. Existe um limite de 200 boletos dentro do lote de cobranças.
+
+@name("Emitir boleto ou Pix em lote")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "cobrancas[0][vencimento]": [
+        "12/30/2019"
+    ],
+    "cobrancas[0][valor]": [
+        "50.75"
+    ],
+    "cobrancas[0][juros]": [
+        "0"
+    ],
+    "cobrancas[0][multa]": [
+        "0"
+    ],
+    "cobrancas[0][desconto]": [
+        ""
+    ],
+    "cobrancas[0][nome_cliente]": [
+        "Cliente de Exemplo"
+    ],
+    "cobrancas[0][cpf_cliente]": [
+        "62936576000112"
+    ],
+    "cobrancas[0][endereco_cliente]": [
+        "Rua Joaquim Vilac"
+    ],
+    "cobrancas[0][numero_cliente]": [
+        "509"
+    ],
+    "cobrancas[0][complemento_cliente]": [
+        ""
+    ],
+    "cobrancas[0][bairro_cliente]": [
+        "Vila Teixeira"
+    ],
+    "cobrancas[0][cidade_cliente]": [
+        "Campinas"
+    ],
+    "cobrancas[0][estado_cliente]": [
+        "SP"
+    ],
+    "cobrancas[0][cep_cliente]": [
+        "13301510"
+    ],
+    "cobrancas[0][logo_url]": [
+        "http://wallpapercave.com/wp/xK64fR4.jpg"
+    ],
+    "cobrancas[0][texto]": [
+        "Texto opcional"
+    ],
+    "cobrancas[0][grupo]": [
+        "Boletos001"
+    ],
+    "cobrancas[0][pedido_numero]": [
+        "666676"
+    ],
+    "cobrancas[0][pix]": [
+        "pix-e-boleto"
+    ],
+    "cobrancas[1][vencimento]": [
+        "12/30/2019"
+    ],
+    "cobrancas[1][valor]": [
+        "50.75"
+    ],
+    "cobrancas[1][juros]": [
+        "0"
+    ],
+    "cobrancas[1][multa]": [
+        "0"
+    ],
+    "cobrancas[1][desconto]": [
+        ""
+    ],
+    "cobrancas[1][nome_cliente]": [
+        "Cliente de Exemplo"
+    ],
+    "cobrancas[1][cpf_cliente]": [
+        "62936576000112"
+    ],
+    "cobrancas[1][endereco_cliente]": [
+        "Rua Joaquim Vilac"
+    ],
+    "cobrancas[1][numero_cliente]": [
+        "509"
+    ],
+    "cobrancas[1][complemento_cliente]": [
+        ""
+    ],
+    "cobrancas[1][bairro_cliente]": [
+        "Vila Teixeira"
+    ],
+    "cobrancas[1][cidade_cliente]": [
+        "Campinas"
+    ],
+    "cobrancas[1][estado_cliente]": [
+        "SP"
+    ],
+    "cobrancas[1][cep_cliente]": [
+        "13301510"
+    ],
+    "cobrancas[1][logo_url]": [
+        "http://wallpapercave.com/wp/xK64fR4.jpg"
+    ],
+    "cobrancas[1][texto]": [
+        "Texto opcional"
+    ],
+    "cobrancas[1][grupo]": [
+        "Boletos002"
+    ],
+    "cobrancas[1][pedido_numero]": [
+        "666677"
+    ],
+    "cobrancas[1][pix]": [
+        "pix-e-boleto"
+    ]
+})
+
+
+// Você pode enviar um array de números de pedido no parâmetro `pedido_numero` e criar uma impressão com vários boletos. 
+
+@name("Impressão de boletos bancários em lote")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes/lotes"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+data({
+    "formato": [
+        ""
+    ],
+    "pedido_numero[]": [
+        "89722",
+        "89723",
+        "89724",
+        "89725"
+    ]
+})
+
+
+// Especificando o parâmetro `"formato":"carne"` no request, você pode gerar uma impressão de boletos no formato de 3 itens por página, ideal para impressão de carnês
+
+@name("Impressão de carnê")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes/lotes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "formato": [
+        "carne"
+    ],
+    "pedido_numero[]": [
+        "89722",
+        "89723",
+        "89724",
+        "89725"
+    ]
+})
+
+
+// É possivel invalidar uma cobrança informando o id criado no `pedido_numero` na requisição `[DELETE] /contadigital/{credencial}/recebimentos/transacoes/{pedido_numero}`.
+
+@name("Invalidando um boleto bancário")
+DELETE "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/recebimentos/transacoes/{{pedido-numero}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+
+
+
+

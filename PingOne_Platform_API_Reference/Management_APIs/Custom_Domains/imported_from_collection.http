@@ -1,0 +1,103 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/customDomains` endpoint returns a list of all custom domain resources associated with the specified environment resource.
+
+@name("READ All Domains")
+GET "https://{{apiPath}}/environments/{{envID}}/customDomains"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single resource entity, the `GET /environments/{environmentId}/customDomains/{customDomainId}` operation returns data for the custom domain resource with the specified ID.
+// 
+
+@name("READ One Domain")
+GET "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/customDomains` operation adds a new resource entity to the specified environment resource.
+// 
+// ::: info
+// **Note:** An environment can have only one configured custom domain.
+// :::
+// 
+// 
+// The request body must specify a value for the resource entity's `domainName` property, and there cannot be an existing custom domain resource associated with the specified environment. If a custom domain resource already exists for this environment, the response returns a `UNIQUENESS_VIOLATION` error.
+
+@name("CREATE Domain")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "domainName": "custom-domain.example.com"
+}')
+
+
+// ::: info
+// **Note:** Remember, you cannot verify a custom domain until you update the DNS manager to add the CNAME record value, which consists of your domain name pointing to the PingOne `canonicalName` property value returned by the create request. In addition, after entering the CNAME record, it can take some time to propagate to the DNS servers, which, if the verification request is initiated too soon, can result in a verification failure.
+// :::
+// 
+// 
+// The `POST /environments/{environmentId}/customDomains/{customDomainId}` operation is used to validate a custom domain resource when the `status` property value is set to `VERIFICATION_REQURIED`. This operation uses the `application/vnd.pingidentity.domainName.verify+json` custom media type as the content type in the request header.
+// 
+// If successful, the response returns a `200 OK` message. If no CNAME record was found with the expected domain alias value, the response returns a `REQUEST_FAILED/VERFICATION_FAILED` error.
+
+@name("Verify Domain")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Content-Type": "application/vnd.pingidentity.domainName.verify+json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/customDomains/{customDomainId}` operation imports the SSL certificate used by the custom domain resource. The request is valid when the `status` property value is set to `SSL_CERTIFICATE_REQUIRED` or `ACTIVE`. This operation uses the `application/vnd.pingidentity.certificate.import+json` custom media type as the content type in the request header.
+// 
+// 
+// ::: info
+// **Note:** The `certificate`, `intermediateCertificates`, and `privateKey` property values in the request body must be expressed as a single line. To account for line breaks in the text, you must use the `\n` newline escape characters to represent a line break. For example, the following `certificate` text:
+// 
+// -----BEGIN CERTIFICATE-----
+// 
+// MIIFXDCCBESg...
+// 
+// must be written in the request body JSON as:
+// 
+// -----BEGIN CERTIFICATE-----\nMIIFXDCCBESg...
+// 
+// 
+// :::
+// 
+// 
+// 
+// 
+// If any of the certificates and keys are invalid, the response returns an `INVALID_VALUE` error. If the request is successful, the response returns a `200 OK` message.
+// 
+// ::: info
+// **Note:** When the `status` property returned in the response is `ACTIVE`, remember that it can take some time before the custom domain is operational.
+// :::
+
+@name("Import Certificate")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Content-Type": "application/vnd.pingidentity.certificate.import+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "certificate": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+  "intermediateCertificates": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+  "privateKey": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+}')
+
+
+// ::: info
+// **Note:** Before (or after) you delete a custom domain resource, it is recommended that you remove the CNAME record that you created for this domain from the DNS manager. This step is optional.  
+// :::
+// 
+// 
+// The sample shows the `DELETE /environments/{environmentId}/customDomains/{customDomainId}` operation to delete the custom domain resource entity specified by its ID in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Domain")
+DELETE "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+

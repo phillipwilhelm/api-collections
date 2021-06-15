@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// Get a page of server logs, selected with `page` and `logs_per_page` query parameters.
+// ##### Permissions
+// Must have `manage_system` permission.
+
+@name("Get logs")
+GET "https://{{baseURL}}/logs"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "logs_per_page"= "10000"
+
+
+
+// Add log messages to the server logs.
+// ##### Permissions
+// Users with `manage_system` permission can log ERROR or DEBUG messages.
+// Logged in users can log ERROR or DEBUG messages when `ServiceSettings.EnableDeveloper` is `true` or just DEBUG messages when `false`.
+// Non-logged in users can log ERROR or DEBUG messages when `ServiceSettings.EnableDeveloper` is `true` and cannot log when `false`.
+
+@name("Add log message")
+POST "https://{{baseURL}}/logs"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+"level": "warning",
+"message": "i haven\'t eaten"
+}')
+
+
+

@@ -1,0 +1,76 @@
+#!/usr/bin/env dothttp
+
+@name("VAT Rates")
+GET "https://{{region}}.vatapi.com/v2/vat-rates"
+"x-api-key": "{{x-api-key}}"
+? "rate_type"= "{{rate_type}}"
+
+
+// Retrieve an EU member states current VAT rate by setting the `country_code` query parameter to an EU member states 2 digit ISO country code, or allow VAT API to geolocate the country from an `ip_address` value. IPV6 ip addresses are supported.
+// 
+// When geolocating by an ip address you will notice there is a `geolocation_score` value returned in the response. This is a measure of the accuracy of the geolocation process. An integer value from 0-100 represents a confidence value that the country is correct.
+// 
+// Setting the `filter` parameter to 'ebooks' or 'enewspapers' will return the specific VAT rate for the member state, or if those product types do not have a specific VAT rate the standard `rates` object will be returned. In addition the `filter_match` value in the response will be Boolean true or false to indicate if a match was found.
+
+@name("VAT Rate Check")
+GET "https://{{region}}.vatapi.com/v2/vat-rate-check"
+"x-api-key": "{{x-api-key}}"
+? "rate_type"= "{{rate_type}}"
+? "country_code"= "{{country_code}}"
+? "ip_address"= "{{ip_address}}"
+? "filter"= "{{filter}}"
+
+
+
+// Validate UK & EU member state VAT numbers, this resource queries HMRC for UK VAT numbers and the VIES database ran by the European Commission for EU member state VAT numbers.
+// 
+// For audit trail purposes you can optionally specify your own organisations VAT Number as a `requester_vatid` query parameter, this will return  `consultation_number` and `consultation_authority` values. If you want to be able to prove to a Tax Administration of a Member State that you have checked a given VAT number at a given time, and obtained a given validation reply, please keep this consultation number in your archives.
+// 
+// **Note:- Since the UK left the EU it is important to understand that UK VAT registered companies can only request a consultation number when validating other UK VAT numbers, conversely EU companies can only request consultation numbers for other EU VAT numbers. If you pass a `requester_vatid` value where not applicable you will receive an error `status` and the `fault_string` will read 'Invalid Requester Country - Only EU VAT-registered businesses can request a consultation number from VIES' or 'Invalid Requester Country - Only UK VAT-registered businesses can request a consultation number from HMRC'.**
+// 
+// **The `validation` response object**
+// 
+// 	"validation": {
+// 		"status": "ok",
+// 		"fault_string": null,
+//     	"valid": true,
+//         "request_date": "2019-02-13+01:00",
+//         "consultation_number": null,
+// 		"consultation_authority": null,
+//         "company_name": "AMAZON EUROPE CORE S.A R.L.",
+//         "company_address": "38, AVENUE JOHN F. KENNEDY\nL-1855  LUXEMBOURG"
+// 	}
+// 
+// |Attribute|Type|Description|
+// |---|---|---|
+// |status|String|Will return 'ok' if the authorities database is accessible, 'error' if inaccessible and 'down' if the service is completely inaccessible.|
+// |fault_string|String|Will return a fault string upon an 'error' status, otherwise it will be set to null.|
+// |valid|Boolean|Will return true if a VAT number is valid, false if invalid.|
+// |request_date|String|The date of the request.|
+// |consultation_number|String|A unique string returned by HMRC or the VIES service to identify the request for audit purposes.|
+// |consultation_authority|String|The name of the relevant authority that was used to check the validity of the given `vatid`|
+// |company_name|String|The name of the organisation associated with the `vatid`. If this value returns:- '---', this means that the Member State that issued the VAT number does not allow the disclosure of this information.|
+// |company_address|String|The address of the organisation associated with the `vatid`. If this value returns:- '---', this means that the Member State that issued the VAT number does not allow the disclosure of this information.|
+
+@name("VAT Number Validation")
+GET "https://{{region}}.vatapi.com/v2/vat-number-check"
+"x-api-key": "{{x-api-key}}"
+"": ""
+? "vatid"= "{{vatid}}"
+? "requester_vatid"= "{{requester_vatid}}"
+
+
+// The VAT Price resource is a great time saver for shopping cart applications, simply pass in the country code of the customer, the price of the product/service they are purchasing, and the VAT Price resource will calculate the relevant VAT totals.
+
+@name("VAT Price")
+GET "https://{{region}}.vatapi.com/v2/vat-price"
+"x-api-key": "{{x-api-key}}"
+? "country_code"= "{{country_code}}"
+? "price"= "{{price}}"
+? "rate_type"= "{{rate_type}}"
+? "rate_category"= "{{rate_category}}"
+? "rate_level"= "{{rate_level}}"
+? "vat_charging_method"= "{{vat_charging_method}}"
+
+
+

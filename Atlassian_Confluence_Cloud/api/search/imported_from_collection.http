@@ -1,0 +1,66 @@
+#!/usr/bin/env dothttp
+
+// Searches for content using the
+// [Confluence Query Language (CQL)](https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/)
+// 
+// Example initial call:
+// ```
+// https://your-domain.atlassian.net/wiki/rest/api/search?cql=type=page&limit=25
+// ```
+// 
+// Example response:
+// ```
+// {
+//   "results": [
+//     { ... },
+//     { ... },
+//     ...
+//     { ... }
+//   ],
+//   "limit": 25,
+//   "size": 25,
+//   ...
+//   "_links": {
+//     "base": "<url>",
+//     "context": "<url>",
+//     "next": "/rest/api/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg",
+//     "self": "<url>"
+//   }
+// }
+// ```
+// 
+// When additional results are available, returns `next` and `prev` URLs to retrieve them in subsequent calls. The URLs each contain a cursor that points to the appropriate set of results. Use `limit` to specify the number of results returned in each call.
+// 
+// Example subsequent call (taken from example response):
+// ```
+// https://your-domain.atlassian.net/wiki/rest/api/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg
+// ```
+// The response to this will have a `prev` URL similar to the `next` in the example response.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to view the entities. Note, only entities that the user has
+// permission to view will be returned.
+
+@name("Search content")
+GET "https://{{baseUrl}}/api/search"
+? "cql"= "<string>"
+? "cqlcontext"= "<string>"
+? "cursor"= "<string>"
+? "limit"= "25"
+? "includeArchivedSpaces"= "false"
+
+
+// Searches for users using user-specific queries from the
+// [Confluence Query Language (CQL)](https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/).
+// 
+// Note that some user fields may be set to null depending on the user's privacy settings.
+// These are: email, profilePicture, and displayName.
+
+@name("Search users")
+GET "https://{{baseUrl}}/api/search/user"
+? "cql"= "<string>"
+? "start"= "0"
+? "limit"= "25"
+
+
+

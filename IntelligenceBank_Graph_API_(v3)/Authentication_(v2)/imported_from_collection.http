@@ -1,0 +1,57 @@
+#!/usr/bin/env dothttp
+
+// Use your Platform URL with this call to retrieve the V2 API Server URL to be used in subsequent V2 calls, such as Login.
+
+@name("Get v2 API URL (apiV2url)")
+GET "https://{{platformurl}}/v1/auth/app/getYapiAddress"
+
+
+// Login to your IntelligenceBank platform. While this call uses the v2 API, it also allows subsequent use of v3 Graph API calls. The required parameters and tokens for the use of either version will be provided in the response.
+
+@name("Standard Login (v2)")
+POST "https://{{apiV2url}}/webapp/1.0/login"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "p70": [
+        "{{login}}"
+    ],
+    "p80": [
+        "{{password}}"
+    ],
+    "p90": [
+        "{{platformurl}}"
+    ]
+})
+
+
+// Use the Browser Login process to authenticate via the Browser instead of the standard Login API call. This is the method to be used for users authenticating to IntelligenceBank via Single Sign On (i.e. SAML).
+
+@name("Browser Login Step 1 Get token")
+GET "https://{{platformurl}}/v1/auth/app/token"
+
+
+// After retrieving the token in the Browser Login Step 1 call ("content" parameter), open this URL in the browser to continue the authentication.
+
+@name("Browser Login Step 2 Open In Browser (not an API Call)")
+GET "https://{{platformurl}}/auth/"
+? "login"= "1"
+? "token"= "{{content}}"
+
+
+@name("Browser Login Step 3 After browser login")
+GET "https://{{platformurl}}/v1/auth/app/info"
+? "token"= "{{content}}"
+
+
+// After successfully authenticating via the browser, complete the Browser Login process with this call. Authentication allows subsequent use of both the v2 and v3 Graph API calls. The required parameters and tokens for the use of either API version will be provided in the response.
+// 
+// This call is only to be implemented if V2 calls are intended to be use after login.
+
+@name("Browser Login Step 3 After browser login (for V2 calls use upon login)")
+GET "https://{{apiV2url}}/webapp/1.0/info"
+? "p90"= "{{platformurl}}"
+? "p100"= "{{content}}"
+? "p60"= "{{productKey}}"
+
+
+

@@ -1,0 +1,360 @@
+#!/usr/bin/env dothttp
+
+// # SearchSubscriptions API
+//   
+// Search subscriber subscriptions
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Request
+// 
+// **IncludeRemoved** - If set to "true", active and removed subscriptions are returned in the results.  If ommitted or set to "false" only active subscriptons are returned. Default is "false".
+// 
+// # Request
+
+@name("SearchSubscriptions")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SearchSubscriptions"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+"Accept-Encoding": "gzip,deflate"
+data('{
+    "PageNumber" : 1,
+    "PageSize" : 100
+}')
+
+
+// # RetrieveSubscription API
+//   
+// Retrieve subscription details
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// 
+// # Request
+// 
+
+@name("RetrieveSubscription")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveSubscription"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+"Accept-Encoding": "gzip,deflate"
+data('{
+    "Id": {{SUBSCRIPTION_ID}},
+    "IncludeChangeOptions": true
+}')
+
+
+// # SubmitModifyOrder API
+// 
+// Submit an order to modify existing subscription service
+// 
+// Modifications include:
+// 
+// * Replace - Removes existing product and replaces it with a new product,
+// * Add - Adds child items to an existing bundled subscription,
+// * Remove - Remove child items from an existing bundled subscription,
+// * Change - Change pricing plan on an existing subscription item
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 1023 | InvalidUpgradeItem | Fault thrown when an attempt is made to add an invalid optional subscription product to an existing subscription bundle |
+// | 1031 | OrderSpendingLimitViolation | Fault indicating that the preceding action caused a violation in the current subscriber's set spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument. |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made. |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1016 | InvalidOrderStatus | Fault to be returned when an action is performed on an order in an invalid order status |
+// | 1038 | InvalidCouponRedemption | Fault that occurs when a coupon code is cannot be applied to an order or subscription |
+// | 1052 | InvalidExternalRedemptionRequest | Fault thrown when unable to handle external redemption request |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1043 | InvalidPricingPlanChange | Fault thrown when an invalid pricing plan change is attempted |
+// 
+// # Request
+// 
+// **ChangeImmediately** - Indicates that pricing plan changes should take place immediately (true) or upon the next subscription billing cycle (false).  Default is false.
+
+@name("SubmitModifyOrder (Set renewal subscription - next cycle)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitModifyOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+data('{
+    "ChangeItems": [
+        {
+            "PricingPlanId": {{PRICING_PLAN_ID_1}},
+            "SubscriptionItemId": {{SUBSCRIPTION_ITEM_ID}}
+        }
+    ],
+    "ChangeImmediately": false,
+    "SubscriptionId": {{SUBSCRIPTION_ID}}
+}')
+
+
+// # SubmitModifyOrder API
+// 
+// Submit an order to modify existing subscription service
+// 
+// Modifications include:
+// 
+// * Replace - Removes existing product and replaces it with a new product,
+// * Add - Adds child items to an existing bundled subscription,
+// * Remove - Remove child items from an existing bundled subscription,
+// * Change - Change pricing plan on an existing subscription item
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 1023 | InvalidUpgradeItem | Fault thrown when an attempt is made to add an invalid optional subscription product to an existing subscription bundle |
+// | 1031 | OrderSpendingLimitViolation | Fault indicating that the preceding action caused a violation in the current subscriber's set spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument. |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made. |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1016 | InvalidOrderStatus | Fault to be returned when an action is performed on an order in an invalid order status |
+// | 1038 | InvalidCouponRedemption | Fault that occurs when a coupon code is cannot be applied to an order or subscription |
+// | 1052 | InvalidExternalRedemptionRequest | Fault thrown when unable to handle external redemption request |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1043 | InvalidPricingPlanChange | Fault thrown when an invalid pricing plan change is attempted |
+// 
+// # Request
+// 
+// **ChangeImmediately** - Indicates that pricing plan changes should take place immediately (true) or upon the next subscription billing cycle (false).  Default is false.
+
+@name("SubmitModifyOrder (Set renewal subscription - immediate)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitModifyOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-DistributionChannel": "{{CD_DISTRIBUTION_CHANNEL}}"
+"Content-Type": "application/json"
+data('{
+    "ChangeItems": [
+        {
+            "PricingPlanId": {{PRICING_PLAN_ID_1}},
+            "SubscriptionItemId": {{SUBSCRIPTION_ITEM_ID}}
+        }
+    ],
+    "ChangeImmediately": true,
+    "SubscriptionId": {{SUBSCRIPTION_ID}}
+}')
+
+
+// # UpdateSubscription API
+// 
+// Update subscription service settings
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// | 1036 | SubscriptionNotRenewable | Fault thrown when an attempt is made to renew a subscription is not allowed to be renewed |
+// | 1022 | InvalidSubscriptionStatus | Fault thrown when a subscription with an invalid status is used in a request |
+// | 1029 | RenewalLimitReached | Fault indicating that the subscriber has reached their renewal limit and the product cannot be renewed any more |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument |
+// 
+// # Request
+// 
+// **Renew** - Indicates whether subscription should renew (true) or not renew (false) on the next cycle. Passing no value will keep the existing subscription state.
+
+@name("UpdateSubscription (Turn ON auto-renew)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/UpdateSubscription"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+data('{
+    "Id": {{SUBSCRIPTION_ID}},
+    "Renew": true,
+    "TerminationReason": 0
+}')
+
+
+// # UpdateSubscription API
+// 
+// Update subscription service settings
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// | 1036 | SubscriptionNotRenewable | Fault thrown when an attempt is made to renew a subscription is not allowed to be renewed |
+// | 1022 | InvalidSubscriptionStatus | Fault thrown when a subscription with an invalid status is used in a request |
+// | 1029 | RenewalLimitReached | Fault indicating that the subscriber has reached their renewal limit and the product cannot be renewed any more |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument |
+// 
+// # Request
+// 
+// **Renew** - Indicates whether subscription should renew (true) or not renew (false) on the next cycle. Passing no value will keep the existing subscription state.
+
+@name("UpdateSubscription (Turn OFF auto-renew)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/UpdateSubscription"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+data('{
+    "Id": {{SUBSCRIPTION_ID}},
+    "Renew": false,
+    "TerminationReason": 0
+}')
+
+
+// # SubmitRemoveOrder API
+// 
+// Submit an order to remove existing locker item entitlements or subscription services
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 1031 | OrderSpendingLimitViolation | Fault indicating that the preceding action caused a violation in the current subscriber's set spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures. |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1032 | SubscriberProductNotFound | Fault thrown when subscriber product cannot be found matching the requested identifier |
+// | 1016 | InvalidOrderStatus | Fault to be returned when an action is performed on an order in an invalid order status |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1033 | SubscriptionNotFound | Fault thrown when a subscription cannot be found matching the provided identifier |
+// 
+// # Request
+
+@name("SubmitRemoveOrder (Susbcriber)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitRemoveOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+data('{
+    "SubscriptionId": {{SUBSCRIPTION_ID}},
+    "RemoveReasonCode": 0 
+}')
+
+
+

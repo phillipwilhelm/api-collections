@@ -1,0 +1,114 @@
+#!/usr/bin/env dothttp
+
+// Home Greetings
+
+@name("Greetings")
+GET "https://{{baseurl}}/"
+
+
+// Register user with json payload and get token and user objects
+
+@name("Register")
+POST "https://{{baseurl}}/{{version}}/auth/register"
+"Content-Type": "application/json"
+data('{
+    "username": "sampreety",
+    "email": "sampreety@gmail.com",
+    "password": "adminsamp"
+}')
+
+
+// Login with email, password to get a JWT token
+
+@name("Login")
+POST "https://{{baseurl}}/{{version}}/auth/login"
+"Content-Type": "application/json"
+data('{
+	"email": "mohaiminul.sust@gmail.com",
+	"password": "admin"
+}')
+
+
+// Get all books
+
+@name("Get Books")
+GET "https://{{baseurl}}/{{version}}/books"
+"Authorization": "{{token}}"
+
+
+// Get all books with related nested user object
+
+@name("Get Books with user")
+GET "https://{{baseurl}}/{{version}}/books"
+"Authorization": "{{token}}"
+? "include"= "user"
+
+
+// Get all books in paginated manner with pagination object
+
+@name("Get paginated Books")
+GET "https://{{baseurl}}/{{version}}/books"
+"Authorization": "{{token}}"
+? "page"= "6"
+
+
+// Get all books in paginated manner with pagination object and nested related user object
+
+@name("Get paginated Books with user")
+GET "https://{{baseurl}}/{{version}}/books"
+"Authorization": "{{token}}"
+? "include"= "user"
+? "page"= "6"
+
+
+// Get a single book object by it's ID
+
+@name("Get single book by ID")
+GET "https://{{baseurl}}/{{version}}/books/57"
+"Authorization": "{{token}}"
+
+
+// Get a single book object by it's ID with nested related user object
+
+@name("Get single book by ID with user")
+GET "https://{{baseurl}}/{{version}}/books/1"
+"Authorization": "{{token}}"
+? "include"= "user"
+
+
+// Store a book object with json payload
+
+@name("Store a Book")
+POST "https://{{baseurl}}/{{version}}/books"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"title": "miambebo\'s dream",
+    "isbn": "83a82cfe-6928-5b65-8947-f77ea8fbe73c",
+    "publisher_name": "John Rodriguez",
+    "author_name": "Patrick Hopins"
+}')
+
+
+// Update a book object by ID with json payload
+
+@name("Update Book by ID")
+PUT "https://{{baseurl}}/{{version}}/books/59"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"title": "Dummy\'s Book",
+    "isbn": "83a82cfe-6928-5b65-8947-f77ea8fbe73c",
+    "publisher_name": "Jean Rodriguez",
+    "author_name": "Patrick Hopkins"
+}')
+
+
+// Delete a book by ID
+
+@name("Delete Book by ID")
+DELETE "https://{{baseurl}}/{{version}}/books/56"
+"Authorization": "{{token}}"
+
+
+

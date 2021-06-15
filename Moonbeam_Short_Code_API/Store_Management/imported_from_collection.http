@@ -1,0 +1,175 @@
+#!/usr/bin/env dothttp
+
+// This method allows the developer to create a store. You cannot send messages to and from subscribers without creating a store.  A store is essentially an opt-in container.  A store can be a brand or it can be a franchise location.   Subscriber's opt-in to that brand or location.  
+// 
+// Store names are limited to 45 characters and the name must be unique within the account.  Additionally, we ask for a compliance phone number and email for automatic addition to the store compliance templates created for the store.  You also have the option to add your callback URLs inside of the request.
+// 
+// For some folks, the question of having one store or many is rather simple.  However, some use cases make that a little more difficult to figure out.  Remember, we are here to help.  Don't hesitate to <a href="mailto:support@cloudwi.re">contact us</a> if you aren't sure!
+
+@name("Add Store")
+POST "https://moonbeamapi.cloudwi.re/account/addstore"
+"authorization": "{{Authorization}}"
+files(
+	("accountId", "{{accountId}}"),
+	("storeName", "Your Store Name"),
+	("timeZone", "Store Time Zone"),
+	("compliancePhone", "Store Phone Number"),
+	("complianceEmail", "Compliance Email Contact"),
+	("messageStatusURL", "Your Notification URL"),
+	("inboundCallbackURL", "Your Inbound Message URL")
+)
+
+
+// This method allows the developer to edit the compliant store templates.  By default, the cloudwi.re SMS API stores a default book of compliant SMS templates.  Each one can be edited as needed.  
+// 
+// Due to delivery and compliance concerns, compliance templates are limited to 160 characters or less.
+// 
+// <table>
+// <tr>
+// <td><b>Type</b></td>
+// <td><b>Meaning</b></td>
+// </tr>
+// <tr>
+// </tr>
+// <td>request</td>
+// <td>The opt-in request template.  The first template of double opt-in sent asking a subscriber to opt-in.</td>
+// </tr>
+// <tr>
+// <td>confirmation</td>
+// <td>The opt-in confirmation template which confirm a subscriber is opted-in.  The first template sent in single opt-in and the second sent after a subscriber replies YES to an opt-in request.</td>
+// </tr>
+// <tr>
+// <td>stop</td>
+// <td>The opt-out confirmation template confirming a subscriber has opted-out.</td>
+// </tr>
+// <tr>
+// <td>help</td>
+// <td>The reply from a help request for a subscriber describing the program name they are opted-in to and how to reach you.</td>
+// </tr>
+// <tr>
+// <td>already</td>
+// <td>The already opted-in template which is automated when a subscriber who is already opted-in attempts to opt-in again using a keyword.</td>
+// </tr>
+// <tr>
+// </table>
+
+@name("Edit Compliance Template")
+POST "https://moonbeamapi.cloudwi.re/account/store/edittemplate"
+"authorization": "{{Authorization}}"
+files(
+	("accountId", "{{accountId}}"),
+	("storeId", "{{storeId}}"),
+	("type", "The Template Type"),
+	("template", "Your Template")
+)
+
+
+// This method allows the developer to toggle off two automated template types that are managed by cloudwi.re.  
+// 
+// The first is the opt-in confirmation message that goes out after a keyword is received.  (Note:  Only for opt-in keywords received by a mobile subscriber.  API driven opt-ins will still receive automated opt-in confirmation or requests in Send Opt-In).  
+// 
+// By default, cloudwi.re manages and sends the opt-in confirmation on MO generated opt-in keywords.  But for developers who wish to send customized responses to each individual subscriber that sends in a keyword the option to disable this provides the flexibility to do so.  
+// 
+// The second automated template that the developer can manage is the Already Opted-in Message.  By default, this template is enabled when each new store is created.  This template is fired by cloudwi.re in the event that a subscriber who is already opted-in to the store sends in an opt-in keyword again.  It's a friendly reminder.  
+// 
+// That template is fired on the communication short code the subscriber is binded too.   It's just a friendly reminder.  The developer is free to edit this template from what the SMS API sends in Edit Store Templates.  But this option gives the developer to turn it off altogether and manage it within their business rules.     
+
+@name("Update Store Automation")
+POST "https://moonbeamapi.cloudwi.re/account/store/updateautomation"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("automationType", "Automation Type"),
+	("action", "Your Action")
+)
+
+
+// This method allows the developer to update or add the inbound message and notification callback URLs to an individual store.  The notification URL is sometimes referred to as the message status URL where messages that were failed by cloudwi.re due to opt-in status checks are posted.
+
+@name("Update Store Callback")
+POST "https://moonbeamapi.cloudwi.re/account/store/updatestorecallback"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("urlType", "The URL Type"),
+	("url", "The URL")
+)
+
+
+// This method allows the developer to retrieve pertinent store information such as store name, compliance admins, template content, callback URLs and keywords along with their type.
+// 
+// You will pass the storeId in the URL when making the request.
+
+@name("Store Details")
+GET "https://moonbeamapi.cloudwi.re/account/store/detail/{{storeId}}"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "57f348c9d16a10af2c4ec432"),
+	("start", "2016-09-30"),
+	("end", "2016-10-05"),
+	("fileType", "JSON"),
+	("email", "craig@crmtext.com")
+)
+
+
+// This method allows the developer to retrieve pertinent a stats snapshot of opt-ins, opt-outs and pending subscribers as well as a count of keywords for the store.  
+// 
+// You will pass the storeId in the URL when making the request.
+
+@name("Store Stats Snapshot")
+GET "https://moonbeamapi.cloudwi.re/portal/store/stats/{{storeId}}"
+"authorization": "{{Authorization}}"
+
+
+
+// The SMS API provides the developer with two methods to retrieve store subscribers by their opt-in status. This method is more reliable than the POST that sends a CSV or JSON file. We recommend when pulling subscriber data from a store with more than 15,000 subscribers that you utilize this method.
+// 
+// 100 records are returned per page number.
+
+@name("Store Subscribers")
+GET "https://moonbeamapi.cloudwi.re/subscriber/bystore/{{storeId}}/1"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "57fefdefd16a10e24608ad9a"),
+	("mobileId", "14155964193"),
+	("message", "Hi there!  Ok I'm here.")
+)
+
+
+// This method will pull down a list of outbound messages 1-2-1 messages from a specified store in the account by date.  The data is returned in batches of 100 and is sorted by most recent sent.
+
+@name("Sent Messages By Date")
+POST "https://moonbeamapi.cloudwi.re/account/store/sentmessage/history"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "59f0c127a3b89035e755f595"),
+	("start", "12-06-2019"),
+	("end", "12-06-2019"),
+	("page", "1")
+)
+
+
+// This method allows the developer to remove a store. Make darn sure that's what you want to do. Your account ID is required in this method and you can find it in the admin portal. A store deletion will result in the removal of all opted-in subscribers to the store and release their mobile IDs from the short codes they are binded to the store with. It will also result in the release of any keywords associated to the store. Although the data is archived, retrieving it for the sole fact that you accidentally deleted it is going to cost you some jack.
+// 
+// This request is placed on a job queue. When completed you will get a post to your notification URL that the store, its keywords and subscribers associated to it, were removed.
+
+@name("Delete Store")
+POST "https://moonbeamapi.cloudwi.re/account/deletestore"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("accountId", "{{accountId}}")
+)
+
+
+// This method will pull down a list of inbound and outbound messages from a specified store in the account.  It's built for tracking conversations and mobile history.  However, it does not return sent campaign messages.
+// 
+// It's in most recent order and you may page through the results.  Set the Store ID in the URL of your request.
+
+@name("Store Messages")
+GET "https://moonbeamapi.cloudwi.re/account/store/messages/{{storeId}}/1"
+"authorization": "{{Authorization}}"
+
+
+
+

@@ -1,0 +1,276 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation creates a new project.
+// 
+// <h2>Request Body</h2>
+// <table>
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>clientType</td>
+// <td>Edge drive client value</td>
+// </tr>
+// <tr>
+// <td>systemDriveType</td>
+// <td>EDiscovery value</td>
+// </tr>
+// <tr>
+// <td>eDiscoverySubType</td>
+// <td>GDPR value</td>
+// </tr>
+// <tr>
+// <td>seaDataSourceId</td>
+// <td>Id value of desired inventory</td>
+// </tr>
+// <tr>
+// <td>planId</td>
+// <td>Id value of desired plan</td>
+// </tr>
+// <tr>
+// <td>clientName</td>
+// <td>Desired name of project</td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Project")
+POST "https://{{ServerUrl}}/EDiscoveryClients/Clients"
+"Accept": "application/xml"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "clientInfo" : {
+	"clientType" : 19,
+	"edgeDrivePseudoClientProperties" : {
+		"systemDriveType" : 6,
+		"edgeDriveAssociations" : {
+		},
+		"eDiscoveryInfo" : {
+			"eDiscoverySubType" : 2,
+			"inventoryDataSource" : {
+				"seaDataSourceId" : 1
+			}
+		}
+	},
+	"plan" : {
+		"planId" : {{planId}}
+	}
+  },
+  "entity" : {
+  	"clientName" : "Rest_Api_Project" 
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation retrieves all of the projects.
+
+@name("Projects")
+GET "https://{{ServerUrl}}/EDiscoveryclients"
+"Accept": "application/xml"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation adds a data source to the project
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>datasourceType</td>
+// <td>
+// <p>values:<br />- File System : 5<br />- SharePoint : 28<br />- Email : 29<br />- OneDrive : 27<br />- Database : 30<br />- Google Drive : 32<br />- Gmail : 33</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Add Data Source")
+POST "https://{{ServerUrl}}/EDiscoveryClients/DataSources"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<DM2ContentIndexing_ClientDatasource datasourceId="1" indexServerClientId="4" clientId="{{projectId}}">
+    <datasources datasourceName="dm2perf2123" datasourceType="5">	
+        <properties propertyName="countryCode" propertyValue="US"/>
+        <properties propertyName="includedirectoriespath" propertyValue="{{datasourcePath}}"/>
+        <properties propertyName="dcplanid" propertyValue="{{planId}}"/>
+        <properties propertyName="name" propertyValue="dm2perf2"/>
+        <properties propertyName="domainName" propertyValue="dm2.commvault.com"/>
+        <properties propertyName="dNSHostName" propertyValue="DM2PERF2.dm2.commvault.com"/>
+        <properties propertyName="operatingSystem" propertyValue="Windows"/>
+    </datasources>
+</DM2ContentIndexing_ClientDatasource>')
+
+
+// <h2>Description</h2>
+// This operation retrieves the all details of a project, including data source, plan, inventory, etc. 
+
+@name("Project Configuration")
+GET "https://{{ServerUrl}}/EDiscoveryClients/{{projectId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+
+
+// <h2>Description</h2>
+// This operation retrieves the default handler of a datasource.
+
+@name("Datasource Handler")
+GET "https://{{ServerUrl}}/dcube/getdefaulthandler/{{datasourceId}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation retrieves all sensitive data files in datasource
+
+@name("Datasource Files")
+GET "https://{{ServerUrl}}/dcube/handler/{{datasourceHandlerId}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation will update the security configuration for a given project
+// 
+// <h2>Request Body</h2>
+// <table width="488">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>categoriesPermissionOperationType</td>
+// <td>
+// <p>values:<br />-Overwrite : 1<br />-Add : 2<br />-Delete : 3</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Update Project Security")
+POST "https://{{ServerUrl}}/EDiscoveryClients/Security"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<App_UpdateSecurityAssociationRequest> 
+    <entityAssociated> 
+        <entity clientId="{{projectId}}" _type_="3"/> 
+    </entityAssociated> 
+    <securityAssociations associationsOperationType="1"> 
+        <associations> 
+            <userOrGroup userId="0" _type_="13" userName="admin"/> 
+            <properties> 
+                <categoryPermission categoriesPermissionOperationType="1"> 
+                    <categoriesPermissionList permissionId="31" permissionName="View" _type_="122"/> 
+                    <categoriesPermissionList permissionId="2" permissionName="Agent Management" _type_="122"/> 
+                </categoryPermission> 
+            </properties> 
+        </associations> 
+    </securityAssociations> 
+</App_UpdateSecurityAssociationRequest>   ')
+
+
+// <h2>Description</h2>
+// This operation performs all datasource file actions, such as delete file, move file, and change properties.
+
+@name("Datasource File Action")
+POST "https://{{ServerUrl}}/EDiscoveryClients/Datasources/Actions"
+"Content-Type": "application/xml"
+"Authtoken": "{{TOKEN}}"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<App_EDiscoveryActionReq operation="11" files=\'[{"file":"C:\\Users\\administrator.DM2\\Desktop\\TestData\\TestData.txt","dsid":"{{datasourceId}}","contentid":"20a8b8353c66a4e0cd35fcae4dcbba4e","CreatedTime":"2019-06-28T17:36:51Z","ClientId":2}]\' ignoreAllRisks="1"/>')
+
+
+// <h2>Description</h2>
+// This operation searches a data source for a specified value or entity.
+
+@name("Search Datasource")
+POST "https://{{ServerUrl}}/dcube/handler/{{datasourceHandlerId}}"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "searchParams": [
+        {
+            "key": "q",
+            "value": "(entity_ssn:111-11-1111)"
+        }
+    ]
+}')
+
+
+// <h2>Description</h2>
+// This operation updates datasource directory path and display name.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>datasourceType</td>
+// <td>
+// <p>values:<br />- File System : 5<br />- SharePoint : 28<br />- Email : 29<br />- OneDrive : 27<br />- Database : 30<br />- Google Drive : 32<br />- Gmail : 33</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Edit Datasource")
+PUT "https://{{ServerUrl}}/EDiscoveryClients/Datasources"
+"Content-Type": "application/xml"
+"Authtoken": "{{TOKEN}}"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<DM2ContentIndexing_ClientDatasource datasourceId="{{datasourceId}}">
+	<datasources datasourceId="{{datasourceId}}" datasourceName="{{datasourceName}}" datasourceType="5" displayName="TestName">
+        <properties propertyName="includedirectoriespath" propertyValue="C:\Users\administrator.DM2\Desktop\TestData"/>
+    </datasources>
+</DM2ContentIndexing_ClientDatasource>')
+
+
+// <h2>Description</h2>
+// This operation starts a data crawl from the given file source
+
+@name("Start Data Crawl")
+GET "https://{{ServerUrl}}/EDiscoveryClients/Clients/{{projectId}}/Jobs"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+? "datasourceId"= "{{datasourceId}}"
+? "type"= "1"
+? "operation"= "3"
+
+
+// <h2>Description</h2>
+// This operation deletes a given data source from a project
+
+@name("Datasource")
+DELETE "https://{{ServerUrl}}/EDiscoveryClients/Datasources"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+? "clientId"= "{{projectId}}"
+? "datasourceId"= "{{datasourceId}}"
+
+
+// <h2>Description</h2>
+// This operation deletes a given project.
+
+@name("Project")
+DELETE "https://{{ServerUrl}}/EDiscoveryClients/Clients/{{projectId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+
+
+

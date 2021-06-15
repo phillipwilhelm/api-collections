@@ -1,0 +1,136 @@
+#!/usr/bin/env dothttp
+
+@name("updatePrice")
+PUT "https://{{url}}/v3/price"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"content-type": " application/json"
+data('{"sku":"97964_KFTest","pricing":[{"currentPriceType":"BASE","currentPrice":{"currency":"USD","amount":10}}]}
+')
+
+
+@name("bulkUpdatePrice")
+POST "https://{{url}}/v3/feeds"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+? "feedType"= "price"
+data('{
+  "PriceHeader": {
+    "version": "1.7"
+  },
+  "Price": [
+    {
+      "sku": "30348_KFTest",
+      "pricing": [
+        {
+          "currentPrice": {
+            "currency": "USD",
+            "amount": 3
+          },
+          "currentPriceType": "REDUCED",
+          "comparisonPriceType":"BASE",
+          "comparisonPrice": {
+            "currency": "USD",
+            "amount": 4.99
+          }
+        }
+      ]
+    },
+    {
+      "sku": "OT-PP7F-QGUG",
+      "pricing": [
+        {
+          "currentPrice": {
+            "currency": "USD",
+            "amount": 3
+          },
+          "currentPriceType": "REDUCED",
+          "comparisonPriceType":"BASE",
+          "comparisonPrice": {
+            "currency": "USD",
+            "amount": 4.99
+          }
+        }
+      ]
+    }
+  ]
+}')
+
+
+@name("getInventory")
+GET "https://{{url}}/v3/inventory"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+? "sku"= "97964_KFTest"
+
+
+@name("setupCAPskuAll")
+POST "https://{{url}}/v3/cppreference"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "statusInfo": {
+    "subsidyEnrolled": {
+      "value": true
+    }
+  }
+}')
+
+
+@name("setUpCAPSKUOpt-in out")
+POST "https://{{url}}/v3/feeds"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/xml"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/xml"
+? "feedType"= "CPT_SELLER_ELIGIBILITY"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<PriceFeed xmlns="http://walmart.com/">
+  <PriceHeader>
+    <version>1.5.1</version>
+  </PriceHeader>
+  <Price>
+    <itemIdentifier>
+      <sku>sku-656666666</sku>
+    </itemIdentifier>
+    <pricingList>
+      <pricing>
+        <currentPrice>
+          <value currency="USD" amount="4.00"/>
+        </currentPrice>
+      </pricing>
+    </pricingList>
+  </Price>
+  <Price>
+    <itemIdentifier>
+      <sku>sku-656666667</sku>
+    </itemIdentifier>
+    <pricingList>
+      <pricing>
+        <currentPrice>
+          <value currency="USD" amount="4.00"/>
+        </currentPrice>
+      </pricing>
+    </pricingList>
+  </Price>
+</PriceFeed>
+')
+
+
+

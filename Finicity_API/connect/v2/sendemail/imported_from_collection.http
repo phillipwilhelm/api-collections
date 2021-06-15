@@ -1,0 +1,117 @@
+#!/usr/bin/env dothttp
+
+// Rather than adding a Connect URL link into your applications, this API allows you to send a Connect email to the consumer. The `experience` parameter refers to the type of connect experience (per session) you want for the customer such as, the brand color, logo, icon, and which credit decisioning report to generate when the Connect application completes.
+// 
+// **Note**: Contact your Sales Account Team to set up the `experience` parameter.
+// 
+// **MVS Developers**: Use the `experience` parameter to call (per session) the MVS application modules in the body of the request. When the consumer opens the email, they’ll click a button that opens the Connect application or the MVS application modules.
+// 
+// You can prepopulate the consumer’s SSN (only the last 4 digits appear) and DOB to display on the Find employment records page at the beginning of the MVS payroll module. Pass the SSN and DOB values for the consumer in the body of the request call.
+
+@name("Send V2 Connect Email")
+POST "https://{{baseUrl}}/connect/v2/send/email"
+"Content-Type": "application/json"
+data('{
+    "partnerId": 1445585709680,
+    "customerId": 1005061234,
+    "consumerId": "86238nvnw7269e224a4e3de12352d87d",
+    "type": "voa",
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "analytics": "google:UA-123456789-1",
+    "email": {
+        "to": "fin.user@finicity.com",
+        "supportPhone": "800-555-5555",
+        "subject": "Verify your income",
+        "firstName": "Bob",
+        "brandColor": "#4287f5",
+        "brandLogo": "https://acme-lending.com/logo.png",
+        "institutionName": "Acme Lending",
+        "institutionAddress": "222 Winipeg Drive SLC UT, 84109",
+        "signature": [
+            "Cindy Mayfield",
+            "Senior Loan Officer",
+            "Direct 123-456-7890"
+        ]
+    },
+    "experience": "default",
+    "fromDate": 12345678,
+    "reportCustomFields": [
+        {
+            "label": "loanID",
+            "value": 12345,
+            "shown": true
+        },
+        {
+            "label": "branchID",
+            "value": 55555,
+            "shown": false
+        }
+    ]
+}')
+
+
+// Send a Connect email to at least one of the joint borrower’s email addresses. Use the `experience` parameter to call the MVS application module in the body of the request.
+//  
+// When the consumer opens the email, MVS prompts for both of the borrowers to enter all their financial, payroll, and paystub information. The primary and joint borrower’s experience is all done in one session.
+//  
+// You can prepopulate the consumer’s SSN (only the last 4 digits appear) and DOB to display on the Find employment records page at the beginning of the MVS payroll module. Pass the SSN and DOB values for the consumer in the body of the request call.
+
+@name("Send V2 Connect Email - Joint Borrower")
+POST "https://{{baseUrl}}/connect/v2/send/email/jointBorrower"
+"Content-Type": "application/json"
+data('{
+    "partnerId": 1445585709680,
+    "borrowers": [
+        {
+            "customerId": 1005061234,
+            "consumerId": "1973f901305e2ab3ba8840f411f6b057",
+            "type": "primary",
+            "optionalConsumerInfo": {
+                "ssn": 123412134,
+                "dob": 315576000
+            }
+        },
+        {
+            "customerId": 1005063558,
+            "consumerId": "1973f901305e2ab3ba8840f41112asdf9f",
+            "type": "jointBorrower",
+            "optionalConsumerInfo": {
+                "ssn": 351225513,
+                "dob": 625726800
+            }
+        }
+    ],
+    "experience": "default",
+    "webhook": "https://webhook.site/8d4421a7-d1d1-4f01-bb08-5370aff0321b",
+    "webhookContentType": "application/json",
+    "email": {
+        "to": "fin.user@finicity.com",
+        "supportPhone": "800-555-5555",
+        "subject": "Verify your assets, income and employment",
+        "firstName": "Marvin and Jenny",
+        "institutionName": "Acme Lending",
+        "institutionAddress": "222 Winipeg Drive SLC UT, 84109",
+        "signature": [
+            "Cindy Mayfield",
+            "Senior Loan Officer",
+            "Direct 123-456-7890"
+        ]
+    },
+    "fromDate": 12345678,
+    "reportCustomFields": [
+        {
+            "label": "loanID",
+            "value": 12345,
+            "shown": true
+        },
+        {
+            "label": "branchID",
+            "value": 55555,
+            "shown": false
+        }
+    ]
+}')
+
+
+

@@ -1,0 +1,84 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgAlarmTemplates")
+GET "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates"
+
+
+@name("getOrgAlarmTemplateDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates/:alarmtemplate_id"
+
+
+// Available rules can be found in Orgs>Consts>getAlarmDefs
+// 
+// The delivery dict is only required if different from the template delivery settings.
+
+@name("createOrgAlarmTemplate")
+POST "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Global",
+    "delivery": {
+        "enabled": false,
+        "to_org_admins": true,
+        "to_site_admins": true,
+        "additional_emails": []
+    },
+    "rules": {
+        "device_down": {
+            "enabled": true,
+            "delivery": {
+                "enabled": false,
+                "to_org_admins": true,
+                "to_site_admins": true,
+                "additional_emails": []
+            }
+        }
+    }
+})
+
+
+@name("updateOrgAlarmTemplate")
+PUT "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates/:alarmtemplate_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Global"
+})
+
+
+@name("deleteOrgAlarmTemplate")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates/:alarmtemplate_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// In certain situations, for example, scheduled maintanance, you may want to suspend alarms to be triggered for a period of time.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// duration|int|duration, in seconds. Deafult is 60. Maximum allowed duration is 1 day (86400).
+
+@name("suppressOrgAlarmTemplate")
+POST "https://{{host}}/api/v1/orgs/:org_id/alarmtemplates/suppress"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "duration": 60,
+    "applies": {
+        "org_id": "2818e386-8dec-2562-9ede-5b8a0fbbdc71",
+        "sitegroup_ids": [
+            "581328b6-e382-f54e-c9dc-999983183a34",
+            "f57096b9-0c2f-4df6-c77b-ae6ae87a3d43"
+        ],
+        "site_ids": [
+            "4ac1dcf4-9d8b-7211-65c4-057819f0862b"
+        ]
+    }
+})
+
+
+

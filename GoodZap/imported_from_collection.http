@@ -1,0 +1,122 @@
+#!/usr/bin/env dothttp
+
+// Method for queuing one or more messages. Send the preprocessed message or send the sample object containing the data to process the informed status template.
+// 
+// 
+// To prevent spamming, the API will not allow messages with the same orderId and Status to be sent more than once. However, due to the asynchronous nature of the operation between the extension and the API, a message may be sent more than once if the Whatsapp application on the smartphone or WhatsApp loses internet connection.
+
+@name("Enqueue Message Feed")
+POST "https://goodzap-for-all.herokuapp.com/enqueue"
+"Content-Type": "application/json"
+? "F22AppAuthToken"= "{{goodZapAuthToken}}"
+data('[
+	{
+		"orderId":"AAABer44",
+		"state":"Delivered",
+		"phone":"+5543991158827",
+		"message":"Your package was delivered."
+		
+	}
+	]')
+
+
+// Get current message queue.
+
+@name("Get Current Message Queue")
+GET "https://goodzap-for-all.herokuapp.com/queue"
+"Content-Type": "application/json"
+? "goodZapAuthToken"= "{{goodZapAuthToken}}"
+
+
+// Get current message queue.
+
+@name("Generate Current Month Payment Report")
+POST "https://goodzap-dev.herokuapp.com/payments"
+"Content-Type": "application/json"
+? "F22AppAuthToken"= "9baedc6d-ba9d-4232-8449-ff0491f26c22"
+data('{
+    "userId": "5d26321805fd4c7c89b86b64",
+    "dateBegin": "2021-01-01T00:00:00.000",
+    "dateEnd": "2021-02-01T00:00:00.000"
+}')
+
+
+@name("Get Current Account Configuration")
+GET "https://goodzap-for-all.herokuapp.com/config"
+"Content-Type": "application/json"
+? "F22AppAuthToken"= "{{goodZapAuthToken}}"
+
+
+// Update account with phones numbers and templates.
+// 
+// Use Handlebars syntax for the templates parameter. More Info at:
+// https://handlebarsjs.com/
+
+@name("Update Account Configuration")
+POST "https://goodzap-for-all.herokuapp.com/config"
+"Content-Type": "application/json"
+? "F22AppAuthToken"= "{{goodZapAuthToken}}"
+data('{
+        "defaultPhoneNumberFrom": "+5511999999999",
+        "defaultPhoneNumberTo": "+5511999999999",
+        "templates": [
+            {
+                "_id": "5d5c011ab52e3a2408a63c44",
+                "template": "Hello {{name}}, your package was delivered.",
+                "status": "Delivered",
+                "active": true,
+                "sample": "{\n \"name\":\"Luke Skywalker from Tatooine\"\n}",
+                "config": {
+                    "delayInSec": 0,
+                    "delayBasedOnPropPath": ""
+                }
+            }
+        ]
+}')
+
+
+// Clears the current message queue.
+
+@name("Clear Current Queue")
+POST "https://goodzap-for-all.herokuapp.com/queue/clear"
+? "F22AppAuthToken"= "{{goodZapAuthToken}}"
+
+
+// Test a template with sample data. Useful for testing functions and templates in the GUI before saving a new template in account settings.
+// 
+// Use Handlebars syntax for the template parameter. More Info at:
+// https://handlebarsjs.com/
+
+@name("Test a template ")
+POST "https://goodzap-for-all.herokuapp.com/testTemplate/"
+"Content-Type": "application/json"
+? "goodZapAuthToken"= "{{goodZapAuthToken}}"
+data('{
+	
+	"template":"Hello {{name}}. Your package will be delivered at {{address}}.",
+	"inputData":{
+		"name":"Jack",
+		"address":"87 St Francis St Newark, NJ 07105"
+	}
+}')
+
+
+// Result Length Limit: 200
+
+@name("Search and List Messages")
+GET "https://goodzap-for-all.herokuapp.com/messages"
+? "goodZapAuthToken"= "b4af75e9-e53e-40ea-9f6f-963ad2819ae8"
+? "searchTerm"= "{{searchTerm}}"
+
+
+// Result Length Limit: 200
+
+@name("Get Msg Count Per Hour")
+GET "http://localhost/messages/stats/msgCountPerHour"
+? "F22AppAuthToken"= "dd81dda6-624a-4769-b4eb-e42860b64699"
+? "startDate"= "2020-12-01T00:00:00.000+0000"
+? "endDate"= "2014-02-27T10:00:00"
+? "endDate"= "2014-02-27T10:00:00"
+
+
+

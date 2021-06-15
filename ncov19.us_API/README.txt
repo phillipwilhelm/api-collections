@@ -1,0 +1,1 @@
+API Support: ncov19us@gmail.com | URL: https://github.com/ncov19-us/back-end | [GNU GENERAL PUBLIC LICENSE](https://github.com/ncov19-us/back-end/blob/master/LICENSE)

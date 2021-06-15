@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+@name("Enable tenant single-sign on")
+POST "https://{{ServerUrl}}/CommCell/DomainController"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "operation": 1,
+    "provider": {
+        "serviceType": 2,
+        "flags": 1,
+        "login": "{{SSOlogin}}",
+        "enabled": 1,
+        "ownerCompanyId": {{SSOownerCompanyId}},
+        "useSecureLdap": 0,
+        "connectName": "{{SSOconnectName}}",
+        "bLogin": "{{SSObLogin}}",
+        "tppm": {
+            "enable": false,
+            "tppmType": 4,
+            "proxyInformation": {
+                "adProxyList": [
+                    {
+                        "clientId": 2
+                    }
+                ]
+            }
+        },
+        "shortName": {
+            "domainName": "{{SSOdomainName}}"
+        }
+    }
+}')
+
+
+@name("Onboarding a tenant user")
+POST "https://{{ServerUrl}}/user"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "userType": 5,
+    "users": [
+        {
+            "companyName": "",
+            "associatedUserGroupsOperationType": 2,
+            "enableUser": true,
+            "email": "",
+            "systemGeneratePassword": false,
+            "associatedExternalUserGroupsOperationType": 2,
+            "fullName": "",
+            "userEntity": {
+                "_type_": 13,
+                "newName": "{{newName}}",
+                "userName": "{{userName}}"
+            },
+            "associatedExternalUserGroups": [
+                {
+                    "groupId": {{groupId}}
+                }
+            ],
+            "provider": {
+                "providerId": {{providerId}}
+            }
+        }
+    ]
+}')
+
+
+

@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+@name("Instant query with query params")
+GET "{{protocol}}://{{host}}/api/v1/query"
+"Accept": "application/json"
+? "query"= "counter_orders_total"
+? "time"= "2020-12-29T12:32:28Z"
+? "timeout"= "5"
+
+
+@name("Instant query with body")
+POST "{{protocol}}://{{host}}/api/v1/query"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "query": [
+        "gauge_fulfillment"
+    ],
+    "time": [
+        "2020-12-29T12:47:16Z"
+    ],
+    "timeout": [
+        "5"
+    ]
+})
+
+
+@name("Range query")
+POST "{{protocol}}://{{host}}/api/v1/query_range"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "query": [
+        "histogram_service_bucket"
+    ],
+    "start": [
+        "2020-12-29T12:30:55Z"
+    ],
+    "end": [
+        "2020-12-29T12:32:13Z"
+    ],
+    "step": [
+        "10"
+    ],
+    "timeout": [
+        "5"
+    ]
+})
+
+
+@name("Query by labels")
+POST "{{protocol}}://{{host}}/api/v1/series"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "match[]": [
+        "flask_http_request_total{method=\"GET\"}"
+    ],
+    "start": [
+        "2020-12-29T12:30:55Z"
+    ],
+    "end": [
+        "2020-12-29T12:32:13Z"
+    ]
+})
+
+
+@name("Get label names")
+POST "{{protocol}}://{{host}}/api/v1/labels"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "start": [
+        "2020-12-29T12:30:55Z"
+    ],
+    "end": [
+        "2020-12-29T12:32:13Z"
+    ]
+})
+
+
+@name("Get label values")
+GET "{{protocol}}://{{host}}/api/v1/label/path/values"
+"Accept": "application/json"
+"Content-Type": "application/x-www-form-urlencoded"
+? "start"= "2020-12-29T12:30:55Z"
+? "end"= "2020-12-29T12:32:13Z"
+
+
+@name("Get targets")
+GET "{{protocol}}://{{host}}/api/v1/targets"
+"Accept": "application/json"
+? "state"= "dropped"
+
+
+@name("Get target metadata (available metrics)")
+GET "{{protocol}}://{{host}}/api/v1/targets/metadata"
+"Accept": "application/json"
+? "match_target"= "labelname"
+? "metric"= "histogram_service"
+? "limit"= "10"
+
+
+@name("Get metric metadata")
+GET "{{protocol}}://{{host}}/api/v1/metadata"
+"Accept": "application/json"
+? "metric"= "gauge_fulfillment"
+? "limit"= "10"
+
+
+

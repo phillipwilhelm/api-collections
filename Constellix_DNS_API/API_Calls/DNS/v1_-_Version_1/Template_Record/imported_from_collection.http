@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of all records in the specified template.
+// 
+// Note: Record Fields description is available in Domain Records section.
+
+@name("Get all Templates Records")
+GET "https://api.dns.constellix.com/v1/templates/547/records"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+? "offset"= "0"
+? "max"= "10"
+? "sort"= "name"
+? "order"= "asc"
+
+
+// Creates one or more new records within the specified domain.
+// Note: Record Fields description is available in Domain Records section.
+
+@name("Create a Template Record")
+POST "https://api.dns.constellix.com/v1/templates/547/records/A"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+data('{
+  "recordOption": "roundRobinFailover",
+  "name": "rrf",
+  "ttl": 1800,
+  "roundRobinFailover": [
+    {
+      "value": "15.45.25.35",
+      "sortOrder": 1,
+      "checkId": ""
+    },
+    {
+      "value": "154.45.25.35",
+      "sortOrder": 2,
+      "checkId": ""
+    }
+  ],
+  "source": "template",
+  "noAnswer": false
+}')
+
+
+// Returns a specific record within the specified template.
+
+@name("Get an Existing Template Record")
+GET "https://api.dns.constellix.com/v1/templates/547/records/A/93230"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+files(
+	("id", "{{id1}}")
+)
+
+
+// Updates an existing record within the specified template.
+// Note: Record Fields description is available in Domain Records section.
+
+@name("Update an Existing Template Record")
+PUT "https://api.dns.constellix.com/v1/templates/547/records/A/93230"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+data('{
+
+  "recordOption": "roundRobinFailover",
+  "name": "updateNow",
+  "ttl": 1800,
+  "roundRobinFailover": [
+    {
+      "value": "15.45.25.23",
+      "sortOrder": 1
+    },
+    {
+      "value": "154.45.25.24",
+      "sortOrder": 2
+    }
+  ],
+  "source": "template",
+  "noAnswer": false
+}')
+
+
+// Deletes an existing record within the specified template.
+
+@name("Delete an Existing Template Record")
+DELETE "https://api.dns.constellix.com/v1/templates/547/records/A/93230"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+
+
+
+// Deletes all records within the specified template.
+
+@name("Delete all Records in Existing Template")
+DELETE "https://api.dns.constellix.com/v1/templates/547/records"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+
+
+
+

@@ -1,0 +1,211 @@
+#!/usr/bin/env dothttp
+
+// **{{base_url}}**
+// 
+// PREPROD : https://preprod.aadhaarapi.com
+// 
+// PRODUCTION: https://prod.aadhaarapi.com
+// 
+//  **Request Parameters**
+//  
+//  | Property Name      | Required           | Value  |
+// | ------------- |:-------------:| -----:|
+// | mode      | true | REDIRECT _(POPUP will be available in future releases)_ |
+// | redirect_url      | true      |   A valid URL -_where customer will be redirected back to once the transaction is completed._ |
+// | webhook_url | true    |    A valid POST URL - _where fetched statement data or error response will be sent from our backend on completion/failure of the transaction._|
+// | purpose | true    |    Purpose for which bank statement is being fetched.|
+// | bank |false    |   *icici* or *yesbank* or *hdfc* or *sbi* or *axis* or *kotak* or *sc*|
+// |months | false    |    1 to 12 _(In case bank does not allow more than provided months, the maximum allowed will be returned)._|
+// 
+// Currently, supported banks are ICICI, YES BANK, HDFC, STATE BANK OF INDIA, AXIS, KOTAK, STANDARD CHARTERED.
+// 
+// **SUCCESSFUL RESPONSE**
+// ```json
+// {
+//     "id": "<<transaction_id>>",
+//     "mode": "REDIRECT",
+//     "env": "PREPROD",
+//     "webhook_security_key": "<<UUID>>",
+//     "request_version": "1.0",
+//     "request_timestamp": "2020-01-13T13:31:16.941Z",
+//     "expires_at": "2020-01-13T13:41:16.941Z"
+// }
+// ```
+// |Property Name        | Required           | Value  |
+// | ------------- |:-------------:| -----:|
+// | id      | UUID / Transaction ID | This is the transaction ID. |
+// | mode      | REDIRECT      |   The mode provided in init API. |
+// | env | PREPROD or PROD      |    For which environment you initiated the request. |
+// | webhook_security_key | UUID      |    Check this key when receiving any response on webhook. |
+// |request_version | 1.0      |    The version of the request using. |
+// | request_timestamp | date-time      |    Time at which request sent. |
+// | expires_at | date-time      |   The time when transaction ID expires. |
+// 
+// Once transaction ID is generated you can use our web SDK to open BSA gateway and proceed.
+// 
+// 
+// **NOTE:** Please check the **webhook_security_key** when receiving any response on the webhook. If the keys didn’t match then **don’t proceed** with the request.
+// 
+// 
+// **FAILURE RESPONSE**
+// 
+// ```json
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "<<message about the error>>"
+// }
+// ```
+// 
+// #### Webhook Response
+// 
+// The webhook response will be sent to `webhook_url` provided at the init call.You might receive multiple responses for a single transaction. The response(s) will be send when the user start any kind of interaction with the gateway. When receiving the webhook response please match the webhook_security_key in the header of the request to be the same as the one provided in the init call. If they are not the same **you must abandon the webhook response**.
+// 
+// **SUCCESS RESPONSE**
+// ```json
+// {
+//   "id": "<<transaction_id>>",
+//   "mode": "REDIRECT",
+//   "env": "PRODUCTION",
+//   "bank": "YESBANK",
+//   "response_code": 1,
+//   "response_message": "Transaction Successful",
+//   "last_user_stage_code": "<<Stage Code>>",
+//   "last_user_stage": "<<Stage>>",
+//   "request_version": "1.0",
+//   "request_medium": "<<web | android | ios>>",
+//   "sdk_name": "1",
+//   "data": {
+//     "metadata": {
+//       "acc_number": "<<account_number>>",
+//       "start_date": "13/02/2019",
+//       "end_date": "12/02/2020"
+//     },
+//     "transactions": [
+//       {
+//         "date": "2019-03-17",
+//         "value_date": "2019-03-17",
+//         "chq": "",
+//         "particulars": "UPI/123123123/From:upi@ybl/To:upi@ybl/Payment from PhonePe",
+//         "balance": 100,
+//         "amount": 100,
+//         "label": "CREDIT",
+//         "validation": true
+//       },
+//       {
+//         "date": "2019-03-17",
+//         "value_date": "2019-03-17",
+//         "chq": "907632321560",
+//         "particulars": "PCA:123123123:123123123:GOOGLE *SERVICES       g.co/helppay# CA",
+//         "balance": 99,
+//         "amount": 1,
+//         "label": "DEBIT",
+//         "validation": true
+//       }
+//     ]
+//   }
+// }
+// ```
+// **FAILURE RESPONSE**
+// ```json
+// {
+//   "id": "<<transaction_id>>",
+//   "mode": "REDIRECT",
+//   "env": "PRODUCTION",
+//   "bank": "SBI",
+//   "response_code": 0,
+//   "response_message": "Transaction Failure",
+//   "last_user_stage_code": "<<Stage Code>>",
+//   "last_user_stage": "<<Stage>>",
+//   "request_version": "1.0",
+//   "request_medium": "<<web | android | ios>>",
+//   "sdk_name": "1",
+//   "error": {
+//     "code": "<<error_code>>",
+//     "message": "<<error_message>>"
+//   }
+// }
+// ```
+// 
+// **Error Codes and Messages**
+// 
+// | Code  | Message |
+// |---|---|
+// | 651 | Technical Error |
+// | 652 | Session Closed |
+// | 653 | Bank Server Unresponsive Error |
+// | 654 | Consent Denied Error |
+// | 655 | Document Parsing Error |
+// | 656 | Validity Expiry Error |
+// | 657 | Authentication Error |
+// | 658 | No Entry Found Error |
+// | 659 | Stage Timeout Error |
+// | 660 | Session Closed On Retry |
+// | 670 | No Session Found Error |
+// | 671 | Error Not Recorded |
+
+@name("Init BSA")
+POST "https://{{base_url}}/bsa/v1/init"
+"qt_api_key": "{{qt_api_key}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+    "mode": "REDIRECT",
+    "redirect_url": "https://yourdomain.com",
+    "webhook_url": "https://yourdomain.com/webhook",
+    "purpose": "load agreement",
+    "bank": "yesbank",
+    "months": 3
+}
+')
+
+
+// After creating an initialization request successfully you can check at which stage your transaction is currently anytime during the process. This API is helpful in case a customer aborts the transaction midway.
+// 
+// **Successful Response Body**
+// 
+// ```json
+// {
+//     "id": "89fe8c53-8161-4930-b455-2b5902645bc7",
+//     "mode": "REDIRECT",
+//     "env": "PRODUCTION",
+//     "request_version": "1.0",
+//     "bank": "yesbank",
+//     "last_user_stage": "transaction_successful",
+//     "last_user_stage_code": "TS"
+// }
+// ```
+// 
+// **User Stages**
+// These are the possible values for `last_user_stage_code` and `last_user_stage` respectively.
+// 
+// | Stage Code  |  Stage |
+// |---|---|
+// | LO | login_opened | 
+// | F | failed | 
+// | LS | login_success | 
+// | AS | account_selected | 
+// | SD | statement_downloaded | 
+// | SP | statement_parsed | 
+// | TS | transaction_successful | 
+// | TI | transaction_initiated | 
+// | VC | validated_captcha | 
+// | VO | validated_otp | 
+// | VS | validated_security_answer | 
+// 
+// 
+// **FAILURE RESPONSE**
+// 
+// ```json
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "<<message about the error>>"
+// }
+// ```
+
+@name("Get Stage")
+GET "https://{{base_url}}/bsa/v1/stage/<<transaction_id>>"
+
+
+

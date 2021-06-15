@@ -1,0 +1,48 @@
+#!/usr/bin/env dothttp
+
+@name("Create API Client")
+POST "https://{{base_url}}/api/2/clients"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/json"
+data('{
+	"type": "api_client",
+	"tenant_id": "{{my_tenant_id}}",
+	"token_endpoint_auth_method": "client_secret_basic",
+	"data": {
+		"client_name": "API.Client"
+	}
+}')
+
+
+@name("Issue a JWT token for Account Management API Calls")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+// For Cyber Files API other type of grant type than for Account Management API. It must be grant_type equals password.
+
+@name("Issue a JWT token for Cyber Files API Calls")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data({
+    "grant_type": [
+        "password"
+    ],
+    "username": [
+        "{{username}}"
+    ],
+    "password": [
+        "{{password}}"
+    ]
+})
+
+
+

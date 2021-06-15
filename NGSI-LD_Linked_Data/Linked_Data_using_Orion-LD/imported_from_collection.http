@@ -1,0 +1,375 @@
+#!/usr/bin/env dothttp
+
+// This tutorial recreates the same data entities as the intial _"Powered by FIWARE"_ supermarket finder app, but using
+// NGSI-LD linked data entities rather than NGSI v2.
+// 
+// ## Checking the service health
+// 
+// As usual, you can check if the Orion Context Broker is running by making an HTTP request to the exposed port.
+// 
+// The format of the response has not changed. The `release_date` must be 16th July 2019 or later to be able to
+// work with the requests defined below.
+
+@name("Obtaining Version Information")
+GET "http://{{orion}}/version/"
+
+
+// Information about the data models and relationships used within this tutorial
+// can be obtained by requesting the full `@context` and `@graph`.
+
+@name("Obtain full Linked Data model context")
+GET "https://{{datamodels-context.jsonld}}/"
+
+
+// ## Creating Context Data
+// 
+// When creating linked data entities, it is important to use common data models. This will allow us to easily combine data
+// from multiple sources and remove ambiguity when comparing data coming from different sources.
+// 
+// Creating linked data using full qualified names throughout would be painful, as each attribute would need to be a URN,
+// so JSON-LD introduces the idea of an `@context` attribute which can hold pointers to context definitions. To add a
+// FIWARE [Building](https://fiware-datamodels.readthedocs.io/en/latest/Building/Building/doc/spec/index.html) data entity,
+// the following `@context` would be required
+// 
+// ```json
+// {
+//     "id": "urn:ngsi-ld:Building:store001",
+//     "type": "Building",
+//     ...  other data attributes
+//     "@context": [
+//         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+//         "https://schema.lab.fiware.org/ld/fiware-datamodels-context.jsonld"
+//     ]
+// }
+// ```
+// 
+// ### Core Context
+// 
+// [https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld](https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld)
+// refers to the Core `@context` of NSGI-LD, this defines element such as `id` and `type` which are common to all NGSI
+// entities, as well as defining terms such as `Property` and `Relationship`. The core context is so fundamental to
+// NGSI-LD, that it is added by default to any `@context` sent to a request.
+// 
+// ### FIWARE Data Models
+// 
+// [https://schema.lab.fiware.org/ld/fiware-datamodels-context.jsonld](https://schema.lab.fiware.org/ld/fiware-datamodels-context.jsonld)
+// refers to the definition of standard data models supplied by FIWARE. Adding this to the `@context` will load the
+// definitions of all the [data models](https://fiware-datamodels.readthedocs.io) defined by the FIWARE Foundation, a
+// summary of the FQNs related to **Building** can be seen below:
+// 
+// ```json
+// {
+//     "@context": {
+//         "Building": "https://uri.fiware.org/ns/datamodels/Building",
+//         ... etc
+//         "address": "http://schema.org/address",
+//         "category": "https://uri.fiware.org/ns/datamodels/category",
+//         "location": "http://uri.etsi.org/ngsi-ld/location",
+//         "name": "http://schema.org/name",
+//         ...etc
+//     }
+// }
+// ```
+// 
+// If we include this context definition, it means that we will be able to use short names for `Building`, `address`,
+// `location` for our entities, but computers will also be able to read the FNQs when comparing with other sources.
+// 
+// To create a valid **Building** data entity in the context broker, make a POST request to the
+// `http://localhost:1026/ngsi-ld/v1/entities` endpoint as shown below. It is essential that the appropriate
+// `Content-Type: application/ld+json` is also used, so that the data entity is recognized as Linked data.
+// 
+// The first request will take some time, as the context broker must navigate and load all of the files mentioned in the
+// `@context`.
+// 
+// 
+// > **Note**: if `https://fiware.github.io/data-models/context.jsonld` is unavailable for some reason the request will fail
+// >
+// > For a working production system it is essential that the `@context` files are always available to ensure third parties can
+// > read the context. High availability infrastructure has not been considered for this tutorial to keep the architecture simple.
+
+@name("Creating your first Data Entity")
+POST "http://{{orion}}/ngsi-ld/v1/entities/"
+"Content-Type": "application/ld+json"
+data('{
+    "id": "urn:ngsi-ld:Building:store001",
+    "type": "Building",
+    "category": {
+    	"type": "Property",
+        "value": ["commercial"]
+    },
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Bornholmer Straße 65",
+            "addressRegion": "Berlin",
+            "addressLocality": "Prenzlauer Berg",
+            "postalCode": "10439"
+        },
+        "verified": {
+			"type": "Property",
+			"value": true
+		}
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+             "type": "Point",
+             "coordinates": [13.3986, 52.5547]
+        }
+    },
+    "name": {
+        "type": "Property",
+        "value": "Bösebrücke Einkauf"
+    },
+    "@context": [
+        "https://fiware.github.io/data-models/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ]
+}')
+
+
+// Each subsequent entity must have a unique `id` for the given `type`.
+// 
+// ### Defining Properties within the NGSI-LD entity definition
+// 
+// The attributes `id` and `type` should be familiar to anyone who has used NSGI v2, and these have not changed. As
+// mentioned above, the type should refer to an included data model, in this case `Building` is being used as a short name
+// for the inclued URN `https://uri.fiware.org/ns/datamodels/Building`. Thereafter each _property_ is defined as a JSON
+// element containing two attributes, a `type` and a `value`.
+// 
+// The `type` of a _property_ attribute must be one of the following:
+// 
+// -   `"GeoProperty"`: `"http://uri.etsi.org/ngsi-ld/GeoProperty"` for locations. Locations should be specified as
+//     Longitude-Latitude pairs in [GeoJSON format](https://tools.ietf.org/html/rfc7946). The preferred name for the
+//     primary location attribute is `location`
+// -   `"TemporalProperty"`: `"http://uri.etsi.org/ngsi-ld/TemporalProperty"` for time-based values. Temporal properties
+//     should be Date, Time or DateTime strings encoded be [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601) - e.g.
+//     `YYYY-MM-DDThh:mm:ssZ`
+// -   `"Property"`: `"http://uri.etsi.org/ngsi-ld/Property"` - for everything else
+// 
+// > **Note:** that for simplicity, this data entity has no relationships defined. Relationships must be given the
+// > `type="Relationship`. Relationships will be discusssed in a subsequent tutorial.
+// 
+// ### Defining Properties-of-Properties within the NGSI-LD entity definition
+// 
+// _Properties-of-Properties_ is the NGSI-LD equivalent of metadata (i.e. _"data about data"_), it is use to describe
+// properties of the attribute value itself like accuracy, provider, or the units to be used. Some built-in metadata
+// attributes already exist and these names are reserved:
+// 
+// -   `createdAt` (type: DateTime): attribute creation date as an ISO 8601 string.
+// -   `modifiedAt` (type: DateTime): attribute modification date as an ISO 8601 string.
+// 
+// Additionally `observedAt`, `datasetId` and `instanceId` may optionally be added in some cases, and `location`,
+// `observationSpace` and `operationSpace` have special meaning for Geoproperties.
+// 
+// In the examples given above, one element of metadata (i.e. a _property-of-a-property_) can be found within the `address`
+// attribute. a `verified` flag indicates whether the address has been confirmed. The commonest _property-of-a-property_ is
+// `unitCode` which should be used to hold the UN/CEFACT
+// [Common Codes](http://wiki.goodrelations-vocabulary.org/Documentation/UN/CEFACT_Common_Codes) for Units of Measurement.
+
+@name("Creating your Second Data Entity")
+POST "http://{{orion}}/ngsi-ld/v1/entities/"
+"Content-Type": "application/ld+json"
+data('{
+    "id": "urn:ngsi-ld:Building:store002",
+    "type": "Building",
+    "category": {
+    	"type": "Property",
+        "value": ["commercial"]
+    },
+    "address": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Friedrichstraße 44",
+            "addressRegion": "Berlin",
+            "addressLocality": "Kreuzberg",
+            "postalCode": "10969"
+        },
+        "verified": {
+			"type": "Property",
+			"value": true
+		}
+    },
+     "location": {
+        "type": "GeoProperty",
+        "value": {
+             "type": "Point",
+              "coordinates": [13.3903, 52.5075]
+        }
+    },
+    "name": {
+        "type": "Property",
+        "value": "Checkpoint Markt"
+    },
+    "@context": [
+        "https://fiware.github.io/data-models/context.jsonld",
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ]
+}')
+
+
+// This example returns the data of all `Building` entities within the context data The `type` parameter is mandatory for
+// NGSI-LD and is used to filter the response.
+// 
+// The response returns the Core `@context` by default
+// (`https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/defaultContext/defaultContext.jsonld`) and all attributes are
+// expanded whenever possible.
+// 
+// -   `id`, `type` and `location` are defined in the core context and are not expanded.
+// -   `address` has been mapped to `http://schema.org/address`
+// -   `name` has been mapped to `http://schema.org/name`
+// -   `category` has been mapped to `https://uri.fiware.org/ns/datamodels#category`
+// 
+// Note that if an attribute has not been not associated to an FNQ when the entity was created, the short name will
+// **always** be displayed.
+
+@name("Obtain Entity Data by FNQ type")
+GET "http://{{orion}}/ngsi-ld/v1/entities"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "https://uri.fiware.org/ns/data-models#Building"
+
+
+// This example returns the data of `urn:ngsi-ld:Building:store001`.
+// 
+// The response returns the Core `@context` by default
+// (`https://forge.etsi.org/gitlab/NGSI-LD/NGSI-LD/raw/master/defaultContext/defaultContext.jsonld`) and all attributes are
+// expanded whenever possible.
+
+@name("Obtain Entity Data by id")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001"
+"Accept": "application/ld+json"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+// If a reference to the supplied data is supplied, it is possible to return short name data and limit responses to a
+// specific `type` of data. For example, the request below returns the data of all `Building` entities within the context
+// data. Use of the `type` parameter limits the response to `Building` entities only, use of the `options=keyValues` query
+// parameter reduces the response down to standard JSON-LD.
+// 
+// A [`Link` header](https://www.w3.org/wiki/LinkHeader) must be supplied to associate the short form `type="Building"`
+// with the FNQ `https://uri.fiware.org/ns/datamodels/Building`. The full link header syntax can be seen below:
+// 
+// ```text
+// Link: <https://schema.lab.fiware.org/ld/fiware-datamodels-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json
+// ```
+// 
+// The standard HTTP `Link` header allows metadata (in this case the `@context`) to be passed in without actually touching
+// the resource in question. In the case of NGSI-LD, the metadata is a file of in `application/ld+json` format.
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute defintions
+// `type="Property"` or any _properties-of-properties_ elements. You can see that `Link` header from the request has been
+// used as the `@context` returned in the response.
+
+@name("Obtain Entity Data by type and linked context")
+GET "http://{{orion}}/ngsi-ld/v1/entities"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? "options"= "keyValues"
+
+
+// This example returns all `Building` entiies with the `name` attribute _Checkpoint Markt_. Filtering can be done using
+// the `q` parameter - if a string has spaces in it, it can be URL encoded and held within single quote characters `'` =
+// `%27`.
+// 
+// The `Link` header `https://schema.lab.fiware.org/ld/context` holds an array of `@context` as shown:
+// 
+// ```json
+// {
+//     "@context": [
+//         "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+//         "https://schema.lab.fiware.org/ld/fiware-datamodels-context.jsonld"
+//     ]
+// }
+// ```
+// 
+// and therefore includes the FIWARE Building model.
+// 
+// This means that use of the `Link` header and the `options=keyValues` parameter reduces the response to short form
+// JSON-LD as shown:
+
+@name("Filter context data by attribute value")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? 'q'= 'name=="Checkpoint Markt"'
+? "options"= "keyValues"
+
+
+// Within the standard `Building` model, the `category` attribute refers to an array of strings. This example returns all
+// `Building` entities with a `category` attribute which contains either `commercial` or `office` strings. Filtering can be
+// done using the `q` parameter, comma separating the acceptable values.
+// 
+// The response is returned in JSON-LD format with short form attribute names
+
+@name("Filter context data by attribute in an Array")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? 'q'= 'category=="commercial","office"'
+? "options"= "keyValues"
+
+
+// This example returns all stores found in the Kreuzberg District.
+// 
+// Filtering can be done using the `q` parameter - sub-attributes are annotated using the bracket syntax e.g.
+// `q=address[addressLocality]==Kreuzberg`. This differs from NGSI v2 where dot syntax was used.
+// 
+// Use of the `Link` header and the `options=keyValues` parameter reduces the response to JSON-LD.
+
+@name("Filter context data by sub-attribute value")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? 'q'= 'address[addressLocality]=="Kreuzberg"'
+? "options"= "keyValues"
+
+
+// This example returns the data of all `Building` entities with a verified address. The `verified` attribute is an example
+// of a _Property-of-a-Property_
+// 
+// Metadata queries (i.e. Properties of Properties) are annotated using the dot syntax e.g. `q=address.verified==true`.
+// This supercedes the `mq` parameter from NGSI v2.
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` and
+// `metadata` elements.
+
+@name("Filter context data by metadata value")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? "q"= "address.verified==true"
+? "options"= "keyValues"
+
+
+// This example return all Stores within 2km the **Brandenburg Gate** in **Berlin** (_52.5162N 13.3777W_). To make a
+// geo-query request, three parameters must be specified, `geometry`, `coordinates` and `georel`.
+// 
+// The syntax for NGSI-LD has been updated, the `coordinates` parameter is now represented in
+// [geoJSON](https://tools.ietf.org/html/rfc7946) including the square brackets rather than the simple lat-long pairs
+// required in NGSI v2.
+// 
+// Note that by default the geo-query will be applied to the `location` attribute, as this is default specified in NGSI-LD.
+// If another attribute is is to be used, an additional `geoproperty` parameter is required.
+// 
+// Because of the use of the `options=keyValues`, the response consists of JSON only without the attribute `type` and
+// `metadata` elements.
+
+@name("Filter context data by distance")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+? "type"= "Building"
+? "geometry"= "Point"
+? "coordinates"= "[13.3777,52.5162]"
+? "georel"= "near;maxDistance==2000"
+? "options"= "keyValues"
+
+
+

@@ -1,0 +1,103 @@
+#!/usr/bin/env dothttp
+
+// As an application developer you need to use a browser or webView to send the end user to this URL.
+// 
+// The __client_id__ is obtained via the developer interface.
+// 
+// The value of the parameter __state__ should be randomized to keep track of the end user authorizing and allow the correct association of codes and tokens. This collection uses a parameter value of STATE-xxxxx where xxxxx is a number. The random number is generated in the pre-request script.
+// 
+// The redirect uri __must__ match one of the redirect uris entered when creating a client in the developer portal otherwise the call will fail.
+// 
+// If the application is going to scrape the code, the redirect_uri should be a trusted website and the code is obtained from the redirection call.
+
+@name("Authorize user & obtain a code")
+GET "https://{{address}}{{oauthBasePath}}/authorize"
+? "client_id"= "{{client_id}}"
+? "state"= "{{state}}"
+? "redirect_uri"= "{{redirect_uri}}"
+? "response_type"= "code"
+
+
+// Your web application should call this API when the redirect URI is called with a code.
+// 
+// Mirror the value of code and add the client_id and secret_id.
+// 
+// The code is valid only for 5 minutes.
+// 
+// The redirect_uri should match the uri used in the authorize call.
+
+@name("Exchange the code for an access token")
+POST "https://{{address}}{{oauthBasePath}}/access_token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "client_id": [
+        "{{client_id}}"
+    ],
+    "client_secret": [
+        "{{client_secret}}"
+    ],
+    "code": [
+        "{{code}}"
+    ],
+    "grant_type": [
+        "authorization_code"
+    ],
+    "redirect_uri": [
+        "{{redirect_uri}}"
+    ]
+})
+
+
+// Refresh an access token using the last refresh token obtained from the API.
+// 
+// Refreshing a token invalidates the current access token and the current refresh token.
+// 
+// A new set of access and refresh tokens is obtained and must be used in all future calls.
+
+@name("Refresh the tokens")
+POST "https://{{address}}{{oauthBasePath}}/access_token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "client_id": [
+        "{{client_id}}"
+    ],
+    "client_secret": [
+        "{{client_secret}}"
+    ],
+    "refresh_token": [
+        "{{refresh_token}}"
+    ],
+    "grant_type": [
+        "refresh_token"
+    ]
+})
+
+
+// Revoke an access token using a valid access token.
+// 
+// Both the access token and the refresh token will be revoked and cannot be used further.
+// 
+// The end-user must re-authenticate for the applicaiton to obtain a new access token.
+// 
+// If the access token has expired you may revoke the tokens using the refresh token instead and passing __token_type_hint__ as "refresh_token"
+
+@name("Revoke a token")
+POST "https://{{address}}{{oauthBasePath}}/revoke_token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "client_id": [
+        "{{client_id}}"
+    ],
+    "client_secret": [
+        "{{client_secret}}"
+    ],
+    "token": [
+        "{{access_token}}"
+    ],
+    "token_type_hint": [
+        "access_token"
+    ]
+})
+
+
+

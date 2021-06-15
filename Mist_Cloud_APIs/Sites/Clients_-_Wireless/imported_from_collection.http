@@ -1,0 +1,149 @@
+#!/usr/bin/env dothttp
+
+// This disconnect a client (and it’s likely to connect back)
+
+@name("disconnectSiteClient")
+POST "https://{{host}}/api/v1/sites/:site_id/clients/:client_mac/disconnect"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// This disconnect multiple clients (and it’s likely to connect back)
+
+@name("disconnectSiteMultipleClients")
+POST "https://{{host}}/api/v1/sites/:site_id/clients/disconnect"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json([
+    "683b679ac024",
+    "683b679ac0245"
+])
+
+
+@name("unauthorizeSiteClient")
+POST "https://{{host}}/api/v1/sites/:site_id/clients/:client_mac/unauthorize"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// This unauthorize clients (if they are guest) and disconnect them. From the guest’s perspective, they will see the splash page again and go through the flow (e.g. Terms of Use) again.
+
+@name("unauthorizeSiteMultipleClients")
+POST "https://{{host}}/api/v1/sites/:site_id/clients/unauthorize"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json([
+    "683b679ac024",
+    "683b679ac0245"
+])
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// distinct|string|type / proto / band / channel / wlan_id / ssid
+// 
+// NOTE: the filters from /clients/:mac/events can also be used. E.g. /clients/events/count?distinct=device&ssid=Guest
+// 
+
+@name("getSiteEventsForClient")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/:client_mac/events"
+
+
+// #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  mac|string|partial / full MAC address
+//  hostname|string|partial / full hostname
+//  device|string|device type, e.g. Mac, Nvidia, iPhone
+//  os|string|os, e.g. Sierra, Yosemite, Windows 10
+//  model|string|model, e.g. “MBP 15 late 2013”, 6, 6s, “8+ GSM”
+//  ap|string|AP mac where the client has connected to
+//  ssid|string|SSID
+// text|string|full MAC address, hostname, username or ip
+// psk_id|string|PSK ID
+// psk_name|string|PSK name
+
+@name("searchSiteClients")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/search"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  type|string|event type, e.g. MARVIS_EVENT_CLIENT_FBT_FAILURE
+//  reason_code|int|for assoc/disassoc events
+//  ssid|string|SSID
+//  ap|string|AP MAC
+//  proto|string|b / g / n / a / ac
+//  band|string|5 / 24
+//  wlan_id|string|wlan_id
+
+@name("searchSiteClientEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/events/search"
+
+
+// #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  ap|string|AP MAC
+//  band|string|5 / 24
+//  client_family|string|E.g. “Mac”, “iPhone”, “Apple watch”
+//  client_manufacture|string|E.g. “Apple”
+//  client_model|string|E.g. “8+”, “XS”
+//  client_os|string|E.g. “Mojave”, “Windows 10”, “Linux”
+//  ssid|string|SSID
+//  wlan_id|string|wlan_id
+// psk_id|string|PSK ID
+// psk_name|string|PSK name
+
+@name("searchSiteClientSessions")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/sessions/search"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// distinct|string|ssid, ap, ip, vlan, hostname, os, model, device, default is device
+// 
+// 
+// NOTE: the filters from /clients/search can also be used. E.g. /clients/count?distinct=device&ssid=Guest
+// 
+
+@name("countSiteByDistinctAttributesOfClients")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/count"
+? "distinct"= "hostname"
+
+
+//  #### Query Parameter
+//  In addition to the filters that you can have in the search
+// 
+//  NOTE: the filters from /clients/sessions/search can also be used. (E.g. /clients/sessions/count?distinct=client_manufacture)
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// distinct|string|ssid, wlan_id, ap, mac, client_family, client_manufacture, client_model, client_os, default is mac
+
+@name("countSiteByDistinctAttributesOfClientSessions")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/sessions/count"
+
+
+// #### Query Parameter
+//  In addition to the filters that you can have in the search
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// distinct|string|type / proto / band / channel / wlan_id / ssid
+
+@name("countSiteByDistinctAttributesOfClientsEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/clients/events/count"
+? "distinct"= "type"
+
+
+

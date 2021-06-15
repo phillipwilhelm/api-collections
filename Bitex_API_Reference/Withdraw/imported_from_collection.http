@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// - `cost` is the amount taken from your withdrawal by third-party institutions (such as banks and/or the government)
+// - `fee` is the amount taken by the local digital wallet associated to your Bitex account.
+// - `amount` is the amount requested to withdraw, which is the same as `gross_amount`. The `net_amount` can be calculated by substracting the `fee` and `cost`.
+
+@name("List Cash Withdrawals")
+GET "https://{{domain}}/api/cash_withdrawals"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[from]"= "{yyyy-mm-dd}"
+? "filter[user]"= "{user_id}"
+
+
+// - `cost` is the amount taken from your withdrawal by third-party institutions (such as banks and/or the government)
+// - `fee` is the amount taken by the local digital wallet associated to your Bitex account.
+// - `amount` is the amount requested to withdraw, which is the same as `gross_amount`. The `net_amount` can be calculated by substracting the `fee` and `cost`.
+
+@name("Show Cash Withdrawal")
+GET "https://{{domain}}/api/cash_withdrawals/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// You must create the instructions previously with the **Withdrawal Instructions** endpoint, and then just reference it in the relationships attribute.
+
+@name("Create Cash Withdrawal")
+POST "https://{{domain}}/api/cash_withdrawals"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+"One-Time-Password": "valid_otp"
+data('{
+  "data": {
+    "type": "cash_withdrawals",
+    "attributes": {
+      "amount": "100",
+      "fiat_code": "ars"
+    },
+    "relationships": {
+      "withdrawal_instruction": {
+        "data": {
+          "id": "22",
+          "type": "withdrawal_instructions"
+        },
+        "user": {
+          "data": {
+            "id": 1,
+            "type": "users"
+          }
+        }
+      }
+    }
+  }
+}')
+
+
+@name("List Coin Withdrawals")
+GET "https://{{domain}}/api/coin_withdrawals"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[from]"= "{yyyy-mm-dd}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Coin Withdrawal")
+GET "https://{{domain}}/api/coin_withdrawals/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// Ask for a Cryptocurrency Withdrawal.
+// 
+// * `currency`: Currently, the possible values are `"btc"` and `"bch"`.
+
+@name("Create Coin Withdrawal")
+POST "https://{{domain}}/api/coin_withdrawals"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+"One-Time-Password": "valid_otp"
+data('{
+    "data": {
+        "type": "coin_withdrawals",
+        "attributes": {
+            "amount": 12.3456789,
+            "coin_code": "btc",
+            "label": "Trezor",
+            "to_addresses": "mszEUK9E6E7n4SNcrjYH8Fr7ZTGP9n3dRb"
+        },
+        "relationships": {
+          "user": {
+            "data": {
+              "id": 1,
+              "type": "users"
+            }
+           }
+        }
+    }
+}')
+
+
+

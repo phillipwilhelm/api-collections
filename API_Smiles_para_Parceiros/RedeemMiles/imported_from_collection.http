@@ -1,0 +1,198 @@
+#!/usr/bin/env dothttp
+
+// **Api utilizada para fazer o resgate de milhas com apenas um item (de uma maneira mais simples).**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | Canal de entrada |
+// | sourceIP      | String      | 15       | IP da máquina que solicitou o resgate. |
+// | memberNumber  | String      | 9        | *(Required)* Número do cliente Smiles. |
+// | partnerAlias  | String      | 20       | *(Required)* Código do parceiro *(enviado pela Smiles)* |
+// | miles         | Integer     | 11       | *(Required)* Quantidade de milhas a ser resgatada. |
+// | money         | Decimal     | 11       | *(Required)* Valor em dinheiro correspondente as milhas resgatadas. |
+// | productName   | String      | 50       | *(Required)* Nome do produto *(enviado pela Smiles)* |
+// | productCategory | String    | 50       | *(Required)* Categoria do produto *(enviado pela Smiles)* |
+// | productCode   | Integer     | 11       | *(Required)* Código do produto *(enviado pela Smiles)* |
+// | productDescription | Integer | 200     | *(Required)* Descrição do produto do lado do parceiro |
+// | comments      | String      | 200      | Comentário qualquer sobre esta transação de resgate. |
+// | currency      | String      | 3        | *(Required)* Moeda do valor em dinheiro correspondente as milhas resgatadas. |
+// | orderId       | String      | 20       | *(Required)* Número único do pedido de resgate. |
+// | itemId        | String      | 20       | *(Required)* Número único do item do pedido de resgate. |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+
+@name("RedeemMilesNoFlight")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Integration/RedeemMilesSOAPV1"
+"Authorization": "{{access_token}}"
+"Content-Type": "text/xml"
+"SOAPAction": ""redeemMilesNoFlight""
+data('<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.smiles.com.br/EBO/Common/V1" xmlns:v2="http://www.smiles.com.br/Services/AccumulateMiles/V2">
+	<SOAP-ENV:Header>
+		<v1:SmilesHeader>
+			<v1:sourceIP>179.222.66.52</v1:sourceIP>
+		</v1:SmilesHeader>
+	</SOAP-ENV:Header>
+	<SOAP-ENV:Body>
+		<v1:RedeemMilesNoFlightRequest xmlns:v1="http://www.smiles.com.br/Integration/RedeemMiles/V1">
+			<v1:memberNumber>423876261</v1:memberNumber>
+			<v1:partnerAlias>{{redeem_partnerAlias}}</v1:partnerAlias>
+			<v1:miles>24000</v1:miles>
+			<v1:money>765.00</v1:money>
+			<v1:productName>>{{redeem_productName}}</v1:productName>
+			<v1:productCategory>{{redeem_productCategory}}</v1:productCategory>
+			<v1:productCode>101</v1:productCode>
+			<v1:productDescription>Days Inn Kassel Hessenland (08/28/2020 - 08/31/2020)</v1:productDescription>
+			<v1:comments/>
+			<v1:currency>USD</v1:currency>
+			<v1:orderId>RKM0000450705</v1:orderId>
+			<v1:itemId>RKM0000450705</v1:itemId>
+		</v1:RedeemMilesNoFlightRequest>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>')
+
+
+// **Api utilizada para fazer o resgate de milhas com város itens (com um contexto de carrinho de compras).**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | Canal de entrada |
+// | sourceIP      | String      | 15       | IP da máquina que solicitou o resgate. |
+// | memberNumber  | String      | 9        | *(Required)* Número do cliente Smiles. |
+// | partnerAlias  | String      | 20       | *(Required)* Código do parceiro *(enviado pela Smiles)* |
+// | orderId       | String      | 20       | *(Required)* Número único do pedido de resgate. |
+// | itemCount     | Integer     | 11       | *(Required)* Número de itens no pedido. |
+// | address/type  | String      | 20       | Tipo de endereço (PERSONAL, BUSINESS, ALTERNATIVE) |
+// | address/streetName | String      | 50       | Nome da rua |
+// | address/number | Integer      | 11       | Número |
+// | address/complement | String      | 30       | Complemento |
+// | address/neighborhood | String      | 30       | Bairro |
+// | address/city  | String      | 30       | Cidade |
+// | address/state | String      | 2       | Estado |
+// | address/country | String      | 2       | País |
+// | address/zipCode | String      | 8       | CEP |
+// | address/addressRef | String      | 30       | Ponto de referência |
+// | address/title | String      | 30       | Título (Rua, Avenida, Praça, etc.) |
+// | item/itemId        | String      | 20       | *(Required)* Número único do item do pedido de resgate. |
+// | item/productName   | String      | 50       | *(Required)* Nome do produto *(enviado pela Smiles)* |
+// | item/productCategory | String    | 50       | *(Required)* Categoria do produto *(enviado pela Smiles)* |
+// | item/productCode   | Integer     | 11       | *(Required)* Código do produto *(enviado pela Smiles)* |
+// | item/productDescription | Integer | 200     | *(Required)* Descrição do produto do lado do parceiro |
+// | item/miles         | Integer     | 11       | *(Required)* Quantidade de milhas a ser resgatada. |
+// | item/money         | Decimal     | 11       | *(Required)* Valor em dinheiro correspondente as milhas resgatadas. |
+// | item/acquiringCompany | String   | 5        | Código da empresa adquirente do cartão de crédito utilizado |
+// | item/cardBin       | String      | 6        | 6 últimos números do cartão de crédito utilizado |
+// | item/cardNumber    | String      | 4        | 4 primeiros números do cartão de crédito utilizado |
+// | item/cardNSU       | String      | 9        | NSU do cartão de crédito utilizado |
+// | item/currency      | String      | 3        | *(Required)* Moeda do valor em dinheiro correspondente as milhas resgatadas. |
+// | item/deliveryTime  | Integer     | 11       | Tempo máximo de timeout |
+// | defaultMilesValue  | Integer     | 11       | Valor de conversão milhas x dinheiro utilizado |
+// | defaultMilesBonus  | Integer     | 11       | Quantidade de milhas bonus |
+// | benefitType        | String      | 30       | Tipo de benefício |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+
+@name("RedeemMilesNoFlightBulk")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Integration/RedeemMilesSOAPV1"
+"Authorization": "{{access_token}}"
+"Content-Type": "text/xml"
+"SOAPAction": ""redeemMilesNoFlightBulk""
+data('<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<soapenv:Header>
+		<ns1:SmilesHeader soapenv:actor="http://schemas.xmlsoap.org/soap/actor/next" soapenv:mustUnderstand="0" xmlns:ns1="http://www.smiles.com.br/EBO/Common/V1">
+			<channel xmlns="http://www.smiles.com.br/EBO/Common/V1">Web</channel>
+		</ns1:SmilesHeader>
+	</soapenv:Header>
+	<soapenv:Body>
+		<RedeemMilesNoFlightBulkRequest xmlns="http://www.smiles.com.br/Integration/RedeemMiles/V1">
+			<memberNumber>414080075</memberNumber>
+			<partnerAlias>{{redeem_partnerAlias}}</partnerAlias>
+			<orderId>1439336</orderId>
+			<itemCount>1</itemCount>
+			<address>
+				<ns2:type xmlns:ns2="http://www.smiles.com.br/EBO/CommonEBO/V1">PERSONAL</ns2:type>
+				<ns3:streetName xmlns:ns3="http://www.smiles.com.br/EBO/CommonEBO/V1">Rua Rio Iguape</ns3:streetName>
+				<ns4:number xmlns:ns4="http://www.smiles.com.br/EBO/CommonEBO/V1">111</ns4:number>
+				<ns5:complement xmlns:ns5="http://www.smiles.com.br/EBO/CommonEBO/V1">Casa 2</ns5:complement>
+				<ns6:neighborhood xmlns:ns6="http://www.smiles.com.br/EBO/CommonEBO/V1">Chacara Jaragua</ns6:neighborhood>
+				<ns7:city xmlns:ns7="http://www.smiles.com.br/EBO/CommonEBO/V1">Sao Paulo</ns7:city>
+				<ns8:state xmlns:ns8="http://www.smiles.com.br/EBO/CommonEBO/V1">SP</ns8:state>
+				<ns9:country xmlns:ns9="http://www.smiles.com.br/EBO/CommonEBO/V1">BR</ns9:country>
+				<ns10:zipCode xmlns:ns10="http://www.smiles.com.br/EBO/CommonEBO/V1">05240050</ns10:zipCode>
+			</address>
+			<itemList>
+				<item>
+					<itemId>2217572</itemId>
+					<productName>{{redeem_productName}}</productName>
+					<productCategory>{{redeem_productCategory}}</productCategory>
+					<productCode>2147483647</productCode>
+					<productDescription>Perfume 212 Sexy Carolina Herrera</productDescription>
+					<miles>28663</miles>
+					<money>0.00</money>
+					<acquiringCompany>00001</acquiringCompany>
+					<cardBin>510247</cardBin>
+					<cardNumber>3165</cardNumber>
+					<cardNSU>509353965</cardNSU>
+					<currency>BRL</currency>
+					<deliveryTime>30</deliveryTime>
+				</item>
+			</itemList>
+		</RedeemMilesNoFlightBulkRequest>
+	</soapenv:Body>
+</soapenv:Envelope>')
+
+
+// **Api utilizada para fazer o cancelamento de um resgate de milhas.**
+// 
+// | PARÂMETRO     | TIPO        | TAMANHO  | DESCRIÇÃO |
+// | ------------- |:-----------:|:--------:|----------:|
+// | channel       | String      | 20       | *(Required)* Canal de entrada |
+// | orderId       | Integer     | 11       | *(Required)* Número do pedido que será feito o cancelamento |
+// | transaction/id | String     | 10       | *(Required)* Id da transação que será feita o cancelamento |
+// | transaction/itemId | Integer | 11       | *(Required)* Id do item que será feito o cancelamento |
+// 
+// ## Códigos de erro
+// 
+// | CÓDIGO | DESCRIÇÃO |
+// |--------|----------:|
+// | 1      | Ocorreu um erro técnico *(Erro inesperado, favor contactar a Smiles)* |
+// | 6      | Parâmetro de entrada inválido. |
+
+@name("CancelRedemption")
+POST "https://api-{{parceiro}}-hml.smiles.com.br/smiles-bus/Integration/RedeemMilesSOAPV1"
+"SOAPAction": ""cancelRedemption""
+"Authorization": "{{access_token}}"
+"Content-Type": "text/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<soapenv:Header>
+		<ns1:SmilesHeader soapenv:actor="http://schemas.xmlsoap.org/soap/actor/next" soapenv:mustUnderstand="0" xmlns:ns1="http://www.smiles.com.br/EBO/Common/V1">
+			<channel xmlns="http://www.smiles.com.br/EBO/Common/V1">Web</channel>
+		</ns1:SmilesHeader>
+	</soapenv:Header>
+	<soapenv:Body>
+		<CancelRedemptionRequest xmlns="http://www.smiles.com.br/Integration/RedeemMiles/V1">
+			<orderId>1-1NKD9DWM</orderId>
+			<transactionList>
+				<transaction>
+					<id>1-1NKD9DWI</id>
+					<itemId>LEO001</itemId>
+				</transaction>
+			</transactionList>
+			<partnerAlias>{{redeem_partnerAlias}}</partnerAlias>
+		</CancelRedemptionRequest>
+	</soapenv:Body>
+</soapenv:Envelope>')
+
+
+

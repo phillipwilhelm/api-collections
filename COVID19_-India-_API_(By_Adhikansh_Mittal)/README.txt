@@ -1,0 +1,3 @@
+These APIs will help to get the details of COVID - 19 in Indian states. It will give an accurate count of confirmed cases, as well as state-wise analysis also. The data is used from the official website of the Ministry of Health and Family Welfare of India.
+
+These API’s can be used for an Application. The APIs will use real-time updation of the database with the help of AWS action which triggered the composite end-to-end workflow and pushed it into Database for which it used Mlab.

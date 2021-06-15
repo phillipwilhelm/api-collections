@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// These instructions are created along with the Cash Withdrawal if it does not exist previously.
+
+@name("List Withdrawal Instructions")
+GET "https://{{domain}}/api/withdrawal_instructions"
+"Authorization": "{{your_api_key}}"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[user]"= "{user}"
+
+
+// These instructions are created along with the Cash Withdrawal if it does not exist previously.
+
+@name("Show Withdrawal Instructions")
+GET "https://{{domain}}/api/withdrawal_instructions/:id"
+"Authorization": "{{your_api_key}}"
+"Content-Type": "application/json"
+"Version": "2.0"
+
+
+// **Important note**: Provide all the information that is required for the applicable regulations. Some values might be accepted by the API but the withdrawal will be rejected afterwards in case there is an issue (such as missing or incorrect data). We can not validate that the data is correct and enough until the moment the withdrawal is processed. **Providing wrong/missing information may result in extra costs for you**.
+// Also remember that we can only process withdrawals to bank accounts belonging to **the same holder** as the Bitex account.
+// 
+// There are several withdrawal methods, using domestic bank transfers in supported countries, or international wire transfers if a domestic bank transfer is not available.
+// 
+// See the examples for the fields needed for each country.
+
+@name("Create Withdrawal Instructions")
+POST "https://{{domain}}/api/withdrawal_instructions"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+  "data": {
+    "type": "withdrawal_instructions",
+    "attributes":{
+      "label": "primeras-instrucciones",
+      "payment_method_type": "ar_domestic_bank",
+      "body": {
+        "account_type": "savings",
+        "cbu": "0150553621000111396333"
+      }
+    },
+    "relationships": {
+      "user": {
+        "data": {
+          "id": 1,
+          "type": "users"
+        }
+      }
+    }
+  }
+}')
+
+
+@name("Delete Withdrawal Instructions")
+DELETE "https://{{domain}}/api/withdrawal_instructions/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

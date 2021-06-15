@@ -1,0 +1,1 @@
+a simple service to manage and search in flight schedules with simple auth system 

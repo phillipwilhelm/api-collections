@@ -1,0 +1,1 @@
+Ésta es la colección para interactuar con la API de Rick and Morty

@@ -1,0 +1,423 @@
+#!/usr/bin/env dothttp
+
+// [members/add](https://www.dropbox.com/developers/documentation/http/teams#team-members-add)
+// 
+// scope: `members.write`
+// 
+// Adds members to a team.
+// Permission : Team member management
+// A maximum of 20 members can be specified in a single call.
+// If no Dropbox account exists with the email address specified, a new Dropbox account will be created with the given email address, and that account will be invited to the team.
+// If a personal Dropbox account exists with the email address specified in the call, this call will create a placeholder Dropbox account for the user on the team and send an email inviting the user to migrate their existing personal account onto the team.
+// Team member management apps are required to set an initial given_name and surname for a user to use in the team invitation and for 'Perform as team member' actions taken on the user before they become 'active'.
+
+@name("members/add")
+POST "https://api.dropboxapi.com/2/team/members/add"
+"Content-Type": "application/json"
+data('{
+    "new_members": [
+        {
+            "member_email": "tom.s@company.com", 
+            "member_given_name": "Tom", 
+            "member_surname": "Silverstone", 
+            "member_external_id": "company_id:342432", 
+            "send_welcome_email": true, 
+            "role": "member_only"
+        }
+    ], 
+    "force_async": false
+}')
+
+
+// [members/add/job_status/get](https://www.dropbox.com/developers/documentation/http/teams#team-members-add-job_status-get)
+// 
+// scope: `members.write`
+// 
+// Once an async_job_id is returned from `members/add` , use this to poll the status of the asynchronous request.
+// Permission : Team member management.
+
+@name("members/add/job_status/get")
+POST "https://api.dropboxapi.com/2/team/members/add/job_status/get"
+"Content-Type": "application/json"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [members/delete_profile_photo](https://www.dropbox.com/developers/documentation/http/teams#team-members-delete_profile_photo)
+// 
+// scope: `members.write`
+// 
+// Deletes a team member's profile photo.
+// Permission : Team member management.
+
+@name("members/delete_profile_photo")
+POST "https://api.dropboxapi.com/2/team/members/delete_profile_photo"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }
+}')
+
+
+// [members/get_info](https://www.dropbox.com/developers/documentation/http/teams#team-members-get_info)
+// 
+// scope: `members.read`
+// 
+// Returns information about multiple team members.
+// Permission : Team information
+// This endpoint will return `MembersGetInfoItem.id_not_found`, for IDs (or emails) that cannot be matched to a valid team member.
+
+@name("members/get_info")
+POST "https://api.dropboxapi.com/2/team/members/get_info"
+"Content-Type": "application/json"
+data('{
+    "members": [
+        {
+            ".tag": "team_member_id", 
+            "team_member_id": "dbmid:efgh5678"
+        }
+    ]
+}')
+
+
+// [members/list](https://www.dropbox.com/developers/documentation/http/teams#team-members-list)
+// 
+// scope: `members.read`
+// 
+// Lists members of a team.
+// Permission : Team information.
+
+@name("members/list")
+POST "https://api.dropboxapi.com/2/team/members/list"
+"Content-Type": "application/json"
+data('{
+    "limit": 100, 
+    "include_removed": false
+}')
+
+
+// [members/list/continue](https://www.dropbox.com/developers/documentation/http/teams#team-members-list-continue)
+// 
+// scope: `members.read`
+// 
+// Once a cursor has been retrieved from `members/list`, use this to paginate through all team members.
+// Permission : Team information.
+
+@name("members/list/continue")
+POST "https://api.dropboxapi.com/2/team/members/list/continue"
+"Content-Type": "application/json"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu"
+}')
+
+
+// [members/move_former_member_files](https://www.dropbox.com/developers/documentation/http/teams#team-members-move_former_member_files)
+// 
+// scope: `members.write`
+// 
+// Moves removed member's files to a different member. This endpoint initiates an asynchronous job. To obtain the final result of the job, the client should periodically poll `members/move_former_member_files/job_status/check`.
+// Permission : Team member management.
+
+@name("members/move_former_member_files")
+POST "https://api.dropboxapi.com/2/team/members/move_former_member_files"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "transfer_dest_id": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "transfer_admin_id": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }
+}')
+
+
+// [members/move_former_member_files/job_status/check](https://www.dropbox.com/developers/documentation/http/teams#team-members-move_former_member_files-job_status-check)
+// 
+// scope: `members.write`
+// 
+// Once an async_job_id is returned from `members/move_former_member_files` , use this to poll the status of the asynchronous request.
+// Permission : Team member management.
+
+@name("members/move_former_member_files/job_status/check")
+POST "https://api.dropboxapi.com/2/team/members/move_former_member_files/job_status/check"
+"Content-Type": "application/json"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [members/recover](https://www.dropbox.com/developers/documentation/http/teams#team-members-recover)
+// 
+// scope: `members.delete`
+// 
+// Recover a deleted member.
+// Permission : Team member management
+// Exactly one of team_member_id, email, or external_id must be provided to identify the user account.
+
+@name("members/recover")
+POST "https://api.dropboxapi.com/2/team/members/recover"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }
+}')
+
+
+// [members/remove](https://www.dropbox.com/developers/documentation/http/teams#team-members-remove)
+// 
+// scope: `members.delete`
+// 
+// Removes a member from a team.
+// Permission : Team member management
+// Exactly one of team_member_id, email, or external_id must be provided to identify the user account.
+// Accounts can be recovered via `members/recover` for a 7 day period or until the account has been permanently deleted or transferred to another account (whichever comes first). Calling `members/add` while a user is still recoverable on your team will return with `MemberAddResult.user_already_on_team`.
+// Accounts can have their files transferred via the admin console for a limited time, based on the version history length associated with the team (180 days for most teams).
+// This endpoint may initiate an asynchronous job. To obtain the final result of the job, the client should periodically poll `members/remove/job_status/get`.
+
+@name("members/remove")
+POST "https://api.dropboxapi.com/2/team/members/remove"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "wipe_data": true, 
+    "transfer_dest_id": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "transfer_admin_id": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "keep_account": false, 
+    "retain_team_shares": false
+}')
+
+
+// [members/remove/job_status/get](https://www.dropbox.com/developers/documentation/http/teams#team-members-remove-job_status-get)
+// 
+// scope: `members.delete`
+// 
+// Once an async_job_id is returned from `members/remove` , use this to poll the status of the asynchronous request.
+// Permission : Team member management.
+
+@name("members/remove/job_status/get")
+POST "https://api.dropboxapi.com/2/team/members/remove/job_status/get"
+"Content-Type": "application/json"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [members/secondary_emails/add](https://www.dropbox.com/developers/documentation/http/teams#team-members-secondary_emails-add)
+// 
+// scope: `members.write`
+// 
+// Add secondary emails to users.
+// Permission : Team member management.
+// Emails that are on verified domains will be verified automatically. For each email address not on a verified domain a verification email will be sent.
+
+@name("members/secondary_emails/add")
+POST "https://api.dropboxapi.com/2/team/members/secondary_emails/add"
+"Content-Type": "application/json"
+data('{
+    "new_secondary_emails": [
+        {
+            "user": {
+                ".tag": "team_member_id", 
+                "team_member_id": "dbmid:efgh5678"
+            }, 
+            "secondary_emails": [
+                "bob2@hotmail.com", 
+                "bob@inst.gov"
+            ]
+        }
+    ]
+}')
+
+
+// [members/secondary_emails/delete](https://www.dropbox.com/developers/documentation/http/teams#team-members-secondary_emails-delete)
+// 
+// scope: `members.write`
+// 
+// Delete secondary emails from users
+// Permission : Team member management.
+// Users will be notified of deletions of verified secondary emails at both the secondary email and their primary email.
+
+@name("members/secondary_emails/delete")
+POST "https://api.dropboxapi.com/2/team/members/secondary_emails/delete"
+"Content-Type": "application/json"
+data('{
+    "emails_to_delete": [
+        {
+            "user": {
+                ".tag": "team_member_id", 
+                "team_member_id": "dbmid:efgh5678"
+            }, 
+            "secondary_emails": [
+                "bob2@hotmail.com", 
+                "bob@inst.gov"
+            ]
+        }
+    ]
+}')
+
+
+// [members/secondary_emails/resend_verification_emails](https://www.dropbox.com/developers/documentation/http/teams#team-members-secondary_emails-resend_verification_emails)
+// 
+// scope: `members.write`
+// 
+// Resend secondary email verification emails.
+// Permission : Team member management.
+
+@name("members/secondary_emails/resend_verification_emails")
+POST "https://api.dropboxapi.com/2/team/members/secondary_emails/resend_verification_emails"
+"Content-Type": "application/json"
+data('{
+    "emails_to_resend": [
+        {
+            "user": {
+                ".tag": "team_member_id", 
+                "team_member_id": "dbmid:efgh5678"
+            }, 
+            "secondary_emails": [
+                "bob2@hotmail.com", 
+                "bob@inst.gov"
+            ]
+        }
+    ]
+}')
+
+
+// [members/send_welcome_email](https://www.dropbox.com/developers/documentation/http/teams#team-members-send_welcome_email)
+// 
+// scope: `members.write`
+// 
+// Sends welcome email to pending team member.
+// Permission : Team member management
+// Exactly one of team_member_id, email, or external_id must be provided to identify the user account.
+// No-op if team member is not pending.
+
+@name("members/send_welcome_email")
+POST "https://api.dropboxapi.com/2/team/members/send_welcome_email"
+"Content-Type": "application/json"
+data('{
+    ".tag": "team_member_id", 
+    "team_member_id": "dbmid:efgh5678"
+}')
+
+
+// [members/set_admin_permissions](https://www.dropbox.com/developers/documentation/http/teams#team-members-set_admin_permissions)
+// 
+// scope: `members.write`
+// 
+// Updates a team member's permissions.
+// Permission : Team member management.
+
+@name("members/set_admin_permissions")
+POST "https://api.dropboxapi.com/2/team/members/set_admin_permissions"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "new_role": "member_only"
+}')
+
+
+// [members/set_profile](https://www.dropbox.com/developers/documentation/http/teams#team-members-set_profile)
+// 
+// scope: `members.write`
+// 
+// Updates a team member's profile.
+// Permission : Team member management.
+
+@name("members/set_profile")
+POST "https://api.dropboxapi.com/2/team/members/set_profile"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "new_email": "t.smith@domain.com", 
+    "new_surname": "Smith"
+}')
+
+
+// [members/set_profile_photo](https://www.dropbox.com/developers/documentation/http/teams#team-members-set_profile_photo)
+// 
+// scope: `members.write`
+// 
+// Updates a team member's profile photo.
+// Permission : Team member management.
+
+@name("members/set_profile_photo")
+POST "https://api.dropboxapi.com/2/team/members/set_profile_photo"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "photo": {
+        ".tag": "base64_data", 
+        "base64_data": "SW1hZ2UgZGF0YSBpbiBiYXNlNjQtZW5jb2RlZCBieXRlcy4gTm90IGEgdmFsaWQgZXhhbXBsZS4="
+    }
+}')
+
+
+// [members/suspend](https://www.dropbox.com/developers/documentation/http/teams#team-members-suspend)
+// 
+// scope: `members.write`
+// 
+// Suspend a member from a team.
+// Permission : Team member management
+// Exactly one of team_member_id, email, or external_id must be provided to identify the user account.
+
+@name("members/suspend")
+POST "https://api.dropboxapi.com/2/team/members/suspend"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "wipe_data": false
+}')
+
+
+// [members/unsuspend](https://www.dropbox.com/developers/documentation/http/teams#team-members-unsuspend)
+// 
+// scope: `members.write`
+// 
+// Unsuspend a member from a team.
+// Permission : Team member management
+// Exactly one of team_member_id, email, or external_id must be provided to identify the user account.
+
+@name("members/unsuspend")
+POST "https://api.dropboxapi.com/2/team/members/unsuspend"
+"Content-Type": "application/json"
+data('{
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }
+}')
+
+
+

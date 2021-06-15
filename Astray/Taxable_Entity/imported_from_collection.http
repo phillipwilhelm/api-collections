@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+// Regresa el id de la Entidad Fiscal de la cual se esta inpersonificado
+
+@name("Get current taxable entity")
+GET "https://{{host}}/api/v1/taxable_entity"
+"Authorization": "{{token}}"
+
+
+@name("List taxable entities")
+GET "https://{{host}}/api/v1/admin/taxable_entities"
+"Authorization": "{{token}}"
+? "platform_status"= "active"
+? "sort_by"= "legal_name"
+? "sort_direction"= "asc"
+? "status"= "demo"
+
+
+// Crea usuario, su taxable_entity y su dirección
+
+@name("Create taxable entity for new user")
+POST "https://{{host}}/api/v1/sign_up"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "user": {
+    "first_name": "Eduardo",
+    "last_name": "Herrera",
+    "email": "eduardo.herrera@cumplo.com"
+  },
+  "taxable_entity": {
+    "rfc": "XEXX010101002",
+    "legal_name": "Cumplo",
+    "tax_classification": "business_activity",
+    "postal_code": "0000"
+  }
+}')
+
+
+// Crea una entidad fiscal. El atributo `tax_classification` debera ser establecido con las siguientes opciones acorde al regimen fiscal:
+// ```javascript
+// legal_entity: "601 - General de Ley Personas Morales"
+// non_profit_legal_entity: "603 - Personas Morales con Fines no Lucrativos"
+// wages_salaries: "605 - Sueldos y Salarios e Ingresos Asimilados a Salarios"
+// lease: "606 - Arrendamiento"
+// other_income: "608 - Demás ingresos"
+// consolidation: "609 - Consolidación"
+// residents_abroad: "610 - Residentes en el Extranjero sin Establecimiento Permanente en México"
+// partners_and_shareholders: "611 - Ingresos por Dividendos (socios y accionistas)"
+// business_activity: "612 - Personas Físicas con Actividades Empresariales y Profesionales"
+// interest_income: "614 - Ingresos por intereses"
+// no_tax_liabilities: "616 - Sin obligaciones fiscales"
+// cooperatives: "620 - Sociedades Cooperativas de Producción que optan por diferir sus ingresos"
+// rif: "621 - Incorporación Fiscal"
+// agricultural_activities: "622 - Actividades Agrícolas, Ganaderas, Silvícolas y Pesqueras"
+// optional_for_companies: "623 - Opcional para Grupos de Sociedades"
+// coordinated: "624 - Coordinados"
+// hydrocarbons: "628 - Hidrocarburos"
+// disposal_of_property: "607 - Régimen de Enajenación o Adquisición de Bienes"
+// preferential_tax_regimes: "629 - De los Regímenes Fiscales Preferentes y de las Empresas Multinacionales"
+// disposal_of_stocks: "630 - Enajenación de acciones en bolsa de valores"
+// prizes_obtained: "615 - Régimen de los ingresos por obtención de premios"
+// ```
+
+@name("Create taxable entity")
+POST "https://{{host}}/api/v1/sign_up"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "user": {
+	"id": {{account_holder_id}}
+  },
+  "taxable_entity": {
+    "rfc": "XAXX010101003",
+    "legal_name": "Empresa Patito S.A. de C.V.",
+    "tax_classification": "business_activity",
+    "postal_code": "00000"
+  }
+}')
+
+
+// Las operaciones dentro del API generalmente requieren que antes te impersonifiques con la Entidad Fiscal que requieras ejecutar dichas operaciones. Para esto es este endpoint, sin tiene más de une Entidad Fical, solo manda el `id` de la misma para impersonificarte.
+
+@name("Change current taxable entity")
+POST "https://{{host}}/api/v1/change_current_taxable_entity"
+"Authorization": "{{token}}"
+? "id"= "{{taxable_entity_id}}"
+
+
+
+// Esté endpoint sirve para mandar a encolar el robot de descarga de facturas. La descarga es asincrona por lo que hay que esperar alrededor de 15 min a que descargue según el volúmen de facturación de le Entidad Fiscal. El parametro `period` puede tomar los siguientes valores segun el periodo de facturas que se necesita descargar:
+// ```javascript
+// "full_history": "El historial completo de facturación"
+// "monthly": "El último mes"
+// "semester": "Últimos 6 meses"
+// ```
+
+@name("Enqueue invoice downloader")
+POST "https://{{host}}/api/v1/admin/enqueue_bots"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"taxable_entity_id": {{taxable_entity_id}},
+	"period":"full_history"
+}')
+
+
+// Establecer la clave CIEC para la descarga de facturas a la Entidad Fiscal en la que se esta impersonificado.
+
+@name("Update CIEC")
+PUT "https://{{host}}/api/v1/taxable_entity"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"taxable_entity": {
+		"sat_password": "ciec"
+	}
+}')
+
+
+

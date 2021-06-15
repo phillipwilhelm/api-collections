@@ -1,0 +1,123 @@
+#!/usr/bin/env dothttp
+
+// Authenticates in the OAuth 2.0 API using a set of User credentials, such as a Mediator or a Consumer. This is the most complete authentication method and exposes most of the financially impacting token scopes.
+// </br>
+// Necessary SCOPE to perform `"oauth-clients:read"`
+// 
+// `GHERKIN`
+// 
+// ```javascript
+// GIVEN Actor has all necessary clients to login in the platform
+// WHEN actor perform the action
+// THEN the response must be 200
+// THEN the response must show all permitted scopes
+// ```
+
+@name("Login at platform")
+POST "https://{{API_BASE_URL}}/oauth/token"
+basicauth("{{OAUTH_CLIENT_ID}}", "{{OAUTH_CLIENT_SECRET}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Basic {{BASIC_CREDENTIALS}}"
+data({
+    "grant_type": [
+        "password"
+    ],
+    "username": [
+        "{{ADMIN_EMAIL}}"
+    ],
+    "password": [
+        "{{ADMIN_PASSWORD}}"
+    ],
+    "scope": [
+        "{{SCOPES}}"
+    ]
+})
+
+
+// Gets the current user information based on the supplied Access Token.
+// </br>
+// Necessary SCOPE to perform `"users:read"`
+// 
+// `GHERKIN`
+// 
+// ```javascript
+// GIVEN Actor is logged in platform
+// WHEN actor perform the action
+// THEN the response must be 200
+// ```
+
+@name("Who am I")
+GET "https://{{API_BASE_URL}}/users/me"
+
+
+// This method is used to keep a token active for extended periods of time, using a set of client credentials and a valid refresh token, you can generate a new pair of access and refresh tokens.
+// </br>
+// Necessary SCOPE to perform `"oauth-clients:write"`
+
+@name("/oauth/token (refresh_token)")
+POST "https://{{API_BASE_URL}}/oauth/token"
+basicauth("{{OAUTH_CLIENT_ID}}", "{{OAUTH_CLIENT_SECRET}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Basic {{BASIC_CREDENTIALS}}"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "refresh_token": [
+        "98d7714411d4dee683ce61db3d5c49caa0e6e63b"
+    ]
+})
+
+
+// Authenticates in the OAuth 2.0 provider using a set of client credentials. This is the most straightforward grant type and its suited for read-only access to some simple informations and methods.
+// </br>
+// Necessary SCOPE to perform `oauth-clients:write`
+
+@name("/oauth/token (client_credentials)")
+POST "https://{{API_BASE_URL}}/oauth/token"
+basicauth("{{OAUTH_CLIENT_ID}}", "{{OAUTH_CLIENT_SECRET}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+// Authenticates in the OAuth 2.0 API using a Secret Token credential, a long lived token generated previously.
+// </br>
+// Necessary SCOPE to perform `oauth-clients:write`
+
+@name("/oauth/token (secret_token)")
+POST "https://{{API_BASE_URL}}/oauth/token"
+basicauth("{{OAUTH_CLIENT_ID}}", "{{OAUTH_CLIENT_SECRET}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Basic {{BASIC_CREDENTIALS}}"
+data({
+    "grant_type": [
+        "secret_token"
+    ],
+    "secret_token": [
+        "{{SECRET_TOKEN}}"
+    ]
+})
+
+
+// Revokes a set of OAuth 2.0 tokens, such as Access Tokens or Refresh tokens.
+// </br>
+// Necessary SCOPE to perform `oauth-clients:write`
+
+@name("Revoke token")
+POST "https://{{API_BASE_URL}}/oauth/revoke"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "accessToken": [
+        "23ad8bfc77279c895ed8d65a77ac803bd16c53093b90513f9217535faaa43544"
+    ],
+    "refreshToken": [
+        ""
+    ]
+})
+
+
+

@@ -1,0 +1,232 @@
+#!/usr/bin/env dothttp
+
+// # CreateSubscriber API
+//   
+// Create a subscriber
+// 
+// # Security
+// 
+// + This method requires HTTPS. Any request without SSL will be rejected.
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1193 | FullSuiteAddressValidationFailed | Indicates the address could not be validated for convergent billing |
+// | 1118 | AgeViolation | Fault indicating that the provided age did not meet the age requirements configured for the business unit |
+// | 1128 | SubscriberExtensionFault | Fault thrown involving a Subscriber Extension |
+// | 113 | LoginExists | The requested login already exists |
+// | 1144 | CaptchaVerificationFailed | Fault indicating Captcha is required on the method and the challenge-response provided is invalid |
+// | 1115 | PaymentSourceNotValid | For rechargable stored value accounts, indicates the specired payment source is not valid |
+// | 1112 | PaymentInstrumentAuthorizationFailed | Fault indicating that payment instrument authorization failed |
+// | 1113 | PaymentInstrumentDetailNotFound | Fault indicating the payment instrument and/or its details could not be found |
+// | 612 | PaymentInstrumentTypeNotSupported | Fault thrown when a payment instrument type that is not supported is used in a transaction |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 613 | PayPalProcessingFailure | Fault exception occurring from Pay Pal processing |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures. |
+// | 115 | PasswordStrengthViolation | The requested password failed the password complexity rules |
+// | 217 | AdditionalPropertyNotFound | Indicates that the requested additional property was not found |
+// | 4 | ConvergentBillerIssue | Unknown Convergent Biller error |
+// 
+// # Request
+
+@name("CreateSubscriber (L & PW)")
+POST "https://{{CORE_SERVICE_DOMAIN}}/Subscriber/CreateSubscriber"
+"CD-SystemId": "{{SYSTEM_ID_XYZ}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"CD-Language": "en-us"
+"Content-Type": "application/json"
+data('{
+    "Addresses": [
+        {
+            "City": "London",
+            "Country": "GBR",
+            "DefaultBilling": true,
+            "DefaultHome": true,
+            "DefaultPostal": true,
+            "DefaultService": true,
+            "DefaultShipping": true,
+            "DefaultWork": false,
+            "LineOne": "48 Warwick Street",
+            "PostalCode": "W1B 5AW",
+            "Locked": false,
+            "Name": "48 Warwick Street",
+            "Status": 1,
+            "Verified": true
+        }
+    ],
+    "AutoLogin": true,
+    "Credentials": {
+        "Login": "shun@t.com",
+        "Password": "Qwerty"
+    },
+    "Subscriber": {
+        "AdditionalProperties": [
+            {
+                "ExternalReference": "SpoilerAlertEnabled",
+                "Values": [
+                    "True"
+                ]
+            },
+            {
+                "ExternalReference": "FavouriteDrivers",
+                "Values": [
+                    "Driver1",
+                    "Driver2"
+                ]
+            },
+            {
+                "ExternalReference": "FavouriteTeams",
+                "Values": [
+                    "team1",
+                    "Team2"
+                ]
+            },
+            {
+                "ExternalReference": "OneOffConsentsEnabled",
+                "Values": [
+                    "True"
+                ]
+            },
+            {
+                "ExternalReference": "DriverOfTheDayVote",
+                "Values": [
+                    "abc"
+                ]
+            },
+            {
+                "ExternalReference": "Consent_Contact",
+                "Values": [
+                    "1510609450953"
+                ]
+            },
+            {
+                "ExternalReference": "Consent_ThirdPartyContact",
+                "Values": [
+                    "1510609450953"
+                ]
+            },
+            {
+                "ExternalReference": "Consent_AccessTc",
+                "Values": [
+                    "1510609450953"
+                ]
+            },
+            {
+                "ExternalReference": "Consent_OttTc",
+                "Values": [
+                    "1510609450953"
+                ]
+            },
+            {
+                "ExternalReference": "Consent_EventApp",
+                "Values": [
+                    "1510609450953"
+                ]
+            }
+        ],
+        "Email": "dpkx5@t.com",
+        "ExternalReference": "{{$guid}}",
+        "FirstName": "CSG",
+        "Language": "en-US",
+        "LastName": "Test",
+        "Status": 1,
+        "Title": "Mr",
+        "Gender": 1
+    }
+}')
+
+
+@name("RetrieveSubscriber")
+POST "https://{{CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveSubscriber"
+"CD-SystemId": "{{SYSTEM_ID_XYZ}}"
+"CD-DeviceType": "4"
+"CD-Language": "en-us"
+"Content-Type": "application/json"
+"CD-SessionId": "2.P7pIwabZtVvIf6uAlvfoKJ0P0JhjL6j6CD7HpsSkAM1yOBhREhEbjHdwTaLd/vzKUUHHlnYZUDFzWLWIfwOhvZerqm8ZwM0pdwYQO/aQh8xo3d5uzKGqna0S/JwfqK3ZGQ7qIDkEQdlY8SkJw1Y6hiZ0CGkzekE/LUuSLWl944MjuQTOUWC5YhOj8FuKg5Zaxh3nrbdv9XL4KrdzsO1NMn4m3b2huZgr/9iJPQZQgHqgzZdSJGePKhSolAXfFUpZFYTB3aW1l1aBVBfQ812NqanCaBrrN3hmq6YiHfHJxAJBnYxM0ejw/VIu7I6VsszU0WZcCvKxL65l1qMgzALdnvsSdRpQ39RSQkTnBsnsGW0iuQkKNLqi+5EHW8qQf9JPVbRbHFfmm4MEnOg491SJKXsRuLwf0iJ2GHRa48cxRsmdN9HBg+SQMhOFVZx9SSAaBeoFPbxr6y4Zt4AqecdpELkq6+2Va5fnbKFJ1O3QxJdbosNsJmLSIb0cZOuR/aQZ45w0KzVyzvrL70NQB9qJodz9ccOKyHVFxzbzTaEhRymVXInYaLXu6ktOGfeGXtHEPCMVXF9HkUNQ0q7MBDV05iMG2bVKAzpI6jYUpcXfgli3HvvYGEPhSlNKiNkoYJvzvW2efgkUnKqSiM7gluoaNg=="
+data('{}')
+
+
+@name("retrive")
+POST "https://{{CORE_SERVICE_DOMAIN}}/Subscriber/UpdateSubscriber"
+"CD-SystemId": "{{SYSTEM_ID_XYZ}}"
+"CD-DeviceType": "4"
+"CD-Language": "en-GB"
+"Content-Type": "application/json"
+"CD-SessionId": "2.P7pIwabZtVvIf6uAlvfoKJ0P0JhjL6j6CD7HpsSkAM0uMFMjxMXEYTOJALrE0EHbIH5U/HC6xKrcdo91wDBIdAZDLPx9WM6XlNBTpmKiwN6m9/1PFwncwz4fe9cD5Yn5HBOMZeFg6Ra7tJ7S2fKNvOEWxovspqxtJdJyQUZ3cfYHmeSc24HHzlNAYHE8ynHD2H2JDfPEAA3gyQ+iUHKASmAvSsg+dhFJ5mUpLWk/JnrTWpEZjdDKFhZvTf7U/dE9YM1mTuEaDd5SliC7bUfC0eDusSZ5S7CmcYW4XQHVDBBQx+Od1lfwX6CZKv5peouKPhrfJOCckd2SW7rxbZ9gSoqCOAGev5bl4J1tMuCBfDt7RnIfenU4Z9qSWCx7opTDqCgIi2ynROeb2GTncN8tphOPik7vXYcx0MUEHmulxdRNqWx5vNUX+BGVSk4mgYDtydPZjVyrRMJG75hrM6Ak7MBs4nyAC1unKHXXrDnn81tWQKLxunjMESavA7962OC+0m6vF4GxTxOMlv5GSz8d1TOPLM6WCTuYxElPMzl2zQRS748xJkD9f8gHukNLpyzOFjkHm3qGtlLY2iyAkdDdqfBBDOesBOMuymXMiVefsoZkcGy+1f+Tdl62Hh/IEuk0+ZvXIhCHnSf+36dX7wENWA=="
+data('{
+    "Subscriber": {
+        "ExternalAuthorizations": [
+            {
+                "ContextData": "GB",
+                "Provider": 6002,
+                "SubscriberExternalReference": "40664"
+            }
+        ],
+        "Category": 0,
+        "Created": "2018-04-11T17:14:05.107Z",
+        "Email": "dpkx5@t.com",
+        "ExternalReference": "38dc3c73-87d4-42c8-9fe1-af5f4c71f206",
+        "FirstName": "CSG",
+        "HasActiveSubscriptions": false,
+        "Id": 3650083,
+        "Language": "en-US",
+        "LastName": "Test",
+        "Login": "shun@t.com",
+        "Status": 1,
+        "Title": "Mr",
+        "AdditionalProperties": [
+            {
+                "ExternalReference": "FavouriteTeams",
+                "Id": 1043,
+                "Name": "Favourite Teams",
+                "Values": [
+                    "team1",
+                    "Team2"
+                ]
+            },
+            {
+                "ExternalReference": "SpoilerAlertEnabled",
+                "Id": 1044,
+                "Name": "Spoiler Alert Enabled",
+                "Values": [
+                    "True"
+                ]
+            },
+            {
+                "ExternalReference": "OneOffConsentsEnabled",
+                "Id": 1045,
+                "Name": "One Off Consents Enabled",
+                "Values": [
+                    "True"
+                ]
+            },
+            {
+                "ExternalReference": "FavouriteDrivers",
+                "Id": 1071,
+                "Name": "Favourite Drivers",
+                "Values": [
+                    "Driver1",
+                    "Driver2"
+                ]
+            }
+        ],
+        "ContactPreferences": [],
+        "ExternalAuthenticationReference": "38dc3c73-87d4-42c8-9fe1-af5f4c71f206",
+        "Gender": 1,
+        "HomeCountry": "GBR",
+        "InvoiceConfiguration": {},
+        "LastSuccessfulLogin": "2018-04-11T17:14:02.983Z",
+        "StatusName": "Active",
+        "TermsAndConditionsAccepted": "2018-04-11T17:14:01.853Z"
+    }
+}')
+
+
+

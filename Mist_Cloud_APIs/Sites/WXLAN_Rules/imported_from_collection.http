@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+@name("getSiteWxlanRules")
+GET "https://{{host}}/api/v1/sites/:site_id/wxrules"
+
+
+@name("getSiteWxlanRulesDerived")
+GET "https://{{host}}/api/v1/sites/:site_id/wxrules/derived"
+
+
+@name("getSiteWxlanRuleDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/wxrules/:wxrules_id"
+
+
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|The name of the rule
+//  enabled|boolean|enabled or not, default is true
+//  order|int|the order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
+//  src_wxtags|uuid|tag list to determine if this rule would match
+//  dst_allow_wxtags|uuid|tag list to indicate these tags are allowed access
+//  dst_deny_wxtags|uuid|tag list to indicate these tags are blocked access
+//  blocked_apps|string|blocked apps (always blocking, ignoring action), the key of Get Application List
+//  action|string|type of action, allow / block
+
+@name("createSiteWxlanRule")
+POST "https://{{host}}/api/v1/sites/:site_id/wxrules"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Guest",
+    "order": 1,
+    "src_wxtags": [
+        "8bfc2490-d726-3587-038d-cb2e71bd2330",
+        "3aa8e73f-9f46-d827-8d6a-567bb7e67fc9"
+    ],
+    "dst_allow_wxtags": [
+        "fff34466-eec0-3756-6765-381c728a6037",
+        "eee2c7b0-d1d0-5a30-f349-e35fa43dc3b3"
+    ],
+    "dst_deny_wxtags": [
+        "aaa34466-eec0-3756-6765-381c728a6037",
+        "bbb2c7b0-d1d0-5a30-f349-e35fa43dc3b3"
+    ],
+    "blocked_apps": [
+        "mist",
+        "all-videos"
+    ],
+    "action": "allow"
+})
+
+
+@name("editSiteWxlanRule")
+PUT "https://{{host}}/api/v1/sites/:site_id/wxrules/:wxrules_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Guest"
+})
+
+
+@name("deleteSiteWxlanRule")
+DELETE "https://{{host}}/api/v1/sites/:site_id/wxrules/:wxrules_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+@name("getSiteWxlanRulesUsage")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/wxrules"
+
+
+@name("getSiteWxlanRulesCurrentlyUsedByAClient")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/clients/:client_mac"
+
+
+

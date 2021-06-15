@@ -1,0 +1,425 @@
+#!/usr/bin/env dothttp
+
+// Register your email with Randomkey to start using the API. After the successful registration, your authorization token will be sent to the provided email.
+
+@name("Register")
+POST "https://random.api.randomkey.io/v1/register"
+"Content-Type": "application/json"
+data('{
+	"email": "youremail@domain.com"
+}')
+
+
+// A GET method for checking the request quota.
+
+@name("Quota")
+GET "https://random.api.randomkey.io/v1/quota"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+
+
+// A POST method for passing a Random Key promo code for extra requests.
+// Fill out our mini-survey and get 10,000 requests extra! https://info857910.typeform.com/to/WaG5UufW
+
+@name("Promo Code")
+POST "https://random.api.randomkey.io/v1/promo"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+    "code": "yourpromocode",
+    "website": "fill out our survey at https://info857910.typeform.com/to/WaG5UufW to get a 10,000 free requests"
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/name
+// Optional: records (int), nulls (boolean), portion (string), gender (string), region (string)
+// Accepts: nulls: [ true | false ], portion: [ "first" | "last" | "full" ], gender: [ "f" | "m" | "0" ], region: see Supported Regions
+// Defaults: records: 1, nulls: false, portion: "first", gender: "0", region: "us"
+// Returns: name (string)
+// A POST method for producing a name of the specified name portion (first, last) and gender (male, female, N/A). The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes.
+
+@name("Name (Generic)")
+POST "https://random.api.randomkey.io/v1/name"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/name/first
+// Optional: records (int), nulls (boolean), gender (string), region (string)
+// Accepts: nulls: [ true | false ], gender: [ "f" | "m" | "0" ], region: see Supported Regions
+// Defaults: records: 1, nulls: false, gender: "0", region: "us"
+// Returns: name (string)
+// A POST method for producing a first name of the specified gender. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes.
+
+@name("First Name")
+POST "https://random.api.randomkey.io/v1/name/first"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"gender": "0",
+	"region": "us",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/name/last
+// Optional: records (int), nulls (boolean), gender (string), region (string)
+// Accepts: nulls: [ true | false ], gender: [ "f" | "m" | "0" ], region: see Supported Regions
+// Defaults: records: 1, nulls: false, gender: "0", region: "us"
+// Returns: name (string)
+// A POST method for producing a last name. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes. Note that specifying gender for the last name is only supported for countries that make that distinction (e.g. Russia), otherwise it's ignored.
+
+@name("Last Name")
+POST "https://random.api.randomkey.io/v1/name/last"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"gender": "0",
+	"region": "us",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/name/full
+// Optional: records (int), nulls (boolean), gender (string), region (string)
+// Accepts: nulls: [ true | false ], gender: [ "f" | "m" | "0" ], region: see Supported Regions
+// Defaults: records: 1, nulls: false, gender: "0", region: "us"
+// Returns: name (string)
+// A POST method for producing a full name. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes. Note that specifying gender for the last name is only supported for countries that make that distinction (e.g. Russia), otherwise it's ignored.
+
+@name("Full Name")
+POST "https://random.api.randomkey.io/v1/name/full"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"gender": "0",
+	"region": "us",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/email
+// Optional: records (int), nulls (boolean)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false
+// Returns: email (string)
+// A POST method for producing an email address. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. This is how an example request will look like:
+
+@name("Email Address")
+POST "https://random.api.randomkey.io/v1/email"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/phone
+// Optional: records (int), nulls (boolean), country_prefix (boolean), idd (string), trunk (string), region (string)
+// Accepts: nulls: [ true | false ], country_prefix: [ true | false ], idd: [ "" | "00" | "01" | "011" | "010" | "0011" | "810" | "+" ], region: see Supported Regions
+// Defaults: records: 1, nulls: false, country_prefix: false, idd: "", , trunk: "", region: "us"
+// Returns: email (string)
+// A POST method for producing a mobile phone number. The phone number can include a trunk prefix, an IDD code, and/or a country code prefix. By default, only the phone number is returned. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Phone Number")
+POST "https://random.api.randomkey.io/v1/email"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/location
+// Optional: records (int), nulls (boolean), region (string), and regional properties
+// Accepts: nulls: [ true | false ]. For region and regional properties: see Supported Regions
+// Defaults: records: 1, nulls: false, region: "us"
+// Returns: location ( array | string )
+// A POST method for producing a full address or a combination of address elements as specified in the request. By default, a complete address is returned. The address is always a real geographical location. The returned array will be different for each region: e.g. for the US, it will comprise of a street (inc. street name and number), city, state (abbreviated name), and a zip code; for Russia, it will produce a unit number, street name, city, state, and district. Any of the properties can be turned off in the request by setting it to False.
+// 
+// The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method is regional, i.e. the region has to be specified in the request's body. Consult the Supported Regions section for valid country codes and regional properties.
+
+@name("Location")
+POST "https://random.api.randomkey.io/v1/location"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"region": "us",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/id/nin
+// Optional: records (int), nulls (boolean)/a>
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false
+// Returns: id (string)
+// A POST method for producing random British National Insurance Numbers. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The NIN numbers have been generated by following the HMRC specification for a valid NIN format.
+
+@name("ID: National Insurance Number (UK)")
+POST "https://random.api.randomkey.io/v1/id/nin"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/id/ssn
+// Optional: records (int), nulls (boolean)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false
+// Returns: id (string)
+// A POST method for producing random Social Security Numbers. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The SSN numbers have been generated by following the SSA specification for a valid SSN format.
+
+@name("ID: Social Security Number (US)")
+POST "https://random.api.randomkey.io/v1/id/ssn"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/id/nss
+// Optional: records (int), nulls (boolean), gender (string), portion (string)
+// Accepts: nulls: [ true | false ], gender: [ "0" | "f" | "m" ], portion: [ "full" | "number" ]
+// Defaults: records: 1, nulls: false, gender: "0", portion: "full"
+// Returns: id (array)
+// A POST method for producing random French social security number, i.e. numéro de sécurité sociale. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The method returns a Date of Birth based on the information derived from the NSS, unless specified otherwise. The NSS numbers have been generated by following the INSEE specification for a valid NSS format. You can specify the gender in the request.
+
+@name("ID: Numéro de Sécurité Sociale (FR)")
+POST "https://random.api.randomkey.io/v1/id/nss"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"gender": "m",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/id/irp
+// Optional: records (int), nulls (boolean)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false
+// Returns: id (string)
+// A POST method for producing random internal Russian passport number, i.e. Паспорт гражданина Российской Федерации. The numbers have been generated by following the MIA of Russia's specification for valid passport numbers.
+
+@name("ID: Паспорт гражданина Российской Федерации (RU)")
+POST "https://random.api.randomkey.io/v1/id/irp"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/ccn
+// Optional: records (int), nulls (boolean), portion (string), valid (boolean), luhn (boolean)
+// Accepts: nulls: [ true | false ], portion: [ "full" | "number" ], valid: [ true | false ], luhn: [ true | false ]
+// Defaults: records: 1, nulls: false, portion: "number", valid: true, luhn: true
+// Returns: ccn ( string | array )
+// A POST method for producing random Payment Card Numbers. The card numbers will pass or fail the Luhn check as specified. The cards will carry an invalid date if the valid flag is set to False. The generated response returns card numbers by default but can be configured to include the expiry month and the security code. The pool of supported IIN's includes the biggest financial institutions issuing credit and debit cards: American Express, Diners Club, China UnionPay, VISA, MasterCard, Maestro, and Discover. The PANs generated follow the structure supported by their vendor, e.g. American Express have exactly 15 digits. The method generates up to 10,000 records per request.
+
+@name("Credit Card Number")
+POST "https://random.api.randomkey.io/v1/ccn"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/date
+// Optional: records (int), nulls (boolean), min (string), max (string), format (string)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, min: "01-Jan-1990", max: "31-Dec-2020", format: "%d-%b-%Y"
+// Returns: date (string)
+// A POST method for producing a random date within the given range and in the format specified. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The format has to match that of the provided range. The function accepts strftime() and strptime() format codes. The full list of available date format codes can be found in the Python documentation.
+
+@name("Date")
+POST "https://random.api.randomkey.io/v1/date"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"min": "10-Jul-2010",
+	"max": "10-Aug-2012",
+	"format": "%d-%b-%Y",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/datetime
+// Optional: records (int), nulls (boolean), min (string), max (string), format (string)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, min: "01-Jan-1990 00:00", max: "31-Dec-2020 23:59", format: "%d-%b-%Y %H:%M"
+// Returns: datetime (string)
+// A POST method for producing a random date and time within the given range and in the format specified. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The format has to match that of the provided range. The function accepts strftime() and strptime() format codes. The format has to match that of the provided range. The full list of available date format codes can be found in the Python documentation.
+
+@name("Datetime")
+POST "https://random.api.randomkey.io/v1/datetime"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"min": "10/Jul/2010 10:00",
+	"max": "10/Aug/2012 12:00",
+	"format": "%d/%b/%Y %I:%M",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/time
+// Optional: records (int), nulls (boolean), min (string), max (string), format (string)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, min: "01-Jan-1990 00:00", max: "31-Dec-2020 23:59", format: "%d-%b-%Y %H:%M"
+// Returns: time (string)
+// A POST method for producing random time within the given range and in the format specified. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The format has to match that of the provided range. The function accepts strftime() and strptime() format codes. The format has to match that of the provided range. The full list of available date format codes can be found in the Python documentation.
+
+@name("Time")
+POST "https://random.api.randomkey.io/v1/time"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"min": "10:00",
+	"max": "12:00",
+	"format": "%I:%M",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/int
+// Optional: records (int), nulls (boolean), min (int), max (int)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, min: 1, max: 100
+// Returns: number (int)
+// A POST method for producing a random integer within the given range. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Integer")
+POST "https://random.api.randomkey.io/v1/int"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"min": 28,
+	"max": 378,
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/double
+// Optional: records (int), nulls (boolean), min (double), max (double)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, min: 1, max: 100
+// Returns: number (double)
+// A POST method for producing a random double within the given range. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Double")
+POST "https://random.api.randomkey.io/v1/double"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"min": -89.00,
+	"max": 12.99,
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/number
+// Optional: records (int), nulls (boolean), digits (int)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, digits: 4
+// Returns: number (string)
+// A POST method for producing a random number of the specified length. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The generated string may include leading zeros.
+
+@name("Number")
+POST "https://random.api.randomkey.io/v1/number"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"digits": 9,
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/regex
+// Optional: records (int), nulls (boolean), regex (string)
+// \ Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false, regex: "\\w"
+// Returns: regex (string)
+// A POST method for producing a random string matching the provided regular expression. Escape the tokens that use a backslash with an additional backslash. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time. The most common regular expressions are supported, including:
+// A single character of a, b, or c: [abc]
+// A character except a, b, or c: [^abc]
+// A character in the range a-z: [a-z]
+// A character in the range a-z or A-Z: [a-zA-Z]
+// A single character: .
+// A non-whitespace character: \S
+// A digit: \d
+// A non-digit: \D
+// A word character: \w
+// A non-word character: \W
+// Exactly 3 of a: a{3}
+// 3 or more of a: a{3,}
+// Between 3 and 6 of a: a{3,6}
+// Either a or b: a|b
+
+@name("Regex")
+POST "https://random.api.randomkey.io/v1/regex"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"regex": "\\w{3,6}",
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/boolean
+// Optional: records (int), nulls (boolean)
+// Accepts: nulls: [ true | false ]
+// Defaults: records: 1, nulls: false
+// Returns: boolean (boolean)
+// A POST method for producing a random boolean: True or False. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Boolean")
+POST "https://random.api.randomkey.io/v1/boolean"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/array
+// Optional: records (int), nulls (boolean), array (array), elements (int)
+// Accepts: nulls: [ true | false ]
+// Defaults: array: ["Specify your array"], elements: 2, records: 1, nulls: false
+// Returns: array (array)
+// A POST method for producing a selection of elements from the provided array. The number of elements to return per array can be specified. Arrays can comprise of various data types. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Array")
+POST "https://random.api.randomkey.io/v1/boolean"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+// Endpoint: https://random.api.randomkey.io/v1/element
+// Optional: array (array)
+// Accepts: nulls: [ true | false ]
+// Defaults: array: ["Specify your array"], nulls: false
+// Returns: ( string | int | double | float | date | boolean | None )
+// A POST method for producing a random element from the provided array. Arrays can comprise of various data types. The method returns a single value. The method generates up to 10,000 records per request. If the null flag is set to true, a null value will be produced 10% of time.
+
+@name("Element")
+POST "https://random.api.randomkey.io/v1/boolean"
+"auth": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+	"records": 1
+}')
+
+
+

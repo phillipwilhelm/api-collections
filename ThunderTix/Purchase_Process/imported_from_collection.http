@@ -1,0 +1,891 @@
+#!/usr/bin/env dothttp
+
+// Get all needed data to create the form to select tickets, products, shipping, donations, surveys, etc. for the given performance.
+// 
+// #### Response
+// 
+// Returns an object with the following attributes:
+// 
+// | Attribute                     | Value                                          |
+// |-------------------------------|------------------------------------------------|
+// | tickets                       | Array of ticket types (Elaborated below).      |
+// | tickets_sold_or_hold          | Array of tickets sold or on hold (Deprecated). |
+// | available_seats               | Total capacity of the performance/event.       |
+// | performance_tickets_available | Tickets left in the inventory.                 |
+// | shippings                     | Array of shipping (Elaborated below).          |
+// | products                      | Array of products (Elaborated below).          |
+// | survey                        | Survey object (Elaborated below).              |
+// | require_names                 | Name requirements as it is set in the page {{thundertix_url}}/event/EVENT_ID/tickets. `0` when it does not require a customer name per ticket. `1` when a customer name per ticket is optional. `2` when a customer name is required for every ticket purchased. |
+// | has_donation                  | TRUE if the event is set to ask for a donation. |
+// | donation_text                 | Text shown to the customer when `has_donation` is TRUE. |
+// | campaigns                     | Array of campaigns.                            |
+// | status                        | Not used.                                      |
+// 
+// Array of ticket types
+// 
+// | Attribute           | Value                                                    |
+// |---------------------|----------------------------------------------------------|
+// | id                  | Ticket type ID.                                          |
+// | name                | Ticket type Name.                                        |
+// | price               | Ticket type Price.                                       |
+// | maxcap              | Capacity of the ticket type. `NULL` when it was not set. |
+// | max_per_order       | The maximum number of tickets a customer can buy in a single order. |
+// | description         | Ticket type Description.                                 |
+// | is_private          | TRUE when the ticket type is not shown to the public.    |
+// | max_ticket_selector | The maximum quantity in which the ticket can be selected.|  
+// 
+// 
+// Array of shipping
+// 
+// | Attribute      | Value                                  |
+// |----------------|----------------------------------------|
+// | id             | Shipping ID.                           |
+// | name           | Shipping Name.                         |
+// | amount         | Shipping Amount                        |
+// | event_id       | Event ID                               |
+// | applies_to     | `order` always.                        |
+// | package_id     | Not used.                              |
+// | hide           | TRUE when PDF is not sent in the email.|
+// | percentage     | Not used.                              |
+// | season_pass_id | Not used.                              |
+// 
+// 
+// Array of products 
+// 
+// | Attribute       | Value                                |
+// |-----------------|--------------------------------------|
+// | id              | Product ID.                          |
+// | name            | Product Name.                        |
+// | description     | Product Description.                 |
+// | price           | Product Price.                       |
+// | is_private      | TRUE when it is shown to the public. |
+// | picture         | Image's URL.                         |
+// | product_options | Array of options.                    |
+// 
+// Survey object
+// 
+// | Attribute    | Value                                                    |
+// |--------------|----------------------------------------------------------|
+// | id           | Survey ID.                                               |
+// | name         | Survey Name.                                             |
+// | venue_id     | Venue ID.                                                |
+// | q1           | First question.                                          |
+// | r1           | TRUE when the first question is required to the public.  |
+// | q2           | Second question.                                         | 
+// | r2           | TRUE when the second question is required to the public. |
+// | q3           | Third question.                                          |
+// | r3           | TRUE when the third question is required to the public.  |
+// | q4           | Fourth question.                                         |
+// | r4           | TRUE when the fourth question is required to the public. |
+// | q5           | Fifth question.                                          |
+// | r5           | TRUE when the fifth question is required to the public.  |
+// | active       | Always "true".                                           |
+// | created_at   | Self-explanatory.                                        |
+// | updated_at   | Self-explanatory.                                        |
+// | answer_type1 | Either `open` or `dropdown` for the first question.      |
+// | answer_text1 | Answer list to populate the first dropdown, one line per option. |
+// | answer_type2 | Either `open` or `dropdown` for the second question.     |
+// | answer_text2 | Answer list to populate the second dropdown, one line per option.|
+// | answer_type3 | Either `open` or `dropdown` for the third question.      |
+// | answer_text3 | Answer list to populate the third dropdown, one line per option. |
+// | answer_type4 | Either `open` or `dropdown` for the fourth question.     |
+// | answer_text4 | Answer list to populate the fourth dropdown, one line per option.|
+// | answer_type5 | Either `open` or `dropdown` for the fifth question.      |
+// | answer_text5 | Answer list to populate the fifth dropdown, one line per option. |
+// | order        | Always "true".                                           |
+// | collect_by_performance | Collect Answers by either performance (`true`) or event (`false`). |
+// 
+// 
+// ```
+// {
+//     "tickets": [
+//         {
+//             "id": 962485,
+//             "name": "General Admission",
+//             "price": "8.00",
+//             "maxcap": null,
+//             "max_per_order": null,
+//             "description": "",
+//             "is_private": false,
+//             "max_ticket_selector": 100
+//         }
+//     ],
+//     "tickets_sold_or_hold": [
+//         {
+//             "order_item": {
+//                 "id": null,
+//                 "quantity": 6,
+//                 "performance_id": 1799209,
+//                 "ticket_type_id": 961749
+//             }
+//         }
+//     ],
+//     "available_seats": 10000,
+//     "performance_tickets_available": 9994,
+//     "shippings": [
+//         {
+//             "shipping": {
+//                 "id": 98051,
+//                 "name": "Regular Mail Service",
+//                 "amount": "3.0",
+//                 "event_id": 100919,
+//                 "applies_to": "order",
+//                 "package_id": null,
+//                 "hide": false,
+//                 "percentage": null,
+//                 "season_pass_id": null
+//             }
+//         },
+//         {
+//             "shipping": {
+//                 "id": 98053,
+//                 "name": "Other Delivery Company",
+//                 "amount": "10.0",
+//                 "event_id": 100919,
+//                 "applies_to": "order",
+//                 "package_id": null,
+//                 "hide": false,
+//                 "percentage": null,
+//                 "season_pass_id": null
+//             }
+//         }
+//     ],
+//     "products": [
+//         {
+//             "id": 1689,
+//             "name": "T-shirt",
+//             "description": "One size white t-shirt. Get yours now!",
+//             "price": 5.0,
+//             "is_private": false,
+//             "picture": "",
+//             "product_options": []
+//         }
+//     ],
+//     "survey": {
+//         "poll": {
+//             "id": 4449,
+//             "name": "Help us to improve!",
+//             "venue_id": 3455,
+//             "q1": "How did you find us?",
+//             "r1": false,
+//             "q2": "What do you expect from this experience?",
+//             "r2": false,
+//             "q3": "",
+//             "r3": false,
+//             "q4": "",
+//             "r4": false,
+//             "q5": "",
+//             "r5": false,
+//             "active": true,
+//             "created_at": "2020-05-21T01:53:21.000-05:00",
+//             "updated_at": "2020-05-21T01:53:21.000-05:00",
+//             "answer_type1": "dropdown",
+//             "answer_text1": "Google search\r\nAny other website\r\nA friend told me\r\nI saw a print ad\r\nOther",
+//             "answer_type2": "open",
+//             "answer_text2": "",
+//             "answer_type3": "open",
+//             "answer_text3": "",
+//             "answer_type4": "open",
+//             "answer_text4": "",
+//             "answer_type5": "open",
+//             "answer_text5": "",
+//             "order": true,
+//             "collect_by_performance": false
+//         }
+//     },
+//     "require_names": 0,
+//     "has_donation": false,
+//     "donation_text": "Would you like to support TestAccount with a donation?",
+//     "campaigns": [],
+//     "status": "created"
+// }
+// ```
+
+@name("Order New")
+GET "https://{{thundertix_url}}/orders/new.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+? "performance_id"= "{{performance_id}}"
+
+
+// Get all the needed data to show the order in the checkout page along with the settings to show the customer billing form.
+// 
+// #### Request
+// 
+// The params for the request includes, in the simplest case scenario, only `performance_id` and `tickets`. In the following params, we are adding 3 tickets to our order, all of them from the same ticket type:
+// 
+// ```
+// {
+//   "performance_id"=>"{{performance_id}}",
+//   "tickets"=>{"{{ticket_type_id}}"=>"3"},  
+// }
+// ```
+// 
+// A more elaborated example may include `products`, `donation`, survey's `answer` and `shipping`. In the following params, we are adding to our order:
+// 
+// 1. One single ticket.
+// 2. 5 products.
+// 3. A $4.00 donation.
+// 4. Selecting "Google search" from the dropdown to answer the first question.
+// 5. Responding to the second question with "My open answer".
+// 6. Selecting a shipping option.
+// 
+// ```
+// {
+//   "performance_id"=>"{{performance_id}}",
+//   "tickets"=>{"{{ticket_type_id}}"=>"1"},  
+//   "products"=>{"{{product_id}}"=>"5"}, 
+//   "donation"=>{"price"=>"4"}, 
+//   "answer"=>{"poll_id"=>"{{survey_id}}", "order_id"=>"", "a1"=>"Google search", "a2"=>"My open answer"}, 
+//   "shipping"=>"{{shipping_id}}"
+// }
+// ```
+// 
+// **Note:** Remember `shipping` is a required param if the event has options for it.
+// 
+// #### Response
+// 
+// Returns an object with the following attributes:
+// 
+// | Attribute         | Value                                            |
+// |-------------------|--------------------------------------------------|
+// | order             | Order attributes (Elaborated below).             |
+// | tickets           | Array of on hold tickets (Elaborated below).     |
+// | products          | Array of products (Elaborated below).            |
+// | donations         | Array of donations (Elaborated below).           |
+// | shippings         | Array of shipping (Elaborated below).            |
+// | fees              | Array of fees (Elaborated below).                |
+// | currency          | Account currency.                                |
+// | hide_phone        | Exclude "Phone" field from the form.             |
+// | hide_company_name | Exclude "Company" field from the form.           |
+// | hide_billing      | Exclude "Billing Address" and "Shipping Address" fields from the form. |
+// | hide_ship         | Exclude "Shipping Address" fields from the form. |
+// | name              | Venue Name.                                      |
+// | policy            | Policy set at {{thundertix_url}}/settings#checkout in "Venue Terms and Conditions" section. |
+// | whitelabel        | Hide Thundetix name and logo from the view.      |
+// | currency_data     | Object with currency format data.                |
+// | status            | Not used.                                        |
+// 
+// The `order` object has many attributes. However, only the following ones are meaningful for now, the rest will become relevant after actually pay the order.
+// 
+// | Attribute  | Value                                            |
+// |------------|--------------------------------------------------|
+// | id         | Order ID.                                        |
+// | created_at | Self-explanatory.                                |
+// | updated_at | Self-explanatory.                                |
+// | state      | Order state, always `pending` for this endpoint. |
+// | account_id | Account ID.                                      |
+// | user_id    | User ID of who is logged-in through this API.    |
+// | amount     | Order total, tax included.                       |
+// | sales_tax  | Order tax.                                       |
+// 
+// The `tickets` array contains one object per ticket type added, these objects have many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute      | Value                                               |
+// |----------------|-----------------------------------------------------|
+// | id             | Ticket ID.                                          |
+// | quantity       | Ticket Quantity.                                    |
+// | order_id       | Order ID                                            |
+// | performance_id | Performance ID                                      |
+// | created_at     | Self-explanatory.                                   |
+// | updated_at     | Self-explanatory.                                   |
+// | price          | Ticket Unit Price, tax not included.                |
+// | name           | Ticket name, as it is shown on the checkout page.   |
+// | ticket_type_id | Ticket Type ID.                                     |
+// | sales_tax      | Ticket Unit Tax.                                    |
+// | customer_name  | Customer's name when Names are required per ticket. |
+// 
+// The `products` array contains one object per `product_item` added, these objects have many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute      | Value                                               |
+// |----------------|-----------------------------------------------------|
+// | id             | Product Item ID.                                    |
+// | quantity       | Product Item Quantity.                              |
+// | order_id       | Order ID.                                           |
+// | performance_id | Performance ID.                                     |
+// | created_at     | Self-explanatory.                                   |
+// | updated_at     | Self-explanatory.                                   |
+// | price          | Product Item Unit Price, tax not included.          |
+// | name           | Product Item name.                                  |
+// | product_id     | Product ID.                                         |
+// | sales_tax      | Product Item Unit Tax.                              |
+// 
+// The `donations` array contains one `donation_item`, it has many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute      | Value                                               |
+// |----------------|-----------------------------------------------------|
+// | id             | Donation Item ID.                                   |
+// | quantity       | Always "1".                                         |
+// | order_id       | Order ID.                                           |
+// | performance_id | Performance ID.                                     |
+// | created_at     | Self-explanatory.                                   |
+// | updated_at     | Self-explanatory.                                   |
+// | price          | Donated Amount.                                     |
+// | name           | Donation Item name.                                 |
+// | sales_tax      | Always "0.00". Donations are not taxable.           |
+// | campaign_id    | Campaign ID of the donation if any was selected.    |
+// 
+// The `shippings` array contains one `order_shipping`, it has many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute      | Value                                               |
+// |----------------|-----------------------------------------------------|
+// | id             | Order Shipping ID.                                  |
+// | order_id       | Order ID.                                           |
+// | amount         | Order Shipping Amount.                              |
+// | name           | Order Shipping name.                                |
+// | applies_to     | Always `order`.                                     |
+// | created_at     | Self-explanatory.                                   |
+// | updated_at     | Self-explanatory.                                   |
+// | fee_id         | Shipping ID.                                        |
+// | performance_id | Performance ID.                                     |
+// 
+// The `fees` array contains one object per `order_fee` added, these objects have many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute      | Value                                               |
+// |----------------|-----------------------------------------------------|
+// | id             | Order Fee ID.                                       |
+// | order_id       | Order ID.                                           |
+// | amount         | Order Fee Amount.                                   |
+// | name           | Order Fee name.                                     |
+// | applies_to     | `order` when it is created once for the entire order and `ticket` when it is created once per ticket. |
+// | created_at     | Self-explanatory.                                   |
+// | updated_at     | Self-explanatory.                                   |
+// | quantity       | Order Fee quantity.                                 |
+// | fee_id         | Fee ID.                                             |
+// | performance_id | Performance ID.                                     |
+// 
+// currency_data
+// 
+// | Attribute | Value                                                 |
+// |-----------|-------------------------------------------------------|
+// | format    | Unit should be placed at `%u` and the number at `%n`. |
+// | unit      | Currency sign.                                        |
+// | precision | How many decimals should be shown                     |
+// 
+// 
+// ```
+// {
+//     "order": {
+//         "id": 16635015,
+//         "created_at": "2020-05-22T18:57:01.000-05:00",
+//         "updated_at": "2020-05-22T18:57:01.000-05:00",
+//         "billing_address_1": null,
+//         "billing_address_2": null,
+//         "billing_city": null,
+//         "billing_state": null,
+//         "billing_zip": null,
+//         "shipping_address_1": null,
+//         "shipping_address_2": null,
+//         "shipping_city": null,
+//         "shipping_state": null,
+//         "shipping_zip": null,
+//         "customer_id": null,
+//         "state": "pending",
+//         "description": null,
+//         "shipping_id": null,
+//         "shipping_name": "Regular Mail Service",
+//         "shipping_cost": "3.0",
+//         "lastfour": null,
+//         "donation_deprecated": "0.0",
+//         "account_id": 3457,
+//         "shipping_to_name": null,
+//         "user_id": 23583,
+//         "phone": null,
+//         "payment_method": "card",
+//         "comments": null,
+//         "customer_first_name": null,
+//         "customer_last_name": null,
+//         "customer_email": null,
+//         "card_type": null,
+//         "amount": "33.8",
+//         "location": null,
+//         "sales_tax": "0.8",
+//         "display_name": "Daily for a Year - Friday May 22, 2020 - 04:00 PM",
+//         "company_name": null,
+//         "opt_in": null,
+//         "facebook_sale": false,
+//         "ip_address": "",
+//         "note_id": null,
+//         "billing_country": null,
+//         "shipping_country": null,
+//         "print_date": null,
+//         "t_print_date": null,
+//         "shipping_hide_pdf": false,
+//         "ticket_document_file_name": null,
+//         "ticket_document_content_type": null,
+//         "ticket_document_file_size": null,
+//         "ticket_document_updated_at": null,
+//         "referrer": "",
+//         "browser": "PostmanRuntime/7.24.1",
+//         "pdf_ready": null,
+//         "thermal_ready": null,
+//         "original_reserved_order_id": null,
+//         "total": "33.8"
+//     },
+//     "tickets": [
+//         {
+//             "ticket": {
+//                 "id": 28120297,
+//                 "quantity": 1,
+//                 "order_id": 16635015,
+//                 "performance_id": 1799209,
+//                 "price_adjustment_id": null,
+//                 "created_at": "2020-05-22T18:57:01.000-05:00",
+//                 "updated_at": "2020-05-22T18:57:01.000-05:00",
+//                 "price": "8.0",
+//                 "original_price": null,
+//                 "name": "General Admission",
+//                 "refunded_ticket_id": null,
+//                 "coupon_code": null,
+//                 "ticket_type_id": 962485,
+//                 "coupon_redeemed": null,
+//                 "saleable_seat_id": null,
+//                 "sales_tax": "0.8",
+//                 "package_id": null,
+//                 "seat_name": null,
+//                 "included_sales_tax": "0.0",
+//                 "season_pass_id": null,
+//                 "refund_id": null,
+//                 "parent_id": null,
+//                 "product_id": null,
+//                 "refunded_product_id": null,
+//                 "exchanged_ticket_id": null,
+//                 "customer_name": null,
+//                 "exchange_order_id": null,
+//                 "gift_certificate_id": null,
+//                 "gift_certificate_item_id": null,
+//                 "campaign_id": null,
+//                 "couponed_ticket_id": null
+//             }
+//         }
+//     ],
+//     "products": [
+//         {
+//             "product_item": {
+//                 "id": 28120301,
+//                 "quantity": 2,
+//                 "order_id": 16635015,
+//                 "performance_id": 1799209,
+//                 "price_adjustment_id": null,
+//                 "created_at": "2020-05-22T18:57:01.000-05:00",
+//                 "updated_at": "2020-05-22T18:57:01.000-05:00",
+//                 "price": "5.0",
+//                 "original_price": null,
+//                 "name": "T-shirt",
+//                 "refunded_ticket_id": null,
+//                 "coupon_code": null,
+//                 "ticket_type_id": null,
+//                 "coupon_redeemed": null,
+//                 "saleable_seat_id": null,
+//                 "sales_tax": "0.0",
+//                 "package_id": null,
+//                 "seat_name": null,
+//                 "included_sales_tax": "0.0",
+//                 "season_pass_id": null,
+//                 "refund_id": null,
+//                 "parent_id": null,
+//                 "product_id": 1689,
+//                 "refunded_product_id": null,
+//                 "exchanged_ticket_id": null,
+//                 "customer_name": null,
+//                 "exchange_order_id": null,
+//                 "gift_certificate_id": null,
+//                 "gift_certificate_item_id": null,
+//                 "campaign_id": null,
+//                 "couponed_ticket_id": null
+//             }
+//         }
+//     ],
+//     "donations": [
+//         {
+//             "donation_item": {
+//                 "id": 28120299,
+//                 "quantity": 1,
+//                 "order_id": 16635015,
+//                 "performance_id": 1799209,
+//                 "price_adjustment_id": null,
+//                 "created_at": "2020-05-22T18:57:01.000-05:00",
+//                 "updated_at": "2020-05-22T18:57:01.000-05:00",
+//                 "price": "10.0",
+//                 "original_price": null,
+//                 "name": "Donation",
+//                 "refunded_ticket_id": null,
+//                 "coupon_code": null,
+//                 "ticket_type_id": null,
+//                 "coupon_redeemed": null,
+//                 "saleable_seat_id": null,
+//                 "sales_tax": "0.0",
+//                 "package_id": null,
+//                 "seat_name": null,
+//                 "included_sales_tax": "0.0",
+//                 "season_pass_id": null,
+//                 "refund_id": null,
+//                 "parent_id": null,
+//                 "product_id": null,
+//                 "refunded_product_id": null,
+//                 "exchanged_ticket_id": null,
+//                 "customer_name": null,
+//                 "exchange_order_id": null,
+//                 "gift_certificate_id": null,
+//                 "gift_certificate_item_id": null,
+//                 "campaign_id": null,
+//                 "couponed_ticket_id": null
+//             }
+//         }
+//     ],
+//     "shippings": [
+//         {
+//             "order_shipping": {
+//                 "id": 8733295,
+//                 "order_id": 16635015,
+//                 "amount": "3.0",
+//                 "name": "Regular Mail Service",
+//                 "applies_to": "order",
+//                 "created_at": "2020-05-22T18:57:01.000-05:00",
+//                 "updated_at": "2020-05-22T18:57:01.000-05:00",
+//                 "quantity": null,
+//                 "waive_fee": null,
+//                 "refunded": false,
+//                 "fee_id": 98051,
+//                 "performance_id": 1799209
+//             }
+//         }
+//     ],
+//     "fees": [
+//         {
+//             "order_fee": {
+//                 "id": 8733297,
+//                 "order_id": 16635015,
+//                 "amount": "2.0",
+//                 "name": "My Fee",
+//                 "applies_to": "order",
+//                 "created_at": "2020-05-22T18:57:01.000-05:00",
+//                 "updated_at": "2020-05-22T18:57:01.000-05:00",
+//                 "quantity": 1,
+//                 "waive_fee": null,
+//                 "refunded": false,
+//                 "fee_id": 98055,
+//                 "performance_id": 1799209
+//             }
+//         }
+//     ],
+//     "currency": "usd",
+//     "hide_phone": true,
+//     "hide_company_name": true,
+//     "hide_billing": false,
+//     "hide_ship": true,
+//     "name": "TestAccount",
+//     "policy": "",
+//     "whitelabel": false,
+//     "currency_data": {
+//         "format": "%u%n",
+//         "unit": "$",
+//         "precision": 2
+//     },
+//     "status": "created"
+// }```
+
+@name("Order Checkout")
+POST "https://{{thundertix_url}}/performances/{{performance_id}}/orders.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("performance_id", "{{performance_id}}"),
+	("tickets[{{ticket_type_id}}]", "2"),
+	("products[{{product_id}}]", "1"),
+	("donation[price]", "10"),
+	("answer[poll_id]", "{{survey_id}}"),
+	("answer[order_id]", ""),
+	("answer[a1]", "Google search"),
+	("answer[a2]", "My open answer"),
+	("shipping", "{{shipping_id}}")
+)
+
+
+// #### Request
+// 
+// The order can be paid by either cash or credit card.
+// 
+// The params to pay with cash includes, in the simplest case scenario, only the following information: customer first and last name, email, payment type as `cash`, and the opt_in boolean.
+// 
+// ```
+// {
+//   "cc"=>{"fname"=>"", "lname"=>""},
+//   "email"=>"",
+//   "payment_type"=>"cash",
+//   "order"=>{"opt_in"=>""}
+// }
+// ```
+// 
+// The params to pay with credit card includes, in the simplest case scenario, all previous params plus credit card information: card number, CVV, expiration month, and expiration year. Note the payment type is `card`.
+// 
+// ```
+// {
+//   "cc"=>{
+//     "fname"=>"John", 
+//     "lname"=>"Smith", 
+//     "number"=>"4111111111111111", // Credit card number.
+//     "cvv"=>"123"                  // Credit card CVV.
+//   },
+//   "date"=>{"month"=>"12", "year"=>"2026"}  // Credit card expiration.
+//   "email"=>"",
+//   "payment_type"=>"card",
+//   "order"=>{"opt_in"=>""}
+// }
+// ```
+// 
+// A more complete example can include company name, customer phone, billing address, shipping address, and order comments.
+// 
+// ```
+// {
+//   "cc"=>{
+//     "fname"=>"John", 
+//     "lname"=>"Smith", 
+//     "number"=>"4111111111111111", // Credit card number.
+//     "cvv"=>"123"                  // Credit card CVV.
+//   },
+//   "date"=>{"month"=>"12", "year"=>"2026"}  // Credit card expiration.
+//   "email"=>"",
+//   "payment_type"=>"card",
+//   "order"=>{
+//     "phone"=>"",
+//     "company_name"=>"",
+//     "billing_address_1"=>"",  // Billing data.
+//     "billing_address_2"=>"",
+//     "billing_zip"=>"", 
+//     "billing_city"=>"",
+//     "billing_state"=>"TX", 
+//     "billing_country"=>"US",
+//     "shipping_to_name"=>"Michael Smith", // Shipping data.
+//     "shipping_address_1"=>"",
+//     "shipping_address_2"=>"", 
+//     "shipping_zip"=>"", 
+//     "shipping_city"=>"", 
+//     "shipping_state"=>"TX", 
+//     "shipping_country"=>"US", 
+//     "comments"=>"",  // Order comment.
+//     "opt_in"=>"1"
+//   },
+// }
+// ```
+// 
+// #### Response
+// 
+// Returns an object with the following attributes:
+// 
+// | Attribute | Value                                                         |
+// |-----------|---------------------------------------------------------------|
+// | order     | Order attributes (Elaborated below).                          |
+// | messages  | Array of messages to show to the customer. Show all together. |
+// | barcodes  | Array of barcodes, one per ticket.                            |
+// 
+// The `order` object has many attributes. However, only the following ones are meaningful.
+// 
+// | Attribute           | Value                                            |
+// |---------------------|--------------------------------------------------|
+// | state               | `paid` on a successful transaction and `payment_declined` on a failing transaction. |
+// | account_id          | Account ID.                                      |
+// | id                  | Order ID.                                        |
+// | created_at          | Self-explanatory.                                |
+// | opt_in              | Order ID.                                        |
+// | updated_at          | Self-explanatory.                                |
+// | billing_address_1, billing_address_2, billing_zip, billing_city, billing_state, billing_country | Billing address data. |
+// | shipping_address_1, shipping_address_2, shipping_zip, shipping_city, shipping_state, shipping_country | Shipping address data. |
+// | customer_id         | Customer ID. ThundeTix looks into your customers based on the order's email, if there are no matches then it creates a new one. |
+// | lastfour            | If the order was paid with a credit card, here are the last 4 numbers. |
+// | shipping_to_name    | Person's name who will receive in the shipping address. |
+// | user_id             | User ID of who is logged-in through this API.    |
+// | phone               | Customer Phone.                                  |
+// | payment_method      | The order was paid with one of these options: `card`: Credit card, `cash`: Cash, `reserve`: It was not paid but it is a reservation, `none`: It was not paid because the order total is $0.00, `check_voucher`: It was paid with either check or voucher. |
+// | customer_first_name | Customer First Name.                             |
+// | customer_last_name  | Customer Last Name.                              |
+// | customer_email      | Customer Email.                                  |
+// | card_type           | If the order was paid with a credit card, here are card's brand. |
+// | amount              | Order total, tax included.                       |
+// | sales_tax           | Order tax.                                       |
+// | company_name        | Company Name.                                    |
+// | browser             | Browser details.                                 |
+// 
+// 
+// ```
+// {
+//     "order": {
+//         "state": "paid",
+//         "account_id": 3457,
+//         "id": 16635031,
+//         "created_at": "2020-05-22T20:08:51.000-05:00",
+//         "opt_in": null,
+//         "ticket_document_file_name": null,
+//         "updated_at": "2020-05-22T20:09:14.000-05:00",
+//         "billing_address_1": null,
+//         "billing_address_2": null,
+//         "billing_city": null,
+//         "billing_state": null,
+//         "billing_zip": null,
+//         "shipping_address_1": null,
+//         "shipping_address_2": null,
+//         "shipping_city": null,
+//         "shipping_state": null,
+//         "shipping_zip": null,
+//         "customer_id": 5768443,
+//         "description": null,
+//         "shipping_id": null,
+//         "shipping_name": "",
+//         "shipping_cost": "0.0",
+//         "lastfour": "1111",
+//         "donation_deprecated": "0.0",
+//         "shipping_to_name": null,
+//         "user_id": 23583,
+//         "phone": null,
+//         "payment_method": "card",
+//         "comments": null,
+//         "customer_first_name": "John",
+//         "customer_last_name": "Smith",
+//         "customer_email": "",
+//         "card_type": "visa",
+//         "amount": "33.8",
+//         "location": null,
+//         "sales_tax": "0.8",
+//         "display_name": "Daily for a Year - Friday May 22, 2020 - 04:00 PM",
+//         "company_name": null,
+//         "facebook_sale": false,
+//         "ip_address": "",
+//         "note_id": null,
+//         "billing_country": null,
+//         "shipping_country": null,
+//         "print_date": null,
+//         "t_print_date": null,
+//         "shipping_hide_pdf": false,
+//         "ticket_document_content_type": null,
+//         "ticket_document_file_size": null,
+//         "ticket_document_updated_at": null,
+//         "referrer": "",
+//         "browser": "PostmanRuntime/7.24.1",
+//         "pdf_ready": null,
+//         "thermal_ready": null,
+//         "original_reserved_order_id": null
+//     },
+//     "messages": [
+//         "Your order was processed successfully.",
+//         "Receipt Number: 16635031"
+//     ],
+//     "barcodes": [
+//         "EBX28120335"
+//     ]
+// }
+// ```
+
+@name("Order Purchase")
+PUT "https://{{thundertix_url}}/orders/{{order_id}}/purchase.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("email", "john_smith@thundertix.com"),
+	("cc[fname]", "John"),
+	("cc[lname]", "Smith"),
+	("payment_type", "card"),
+	("cc[number]", "4111111111111111"),
+	("cc[cvv]", "123"),
+	("date[month]", "12"),
+	("date[year]", "2026"),
+	("order[opt_in]", "true"),
+	("order[phone]", ""),
+	("order[company_name]", ""),
+	("order[billing_address_1]", ""),
+	("order[billing_address_2]", ""),
+	("order[billing_zip]", ""),
+	("order[billing_city]", ""),
+	("order[billing_state]", ""),
+	("order[billing_country]", ""),
+	("order[commnets]", ""),
+	("order[shipping_to_name]", ""),
+	("order[shipping_address_1]", ""),
+	("order[shipping_address_2]", ""),
+	("order[shipping_zip]", ""),
+	("order[shipping_city]", ""),
+	("order[shipping_state]", ""),
+	("order[shipping_country]", "")
+)
+
+
+// #### Request
+// 
+// This endpoint is the same as **POST Read All Selected Performances**. However, this time we are sending an array of barcodes.
+// 
+// ```
+// {
+//   "iOS_session"=>[1798175], 
+//   "bar"=>{"code"=>["{{barcode_1}}", "{{barcode_2}}"]}, 
+//   "id"=>"10"
+// }
+// ```
+// 
+// #### Response
+// 
+// The response has a few attributes but this is the only one that we need this time:
+// 
+// | Attribute                      | Value                                |
+// |--------------------------------|--------------------------------------|
+// | message                        | Message shown to the user. On a success scan, it contains the ticket type's name and the customer's name. |
+// 
+// #### Successful Response
+// 
+// ```
+// {
+//     "message": "<br /><br />Genral admission<br /> <br /> John Smith",
+//     "barcode": {
+//         "barcode": {
+//             "id": 48575371,
+//             "ticket_id": 28120201,
+//             "barcode": "VSX28120201",
+//             "scanned": true,
+//             "updated_at": "2020-05-20T16:42:04.000-05:00",
+//             "login": null,
+//             "thermal_image_file_name": null,
+//             "performance_id": 1799209,
+//             "ticket_name": "Genral Admission",
+//             "account_id": 3457,
+//             "customer_first_name": "John",
+//             "customer_last_name": "Smith",
+//             "order_id": 16634971,
+//             "seat_name": null
+//         }
+//     },
+//     "note": ""
+// }
+// ```
+// 
+// #### Failing Response
+// 
+// When the barcode was already scanned.
+// 
+// ```
+// {
+//     "message": "ALREADY SCANNED at <br />05/20/20 8:08pm CDT <br />by  TestAccount TestAccount <br /><br />Smith",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+// 
+// When the barcode is invalid.
+// 
+// ```
+// {
+//     "message": "<h1>INVALID TICKET</h1>",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+
+@name("Read All Tickets in the Order")
+POST "https://{{thundertix_url}}/barcode/read_all/{{venue_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("iOS_session[]", "{{performance_id}}"),
+	("bar[code][]", "{{barcode_1}}"),
+	("bar[code][]", "{{barcode_2}}")
+)
+
+
+

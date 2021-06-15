@@ -1,0 +1,76 @@
+#!/usr/bin/env dothttp
+
+// [Generate Access Token](#auth-v1)
+// -----------------------------------------------------------
+// 
+// Generate new access token for requesting resource API.
+// 
+// Resource API will use this access token for authorization, by default this access token will expire in 24 hours.
+// 
+// This API require client to generate _Authentication Header_, and put it to the 'Authorization' header
+// 
+// _Authentication Header_ = base64\_encode(_\[client\_id\]_:_\[client\_secret\]_)
+// 
+// |Response Schema | application/json |
+// |---|---|
+// |data|object(TokenResponse)|
+// |accessToken|Generated token to be used for requesting resource API|
+// |tokenType|Always set to 'bearer'|
+// |expressIn|Token Expiration in seconds|
+// |scope|always set to 'read'|
+// |jti|Value for validating the generated token|
+// 
+// 
+// Responses
+// 
+// |Response|Message|
+// |---|---|
+// |200|Success|
+// |400|Some Parameters are invalid|
+// |401|Access token is invalid|
+// |403|Server not found or Invalid URL|
+// |404|URL not found|
+// |500|Process resulted in fatal error|
+// |500|Input parameter resulting fatal error|
+
+@name("Generate Access Token")
+POST "https://api.tiketsandbox.net/b2b-gateway/tix-security-auth/token/generate"
+"Content-Type": "application/json"
+"Authorization": "Basic{{base64EncodeClientIdAndSecret}}"
+data('{
+    "grantType": "client_credentials"
+}')
+
+
+// If the access token expired. API can extend access token period
+// 
+// |Response Schema | application/json |
+// |---|---|
+// |data|object(TokenResponse)|
+// |clientID|Generated token to be used for requesting resource API|
+// |expressIn|Token expiration in seconds|
+// |jti|This value must be the same as the one received when generate token. If both of them are different, then the refresh token is not valid.|
+// 
+// Responses
+// 
+// |Response|Message|
+// |---|---|
+// |200|Success|
+// |400|Some Parameters are invalid|
+// |401|Access token is invalid|
+// |403|Server not found or Invalid URL|
+// |404|URL not found|
+// |500|Process resulted in fatal error|
+// |500|Input parameter resulting fatal error|
+
+@name("Refresh Access Token")
+POST "https://api.tiketsandbox.net/b2b-gateway/tix-security-auth/token/extend"
+"Content-Type": "application/json"
+"accessToken": "{{accessToken}}"
+"Authorization": "Basic  {{base64EncodeClientIdAndSecret}}"
+data('{
+    "token": "{{accessToken}}"
+}')
+
+
+

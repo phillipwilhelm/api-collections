@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// Logging in as an IoT Sensor follows the same  user-credentials flow as for a User.
+// To log in and identify the sensor `iot_sensor_00000000-0000-0000-0000-000000000000` with password `test`
+// 
+// The response returns an access code to identify the IoT Device
+
+@name("Keyrock - IoT Sensor Obtains an Access Token")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=iot_sensor_00000000-0000-0000-0000-000000000000&password=test&grant_type=password')
+
+
+// This example simulates a secured request coming from the device `motion001`
+// 
+// The POST request to a PEP Proxy in front to the Ultralight IoT Agent identifies
+// a previously provisioned resource `iot/d`endpoint and passes a measurement for
+// device `motion001`. The addition of the `X-Auth-Token` Header identifies the source
+// of the request as being registered in Keyrock, and therefore the measurement will 
+// be passed on to the IoT Agent itself.
+
+@name("PEP Proxy - Accessing IoT Agent with an Access Token")
+POST "http://localhost/iot/d"
+"X-Auth-Token": "{{X-Access-token}}"
+? "k"= "4jggokgpepnvsb2uv4s40d59ov"
+? "i"= "motion001"
+
+
+
+

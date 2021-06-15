@@ -1,0 +1,254 @@
+#!/usr/bin/env dothttp
+
+// You can use the `POST /environments/{environmentId}/applications` endpoint to create the new application. The application's `protocol` property is required, and  in this example it specifies an `OPENID_CONNECT` application. 
+// 
+// The response data returns information about the new application, including its `id` property, which identifies the UUID for this application resource. The application's UUID (shown below) is required in the next step to get the application's secret.
+// 
+// ```json
+// {
+// 
+//     "id": "4c2205d9-f3e4-4d6b-a83d-c754d46e329a"
+// }
+// 
+// ```
+
+@name("Step 1: Create an OpenID Connect (OIDC) application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "TestApp1",
+  "enabled": true,
+  "type": "WEB_APP",
+  "protocol": "OPENID_CONNECT",
+  "responseTypes": [
+    "CODE"
+  ],
+  "grantTypes": [
+    "AUTHORIZATION_CODE"
+  ],
+  "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+  "postLogoutRedirectUris": [
+    "https://example.com"
+  ],
+  "redirectUris": [
+      "https://example.com"
+      ]
+}')
+
+
+// You need the application `id` property value returned in Step 1 to retrieve the application's `secret` property value. The `GET /environments/{environmentId}/applications/{applicationId}/secret` returns the `secret` property value for the application specified in the request URL.
+// 
+// 
+// The response data returns the `secret` value for the application:
+// 
+// ```json
+// {
+//     "secret": "61tO2tfqRWZ~DLZ1Dfi8rptBNgKzc5H...y"
+// }
+// 
+// ```
+// 
+// The `secret` property value is needed in Step 7 to validate the request to exchange the authorization code for an access token.
+// 
+
+@name("Step 2: Get the application secret")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/secret"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// Resources are the protected endpoints that applications request access to using OAuth 2 authorization services. For this activity, the resource associated with the new application will be `PingOne API`, the PingOne for Customers platform APIs.
+// 
+// The `GET /environments/{environmentId}/resources` returns a list of all resource entities associated with the specified environment. The resource entity ID for `PingOne API` is needed in Step 5 when you create the application's resource access grant.
+// 
+// 
+// The response data includes the resource ID for each defined resource entity associated with the specified environment.
+
+@name("Step 3: Get the list of resources")
+GET "https://{{apiPath}}/environments/{{envID}}/resources"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// In this step, you get a list of all scopes, and from that list you must make a note of the scope IDs that you want to apply to the resource access grant in Step 5. The `GET /environments/{environmentId}/resources/{resourceId}/scopes` operation returns information about the scopes associated with the resource entity ID specified in the request URL. The value for the `{resourceId}` parameter is the resource ID for the `PingOne API` resource you retrieved in Step 3.
+// 
+// 
+// The response data shows the scopes and their IDs. At a minimum, the resource application grant for this activity must have the `p1:read:user` and `p1:update:user` scopes to enable a user to read and update user information.
+// 
+// ::: info
+// **Note:** There are several scopes returned by this `GET` request. In this activity, you need only the `p1:read:user` and `p1:update:user` scopes.
+// :::
+// 
+
+@name("Step 4: Get all scopes")
+GET "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}/scopes"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// After retrieving the platform resource ID in Step 3 and the scope IDs in Step 4, you can use the `POST /environments/{environmentId}/applications/{applicationId}/grants` operation to create a new resource access grant for the application specified by its ID in the request URL.
+// 
+// The body of the request specifies the ID for the `resource` property (`PingOne API`) and the IDs for the `scopes` that you assign to the application resource grant. Remember, for this activity, you must provide scope IDs for the `p1:read:user` and `p1:update:user` scopes, which are required permissions for a user to perform a self-update operation.
+// 
+// 
+// 
+// The response data shows the resource grant ID and the scopes associated with the grant.
+
+@name("Step 5: Create the application’s resource access grant")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/grants"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "resource": {
+    "id": "3dd4ac35-f06a-4569-90b7-a5e3dba6b4d2"
+  },
+  "scopes": [
+        {
+        	"id": "a0a346fb-3866-4100-89d9-cb9e88bc9638"
+        },
+        {
+        	"id": "7d84fcfb-0646-4ebb-bd51-31b3e8ab610a"
+        }
+    ]
+}')
+
+
+// The PingOne authorization endpoint `/{environmentId}/as/authorize` is used to interact with the resource owner and obtain an authorization grant. The authorization request must include values for the following properties:
+// 
+// * `client_id`
+// 
+//   A string that specifies the application’s UUID, which was returned in Step 1.
+// 
+// * `response_type`
+// 
+//   A string that specifies the code or token type returned by an authorization request. For this activity, the value is `code`.
+// 
+// * `redirect_uri`
+// 
+//   A string that specifies the URL that specifies the return entry point of the application. The `redirect_uri` property value defined in Step 1 is `https://example.com`.
+// 
+// * `scope`
+// 
+//   A string that specifies permissions that determine the resources that the application can access. This activity must specify the `p1:read:user` and `p1:update:user` scopes.
+// 
+// 
+// The `response_type` parameter specifies a value of `code`, which designates that this authorization request returns an authorization code that can be exchanged for an access token.
+// 
+// 
+// 
+// The authentication flow presents appropriate forms to an end user and submits data provided by the user for all required steps (to get username and password values). It also redirects to the resume URL when the authentication flow is complete. For information about authentication flows, see [Authentication workflow walkthrough](https://apidocs.pingidentity.com/pingone/customer/v1/api/concepts/p1-a_DefineAuthFlow/).
+// 
+// When the flow finishes, it returns an authorization code. The authorization code is used in Step 7 to create the access token.
+
+@name("Step 6: Obtain an authorization grant")
+POST "https://auth.pingone.com/{{envID}}/as/authorize"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{jwtToken}}"
+data({
+    "response_type": [
+        "code"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "scope": [
+        "p1:update:user p1:read:user"
+    ],
+    "state": [
+        "<state value>"
+    ],
+    "response_mode": [
+        "fragment"
+    ],
+    "nonce": [
+        "<nonce value>"
+    ],
+    "prompt": [
+        "login"
+    ],
+    "max_age": [
+        "3600"
+    ],
+    "acr_values": [
+        "Single_Factor"
+    ]
+})
+
+
+// The token endpoint is used by the client to obtain an access token by presenting its authorization grant. For `authorization_code` grants, the application calls the `POST /{environmentId}/as/token` endpoint to acquire the access token. The request body must include values for the following properties:
+// 
+// * `grant_type`
+// 
+//   A string that specifies the grant type of the token request. In this example, the value is `authorization_code`.
+// 
+// * `code`
+// 
+//   A string that specifies the authorization code value returned by the authorization request.
+// 
+// * `redirect_uri`
+// 
+//   A string that specifies the URL that specifies the return entry point of the application.
+// 
+// 
+// ::: info
+// **Note:** The request requires basic authentication, in which the application ID from Step 1 and the application secret from Step 2 are used as the username and password values, respectively. In a curl command, you can use the `--user` parameter to satisfy the basic authentication requirement like this: `--user "{appID}:{appSecret}"`.
+// :::
+// 
+// 
+// The response data contains the access token.
+
+@name("Step 7: Generate the access token")
+POST "https://auth.pingone.com/{{envID}}/as/token"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{jwtToken}}"
+data({
+    "grant_type": [
+        "authorization_code"
+    ],
+    "code": [
+        "{{authCode}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ]
+})
+
+
+// This activity assumes that you already have a user resource defined. If you do not have a user resource defined, see [Create users](#post-create-user) for information on creating new users.
+// 
+// The `GET /environments/{environmentId}/users/{userId}` endpoint returns information about the user whose properties you want to update.
+// 
+// 
+// From the response data, you can view the current property values and determine the properties that you want to update in Step 9.
+// 
+// User properties that do not have a set value are not listed in the response data for a `GET /environments/{environmentId}/users/{userId}` request. However, any unlisted property can be updated in a `PUT` or `PATCH` request. 
+
+@name("Step 8: Get user information")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `/environments/{environmentId}/users/{userId}` endpoint supports both `PUT` and `PATCH` operations to update user property values. The `PUT` operation is a complete update; any existing property values omitted from the request body are removed. The `PATCH` operation is a partial update; only the property values specified in the request body are changed and all property values omitted from the request remain unchanged.
+// 
+// The `PATCH /environments/{environmentId}/users/{userId}` operation updates the specified existing property values. Property values omitted from the request body are not updated.
+
+@name("Step 9: Update user information")
+PATCH "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}"
+"content-type": "application/json"
+data('{
+    "nickname": "Gracie",
+    "title": "Professor",
+    "timezone": "America/New_York"
+}')
+
+
+

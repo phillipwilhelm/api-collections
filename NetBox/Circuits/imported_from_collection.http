@@ -1,0 +1,142 @@
+#!/usr/bin/env dothttp
+
+@name("Get providers")
+GET "{{protocol}}://{{netbox}}/api/circuits/providers/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create Verizon provider")
+POST "{{protocol}}://{{netbox}}/api/circuits/providers/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+data('{
+    "name": "Verizon",
+    "slug": "VZ",
+    "asn": 701,
+    "account": "ABC123",
+    "portal_url": "https://business.verizon.com",
+    "noc_contact": "Tech Guy",
+    "admin_contact": "Sales Guy"
+}')
+
+
+@name("Get circuit types")
+GET "{{protocol}}://{{netbox}}/api/circuits/circuit-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create DS3 circuit type")
+POST "{{protocol}}://{{netbox}}/api/circuits/circuit-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+data('{
+    "name": "DS3",
+    "slug": "DS3",
+    "description": "45 Mbps"
+}')
+
+
+@name("Get circuits")
+GET "{{protocol}}://{{netbox}}/api/circuits/circuits/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create DC uplink circuit")
+POST "{{protocol}}://{{netbox}}/api/circuits/circuits/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+data('{
+    "cid": "XYZ987",
+    "provider": 1,
+    "type": 1,
+    "status": "provisioning",
+    "install_date": "2020-12-05",
+    "commit_rate": 44736
+}')
+
+
+@name("Get circuit terminations")
+GET "{{protocol}}://{{netbox}}/api/circuits/circuit-terminations/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create circuit termination at DC (Z)")
+POST "{{protocol}}://{{netbox}}/api/circuits/circuit-terminations/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+data('{
+  "circuit": 1,
+  "term_side": "Z",
+  "site": 3,
+  "port_speed": 44736,
+  "upstream_speed": 44736,
+  "connection_status": false
+}')
+
+
+@name("Create router DS3 interface")
+POST "{{protocol}}://{{netbox}}/api/dcim/interfaces/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "device": 1,
+    "name": "Router WAN",
+    "label": "Serial0/0",
+    "type": "t3",
+    "enabled": true,
+    "mtu": 1500,
+    "mgmt_only": false,
+    "connection_status": false
+}')
+
+
+@name("Get cables")
+GET "{{protocol}}://{{netbox}}/api/dcim/cables/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create cable to connect WAN")
+POST "{{protocol}}://{{netbox}}/api/dcim/cables/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+data('{
+    "termination_a_type": "dcim.interface",
+    "termination_a_id": 3,
+    "termination_b_type": "circuits.circuittermination",
+    "termination_b_id": 1,
+    "type": "coaxial",
+    "status": "planned",
+    "label": "string",
+    "color": "000000",
+    "length": 2,
+    "length_unit": "m"
+}')
+
+
+

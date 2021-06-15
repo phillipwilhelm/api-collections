@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// OAuth applications can use a special API method for checking OAuth token validity without exceeding the normal rate limits for failed login attempts. Authentication works differently with this particular endpoint. You must use [Basic Authentication](https://docs.github.com/rest/overview/other-authentication-methods#basic-authentication) to use this endpoint, where the username is the OAuth application `client_id` and the password is its `client_secret`. Invalid tokens will return `404 NOT FOUND`.
+
+@name("Check a token")
+POST "https://{{baseUrl}}/applications/:client_id/token"
+"Content-Type": "application/json"
+data('{
+    "access_token": "<string>"
+}')
+
+
+// OAuth applications can use this API method to reset a valid OAuth token without end-user involvement. Applications must save the "token" property in the response because changes take effect immediately. You must use [Basic Authentication](https://docs.github.com/rest/overview/other-authentication-methods#basic-authentication) when accessing this endpoint, using the OAuth application's `client_id` and `client_secret` as the username and password. Invalid tokens will return `404 NOT FOUND`.
+
+@name("Reset a token")
+PATCH "https://{{baseUrl}}/applications/:client_id/token"
+"Content-Type": "application/json"
+data('{
+    "access_token": "<string>"
+}')
+
+
+// OAuth application owners can revoke a single token for an OAuth application. You must use [Basic Authentication](https://docs.github.com/rest/overview/other-authentication-methods#basic-authentication) when accessing this endpoint, using the OAuth application's `client_id` and `client_secret` as the username and password.
+
+@name("Delete an app token")
+DELETE "https://{{baseUrl}}/applications/:client_id/token"
+"Content-Type": "application/json"
+data('{
+    "access_token": "<string>"
+}')
+
+
+// Exchanges a non-repository scoped user-to-server OAuth access token for a repository scoped user-to-server OAuth access token. You can specify which repositories the token can access and which permissions are granted to the token. You must use [Basic Authentication](https://docs.github.com/rest/overview/other-authentication-methods#basic-authentication) when accessing this endpoint, using the OAuth application's `client_id` and `client_secret` as the username and password. Invalid tokens will return `404 NOT FOUND`.
+
+@name("Create a scoped access token")
+POST "https://{{baseUrl}}/applications/:client_id/token/scoped"
+"Content-Type": "application/json"
+data('{
+    "access_token": "<string>",
+    "target": "<string>",
+    "target_id": "<integer>",
+    "repositories": [
+        "<string>",
+        "<string>"
+    ],
+    "repository_ids": [
+        "<integer>",
+        "<integer>"
+    ],
+    "permissions": {
+        "actions": "<string>",
+        "administration": "<string>",
+        "checks": "<string>",
+        "content_references": "<string>",
+        "contents": "<string>",
+        "deployments": "<string>",
+        "environments": "<string>",
+        "issues": "<string>",
+        "metadata": "<string>",
+        "packages": "<string>",
+        "pages": "<string>",
+        "pull_requests": "<string>",
+        "repository_hooks": "<string>",
+        "repository_projects": "<string>",
+        "secret_scanning_alerts": "<string>",
+        "secrets": "<string>",
+        "security_events": "<string>",
+        "single_file": "<string>",
+        "statuses": "<string>",
+        "vulnerability_alerts": "<string>",
+        "workflows": "<string>",
+        "members": "<string>",
+        "organization_administration": "<string>",
+        "organization_hooks": "<string>",
+        "organization_plan": "<string>",
+        "organization_projects": "<string>",
+        "organization_secrets": "<string>",
+        "organization_self_hosted_runners": "<string>",
+        "organization_user_blocking": "<string>",
+        "team_discussions": "<string>"
+    }
+}')
+
+
+

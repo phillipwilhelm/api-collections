@@ -1,0 +1,116 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of recurring invoices.
+
+@name("List recurring invoices")
+GET "https://{{api_url}}/recurring-invoices"
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "limit"= "15"
+? "page"= "1"
+? "status"= "live"
+? "sort"= "invoice_date"
+
+
+// Retrieve a recurring invoice by its number.
+
+@name("Retrieve a recurring invoice")
+GET "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Create a new recurring invoice.
+
+@name("Create a new recurring invoice")
+POST "https://{{api_url}}/recurring-invoices"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My recurring invoice title",
+	"contact": 831,
+	"pdf_template": 1,
+	"invoice_date": "2019-02-21",
+	"due_when": "end_of_month",
+	"due_days": 30,
+	"language": "en",
+	"currency": "usd",
+	"vat_type": "collect"
+}')
+
+
+// Update an existing recurring invoice.
+
+@name("Update a recurring invoice")
+PATCH "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My updated recurring invoice title"
+}')
+
+
+// Finalize a recurring invoice draft, and set it live.
+
+@name("Finalize a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/finalize"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Pause a recurring invoice.
+
+@name("Pause a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/pause"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Resume a paused recurring invoice.
+
+@name("Resume a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/resume"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Manually create an invoice from a recurring invoice.
+
+@name("Invoice a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/invoice"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"invoice_date": "2019-03-01",
+	"next_invoice_date": "2019-04-01"
+}')
+
+
+// Trash a recurring invoice.
+
+@name("Trash a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/trash"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// Restore a recurring invoice from the trash.
+
+@name("Restore a recurring invoice")
+POST "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}/restore"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// Delete a recurring invoice.
+
+@name("Delete a recurring invoice")
+DELETE "https://{{api_url}}/recurring-invoices/{{recurring_invoice_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+

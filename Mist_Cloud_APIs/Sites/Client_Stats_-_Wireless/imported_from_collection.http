@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  id|string|client id (if client object created)
+//  name|string|client’s annotated name (if client object is created)
+//  type|string|client’s type, regular / vip / resource / blocked (if client object is created)
+//  mac|string|client mac
+//  hostname|string|hostname that we learned from sniffing DHCP
+//  username|string|username that we learned from 802.1X exchange or Per-user PSK or User Portal
+//  manufacture|string|device manufacture, through fingerprinting or OUI
+//  os|string|device os, through fingerprinting
+//  family|string|device family, through fingerprinting. iPod / Nexus Galaxy / Windows Mobile or CE …
+//  model|string|device model, may be available if we can identify them
+//  ap_mac|string|AP the client is connected to
+//  ap_id|string|AP ID the client is connected to
+//  ssid|string|SSID the client is connected to
+//  wlan_id|string|WLAN ID the client is connected to
+//  psk_id|string|PSK id (if multi-psk is used)
+//  uptime|long|how long, in seconds, has the client been connected
+//  idle_time|long|how long, in seconds, has the client been idle (since the last RX packet)
+//  last_seen|long|last seen timestamp
+//  power_saving|boolean|if it’s currently in power-save mode
+//  band|string|“24” or “5”
+//  proto|string|b / g / n / a / ac
+//  key_mgmt|string|e.g. WPA2-PSK/CCMP
+//  dual_band|boolean|whether the client is dual-band capable (determined by whether we’ve seen probe requests from both bands)
+//  channel|int|current channel
+//  vlan_id|string|vlan id, could be empty (from older AP)
+//  rssi|int|signal strength
+//  snr|int|signal over noise
+//  tx_rate|float|TX Rate, Mbps
+//  rx_rate|float|RX Rate, Mbps
+//  tx_bps|float|rate of transmitting traffic to the clients, bits/seconds, last known
+//  rx_bps|float|rate of receiving traffic from the clients, bits/seconds, last known
+//  tx_bytes|float|amount of traffic sent to client since client connects
+//  rx_bytes|float|amount of traffic received from client since client connects
+//  tx_pkts|float|amount of traffic sent to client since client connects
+//  rx_pkts|float|amount of traffic received from client since client connects
+//  tx_retries|float|amount of tx retries
+//  rx_retries|float|amount of rx retries
+//  map_id|string|estimated client location - map_id
+//  x|int|estimated clinet location in pixels
+//  y|int|estimated clinet location in pixels
+//  num_locating_aps|int|number of APs used to locate this client
+//  accuracy|int|estimated clinet location accuracy, in meter
+//  is_guest|boolean|whether this is a guest, default is false
+//  guest|object|information about this portal
+//  authorized|boolean|whether this guest is authorized, default is false
+//  authorized_time|int|when the guest is authorized
+//  authorized_expiring_time|int|when the guest authorization will expire
+//  airwatch|object|information if airwatch enabled
+//  _ttl|int|TTL of the validity of the stat
+
+@name("getSiteClientsStats")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/clients"
+
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  zones|list|list of zone_id’s where client is in and since when (if known)
+// vbeacons|list|list of beacon_id’s where the client is in and since when (if known)
+// rssizones|list|list of rssizone_id’s where client is in and since when (if known)
+// wxrule_id|string|current WxlanRule using for a Client or an authorized Guest (portal user). null if default rule is matched.
+// predictive|object|derived information from backend
+// client_dl|float|estimated wireless client download throughput, in Mbps
+// wan_dl|float|estimated WAN download throughput, in Mbps
+
+@name("getSiteClientStatsDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/clients/:client_mac"
+
+
+@name("getSiteAllClientsStatsOnMap")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/maps/:map_id/clients"
+
+
+@name("getSiteAllClientsStatsOnDevice")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/devices/:device_id/clients"
+
+
+@name("getSiteUnconnectedClientStats")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/maps/:map_id/unconnected_clients"
+
+
+

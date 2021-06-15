@@ -1,0 +1,187 @@
+#!/usr/bin/env dothttp
+
+// Returns a single piece of content, like a page or a blog post.
+// 
+// By default, the following objects are expanded: `space`, `history`, `version`.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to view the content. If the content is a blog post, 'View' permission
+// for the space is required.
+
+@name("Get content by ID")
+GET "https://{{baseUrl}}/api/content/:id"
+? "status"= "current"
+? "version"= "<integer>"
+? "embeddedContentRender"= "current"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "trigger"= "<string>"
+
+
+// Updates a piece of content. Use this method to update the title or body
+// of a piece of content, change the status, change the parent page, and more.
+// 
+// Note, updating draft content is currently not supported.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to update the content.
+
+@name("Update content")
+PUT "https://{{baseUrl}}/api/content/:id"
+"Content-Type": "application/json"
+? "status"= "current"
+? "conflictPolicy"= "abort"
+data('{
+    "version": {
+        "number": "<integer>"
+    },
+    "title": "<string>",
+    "type": "<string>",
+    "status": "<string>",
+    "ancestors": [
+        {
+            "id": "<string>"
+        },
+        {
+            "id": "<string>"
+        }
+    ],
+    "body": {
+        "editor2": {
+            "value": "<string>",
+            "representation": "<string>"
+        }
+    }
+}')
+
+
+// Moves a piece of content to the space's trash or purges it from the trash,
+// depending on the content's type and status:
+// 
+// - If the content's type is `page` or `blogpost` and its status is `current`,
+// it will be trashed.
+// - If the content's type is `page` or `blogpost` and its status is `trashed`,
+// the content will be purged from the trash and deleted permanently. Note,
+// you must also set the `status` query parameter to `trashed` in your request.
+// - If the content's type is `comment` or `attachment`, it will be deleted
+// permanently without being trashed.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// 'Delete' permission for the space that the content is in, and permission to edit the content.
+
+@name("Delete content")
+DELETE "https://{{baseUrl}}/api/content/:id"
+? "status"= "<string>"
+
+
+// Move a page to a new location relative to a target page:
+// 
+// * `before` - move the page under the same parent as the target, before the target in the list of children
+// * `after` - move the page under the same parent as the target, after the target in the list of children
+// * `append` - move the page to be a child of the target
+// 
+// Caution: This API can move pages to the top level of a space. Top-level pages are difficult to find in the UI
+// because they do not show up in the page tree display. To avoid this, never use `before` or `after` positions
+// when the `targetId` is a top-level page.
+
+@name("Move a page to a new location relative to a target page")
+PUT "https://{{baseUrl}}/api/content/:id/move/:position/:targetId"
+
+
+// Copy page hierarchy allows the copying of an entire hierarchy of pages and their associated properties, permissions and attachments.
+//  The id path parameter refers to the content id of the page to copy, and the new parent of this copied page is defined using the destinationPageId in the request body.
+//  The titleOptions object defines the rules of renaming page titles during the copy;
+//  for example, search and replace can be used in conjunction to rewrite the copied page titles.
+// 
+//  Response example:
+//  <pre><code>
+//  {
+//       "id" : "1180606",
+//       "links" : {
+//            "status" : "/rest/api/longtask/1180606"
+//       }
+//  }
+//  </code></pre>
+//  Use the /longtask/<taskId> REST API to get the copy task status.
+
+@name("Copy page hierarchy")
+POST "https://{{baseUrl}}/api/content/:id/pagehierarchy/copy"
+"Content-Type": "application/json"
+data('{
+    "destinationPageId": "Duis in",
+    "copyAttachments": false,
+    "copyPermissions": false,
+    "copyProperties": false,
+    "copyLabels": false,
+    "copyCustomContents": false,
+    "titleOptions": {
+        "prefix": "<string>",
+        "replace": "<string>",
+        "search": "<string>"
+    }
+}')
+
+
+// Copies a single page and its associated properties, permissions, attachments, and custom contents.
+//  The `id` path parameter refers to the content ID of the page to copy. The target of the page to be copied
+//  is defined using the `destination` in the request body and can be one of the following types.
+// 
+//   - `space`: page will be copied to the specified space as a root page on the space
+//   - `parent_page`: page will be copied as a child of the specified parent page
+//   - `existing_page`: page will be copied and replace the specified page
+// 
+// By default, the following objects are expanded: `space`, `history`, `version`.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**: 'Add' permission for the space that the content will be copied in and permission to update the content if copying to an `existing_page`.
+
+@name("Copy single page")
+POST "https://{{baseUrl}}/api/content/:id/copy"
+"Content-Type": "application/json"
+? "expand"= "<string>"
+? "expand"= "<string>"
+data('{
+    "destination": {
+        "type": "<string>",
+        "value": "<string>"
+    },
+    "copyAttachments": false,
+    "copyPermissions": false,
+    "copyProperties": false,
+    "copyLabels": false,
+    "copyCustomContents": false,
+    "pageTitle": "<string>",
+    "body": {
+        "editor2": {
+            "value": "<string>",
+            "representation": "<string>"
+        }
+    }
+}')
+
+
+// Check if a user or a group can perform an operation to the specified content. The `operation` to check
+// must be provided. The user’s account ID or the ID of the group can be provided in the `subject` to check
+// permissions against a specified user or group. The following permission checks are done to make sure that the
+// user or group has the proper access:
+// 
+// - site permissions
+// - space permissions
+// - content restrictions
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to access the Confluence site ('Can use' global permission) if checking permission for self,
+// otherwise 'Confluence Administrator' global permission is required.
+
+@name("Check content permissions")
+POST "https://{{baseUrl}}/api/content/:id/permission/check"
+"Content-Type": "application/json"
+data('{
+    "subject": {
+        "type": "<string>",
+        "identifier": "<string>"
+    },
+    "operation": "<string>"
+}')
+
+
+

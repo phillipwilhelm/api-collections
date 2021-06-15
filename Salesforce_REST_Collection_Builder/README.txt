@@ -1,0 +1,1 @@
+This collection will generate a Postman collection dynamically from the version and sObject API endpoints for Salesforce, producing a definition of the surface area of the API for each individual account.

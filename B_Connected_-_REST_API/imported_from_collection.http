@@ -1,0 +1,389 @@
+#!/usr/bin/env dothttp
+
+// <a name="test"></a>
+// Retrieve a list of devices including the devices' meta-data for a given filter.
+// 
+// #### Parameters
+// 
+// + **siteName** [OPTIONAL] : *The name of the room to which the device is attributed to*
+// + **buildingName** [OPTIONAL]: *The name of the building to which the room is attributed to*
+// + **roomName** [OPTIONAL] : *The name of the site to which the building is attributed to*
+// 
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>id</td>
+// 		<td>Device identifier</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>version</td>
+// 		<td>Firmware version</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>delete</td>
+// 		<td>Indicates if the device is archived or not.</td>
+// 		<td>TURE: The device is archived
+// 			FALSE: The device is not archived</td>
+// 	</tr>
+// 	<tr>
+// 		<td>auditSegment</td>
+// 		<td>All audit paremters</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>creationUser</td>
+// 		<td>The user who created the device</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>creationDateTime</td>
+// 		<td>Date and time when the device has been created</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>lastUpdateUser</td>
+// 		<td>The last user who updated the device</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>lastUpdatDateTime</td>
+// 		<td>Date and Time of the last update</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>serialNumber</td>
+// 		<td>Serial number of the device</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>uiSerialNumber</td>
+// 		<td>The serial number of the display</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>level</td>
+// 		<td>The CSF level</td>
+// 		<td>
+// 			UPPER (CSF only)
+// 			LOWER (CSF only)
+// 			default: null
+// 		</td>
+// 	</tr>
+// 	<tr>
+// 		<td>type</td>
+// 		<td>Device type</td>
+// 		<td>
+// 			PREMIUM
+// 			CSF
+// 			AGITATOR
+// 			MB2008
+// 			MB2000
+// 			SENSOR
+// 		</td>
+// 	</tr>
+// 	<tr>
+// 		<td>model</td>
+// 		<td>Device model</td>
+// 		<td>Example: B401</td>
+// 	</tr>
+// 	<tr>
+// 		<td>measures</td>
+// 		<td>Array containing the measurement sources</td>
+// 		<td>/</td>
+// 	</tr>
+// </table>
+
+@name("Get Devices")
+POST "http://10.17.10.238/bconnected/api/deviceListByLocationFilter"
+basicauth("pit", "BConnTest123#")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"siteName":"","buildingName":"","roomName":""}')
+
+
+// Retrieve the current temperature for a device.
+// 
+// #### Parameters
+// 
+// + **deviceId** [REQUIRED] : *The device ID. It can be found in BConnected by accessing the device's details*
+// 
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>measureValueType</td>
+// 		<td>Temperature type</td>
+// 		<td>REC_REGULATION_TEMPERATURE
+// 			REC_HIGH_TEMPERATURE_ALARM
+// 			REC_LOW_TEMPERATURE_ALARM
+// 			REC_DISPLAY_TEMPERATURE
+// 			REC_UPPER_PLATE_TEMPERATURE (CSF only)
+// 			REC_LOWER_PLATE_TEMPERATURE (CSF only)
+// 			REC_DUMMY_PLATE_TEMPERATURE (CSF only)
+// 		</td>
+// 	</tr>
+// 	<tr>
+// 		<td>timestamp</td>
+// 		<td>Timestamp of the moment the temperature has been measured</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>history</td>
+// 		<td>Indicates if the measured temperature is archived or not.</td>
+// 		<td>TURE: The temperature is archived
+// 			FALSE: The temperature is not archived</td>
+// 	</tr>
+// 	<tr>
+// 		<td>value</td>
+// 		<td>The measured value</td>
+// 		<td>/</td>
+// 	</tr>
+// </table>
+
+@name("Get Current Device Temperature")
+POST "http://10.17.10.238/bconnected/api/deviceCurrentTemperatures"
+basicauth("pit", "BConnTest123#")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"deviceId":""}')
+
+
+// Retrieve the temperature history of a device for a given start and end date.
+// 
+// #### Parameters
+// 
+// + **deviceId** [REQUIRED] : *The device ID. It can be found in BConnected by accessing the device's details*
+// + **startDate** [OPTIONAL] : *Start date of the time range*
+// + **endDate** [OPTIONAL] : *End date of the time range*
+// + **batchID** [OPTIONAL]: *The ID ob the batch for which the temperatures shall be requested*
+// 
+// Dates have to be formated as "Zoned data time". Example: "2018-12-06T00:00:00.00Z[GMT]"
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>measureValueType</td>
+// 		<td>Temperature type</td>
+// 		<td>REC_REGULATION_TEMPERATURE
+// 			REC_HIGH_TEMPERATURE_ALARM
+// 			REC_LOW_TEMPERATURE_ALARM
+// 			REC_DISPLAY_TEMPERATURE
+// 			REC_UPPER_PLATE_TEMPERATURE (CSF only)
+// 			REC_LOWER_PLATE_TEMPERATURE (CSF only)
+// 		</td>
+// 	</tr>
+// 	<tr>
+// 		<td>timestamp</td>
+// 		<td>Timestamp of the moment the temperature has been measured</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>history</td>
+// 		<td>Indicates if the measured temperature is archived or not.</td>
+// 		<td>TRUE: The temperature is archived
+// 			FALSE: The temperature is not archived</td>
+// 	</tr>
+// 	<tr>
+// 		<td>value</td>
+// 		<td>The measured value</td>
+// 		<td>/</td>
+// 	</tr>
+// </table>
+
+@name("Get Device Temperature History")
+POST "http://10.17.10.238/bconnected/api/deviceTemperatureHistory"
+basicauth("pit", "BConnectedAPI")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"deviceId":,"startDate":"","endDate":"","batchId":""}')
+
+
+// Get a list of batches frozen by a given device within a given time range.
+// 
+// #### Parameters
+// 
+// + **deviceId** [REQUIRED] : *The device ID. It can be found in BConnected by accessing the device's details*
+// + **startDate** [OPTIONAL] : *Start date of the time range*
+// + **endDate** [OPTIONAL] : *End date of the time range*
+// 
+// Dates have to be formated as "Zoned data time". Example: "2018-12-06T00:00:00.00Z[GMT]"
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>batchId</td>
+// 		<td>The ID of the batch.</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>serialNumber</td>
+// 		<td>The serial number of the CSF device in which the batch has been processed</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>deviceLevel</td>
+// 		<td>The level on which the batch has been processed</td>
+// 		<td>UPPER<br> LOWER</td>
+// 	</tr>
+// 	<tr>
+// 		<td>startDateTime</td>
+// 		<td>The start date and time and date of the process</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>endDateTime</td>
+// 		<td>The end date and time and date of the process</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>createdByUser</td>
+// 		<td>The user by whom the batch has been created</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>status</td>
+// 		<td>The status of the batch</td>
+// 		<td>
+// 			WATING_FOR_PROCESS
+// 			IN_PROCESS
+// 			AWAITING_ASSESMENT
+// 			PROCESS_SUCCESSFUL
+// 			PROCESS_FAILED
+// 		</td>
+// 	</tr>
+// 	<tr>
+// 		<td>numberOfBags</td>
+// 		<td>Number of bags in the batch</td>
+// 		<td></td>
+// 	</tr>
+// 	<tr>
+// 		<td>bags</td>
+// 		<td>An array containing the different bag IDs</td>
+// 		<td></td>
+// 	</tr>
+// </table>
+
+@name("Get CSF Batches")
+POST "http://10.17.10.238/bconnected/api/csfBatch"
+basicauth("pit", "BConnTest123#")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"deviceId":"","startDate":"","endDate":""}')
+
+
+// Retrieve a list of events of a device for a given filter.
+// 
+// #### Parameters
+// 
+// + **deviceId** [REQUIRED] : *The device ID. It can be found in BConnected by accessing the device's details, or by using the "Get Devices" API request*
+// + **startDate** [OPTIONAL] : *Start date of the time range*
+// + **endDate** [OPTIONAL] : *End date of the time range*
+// + **eventFamily** [OPTIONAL] : *Event type*
+// 
+// Dates have to be formated as "Zoned data time". Example: "2018-12-06T00:00:00.00Z[GMT]"
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>deviceId</td>
+// 		<td>Device identifier</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>timestamp</td>
+// 		<td>Timestamp of the moment the alarm occured</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>familyName</td>
+// 		<td>Type of the event</td>
+// 		<td>
+// 			EVENT
+// 			WARNING
+// 			ALARM
+// 		</td>
+// 	</tr>
+// </table>
+
+@name("Get Device Events")
+POST "http://10.17.10.238/bconnected/api/events"
+basicauth("pit", "BConnTest123#")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"deviceId":,"startDate":"","endDate":"","eventFamily":""}')
+
+
+// Get a list of active alarms.
+// 
+// #### Parameters
+// 
+// + **deviceId** [OPTIONAL] : *The device ID. It can be found in BConnected by accessing the device's details, or by using the "Get Devices" API request*
+// + **roomName** [OPTIONAL] : *The name of the site to which the building is attributed to*
+// 
+// #### Return Parameters
+// 
+// <table>
+// 	<tr>
+// 		<td><b>Parameter</b></td>
+// 		<td><b>Description</b></td>
+// 		<td><b>Value</b></td>
+// 	</tr>
+// 	<tr>
+// 		<td>deviceId</td>
+// 		<td>Device identifier</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>timestamp</td>
+// 		<td>Timestamp of the moment the alarm occured</td>
+// 		<td>/</td>
+// 	</tr>
+// 	<tr>
+// 		<td>eventType</td>
+// 		<td>Event name</td>
+// 		<td>/</td>
+// 	</tr>
+// </table>
+
+@name("Get Active Alarms")
+POST "http://10.17.10.238/bconnected/api/activeAlarms"
+basicauth("pit", "BConnTest123#")
+"Content-Type": "application/json"
+"lang": "en"
+data('{"deviceId":"","roomName":""}')
+
+
+

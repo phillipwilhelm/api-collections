@@ -1,0 +1,106 @@
+#!/usr/bin/env dothttp
+
+// Lista todos os abonos, independentemente de colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | start_date | Date | Sim | data de início do período |
+// | end_date | Date | Sim | Data de término do período |
+// | medical_certificate | Boolean | Sim | Atestado médico? (*true - sim \| false - não*) |
+// 
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador único|
+// | employee | Object | Dados do colaborador (id, nome, picture) |
+// | date | Date | Data do abono
+// | start_time | String | hora de início |
+// | end_time | String | hora de término |
+// | solicitation_status | Object | Status da solicitação |
+// | answered_by | Object | Dados de quem respondeu a solicitação |
+// | answered_at | Timestamp | Data e hora da resposta | 
+// | observation | string | Descrição do afastamento ou férias |
+// | is_medical_certificate | Boolean | Atestado médico? (*true - sim \| false - não*) |
+// | cid | String | CID |
+// | crm | String | CRM do médico |
+// | medical_name | String | Nome do médico |
+// | clinic_name | String | Local de atendimento |
+// | file | Object | Imagem do atestado médico |
+// | created_at | Date | Data de criação |
+// | updated_at | Date | Data de atualização |
+// | status | Object | Dados do status (id, observation, active, status_type{id, name}) |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/exemptions"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+? "start_date"= "{{start_date}}"
+? "end_date"= "{{end_date}}"
+? "medical_certificate"= "{{medical_certificate}}"
+
+
+// Exclui uma exceção de jornada.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | exemption_id | Integer | Sim | ID da exceção |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/exemptions/{{exemption_id}}"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+
+
+// Cria uma exceção de jornada.
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | employee_id | Integer | Não | ID do colaborador |
+// | date | Date | Não | Data da exceção |
+// | days | Object | Não | Dias em que a exceção deve ser aplicada. Veja a **Estrutura do objeto days** |
+// | start_time | String | Não | hora de início |
+// | end_time | String | Não | hora de término |
+// | all_day| Boolean | Não | Caso **true**, indica que a exceção de jornada compreenderá o dia inteiro e, portanto, os atributos **start_time** e **end_time** serão ignorados.
+// | observation | String | Sim | Descrição do afastamento ou férias |
+// | file | String | Não | Imagem do atestado médico em Base64 |
+// | status_id | Integer | Sim | ID do motivo cadastrado nos **Motivos de ajuste** dentro da tela de **Configurações**. |
+// 
+// ## Estrutura do objeto days
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | date | Date | Sim         | Data da exceção |
+// | all_day | Boolean | Sim | Exceção se aplica ao dia todo? (*true - sim \| false - não*) |
+// | period_type | Integer | Sim | Período do abono (1 - Dia todo, 2 - Específico, 3 - Do início, 4 - Do fim)
+// | start_time | String | Não | hora de início |
+// | end_time | String | Não |hora de término |
+// 
+// **Atenção**: Caso o objeto **days** seja enviado, os atributos **date**, **start_time**, **end_time** e **all_day**, localizados no nível mais externo, serão ignorados.
+// **Atenção**: O **end_time** deve ser enviado com um minuto antes do tempo desejado. Exemplo deseja abonar das 08:00 ao 12:00, deve ser enviado o ** { start_time: 08:00, end_time: 11:59} **.
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/exemptions"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"exemption": {
+		"date": "2020-06-09",
+		"start_time": "08:00",
+		"end_time": "11:00",
+		"all_day": false,
+		"employee_id": 395861,
+		"observation": "Lorem ipsum",
+		"status_id": 502625,
+		"file": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAALCAYAAABCm8wlAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AQQFBA6c3nCJAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABdklEQVQYGQFrAZT+AQD/qP8AAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAA/6j/AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAFYAQAAAAAAAAAAAP+o/wAAAAAAAAAAAgAAAAAAAAAAAAAAAAABWAEAAAAAAAAAAAD/qP8AAAAAAgAAAAAAAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAA/6j/AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAFYAQAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAP+o/wAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAA/6j/AAAAAAAAAAAAAVgBAgAAAAAAAAAAAAAAAAD/qP8AAAAAAAAAAAABWAEAAAAAAQD/qP8AAAAAAAAAAAAAAAAAAAAAAAFYAQAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAAAAAAlK4bFYA5uokAAAAASUVORK5CYII="
+	}
+}')
+
+
+

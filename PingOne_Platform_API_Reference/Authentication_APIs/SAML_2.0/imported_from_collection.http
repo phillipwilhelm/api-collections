@@ -1,0 +1,134 @@
+#!/usr/bin/env dothttp
+
+// You can use the `GET /{environmentId}/saml20/metadata/{applicationId}` operation to retrieve SAML metadata for the application specified by its ID in the request URL.
+
+@name("READ SAML Metadata")
+GET "https://auth.pingone.com/{{envID}}/saml20/metadata/{{appID}}"
+
+
+// For information about the authorization flow for a SAML authorization request, see [SAML authorization requests](#authentication-apis).
+// 
+// The `GET /{environmentId}/saml20/idp/sso` operation initiates the SAML single sign-on action through a `GET` request. In the request URL, the `SAMLRequest` parameter contains the encoded SAML authorization request information.
+// 
+// In the request URL, the `SAMLRequest` parameter contains the encoded SAML authorization request information. Here is a sample SAML `<AuthnRequest>` in plain text:
+// 
+// ```
+// <samlp:AuthnRequest Destination="https://auth.pingone.com/e1b1d03e-3463-4cfc-9708-32543093acb5/saml20/idp/sso" ID="I01_HYEnkEP4h6yfnKITWyDDfhBOIAL0aW7VEp1mSqXLstFZ2XueJy5M8VWRXa" IssueInstant="2020-02-25T05:43:56.329Z" Version="2.0" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
+//   <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">http://pingone.com/565145b9-f52a-4fed-b114-5e97c5b35ea7</saml:Issuer>
+// </samlp:AuthnRequest>
+// 
+// ```
+// 
+// ::: info
+// **Note:** For GET requests, the `<AuthnRequest>` encoding is compressed (RFC1951 Deflate), Base64 encoded, and URL encoded.
+// :::
+// 
+
+@name("SAML SSO Using GET")
+GET "https://auth.pingone.com/{{envID}}/saml20/idp/sso"
+? "SAMLRequest"= "{{SAMLRequest}}"
+? "RelayState"= "token"
+
+
+// You can also initiate the authentication session the SAML single sign-on action through a `POST` request. The following sample shows the `POST /{environmentId}/saml20/idp/sso` operation to start the sign-on flow:
+// 
+// 
+// The request URL includes the `SAMLRequest` parameter to pass in the encoded SAML authorization request information. Here is a sample SAML `<AuthnRequest>` in plain text:
+// 
+// ```
+// <samlp:AuthnRequest Destination="https://auth.pingone.com/e1b1d03e-3463-4cfc-9708-32543093acb5/saml20/idp/sso" ID="I01_HYEnkEP4h6yfnKITWyDDfhBOIAL0aW7VEp1mSqXLstFZ2XueJy5M8VWRXa" IssueInstant="2020-02-25T05:43:56.329Z" Version="2.0" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
+//   <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">http://pingone.com/565145b9-f52a-4fed-b114-5e97c5b35ea7</saml:Issuer>
+// </samlp:AuthnRequest>
+// 
+// ```
+// 
+// ::: info
+// **Note:** For POST requests, the `<AuthnRequest>` request encoding is Base64 encoded.
+// :::
+
+@name("SAML SSO Using POST")
+POST "https://auth.pingone.com/{{envID}}/saml20/idp/sso"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "SAMLRequest": [
+        "{{SAMLRequest}}"
+    ],
+    "RelayState": [
+        "token"
+    ]
+})
+
+
+// You can start an identity provider initiated SAML single sign-on authentication session through a `POST` request. The `POST /{environmentId}/saml20/idp/startsso?spEntityId={spEntityIdValue}&applicationUrl={AppUrl}` operation starts the sign-on flow.
+// 
+// The request URL includes the service provider's entity ID property (`spEntityId`) and the application's URL property (`applicationUrl`) as parameters in the request.
+// 
+
+@name("Identity Provider Initiated SSO")
+POST "https://auth.pingone.com/{{envID}}/saml20/idp/startsso"
+"Content-Type": "application/x-www-form-urlencoded"
+? "spEntityId"= "{{spEntityIdValue}}"
+? "applicationUrl"= "{{AppUrl}}"
+
+
+
+// A service provider initiated SAML authentication single sign-on flow uses a `<SAMLResponse>` that includes a `RelayState` parameter containing the application ID and (optionally) the application URL. The sample shows the `POST /{environmentId}/saml20/sp/acs?SAMLResponse=<AuthnResponse>` operation.
+// 
+// The request URL includes the `SAMLResponse` parameter that must include the `RelayState` parameter containing the application ID and the application URL (optional).
+// 
+
+@name("SAML ACS Endpoint for Inbound SSO")
+POST "https://auth.pingone.com/{{envID}}/saml20/sp/acs"
+"Content-Type": "application/x-www-form-urlencoded"
+? "SAMLResponse"= "{{AuthnResponse}}"
+
+
+
+// The `POST /{{envID}}/saml20/sp/acs?RelayState={applicationId={{appID}}&applicationUrl={{appURL}}}` supports an identity provider initiated inbound single sign-on workflow. The request includes a `RelayState` parameter containing the URL encoded application ID and (optionally) the application URL. 
+// 
+// 
+
+@name("SAML ACS Endpoint for Identity Provider Initiated Inbound SSO")
+POST "https://auth.pingone.com/{{envID}}/saml20/sp/acs"
+"Content-Type": "application/x-www-form-urlencoded"
+? "RelayState"= "{applicationId={{appID}}"
+? "applicationUrl"= "{{appURL}}}"
+
+
+
+// A SAML single logout operation uses the following flow:
+// 
+// 1. The user initiates logout.
+// 2. The session participant initiates single logout by sending a `<LogoutRequest>` message to the identity provider that sent the corresponding `<AuthnRequest>` authentication assertion.
+// 3. The SAML service validates the request. It then calls the end session endpoint of the flow orchestration service and passes through the cookie header. The flow orchestration service deletes the session identified by the session cookie and includes a `Set-Cookie` in the response to immediately expire the session cookie.
+// 4. The identity provider uses the contents of the `<LogoutRequest>` message to determine the session(s) being terminated.
+// 5. The identity provider issues a `<LogoutResponse>` message to the original requesting session participant.
+// 
+// 
+// The `GET /{environmentId}/saml20/idp/slo` operation initiates the SAML single logout action through a `GET` request. In the request URL, the `SAMLRequest` parameter contains the encoded SAML logout request information.
+
+@name("SAML SLO Using GET")
+GET "https://auth.pingone.com/{{envID}}/saml20/idp/slo"
+? "SAMLRequest"= "{{SAMLRequest}}"
+? "RelayState"= "testing..."
+
+
+// You can also initiate the authentication session the SAML single logout action through a `POST` request. The sample shows the `POST /{environmentId}/saml20/idp/slo` operation to start the logout flow:
+// 
+// 
+// The request URL includes the `SAMLRequest` parameter to pass in the encoded SAML logout request information.
+
+@name("SAML SLO Using POST")
+POST "https://auth.pingone.com/{{envID}}/saml20/idp/slo"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "SAMLRequest": [
+        "{{SAMLRequest}}"
+    ],
+    "RelayState": [
+        "testing..."
+    ]
+})
+
+
+

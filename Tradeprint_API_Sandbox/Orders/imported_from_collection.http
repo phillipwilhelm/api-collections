@@ -1,0 +1,367 @@
+#!/usr/bin/env dothttp
+
+// POST a new order for fullfilment
+// 
+// **Artwork**
+// 
+// Specify a url to a valid file (must be public and accessible from the world wide web). Maximum size is 2GB.
+// 
+// **File Types Supported**
+// 
+// PDF is the default acceptable format. If your workflow requires passing other formats then you can leverage  our [artworkService](https://help.tradeprint.co.uk/hc/en-us/articles/360001157293-What-Artwork-Services-do-you-offer-).
+// 
+// Orders sent to the API take between 2-5 minutes to be placed into the system for production, once an order is in `Placed` state it means it’s been accepted and you can query the order using the GET endpoint with your supplied orderReference to get the status of each individual orderItem on the order.
+// 
+// **Placing Orders Without Supplying Artwork**
+// 
+// Tradeprint API offers placing orders without supplying artwork. For individual `orderItems` orders will be injected as normal but won't be manufactured until the relevant artwork is supplied at a later stage.
+// 
+// **Notes on withoutArtwork**
+// 
+// Each item is processed separately, so if you place an order with items A + B and only supplied artwork for B then A would not be manufactured but B would.
+// 
+// The `withoutArtwork` field must be set to `true` if you want to supply an empty `fileUrls` array.
+// 
+// When supplying an orderItem without artwork, it will end up in state `WaitingForArtwork` where it will be remain until the relevant artwork is supplied.
+// 
+// ### Top Level Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`currency`|string |yes |The currency used for the purchase.|
+// |`orderReference`|string | no |Specify your own order reference number or string (This must be unique) or don’t include it and the API will generate this for you, you can use this to query your orders using the GET status.|
+// |`orderItems`|array|yes|The order items details (see below).|
+// |`billingAddress`|object|yes|The billing address details (see below).|
+// 
+// ### Order Items ###
+// 
+// `orderItems` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`itemReference`|string|no|Specify your own item reference number or string (This must be unique at order level) or don’t include it and the API will generate this for you.|
+// |`productId`| string |yes| Tradeprint ProductId.|
+// |`withoutArtwork`|boolean|no|Allow to submit an order and supply the artwork at a later date.|
+// |`artworkService`|string|no | Supply the artwork service: `Just Print`, `File Check`, `File Assist` or `File Check with Proofing`.|
+// |`quantity`|number|yes|The quantity to be manufactured.|
+// |`fileUrls`|array|yes|Artwork file URL(s).|
+// |`serviceLevel`|string|yes|Manufacturing speed (`Saver`, `Standard`, `Express`, `Same Day`).|
+// |`productionData`|object|yes |Relevant production attributes can be found within your pricelist and add a link to products endpoint.|
+// |`partnerContactDetails`|object |yes |The contact details (see details below).|
+// |`deliveryAddress`|object|yes |Delivery address details.|
+// |`extraData`|object |yes|Order metatadata.|
+// |`quantityUpgrade`|object|no|Roundup to the next available quantity if the supplied `quantity` does not exist.|
+// 
+// For more information about `artworkService` including pricing please click [here](https://help.tradeprint.co.uk/hc/en-us/articles/360001157293-What-Artwork-Services-do-you-offer-).
+// 
+// ### Order Item Quantity Upgrade ###
+// 
+// `quantityUpgrade` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`maxQuantity`|number|yes|If your `quantity` is unavailable it will be upgraded to the next available quantity providing it does not exceed this value.|
+// |`maxPrice`|number|yes|If your `quantity` is unavailable it will be upgraded to the next available quantity providing its price does not exceed this value.|
+// 
+// ### Order Item Partner Contact Details ###
+// 
+// `partnerContactDetails` object strcture
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`firstName`|string |yes |The first name of the agent.|
+// |`lastName`|string |yes |The last name of the agent.|
+// |`email`|string |yes |The email address of the agent.|
+// |`contactPhone`|string |yes |The phone number of the agent.|
+// |`companyName`|string |yes |The company placing the order with Tradeprint.|
+// 
+// ### Order Item Delivery Address ###
+// 
+// `deliveryAddress` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`companyName`|string |yes |The company receiving the manufactured order.|
+// |`firstName`|string |yes |The first name of the person receiving the manufactured order.|
+// |`lastName`|string |yes |The last name of the person receiving the manufactured order.|
+// |`add1`|string |yes |The first line of address where the order is to be delivered.|
+// |`add2`|string |no |The second line of address where the order is to be delivered.|
+// |`town`|string |yes |The town where the order is to be delivered.|
+// |`postcode`|string |yes |The postcode where the order is to be delivered.|
+// |`country`|string|yes |The country where the order is to be delivered.|
+// |`deliveryComments`|string |yes |Any comments relating to the delivery.|
+// 
+// ### Order Item Extra Data ###
+// 
+// `extraData` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`comments`|string |no |Any comment relating to manufacturing.|
+// |`partnerItemId`|string |no |The partner's own itemId.|
+// |`merchandisingProductName`|string |no |The partner's own product name.|
+// |`referenceLabel`|string |no |The partner's label for internal order identification, visible in the "Your Account" area of the Tradeprint website and used as reference for transactional emails.|
+// |`purchaseOrder`|string |no |The partner's purchase order number, visible in the "Your Account" area of the Tradeprint website.|
+// 
+// Orders can be searched in the "Your Account" area of the Tradeprint website using both `referenceLabel` (*Referrence*) and `purchaseOrder` (*PO Number*).
+// 
+// ### Billing Address ###
+// 
+// `billingAddress` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`firstName`|string |yes |The first name used for billing.|
+// |`lastName`|string |yes |The last name used for billing.|
+// |`add1`|string |yes |The first line of address where the order is to be invoiced.|
+// |`add2`|string |no |The second line of address where the order is to be invoiced.|
+// |`postcode`|string |yes |The postcode where the order is to be invoiced.|
+// |`town`|string |yes |The city where the order is to be invoiced.|
+// |`country`|string |yes |The country where the order is to be invoiced.|
+// |`companyName`|string |no |The company where the order is to be invoiced.|
+// |`email`|string |yes |The email address for invoicing.|
+// |`contactPhone`|string |no |The phone number for invoicing.|
+// |`mobile`|string |no |The mobile number for invoicing.|
+
+@name("Submit New Order")
+POST "https://{{environmentUrl}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+    "currency": "GBP",
+    "orderItems": [
+    {
+        "productId": "PRD-GGK8CQCM",
+        "fileUrls": ["https://s3-eu-west-1.amazonaws.com/filestacksupplytest/180MbFile.pdf"],
+        "withoutArtwork": false,
+        "quantity": 500,
+        "quantityUpgrade": {
+        	"maxQuantity": 1000,
+        	"maxPrice": 10000
+        },
+        "serviceLevel": "Standard",
+        "productionData":
+        {
+			"Lamination": "None",
+		    "Paper Type": "400gsm Art Board Silk Finish",
+		    "Round Corners": "Yes",
+		    "Sets": "1",
+		    "Sides Printed": "Double Sided",
+		    "Spot Uv": "None"
+        },
+        "partnerContactDetails":
+        {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "contactPhone": "07655 568 134",
+            "companyName": "Tradeprint Distribution Ltd."
+        },
+        "deliveryAddress":
+        {
+            "companyName": "Doe Distribution",
+            "firstName": "John",
+            "lastName": "Doe",
+            "add1": "1 Magic street",
+            "add2": "string",
+            "town": "London",
+            "postcode": "E15 4EA",
+            "country": "GB"
+            },
+        "extraData":
+        {
+            "description": "Order description",
+            "comments": "Please ensure not to trim into text",
+            "partnerItemId": "doe_12345",
+            "merchandisingProductName": "Comp Slip",
+            "referenceLabel": "For Sandeep new shop",
+            "purchaseOrder": "12345679"
+        }
+    }],
+    "billingAddress":
+    {
+        "firstName": "Steeve",
+        "lastName": "Roucaute",
+        "add1": "Tradeprint Distribution Ltd",
+        "add2": "2 FULTON ROAD",
+        "postcode": "DD2 4SW",
+        "town": "DUNDEE",
+        "country": "GB",
+        "companyName": "TRADEPRINT DISTRIBUTION LTD",
+        "email": "steeve@tradeprint.co.uk",
+        "contactPhone": "0123456879",
+        "mobile": "0751424242"
+    }
+}')
+
+
+// Since orders on Tradeprint API are placed asynchronously, it may be useful to validate using our easy to use pre-flight validation endpoint.
+// 
+// For request data please refer to [Submit New Order POST schema](#top-level-fields).
+
+@name("Validate Order")
+POST "https://{{environmentUrl}}/v2/validate/orders"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+    "currency": "GBP",
+    "orderReference": "YourOrderReference0123",
+    "orderItems": [
+    {
+        "productId": "PRD-9N6IUQGM",
+        "fileUrls": ["https://s3-eu-west-1.amazonaws.com/filestacksupplytest/180MbFile.pdf"],
+        "withoutArtwork": false,
+        "quantity": 500,
+        "serviceLevel": "Standard",
+        "productionData":
+        {
+             "Paper Type":"120gsm Premium Smooth White Paper",
+             "Sides Printed":"Single Sided",
+             "Sets":"1"
+        },
+        "partnerContactDetails":
+        {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john@doe.com",
+            "contactPhone": "07655 568 134",
+            "companyName": "Tradeprint Distribution Ltd."
+        },
+        "deliveryAddress":
+        {
+            "companyName": "Doe Distribution",
+            "firstName": "John",
+            "lastName": "Doe",
+            "add1": "1 Magic street",
+            "add2": "string",
+            "town": "London",
+            "postcode": "E15 4EA",
+            "country": "GB"
+            },
+        "extraData":
+        {
+            "description": "Order description",
+            "comments": "Please ensure not to trim into text",
+            "partnerItemId": "doe_12345",
+            "merchandisingProductName": "Comp Slip",
+            "referenceLabel": "For Sandeep new shop",
+            "purchaseOrder": "12345679"
+        }
+    }],
+    "billingAddress":
+    {
+        "firstName": "Steeve",
+        "lastName": "Roucaute",
+        "add1": "Tradeprint Distribution Ltd",
+        "add2": "2 FULTON ROAD",
+        "postcode": "DD2 4SW",
+        "town": "DUNDEE",
+        "country": "GB",
+        "companyName": "TRADEPRINT DISTRIBUTION LTD",
+        "email": "steeve@tradeprint.co.uk",
+        "contactPhone": "0123456879",
+        "mobile": "0751424242"
+    }
+}')
+
+
+// Tradeprint API allows you to upload and update files for specific orderItems after they have been placed for example if artwork wasn't supplied originally or if a document has been rejected by our pre-press team.
+// 
+// **Requirements**
+// 
+// You must supply valid urls to files that are less than 2GB in size in PDF format.
+// 
+// Your orderItem status must be either `WaitingForArtwork` or `DocReviewRejected`.
+// 
+// The parent order status must be `Placed`.
+// 
+// When the files have been accepted, please allow a few minutes for us to download the artwork, once that is complete the status for your orderItem should change to `WaitingForDocReview`
+// this means that your artwork is waiting to be reviewed by our pre-press team and should it pass our checks it will be manufactured and shipped.
+// 
+// 
+// ### Top Level Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`fileUrls`|string|yes|An array of URL strings|
+
+@name("Upload or Replace Artwork")
+PUT "https://{{environmentUrl}}/v2/orders/{{orderReferenceV2}}/orderItems/{{itemReferenceV2}}/fileUrls"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{"fileUrls": ["https://s3-eu-west-1.amazonaws.com/filestacksupplytest/180MbFile.pdf"]}')
+
+
+// GET the status of an order by orderId
+// 
+// #### Order Statuses ####
+// 
+// |Order Status|Description|
+// |------------|-----------|
+// |`Processing`|We have accepted your item and are preparing it for manufacturing.
+// |`CreatingOrderPayload`|We are attempting to inject the order into tradeprints manufacturing system.|
+// |`Placed`|The order has been accepted and is now in production.|
+// |`Delayed`|You opted for a service level that is not available, (ie Same Day after 11am) your order will be processed when that service level becomes available again.|
+// 
+// #### Item Statuses ####
+// 
+// |Item Status|Description|
+// |-----------|-----------|
+// |`Delayed`|You opted for a service level that is not available, (ie Same Day after 11am) your item will be processed when that service level becomes available again.|
+// |`Processing`|We are downloading your item's artwork.|
+// |`CreatingOrderPayload`|We are attempting to inject the item into Tradeprint's manufacturing system.|
+// |`Confirmed`|The item has been confirmed in Tradeprint's manufacturing system.|
+// |`WaitingForArtwork`|The item is awaiting artwork.|
+// |`WaitingForDocReview`|The item is in the queue for artwork review before printing.|
+// |`DocReviewInProgress`|The item artwork is being reviewed before printing.|
+// |`DocReviewRejected`|There is a problem with the supplied artwork and we cannot print this item.|
+// |`PrintingInProgress`|The item is being printed.|
+// |`Shipped`|The item has been printed and shipped and tracking information should now be present.|
+// |`Cancelled`|The item got cancelled and will not be fulfilled, no transition from this status is possible.|
+
+@name("Get Order Status by ID")
+GET "https://{{environmentUrl}}/v2/orders/{{orderReferenceV2}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+
+
+
+// Tradeprint API offers an endpoint for those wishing to fetch a list of orders by specifying an array of orderReferences, if you would like to run more complex filtering please see the /query endpoint.
+// 
+// ### Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`orderReferences`|string|yes |Array of order references as strings, e.g. `['orderRef1', 'orderRef2']`.|
+
+@name("Fetch Orders by References")
+POST "https://{{environmentUrl}}/v2/orders/ordersStatus"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+  "orderReferences": ["{{orderReferenceV2}}", "YourOrderReference012"]
+}')
+
+
+// Cancel a specific order item before it is being manufactured.
+// 
+// Please note that you cannot cancel it when it is one any of the following states: `PrintingInProgress`, `Shipped`, `Cancelled`.
+
+@name("Cancel an Order Item")
+DELETE "https://{{environmentUrl}}/v2/orders/{{orderReferenceV2}}/orderItems/{{itemReferenceV2}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Retry payment for a specific order reference for an order in `PaymentFailed` state.
+// 
+// This call does not take any body payload.
+
+@name("Retry Payment")
+POST "https://{{environmentUrl}}/v2/orders/{{orderReferenceV2}}/retryPayment"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+

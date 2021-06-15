@@ -1,0 +1,119 @@
+#!/usr/bin/env dothttp
+
+// #### Search salesAgents in ERP
+// *(sapBusinessOne=177/OAGP, totvsProtheus=ADK)*
+// 
+// The search of salesAgents (PROTHEUS=Business Units) allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The salesAgents service will consider as valid salesAgent:
+// - SAP Business One: [1] Not blocked: OAGP.Locked NOT Y
+// - TOTVS Protheus: [1] Not blocked: ADK_MSBLQL NOT 1
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Sale Agents")
+GET "https://{{endpoint}}/saleAgents"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "Intergate"
+
+
+// #### Search sellers in ERP
+// *(sapBusinessOne=53/OSLP, totvsProtheus=SA3)*
+// 
+// ###### ATENTION: for TOTVS Protheus use /igt_sellers (conflict with TOTVS standard API)
+// 
+// The search of sellers allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the seller search is performed as a list.
+// 
+// The sellers service will consider as valid sellers:
+// - SAP Business One: [1] Active and not blocked: OSLP.Active = Y AND OSLP.Locked = N
+// - TOTVS Protheus: [1] Active: A3_MSBLQL other than 1
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = number of records on each page (eg 100), defined in the API configuration and informed in the response
+// - `pageNum` = desired page, provided in the request and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For the use of user fields (UDF) created in the seller table (SAPB1: OSLP, TOTVS: SA3), the respective registration must be performed in the Custom Table.
+
+@name("Sellers")
+GET "https://{{endpoint}}/sellers"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "12"
+? "pageNum"= "1"
+
+
+// #### Insert/update seller in ERP
+// *(sapBusinessOne=53/OSLP, totvsProtheus=SA3)*
+// 
+// This service will allow to insert a new seller in the ERP.
+// 
+// The key to finding the seller is via erpKey (optional). If erpKey is informed and the seller is located by erpKey, the  data is updated, otherwise the new seller is inserted in the ERP.
+// - SAP Business One: OSLP.SlpCode
+// - TOTVS Protheus: A3_CODE
+// 
+// *Note: TOTVS Protheus does not allow 2 sellers with the same fullName.*
+// 
+// #### Request object has the following properties
+// 
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// erpKey | string | Erp key
+// fullName | string | Full name
+// email | string | email
+// phone | string | Number phone
+// phoneSecondary | string | Number phone Secondary
+// cellular | string | Number cellular
+// commissionRate | number | Comission rate
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | process
+// system | string | System
+// target | string | target
+// user | string | user 
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | code
+// success | booleano | Success
+// useCustom | booleano | Use Custom
+// values | array | Values
+
+@name("Sellers")
+PUT "https://{{endpoint}}/sellers"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "erpKey": "5",
+    "fullName": "Rafael Hernandes Ogeda",
+    "email": "teste@teste.com.br",
+    "phone": "",
+    "phoneSecondary": "",
+    "cellular": "",
+    "commissionRate": 3.0
+})
+
+
+

@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// This example deletes the entity with `id=urn:ngsi-ld:TemperatureSensor:004` from the context.
+// 
+// Entities can be deleted by making a DELETE request to the `/ngsi-ld/v1/entities/<entity>` endpoint.
+// 
+// Subsequent requests using the same `id` will result in an error response since the entity no longer exists in the
+// context.
+
+@name("Delete a Data Entity")
+DELETE "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:004"
+
+
+// This example removes the `batteryLevel` attribute from the entity with `id=urn:ngsi-ld:TemperatureSensor:001`.
+// 
+// Attributes can be deleted by making a DELETE request to the `/ngsi-ld/v1/entities/<entity>/attrs/<attribute>` endpoint. It is
+// important to supply the appropriate `@context` in the request in the form of a `Link` header to ensure that the
+// attribute name can be recognised.
+// 
+// If the entity does not exist within the context or the attribute cannot be found on the entity, the result will be an
+// error response.
+
+@name("Delete an Attribute from a Data Entity")
+DELETE "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/attrs/batteryLevel"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+
+
+// This example uses the convenience batch processing endpoint to delete some **TemperatureSensor** entities.
+// 
+// Batch processing uses the `/ngsi-ld/v1/entityOperations/delete` endpoint with a payload consisting of an array of
+// elements to delete.
+// 
+// If an entity does not exist in the context, the result will be an error response.
+
+@name("Batch Delete Multiple Data Entities")
+POST "http://{{orion}}/ngsi-ld/v1/entityOperations/delete"
+"Content-Type": "application/json"
+data('[
+  "urn:ngsi-ld:TemperatureSensor:002",
+  "urn:ngsi-ld:TemperatureSensor:003"
+]')
+
+
+// This example uses the PATCH `/ngsi-ld/v1/entities/<entity-id>/attrs` endpoint to delete some attributes from a
+// **TemperatureSensor** entity.
+// 
+// If a value is set to `null` the attribute is deleted.
+
+@name("Delete Multiple Attributes of a Data Entity")
+PATCH "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/attrs"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+data('{
+      "category": {
+            "value": null,
+            "type": "Property"
+      },
+      "controlledAsset": {
+            "type": "Relationship",
+            "object": null
+      }
+}')
+
+
+// This example returns a header indicating whether any linked data relationships remain against the entity
+// `urn:ngsi-ld:Building:barn002`
+// 
+// Because the `limit=0` parameter has been used **no entities** are listed in the payload body, however the `count=true`
+// means that the count is passed as a header instead:
+// 
+// ```text
+// NGSILD-Results-Count: 1
+// ```
+// 
+// If `limit` was not present the payload would hold the details of every matching entity instead.
+
+@name("Find existing data relationships")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "type"= "TemperatureSensor"
+? "limit"= "0"
+? "count"= "true"
+? 'q'= 'controlledAsset=="urn:ngsi-ld:Building:barn002"'
+
+
+

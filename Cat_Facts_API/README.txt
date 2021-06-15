@@ -1,0 +1,1 @@
+This API provides endpoints to get random cat facts

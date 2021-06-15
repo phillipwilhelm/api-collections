@@ -1,0 +1,1 @@
+To try mocking the responses in every possible way with use of headers and params.

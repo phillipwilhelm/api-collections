@@ -1,0 +1,197 @@
+#!/usr/bin/env dothttp
+
+// This API can be used to verify a DL number
+// 
+// ## REQUEST JSON
+// 
+// ### BODY PARAMS
+// 
+// * dl_no (required) - DL Number of the customer which needs to be verified <b>NOTE :</b> DL numbers are case sensitive and sensitive to spaces and hyphens
+// * dob (required) - DOB as on DL (DD-MM-YYYY)
+// * consent (required) - Consent of the end user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ## OUTPUT
+// 
+// <h4>Missing/invalid DL input</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: DL number should be atleast 5 characters long"
+// }
+// ```
+// 
+// <h4>Missing/invalid DOB</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: DOB(Date of Birth) must be of format DD-MM-YYYY"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//     "id": "0f7e6b9b-003e-44fd-be96-f2b9adc6ae26",
+//     "env": 1,
+//     "request_timestamp": "2019-10-11 15:28:30:404 +05:30",
+//     "response_timestamp": "2019-10-11 15:28:35:695 +05:30",
+//     "transaction_status": 1,
+//     "result": {
+//         "status": "Active",
+//         "father/husband": "N VENXXXXX",
+//         "validity": {
+//             "nonTransport": {
+//                 "from": "22-09-2018",
+//                 "to": "21-09-2023"
+//             },
+//             "transport": {
+//                 "from": "",
+//                 "to": ""
+//             }
+//         },
+//         "address": [
+//             {
+//                 "district": "BANGALORE",
+//                 "pin": 560XXX,
+//                 "completeAddress": "FLAT NO 406 XXXXX",
+//                 "country": "",
+//                 "state": "KARNATAKA",
+//                 "addressLine1": "",
+//                 "type": "NA"
+//             },
+//             {
+//                 "district": "BANGALORE",
+//                 "pin": 560XXXX,
+//                 "completeAddress": "FLAT NO 406 XXXX",
+//                 "country": "",
+//                 "state": "KARNATAKA",
+//                 "addressLine1": "",
+//                 "type": "Present"
+//             },
+//             {
+//                 "district": "BANGALORE",
+//                 "pin": 560XXXX,
+//                 "completeAddress": "FLAT NO 406 XXXXX",
+//                 "country": "",
+//                 "state": "KARNATAKA",
+//                 "addressLine1": "",
+//                 "type": "Permanent"
+//             }
+//         ],
+//         "covDetails": [
+//             {
+//                 "issueDate": "",
+//                 "expiryDate": "",
+//                 "cov": "LMV"
+//             }
+//         ],
+//         "bloodGroup": "",
+//         "dlNumber": "KA01201XXXX",
+//         "name": "RADXXX VENXXXX",
+//         "img": "/9j/4AAQSkZJRgABAQAAAQABAA ... image in base64 string",
+//         "dob": "22-0X-1XXX",
+//         "issueDate": "28-11-2017",
+//         "statusDetails": {
+//             "remarks": "",
+//             "to": "",
+//             "from": ""
+//         },
+//         "expiryDate": "21-09-2023"
+//     },
+//     "response_msg": "Success",
+//     "response_code": "101"
+// }
+// ```
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "65dc07f1-5eb2-40f8-b8b8-7f865f005f96",
+//     "env": 1,
+//     "request_timestamp": "2019-10-11 15:26:00:847 +05:30",
+//     "response_timestamp": "2019-10-11 15:26:17:910 +05:30",
+//     "transaction_status": 0,
+//     "response_msg": "No records found for the given ID or combination of inputs",
+//     "response_code": "103"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-dl/v3"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+    "dl_no":"<<Dl Number>>",
+    "dob":"<<DOB on DL (DD-MM-YYYY) format>>",
+    "consent":"<< Y or N >>",
+    "consent_text":"<< Consent Message >>"
+} ')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID>>",
+//     "consent": "Y",
+//     "consent_text": "<< Consent Text >>",
+//     "env": 1,
+//     "response_code": 101,
+//     "response_msg": "Valid Authentication",
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-09-14 15:09:49:107 +05:30",
+//     "response_timestamp": "2018-09-14 15:09:50:391 +05:30"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/verify-dl/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

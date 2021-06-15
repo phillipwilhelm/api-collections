@@ -1,0 +1,443 @@
+#!/usr/bin/env dothttp
+
+// This is a request that allows you to check the full "out-the-door" price for the order. Granted, to use it, you will need to know the destination of the order so as to get correct shipping.
+// 
+// ## Request Parameters
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'orderLookup' in order to use this method.
+//     	* **orderLookup** - The method name.
+//     * **items** - an array of item objects. In this context an 'item' includes an 'item_id' and a 'quantity'
+//     	* **item**
+//         	* **item_id** - The item_id of the product being ordered.
+//         	* **quantity** - The number of products the end-customer wants to purchase of this item.
+//     * **shipping_city** - The city of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_country** - The country of end-customer the shipment will be sent to as provided by the merchant.Only 'US' is currently allowed.
+//     * **shipping_postal** - The postal/zip code of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_state** - The two character abbreviation state of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_street** - The street address of the end-customer the shipment will be setnt to as provided by the merchant.
+// * Optional
+//     * none - This particular method requires each of the above-listed parameters with a single item. However, multiple items could be included in the 'items' array.
+// 
+// ## Response Parameters
+// * **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// * **order_total** - float(9,2) - The order total amount.
+// * **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// * **subtotal** - float(9,2) - The order subtotal.
+// * **supplier_orders**
+// 	* **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// 	* **items**
+// 		* **item_id** - The item_id of the product being ordered.
+// 		* **item_status** - varchar(32) - The shipping status of the item.
+// 		* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 		* **price** - float(9,2) - The purchase price of the item.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **quantity** - integer(11) - The quantity requested of the item.
+// 		* **sku** - varchar(32) - The SKU assigned to the item.
+// 		* **title** - varchar(50) - The title of the product.
+// 	* **order_total** - float(9,2) - The order total amount.
+// 	* **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// 	* **sub_total** - float(9,2) - The order subtotal.
+// 	* **supplier_id** - integer(11) - The id assigned to the supplier.
+// 	* **supplier_name** - varchar(32) - The name of the supplier.
+// 	* **supplier_order_id** - integer(11) - The id assigned to the supplier order.
+// 	* **transaction_fees** - float(9,2) - The amount of transaction fees for this order.
+
+@name("orderLookup")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>orderLookup</action>
+    <shipping_street>3401N Thanksgiving Way</shipping_street>
+    <shipping_city>Lehi</shipping_city>
+    <shipping_state>UT</shipping_state>
+    <shipping_postal>84043</shipping_postal>
+    <shipping_country>US</shipping_country>
+    <items>
+      <item>
+    	<item_id>{{ITEM_ID}}</item_id>
+    	<quantity>1</quantity>
+      </item>
+    </items>
+  </request>
+</dce>')
+
+
+// This is a request that allows you to create a brand new order. Be careful not to accidentally resubmit this request. Each order is considered a new order. Sending the same exact request 2 times will create 2 separate orders. Although funding of the order is done separately, it is recommended that you not create multiples of the same order.
+// 
+// ## Request Parameters
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'createOrder' in order to use this method.
+//     	* **createOrder** - The method name.
+//     * **items** - an array of item objects. In this context an 'item' includes an 'item_id' and a 'quantity'
+//     	* **item**
+//         	* **item_id** - The item_id of the product being ordered.
+//         	* **quantity** - The number of products the end-customer wants to purchase of this item.
+//     * **ip_address** - varchar(16) - The IPv4 address of the retailer ordering the product, not the partner or end-customer - must be in dotted decimal notation (11.12.13.14) 
+//     * **shipping_city** - The city of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_country** - The country of end-customer the shipment will be sent to as provided by the merchant.Only 'US' is currently allowed.
+//     * **shipping_postal** - The postal/zip code of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_state** - The two character abbreviation state of the end-customer the shipment will be sent to as provided by the merchant.
+//     * **shipping_street** - The street address of the end-customer the shipment will be setnt to as provided by the merchant.
+// * Optional
+//     * **po_number** - varchar(32) - Usually the merchants internal order number. It is very highly recommended that you use this field. Although not required, it will ensure that only 1 doba order is created, even if multiple requests are made. Only 1 doba order can be created per po_number.
+// 	* **shipping_company** - varchar(25) - Generally, the company/Attn name for the end-customer. Can be used as address 2 if 'shipping_state' is not long enough.
+// 	* **shipping_phone** - varchar(10) - The phone number of the end-customer as provided by the merchant. It is very highly recommended that you use this field. Although not required, it almost guarantees that the item can be delivered. Some large or oversized items will simply not be delivered without scheduling a delivery with the end-customer.
+// 
+// ## Response Parameters
+// * **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// * **order_id** - integer(11) - The order_id assigned by the system for this order.
+// * **order_total** - float(9,2) - The entire order total amount.
+// * **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// * **subtotal** - float(9,2) - The entire order subtotal.
+// * **supplier_orders** - An array of 'supplier_order' objects
+// 	* **supplier_order**
+// 		* **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// 		* **items**
+// 			* **item_id** - The item_id of the item being ordered.
+// 			* **item_status** - varchar(32) - The shipping status of the item.
+// 			* **prepay_price** - float(9,2) - The purchase price of the item if funded via prepay funds.
+// 			* **price** - float(9,2) - The purchase price of the item.
+// 			* **product_id** - integer(11) - The product_id assigned to the item.
+// 			* **quantity** - integer(11) - The quantity requested of the item.
+// 			* **sku** - varchar(32) - The SKU assigned to the item.
+// 			* **title** - varchar(50) - The title of the item.
+// 		* **order_total** - float(9,2) - The order total amount.
+// 		* **shipping_fees** - float(9,2) - Shipping fee totals for this supplier's order.
+// 		* **sub_total** - float(9,2) - The order subtotal.
+// 		* **supplier_id** - integer(11) - The id assigned to the supplier.
+// 		* **supplier_name** - varchar(32) - The name of the supplier.
+// 		* **supplier_order_id** - integer(11) - The id assigned to the supplier order.
+// 		* **transaction_fees** - float(9,2) - The amount of transaction fees for this order.
+
+@name("createOrder")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>createOrder</action>
+    <ip_address>158.123.35.2</ip_address>
+    <shipping_firstname>Joe</shipping_firstname>
+    <shipping_lastname>Schmoe</shipping_lastname>
+    <shipping_street>3401N Thanksgiving Way</shipping_street>
+    <shipping_city>Lehi</shipping_city>
+    <shipping_state>UT</shipping_state>
+    <shipping_postal>84043</shipping_postal>
+    <shipping_country>US</shipping_country>
+    <items>
+      <item>
+    	<item_id>{{ITEM_ID}}</item_id>
+    	<quantity>1</quantity>
+      </item>
+    </items>
+  </request>
+</dce>')
+
+
+// Fund an order (or a list of orders) by using this method.
+// 
+// ## Request Parameters
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'fundOrder' in order to use this method.
+//     	* **fundOrder** - The method name.
+//     * **cvv2** - The CVV2 Code found on the back of the Credit Card.
+//     * **fund_method** - Can be one of 'default_payment_account', 'payment_account_id', 'new_payment_info'. Depending on the method different parameters are required.
+// 	
+// * Optional
+// 	* ***ALL orders require either an order_ids array or an order_group_id:***
+// 		* **order_ids** - an array of order_id objects
+// 			* **order_id** - (int) the integer / numerical representation of the order_id from Doba
+// 		* **order_group_id** - (int) the integer / numerical representation of the order_group_id to fund for a group of Doba orders.
+// 	* ***If 'new_payment_info' is used as the argument for parameter 'fund_method' the following are required:***
+//     	* **billing_city** - The city on the Credit Card account.
+// 		* **billing_country** - US = United States, CA = Canada, AU = Australia, BB = Barbados, IE = Ireland, MY = Malaysia, SG = Singapore, GB = United Kingdom, DE = Germany, PR = Puerto Rico, NZ = New Zealand - No other options are currently allowed.
+// 		* **billing_firstname** - The first name on the Credit Card account.
+// 		* **billing_lastname** - The last name on the Credit Card account.
+// 		* **billing_phone** - The phone number for the owner of the Credit Card.
+// 		* **billing_postal** - The postal/zip code on the Credit Card account.
+// 		* **billing_state** - Two character abbreviation of the state on the Credit Card account.
+// 		* **billing_street** - The billing street address on the Credit Card account.
+// 		* **credit_card_exp_month** - 2 Digits - The month the Credit Card expires. Found on the front of the card.
+// 		* **credit_card_exp_year** - 4 Digits - The year the Credit Card expires. Found on the front of the card.
+// 		* **credit_card_number** - The 15 or 16 digit Credit Card number on the face of the card.
+// 	
+// 	* ***If 'payment_account_id' is used as the argument for parameter 'fund_method' the following is required:***
+// 		* **payment_account_id** - The payment_account_id assigned to the payment profile within the Doba account.
+// 	
+// 
+// ## Response Parameters
+// * **payment_account_id** - integer(11) - The ID assigned to the Doba payment account. This ID can be used to fund future orders. *Only returned when creating a new payment account using the "new_payment_info" fund method.*
+
+@name("fundOrder")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>fundOrder</action>
+    <fund_method>default_payment_account</fund_method>
+    <cvv2>123</cvv2>
+    <order_ids>
+    	<order_id>1716327</order_id>
+    </order_ids>
+  </request>
+</dce>')
+
+
+// Get the orders on your account within a range, limit, offset, or based on other criteria you determine.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getOrderDetail' in order to use this method.
+//     	* **getOrderDetail** - The method name.
+// 	
+// * Optional
+// 	* **order_ids** - an array of order_id
+// 		* **order_id** - The identifier for the Doba order also known as 'doba order id'.
+// 	* **order_statuses** - an array of order_status
+// 		* **order_status** - Available statuses are listed above in the 'Order Lifecycle' listed above.
+// 	* **po_numbers** - an array of po_number
+// 		* **po_number** - This is the po_number that you provided if you used it when creating your order(s).
+// 
+// ## Response Parameters
+// 
+// * **available_actions** - array(varchar(100)) - An array of available_action
+// 	* **available_action** - (string) representing an action that can occur on this order
+// * **bill_city** - varchar(32) - The billing city of the merchant.
+// * **bill_country** - varchar(32) - The billing country of the merchant.
+// * **bill_name** - varchar(32) - The billing name of the merchant.
+// * **bill_phone** - varchar(32) - The billing phone number of the merchant.
+// * **bill_postal** - varchar(32) - The billing postal/zip code of the merchant.
+// * **bill_state** - varchar(32) - The two character abbreviation billing state of the merchant.
+// * **bill_street** - varchar(32) - The billing street of the merchant.
+// * **can_pay** - bool(1) - If true, the order can be funded. If false, the order cannot be funded.
+// * **date_placed** - datetime(YYYY-MM-DD HH:MM:SS) - The date and time at the time the order was created.
+// * **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship-fee's.
+// * **is_paid** - bool(1) - If true, the order has been paid for. If false, the order has not been paid for.
+// * **notes** - varchar(255) - Order notes can be added by Doba for whatever reason.
+// * **order_group_id** - integer(11) - The order_group_id of the order. Orders can be grouped so that they can be paid for all at the same time.
+// * **order_id** - integer(11) - The order_id assigned by the system for this order.
+// * **order_total** - float(9,2) - The order total amount.
+// * **payment_methods** - array(varchar(32)) - An array of payment_method.
+// 	* **payment_method** - string representation of a payment method available to the merchant.
+// * **po_number** - varchar(32) - The purchase order number assigned to the order by the merchant.
+// * **retailer_id** - integer(11) - The merchants retailer_id.
+// * **ship_city** - varchar(32) - The city of end-customer the shipment will be sent to as provided by the merchant.
+// * **ship_country** - varchar(32) - The country of end-customer the shipment will be sent to as provided by the merchant.
+// * **ship_name** - varchar(32) - The name of end-customer the shipment will be sent to as provided by the merchant.
+// * **ship_phone** - varchar(32) - The phone number of the end-customer as provided by the merchant.
+// * **ship_postal** - varchar(32) - The postal/zip code of end-customer the shipment will be sent to as provided by the merchant.
+// * **ship_state** - varchar(32) - The two character abbreviation state of end-customer the shipment will be sent to as provided by the merchant.
+// * **ship_street** - varchar(32) - The street of end-customer the shipment will be sent to as provided by the merchant.
+// * **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// * **status** - The status of the order.
+// * **subtotal** - float(9,2) - The order subtotal.
+// * **supplier_orders** - array of supplier_order objects
+// 	* **supplier_order** - the object representing an order from a single supplier
+// 		* **available_actions** - array(varchar(100)) - An array of available_action
+// 			* **available_action** - (string) representing an action that can occur on this order
+// 		* **credits** - float(9,2) - The total amount of credits of the supplier order.
+// 		* **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// 		* **events** - Each status change or order update will trigger an event that will be noted here.
+// 		* **date** - datetime - The date and time the event was recorded.
+// 		* **description** - varchar(255) - A short description of the event type such as 'Status change'
+// 		* **notes** - varchar(255) - Order notes can be added by Doba for whatever reason.
+// 		* **items** - an array of item objects
+// 			* **item** - an abbreviated object representing each individual item ordered
+// 				* **item_id** - The item_id of the product being ordered.
+// 				* **item_status** - varchar(32) - The shipping status of the item.
+// 				* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 				* **price** - float(9,2) - The purchase price of the item.
+// 				* **product_id** - integer(11) - The product_id assigned to the product.
+// 				* **quantity** - integer(11) - The quantity requested of the item.
+// 				* **quantity_shipped** - The number of this item that have been shipped.
+// 				* **sku** - varchar(32) - The SKU assigned to the item.
+// 				* **supplier_order_item_id** - an id representing the line item
+// 				* **title** - varchar(50) - The title of the product.
+// 		* **notes** - varchar(255) - Order notes can be added by Doba for whatever reason.
+// 		* **order_total** - float(9,2) - The order total amount.
+// 		* **rmas** - array of rma objects
+// 			* **rma** - object representing 'Return Merchandise Authorization'
+// 				* **available_actions** - array(varchar(100)) - An array of actions currently available to the order.
+// 				* **create_date** - datetime - when this RMA was created
+// 				* **events** - Each status change or order update will trigger an event that will be noted here.
+// 					* **date** - datetime - The date and time the event was recorded.
+// 					* **description** - varchar(255) - A short description of the event type such as 'Status change'
+// 					* **notes** - varchar(255) - Order notes can be added by Doba for whatever reason.
+// 				* **id** - int(11) - The identifier for the RMA
+// 				* **items** - an array of item objects
+// 					* **id** - integer(11) item_id 
+// 					* **quantity** - integer(11) - The quantity requested of the item.
+// 					* **title** - varchar(50) - The title of the product.
+// 				* **notes** - varchar(255) - RMA notes can be added by Doba for whatever reason.
+// 				* **reason** - varchar(255) - The reason given by the merchant for the return
+// 				* **shipments** - an array of shipment objects
+// 					* **shipment** - an object representing the shipment of a product or products 
+// 						* **carrier** - varchar(32) - The company name of the shipping carrier.
+// 						* **num_parcels** - integer(11) - How many parcels were sent
+// 						* **shipment_date** - date(YYYY-MM-DD) - The date the shipment was shipped via the carrier.
+// 						* **tracking** - varchar(100) - The tracking number assigned to the shipment by the carrier.
+// 						* **weight** - float(9,2) - The weight of the shipment.
+// 				* **status** - The status of the RMA.
+// 				* **type** - The type of the RMA (damaged, defective, buyer's remorse, etc.)
+// 			* **shipments** - an array of shipment
+// 				* **shipment** - an object representing a shipment	
+// 					* **carrier** - varchar(32) - The company name of the shipping carrier.
+// 					* **num_parcels** - int(11) - How many parcels were sent
+// 					* **shipment_date** - date(YYYY-MM-DD) - The date the shipment was shipped via the carrier.
+// 					* **shipment_items** - an array of shipment_item
+// 						* **shipment_item** - an object representing the item shipped
+// 							* **item_id** - The item_id of the product being ordered.
+// 							* **quantity** - integer(11) - The quantity requested of the item.
+// 							* **title** - varchar(50) - The title of the product.
+// 					* **tracking** - varchar(100) - The tracking number assigned to the shipment by the carrier.
+// 					* **weight** - float(9,2) - The weight of the shipment.
+// 			* **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// 			* **status** - The status of the order.
+// 			* **sub_total** - float(9,2) - The order subtotal.
+// 			* **supplier_id** - integer(11) - The id assigned to the supplier.
+// 			* **supplier_name** - varchar(32) - The name of the supplier.
+// 			* **supplier_order_id** - integer(11) - The id assigned to the supplier order.
+// 			* **transaction_fees** - float(9,2) - The amount of transaction fees for this order. Transaction fees are no longer charged so this will always be a $0.00 value unless you have old orders that did have a transaction fee charged.
+// * **transaction_method** - varchar(255) - The method used for funding the order.
+// * **transactions** - 
+// 	* **amount** - float(9,2) - the amount charged against the method used
+// 	* **auth_id** - integer(11) - the identifier for the authorization against the method used
+// 	* **cc_last_four** - integer(4) - The last four digits of the credit card used (empty if PayPal or PrePay were used)
+// 	* **date** - datetime - The date and time the event was recorded.
+// 	* **description** - varchar(255) - A short description of the event type such as 'Status change'
+// 	* **id** - integer(11) - The identifier used for the transaction.
+// 	* **method** - the billing method used (credit card, PayPal, or PrePay)
+// 	* **type** - the type of transaction (charge or refund)
+
+@name("getOrderDetail")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getOrderDetail</action>
+    <order_ids>
+    	<order_id>1624509</order_id>
+    </order_ids>
+  </request>
+</dce>')
+
+
+// Get the orders on your account within a range, limit, offset, or based on other criteria you determine. While providing no optional arguments will conceivably return all orders, it is not recommended. You should limit the results by specifying orders or using some filtering parameter.
+// 
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getOrders' in order to use this method.
+//     	* **getOrders** - The method name.
+// * Optional
+//     * **from_date** - Records newer than the date provided will be included in the response.
+// 	* **to_date** - Records newer than the date provided will not be included in the response.	
+// 	* **limit** - The maximum number of records that will be returned.
+// 	* **offset** - Determines where the results will begin within the paginated results.
+// 	* **order_group_id** - All matching order_group_id's will be included in the response.
+// 	* **order_ids** - an array of order_id
+// 		* **order_id** - The identifier for the Doba order also known as 'doba order id'.
+// 	* **order_statuses** - an array of order_status
+// 		* **order_status** - Available statuses are listed above in the 'Order Lifecycle' listed above.
+// 	* **po_numbers** - an array of po_number
+// 		* **po_number** - This is the po_number that you provided if you used it when creating your order(s).
+// 	* **sort_direction** - enum('asc', 'desc') - Determines the sorting direction of the orders included in the response.
+// 	* **sort_field** - enum('order_id', 'order_group_id', 'po_number', 'statuses', 'date_placed', 'subtotal', 'shipping_fees', 'drop_ship_fees', 'order_total', 'ship_name', 'ship_street', 'ship_city', 'ship_state', 'ship_postal', 'ship_country', 'ship_phone', 'bill_name', 'bill_street', 'bill_city', 'bill_state', 'bill_postal', 'bill_country', 'bill_phone', 'payment_methods', 'can_pay', 'is_paid', 'suppliers') - Determines which field the results will be sorted by.
+// 	
+// ## Response Parameters
+// 
+// * **orders** - an array of order
+// 	* **order** - an abbreviated order object
+// 		* **bill_city** - varchar(32) - The billing city of the merchant.
+// 		* **bill_country** - varchar(32) - The billing country of the merchant.
+// 		* **bill_name** - varchar(32) - The billing name of the merchant.
+// 		* **bill_phone** - varchar(32) - The billing phone number of the merchant.
+// 		* **bill_postal** - varchar(32) - The billing postal/zip code of the merchant.
+// 		* **bill_state** - varchar(32) - The two character abbreviation billing state of the merchant.
+// 		* **bill_street** - varchar(32) - The billing street of the merchant.
+// 		* **can_pay** - bool(1) - If true, the order can be funded. If false, the order cannot be funded.
+// 		* **date_placed** - datetime(YYYY-MM-DD HH:MM:SS) - The date and time at the time the order was created.
+// 		* **drop_ship_fees** - float(9,2) - The sum of all of the supplier's drop-ship fees.
+// 		* **is_paid** - bool(1) - If true, the order has been paid for. If false, the order has not been paid for.
+// 		* **order_group_id** - integer(11) - The order_group_id of the order. Orders can be grouped so that they can be paid for all at the same time.
+// 		* **order_id** - integer(11) - The order_id assigned by the system for this order.
+// 		* **order_total** - float(9,2) - The order total amount.
+// 		* **payment_methods** - array(varchar(32)) - An array of payment method.
+// 			* **payment_method** - varchar(32) - A method that may be used to fund the order
+// 		* **po_number** - varchar(32) - The purchase order number assigned to the order by the merchant.
+// 		* **retailer_id** - integer(11) - The merchants retailer_id.
+// 		* **ship_city** - varchar(32) - The city of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **ship_country** - varchar(32) - The country of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **ship_name** - varchar(32) - The name of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **ship_phone** - varchar(32) - The phone number of the end-customer as provided by the merchant.
+// 		* **ship_postal** - varchar(32) - The postal/zip code of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **ship_state** - varchar(32) - The two character abbreviation state of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **ship_street** - varchar(32) - The street of end-customer the shipment will be sent to as provided by the merchant.
+// 		* **shipping_fees** - float(9,2) - Shipping fee totals for all supplier orders.
+// 		* **status** - The status of the order.
+// 		* **subtotal** - float(9,2) - The order subtotal.
+// * **overall_number_of_orders** - integer(11) - The total number of orders that match the criteria.
+// * **overall_total_spent** - float(9,2) - The total amount of all orders combined.
+// * **result_total** - integer(11) - The number of orders returned in this response.
+
+@name("getOrders")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getOrders</action>
+    <from_date>2019-01-01</from_date>
+    <limit>50</limit>
+  </request>
+</dce>')
+
+
+

@@ -1,0 +1,212 @@
+#!/usr/bin/env dothttp
+
+// Get a list of the user's models.
+
+@name("Get Model List")
+GET "https://{{base_url}}/ap/v1/portfolios"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Get a specific model or client portfolio by ID.
+
+@name("Get Model / Portfolio")
+GET "https://{{base_url}}/ap/v1/portfolios/:id"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Create a new Model Portfolio. Returns the id of the new Model.
+// 
+// **name**  |  _string_  |  Required. Name of the Portfolio
+// 
+// **type**  |  _string_  |  Required. Accepted values are `MODEL` or `DEVELOPMENT`
+
+@name("Create Model")
+POST "https://{{base_url}}/ap/v1/portfolios/"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+	"name": "Test Model",
+	"type": "MODEL"
+}')
+
+
+// Create a new client portfolio. Returns the id of the new portfolio.
+// 
+// 
+// **name**  |  _string_  |  Required. Name of the Portfolio.
+// 
+// **type**  |  _string_  |  Required. Accepted values are `TARGET` and `ACTIVE`.
+// 
+// **client_id**  |  _string_  |  Required. The client_id this portfolio belongs to.
+
+@name("Create Portfolio")
+POST "https://{{base_url}}/ap/v1/portfolios"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+	"name":"API Proposed Portfolio",
+	"type":"TARGET",
+	"client_id":{{sample_client_id}}
+}
+')
+
+
+// Add a new account to a model or client portfolio. 
+// 
+// 
+// **id**  |  _string_  |  Required. The ID of the portfolio to update.
+// 
+// **client_id**  |  _string_  |  Required. The client_id the portfolio is linked to.
+// 
+// **name**  |  _string_  |  Required. The name of the portfolio.
+// 
+// **type**  |  _string_  |  Required. Accepted values are `TARGET` and `ACTIVE`. 
+// 
+// 
+// 
+// To mark an allocation as cash without a specific ticker symbol, set accounts.allocations.settings.shortname to 1000000000. This is a unique, internal identifier for cash in Riskalyze.
+// 
+// For portfolios, you may pass a property of **ephemeral\_id** at the account level with each new account. This id will be returned with the account in the response. This can help in matching our account ids with your account ids. NOTE: ephemeral_id is not saved and will not be available in future responses.
+
+@name("Update Model / Portfolio (New Account)")
+PUT "https://{{base_url}}/ap/v1/portfolios/:id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "id": 230812657,
+    "client_id": 357711144,
+    "name": "Proposed Portfolio",
+    "type": "TARGET",
+    "accounts": [
+    	{
+    		"name": "New Account",
+    		"allocations": [
+    			{
+    				"amount": 1000,
+    				"settings": {
+    					"shortname": "1000000000",
+    					"longname": "Money Market / Cash"
+    				}
+    			},
+    			{
+    				"amount": 1000,
+    				"settings":{
+    					"shortname":"SPY"
+    				}
+    			}
+    		]
+    	}
+    ]
+}')
+
+
+// Update a portfolio with an existing account. You will need portfolio and account ids to perform this action. These can be found by doing a GET of the model / portfolio. 
+// 
+// **id** | _string_ | Required. The ID of the portfolio to update.
+// 
+// **client_id** | _string_ | Required. The client_id the portfolio is linked to.
+// 
+// **name** | _string_ | Required. The name of the portfolio.
+// 
+// **type** | _string_ | Required. Accepted values are TARGET and ACTIVE.
+// 
+// **account.id**  |  _string_  |  Required. The id of the account to be updated.
+// 
+// 
+// To mark an allocation as cash without a specific ticker symbol, set accounts.allocations.settings.shortname to 1000000000. This is a unique, internal identifier for cash in Riskalyze.
+
+@name("Update Model / Portfolio (Update Account)")
+PUT "https://{{base_url}}/ap/v1/portfolios/:id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "id": 283765394,
+    "client_id": 271977596,
+    "name": "Test Portfolio",
+    "type": "TARGET",
+    "accounts": [
+    	{
+    		"id": 72445,
+    		"name": "Sample Account",
+    		"attributes": {
+                "is_muted": true
+            },
+    		"allocations": [
+    			{
+    				"amount": 1000,
+    				"settings": {
+    					"shortname": "1000000000",
+    					"longname": "Money Market / Cash"
+    				}
+    			},
+    			{
+    				"amount": 1000,
+    				"settings":{
+    					"shortname":"SPY"
+    				}
+    			}
+    		]
+    	}
+    ]
+}')
+
+
+// Specify a preferred proxy in case an investment is unrecognized by Riskalyze. You will need the Riskalyze Security ID of the preferred proxy you want to use. See the example response for a list of common proxies and their Riskalyze Security IDs.
+// 
+// Users can override preferred proxies by editing the portfolio inside of Riskalyze. User-set proxies take precedence over preferred proxies in API requests.
+// 
+// **id** | _string_ | Required. The ID of the portfolio to update.
+// 
+// **client_id** | _string_ | Required. The client_id the portfolio is linked to.
+// 
+// **name** | _string_ | Required. The name of the portfolio.
+// 
+// **type** | _string_ | Required. Accepted values are TARGET and ACTIVE.
+// 
+// **account.id**  |  _string_  |  Required. The Riskalyze account.id of the account to be updated. Note: If you are adding a new account, do not include `account.id`.
+// 
+// 
+// To mark an allocation as cash without a specific ticker symbol, set accounts.allocations.settings.shortname to 1000000000. This is a unique, internal identifier for cash in Riskalyze.
+
+@name("Update Portfolio (Specify a Preferred Proxy)")
+PUT "https://{{base_url}}/ap/v1/portfolios/:id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+   "id": {{latest.proposed}},
+    "client_id": {{client.id}},
+    "name": "API Proposed Portfolio",
+    "type": "TARGET",
+    "accounts": [
+    	{
+    		"name": "Sample Account",
+    		"allocations": [
+    			{
+    				"amount": "1000",
+    				"settings": {
+    					"shortname": "LATTE",
+    					"longname": "Cafe Latte"
+    				
+    				},
+					"adjustments": {
+						"proxy": {
+							"value": 1718742537 
+						}
+					}
+
+				}
+    		]
+    	}
+    ]
+}')
+
+
+// Deleting models and protfolios
+
+@name("Delete Model/Portfolio")
+DELETE "https://{{base_url}}/ap/v1/portfolios/:id"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+

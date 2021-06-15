@@ -1,0 +1,107 @@
+#!/usr/bin/env dothttp
+
+// Create a new sending list.
+
+@name("Create a new list")
+POST "https://app.gateway.smsend.it/API/v1.0/REST/list"
+"user_key": ""
+"Session_key": ""
+files(
+	("title", "" , "String"),
+	("id_language", "" , "String (eg "ita")"),
+	("email_sender", "" , "String"),
+	("reply_to", "" , "String"),
+	("company_name", "" , "String"),
+	("company_address", "" , "String"),
+	("company_url", "" , "String"),
+	("company_phone", "" , "String"),
+	("company_fax", "" , "String")
+)
+
+
+// Updates a sending list.
+
+@name("Modify a list")
+PUT "https://app.gateway.smsend.it/API/v1.0/REST/list/{list_id}"
+"user_key": ""
+"Session_key": ""
+files(
+	("title", "" , "String"),
+	("id_language", "" , "String (eg "ita")"),
+	("email_sender", "" , "String"),
+	("reply_to", "" , "String"),
+	("company_name", "" , "String"),
+	("company_address", "" , "String"),
+	("company_url", "" , "String"),
+	("company_phone", "" , "String"),
+	("company_fax", "" , "String"),
+	("status", "" , "Int")
+)
+
+
+// Get list of campaigns by statuses. If statuses is not specified by default return only ACTIVE campaign.
+
+@name("Get list of campaigns by statuses")
+GET "https://app.gateway.smsend.it/API/v1.0/REST/list"
+"user_key": ""
+"Session_key": ""
+? "statuses"= "ACTIVE"
+
+
+
+// Add all contacts of the given group to the given list of distribution.
+// 
+// Emails can be only sent to contacts that belong to a distribution list.
+
+@name("Add a contacts group to a list of distribution")
+POST "https://app.gateway.smsend.it/API/v1.0/REST/list/{list_id}/group/{group_id}"
+"user_key": ""
+"Session_key": ""
+? "sendoptin"= "false"
+
+
+
+// Creates a new email draft. Every email draft must be associated to a distribution list.
+
+@name("Create a new email draft")
+POST "https://app.gateway.smsend.it/API/v1.0/REST/list/{list_id}/issue"
+"user_key": ""
+"Session_key": ""
+files(
+	("title", "" , "String"),
+	("subject", "" , "String"),
+	("share_social", "" , "Bool"),
+	("web_analytics", "" , "String"),
+	("text_content", "" , "String"),
+	("html_content", "" , "String"),
+	("attachments", "" , "List(Attachment)"),
+	("Attachment.file_name	", "" , "String"),
+	("Attachment.file_content_base64", "" , "String")
+)
+
+
+// Creates a new issue starting from the specified template.
+
+@name("Create new issue using a specified template")
+POST "https://app.gateway.smsend.it/API/v1.0/REST/list/{campaignId}/issue/template/{template}"
+"user_key": ""
+"Session_key": ""
+files(
+	("title", "" , "String"),
+	("subject", "" , "String")
+)
+
+
+// Schedule an issue to be sent to a specified list of contacts Ids at a given time.
+
+@name("Send an issue to preloaded contacts")
+POST "https://app.gateway.smsend.it/API/v1.0/REST/list/{campaignId}/issue/{idIssue}"
+"user_key": ""
+"Session_key": ""
+files(
+	("contactIds", "" , "String[]"),
+	("scheduleTime", "" , "String")
+)
+
+
+

@@ -1,0 +1,1 @@
+This is a collection for generating a tag cloud using Postman visualizer.

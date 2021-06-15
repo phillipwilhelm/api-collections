@@ -1,0 +1,1069 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the existing devices for the current user.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key      | Value       | Description               | 
+// | -------- | ----------- | ------------------------- |
+// | deveui   | {{deveui}}  | DeviceEUI is a global end-device ID that uniquely identifies the end-device.
+// | devaddr  | {{devaddr}} | Device Address computed runtime for OTAA and fixed for ABP, Identifies the device in the current network.
+// | appeui   | {{appeui}} | AppEUI (until LoRaWAN 1.0.3) and JoinEUI (LoRaWAN 1.1+) identifies the entity able to process the JoinReq frame.
+// | label    | {{label}}   | Label used to Identifies the device.
+// | activated   | {{activated}}  | Status that informas if the end-device is active or not. ABP nodes are always active. OTAA node requires a succesfull Join procedure.
+// | type     | {{type}}    | Identifies if the device is ABP or OTAA.
+// | appid	   | {{appid}}   | Identifies the application associated to each end-device.
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Device List")
+GET "{{protocol}}://{{host}}/api/v2/devices"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns the device associated with the given `{{did}}`, the unique id associated to each device. Is not the `devEUI`.
+// 
+// The response will provide an object that containsssssss the single Device details.
+// 
+// Details:
+//    * No body in the request
+//    * The device to obtain is identified in the url by `{{did}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Device Information")
+GET "{{protocol}}://{{host}}/api/v2/device/{{did}}"
+"Authorization": "Bearer {{token}}"
+
+
+// This API creates a new device.
+// 
+// The reponse will contain the created object with the created device.
+// 
+// Exaustive description is written in the following rows.
+// 
+// Based on `type=[ABP, OTAA]`, there are additional required properties:
+// 
+// | Property  | Type      | Required Keyword  |
+// | --------- | --------- | -----------------
+// | `type`    | `OTAA`      | appKey, AppEUI (LW 1.0.3-) / JoinEUI (LW 1.0.4+)    |
+// | `type`    | `ABP`       | appSKey, nwkSKey, devaddr    |
+// 
+// _Note: There are also_ **not** _specific keyword always required described below_
+// 
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+// 
+//  
+// # Schema
+// ```
+// "standard": {
+//   "type": "object",
+//   "properties": {
+//     "appid": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "maximum": 9007199254740991,
+//       "description": "Identify the application associated to this device"
+//     },
+//     "deveui": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{16}$",
+//       "description": "Is a global end-device ID that uniquely identifies the end-device"
+//     },
+//     "firmware": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "Current firmware version present in the device"
+//     },
+//     "label": {
+//       "type": [
+//         "number",
+//         "string"
+//       ],
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this end-device",
+//       "pattern": "^[^,;.:?!/]{1,}$"
+//     },
+//     "alt": {
+//       "type": "number",
+//       "minimum": -7000,
+//       "maximum": 7000,
+//       "description": "Altitude location of the device [m]"
+//     },
+//     "lat": {
+//       "type": "number",
+//       "minimum": -90,
+//       "maximum": 90,
+//       "description": "Latitude location of the device [°]"
+//     },
+//     "lng": {
+//       "type": "number",
+//       "minimum": -180,
+//       "maximum": 180,
+//       "description": "Longitude location of the device [°]"
+//     },
+//     "model": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "Describes the end-device model"
+//     },
+//     "serial": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "Serial number of the device"
+//     },
+//     "DeviceProfileId": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "description": "Id of the device profile associated to this device"
+//     },
+//     "type": {
+//       "type": "string",
+//       "enum": [
+//         "ABP",
+//         "OTAA"
+//       ],
+//       "description": "Identifies if a device is ABP or OTAA"
+//     },
+//     "appKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Application Key is an AES-128 root key used to derive the session keys"
+//     },
+//     "appeui": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{16}$",
+//       "description": "Uniquely identifies the entity able to process the JoinReq frame"
+//     },
+//     "devaddr": {
+//       "type": "string",
+//       "pattern": "^[0-9a-f]{8}$",
+//       "description": "Identifies the device in the current network"
+//     },
+//     "appSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Application Session Key used to encrypt and decrypt the applciation payload"
+//     },
+//     "nwkSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Network Session Key used to ensure data integrity on the complete LoRaWAN frame"
+//     }
+//   },
+//   "if": {
+//     "properties": {
+//       "type": {
+//         "const": "ABP"
+//       }
+//     },
+//     "required": [
+//       "type"
+//     ]
+//   },
+//   "then": {
+//     "required": [
+//       "devaddr",
+//       "appSKey",
+//       "nwkSKey"
+//     ],
+//     "not": {
+//       "required": [
+//         "appKey",
+//         "appeui"
+//       ]
+//     }
+//   },
+//   "else": {
+//     "if": {
+//       "properties": {
+//         "type": {
+//           "const": "OTAA"
+//         }
+//       },
+//       "required": [
+//         "type"
+//       ]
+//     },
+//     "then": {
+//       "required": [
+//         "appKey",
+//         "appeui"
+//       ],
+//       "not": {
+//         "required": [
+//           "appSKey",
+//           "nwkSKey",
+//           "devaddr"
+//         ]
+//       }
+//     }
+//   },
+//   "required": [
+//     "appid",
+//     "DeviceProfileId",
+//     "deveui",
+//     "label",
+//     "type"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// # Properties
+// 
+// | Property                            | Type      | Required     | Nullable | Defined by    |
+// | ----------------------------------- | --------- | ------------ | -------- | ------------- |
+// | [ApplicationId](#applicationid)     | `integer` | **Required** | No       | (this schema) |
+// | [DeviceProfileId](#deviceprofileid) | `integer` | **Required** | No       | (this schema) |
+// | [alt](#alt)                         | `number`  | Optional     | No       | (this schema) |
+// | [appKey](#appkey)                   | `string`  | Optional     | No       | (this schema) |
+// | [appSKey](#appskey)                 | `string`  | Optional     | No       | (this schema) |
+// | [appeui](#appeui)                   | `string`  | Optional     | No       | (this schema) |
+// | [devaddr](#devaddr)                 | `string`  | Optional     | No       | (this schema) |
+// | [deveui](#deveui)                   | `string`  | **Required** | No       | (this schema) |
+// | [firmware](#firmware)               | `string`  | Optional     | No       | (this schema) |
+// | [joineui](#joineui)                 | `string`  | Optional     | No       | (this schema) |
+// | [label](#label)                     | `string`  | **Required** | No       | (this schema) |
+// | [lat](#lat)                         | `number`  | Optional     | No       | (this schema) |
+// | [lng](#lng)                         | `number`  | Optional     | No       | (this schema) |
+// | [model](#model)                     | `string`  | Optional     | No       | (this schema) |
+// | [nwkSKey](#nwkskey)                 | `string`  | Optional     | No       | (this schema) |
+// | [serial](#serial)                   | `string`  | Optional     | No       | (this schema) |
+// | [type](#type)                       | `enum`    | **Required** | No       | (this schema) |
+// 
+// ## ApplicationId
+// 
+// Identifies the application associated to this device
+// 
+// `ApplicationId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### ApplicationId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## DeviceProfileId
+// 
+// Id of the device profile associated to this device
+// 
+// `DeviceProfileId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### DeviceProfileId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## alt
+// 
+// Altitude location of the device [m]
+// 
+// `alt`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### alt Type
+// 
+// `number`
+// 
+// - minimum value: `-7000`
+// - maximum value: `7000`
+// 
+// ## appKey
+// 
+// Application Key is an AES-128 root key used to derive the session keys
+// 
+// `appKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## appSKey
+// 
+// Application Session Key used to encrypt and decrypt the applciation payload
+// 
+// `appSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## appeui
+// 
+// Uniquely identifies the entity able to process the JoinReq frame(LW1.0.3-)
+// 
+// `appeui`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appeui Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{16}$
+// ```
+// 
+// ## devaddr
+// 
+// Identifies the device in the current network
+// 
+// `devaddr`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### devaddr Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5B0-9a-f%5D%7B8%7D%24)):
+// 
+// ```regex
+// ^[0-9a-f]{8}$
+// ```
+// 
+// ## deveui
+// 
+// Is a global end-device ID that uniquely identifies the end-device
+// 
+// `deveui`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### deveui Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{16}$
+// ```
+// 
+// ## firmware
+// 
+// Current firmware version present in the device
+// 
+// `firmware`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### firmware Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## joineui
+// 
+// Uniquely identifies the entity able to process the JoinReq frame (LW1.0.4+)
+// 
+// `joineui`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### joineui Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{16}$
+// ```
+// 
+// ## label
+// 
+// The label is a field used to describe this end-device
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## lat
+// 
+// Latitude location of the device [°]
+// 
+// `lat`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lat Type
+// 
+// `number`
+// 
+// - minimum value: `-90`
+// - maximum value: `90`
+// 
+// ## lng
+// 
+// Longitude location of the device [°]
+// 
+// `lng`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lng Type
+// 
+// `number`
+// 
+// - minimum value: `-180`
+// - maximum value: `180`
+// 
+// ## model
+// 
+// The model describes the end-device model
+// 
+// `model`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### model Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## nwkSKey
+// 
+// Network Session Key used to ensure data integrity on the complete LoRaWAN frame
+// 
+// `nwkSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### nwkSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## serial
+// 
+// Serial number of the device
+// 
+// `serial`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### serial Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## type
+// 
+// Identifies if a device is ABP or OTAA
+// 
+// `type`
+// 
+// - is **required**
+// - type: `enum`
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#type-known-values).
+// 
+// ### type Known Values
+// 
+// | Value  | Description |
+// | ------ | ----------- |
+// | `ABP`  |  Activation-By-Personalization |           |
+// | `OTAA` |  Over-The-Air-Activation       |
+
+@name("Create Device")
+POST "{{protocol}}://{{host}}/api/v2/device"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"ApplicationId": {{apid}},
+	"DeviceProfileId": {{dpid}},
+	"deveui": "{{deveui}}",
+	"label":"{{label}}",
+	"type": "{{type}}",
+	"appKey": "{{appkey}}",
+	"appeui": "{{appeui}}"
+}')
+
+
+// This API allows to update the information of the own device identified by `{{did}}`.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change model or DeviceProfileId.
+// 
+// Based on `type=[ABP, OTAA]` or `Key` update, there are additional required properties:
+// 
+// | Property  | Type      | Required Keyword  |
+// | --------- | --------- | -----------------
+// | `type`    | `OTAA`      | appKey, appeui    |
+// | `type`    | `ABP`       | appSKey, nwkSKey, devaddr    |
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//    * If `type` is updated from `OTAA` to `ABP` (or vice-versa), there are other required information listed in the table on top
+//    * You need to set all the `Required Keyword` if you update only a single `properties` as written in the table on top. e.g if you update `appkey` you need to pass `appeui` and `type="OTAA"`
+// 
+// # Schema
+// ```
+// {
+// 	"type": "object",
+// 	"properties": {
+// 		"firmware": {
+// 			"type": "string",
+// 			"minLength": 1,
+// 			"maxLength": 255,
+// 			"description": "Current firmware version present in the device"
+// 		},
+// 		"label": {
+// 			"type": [
+// 				"number",
+// 				"string"
+// 			],
+// 			"minLength": 1,
+// 			"maxLength": 255,
+// 			"description": "The label is a field used to describe this end-device",
+// 			"pattern": "^[^,;.:?!/]{1,}$"
+// 		},
+// 		"alt": {
+// 			"type": "number",
+// 			"minimum": -7000,
+// 			"maximum": 7000,
+// 			"description": "Altitude location of the device [m]"
+// 		},
+// 		"lat": {
+// 			"type": "number",
+// 			"minimum": -90,
+// 			"maximum": 90,
+// 			"description": "Latitude location of the device [°]"
+// 		},
+// 		"lng": {
+// 			"type": "number",
+// 			"minimum": -180,
+// 			"maximum": 180,
+// 			"description": "Longitude location of the device [°]"
+// 		},
+// 		"model": {
+// 			"type": "string",
+// 			"minLength": 1,
+// 			"maxLength": 255,
+// 			"description": "Describes the end-device model"
+// 		},
+// 		"serial": {
+// 			"type": "string",
+// 			"minLength": 1,
+// 			"maxLength": 255,
+// 			"description": "Serial number of the device"
+// 		},
+// 		"DeviceProfileId": {
+// 			"type": "integer",
+// 			"minimum": 1,
+// 			"description": "Id of the device profile associated to this device"
+// 		},
+// 		"type": {
+// 			"type": "string",
+// 			"enum": [
+// 				"ABP",
+// 				"OTAA"
+// 			],
+// 			"description": "Identifies if a device is ABP or OTAA"
+// 		},
+// 		"appKey": {
+// 			"type": "string",
+// 			"pattern": "^[a-f0-9]{32}$",
+// 			"description": "Application Key is an AES-128 root key used to derive the session keys"
+// 		},
+// 		"appeui": {
+// 			"type": "string",
+// 			"pattern": "^[a-f0-9]{16}$",
+// 			"description": "Uniquely identifies the entity able to process the JoinReq frame(LW1.0.3-)"
+// 		},
+// 		"devaddr": {
+// 			"type": "string",
+// 			"pattern": "^[0-9a-f]{8}$",
+// 			"description": "Identifies the device in the current network"
+// 		},
+// 		"appSKey": {
+// 			"type": "string",
+// 			"pattern": "^[a-f0-9]{32}$",
+// 			"description": "Application Session Key used to encrypt and decrypt the applciation payload"
+// 		},
+// 		"nwkSKey": {
+// 			"type": "string",
+// 			"pattern": "^[a-f0-9]{32}$",
+// 			"description": "Network Session Key used to ensure data integrity on the complete LoRaWAN frame"
+// 		}
+// 	},
+// 	"anyOf": [
+// 		{
+// 			"required": [
+// 				"DeviceProfileId"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"serial"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"model"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"firmware"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"lng"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"lat"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"alt"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"label"
+// 			]
+// 		},
+// 		{
+// 			"required": [
+// 				"type"
+// 			]
+// 		}
+// 	],
+// 	"additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                            | Type      | Required | Nullable | Defined by    |
+// | ----------------------------------- | --------- | -------- | -------- | ------------- |
+// | [DeviceProfileId](#deviceprofileid) | `integer` | Optional | No       | (this schema) |
+// | [alt](#alt)                         | `number`  | Optional | No       | (this schema) |
+// | [appKey](#appkey)                   | `string`  | Optional | No       | (this schema) |
+// | [appSKey](#appskey)                 | `string`  | Optional | No       | (this schema) |
+// | [appeui](#appeui)                   | `string`  | Optional | No       | (this schema) |
+// | [devaddr](#devaddr)                 | `string`  | Optional | No       | (this schema) |
+// | [firmware](#firmware)               | `string`  | Optional | No       | (this schema) |
+// | [joineui](#joineui)                 | `string`  | Optional | No       | (this schema) |
+// | [label](#label)                     | `string`  | Optional | No       | (this schema) |
+// | [lat](#lat)                         | `number`  | Optional | No       | (this schema) |
+// | [lng](#lng)                         | `number`  | Optional | No       | (this schema) |
+// | [model](#model)                     | `string`  | Optional | No       | (this schema) |
+// | [nwkSKey](#nwkskey)                 | `string`  | Optional | No       | (this schema) |
+// | [serial](#serial)                   | `string`  | Optional | No       | (this schema) |
+// | [type](#type)                       | `enum`    | Optional | No       | (this schema) |
+// 
+// ## DeviceProfileId
+// 
+// Id of the device profile associated to this device
+// 
+// `DeviceProfileId`
+// 
+// - is optional
+// - type: `integer`
+// - defined in this schema
+// 
+// ### DeviceProfileId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## alt
+// 
+// Altitude location of the device [m]
+// 
+// `alt`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### alt Type
+// 
+// `number`
+// 
+// - minimum value: `-7000`
+// - maximum value: `7000`
+// 
+// ## appKey
+// 
+// Application Key is an AES-128 root key used to derive the session keys
+// 
+// `appKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## appSKey
+// 
+// Application Session Key used to encrypt and decrypt the applciation payload
+// 
+// `appSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## appeui
+// 
+// Uniquely identifies the entity able to process the JoinReq frame(LW1.0.3-)
+// 
+// `appeui`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appeui Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{16}$
+// ```
+// 
+// ## devaddr
+// 
+// Identifies the device in the current network
+// 
+// `devaddr`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### devaddr Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5B0-9a-f%5D%7B8%7D%24)):
+// 
+// ```regex
+// ^[0-9a-f]{8}$
+// ```
+// 
+// ## firmware
+// 
+// Current firmware version present in the device
+// 
+// `firmware`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### firmware Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## joineui
+// 
+// Uniquely identifies the entity able to process the JoinReq frame (LW1.0.4+)
+// 
+// `joineui`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### joineui Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B16%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{16}$
+// ```
+// 
+// ## label
+// 
+// The label is a field used to describe this end-device
+// 
+// `label`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## lat
+// 
+// Latitude location of the device [°]
+// 
+// `lat`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lat Type
+// 
+// `number`
+// 
+// - minimum value: `-90`
+// - maximum value: `90`
+// 
+// ## lng
+// 
+// Longitude location of the device [°]
+// 
+// `lng`
+// 
+// - is optional
+// - type: `number`
+// - defined in this schema
+// 
+// ### lng Type
+// 
+// `number`
+// 
+// - minimum value: `-180`
+// - maximum value: `180`
+// 
+// ## model
+// 
+// Describes the end-device model
+// 
+// `model`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### model Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## nwkSKey
+// 
+// Network Session Key used to ensure data integrity on the complete LoRaWAN frame
+// 
+// `nwkSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### nwkSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## serial
+// 
+// Serial number of the device
+// 
+// `serial`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### serial Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## type
+// 
+// Identifies if a device is ABP or OTAA
+// 
+// `type`
+// 
+// - is optional
+// - type: `enum`
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#type-known-values).
+// 
+// ### type Known Values
+// 
+// | Value  | Description |
+// | ------ | ----------- |
+// | `ABP`  |             |
+// | `OTAA` |             |
+
+@name("Update Device Information")
+PUT "{{protocol}}://{{host}}/api/v2/device/{{did}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label":"{{new-label}}"
+}')
+
+
+// This API allows to delete an existing device and all the relationship with other users if the device is shared with some user.
+// 
+// The device to delete is passed in the URL using the DeviceId as `{{did}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The device to delete is identified in the url by `{{did}}`
+//    * The possible responses are listed in the section on the right
+//    * If we delete a device, we delete also the relationship with all the other user. A friend user won't see anymore the device if we delete it
+
+@name("Remove Device")
+DELETE "{{protocol}}://{{host}}/api/v2/device/{{did}}"
+"Authorization": "Bearer {{token}}"
+
+
+

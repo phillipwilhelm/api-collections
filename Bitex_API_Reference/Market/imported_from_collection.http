@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// <div class="alert alert-danger">
+// 	<b>Experimental endpoint:</b> This endpoint may not be supported in further releases of the API. If your integration relies on it, please contact us at <a href="mailto:developers@bitex.la">developers@bitex.la</a> explaining your use case, in order to provide you with better support.
+// </div>
+
+@name("List Orderbooks")
+GET "https://{{domain}}/api/orderbooks"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// Show Tickers of all available markets
+
+@name("List Tickers")
+GET "https://{{domain}}/api/tickers"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// Get the ticker of a market.
+// See [List Tickers](#5760b8e3-6358-4b41-8217-66d3b0d53e8b) for possible :orderbook_code values.
+
+@name("Show Ticker")
+GET "https://{{domain}}/api/tickers/:orderbook_code"
+"Content-Type": "application/json"
+"Version": "2.0"
+
+
+// Get full information of market.
+// 
+// 
+// If you want only some of the fields provided, you can specify which fields to include by using the `include` query param. Possible values are: `bids`, `asks`, `transactions` and `candles`.
+// 
+// See the example to get only the orderbook data (bids and asks).
+// 
+// If you require more information other than the default, take a look at the endpoints `/api/markets/:orderbook_code/transactions` and `/api/markets/:orderbook_code/candles` respectively.
+// 
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec).
+
+@name("Show Market")
+GET "https://{{domain}}/api/markets/{orderbook_code}"
+"Content-Type": "application/json"
+"Version": "2.0"
+
+
+// Show last transactions of a given market.
+
+@name("List Market Transactions")
+GET "https://{{domain}}/api/transactions"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[orderbook_code]"= "{orderbook_code}"
+? "filter[from]"= "{hours}"
+
+
+// <div class="alert alert-danger">
+// 	<b>Experimental endpoint:</b> This endpoint may not be supported in further releases of the API. If your integration relies on it, please contact us at <a href="mailto:developers@bitex.la">developers@bitex.la</a> explaining your use case, in order to provide you with better support.
+// </div>
+// 
+// Get all transactions of a given market.
+// 
+// 
+// The response items have the following structure:
+// ```
+// [
+//     1542807208, //Timestamp
+//     3,          //ID
+//     124,        //Price
+//     0.07064516  //Amount
+// ]
+// ```
+// (The structure is not jsonapi compliant, in order to reduce bandwidth and to easily export it to a file.)
+// 
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+
+@name("List Market Transactions Archive")
+GET "https://{{domain}}/api/transactions/archive"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[orderbook_code]"= "{orderbook_code}"
+
+
+@name("Show Transaction")
+GET "https://{{domain}}/api/transactions/:id"
+"Content-Type": "application/json"
+"Version": "2.0"
+
+
+// Get candles for a given market.
+
+@name("List Market Candles")
+GET "https://{{domain}}/api/candles"
+"Content-Type": "application/json"
+"Version": "2.0"
+? "filter[orderbook_code]"= "{orderbook_code}"
+? "filter[days]"= "{days}"
+? "span"= "{span}"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+

@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+// Returns the attachments for a piece of content.
+// 
+// By default, the following objects are expanded: `metadata`.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to view the content. If the content is a blog post, 'View' permission
+// for the space is required.
+
+@name("Get attachments")
+GET "https://{{baseUrl}}/api/content/:id/child/attachment"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "start"= "0"
+? "limit"= "25"
+? "filename"= "<string>"
+? "mediaType"= "<string>"
+
+
+// Adds an attachment to a piece of content. This method only adds a new
+// attachment. If you want to update an existing attachment, use
+// [Create or update attachments](#api-content-id-child-attachment-put).
+// 
+// Note, you must set a `X-Atlassian-Token: nocheck` header on the request
+// for this method, otherwise it will be blocked. This protects against XSRF
+// attacks, which is necessary as this method accepts multipart/form-data.
+// 
+// The media type 'multipart/form-data' is defined in [RFC 1867](https://www.ietf.org/rfc/rfc1867.txt).
+// Most client libraries have classes that make it easier to implement
+// multipart posts, like the [MultiPartEntity](http://hc.apache.org/httpcomponents-client-ga/httpmime/apidocs/org/apache/http/entity/mime/MultipartEntity.html)
+// Java class provided by Apache HTTP Components.
+// 
+// Example: This curl command attaches a file ('example.txt') to a container
+// (id='123') with a comment and `minorEdits`=true.
+// 
+// ``` bash
+// curl -D- \
+//   -u admin:admin \
+//   -X POST \
+//   -H "X-Atlassian-Token: nocheck" \
+//   -F "file=@example.txt" \
+//   -F "minorEdit=true" \
+//   -F "comment=Example attachment comment" \
+//   http://myhost/rest/api/content/123/child/attachment
+// ```
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to update the content.
+
+@name("Create attachment")
+POST "https://{{baseUrl}}/api/content/:id/child/attachment"
+"Content-Type": "multipart/form-data"
+? "status"= "current"
+files(
+	("file", "<binary>"),
+	("minorEdit", "<binary>"),
+	("comment", "<binary>")
+)
+
+
+// Adds an attachment to a piece of content. If the attachment already exists
+// for the content, then the attachment is updated (i.e. a new version of the
+// attachment is created).
+// 
+// Note, you must set a `X-Atlassian-Token: nocheck` header on the request
+// for this method, otherwise it will be blocked. This protects against XSRF
+// attacks, which is necessary as this method accepts multipart/form-data.
+// 
+// The media type 'multipart/form-data' is defined in [RFC 1867](https://www.ietf.org/rfc/rfc1867.txt).
+// Most client libraries have classes that make it easier to implement
+// multipart posts, like the [MultiPartEntity](http://hc.apache.org/httpcomponents-client-ga/httpmime/apidocs/org/apache/http/entity/mime/MultipartEntity.html)
+// Java class provided by Apache HTTP Components.
+// 
+// Example: This curl command attaches a file ('example.txt') to a piece of
+// content (id='123') with a comment and `minorEdits`=true. If the 'example.txt'
+// file already exists, it will update it with a new version of the attachment.
+// 
+// ``` bash
+// curl -D- \
+//   -u admin:admin \
+//   -X PUT \
+//   -H "X-Atlassian-Token: nocheck" \
+//   -F "file=@example.txt" \
+//   -F "minorEdit=true" \
+//   -F "comment=Example attachment comment" \
+//   http://myhost/rest/api/content/123/child/attachment
+// ```
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to update the content.
+
+@name("Create or update attachment")
+PUT "https://{{baseUrl}}/api/content/:id/child/attachment"
+"Content-Type": "multipart/form-data"
+? "status"= "current"
+files(
+	("file", "<binary>"),
+	("minorEdit", "<binary>"),
+	("comment", "<binary>")
+)
+
+
+

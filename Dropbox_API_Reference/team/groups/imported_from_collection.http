@@ -1,0 +1,237 @@
+#!/usr/bin/env dothttp
+
+// [groups/create](https://www.dropbox.com/developers/documentation/http/teams#team-groups-create)
+// 
+// scope: `groups.write`
+// 
+// Creates a new, empty group, with a requested name.
+// Permission : Team member management.
+
+@name("groups/create")
+POST "https://api.dropboxapi.com/2/team/groups/create"
+"Content-Type": "application/json"
+data('{
+    "group_name": "Europe sales", 
+    "add_creator_as_owner": false, 
+    "group_external_id": "group-134"
+}')
+
+
+// [groups/delete](https://www.dropbox.com/developers/documentation/http/teams#team-groups-delete)
+// 
+// scope: `groups.write`
+// 
+// Deletes a group.
+// The group is deleted immediately. However the revoking of group-owned resources may take additional time. Use the `groups/job_status/get` to determine whether this process has completed.
+// Permission : Team member management.
+
+@name("groups/delete")
+POST "https://api.dropboxapi.com/2/team/groups/delete"
+"Content-Type": "application/json"
+data('{
+    ".tag": "group_id", 
+    "group_id": "g:e2db7665347abcd600000000001a2b3c"
+}')
+
+
+// [groups/get_info](https://www.dropbox.com/developers/documentation/http/teams#team-groups-get_info)
+// 
+// scope: `groups.read`
+// 
+// Retrieves information about one or more groups. Note that the optional field  `GroupFullInfo.members` is not returned for system-managed groups.
+// Permission : Team Information.
+
+@name("groups/get_info")
+POST "https://api.dropboxapi.com/2/team/groups/get_info"
+"Content-Type": "application/json"
+data('{
+    ".tag": "group_ids", 
+    "group_ids": [
+        "g:e2db7665347abcd600000000001a2b3c", 
+        "g:111111147abcd6000000000222222c"
+    ]
+}')
+
+
+// [groups/job_status/get](https://www.dropbox.com/developers/documentation/http/teams#team-groups-job_status-get)
+// 
+// scope: `groups.write`
+// 
+// Once an async_job_id is returned from `groups/delete`, `groups/members/add` , or `groups/members/remove` use this method to poll the status of granting/revoking group members' access to group-owned resources.
+// Permission : Team member management.
+
+@name("groups/job_status/get")
+POST "https://api.dropboxapi.com/2/team/groups/job_status/get"
+"Content-Type": "application/json"
+data('{
+    "async_job_id": "34g93hh34h04y384084"
+}')
+
+
+// [groups/list](https://www.dropbox.com/developers/documentation/http/teams#team-groups-list)
+// 
+// scope: `groups.read`
+// 
+// Lists groups on a team.
+// Permission : Team Information.
+
+@name("groups/list")
+POST "https://api.dropboxapi.com/2/team/groups/list"
+"Content-Type": "application/json"
+data('{
+    "limit": 100
+}')
+
+
+// [groups/list/continue](https://www.dropbox.com/developers/documentation/http/teams#team-groups-list-continue)
+// 
+// scope: `groups.read`
+// 
+// Once a cursor has been retrieved from `groups/list`, use this to paginate through all groups.
+// Permission : Team Information.
+
+@name("groups/list/continue")
+POST "https://api.dropboxapi.com/2/team/groups/list/continue"
+"Content-Type": "application/json"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu"
+}')
+
+
+// [groups/members/add](https://www.dropbox.com/developers/documentation/http/teams#team-groups-members-add)
+// 
+// scope: `groups.write`
+// 
+// Adds members to a group.
+// The members are added immediately. However the granting of group-owned resources may take additional time. Use the `groups/job_status/get` to determine whether this process has completed.
+// Permission : Team member management.
+
+@name("groups/members/add")
+POST "https://api.dropboxapi.com/2/team/groups/members/add"
+"Content-Type": "application/json"
+data('{
+    "group": {
+        ".tag": "group_id", 
+        "group_id": "g:e2db7665347abcd600000000001a2b3c"
+    }, 
+    "members": [
+        {
+            "user": {
+                ".tag": "team_member_id", 
+                "team_member_id": "dbmid:efgh5678"
+            }, 
+            "access_type": "member"
+        }
+    ], 
+    "return_members": true
+}')
+
+
+// [groups/members/list](https://www.dropbox.com/developers/documentation/http/teams#team-groups-members-list)
+// 
+// scope: `groups.read`
+// 
+// Lists members of a group.
+// Permission : Team Information.
+
+@name("groups/members/list")
+POST "https://api.dropboxapi.com/2/team/groups/members/list"
+"Content-Type": "application/json"
+data('{
+    "group": {
+        ".tag": "group_id", 
+        "group_id": "g:e2db7665347abcd600000000001a2b3c"
+    }, 
+    "limit": 100
+}')
+
+
+// [groups/members/list/continue](https://www.dropbox.com/developers/documentation/http/teams#team-groups-members-list-continue)
+// 
+// scope: `groups.read`
+// 
+// Once a cursor has been retrieved from `groups/members/list`, use this to paginate through all members of the group.
+// Permission : Team information.
+
+@name("groups/members/list/continue")
+POST "https://api.dropboxapi.com/2/team/groups/members/list/continue"
+"Content-Type": "application/json"
+data('{
+    "cursor": "ZtkX9_EHj3x7PMkVuFIhwKYXEpwpLwyxp9vMKomUhllil9q7eWiAu"
+}')
+
+
+// [groups/members/remove](https://www.dropbox.com/developers/documentation/http/teams#team-groups-members-remove)
+// 
+// scope: `groups.write`
+// 
+// Removes members from a group.
+// The members are removed immediately. However the revoking of group-owned resources may take additional time. Use the `groups/job_status/get` to determine whether this process has completed.
+// This method permits removing the only owner of a group, even in cases where this is not possible via the web client.
+// Permission : Team member management.
+
+@name("groups/members/remove")
+POST "https://api.dropboxapi.com/2/team/groups/members/remove"
+"Content-Type": "application/json"
+data('{
+    "group": {
+        ".tag": "group_id", 
+        "group_id": "g:e2db7665347abcd600000000001a2b3c"
+    }, 
+    "users": [
+        {
+            ".tag": "team_member_id", 
+            "team_member_id": "dbmid:efgh5678"
+        }
+    ], 
+    "return_members": true
+}')
+
+
+// [groups/members/set_access_type](https://www.dropbox.com/developers/documentation/http/teams#team-groups-members-set_access_type)
+// 
+// scope: `groups.write`
+// 
+// Sets a member's access type in a group.
+// Permission : Team member management.
+
+@name("groups/members/set_access_type")
+POST "https://api.dropboxapi.com/2/team/groups/members/set_access_type"
+"Content-Type": "application/json"
+data('{
+    "group": {
+        ".tag": "group_id", 
+        "group_id": "g:e2db7665347abcd600000000001a2b3c"
+    }, 
+    "user": {
+        ".tag": "team_member_id", 
+        "team_member_id": "dbmid:efgh5678"
+    }, 
+    "access_type": "member", 
+    "return_members": true
+}')
+
+
+// [groups/update](https://www.dropbox.com/developers/documentation/http/teams#team-groups-update)
+// 
+// scope: `groups.write`
+// 
+// Updates a group's name and/or external ID.
+// Permission : Team member management.
+
+@name("groups/update")
+POST "https://api.dropboxapi.com/2/team/groups/update"
+"Content-Type": "application/json"
+data('{
+    "group": {
+        ".tag": "group_id", 
+        "group_id": "g:e2db7665347abcd600000000001a2b3c"
+    }, 
+    "return_members": true, 
+    "new_group_name": "Europe west sales", 
+    "new_group_external_id": "sales-234", 
+    "new_group_management_type": "company_managed"
+}')
+
+
+

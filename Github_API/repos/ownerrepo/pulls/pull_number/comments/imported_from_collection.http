@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// Lists all review comments for a pull request. By default, review comments are in ascending order by ID.
+
+@name("List review comments on a pull request")
+GET "https://{{baseUrl}}/repos/:owner/:repo/pulls/:pull_number/comments"
+? "sort"= "created"
+? "direction"= "<string>"
+? "since"= "<string>"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// 
+// Creates a review comment in the pull request diff. To add a regular comment to a pull request timeline, see "[Create an issue comment](https://docs.github.com/rest/reference/issues#create-an-issue-comment)." We recommend creating a review comment using `line`, `side`, and optionally `start_line` and `start_side` if your comment applies to more than one line in the pull request diff.
+// 
+// You can still create a review comment using the `position` parameter. When you use `position`, the `line`, `side`, `start_line`, and `start_side` parameters are not required. For more information, see the [`comfort-fade` preview notice](https://docs.github.com/rest/reference/pulls#create-a-review-comment-for-a-pull-request-preview-notices).
+// 
+// **Note:** The position value equals the number of lines down from the first "@@" hunk header in the file you want to add a comment. The line just below the "@@" line is position 1, the next line is position 2, and so on. The position in the diff continues to increase through lines of whitespace and additional hunks until the beginning of a new file.
+// 
+// This endpoint triggers [notifications](https://docs.github.com/en/github/managing-subscriptions-and-notifications-on-github/about-notifications). Creating content too quickly using this endpoint may result in abuse rate limiting. See "[Abuse rate limits](https://docs.github.com/rest/overview/resources-in-the-rest-api#abuse-rate-limits)" and "[Dealing with abuse rate limits](https://docs.github.com/rest/guides/best-practices-for-integrators#dealing-with-rate-limits)" for details.
+
+@name("Create a review comment for a pull request")
+POST "https://{{baseUrl}}/repos/:owner/:repo/pulls/:pull_number/comments"
+"Content-Type": "application/json"
+data('{
+    "body": "<string>",
+    "path": "<string>",
+    "commit_id": "<string>",
+    "position": "<integer>",
+    "side": "<string>",
+    "line": "<integer>",
+    "start_line": "<integer>",
+    "start_side": "<string>",
+    "in_reply_to": "<integer>"
+}')
+
+
+// Creates a reply to a review comment for a pull request. For the `comment_id`, provide the ID of the review comment you are replying to. This must be the ID of a _top-level review comment_, not a reply to that comment. Replies to replies are not supported.
+// 
+// This endpoint triggers [notifications](https://docs.github.com/en/github/managing-subscriptions-and-notifications-on-github/about-notifications). Creating content too quickly using this endpoint may result in abuse rate limiting. See "[Abuse rate limits](https://docs.github.com/rest/overview/resources-in-the-rest-api#abuse-rate-limits)" and "[Dealing with abuse rate limits](https://docs.github.com/rest/guides/best-practices-for-integrators#dealing-with-rate-limits)" for details.
+
+@name("Create a reply for a review comment")
+POST "https://{{baseUrl}}/repos/:owner/:repo/pulls/:pull_number/comments/:comment_id/replies"
+"Content-Type": "application/json"
+data('{
+    "body": "<string>"
+}')
+
+
+

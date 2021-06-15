@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+// One of the ways to import content to your project is to send a PUT request to the `<cmApiUrl>/items/external-id/<your item ID>` endpoint.
+// 
+// In the body of the request, specify these properties:
+// 
+// * `name` – string with a display name of the new content item.
+// * `type` – reference to a content type.
+// * (Optional) `sitemap_locations` – array of references to sitemap locations.
+// 
+// See <https://docs.kontent.ai/tutorials/set-up-projects/migrate-content/importing-to-kentico-kontent#a-1--creating-a-content-item> for more details.
+
+@name("Creating a content item")
+PUT "https://manage.kontent.ai/v1/projects/:project_id/items/external-id/ext-cafe-brno-59713"
+"Content-Type": "application/json"
+data('{
+    "name": "Brno",
+    "type": {
+       "codename": "cafe"
+    },
+    "sitemap_locations": [
+    	{
+      	"codename":"cafes"
+    	},
+    	{
+   	 "codename":"europe"
+   	}
+  ]
+}')
+
+
+// Add content in a specific language to your new content item by performing an upsert.
+// 
+// * In the request URL, you need to specify the content item you are importing to (for example, `/items/external-id/ext-cafe-brno-59713`) and the language of the variant (for example, `/variants/codename/en-US`).
+// * The request body must contain the `elements` object in which you specify only the content elements you want to update. Omitted elements will remain unchanged.
+// 
+// See <https://docs.kontent.ai/tutorials/set-up-projects/migrate-content/importing-to-kentico-kontent#a-2--adding-localized-content> for more details.
+
+@name("Adding localized content")
+PUT "https://manage.kontent.ai/v1/projects/:project_id/items/external-id/ext-cafe-brno-59713/variants/codename/en-US"
+"Content-Type": "application/json"
+data(' {
+  "elements": {
+    "street":"Nove Sady 25",
+    "city":"Brno",
+    "country":"Czech Republic",
+    "state":"Jihomoravsky kraj",
+    "zip_code":"60200",
+    "phone":"+420 444 444 444",
+    "email":"brnocafe@kentico.com"
+  }
+}')
+
+
+

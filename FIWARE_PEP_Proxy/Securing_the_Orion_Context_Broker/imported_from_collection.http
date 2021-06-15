@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// Secured Access can be ensured by requiring all requests to the secured service are made indirectly via a PEP Proxy (in this case the PEP Proxy is found in front of the Context Broker). Requests must include an `X-Auth-Token`, failure to present a valid token results in a denial of access.
+// 
+// if a request to the PEP Proxy is made without any access token as shown, the response is a **401 Unauthorized** error code, with a text explanation.
+
+@name("PEP Proxy - No Access to Orion without an Access Token")
+GET "http://localhost/v2/entities/"
+"X-Auth-Token": "{{X-Access-token}}"
+
+
+
+// To log in to an application using the user-credentials flow send a POST request to the `oauth2/token` endpoint with the `grant_type=password`
+// 
+// The response returns an `access_code` to identify the user.
+// 
+// An `access_code` can also be done by entering the Tutorial Application on http:/localhost and logging in using any of the OAuth2 grants
+// on the page. A successful log-in will return an access token.
+
+@name("Keyrock - User Obtains an Access Token")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=alice-the-admin@test.com&password=test&grant_type=password')
+
+
+// If a request to the PEP Proxy is made including a valid access token in the `X-Auth-Token` header as shown, the request
+// is permitted and the service behind the PEP Proxy (in this case the Orion Context Broker) will return the data as
+// expected.
+
+@name("PEP Proxy - Accessing Orion with an Access Token")
+GET "http://localhost/v2/entities/"
+"X-Auth-Token": "{{X-Access-token}}"
+
+
+
+// The standard  `Authorization: Bearer` header can also be used to identity the user,
+// the request from an authorized user is permitted and the service behind the PEP Proxy (in this case the Orion Context Broker) will return the data as
+// expected.
+
+@name("PEP Proxy - Accessing Orion with a Bearer Auth Token")
+GET "http://localhost/v2/entities/"
+"X-Auth-Token": "{{X-Access-token}}"
+
+
+// If a request to the PEP Proxy is made including a valid access token in the `X-Auth-Token` header as shown, the request
+// is permitted and the service behind the PEP Proxy (in this case the Orion Context Broker) will return the data as
+// expected.
+
+@name("PEP Proxy - Accessing Orion with an Access Token Copy")
+GET "http://localhost/v2/entities/"
+"X-Auth-Token": "{{X-Access-token}}"
+
+
+

@@ -1,0 +1,216 @@
+#!/usr/bin/env dothttp
+
+// Create campaign with one voucher without redemption limit
+
+@name("Create auto-update campaign")
+POST "https://{{url}}/campaigns"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "{{campaign-name}}",
+    "type": "AUTO_UPDATE",
+    "vouchers_count": 1,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+         "redemption": {
+          "quantity": 1
+      },
+        "code_config": {
+            "pattern": "TC3-PROMO-#######"
+        }
+    }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Publish")
+POST "https://{{url}}/vouchers/publish"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "campaign": "{{campaign-name}}",
+  "channel": "MailChimp",
+  "customer": {
+    "source_id": "test-user@voucherify.io",
+    "email": "test-user@voucherify.io",
+    "name": "Test User"
+  }
+}')
+
+
+@name("Publish (v2017-01-01)")
+POST "https://{{url}}/vouchers/publish"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-01-01"
+data('{
+  "campaign": "{{campaign-name}}",
+  "channel": "MailChimp",
+  "customer": {
+    "source_id": "test-user@voucherify.io",
+    "email": "test-user@voucherify.io",
+    "name": "Test User"
+  }
+}')
+
+
+@name("Publish (client side)")
+POST "https://{{clientUrl}}/publish"
+"X-Client-Application-Id": "{{X-Client-Application-Id}}"
+"X-Client-Token": "{{X-Client-Token}}"
+"Content-Type": "application/json"
+"Origin": "origin"
+data('{
+  "campaign": "{{campaign-name}}",
+  "channel": "MailChimp",
+  "customer": {
+    "source_id": "test-user@voucherify.io",
+    "email": "test-user@voucherify.io",
+    "name": "Test User"
+  }
+}')
+
+
+@name("Create Export")
+POST "https://{{url}}/exports"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "exported_object": "publication",
+  "parameters" : {
+    "fields": ["voucher_code", "channel", "date", "campaign"],
+    "filters" : {
+      "campaign_name" : {
+        "conditions" : {
+          "$is" : ["{{campaign-name}}"]
+        }
+      }
+    }
+  }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Get Export")
+GET "https://{{url}}/exports/{{export-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+ "exported_object": "voucher",
+  "parameters" : {
+    "filter" : {
+      "categories" : {
+        "conditions" : {
+          "$in" : ["postman"]
+        }
+      }
+    }
+  }
+}')
+
+
+@name("[S3] Fetch exported publication CSV")
+GET "https://{{exported-publication-url}}/"
+data('{
+ "exported_object": "voucher",
+  "parameters" : {
+    "filter" : {
+      "categories" : {
+        "conditions" : {
+          "$in" : ["postman"]
+        }
+      }
+    }
+  }
+}')
+
+
+@name("List Publications filters")
+GET "https://{{url}}/publications"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "filters[campaign_name][conditions][$is][0]"= "{{campaign-name}}"
+
+
+
+@name("Delete Export")
+DELETE "https://{{url}}/exports/{{export-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Delete campaign")
+DELETE "https://{{url}}/campaigns/{{campaign-name}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "force"= "true"
+
+
+
+@name("Publish - not existing campaign")
+POST "https://{{url}}/vouchers/publish"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "campaign": "{{campaign-name}}",
+    "channel": "MailChimp",
+    "customer": {
+      "source_id": "test-user@voucherify.io",
+      "email": "test-user@voucherify.io",
+      "name": "Test User"
+  }
+}')
+
+
+@name("Get export - faiure")
+GET "https://{{url}}/exports/{{export-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+ "exported_object": "voucher",
+  "parameters" : {
+    "filter" : {
+      "categories" : {
+        "conditions" : {
+          "$in" : ["postman"]
+        }
+      }
+    }
+  }
+}')
+
+
+

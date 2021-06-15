@@ -1,0 +1,241 @@
+#!/usr/bin/env dothttp
+
+// Gets the list of all cards associated with a wallet.
+
+@name("List cards of consumer")
+GET "https://{{API_BASE_URL}}/wallets/:walletId/cards/"
+? "skip"= "0"
+? "limit"= "25"
+
+
+// Retrieves more informations about a single card, including the raw card data and the [card phases](https://developers.bitcapital.com.br/docs/card-phases)
+// 
+// <br />
+// 
+// ### Body Schema
+// 
+// 
+// ```
+// {
+//     "id": "d4b130a4-5080-4a11-ade3-91d7d7de08d6",
+//     "virtual": true, //type of card true for virtual or false for physical
+//     "status": "available",  // card status of PLATFORM
+//     "updatedAt": "2021-03-26T17:22:25.335Z",
+//     "createdAt": "2021-03-26T17:16:19.841Z",
+//     "asset": "BRLD", //asset of card
+//     "raw": {
+//         "cardNumber": "4329570176226023", //full card number. (Needs compliance adjust in fornt development)
+//         "expirationDate": "2030-01-01T00:00:00.000Z",
+//         "securityCode": "682", //cvv number  . (Needs compliance adjust in fornt development)
+//          "holderName": "CARDHOLDER NAME", // name of consumer
+//         "cardStatus": "Normal", //card status of EMISSOR
+//         "phase": "other" //default value
+//     }
+// }
+// ```
+// <br />
+// 
+// #### What's difference about `cardStatus`and `status` in the payload?
+// 
+// - `cardStatus` is the status of card in the emissor of card
+// - `status` is the status of card in the platform.
+// 
+// 
+// The `consumer` has the right to block his card if he wishes.This lock changes the status of the platform.
+// 
+// The `mediator` has the permission to block a card of `consumer`, if there is a reason, or if his compliance requires it.
+// 
+// The card issuer has the right to block the card of `consumer` if necessary, according to his due diligence team.
+
+@name("Open a card")
+GET "https://{{API_BASE_URL}}/wallets/:walletId/cards/:cardId"
+
+
+// Gets the list of transactions associated with a card.
+// 
+// > This endpoint runs only in `Core V2`.
+// 
+// > This endpoint is deprecated in `Core V3`
+
+@name("Card payments")
+GET "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/payments"
+
+
+// Activate a new card.
+
+@name("Change card password")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/password"
+"Content-Type": "application/json"
+data('{
+	"password": "1234"
+}')
+
+
+// ### Important information
+// 
+// Before a physical card is issued, the Bit Capital partner(mediator) must be aware that when issuing a card, **the card will automatically go into production at the embosser** and the costs applicable to these services must have been previously agreed with the card embossing partner. For more information, do not hesitate to contact the operations team at our [Help Desk](http://help.bitcapital.com.br/).
+// 
+// #### What is `plasticId` ?
+// 
+// Each embossed card model has a `placticId` number. If you want to emboss more than one model to offer to your consumers, then each card model will have a different `placticId`.
+// 
+// When issuing a card through the endpoint, it is necessary to inform which model you want to issue. Make sure that the informed plasticId is correct. Once issued, it is not possible to cancel.
+
+@name("Emit physical card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/physical"
+"Content-Type": "application/json"
+data('{
+    "asset": "BRLD", //asset of card emissor
+    "plasticId": 00 //  IMPORTANT! 00 means the number of your "plasticId". To get your number of plasticId please contact the Operations Team at Help Desk or your Bit Capital\'s representant.
+}')
+
+
+// Emit a virtual card.
+
+@name("Emit virtual card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/virtual"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+data('{
+	"expirationDate": "2030-01-01T00:00:00.000Z", // for PCI rules max 5 years must be set
+	"asset": "BRLD" // must be BRLD 
+}')
+
+
+// Locking a card is a recoverable process.
+// 
+// If your compliance team decides to block a card to investigate any cases of suspected fraud or due diligence, it is possible to do so in a simple way.
+// In the same way, the card administrator will also be able to proactively execute the temporary preventive blocking of the card in case of any due diligence alert.
+
+@name("Block a card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/block"
+"Content-Type": "application/json"
+data('{
+	"password": "1234", //must be the actual password of the card
+	"comment": "Here you can type any comments about it." // Ex:(Required by consumer),(Compliance requirement), (temporary block)
+}')
+
+
+// ##### important to know
+// 
+// > Unblock a card **is not a activation** of a card.
+// 
+// 
+// > Unblock a card is an event that undoes the card lock at "Black a card" endpoint.
+
+@name("Unblock a card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/unblock"
+"Content-Type": "application/json"
+data('{
+	"password": "1234" //must be the actual password of the card
+}')
+
+
+// **GHERKIN for Virtual Cards**
+// ```
+// GIVEN consumer posses a virtual card number
+// GIVEN the card has never been unblocked yet
+// WHEN the actor performs the endpoint
+// THEN the response should have a field status:avaliable 
+// AND the response should be 200
+// ```
+// <br />
+// 
+// **GHERKIN for Phsycal Cards**
+// ```
+// GIVEN consumer has received you physical card
+// GIVEN consumer posses a physical card
+// GIVEN the card has never been unblocked yet
+// WHEN the actor performs the endpoint
+// THEN the response should have a field status:avaliable 
+// AND the response should be 200
+// ```
+
+@name("Activate a card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/activate"
+"Content-Type": "application/json"
+data('{
+	"password": "1234", // must be the last 4 numbers of card
+    "asset": "BRLD" // the asset of card emissor
+
+}')
+
+
+// > Cancel card is a unrecoverable event.
+// 
+// Cancels a card, whether a Virtual or a Physical one. When setting the "Body" in the **reasons** put one of the below numbers, according to the reason of the cancelling.
+// 
+// 
+// `GHERKIN` 
+// ```
+// GIVEN the actor has a reason to cancel a card
+// WHEN the actor performs the endpoint
+// THEN the response should have a field status:canceled 
+// AND the response should be 200
+// ```
+// 
+// <br />
+// 
+// #### Reasons to cancel a card
+// 
+// | comment | reason | 
+// | --- | --- | 
+// | `COMMON` | 3 | 
+// | `LOST` | 4 |
+// | `THEFT` | 5 | 
+// | `CLIENT` | 6 |
+// | `BANK` | 7 | 
+// | `STRAYED` | 8 | 
+// | `DAMAGED` | 9 |  
+// | `SUSPECTED_FAKE` | 12 | 
+// | `STRIPE` | 10 | 
+// | `EMBOSSING` | 11 |
+// | `RETURNED_MAIL` | 13 | 
+// | `DECEASED_TITULAR` | 14 |
+// | `DEACTIVATED` | 15 |
+// | `EXPIRED` | 16 |
+
+@name("Cancel a card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/:id/cancel"
+"Content-Type": "application/json"
+data('{
+    "reason": 9, //see full list of all reasons at page
+   "comment": "Card Damaged" //see full list of all reasons at page
+}')
+
+
+// #### Important information
+// 
+// > The new cardholder name will only be available on the next physical card issued.
+
+@name("Change printed name")
+POST "https://{{API_BASE_URL}}/users/:id"
+"Content-Type": "application/json"
+data('{
+    "id": "d4b130a4-5080-4a11-ade3-91d7d7de08d6", //walletID
+    "extra": {
+        "printedName": "NEW CARDHOLDER NAME" //max 21 characters | Upper case only
+    }
+}')
+
+
+// ### NO-NAMED CARD
+// 
+// It is a physical card but with no named embossed. It is a generic card, functional but not yet activated. All no-named cards is a blocked card by default. It is already registered in provider but not works until your unblock.
+// <br />
+// ### How to unblock your no-named card?
+// 
+// Depending on the number of embossed no-named cards, it is possible that we have some cards with the last 4 digits repeated. For this, **we recommend unblocking the card with at least 6 characters**, which would increase the chances of the numbers not being repeated. 
+// To unblock a no-named card, it is necessary to inform at least the last 6 numbers 6 to 14 numbers can be entered for unblocking.
+// <br />
+
+@name("Unblock a no-named card")
+POST "https://{{API_BASE_URL}}/wallets/:walletId/cards/code"
+"Content-Type": "application/json"
+data('{
+    "unblockCode": 123456 // unlockCode must have a length between 6 and 16 characters.
+}')
+
+
+

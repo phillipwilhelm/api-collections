@@ -1,0 +1,115 @@
+#!/usr/bin/env dothttp
+
+@name("List Release Definitions")
+GET "https://vsrm.dev.azure.com/{{organization}}/{{projectID}}/_apis/release/definitions"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+// token: PROJECT_ID
+
+@name("Edit Release Security Root")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{releaseSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\\user@company.com",
+            "allow": 0,
+            "deny": 64,
+            "extendedInfo": {
+                "effectiveAllow": 0,
+                "effectiveDeny": 64,
+                "inheritedAllow": 0,
+                "inheritedDeny": 64
+            }
+        }
+    ]
+})
+
+
+@name("Remove Release Security at Root")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/{{releaseSecurityNamespace}}/{{permissions}}"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+
+
+// token: PROJECT_ID/RELEASE_DEFINITION_ID
+
+@name("Edit Release Security Given ID")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{releaseSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx/1",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 0,
+            "deny": 64,
+            "extendedInfo": {
+                "effectiveAllow": 64,
+                "effectiveDeny": 0,
+                "inheritedAllow": 64,
+                "inheritedDeny": 0
+            }
+        }
+    ]
+})
+
+
+@name("Remove Release Security given ID")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/{{releaseSecurityNamespace}}/{{permissions}}"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx!"
+
+
+// token: PROJECT_ID/FOLDER_NAME
+
+@name("Edit Release Security Given Folder")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{releaseSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx/Release Folder",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 0,
+            "deny": 64,
+            "extendedInfo": {
+                "effectiveAllow": 0,
+                "effectiveDeny": 64,
+                "inheritedAllow": 0,
+                "inheritedDeny": 64
+            }
+        }
+    ]
+})
+
+
+@name("Remove Release Security given Folder")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/{{releaseSecurityNamespace}}/{{permissions}}"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx/Release Folder"
+
+
+@name("Get ACLs ")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{releaseSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "token"= "4313b221-xxxx-4f6a-838d-aeff90b0xxxx"
+? "descriptors"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com"
+? "includeExtendedInfo"= "{includeExtendedInfo}"
+? "recurse"= "true"
+? "api-version"= "5.1"
+
+
+

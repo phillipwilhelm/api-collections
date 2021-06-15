@@ -1,0 +1,64 @@
+#!/usr/bin/env dothttp
+
+// To retrieve a series of **Shelf** entities, the `ngsiLD.listEntities()` function is called. It is important to retrieve
+// the current context before amending it, so the `q` parameter is used to only retrieve a shelf from the correct store
+// containing the correct product. This request is only possible because the **Shelf** data model has been designed to hold
+// _relationships_ with both **Building** and **Product**.
+// 
+// ```javascript
+// const shelf = await ngsiLD.listEntities(
+//     {
+//         type: "Shelf",
+//         options: "keyValues",
+//         attrs: "stocks,numberOfItems",
+//         q: 'numberOfItems>0;locatedIn=="' + req.body.storeId + '";stocks=="' + req.body.productId + '"',
+//         limit: 1
+//     },
+//     headers
+// );
+// ```
+
+@name("Find a shelf stocking a product")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Content-Type": "application/ld+json"
+"Accept": "application/json"
+? "type"= "Shelf"
+? "options"= "keyValues"
+? 'q'= 'numberOfItems>0;locatedIn=="urn:ngsi-ld:Building:store001";stocks=="urn:ngsi-ld:Product:001"'
+
+
+// To update an entity a PATCH request is made using the id of the **Shelf** returned in the previous request
+// 
+// ```javascript
+// const count = shelf[0].numberOfItems - 1;
+// await ngsiLD.updateAttribute(
+//     shelf[0].id,
+//     { numberOfItems: { type: "Property", value: count } },
+//     ngsiLD.setHeaders(req.session.access_token, LinkHeader)
+// );
+// ```
+// 
+// The asynchronous PATCH request is found in the `updateAttribute()` function within the `lib/ngsi-ld.js` library file
+// 
+// ```javascript
+// function updateAttribute(entityId, body, headers = {}) {
+//     return request({
+//         url: BASE_PATH + "/entities/" + entityId + "/attrs",
+//         method: "PATCH",
+//         body,
+//         headers,
+//         json: true
+//     });
+// }
+// ```
+
+@name("Update the state of a shelf")
+PATCH "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Shelf:unit001/attrs"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{ "numberOfItems": { "type": "Property", "value": 9 } }')
+
+
+

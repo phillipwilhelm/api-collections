@@ -1,0 +1,447 @@
+#!/usr/bin/env dothttp
+
+// Using either an invite id or hash/data pair from an email invite link, add a user to a team.
+// ##### Permissions
+// Must be authenticated.
+
+@name("Add user to team from invite")
+POST "https://{{baseURL}}/teams/members/invite"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+? "invite_id"= "{{invite_id}}"
+
+
+
+// Get a team stats on the system.
+// ##### Permissions
+// Must be authenticated and have the `view_team` permission.
+
+@name("Get a team stats")
+GET "https://{{baseURL}}/teams/{{team_id}}/stats"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Add a number of users to the team by user_id.
+// ##### Permissions
+// Must be authenticated. Authenticated user must have the `add_user_to_team` permission.
+
+@name("Add multiple users to team")
+POST "https://{{baseURL}}/teams/{{team_id}}/members/batch"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('[{"team_id":"{{team_id}}","user_id":"fadfo4ogwf8xfqb7mg4btqm95h"}]')
+
+
+// Gets channel from the provided team id and channel name strings.
+// ##### Permissions
+// `read_channel` permission for the channel.
+
+@name("Get a channel by name")
+GET "https://{{baseURL}}/teams/{{team_id}}/channels/name/{{channel_name}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Get a team member on the system.
+// ##### Permissions
+// Must be authenticated and have the `view_team` permission.
+
+@name("Get a team member")
+GET "https://{{baseURL}}/teams/{{team_id}}/members/{{user_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Check if the team exists based on a team name.
+
+@name("Check if team exists")
+GET "https://{{baseURL}}/teams/name/{{name}}/exists"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Soft deletes a team, by marking the team as deleted in the database. Soft deleted teams will not be accessible in the user interface.
+// 
+// Optionally use the permanent query parameter to hard delete the team for compliance reasons.
+// ##### Permissions
+// Must have the `manage_team` permission.
+
+@name("Delete a team")
+DELETE "https://{{baseURL}}/teams/{{team_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "permanent"= "false"
+
+
+
+// Create a new team on the system.
+// ##### Permissions
+// Must be authenticated and have the `create_team` permission.
+
+@name("Create a team")
+POST "https://{{baseURL}}/teams"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('{
+	"display_name": "hello",
+	"name": "hello",
+	"type": "I"
+}')
+
+
+// Gets a channel from the provided team name and channel name strings.
+// ##### Permissions
+// `read_channel` permission for the channel.
+
+@name("Get a channel by name and team name")
+GET "https://{{baseURL}}/teams/name/{{team_name}}/channels/name/{{channel_name}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Delete the team member object for a user, effectively removing them from a team.
+// ##### Permissions
+// Must be logged in as the user or have the `remove_user_from_team` permission.
+
+@name("Remove user from team")
+DELETE "https://{{baseURL}}/teams/{{team_id}}/members/{{user_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Get a page of public channels on a team based on query string parameters - page and per_page.
+// ##### Permissions
+// Must be authenticated and have the `list_team_channels` permission.
+
+@name("Get public channels")
+GET "https://{{baseURL}}/teams/{{team_id}}/channels"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "per_page"= "60"
+
+
+
+// Search posts in the team and from the provided terms string.
+// ##### Permissions
+// Must be authenticated and have the `view_team` permission.
+
+@name("Search for team posts")
+POST "https://{{baseURL}}/teams/{{team_id}}/posts/search"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{"terms":"test","is_or_search":false}')
+
+
+// Partially update a team by providing only the fields you want to update. Omitted fields will not be updated. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// Must have the `manage_team` permission.
+
+@name("Patch a team")
+PUT "https://{{baseURL}}/teams/{{team_id}}/patch"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"display_name": "hello"
+}')
+
+
+// Get a page team members list based on query string parameters - team id, page and per page.
+// ##### Permissions
+// Must be authenticated and have the `view_team` permission.
+
+@name("Get team members")
+GET "https://{{baseURL}}/teams/{{team_id}}/members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "per_page"= "60"
+
+
+
+// Import a team into a existing team. Import users, channels, posts, hooks.
+// ##### Permissions
+// Must have `permission_import_team` permission.
+
+@name("Import a Team from other application")
+POST "https://{{baseURL}}/teams/{{team_id}}/import"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "multipart/form-data"
+files(
+	("file", "{{file}}"),
+	("filesize", "{{filesize}}"),
+	("importFrom", "{{importFrom}}")
+)
+
+
+// Sets the team icon for the team.
+// 
+// __Minimum server version__: 4.9
+// 
+// ##### Permissions
+// Must be authenticated and have the `manage_team` permission.
+
+@name("Sets the team icon")
+POST "https://{{baseURL}}/teams/{{team_id}}/image"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "multipart/form-data"
+files(
+	("image", "{{image}}")
+)
+
+
+// Get a team on the system.
+// ##### Permissions
+// Must be authenticated and have the `view_team` permission.
+
+@name("Get a team")
+GET "https://{{baseURL}}/teams/{{team_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Search teams based on search term provided in the request body.
+// ##### Permissions
+// Logged in user only shows open teams
+// Logged in user with "manage_system" permission shows all teams
+
+@name("Search teams")
+POST "https://{{baseURL}}/teams/search"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Search criteria')
+
+
+// List autocomplete commands in the team.
+// ##### Permissions
+// `view_team` for the team.
+
+@name("List autocomplete commands")
+GET "https://{{baseURL}}/teams/{{team_id}}/commands/autocomplete"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Get a list of team members based on a provided array of user ids.
+// ##### Permissions
+// Must have `view_team` permission for the team.
+
+@name("Get team members by ids")
+POST "https://{{baseURL}}/teams/{{team_id}}/members/ids"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('List of user ids')
+
+
+// Get a team based on provided name string
+// ##### Permissions
+// Must be authenticated, team type is open and have the `view_team` permission.
+
+@name("Get a team by name")
+GET "https://{{baseURL}}/teams/name/{{name}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Search public channels on a team based on the search term provided in the request body.
+// ##### Permissions
+// Must have the `list_team_channels` permission.
+
+@name("Search channels")
+POST "https://{{baseURL}}/teams/{{team_id}}/channels/search"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"term": "te"
+}')
+
+
+// Update a team by providing the team object. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// Must have the `manage_team` permission.
+
+@name("Update a team")
+PUT "https://{{baseURL}}/teams/{{team_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+    "display_name": "dolphins",
+    "name": "dolphins",
+    "description": "something",
+    "company_name": "acme co",
+    "allowed_domains": "",
+    "invite_id": "awfs66qrtp8zimcaydhwueupdz",
+    "allow_open_invite": true,
+    "scheme_id": "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+}')
+
+
+// Update a team member roles. Valid team roles are "team_user", "team_admin" or both of them. Overwrites any previously assigned team roles.
+// ##### Permissions
+// Must be authenticated and have the `manage_team_roles` permission.
+
+@name("Update a team member roles")
+PUT "https://{{baseURL}}/teams/{{team_id}}/members/{{user_id}}/roles"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Space-delimited team roles to assign to the user')
+
+
+// Add user to the team by user_id.
+// ##### Permissions
+// Must be authenticated and team be open to add self. For adding another user, authenticated user must have the `add_user_to_team` permission.
+
+@name("Add user to team")
+POST "https://{{baseURL}}/teams/{{team_id}}/members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('{"team_id":"{{team_id}}","user_id":"meejjgzphpfpxqsxm3xgugnm7e"}')
+
+
+// For regular users only returns open teams. Users with the "manage_system" permission will return teams regardless of type. The result is based on query string parameters - page and per_page.
+// ##### Permissions
+// Must be authenticated. "manage_system" permission is required to show all teams.
+
+@name("Get teams")
+GET "https://{{baseURL}}/teams"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+? "page"= "0"
+? "per_page"= "100"
+? "include_total_count"= "true"
+
+
+// Get the team icon of the team.
+// 
+// __Minimum server version__: 4.9
+// 
+// ##### Permissions
+// User must be authenticated. In addition, team must be open or the user must have the `view_team` permission.
+
+@name("Get the team icon")
+GET "https://{{baseURL}}/teams/{{team_id}}/image"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Partially update a team by providing only the fields you want to update. Omitted fields will not be updated. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// Must have the `manage_team` permission.
+
+@name("Update team scheme")
+PUT "https://{{baseURL}}/teams/{{team_id}}/schemes"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{ "scheme_id": "{{scheme_id}}" }')
+
+
+// Invite users to the existing team usign the user's email.
+// ##### Permissions
+// Must have `invite_to_team` permission for the team.
+
+@name("Invite users to the team by email")
+POST "https://{{baseURL}}/teams/{{team_id}}/invite/email"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data("List of user's email")
+
+
+// Get a page of deleted channels on a team based on query string parameters - team_id, page and per_page.
+// 
+// __Minimum server version__: 3.10
+// 
+// ##### Permissions
+// Must be authenticated and have the `manage_team` permission.
+
+@name("Get deleted channels")
+GET "https://{{baseURL}}/teams/{{team_id}}/channels/deleted"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "per_page"= "60"
+
+
+
+// Get the `name`, `display_name`, `description` and `id` for a team from the invite id.
+// 
+// __Minimum server version__: 4.0
+// 
+// ##### Permissions
+// No authentication required.
+
+@name("Get invite info for a team")
+GET "https://{{baseURL}}/teams/invite/{{invite_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+// Autocomplete public channels on a team based on the search term provided in the request URL.
+// 
+// __Minimum server version__: 4.7
+// 
+// ##### Permissions
+// Must have the `list_team_channels` permission.
+
+@name("Autocomplete channels")
+GET "https://{{baseURL}}/teams/{{team_id}}/channels/autocomplete"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "name"= "{{name}}"
+
+
+
+// Get a list of public channels on a team by id.
+// ##### Permissions
+// `view_team` for the team the channels are on.
+
+@name("Get a list of channels by ids")
+POST "https://{{baseURL}}/teams/{{team_id}}/channels/ids"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('List of channel ids')
+
+
+// Update a team member's scheme_admin/scheme_user properties. Typically this should either be `scheme_admin=false, scheme_user=true` for ordinary team member, or `scheme_admin=true, scheme_user=true` for a team admin.
+// 
+// __Minimum server version__: 5.0
+// 
+// ##### Permissions
+// Must be authenticated and have the `manage_team_roles` permission.
+
+@name("Update the scheme-derived roles of a team member.")
+PUT "https://{{baseURL}}/teams/{{team_id}}/members/{{user_id}}/schemeRoles"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+  "scheme_admin": false,
+  "scheme_user": true
+}')
+
+
+@name("Team members minus group members")
+GET "https://{{baseURL}}/teams/{{team_id}}/members_minus_group_members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+? "group_ids"= "{{group_ids}}"
+? "page"= "0"
+? "per_page"= "100"
+
+
+

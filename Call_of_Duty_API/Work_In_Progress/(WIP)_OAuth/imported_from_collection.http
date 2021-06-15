@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+@name("OAuth Authorization")
+GET "https://us.battle.net/oauth/authorize"
+? "client_id"= "{{OAUTH_CLIENT_ID}}"
+? "redirect_uri"= "{{OAUTH_REDIRECT_URI}}"
+? "response_type"= "code"
+
+
+@name("OAuth Access Tokens")
+POST "https://us.battle.net/oauth/token"
+basicauth("{{OAUTH_CLIENT_ID}}", "{{OAUTH_CLIENT_SECRET}}")
+? "redirect_uri"= "{{OAUTH_REDIRECT_URI}}"
+? "grant_type"= "authorization_code"
+? "code"= "{{OAUTH_RESPONSE_CODE}}"
+
+
+@name("OAuth Get User Info")
+GET "https://us.battle.net/oauth/userinfo"
+
+
+// Retrieve all platform identifiers associated with the authenticated client
+
+@name("OAuth State Sync")
+GET "https://profile.callofduty.com/cod/thirdPartyAuth/init/battle"
+? "intent"= "login"
+? "returnURL"= "https://profile.callofduty.com/cod/thirdPartyAuth/resolve/battle"
+? "mkt"= "en_US"
+
+
+// Retrieve all platform identifiers associated with the authenticated client
+
+@name("OAuth Credential Exchange")
+GET "https://profile.callofduty.com/cod/thirdPartyAuth/resolve/battle"
+? "state"= "{{OAUTH_STATE}}"
+? "code"= "{{OAUTH_ACCESS_TOKEN}}"
+? "intent"= "login"
+? "returnURL"= "https://profile.callofduty.com/cod/thirdPartyAuth/resolve/battle"
+
+
+

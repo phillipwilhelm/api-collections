@@ -1,0 +1,90 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/passwordPolicies` operation returns all password policies for the selected environment.
+
+@name("READ All Password Policies")
+GET "https://{{apiPath}}/environments/{{envID}}/passwordPolicies"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+// The `GET /environments/{environmentId}/passwordPolicies/{policyId}` operation returns information for a single password policy specified by the `policyId` attribute in the request URL.
+
+@name("READ One Password Policy")
+GET "https://{{apiPath}}/environments/{{envID}}/passwordPolicies/{{passwordPolicyID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+// You can update the password policy for the specified environment by changing the values of its properties. The `PUT /environments/{environmentId}/passwordPolicies/{policyId}` operation updates the password policy specified by the policy ID in the request URL. The request body specifies values for the properties associated with the password policy.
+// 
+// The following password requirements property values cannot be modified at this time, but they can be excluded from the request to turn the requirement off.
+// 
+// |Password requirement | Fixed value | Can be excluded |
+// |-------------------- |-------|-----------------|
+// |`length.min`               | 8     | Yes    |
+// |`length.max`               | 255     | Yes    |
+// |`maxRepeatedCharacters`      | 2     | Yes    |
+// |`minUniqueCharacters`               | 5     | Yes    |
+// |`minCharacters`               | abcdefghijklmnopqrstuvwxyz": 1,<br>"ABCDEFGHIJKLMNOPQRSTUVWXYZ": 1,<br>"0123456789": 1,<br>"~!@#$%^&*()-_=+[]{}\|;:,.<>/?": 1     |Yes    |
+// 
+// 
+// The following password requirements property values can be modified, and they can be excluded from the request to turn the requirement off.
+// 
+// |Password requirement | Default value | Can be excluded |
+// |-------------------- |-------|-----------------|
+// |`maxAgeDays`         | 182     | Yes    |
+// |`minAgeDays`         | 1     | Yes    |
+// 
+// 
+// 
+// The following password policy rules can be changed to any positive integer, and these properties can be excluded from the request to turn the requirement off. If `history` is included, both values, `count` and `retentionDays`, must be defined. Likewise, if `lockout` is included, both values, `failureCount` and `durationSeconds`, must be defined.
+// 
+// |Password policy rule | Default value | Can be excluded |
+// |-------------------- |-------|--------|
+// |`history.count`               | 6     | Yes    |
+// |`history.retentionDays`               | 365     | Yes    |
+// |`lockout.failureCount`               | 5     | Yes    |
+// |`lockout.durationSeconds`               | 900     | Yes    |
+// 
+// 
+// 
+// Password attributes with boolean values such as `default`, `excludesProfileData`, `notSimilarToCurrent`, and `excludesCommonlyUsed` are required. The rule can be turned on or off by changing the value.
+// 
+// 
+// The sample request provided changes the Basic password policy by setting the `lockout.failureCount` property value to `8`.
+// 
+
+@name("UPDATE Password Policy")
+PUT "https://{{apiPath}}/environments/{{envID}}/passwordPolicies/{{passwordPolicyID}}"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "id" : "6e4b6b42-b73f-4d03-adbf-7bd231c8b23d",
+  "environment" : {
+    "id" : "6e4b6b42-b73f-4d03-9871-24e7b26a290e"
+  },
+  "name": "Basic",
+  "description": "A relaxed standard policy to allow for maximum customer flexibility.",
+  "excludesProfileData": false,
+  "notSimilarToCurrent": false,
+  "excludesCommonlyUsed": true,
+  "lockout": {
+    "failureCount": 8,
+    "durationSeconds": 900
+  },
+  "length": {
+    "min": 8,
+    "max": 255
+  },
+  "minCharacters": {
+    "abcdefghijklmnopqrstuvwxyz": 1,
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ": 1,
+    "1234567890": 1,
+    "~!@#$%^&*()-_=+[]{}|;:,.<>/?": 1
+  },
+  "default": true
+}')
+
+
+

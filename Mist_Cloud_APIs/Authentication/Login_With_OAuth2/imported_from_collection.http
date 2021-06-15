@@ -1,0 +1,44 @@
+#!/usr/bin/env dothttp
+
+@name("getOAuth2UrlForLinking")
+GET "https://{{host}}/api/v1/self/oauth/:provider"
+? "forward"= "<string>"
+
+
+// As OAuth2 flow goes through provider’s UI and back with the authorization code, there are two ways to get it 
+// 1. in JSON response, more usable for developers. Simply don’t specify the `forward` parameter when obtaining the authorization URL 
+// 2. as GET parameter, for UI where the user flow can be continued. Specify the landing page/url of your choice
+
+@name("getOAuth2AuthorizationCode")
+GET "https://{{host}}/"
+
+
+@name("linkOAuth2MistAccount")
+POST "https://https/{{host}}/api/v1/self/oauth/:provider"
+json({
+    "code": "4/S9tegDeLkrYg0L9pWNXV4cgMVbbr3SR9t693A2kSHzw"
+})
+
+
+@name("getOAuth2AuthorizationUrlForLogin")
+GET "https://{{host}}/api/v1/login/oauth/:provider"
+? "forward"= "{{forward_url}}"
+
+
+@name("loginOAuth2")
+POST "https://{{host}}/api/v1/login/oauth/:provider"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "code": "4/S9tegDeLkrYg0L9pWNXV4cgMVbbr3SR9t693A2kSHzw"
+})
+
+
+@name("unlinkOAuth2Provider")
+DELETE "https://{{host}}/api/v1/self/oauth/:provider"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,553 @@
+#!/usr/bin/env dothttp
+
+// This API returns visual attributes (tags) for the given input image url. The API accepts the following parameters -
+// 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client ([contact us](http://support.vuetag.ai/new) to get access to the API key) |     Mandatory
+// image_url     |  string     |   url of the image to be attributed          |     Mandatory
+// correlation key     |  string     |   reference key that can be passed to identify each request and compare against response          |     Optional
+// 
+// Refer to the example request and response on the right side. 
+// 
+// **Notes:**
+// 
+// Structure of the API response is given below. In this, 
+// 
+// * `mad_id ` is the ID assigned to the image by our system and is returned in the response. Users can store this on their end and use it for reference (of an image/product)
+// * `message` indicates whether the image has been tagged
+// * `processing_time` - time taken for generating the attributes
+// * `msd_tags` is the set of tags which are returned for the image. This corresponds to the default dictionary of tags that we use
+// * `tags` is the set of tags as per the mapping (optional) of the MSD tags to tags of your choice. 
+// * `category` or `productType` is the category as identified by our system for the image tagged. Below this is the attributes list for that specific category
+// * The confidence score (of the network) of the prediction is returned along with each tag result
+// * `object_id` is used when there are multiple categories of products identified in an image which is tagged. Example: `0_msd_4EEF31B4971B429FD55C1997A97CB621B8D5386F_0` could refer to a category - **Tops** and `0_msd_4EEF31B4971B429FD55C1997A97CB621B8D5386F_1` could refer to the **Bottomwear** detected in the image
+// 
+// Output JSON format - 
+// 
+// ```
+// {
+//     "status": "SUCCESS",
+//     "correlation_key": "d1d61d5f28064151b4b00aabe657f625",
+//     "image_type": [
+//         [
+//             "#FFFFFF",
+//             1
+//         ],
+//         [
+//             "#F6F6F6",
+//             1
+//         ]
+//     ],
+//     "meta": {
+//         "processing_time": 0.608116865158081,
+//         "total_time": 0.7349929809570312,
+//         "image_download_time": 0.12661290168762207
+//     },
+//     "image_url": "https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg",
+//     "mad_id": "4EEF31B4971B429FD55C1997A97CB621B8D5386F",
+//     "message": "Image Tagged Successfully",
+//     "data": [
+//         {
+//             "category": [
+//                 "dress",
+//                 0.883
+//             ],
+//             "msd_tags": {
+//                 "DressType": [
+//                     [
+//                         "Sheath",
+//                         0.948,
+//                         true
+//                     ]
+//                 ],
+//                 "Pattern": [
+//                     [
+//                         "solid",
+//                         1,
+//                         true
+//                     ]
+//                 ],
+//                 "DressLength": [
+//                     [
+//                         "knee",
+//                         0.456,
+//                         true
+//                     ]
+//                 ],
+//                 "Neckline": [
+//                     [
+//                         "cowl",
+//                         0.519,
+//                         true
+//                     ]
+//                 ],
+//                 "SleeveLength": [
+//                     [
+//                         "full",
+//                         0.679,
+//                         true
+//                     ]
+//                 ]
+//             },
+//             "object_id": "0_msd_4EEF31B4971B429FD55C1997A97CB621B8D5386F_0",
+//             "productType": [
+//                 "Dress",
+//                 0.883
+//             ],
+//             "tags": {
+//                 "Sleeve Length": [
+//                     [
+//                         "Long Sleeve",
+//                         0.679
+//                     ]
+//                 ],
+//                 "Neckline": [
+//                     [
+//                         "Drape/Cowl",
+//                         0.519
+//                     ]
+//                 ],
+//                 "Dress Style": [
+//                     [
+//                         "Lace Dress",
+//                         0.992
+//                     ],
+//                     [
+//                         "Body-Con",
+//                         0.948
+//                     ],
+//                     [
+//                         "Sheath",
+//                         0.948
+//                     ]
+//                 ],
+//                 "Dress Length": [
+//                     [
+//                         "Knee Length",
+//                         0.456
+//                     ]
+//                 ],
+//                 "Fabric Pattern": [
+//                     [
+//                         "Solid",
+//                         1
+//                     ]
+//                 ]
+//             }
+//         }
+//     ]
+// }
+// ```
+
+@name("Tag API")
+POST "https://vuetag.madstreetden.com/api/v1/tag"
+"Content-Type": "application/json"
+data('{
+  "api_key": "21250c78a5c2480ba787e110e151667f",
+  "image_url": "https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg",
+  "correlation_key": "d1d61d5f28064151b4b00aabe657f625"
+}')
+
+
+// This is the same as the `/tag` endpoint but instead of sending the `image_url` in the request, users can send the image binary. Refer to the example request on the right.
+
+@name("Tag API - Using Image Binary")
+POST "https://vuetag.madstreetden.com/api/v1/tag"
+"Content-Type": "application/json"
+"x-mock-response-name": "Tag - Success - Product Found"
+"x-api-key": "21250c78a5c2480ba787e110e151667f"
+files(
+	("image", "None"),
+	("api_key", "21250c78a5c2480ba787e110e151667f"),
+	("correlation_key", "d1d61d5f28064a151b4b00aabe657f625")
+)
+
+
+// Users can optionally supply product information from their database of products. Like this, 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client ([contact us](http://support.vuetag.ai/new) to get access to the API key) |     Mandatory
+// image_url     |  string     |   url of the image to be attributed          |     Mandatory
+// correlation key     |  string     |   reference key that can be passed to identify each request and compare against response          |     Optional
+// product_metadata | dict | To send information like `product_id` | Optional
+// 
+// In the response, `location` indicates the coordinates of the ROI in the image from where the object has been picked.
+// 
+// ```
+// location": [
+//                 103,
+//                 23,
+//                 672,
+//                 1156
+//             ]
+// ```
+
+@name("Tag API (with product metadata)")
+POST "https://vuetag-dev.madstreetden.com/pocclient/api/v1/tag"
+"Content-Type": "application/json"
+data('{
+"api_key": "f88cb3cc3d45df6521581a570c512420a79c3d07",
+"image_url" : "http://dieseldamtest.chalco.net/Test_Image_madstreetden/00S0KW_00MXZ.jpg",
+"product_matadata":{
+            "ID":1076981,
+            "Product_Code":"00S0KW00MXZ",
+            "Model_Code":"00S0KW",
+            "Fabric":"00MXZ",
+            "Season":"SS 2017",
+            "ImageName":"DIESEL_SS17_24_01_17.000181T_SN057089_CLOSEUP01_WEB.jpg",
+            "Creative_Theme":"",
+            "Gender":"Male",
+            "Model_Name":"T-FREE",
+            "Fit":"",
+            "Family":"",
+            "Style":"",
+            "Product_Main_Group":"Apparel",
+            "Product_Group":"Polos",
+            "Age_Range":"",
+            "Made_In":"CHINA",
+            "Size_Scale":"Jackets - Generic"
+    }
+}')
+
+
+// Users can optionally supply multiple images for each product. The `image_urls` is to be provided in a list. Like this, 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client ([contact us](http://support.vuetag.ai/new) to get access to the API key) |     Mandatory
+// image_url     |  list of strings     |  list of image urls of the product to be attributed          |     Mandatory
+// correlation key     |  string     |   reference key that can be passed to identify each request and compare against response          |     Optional
+// 
+// **Notes**:
+// 
+// - Currently, we only use the first image in the list for the purpose of tagging. In the coming months, the multiple images for a product will be used for tagging various attributes and the results will be reconciled
+// - The VueTag app currently does not support display of the multiple images for a product. This is in the roadmap for the product.
+
+@name("Tag API (with multiple images)")
+POST "https://vuetag.madstreetden.com/api/v1/tag"
+"Content-Type": "application/json"
+data('{
+"api_key": "653470c8174adbdefe599bad41e7ed379ca557bc",
+"image_url" : ["https://images-na.ssl-images-amazon.com/images/I/91mrpw%2B%2B9rL._UL1500_.jpg","https://images-na.ssl-images-amazon.com/images/I/91xjO3oOBzL._UY879_.jpg"]
+}')
+
+
+// This API receives feedback from the user for reponses given by the tag API.
+// 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// feedback     |  dict     |   JSON with the structure the same as the response returned by the tag API, but with corrected data.          |     Mandatory
+// correlation_key     |  string     |   correlation key to be sent back in the response           |     Mandatory
+// user_id  |  string  | (optional) unique user_id of user sending feedback  | Optional
+
+@name("Feedback API")
+POST "https://vuetag.madstreetden.com/api/v1/feedback"
+"Content-Type": "application/json"
+data('{
+  "api_key": "21250c78a5c2480ba787e110e151667f",
+  "image_url": "https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg",
+  "correlation_key": "d1d61d5f28064151b4b00aabe657f625",
+  "feedback": {
+      "image_type": [
+      "Blurred"
+    ],
+    "image_url": ["https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg"],
+    "mad_id": "144cfa468bd74b6889e9bee143ff4762",
+    "message": "Image Tagged Successfully",
+    "data": [
+      {
+        "msd_tags": {
+          "Color": [
+            [
+              "Green",
+              0.98
+            ]
+          ],
+          "Dress Type": [
+            [
+              "Sheath",
+              0.82
+            ]
+          ],
+          "Neckline": [
+            [
+              "Cowl",
+              0.88
+            ]
+          ],
+          "Pattern": [
+            [
+              "Plain-Solids",
+              0.78
+            ]
+          ],
+          "Sleeve Length": [
+            [
+              "Long Sleeve",
+              0.97
+            ]
+          ],
+          "Dress Length": [
+            [
+              "Knee",
+              0.92
+            ]
+          ]
+        },
+        "tags": {
+          "Sleeve Length": [
+            [
+              "Long Sleeve",
+              0.97
+            ]
+          ],
+          "Neckline": [
+            [
+              "Drape/Cowl",
+              0.88
+            ]
+          ],
+          "Dress Style": [
+            [
+              "Shift",
+              1
+            ]
+          ],
+          "Dress Length": [
+            [
+              "Knee Length",
+              0.92
+            ],
+            [
+              "Midi",
+              0.92
+            ]
+          ]
+        },
+        "productType": [
+          "Dress",
+          0.9
+        ],
+        "object_id": "144cfa468bd74b6889e9bee143ff4762_1",
+        "location": [
+          141,
+          0,
+          320,
+          305
+        ]
+      }
+    ],
+    "correlation_key": "d1d61d5f28064151b4b00aabe657f625"
+  }
+}')
+
+
+// This API returns all `mad_ids` for which feedback was provided by a user on the VueTag app. This API currently does not support when the user provides feedback via the `/feedback` API. The API accepts the following parameters -
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// start_date | string | Start date for date range to get images reviewed between two dates | Optional
+// end_date | string | End date for date range to get images reviewed between two dates | Optional
+// 
+// **Notes**: 
+// 
+// 1. Only feedback given via a user account on VueTag app will be returned via this API. If review is done via the admin account, this information will not be available on this API end point.
+// 
+// Users can also pass the a date filter in the request to query for images reviewed between a given date range. Like, 
+// 
+// ```
+// {
+//   "api_key": "653470c8174adbdefe599bad41e7ed379ca557bc",
+//   "start_date" : "2019-02-13 00:00:00",
+//   "end_date" : "2019-02-13 23:00:00"
+// }
+// ```
+// to get the images reviewed between `2019-02-13 00:00:00`
+// and `2019-02-13 23:00:00`. 
+// 
+// 2. This feature will work only for images reviewed on or after Feb 13, 2019. If users specify a start and end date before this, the API will respond with the message `"Unsupported date range in request"`.
+
+@name("Fetch Reviewed API")
+POST "https://vuetag.madstreetden.com/api/v1/fetch_reviewed"
+"Content-Type": "application/json"
+data('{
+  "api_key": "3ff2fa395a884b838fcc5d586ab78434"
+}')
+
+
+// This API returns corrected visual attributes (tags) for the given `mad_id`. The API accepts the following parameters -
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// mad_id     |  string     |   Unique identifier for a product for which the corrected tags are sought       |     Mandatory
+// 
+// If `product_metadata{"ext_id":"<value>""}"` was submitted via the tag API for a product, this field `ext_id` will also be available in the response. Please refer to the example on the right.
+
+@name("Fetch Tag API - Get corrected QA Tags")
+POST "https://vuetag.madstreetden.com/api/v1/fetch_tag"
+"Content-Type": "application/json"
+data('{
+  "api_key": "653470c8174adbdefe599bad41e7ed379ca557bc",
+  "mad_id": "74D1924029BB17E74FC92C57F4BF458E51754BAD"
+}')
+
+
+// `put_tag` is an asynchronous API that accepts requests with input image (image_url or binary image or product metadata). The corresponding `get_tag` API returns visual attributes (tags) for the given input image url or binary image or product_metadata. 
+// 
+// The `put_tag` API accepts requests in the following modes - 
+// 
+// Mode 1. Put tag request for a image / image_url / product_metadata. This generates and sends back in `mad_id` in the repsponse, that can be used with the `get_tag` API to return tags later.
+// 
+// Mode 2. (Not supported currently) - Accept a batch input of images that will be tagged asynchronously. This will generate and return a list of mad_ids.
+// 
+// The API accepts the following parameters -
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// image_url     |  string or list    |   url or list of urls of the images to be attributed          |     Conditionally Mandatory
+// image     |  file     |   the image to be attributed as a binary          |     Conditionally Mandatory
+// correlation key     |  string     |   client correlation key to be sent back in the response          |     Optional
+// product_metadata  |  dict    |  Extra fields that might need to be passed. This can include metadata fields that should be agreed to be received by the API.  | Optional
+// 
+// Note 1: image_url and image are conditionally mandatory for mode 1 - one of the two are necessary. If product_metadata is being passed in the API which has the image_url, then the API can be customized to use it.
+// 
+// Sample (Json) Input Format - 
+// ```
+// {
+//   "api_key": "3ff2fa395a884b838fcc5d586ab78434",
+//   "image_url": "http://dieseldamtest.chalco.net/Test_Image_madstreetden/00SBHI_0GARN.jpg",
+//   "correlation_key": "d1d61d5f28064151b4b00aabe657f625"
+// }
+// ```
+// 
+// Output (Json) format - 
+// ```
+// {
+//     "mad_id": "00SBHI0GARN",
+//     "image_url": "http://dieseldamtest.chalco.net/Test_Image_madstreetden/00SBHI_0GARN.jpg",
+//     "correlation_key": "d1d61d5f28064151b4b00aabe657f625"
+// }
+// ```
+
+@name("Async put_tag API")
+POST "https://vuetag.madstreetden.com/api/v1/put_tag"
+"Content-Type": "application/x-www-form-urlencoded"
+data('{
+  "api_key": "653470c8174adbdefe599bad41e7ed379ca557bc",
+  "image_url": "https://proxy.duckduckgo.com/iu/?u=https%3A%2F%2Fimg.promgirl.com%2F_img%2FPGPRODUCTS%2F1548614%2F1000%2Fred-dress-MT-7418-1-a.jpg&f=1",
+  "correlation_key": "140520191047"
+}')
+
+
+// `put_tag` is an asynchronous API that accepts requests with input image (image_url or binary image or product metadata). The corresponding `get_tag` API returns visual attributes (tags) for the given input image url or binary image or product_metadata. 
+// 
+// The `get_tag` API accepts the following parameters - 
+// 
+// The API accepts the following parameters -
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// mad_id     |  string     |   mad_id returned by the put_tag API  |     Mandatory
+// extras  |  dict    |  (optional) extra additional fields that might need to be passed.  | Optional
+
+@name("Async get_tag API")
+POST "https://vuetag.madstreetden.com/api/v1/get_tag"
+data('{
+  "api_key": "653470c8174adbdefe599bad41e7ed379ca557bc",
+  "mad_id" : "57161B2B55B8001B7138C74D7B103397F4FE7E20"
+}')
+
+
+// This API returns visual attributes (tags) for the given input image url or binary image. The API accepts the following parameters -
+// 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// input     |  file     |   jsonl file that has all the products to be tagged          |      Mandatory
+// 
+// Notes: 
+// A sample input line in the input file is as below:
+// ```
+// {
+// 	"api_key": "3ff2fa395a884b838fcc5d586ab78434",
+// 	"image_url": [
+// 		{
+// 			"url" : "https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg",
+// 			"sku_id" : "12345",
+// 			"type" : "front",
+// 			"raw_color" : "black"
+// 		},
+// 		{
+// 			"url" : "https://i.pinimg.com/736x/65/ef/52/65ef52b0ec7db57eadf70079b0d370c1--green-bodycon-dress-sweater-dresses.jpg",
+// 			"sku_id" : "12346",
+// 			"type" : "back",
+// 			"raw_color" : "black"
+// 		}
+// 	],
+// 	"correlation_key": "d1d61d5f28064151b4b00aabe657f625",
+// 	"product_metadata" : {
+// 		"id" : "P12345",
+// 		"detail" : "This is a product detail",
+// 		"name" : "This is Red shirt",
+// 		"brand" : "This is a brand",
+// 		"description" : "This is a product description",
+// 		"url" : "http://product.com",
+// 		"tags" : "Tags"
+// 	}
+// }
+// ```
+// Sample output
+// ```
+// {
+//     "batch_id": "BATCH_1536239857",
+//     "status": "SUCCESS",
+//     "estimated_time_in_mins": 100
+// }
+// ```
+
+@name("Batch API")
+POST "https://vuetag.madstreetden.com/api/v1/upload_batch"
+
+
+// This API returns visual attributes (tags) for the given input image url or binary image. The API accepts the following parameters -
+// 
+// 
+// Fields   |   Type    |    Description                |     Condition
+// ------   |   ----    |    -----------                |     ---------
+// api_key   |  string   |   Unique api key per client  |     Mandatory
+// batch_id     |  string     |   ID of the uploaded abatch          |      Mandatory
+// 
+// 
+// Notes: 
+// * The `batch_id` is obtained from the from the output of the `upload_batch` 
+// 
+// 
+// Output (Json) format - 
+// ```
+// {
+//     "status": "SUCCESS",
+//     "download_url": "https://s3.com/completed/BATCH_11234.jsonl?AWSAccessKeyId=asdasdasd&Expires=1536224056&Signature=dsadasd%3D"
+// }
+// ```
+// 
+// The URL is valid for one hour from the time of generation. This can be changed based on what we mutually agree upon.
+
+@name("Get Batch API")
+POST "https://vuetag.madstreetden.com/api/v1/get_batch"
+data('{
+	"api_key": "2cdsdad32edasdgefeadfasda2", 
+	"batch_id" : "BATCH_1536134084"
+}')
+
+
+

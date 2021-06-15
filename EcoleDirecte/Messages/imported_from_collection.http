@@ -1,0 +1,110 @@
+#!/usr/bin/env dothttp
+
+// Query requirements: ID
+// Body requirements: token
+
+@name("Inbox")
+POST "https://api.ecoledirecte.com/v3/eleves/{{id}}/messages.awp"
+? "verbe"= "getall"
+? "orderBy"= "date"
+? "order"= "desc"
+data('data={
+	"token": "{{token}}"
+}')
+
+
+// Query requirements: ID
+// Body requirements: Token, messages IDs
+
+@name("Unseen messages")
+POST "https://api.ecoledirecte.com/v3/eleves/{{id}}/messages.awp"
+? "verbe"= "put"
+data('data={
+    "action": "marquerCommeNonLu",
+    "ids": [
+        {{message_id}}
+    ],
+    "token": "{{token}}"
+}')
+
+
+// Query requirements: ID
+// Body requirements: Token, messages IDs
+
+@name("Archive messages")
+POST "https://api.ecoledirecte.com/v3/eleves/{{id}}/messages.awp"
+? "verbe"= "put"
+data('data={
+    "action": "archiver",
+    "ids": [
+        {{message_id}}
+    ],
+    "token": "{{token}}"
+}')
+
+
+// Requirements: token, folder name
+
+@name("New inbox folder")
+POST "https://api.ecoledirecte.com/v3/messagerie/classeurs.awp"
+? "verbe"= "post"
+data('data={
+	"libelle": "folder!",
+	"token": "{{token}}"
+}')
+
+
+// Query requirements: ID
+// Body requirements: token, folder id, message id
+
+@name("Move message to folder")
+POST "https://api.ecoledirecte.com/v3/eleves/{{id}}/messages.awp"
+? "verbe"= "put"
+data('data={
+    "action": "deplacer",
+    "ids": [
+        "{{message_id}}"
+    ],
+    "idClasseur": {{folder_id}},
+    "token": "{{token}}"
+}')
+
+
+// Query requirements: folder id
+// Body requirements: token
+
+@name("Delete folder")
+POST "https://api.ecoledirecte.com/v3/messagerie/classeur/{{folder_id}}.awp"
+? "verbe"= "delete"
+data('data={
+	"token": "{{token}}"
+}')
+
+
+// Query requirements: Class ID
+// Body requirements: token
+// 
+// Note: This request returns information disclosures, a lot of informations are not shown on the view but are in the API (first_name, gender, account_type, responsability, etc.)
+// 
+// Note 2: the query parameter class_id can be changed but the result will be the same.
+
+@name("Get professors list")
+POST "https://api.ecoledirecte.com/v3/messagerie/contacts/professeurs.awp"
+? "verbe"= "get"
+? "idClasse"= "{{class_id}}"
+data('data={
+	"token": "{{token}}"
+}')
+
+
+// Body requirements: token
+
+@name("Get staff list")
+POST "https://api.ecoledirecte.com/v3/messagerie/contacts/personnels.awp"
+? "verbe"= "get"
+data('data={
+	"token": "{{token}}"
+}')
+
+
+

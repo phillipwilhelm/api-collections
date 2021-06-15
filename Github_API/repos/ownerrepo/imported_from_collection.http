@@ -1,0 +1,245 @@
+#!/usr/bin/env dothttp
+
+// When you pass the `scarlet-witch-preview` media type, requests to get a repository will also return the repository's code of conduct if it can be detected from the repository's code of conduct file.
+// 
+// The `parent` and `source` objects are present when the repository is a fork. `parent` is the repository this repository was forked from, `source` is the ultimate source for the network.
+
+@name("Get a repository")
+GET "https://{{baseUrl}}/repos/:owner/:repo"
+
+
+// **Note**: To edit a repository's topics, use the [Replace all repository topics](https://docs.github.com/rest/reference/repos#replace-all-repository-topics) endpoint.
+
+@name("Update a repository")
+PATCH "https://{{baseUrl}}/repos/:owner/:repo"
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "description": "<string>",
+    "homepage": "<string>",
+    "private": false,
+    "visibility": "<string>",
+    "has_issues": true,
+    "has_projects": true,
+    "has_wiki": true,
+    "is_template": false,
+    "default_branch": "<string>",
+    "allow_squash_merge": true,
+    "allow_merge_commit": true,
+    "allow_rebase_merge": true,
+    "delete_branch_on_merge": false,
+    "archived": false
+}')
+
+
+// Deleting a repository requires admin access. If OAuth is used, the `delete_repo` scope is required.
+// 
+// If an organization owner has configured the organization to prevent members from deleting organization-owned
+// repositories, you will get a `403 Forbidden` response.
+
+@name("Delete a repository")
+DELETE "https://{{baseUrl}}/repos/:owner/:repo"
+
+
+// Both `:base` and `:head` must be branch names in `:repo`. To compare branches across other repositories in the same network as `:repo`, use the format `<USERNAME>:branch`.
+// 
+// The response from the API is equivalent to running the `git log base..head` command; however, commits are returned in chronological order. Pass the appropriate [media type](https://docs.github.com/rest/overview/media-types/#commits-commit-comparison-and-pull-requests) to fetch diff and patch formats.
+// 
+// The response also includes details on the files that were changed between the two commits. This includes the status of the change (for example, if a file was added, removed, modified, or renamed), and details of the change itself. For example, files with a `renamed` status have a `previous_filename` field showing the previous filename of the file, and files with a `modified` status have a `patch` field showing the changes made to the file.
+// 
+// **Working with large comparisons**
+// 
+// The response will include a comparison of up to 250 commits. If you are working with a larger commit range, you can use the [List commits](https://docs.github.com/rest/reference/repos#list-commits) to enumerate all commits in the range.
+// 
+// For comparisons with extremely large diffs, you may receive an error response indicating that the diff took too long
+// to generate. You can typically resolve this error by using a smaller commit range.
+// 
+// **Signature verification object**
+// 
+// The response will include a `verification` object that describes the result of verifying the commit's signature. The following fields are included in the `verification` object:
+// 
+// | Name | Type | Description |
+// | ---- | ---- | ----------- |
+// | `verified` | `boolean` | Indicates whether GitHub considers the signature in this commit to be verified. |
+// | `reason` | `string` | The reason for verified value. Possible values and their meanings are enumerated in table below. |
+// | `signature` | `string` | The signature that was extracted from the commit. |
+// | `payload` | `string` | The value that was signed. |
+// 
+// These are the possible values for `reason` in the `verification` object:
+// 
+// | Value | Description |
+// | ----- | ----------- |
+// | `expired_key` | The key that made the signature is expired. |
+// | `not_signing_key` | The "signing" flag is not among the usage flags in the GPG key that made the signature. |
+// | `gpgverify_error` | There was an error communicating with the signature verification service. |
+// | `gpgverify_unavailable` | The signature verification service is currently unavailable. |
+// | `unsigned` | The object does not include a signature. |
+// | `unknown_signature_type` | A non-PGP signature was found in the commit. |
+// | `no_user` | No user was associated with the `committer` email address in the commit. |
+// | `unverified_email` | The `committer` email address in the commit was associated with a user, but the email address is not verified on her/his account. |
+// | `bad_email` | The `committer` email address in the commit is not included in the identities of the PGP key that made the signature. |
+// | `unknown_key` | The key that made the signature has not been registered with any user's account. |
+// | `malformed_signature` | There was an error parsing the signature. |
+// | `invalid` | The signature could not be cryptographically verified using the key whose key-id was found in the signature. |
+// | `valid` | None of the above errors applied, so the signature is considered to be verified. |
+
+@name("Compare two commits")
+GET "https://{{baseUrl}}/repos/:owner/:repo/compare/{{base}}...{{head}}"
+
+
+// Lists contributors to the specified repository and sorts them by the number of commits per contributor in descending order. This endpoint may return information that is a few hours old because the GitHub REST API v3 caches contributor data to improve performance.
+// 
+// GitHub identifies contributors by author email address. This endpoint groups contribution counts by GitHub user, which includes all associated email addresses. To improve performance, only the first 500 author email addresses in the repository link to GitHub users. The rest will appear as anonymous contributors without associated GitHub user information.
+
+@name("List repository contributors")
+GET "https://{{baseUrl}}/repos/:owner/:repo/contributors"
+? "anon"= "<string>"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// You can use this endpoint to trigger a webhook event called `repository_dispatch` when you want activity that happens outside of GitHub to trigger a GitHub Actions workflow or GitHub App webhook. You must configure your GitHub Actions workflow or GitHub App to run when the `repository_dispatch` event occurs. For an example `repository_dispatch` webhook payload, see "[RepositoryDispatchEvent](https://docs.github.com/webhooks/event-payloads/#repository_dispatch)."
+// 
+// The `client_payload` parameter is available for any extra information that your workflow might need. This parameter is a JSON payload that will be passed on when the webhook event is dispatched. For example, the `client_payload` can include a message that a user would like to send using a GitHub Actions workflow. Or the `client_payload` can be used as a test to debug your workflow.
+// 
+// This endpoint requires write access to the repository by providing either:
+// 
+//   - Personal access tokens with `repo` scope. For more information, see "[Creating a personal access token for the command line](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line)" in the GitHub Help documentation.
+//   - GitHub Apps with both `metadata:read` and `contents:read&write` permissions.
+// 
+// This input example shows how you can use the `client_payload` as a test to debug your workflow.
+
+@name("Create a repository dispatch event")
+POST "https://{{baseUrl}}/repos/:owner/:repo/dispatches"
+"Content-Type": "application/json"
+data('{
+    "event_type": "<string>",
+    "client_payload": "<object>"
+}')
+
+
+@name("List repository events")
+GET "https://{{baseUrl}}/repos/:owner/:repo/events"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Enables an authenticated GitHub App to find the repository's installation information. The installation's account type will be either an organization or a user account, depending which account the repository belongs to.
+// 
+// You must use a [JWT](https://docs.github.com/apps/building-github-apps/authenticating-with-github-apps/#authenticating-as-a-github-app) to access this endpoint.
+
+@name("Get a repository installation for the authenticated app")
+GET "https://{{baseUrl}}/repos/:owner/:repo/installation"
+
+
+// Lists languages for the specified repository. The value shown for each language is the number of bytes of code written in that language.
+
+@name("List repository languages")
+GET "https://{{baseUrl}}/repos/:owner/:repo/languages"
+
+
+// This method returns the contents of the repository's license file, if one is detected.
+// 
+// Similar to [Get repository content](https://docs.github.com/rest/reference/repos#get-repository-content), this method also supports [custom media types](https://docs.github.com/rest/overview/media-types) for retrieving the raw license content or rendered license HTML.
+
+@name("Get the license for a repository")
+GET "https://{{baseUrl}}/repos/:owner/:repo/license"
+
+
+@name("Merge a branch")
+POST "https://{{baseUrl}}/repos/:owner/:repo/merges"
+"Content-Type": "application/json"
+data('{
+    "base": "<string>",
+    "head": "<string>",
+    "commit_message": "<string>"
+}')
+
+
+// Gets the preferred README for a repository.
+// 
+// READMEs support [custom media types](https://docs.github.com/rest/reference/repos#custom-media-types) for retrieving the raw content or rendered HTML.
+
+@name("Get a repository README")
+GET "https://{{baseUrl}}/repos/:owner/:repo/readme"
+? "ref"= "<string>"
+
+
+// Lists the people that have starred the repository.
+// 
+// You can also find out _when_ stars were created by passing the following custom [media type](https://docs.github.com/rest/overview/media-types/) via the `Accept` header:
+
+@name("List stargazers")
+GET "https://{{baseUrl}}/repos/:owner/:repo/stargazers"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Users with push access in a repository can create commit statuses for a given SHA.
+// 
+// Note: there is a limit of 1000 statuses per `sha` and `context` within a repository. Attempts to create more than 1000 statuses will result in a validation error.
+
+@name("Create a commit status")
+POST "https://{{baseUrl}}/repos/:owner/:repo/statuses/:sha"
+"Content-Type": "application/json"
+data('{
+    "state": "<string>",
+    "target_url": "<string>",
+    "description": "<string>",
+    "context": "default"
+}')
+
+
+// Lists the people watching the specified repository.
+
+@name("List watchers")
+GET "https://{{baseUrl}}/repos/:owner/:repo/subscribers"
+? "per_page"= "30"
+? "page"= "1"
+
+
+@name("List repository tags")
+GET "https://{{baseUrl}}/repos/:owner/:repo/tags"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Gets a redirect URL to download a tar archive for a repository. If you omit `:ref`, the repository’s default branch (usually
+// `master`) will be used. Please make sure your HTTP framework is configured to follow redirects or you will need to use
+// the `Location` header to make a second `GET` request.
+// **Note**: For private repositories, these links are temporary and expire after five minutes.
+
+@name("Download a repository archive (tar)")
+GET "https://{{baseUrl}}/repos/:owner/:repo/tarball/:ref"
+
+
+@name("List repository teams")
+GET "https://{{baseUrl}}/repos/:owner/:repo/teams"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// A transfer request will need to be accepted by the new owner when transferring a personal repository to another user. The response will contain the original `owner`, and the transfer will continue asynchronously. For more details on the requirements to transfer personal and organization-owned repositories, see [about repository transfers](https://help.github.com/articles/about-repository-transfers/).
+
+@name("Transfer a repository")
+POST "https://{{baseUrl}}/repos/:owner/:repo/transfer"
+"Content-Type": "application/json"
+data('{
+    "new_owner": "<string>",
+    "team_ids": [
+        "<integer>",
+        "<integer>"
+    ]
+}')
+
+
+// Gets a redirect URL to download a zip archive for a repository. If you omit `:ref`, the repository’s default branch (usually
+// `master`) will be used. Please make sure your HTTP framework is configured to follow redirects or you will need to use
+// the `Location` header to make a second `GET` request.
+// **Note**: For private repositories, these links are temporary and expire after five minutes.
+
+@name("Download a repository archive (zip)")
+GET "https://{{baseUrl}}/repos/:owner/:repo/zipball/:ref"
+
+
+

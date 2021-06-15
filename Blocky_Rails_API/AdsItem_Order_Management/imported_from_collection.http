@@ -1,0 +1,75 @@
+#!/usr/bin/env dothttp
+
+// - "address" is the recipient address
+// - "from_address" is the Buyer crypto wallet address
+// - "total_price" is the item price in MYR
+// - please put the "quantity", if null the backend will set the default value 1.
+
+@name("Create Order")
+POST "https://order-uat.blocklist.mobi/api/orders"
+"Content-Type": "application/json"
+"Authorization": "Bearer e8bc6247b649b220d915cd8277cb97699b7f87ee4b9239e4558f4b08e2bac315"
+data('{
+	"user_id": 19,
+	"item_id": 37,
+	"address": "",
+	"pic_name": "",
+	"pic_contact_no": "",
+	"remarks": "",
+	"total_price": 1276,
+	"quantity": "",
+	"from_address": "",
+	"wallet_type_id": 2
+}')
+
+
+@name("List Order Statuses")
+GET "https://order-uat.blocklist.mobi/api/order_statuses"
+
+
+
+@name("Complete Order")
+POST "https://order-uat.blocklist.mobi/api/complete/order"
+"Content-Type": "application/json"
+data('{
+	"order_id": 6,
+	"status": true
+}')
+
+
+// - use this API for Buyer to verify item received.
+// - Buyer must verify the item received for Seller to get back his money.
+// - order status will be completed after withdrawal is succeed that occur after Buyer verify item received.
+
+@name("Buyer Verified Item Received")
+POST "https://order-uat.blocklist.mobi/api/withdrawals"
+"Content-Type": "application/json"
+data('{
+	"user_id": 1,
+	"order_id": 1274746113
+}')
+
+
+@name("Approved Withdrawals")
+POST "https://order-uat.blocklist.mobi/api/validate_withdrawals"
+"Content-Type": "application/json"
+data('{
+	"id": 1
+}')
+
+
+// - search is the global search that filter from multiple attributes consists of:
+//   1. tracking_number
+//   2. address
+//   3. from_address
+//   4. courier
+//   5. courier_display_name
+// - "user_ids" & "wallet_type_ids" support multiple filter, eg: "user_ids=1,2,3", "wallet_type_ids=1,2,3".
+// - for paginations, use the "page" & "take" params. eg: if "page=1&take=10" the DB query offset is 0 & limit is 10, if "page=2&take=10" the DB query offset is 10 & limit is 10.
+
+@name("List Orders/Transaction Histories")
+GET "https://order-uat.blocklist.mobi/api/orders"
+
+
+
+

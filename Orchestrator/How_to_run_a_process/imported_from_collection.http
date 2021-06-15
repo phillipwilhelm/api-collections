@@ -1,6 +1,16 @@
 #!/usr/bin/env dothttp
 
-// **FOR CLOUD ORCHESTRATOR USERS**// // The first step is to send Orchestrator your **_Client ID_** and **_User Key_** so it knows who is making these calls. Orchestrator will return a token that authenticates all subsequent actions.// // **Notes:**//  * The URL for this call differs from the rest. It is https://account.uipath.com.// //  * All calls to the Cloud API require the `X-UIPATH-TenantName` header. Tenant is extracted here from the URL in your environment.// //  * Don't worry about copying and pasting any tokens once authenticated; this collection does it for you! You can make any call now and it will first ensure that a valid token already exists, retrieving a new token otherwise.
+// **FOR CLOUD ORCHESTRATOR USERS**
+// 
+// The first step is to send Orchestrator your **_Client ID_** and **_User Key_** so it knows who is making these calls. Orchestrator will return a token that authenticates all subsequent actions.
+// 
+// **Notes:**
+//  * The URL for this call differs from the rest. It is https://account.uipath.com.
+// 
+//  * All calls to the Cloud API require the `X-UIPATH-TenantName` header. Tenant is extracted here from the URL in your environment.
+// 
+//  * Don't worry about copying and pasting any tokens once authenticated; this collection does it for you! You can make any call now and it will first ensure that a valid token already exists, retrieving a new token otherwise.
+
 @name("1a. Authenticate (Cloud)")
 POST "https://account.uipath.com/oauth/token"
 "Content-Type": "application/json"
@@ -12,19 +22,27 @@ data('{
 }')
 
 
-// **FOR ON-PREMISE ORCHESTRATOR USERS**// // The first step is to send Orchestrator your **_tenant name_**, **_username_**, and **_password_** so it knows who is making these calls. Orchestrator will return a token that authenticates all subsequent actions.// // **Note:** Don't worry about copying and pasting any tokens; this Postman collection does it for you! You can make any call and it will first ensure that a valid token already exists, retrieving a new token otherwise.
+// **FOR ON-PREMISE ORCHESTRATOR USERS**
+// 
+// The first step is to send Orchestrator your **_tenant name_**, **_username_**, and **_password_** so it knows who is making these calls. Orchestrator will return a token that authenticates all subsequent actions.
+// 
+// **Note:** Don't worry about copying and pasting any tokens; this Postman collection does it for you! You can make any call and it will first ensure that a valid token already exists, retrieving a new token otherwise.
+
 @name("1b. Authenticate (On-Premise)")
 POST "https://{{url}}/api/Account/Authenticate"
 "Content-Type": "application/json"
 "User-Agent": ""
 data('{
-	"tenancyName": "{{tenantName}}",
 	"usernameOrEmailAddress": "{{usernameOrEmailAddress}}",
+	"tenancyName": "{{tenancyName}}",
 	"password": "{{password}}"
 }')
 
 
-// So you've created a **Process** in UiPath Studio and published it to Orchestrator. Here's where you specify that process, by name, in order to start it remotely.// // Within the URL, simply replace the word `Hello` with the name of your process and this call will return the `ReleaseKey` that will identify your process in step 4.
+// So you've created a **Process** in UiPath Studio and published it to Orchestrator. Here's where you specify that process, by name, in order to start it remotely.
+// 
+// Within the URL, simply replace the word `Hello` with the name of your process and this call will return the `ReleaseKey` that will identify your process in step 4.
+
 @name("2. Releases - Get by name")
 GET "https://{{url}}/odata/Releases"
 "X-UIPATH-TenantName": "{{tenantName}}"
@@ -33,6 +51,7 @@ GET "https://{{url}}/odata/Releases"
 
 
 // If you'd like the process to run on a specific **Robot**, you'll need its ID. Similarly to step 2, within the URL, replace `joe` with the name of your robot. Save the returned `Id` for step 4.
+
 @name("3. Robots - Get by name")
 GET "https://{{url}}/odata/Robots"
 "Content-Type": "application/json"
@@ -41,7 +60,16 @@ GET "https://{{url}}/odata/Robots"
 ? "$filter"= "Name eq 'joe'"
 
 
-// Within Orchestrator, a **Process** that is running or has been run is called a **Job**. To start a **Job**, navigate to the body of this call and add the release key obtained in step 2 to the first field.// // Now look at the `Strategy` field. This dictates how the process should be run and has 3 options:// //  1. _Specific_ - The process will run on a specific set of robots, whose IDs are indicated in the `RobotIds` field.//  2. _JobsCount_ - The process will run x times where x is the value of the `JobsCount` field. Use this strategy if you don't care on which robots the job runs. Orchestrator will automatically allocate the work to any available robots.//  3. _All_ - The process will run once on all robots.//     // Lastly, if your job has any input parameters, they can be sent as a JSON string in the `InputArguments` field. If it does not, this field will be ignored.
+// Within Orchestrator, a **Process** that is running or has been run is called a **Job**. To start a **Job**, navigate to the body of this call and add the release key obtained in step 2 to the first field.
+// 
+// Now look at the `Strategy` field. This dictates how the process should be run and has 3 options:
+// 
+//  1. _Specific_ - The process will run on a specific set of robots, whose IDs are indicated in the `RobotIds` field.
+//  2. _JobsCount_ - The process will run x times where x is the value of the `JobsCount` field. Use this strategy if you don't care on which robots the job runs. Orchestrator will automatically allocate the work to any available robots.
+//  3. _All_ - The process will run once on all robots.
+//     
+// Lastly, if your job has any input parameters, they can be sent as a JSON string in the `InputArguments` field. If it does not, this field will be ignored.
+
 @name("4. Jobs - Start job with inputs")
 POST "https://{{url}}/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs"
 "Content-Type": "application/json"

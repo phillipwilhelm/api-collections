@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// Returns a JSON Array of mutual funds that are available to user
+
+@name("List Mutual Funds")
+GET "https://{{url}}/api/quotes/mf/allowed"
+
+
+// Returns all available information pertaining to provided mutual fund symbol, can be comma separated
+// 
+// Returns a JSON array containing each provided symbol
+
+@name("Mutual Fund Details")
+GET "https://{{url}}/api/quotes/mf/allowed/details/{symbol}"
+
+
+// Checks if given mutual fund is available to trade and returns a JSON response with status of each provided identifier. Supports symbols or cusips separated by commas.
+
+@name("Check Mutual Fund")
+GET "https://{{url}}/api/quotes/mf/check/{symbol}"
+
+
+@name("Mutual fund placement")
+POST "https://{{url}}/api/orders/v2/mf/place"
+"Content-Type": "application/json"
+data('{
+	"account": {
+		"accountNumber": "AC123456789"
+	},
+	"order": {
+		"value": 100.0,      // BUY|SELL
+		"quantity": 1.23456, // SELL only (then omit `value`)
+		"quote": {
+			"symbol": "FDGRX"
+		},
+		"transaction": "BUY|SELL",
+        "capitalGains": "Reinvest|PayInCash",
+        "dividends": "Reinvest|PayInCash"
+	}
+}')
+
+
+// Checks given order for validity. Return upon success:
+// 
+// ```javascript
+// {
+// 	expectedQty: 1234.123,
+// 	orderFeesCharges: {
+// 		commission: 0.0,
+// 		sec: 0.0,
+// 		orf: 0.0,
+// 		taf: 0.0,
+// 		ess: 0.0,
+// 		pef: 0.0
+// 	},
+// 	quote: {
+// 		symbol: '...'
+// 	},
+// 	warnings: []
+// }
+// ```
+
+@name("Mutual fund preview")
+POST "https://{{url}}/api/orders/v2/mf/preview"
+"Content-Type": "application/json"
+data('{
+	"account": {
+		"accountNumber": "AC123456789"
+	},
+	"order": {
+		"value": 100.0,      // BUY|SELL
+		"quantity": 1.23456, // SELL only (then omit `value`)
+		"quote": {
+			"symbol": "FDGRX"
+		},
+		"transaction": "BUY|SELL",
+        "capitalGains": "Reinvest|PayInCash", // custodian dependent
+        "dividends": "Reinvest|PayInCash"     // custodian dependent
+	}
+}')
+
+
+

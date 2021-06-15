@@ -1,0 +1,1 @@
+This collection uses Zomato API and Bing Maps REST API to determine good food joints/ restaurant, near your place of work/ stay/ conference.

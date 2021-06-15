@@ -1,0 +1,573 @@
+#!/usr/bin/env dothttp
+
+// Returns account information.
+
+@name("Account")
+GET "https://{{BASE_URL}}/v8/accounts/{{SID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+
+
+// Returns printer information.
+// 
+// ### Response Attributes
+// ---
+// #### autoprint
+// Immediately print an order without the need for pressing the Print button.
+// 
+// |type|example|
+// |---|---|
+// |boolean|true|
+// 
+// ---
+// #### hardware_version
+// The version of the printer hardware.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|5|8|7|
+// 
+// ---
+// #### jobs_count
+// The total number of jobs the printer has printed.
+// 
+// |type|example|
+// |---|---|
+// |integer|123|
+// 
+// ---
+// #### lease_start_at
+// The ISO 8601 datetime that the printer's lease started. May not apply to all printers.
+// 
+// |type|default|example|
+// |---|---|---|
+// |[timestamp, null]|null|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### light
+// The intensity level of the printer's lights.
+// 
+// |type|minimum|maximum|default|example|
+// |---|---|---|---|---|
+// |integer|0|2|1|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### paper
+// The current presence of paper in the printer.
+// 
+// |type|example|
+// |---|---|
+// |boolean|false|
+// 
+// ---
+// #### sound
+// The intensity level of the printer's sound.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### tag
+// A way to tag printers for your own organizational needs and to use as a filter parameter for the `GET Printers` request.
+// 
+// |type|maxLength|example|
+// |---|---|---|
+// |[string, null]|254|pizza-chicago-il|
+// 
+// ---
+// #### time_zone
+// The time zone where the printer resides. 
+// 
+// |type|enum|default|example|
+// |---|---|---|---|
+// |string|[ref below]|Eastern Time (US & Canada)|Hawaii|
+// 
+// |time_zone values|
+// |---|
+// |Atlantic Time (Canada)|
+// |Eastern Time (US & Canada)|
+// |Central Time (US & Canada)|
+// |Mountain Time (US & Canada)|
+// |Pacific Time (US & Canada)|
+// |Alaska|
+// |Hawaii|
+
+@name("Printer")
+GET "https://{{BASE_URL}}/v8/printers/{{PRINTER_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+
+
+// Update a printer assigned to you.
+// 
+// ### Request Attributes
+// ---
+// #### autoprint
+// Immediately print an order without the need for pressing the Print button.
+// 
+// |type|required|example|
+// |---|---|---|
+// |boolean|true|true|
+// 
+// ---
+// #### light
+// The intensity level of the printer's lights.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### sound
+// The intensity level of the printer's sound.
+// 
+// |type|minimum|maximum|example|
+// |---|---|---|---|
+// |integer|0|2|2|
+// 
+// **Reference:**
+// 
+// |key|value|
+// |---|---|
+// |0|Low|
+// |1|Medium|
+// |2|High|
+// 
+// ---
+// #### time_zone
+// The time zone where the printer resides. 
+// 
+// |type|required|enum|default|example|
+// |---|---|---|---|---|
+// |string|true|[ref below]|Eastern Time (US & Canada)|Hawaii|
+// 
+// |time_zone values|
+// |---|
+// |Atlantic Time (Canada)|
+// |Eastern Time (US & Canada)|
+// |Central Time (US & Canada)|
+// |Mountain Time (US & Canada)|
+// |Pacific Time (US & Canada)|
+// |Alaska|
+// |Hawaii|
+// 
+// ---
+// #### tag
+// A string which you can apply to Printers and use to return tagged results in the `GET#printers` request.
+// 
+// |type|required|maximum|example|
+// |---|---|---|---|
+// |[string, null]|false|254|charleston-sushi|
+
+@name("Printer")
+PATCH "https://{{BASE_URL}}/v8/printers/{{PRINTER_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+json({
+    "data": {
+        "id": "{{PRINTER_ID}}",
+        "type": "printers",
+        "attributes": {
+            "autoprint": true,
+            "light": 1,
+            "sound": 2,
+            "tag": "charleston-sushi",
+            "time_zone": "Hawaii"
+        }
+    }
+})
+
+
+// Creates a Job.
+// 
+// ### Attributes
+// ---
+// #### body
+// The text which will be printed on paper. Basic formatting (bold, underline, align) is supported - see `Ticket formatting` section.
+// 
+// * Only ASCII chars 32-126 are allowed.
+// * To specify a carriage return, use: `\n` (ASCII characters 92, 110).
+// 
+// 
+// |type|required|minLength|maxLength|pattern|example|
+// |:---:|:---:|:---:|:---:|:---:|:---:|
+// |string|true|1|30000|/[ -~]/|One pepperoni pizza|
+// 
+// ---
+// #### copies
+// The number of copies to print out.
+// 
+// |type|required|minimum|maximum|default|example|
+// |:---:|:---:|:---:|:---:|:---:|:---:|
+// |integer|false|1|3|1|2|
+// 
+// ---
+// #### expire_seconds
+// If a Job is not printed in this number of seconds from now, Eatabit will mark the Job state as `expired` and fire callbacks.
+// 
+// |type|required|minimum|maximum|default|example|
+// |:---:|:---:|:---:|:---:|:---:|:---:|
+// |integer|false|60|3600|300|90|
+// 
+// ---
+// #### external_id
+// The ID of the order in your system...helps with support.
+// 
+// * Only ASCII chars 32-126 are allowed.
+// 
+// |type|required|maxLength|pattern|example|
+// |:---:|:---:|:---:|:---:|:---:|
+// |string|true|254|/[ -~]/|hwH0Heo6bFyCbE9|
+// 
+// ---
+// #### qr
+// An optional QR code which will be printed at the top of the Job.
+// 
+// * Only ASCII chars 32-126 are allowed.
+// 
+// |type|required|maxLength|pattern|example|
+// |:---:|:---:|:---:|:---:|:---:|
+// |string|false|128|/[ -~]/|e324d04b-54ed-471b-a77d-3b2e39ac7933|
+// 
+// ---
+// #### slug
+// A short title which will appear on the LCD screen of the printer.
+// 
+// * Only ASCII chars 32-126 are allowed.
+// 
+// 
+// |type|required|maxLength|pattern|example|
+// |:---:|:---:|:---:|:---:|:---:|
+// |string|true|15|/[ -~]/|MyDelivery.com|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job. Job status callback payloads have the same schema as the `GET Job` response.
+// 
+// |type|required|maxLength|example|
+// |:---:|:---:|:---:|:---:|
+// |string|true|2048|https://api.my_rds.com/eatabit|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the `status_url`.
+// 
+// |type|required|enum|default|example|
+// |:---:|:---:|:---:|:---:|:---:|
+// |string|false|[post, put]|put|post|
+
+@name("Job")
+POST "https://{{BASE_URL}}/v8/jobs"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+json({
+    "data": {
+        "type": "jobs",
+        "attributes": {
+            "body": "<center>Leafly Pickup #6252742</center>
+<center>03/27/21 09:22:46 AM EDT</center>
+
+<b>For:</b> Michael Mcrobie
+
+<b>Category:</b> Flower
+<b>Brand:</b> HMS
+<b>Item:</b> HMS Dirty Gorilla 3.5g ($45 SALE)
+<b>Description:</b> Alpha-Pinene:0.079% Camph...
+<b>Unit:</b> 3.5 g
+<b>Quantity:</b> 1 @ $45.00
+<b>Subtotal:</b> $45.00
+
+<b>Category:</b> Flower
+<b>Brand:</b> HMS
+<b>Item:</b> HMS Bully Kush 3.5g ($45 SALE)
+<b>Description:</b> Alpha-Pinene 0.15 Camphen...
+<b>Unit:</b> 3.5 g
+<b>Quantity:</b> 1 @ $45.00
+<b>Subtotal:</b> $45.00
+
+<b>Category:</b> Cartridge
+<b>Brand:</b> Strane
+<b>Item:</b> ST Cherry Blossom Kush 0.5g Distillate Cartridge ($30 SALE)
+<b>Description:</b> 
+<b>Unit:</b> each
+<b>Quantity:</b> 1 @ $30.00
+<b>Subtotal:</b> $30.00
+
+<b>Total:</b> $120.0
+<center>End of Leafly Pickup #6252742</center>
+ ********************************************** ",
+            "external_id": "01234567890",
+            "status_url": "https://7d74cff500db1becce7fd454b615763c.m.pipedream.net",
+            "slug": "Order 4"
+        },
+        "relationships": {
+            "printers": {
+                "data": {
+                    "id": "{{PRINTER_ID}}",
+                    "type": "printers"
+                }
+            }
+        }
+    }
+})
+
+
+// Reprints a Job.
+// 
+// * Job MUST be in the `expired` state in oorder to be reprinted.
+// 
+// ### Attributes
+// ---
+// #### expire_seconds
+// If a Job is not printed in this number of seconds from now, mark the Job state as `expired` and fire callbacks.
+// 
+// |type|required|minimum|maximum|default|example|
+// |:---:|:---:|:---:|:---:|:---:|:---:|
+// |integer|false|60|1800|300|90|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job.
+// 
+// |type|required|maxLength|example|
+// |:---:|:---:|:---:|:---:|
+// |string|true|2048|https://api.my_rds.com/eatabit|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the `status_url`.
+// 
+// |type|required|enum|default|example|
+// |:---:|:---:|:---:|:---:|:---:|
+// |string|false|[post, put]|put|post|
+
+@name("Reprint")
+POST "https://{{BASE_URL}}/v8/jobs/{{JOB_ID}}/reprint"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+json({
+    "data": {
+        "id": "{{JOB_ID}}",
+        "type": "jobs",
+        "attributes": {
+            "status_url": "https://api.my_rds.com/eatabit"
+        }
+    }
+})
+
+
+// Returns job information.
+// 
+// ### Response attributes
+// ---
+// #### body
+// The text which will be printed on paper.
+// 
+// |type|minLength|maxLength|example|
+// |:---:|:---:|:---:|:---:|
+// |string|1|30000|One pepperoni pizza|
+// 
+// ---
+// #### copies
+// The number of copies to print out.
+// 
+// |type|minimum|maximum|example|
+// |:---:|:---:|:---:|:---:|
+// |integer|1|3|2|
+// 
+// ---
+// #### created_at
+// The UTC ISO 8601 time at which the job was created.
+// 
+// |type|example|
+// |:---:|:---:|
+// |timestamp|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### environment
+// The `production` or `development` Account credentials used when the Job was created. Jobs created using `development` environment credentials will not actually be sent to the printer.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[development, production]|production|
+// 
+// ---
+// #### expire_seconds
+// If a Job is not printed in this number of seconds from now, mark the Job state as `expired` and fire callbacks.
+// 
+// |type|minimum|maximum|example|
+// |:---:|:---:|:---:|:---:|
+// |integer|60|1800|90|
+// 
+// ---
+// #### expires_at
+// The UTC ISO 8601 time at which the job will expire. It is calculated as the time that the Job is created plus the `expire_seconds`.
+// 
+// |type|example|
+// |:---:|:---:|
+// |timestamp|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### external_id
+// The ID of the order in your system...helps with support.
+// 
+// |type|maxLength|example|
+// |:---:|:---:|:---:|
+// |string|254|1234567890|
+// 
+// ---
+// #### slug
+// An short title which will appear on the LCD screen of the printer.
+// 
+// |type|minLength|maxLength|example|
+// |:---:|:---:|:---:|:---:|
+// |string|1|15|MyRDS: Delivery|
+// 
+// ---
+// #### qr
+// An optional QR code which will be printed at the top of the Job.
+// 
+// |type|minLength|maxLength|example|
+// |:---:|:---:|:---:|:---:|
+// |[string, null]|1|128|e324d04b-54ed-471b-a77d-3b2e39ac7933|
+// 
+// ---
+// #### accepted_at
+// The UTC ISO 8601 time at which the Printer user accepted the Job via the Printer buttons. If the Printer user did not accept the Job, the value will be `null`.
+// 
+// |type|example|
+// |:---:|:---:|
+// |[timestamp, null]|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### rejected_at
+// The UTC ISO 8601 time at which the Printer user rejected the Job via the Printer buttons. If the Printer user did not reject the Job, the value will be `null`.
+// 
+// |type|example|
+// |:---:|:---:|
+// |[timestamp, null]|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### ready_at
+// The UTC ISO 8601 time at which the printer user specified that the order will be ready. For printer models: v5, v6 and v7, this value is calculated as (the time the Job was created + the current Printer `fulfillment` value in minutes). For v8 Printer models, the value will be `null` until a user specifies the prep time via the Printer LCD.
+// 
+// |type|example|
+// |:---:|:---:|
+// |[timestamp, null]|2020-09-29T00:32:14Z|
+// 
+// ---
+// #### state
+// The current state of the Job.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[queued, downloaded, printed, accepted, rejected, expired]|queued|
+// 
+// ##### Reference
+// |||
+// |:---:|:---|
+// |queued|Job has been received by Eatabit and is awaiting processing|
+// |downloaded|Job has been received by Printer|
+// |printed|Job has been fully printed by the printer|
+// |accepted|Printer operator has marked the Job as Accepted|
+// |rejected|Printer operator has marked the Job as Rejected|
+// |Expired|The Job was not fully printed in the time specified|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job.
+// 
+// |type|maxLength|example|
+// |:---:|:---:|:---:|
+// |string|2048|https://api.my_rds.com/eatabit|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the `status_url`.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[post, put]|post|
+
+@name("Job")
+GET "https://{{BASE_URL}}/v8/jobs/{{JOB_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+
+
+// Returns Event information.
+// 
+// ### Response attributes
+// ---
+// #### kind
+// The general category of Event.
+// 
+// |type|enum|example|
+// |:---:|:---:|:---:|
+// |string|[see below]|Job.Queued|
+// 
+// #### Reference
+// |kind|object|description|
+// |:---:|:---:|:---:|
+// |Account|Account.Created|Account was created|
+// |Account|Account.Updated|Account was updated|
+// |Job|Job.Queued|Job was queued to be sent to Printer|
+// |Job|Job.Downloaded|Job arrived on the Printer|
+// |Job|Job.Printed|Job fully printed|
+// |Job|Job.Accepted|Printer user accepted the job|
+// |Job|Job.Rejected|Printer user rejected the job|
+// |Job|Job.Callback|Job status callback was sent to the specified url|
+// |Job|Job.Expired|Job was not printed in the specified amoutn of time|
+// |Job|Job.Reprint|Job was requested to be reprinted|
+// |Job|Job.Reprinted|Job was successfully reprinted|
+// |Printer|Printer.Connected|Printer connected to the cloud|
+// |Printer|Printer.Disconnected|Printer discconnected from the cloud|
+// |Printer|Printer.Updated|Printer configuration was updated|
+// 
+// ---
+// #### Payload
+// An object containing data related to the Event.
+// 
+// |type|example|
+// |:---:|:---:|
+// |object|`{"state":"queued"}`|
+
+@name("Event")
+GET "https://{{BASE_URL}}/v8/events/{{EVENT_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/vnd.api+json"
+"Accept": "application/vnd.api+json"
+
+
+

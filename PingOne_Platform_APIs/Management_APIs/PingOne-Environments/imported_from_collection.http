@@ -1,0 +1,91 @@
+#!/usr/bin/env dothttp
+
+// #### Environment Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | Y | Y | String |
+// description | Y | N | String |
+// type | Y* | Y | One of: `SANDBOX`, `PRODUCTION` | Choices depend on Org's License. *Can only be updated via the `UPDATE Environment Type` endpoint.
+// region | N | Y | One of: `NA`, `EU`, `AP` | Choices depend on Org's License
+// billOfMaterials | Y | N | Array | 
+// -- type | | Y | One of: `PING_FEDERATE`, `PING_ACCESS`, `PING_DIRECTORY`, `PING_DATA_SYNC`, `PING_DATA_GOVERNANCE`, `PING_ONE_FOR_ENTERPRISE`, `PING_ID`, `PING_ID_SDK`, `PING_CENTRAL`, `PING_INTELLIGENCE`, `PING_ONE_MFA`, `PING_ONE_RISK`, `PING_ONE_PROVISIONING`, `PING_ONE_BASE` |
+// -- description | | N | String |
+// -- console | | | |
+// -- -- href | | N | URL | Must be an RFC 2396-compliant URI of length [1-1024] characters.
+// license | | | | Defaults to `ACTIVE` license for Org if there is exactly 1 and it's valid*
+// -- id | Y | N* | UUID |
+// 
+// * *For a license to be assigned to an Env, the license must be `ACTIVE` ("beginsAt" is in the past, "expiresAt" is in the future), and must be able to accomodate more Envs
+// * *`license` is _required_ if there is more than 1 `ACTIVE` license
+// 
+// #### `expand` Parameter
+// Can set to `billOfMaterials` to have the Env's Bill of Materials included in `_embedded`.
+
+@name("CREATE Environment")
+POST "https://{{apiPath}}/environments"
+"Content-Type": "application/json"
+data('{
+    "name": "Environment_{{$timestamp}}",
+    "region": "NA",
+    "type": "SANDBOX",
+    "description": "Test Description"
+}')
+
+
+// #### `filter` Parameter
+// Can be set to a [SCIM filtering expression](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) to indicate the Envs to be returned, e.g. `org.id sw "<orgID>"`. 
+// 
+// The following attributes can be used in filter expressions:
+// 
+// Attribute | Operators | Notes
+// --------- | --------- | -----
+// name | sw, not | String
+// orgId | eq | UUID
+// 
+// #### `limit` Parameter (Internal Client tokens only)
+// Optional, and defaults to 25 if not included. Must be an integer from 1-100 (inclusive).
+// 
+// #### `expand` Parameter
+// Can set to `billOfMaterials` to have the Envs' Bills of Materials included in `_embedded`.
+
+@name("READ All Environments")
+GET "https://{{apiPath}}/environments"
+
+
+// #### `expand` Parameter
+// Can set to `billOfMaterials` to have the Env's Bill of Materials included in `_embedded`.
+
+@name("READ One Environment")
+GET "https://{{apiPath}}/environments/{{envID}}"
+
+
+// See `CREATE Env` request for data model.
+
+@name("UPDATE Environment")
+PUT "https://{{apiPath}}/environments/{{envID}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Updated-Environment_{{$timestamp}}",
+    "region": "NA",
+    "type": "SANDBOX",
+    "description": "Updated Description"
+}')
+
+
+// "type" must be one of: `SANDBOX`, `PRODUCTION` (subject to Org's License)
+
+@name("UPDATE Environment Type")
+PUT "https://{{apiPath}}/environments/{{envID}}/type"
+"Content-Type": "application/json"
+data('{
+    "type": "SANDBOX"
+}')
+
+
+@name("DELETE Environment")
+DELETE "https://{{apiPath}}/environments/{{envID}}"
+
+
+
+

@@ -1,12 +1,20 @@
 #!/usr/bin/env dothttp
 
-// This [endpoint](http://docs.discourse.org/#tag/Topics%2Fpaths%2F~1latest.json%2Fget) returns the latest forum topics, along with data on the user, timestamps, etc..// // After retrieving the data, we'll check each topic against the checks we put in place:// // * The topic belongs to the either the [Help](https://community.getpostman.com/c/help) or the [Just Getting Started](https://community.getpostman.com/c/just-getting-started) category.// * The topic has a unique poster – only one person has authored/replied to the post.// * The topic is at least twelve (12) hours old.
+// This [endpoint](http://docs.discourse.org/#tag/Topics%2Fpaths%2F~1latest.json%2Fget) returns the latest forum topics, along with data on the user, timestamps, etc..
+// 
+// After retrieving the data, we'll check each topic against the checks we put in place:
+// 
+// * The topic belongs to the either the [Help](https://community.getpostman.com/c/help) or the [Just Getting Started](https://community.getpostman.com/c/just-getting-started) category.
+// * The topic has a unique poster – only one person has authored/replied to the post.
+// * The topic is at least twelve (12) hours old.
+
 @name("Get The Latest Posts")
 GET "https://{{base_url}}/latest.json"
 "api_key": "{{apiKey}}"
 
 
 // Here we'll leverage the [Pre-request Script](https://www.getpostman.com/docs/postman/scripts/pre_request_scripts) to take the flagged posts, format them into the appropriate [Slack message attachments structure](https://api.slack.com/docs/message-attachments), and <code>POST</code> them to the appropriate Slack channel.
+
 @name("Post Flagged Topics to Slack")
 POST "https://{{webhook}}/"
 data('{{slackMessage}}')

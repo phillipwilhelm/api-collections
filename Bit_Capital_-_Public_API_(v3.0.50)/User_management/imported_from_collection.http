@@ -1,0 +1,124 @@
+#!/usr/bin/env dothttp
+
+@name("Open a UserId")
+GET "https://{{API_BASE_URL}}/users/:id"
+
+
+@name("Search by Name or Email")
+GET "https://{{API_BASE_URL}}/wallets"
+? "email"= "emailofuser@email.com"
+? "name"= "bruno"
+? "limit"= "50"
+? "skip"= "0"
+
+
+// > this endpoint applies only for Core v2.x.x
+
+@name("Search by consumer status")
+GET "https://{{API_BASE_URL}}/consumers"
+? "limit"= "50"
+? "skip"= "0"
+? "status"= "ready"
+
+
+@name("Search by TaxId")
+GET "https://{{API_BASE_URL}}/consumers"
+? "limit"= "50"
+? "skip"= "0"
+? "taxId"= "{{taxId}}"
+
+
+@name("Search by Role")
+GET "https://{{API_BASE_URL}}/users/role/:role"
+? "skip"= "0"
+? "limit"= "50"
+
+
+// Update a user by it's id.
+
+@name("Change user data")
+POST "https://{{API_BASE_URL}}/users/:id"
+"Content-Type": "application/json"
+data('{
+	"firstName": "John",
+	"lastName": "Connor",
+	"email": "example@example.org"
+}')
+
+
+// All users deleted on the platform are not deleted instantly. Users remain in the `pending_deletion` state for 30 days.
+// Users with a balance in their wallets cannot be deleted.
+
+@name("Delete a user")
+DELETE "https://{{API_BASE_URL}}/users/:id"
+
+
+
+// Get a list of consumers that are pending for being deleted.
+// 
+// <br/>
+// 
+// **Scopes:** `users:read`
+
+@name("List users in pending deletion")
+GET "https://{{API_BASE_URL}}/consumers"
+? "limit"= "50"
+? "skip"= "0"
+
+
+// Block a consumer by it's id.
+// 
+// <br/>
+// 
+// **Scopes:** `users:block`
+
+@name("Block user")
+POST "https://{{API_BASE_URL}}/consumers/:id/block"
+"Content-Type": "application/json"
+data('{
+	"statusId": 6
+}')
+
+
+// Unblock a consumer by it's id.
+// 
+// <br/>
+// 
+// **Scopes:** `users:block`
+
+@name("Unblock user")
+POST "https://{{API_BASE_URL}}/consumers/:id/unblock"
+"Content-Type": "application/json"
+
+
+
+// Generates a reset token and sends instructions to the User email address for him to set a new password in the platform.
+
+@name("Reset user password by email")
+POST "https://{{API_BASE_URL}}/users/reset"
+basicauth("root", "root")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "email": [
+        "emailOfuser@email.com"
+    ]
+})
+
+
+// Changes the user password using a Secret Token sent using the ```/users/reset``` endpoint. The token will be delivered in the registered email of the user specified.
+
+@name("Set new password by token")
+POST "https://{{API_BASE_URL}}/users/password"
+basicauth("root", "root")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{theSecretToken}}"
+    ],
+    "password": [
+        "12345678"
+    ]
+})
+
+
+

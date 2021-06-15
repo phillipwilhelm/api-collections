@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+// Calculates tax on an income. The run date query parameter can be used to force the service to calculate tax according to the rules that were in play on that date.
+
+@name("/v1/calculate")
+POST "https://{{INCOME_TAX_SERVICE_URL}}{{INCOME_TAX_SERVICE_PORT}}/v1/calculate"
+"Authorization": ""
+"Content-Type": "application/json"
+? "run_date"= "{{RUN_DATE}}"
+data('{
+  "gross_income": 100000,
+  "income_period": "ANNUALLY",
+  "apply_tax_reduction_thresholds": true
+}')
+
+
+// Calculate tax on multiple incomes
+
+@name("/v1/incomes-in-batch")
+POST "https://{{INCOME_TAX_SERVICE_URL}}{{INCOME_TAX_SERVICE_PORT}}/v1/incomes-in-batch"
+"X-Test-Spec": "test"
+"Content-Type": "application/json"
+data('{
+   "items": [
+      {
+        "apply_tax_reduction_thresholds": true,
+        "incomes": [
+          {
+            "type": "income",
+            "gross_income": 24000,
+            "income_period": "ANNUALLY"
+          },
+          {
+            "type": "income",
+            "gross_income": 12000,
+            "income_period": "ANNUALLY"
+          }
+        ]
+      },
+      {
+        "apply_tax_reduction_thresholds": true,
+        "incomes": [
+          {
+            "type": "income",
+            "gross_income": 24000,
+            "income_period": "ANNUALLY"
+          },
+          {
+            "type": "income",
+            "gross_income": 12000,
+            "income_period": "ANNUALLY"
+          }
+        ]
+      }
+    ]
+}')
+
+
+

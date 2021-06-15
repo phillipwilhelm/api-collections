@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// Obtém todos os eventos ainda não recebidos.
+// 
+// A partir do código recebido, quando necessário, realizar uma nova requisição com o **método** e **referência** retornado, conforme tabela abaixo: 
+// 
+// |Código|Descrição|Método|Referência|
+// |---|---|---|---|
+// |**TABLE_PLACED**|Mesa incluída|getTable|tableId|
+// |**TABLE_FINISHED**|Mesa finalizada||table|
+// |**TABLE_TRANSFERRED**|Mesa transferida|  |newTableNumber, oldTableNumber|
+// |**TABLE_ORDER_PLACED**|Pedido incluído na mesa|getTableOrder|orderId|
+// |**TABLE_PAYMENT_PLACED**|Pagamento incluído na mesa|getPayment|paymentId|
+// |**WAITER_MESSAGE**|Mensagem para o garçom|callWaiter|waiterId|
+// |**BALCONY_ORDER_PLACED**|Pedido incluído no balcão|getBalconyOrder|balconyId|
+// |**TABLE_ITEM_CANCELED**|Item cancelado na mesa|getTableOrderItem|orderId, itemId|
+// |**TABLE_ITEM_INITIATED**|Item iniciado na mesa|getTableOrderItem|orderId, itemId|
+// |**TABLE_ITEM_FINISHED**|Item finalizado na mesa (concluído/atendido)|getTableOrderItem|orderId, itemId|
+// |**USER_CHANGED**|Relação de usuários logados na mesa foi alterada ou um usuário|usersLogged ou userStatus (vide tabela de [ações](#ações-do-usuário))|user|
+
+@name("eventsStatus")
+GET "https://{{onpubUrl}}/partner/pos/events/status"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Após o PDV receber os eventos do OnPub, para cada evento que o PDV conseguiu realizar o parse e integrá-lo com sucesso, o PDV deve enviar uma requisição confirmando o recebimento dos eventos.
+// 
+// Recomenda-se que o PDV envie uma lista de todos os eventos recebidos com sucesso de uma única vez. Importante salientar que apenas o id do evento é obrigatório. Porém não há nenhum problema em enviar o JSON da forma que recebeu.
+// 
+// O OnPub processará as notificações e removê-los da fila de eventos do PDV.
+// 
+// Na próxima requisição que o PDV consultar por novos eventos, os eventos previamente confirmados não farão mais parte da resposta.
+// 
+
+@name("eventsAcknowledgment")
+POST "https://{{onpubUrl}}/partner/pos/events/acknowledgment"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "events": [
+        {
+            "id": "zicdK3lm1Ok469L5P2Fb"
+        },
+        {
+            "id": "hhm0yEt5cUKLiv6Ra8yQ"
+        },
+        {
+            "id": "H0SR04h6lK2WUTkwFezF"
+        }
+    ]
+}')
+
+
+

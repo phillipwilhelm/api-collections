@@ -1,0 +1,130 @@
+#!/usr/bin/env dothttp
+
+// Create discount voucher without code
+
+@name("Create voucher without code")
+POST "https://{{url}}/vouchers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "type": "DISCOUNT_VOUCHER",
+    "discount": {
+        "percent_off": "10.0",
+        "type": "PERCENT"
+    },
+    "redemption": {
+        "quantity": "1" 
+    },
+    "category": "postman-tc5",
+    "code_config": {
+      "pattern": "TC5-PROMO-#######"
+    }
+}')
+
+
+@name("Redeem")
+POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "customer": {
+    "source_id": "test-postman@voucherify.io",
+    "email": "test-postman@voucherify.io",
+    "name": "Test Postman",
+    "description": "Test done from postman client"
+  },
+  "order": {
+    "amount": 10000,
+    "items": []
+  }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Rollback Redemption")
+POST "https://{{url}}/redemptions/{{redemption-id}}/rollback"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "reason"= "Mistake"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Redeem 2nd time")
+POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  "customer": {
+    "source_id": "test-postman@voucherify.io",
+    "email": "test-postman@voucherify.io",
+    "name": "Test Postman",
+    "description": "Test done from postman client"
+  },
+  "order": {
+    "amount": 10000,
+    "items": []
+  }
+}')
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Rollback 2nd time Redemption - pass related customer profile")
+POST "https://{{url}}/redemptions/{{redemption-id}}/rollback"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "reason"= "Fraud"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("--- delay ---")
+GET "https://{{delayUrl}}/"
+
+
+
+@name("Delete voucher")
+DELETE "https://{{url}}/vouchers/{{voucher-code}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+

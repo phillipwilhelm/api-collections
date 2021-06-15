@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// This example reads the context data of a given **Store** entity to display the results on screen. Reading entity data
+// can be done using the `ngsiLD.readEntity()` method - this will fill out the URL for the GET request and make the
+// necessary HTTP call in an asynchronous fashion:
+// 
+// ```javascript
+// async function displayStore(req, res) {
+//     const store = await ngsiLD.readEntity(
+//         req.params.storeId,
+//         { options: "keyValues" },
+//         ngsiLD.setHeaders(req.session.access_token, LinkHeader)
+//     );
+// 
+//     return res.render("store", { title: store.name, store });
+// }
+// ```
+// 
+// The function above also sends some standard HTTP Headers as part of the request - these are defined in the
+// `setHeaders()` function.
+// 
+// Within an NGSI-LD-based system, the usual default HTTP headers would include a `Link` header to send the JSON-LD context
+// and a `Content-Type` header to identify the request as `application/ld+json` (note that every NGSI-LD request is valid
+// JSON_LD since NGSI-LD is a subset of JSON-LD). Other additional headers such as `X-Auth-Token` can be added to enable
+// OAuth2 security.
+// 
+// ```javascript
+// function setHeaders(accessToken, link, contentType) {
+//     const headers = {};
+//     if (accessToken) {
+//         headers["X-Auth-Token"] = accessToken;
+//     }
+//     if (link) {
+//         headers.Link = link;
+//     }
+//     if (contentType) {
+//         headers["Content-Type"] = contentType || "application/ld+json";
+//     }
+//     return headers;
+// }
+// ```
+// 
+// Within the `lib/ngsi-ld.js` library file, the `BASE_PATH` defines the location of the Orion Context Broker, reading a
+// data entity is simply a wrapper around an asynchronous HTTP GET request passing the appropriate headers
+// 
+// ```javascript
+// const BASE_PATH = process.env.CONTEXT_BROKER || "http://localhost:1026/ngsi-ld/v1";
+// 
+// function readEntity(entityId, opts, headers = {}) {
+//     return request({
+//         qs: opts,
+//         url: BASE_PATH + "/entities/" + entityId,
+//         method: "GET",
+//         headers,
+//         json: true
+//     });
+// }
+// ```
+
+@name("Retrieve a known Store")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"": ""
+? "options"= "keyValues"
+
+
+

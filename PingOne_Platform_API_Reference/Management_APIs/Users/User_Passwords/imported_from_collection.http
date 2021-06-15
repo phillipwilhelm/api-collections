@@ -1,0 +1,219 @@
+#!/usr/bin/env dothttp
+
+// You can check the current status of a user's password to determine whether the password is active or expired. You can also check the number of password-attempt failures remaining before the account is locked.
+// 
+// The `GET
+// /environments/{environmentId}/users/{userId}/password` operation returns information about the user's password state.
+// 
+
+@name("READ Password State")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can check a user's password to verify its current state. The result of a password validation check returns one of the following values for the `status` property:
+// 
+// * `NO_PASSWORD`
+// 
+//   No password has been set for the account.
+// 
+// * `OK`
+// 
+//   The password submitted in the request matches the user’s stored password.
+// 
+// * `PASSWORD_EXPIRED`
+// 
+//   The current password has expired and cannot be used to log in.
+// 
+// * `PASSWORD_LOCKED_OUT`
+// 
+//   The password is locked because of too many failed password attempts. It cannot be used to log in.
+// 
+// * `MUST_CHANGE_PASSWORD`
+// 
+//   The password was changed by an administrator. It must be reset (changed) by the user before it can be used to log in.
+// 
+// The sample shows the `POST
+// /environments/{environmentId}/users/{userId}/password` operation to check the `password` attribute value provided in the request body against the current password. This operation uses the `application/vnd.pingidentity.password.check+json` custom content type in the request header.
+// 
+// 
+// The `password` value in the request body is checked against the user's current password. If the password is checked successfully, and the password `status` is `OK`, `MUST_CHANGE_PASSWORD`, or `PASSWORD_EXPIRED`, the response returns a `200 OK` message. If the password `status` is `NO_PASSWORD` or `PASSWORD_LOCKED_OUT`, the response returns a `400 BAD REQUEST` message.
+// 
+
+@name("Password Check")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.check+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "password":"2Federate!"
+}')
+
+
+// The `POST /environments/{environmentId}/users/{userId}/password` endpoint is called by an administrator or an application to unlock a user's password. This operation uses the `application/vnd.pingidentity.password.unlock` custom media type as the content type in the request header.
+// 
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/password` operation to unlock a password for the user identified by the user ID and environment ID.
+// 
+// 
+// This `POST` request does not require any attribute values in the request body. It returns a `200 OK` message when successful and generates a `PASSWORD.UNLOCKED` event.
+// 
+
+@name("Password Unlock")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.check+json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+// The `POST /environments/{environmentId}/users/{userId}/password` endpoint is called to recover a forgotten password. It sends a one-time-password (OTP) that is used to reset the password. The OTP is a randomly generated eight-character alphanumeric string sent to the user's email address, and the code is valid for five minutes. This operation uses the  `application/vnd.pingidentity.password.sendRecoveryCode+json` custom media type as the content type in the request header.
+// 
+// ::: info
+// **Note:** This operation cannot be used if the user is disabled or if the password status is `NO_PASSWORD` or `PASSWORD_LOCKED_OUT`.
+// :::
+// 
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/password` operation to recover a password for the user identified by the environment ID and user ID.
+// 
+// 
+// If the user exceeds the maximum number of invalid attempts to recover the password while using the recovery OTP, the password status is changed to the `PASSWORD_LOCKED_OUT`. The `POST /environments/{environmentId}/users/{userId}/password` endpoint is also used to reset the locked-out password using a recovery code. This operation uses the `application/vnd.pingidentity.password.recover+json` custom media type as the content type in the request header, and it requires the `recoveryCode` and the `newPassword` attributes in the request body.
+// 
+// ```bash
+// curl -X "POST" "https://api.pingone.com/v1/environments/{environmentId}/users/{userId}/password" \
+// -H 'Content-type: application/vnd.pingidentity.password.recover+json' \
+// -H 'Authorization: Bearer jwtToken' \
+// -d $'{
+//   "recoveryCode": "<code>",
+//   "newPassword": "VerySecure123!"
+// }'
+
+@name("Password Recover")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.sendRecoveryCode+json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+// If the user exceeds the maximum number of invalid attempts to recover the password while using the recovery OTP, the password status is changed to the `PASSWORD_LOCKED_OUT`. The `POST /environments/{environmentId}/users/{userId}/password` endpoint is also used to reset the locked-out password using a recovery code. This operation uses the `application/vnd.pingidentity.password.recover+json` custom media type as the content type in the request header, and it requires the `recoveryCode` and the `newPassword` attributes in the request body.
+
+@name("Password Locked Out")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.recover+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "recoveryCode": "<code>",
+  "newPassword": "VerySecure123!"
+}')
+
+
+// Password update requests are structured differently based on whether the password update is a self change or an administrative change. The `PUT /environments/{environmentId}/users/{userId}/password` endpoint is called in both cases, but the request body for the self-change operation requires a value for the `currentPassword` attribute while the administrative-change operation does not. Both operations use `application/vnd.pingidentity.password.reset+json` as the content type in the request header.
+// 
+// #### Self-change password update
+// 
+// The sample shows the `PUT /environments/{environmentId}/users/{userId}/password` operation to execute a self-change reset of the password identified by the user ID and environment ID.
+// 
+// 
+// In the request body, the `currentPassword` value specifies the existing password, and `newPassword` specifies the value of the new password assigned to this user. Note that the new password is validated against the current password policy. For a successful self-change update, the `status` attribute value is changed to `OK`.
+
+@name("UPDATE Password (Self)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.reset+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "currentPassword": "changeme",
+  "newPassword": "difPassword123!"
+}')
+
+
+// Password update requests are structured differently based on whether the password update is a self change or an administrative change. The `PUT /environments/{environmentId}/users/{userId}/password` endpoint is called in both cases, but the request body for the self-change operation requires a value for the `currentPassword` attribute while the administrative-change operation does not. Both operations use `application/vnd.pingidentity.password.reset+json` as the content type in the request header.
+// 
+// 
+// #### Administrative-change password update
+// 
+// The sample shows the `PUT /environments/{environmentId}/users/{userId}/password` operation to execute an administrative-change reset of the password identified by the user ID and environment ID.
+// 
+// 
+// In the request body, the `newPassword` attribute specifies the new password assigned to this user by the administrator. For a successful administrator-change update, the `status` attribute value is changed to `MUST_CHANGE_PASSWORD`. Note that this assigned temporary password is not validated against the current password policy.
+
+@name("UPDATE Password (Admin)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.reset+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "newPassword":"4Science!"
+}')
+
+
+// The `PUT /environments/{environmentId}/users/{userId}/password` endpoint is also called to set a user's password. This operation uses the `application/vnd.pingidentity.password.set+json` custom media type as the content type in the request header.
+// 
+// The sample shows the `PUT /environments/{environmentId}/users/{userId}/password` operation to set a password for the user identified by the user ID and environment ID.
+// 
+// 
+// 
+// In the request body, the `forceChange` value specifies whether the user must change the current password on the next login. If `forceChange` is set to `true`, the `status` attribute value is changed to `MUST_CHANGE_PASSWORD`. If `forceChange` is omitted from the request, its value is set to `false` by default, and the `status` attribute value is set to `OK`. The `bypassPolicy` value specifies whether the user's password policy should be ignored. If this property is omitted from the request, its value is set to `false`.
+// 
+// The `value` attribute specifies the value of the new password assigned to this user. The password can be either cleartext or pre-encoded. Cleartext passwords are evaluated against the current password policy. Pre-encoded passwords are not evaluated against the password policy, and they are specified by the name of the encoding scheme followed by an encoded representation of the password (for example, `{SSHA512}df6b9fb15cfdbb7527be5a8a6e39f39e572c8ddb943fbc79a943438e9d3d85ebfc2ccf9e0eccd9346026c0b6876e0e01556fe56f135582c05fbdbb505d46755a`). PingOne supports the following encoding schemes:
+// 
+// |Scheme |Scheme identifier   |
+// |-------|------|
+// |bcrypt |{BCRYPT}  |
+// |scrypt |{SCRYPT} |
+// |salted SHA1 |{SSHA} |
+// |salted SHA256 |{SSHA256}  |
+// |salted SHA384 |{SSHA384}  |
+// |salted SHA512 |{SSHA512}  |
+// 
+// ::: info
+// **Note:** Pre-encoded passwords must use the LDAP `userPassword` syntax supported by PingDirectory and other directory servers. For more information about the LDAP `userPassword` attribute, see [Hashed attribute values for `userPassword`](https://tools.ietf.org/id/draft-stroeder-hashed-userpassword-values-01.html). Please note that in the Internet Engineering Task Force (IETF) specification referenced above, the `userPassword` syntax represented as `userpasswordvalue  = cleartext-password / prefix b64-hashandsalt` in the document should be read as:
+// 
+// `userpasswordvalue  = cleartext-password`
+// 
+// or
+// 
+// `userpasswordvalue  = prefix b64-hashandsalt`
+// 
+// The algorithm to compute the hash looks like this:
+// 
+// ```
+// prefix       = "{" scheme "}"
+// scheme = %x30-39 / %x41-5A / %x61-7a / %x2D-2F / %x5F / ;0-9, A-Z, a-z, "-", ".", "/", or "_"
+// b64-hashandsalt = <base64 of hashandsalt>
+// hashandsalt = password-hash salt
+// password-hash = <digest of cleartext-password salt>
+// ```
+// 
+// For import operations, if a pre-encoded password is not accepted by PingOne, then it does not conform to the supported encoding schemes described above.
+// :::
+// 
+// If a cleartext password is provided and it does not meet the password quality requirements, the following error is returned.
+// 
+// ```json
+// 400 BAD REQUEST
+// {  
+//    "id":"6c796712-0f16-4062-815a-e0a92f4a2143",
+//    "code":"INVALID_DATA",
+//    "message":"The data provided was invalid.",
+//    "details":[  
+//       {  
+//          "code":"INVALID_VALUE",
+//          "target":"value",
+//          "message":"The password did not satisfy password policy requirements",
+//          "innerError":{
+//            "unsatisfiedRequirements":["excludesProfileData", "length"]
+//          }
+//       }
+//    ]
+// }
+// ```
+// 
+// The password policy attribute names returned in the `unsatisfiedRequirements` array identify the specific password policy requirements that the submitted password does not meet.
+
+@name("UPDATE Password (Set)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.set+json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "value": "{SSHA512}UkGWfORubNKFpFBWh+Lgy4FrciclzUXneuryV+B+zBDR4Gqd5wvMqAvKRixgQWoZlZUgq8Wh40uMK3s6bWpzWt1/TqQH02hX",
+  "forceChange": true
+}')
+
+
+

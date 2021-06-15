@@ -1,0 +1,206 @@
+#!/usr/bin/env dothttp
+
+@name("Influencer store details")
+GET "https://{{host}}/api/v1/users/me/store"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+// Update an influencer store details.
+// 
+// Address attributes can be omitted if no update is desired.
+// 
+// For creating a new address dont send the ID attribute.
+// 
+// For updating the store address include the address ID
+
+@name("Influencer update store")
+PUT "https://{{host}}/api/v1/users/me/store"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "store": {
+        "name": "Jenny",
+        "tagline": "Browse through my fav\'s or check out my collections",
+        "fb_business_id": "1234sdfd-fake",
+        "taxon_ids": [1, 2],
+        "account_holder": "John Doe",
+        "iban": "GB94BARC10201530093459",
+        "terms_accepted": true,
+        "privacy_policy_accepted": true,
+        "purge_avatar": false, // delete the avatar
+        "purge_background_image": false, //delete the background image
+        "address_attributes": {
+        	"firstname": "Fabian",
+        	"lastname": "Oudhaarlem",
+        	"address1": "Willem de zwijgerlaan 334 E2",
+        	"address2": null,
+        	"phone": "0634837313",
+        	"zipcode": "1055RD",
+        	"city": "Amsterdam",
+        	"country_id": 166
+        }
+    }
+}')
+
+
+// Update an influencer store details.
+// 
+// Address attributes can be omitted if no update is desired.
+// For creating a new address dont send the ID attribute
+// For updating the store address include the address ID
+
+@name("Influencer create store")
+POST "https://{{host}}/api/v1/users/me/store"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "store": {
+        "name": "Myrthe Eleonore",
+        "tagline": "Browse through my fav\'s or check out my collections",
+        "fb_business_id": "1234-fakexx",
+        "taxon_ids": [1, 2],
+        "account_holder": "John Doe",
+        "iban": "NL01BANK01234566789",
+        "terms_accepted": true,
+        "address_attributes": {
+        	"firstname": "Fabian",
+        	"lastname": "Oudhaarlem",
+        	"address1": "Willem de zwijgerlaan 334 E2",
+        	"address2": null,
+        	"phone": "0634837313",
+        	"zipcode": "1055RD",
+        	"city": "Amsterdam",
+        	"country_id": 166
+        }
+    }
+}')
+
+
+@name("Influencer upload store images")
+PUT "https://{{host}}/api/v1/users/me/store"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+files(
+	("store[avatar]", "None"),
+	("store[background_image]", "None")
+)
+
+
+@name("Storefront current store")
+GET "https://{{host}}/api/v1/stores/current"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Store-Host": "superga.irisarke.com"
+
+
+@name("Influencer store invoices")
+GET "https://{{host}}/api/v1/users/me/invoices"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+
+
+@name("Influencer store get invoice")
+GET "https://{{host}}/api/v1/users/me/invoices/35"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+
+
+// Use this api to get the influencer store order information. Use date_from and date_to parameters to filter the results. Default date_from is 1 month ago and date_to defaults to today
+
+@name("Influencer store orders")
+GET "https://{{host}}/api/v1/users/me/orders"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"date_from": "20-03-2020",
+	"date_to": "30-03-2020"
+}')
+
+
+// This endpoint creates a facebook product catalog for the influencer. 
+// Please ensure to send a valid access_token to make sure the request does not fail
+
+@name("Connect to facebook")
+POST "https://{{host}}/api/v1/users/me/store/connect_to_facebook"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Spree-Token": "{{api_key}}"
+json({
+    "access_token": "this_should_be_the_fb_access_token"
+})
+
+
+// To check if a url is available you can first use this endpoint.
+// 
+// In `url_candidate` you can use words or a url formatted string. The api will take care of generating a valid subdomain
+// 
+// The input will be inserted in this format `https://` _url_candidate_ `.irisarke.com`
+
+@name("Influencer check url availability")
+POST "https://{{host}}/api/v1/users/me/store/check_url_availability"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "store": {
+        "url_candidate": "i_want_this_subdomain"
+    }
+}')
+
+
+// To update a store url you can use this endpoint. Sending `url_candidate` in a regular update call will also update the url but might block the update when the generated url is in use. 
+// 
+// In `url_candidate` you can use words or a url formatted string. The api will take care of generating a valid subdomain
+// 
+// The input will be inserted in this format `https://` _url_candidate_ `.irisarke.com`
+
+@name("Influencer store update url")
+PUT "https://{{host}}/api/v1/users/me/store"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "store": {
+        "url_candidate": "jenny"
+    }
+}')
+
+
+@name("List available stores")
+GET "https://{{host}}/api/v1/users/me/store/memberships"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+
+// # Selecting the current store
+// 
+// In order to maintain different store entities from one account you can augment your account to work in a specific store. This way all updates are guaranteed to be done against your currently active store. The `users/me/` endpoints will always respect the selected store. 
+// 
+// Use the `UUID` obtained from the `/memberships` endpoint to find available stores and the access rights the current user has on it.
+
+@name("Select current store")
+GET "https://{{host}}/api/v1/users/me/store/:uuid/set_current_store"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+
+@name("Influencer store users")
+GET "https://{{host}}/api/v1/users/me/store/users"
+"X-Spree-Token": "{{api_key}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+

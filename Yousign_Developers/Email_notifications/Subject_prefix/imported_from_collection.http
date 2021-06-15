@@ -1,0 +1,82 @@
+#!/usr/bin/env dothttp
+
+// Here is a procedure with **DEPRECATED (soon)** `from` parameter.
+
+@name("/procedures (deprecated)")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Subject prefix - DEPRECATED",
+    "description": "This is the way you should no longer use to customize the prefix of the subject for the e-mails.",
+    "start" : true,
+    "members": [
+        {
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@yousign.fr",
+            "phone": "+33612345678",
+            "fileObjects": [
+                {
+                    "position": "191,497,507,603",
+                    "page": 2,
+                    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ]
+        }
+    ],
+    "config": {
+        "email": {
+            "member.started": [
+                {
+                    "subject": "Hey! You are invited to sign!",
+                    "message": "Hello <tag data-tag-type=\"string\" data-tag-name=\"recipient.firstname\"></tag> <tag data-tag-type=\"string\" data-tag-name=\"recipient.lastname\"></tag>, <br><br> You have ben invited to sign a document, please click on the following button to read it: <tag data-tag-type=\"button\" data-tag-name=\"url\" data-tag-title=\"Access to documents\">Access to documents</tag>",
+                    "to": ["@member"],
+                    "from": "==> Here is the prefix! from must no longer be used <=="
+                }
+            ]
+        }
+    }
+}')
+
+
+// Here is a procedure with the right way to add `from` value in the subject of the email.
+
+@name("/procedures")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Subject prefix - OK",
+    "description": "This is the way you have to use to customize the prefix of the subject for the e-mails.",
+    "start" : true,
+    "members": [
+        {
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@yousign.fr",
+            "phone": "+33612345678",
+            "fileObjects": [
+                {
+                    "position": "191,497,507,603",
+                    "page": 2,
+                    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ]
+        }
+    ],
+    "config": {
+        "email": {
+            "member.started": [
+                {
+                    "subject": "==> Here is the prefix! <== Hey! You are invited to sign!",
+                    "message": "Hello <tag data-tag-type=\"string\" data-tag-name=\"recipient.firstname\"></tag> <tag data-tag-type=\"string\" data-tag-name=\"recipient.lastname\"></tag>, <br><br> You have ben invited to sign a document, please click on the following button to read it: <tag data-tag-type=\"button\" data-tag-name=\"url\" data-tag-title=\"Access to documents\">Access to documents</tag>",
+                    "to": ["@member"]
+                }
+            ]
+        }
+    }
+}')
+
+
+

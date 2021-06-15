@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+// Activates a user.  This operation can only be performed on users with a `STAGED` status.  Activation of a user is an asynchronous operation.  The user will have the `transitioningToStatus` property with a value of `ACTIVE` during activation to indicate that the user hasn't completed the asynchronous operation.  The user will have a status of `ACTIVE` when the activation process is complete.
+
+@name("Activate User")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/activate"
+? "sendEmail"= "<boolean>"
+
+
+// Deactivates a user.  This operation can only be performed on users that do not have a `DEPROVISIONED` status.  Deactivation of a user is an asynchronous operation.  The user will have the `transitioningToStatus` property with a value of `DEPROVISIONED` during deactivation to indicate that the user hasn't completed the asynchronous operation.  The user will have a status of `DEPROVISIONED` when the deactivation process is complete.
+
+@name("Deactivate User")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/deactivate"
+
+
+// This operation transitions the user to the status of `PASSWORD_EXPIRED` so that the user is required to change their password at their next login.
+
+@name("Expire Password")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/expire_password"
+? "tempPassword"= "<object>"
+
+
+// This operation resets all factors for the specified user. All MFA factor enrollments returned to the unenrolled state. The user's status remains ACTIVE. This link is present only if the user is currently enrolled in one or more MFA factors.
+
+@name("Reset Factors")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/reset_factors"
+
+
+// Generates a one-time token (OTT) that can be used to reset a user's password.  The OTT link can be automatically emailed to the user or returned to the API caller and distributed using a custom flow.
+
+@name("Reset Password")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/reset_password"
+? "provider"= "<object>"
+? "sendEmail"= "<boolean>"
+
+
+// Suspends a user.  This operation can only be performed on users with an `ACTIVE` status.  The user will have a status of `SUSPENDED` when the process is complete.
+
+@name("Suspend User")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/suspend"
+
+
+// Unlocks a user with a `LOCKED_OUT` status and returns them to `ACTIVE` status.  Users will be able to login with their current password.
+
+@name("Unlock User")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/unlock"
+
+
+// Unsuspends a user and returns them to the `ACTIVE` state.  This operation can only be performed on users that have a `SUSPENDED` status.
+
+@name("Unsuspend User")
+POST "https://{{baseUrl}}/api/v1/users/:userId/lifecycle/unsuspend"
+
+
+

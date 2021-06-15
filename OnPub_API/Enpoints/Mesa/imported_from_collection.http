@@ -1,0 +1,598 @@
+#!/usr/bin/env dothttp
+
+// Após o PDV receber um evendo de código **TABLE_PLACED** é necessário obter a mesa que foi incluída.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |table|inteiro|Número da mesa|
+// |date|data/hora|Data e hora da inclusão|
+// |waiter|texto|Código de integração do garçom|
+// 
+// > *Outros campos serão retornados, porém podem ser descartados*
+// 
+// Exemplo
+// 
+//     {
+//     	"table": {
+//         	"table": 2,
+//         	"date": "2019-04-06T12:27:56-0300",
+//         	"waiter": "50",
+//     	}
+//     }
+
+@name("getTable")
+GET "https://{{onpubUrl}}/partner/pos/table/{tableId}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Incluir/ocupar uma mesa.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |table|inteiro|Número da mesa|
+// |date|data/hora|Data e hora da inclusão|
+// |waiter|texto|Código de integração do garçom|
+
+@name("insertTable")
+POST "https://{{onpubUrl}}/partner/pos/table"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "table": {
+    	"table":1,
+    	"waiter":"30",
+    	"date": "2019-03-29T09:44:03-0300"
+    }
+}')
+
+
+// Transferir consumo (total) entre as mesas. A mesa anterior será liberada.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |oldTable|inteiro|Número da mesa que será desocupada|
+// |newTable|inteiro|Número da mesa que será ocupada|
+
+@name("transferTable")
+POST "https://{{onpubUrl}}/partner/pos/table/transfer"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"transfer":{
+		"oldTable":7,
+		"newTable":8
+	}
+}')
+
+
+// Finalizar/desocupar uma mesa.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |table|inteiro|Número da mesa que será desocupada|
+
+@name("finishedTable")
+PUT "https://{{onpubUrl}}/partner/pos/table/finished"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "table": {
+    	"table":1
+    }
+}')
+
+
+// Obter os dados da solicitação de presença do garçom na mesa.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |table|inteiro|Número da mesa|
+// |date|data/hora|Data e hora da inclusão|
+// |waiter|texto|Código de integração do garçom|
+// |reason|texto|Motivo (ATENDIMENTO, PAGAMENTO, SAIR_MESA)|
+// |userName|texto|Nome do usuário|
+// 
+//     
+//     {
+//     	"waiterCall": {
+//     	    "table": 1,
+//     	    "date": "2019-04-06T15:25:31-0300",
+//     	    "waiter": "30",
+//         	"reason": "ATENDIMENTO",
+//         	"userName": "Rodrigo "
+//     	}
+// 	}
+
+@name("callWaiter")
+GET "https://{{onpubUrl}}/partner/pos/table/waiter/{waiterId}/message"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Obter o pedido incluído em uma mesa.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |id|texto|Código do pedido no Onpub|
+// |orderCode|texto|Código de integração do pedido|
+// |date|data/hora|Data e hora da inclusão|
+// |table|inteiro|Número da mesa|
+// |userName|texto|Nome do cliente|
+// |total|número|Valor do pedido|
+// |invoice|texto|Código do atendimento no Onpub|
+// |waiter|texto|Código de integração do garçom|
+// |items.id|texto|Código do item no Onpub|
+// |items.itemCode|texto|Código de integração do item|
+// |items.productName|texto|Nome do produto|
+// |items.productId|texto|Código do produto no Onpub|
+// |items.productCode|texto|Código de integração do produto|
+// |items.quantity|número|Quantidade|
+// |items.productPrice|número|Preço unitário do produto|
+// |items.price|número|Preço unitário item (com os complementos)|
+// |items.total|número|Total do item|
+// |items.status|texto|Situação do item (vide tabela de [status](#status-do-item))|
+// |items.preparationTime|inteiro|Tempo de preparo (minutos)|
+// |items.observation|texto|Observações|
+// |items.complements.name|texto|Nome do complemento|
+// |items.complements.price|número|Preço do complemento|
+// |items.complements.quantity|número|Quantidade|
+// |items.complements.total|número|Total do complemento|
+// 
+// 
+// Exemplo
+// 
+//     {
+//     "order": {
+//         "id": "57yfJtTi1Ad1PWtZhXL9",
+//         "orderCode":"2900",
+//         "date": "2019-04-06T15:49:48-0300",
+//         "table": 10,
+//         "user": "A7JVwCoJocbqPmjMT81q3RCpUTo1",
+//         "userName": "Eleno Oliveira Adm",
+//         "waiter": null,
+//         "total": 72.7,
+//         "invoice": "Bwj3oibGU6qztSi3PGp1",
+//         "pub": "1e2e8b4a-4bd0-43fa-994a-9c6b293ea1e9",
+//         "items": [
+//             {
+//                 "id": "WYqOjRNUZ0a6bCc9GwU9",
+//                 "productName": "Heineken",
+//                 "productId": "-L_sfMr_ejtWKFMRcTUu",
+//                 "productCode": "40",
+//                 "quantity": 1,
+//                 "price": 7.8,
+//                 "total": 7.8,
+//                 "status": "P",
+//                 "preparationTime": 0,
+//                 "complements": [
+//                     {
+//                         "name": "Copos",
+//                         "price": 0,
+//                         "quantity": 2,
+//                         "total": 0
+//                     }
+//                 ],
+//             },
+//             {
+//                 "id": "jd42MHAyTvTyRmacifdP",
+//                 "productName": "Bife Chorizo Angus",
+//                 "productId": "-L_rRslYxmajDirNGNeJ",
+//                 "productCode": "50",
+//                 "quantity": 1,
+//                 "price": 64.9,
+//                 "total": 64.9,
+//                 "status": "P",
+//                 "observation": "Adicionar pimenta",
+//                 "preparationTime": 0,
+//                 "complements": [
+//                     {
+//                         "name": "Batata Frita",
+//                         "price": 0,
+//                         "quantity": 1,
+//                         "total": 0
+//                     },
+//                     {
+//                         "name": "Mal passado",
+//                         "price": 0,
+//                         "quantity": 1,
+//                         "total": 0
+//                     }
+//                 ],
+//             }
+//         ]
+//     }
+//     }
+
+@name("getTableOrder")
+GET "https://{{onpubUrl}}/partner/pos/table/order/{orderId}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Inserir um pedido na mesa.
+// O campos estão descritos no método **getTableOrder**.
+// É de suma importância enviar os campos de integração para interagir porsteriormente com o pedido, por exemplo, informar que um determinado item foi cancelado ou iniciado sua produção.
+// 
+// Caso o envio seja processado com sucesso será retornado o id do pedido no OnPub.
+
+@name("InsertTableOrder")
+POST "https://{{onpubUrl}}/partner/pos/table/order"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "order": {
+    	"date": "2019-04-05T09:44:03-0300",
+    	"waiter":"30",
+    	"orderCode":"1",
+    	"table":1,
+    	"total":64.9,
+    	"items":[
+			{
+				"productName": "Bife Chorizo Angus",
+                "productId": null,
+				"productCode":"KB0001",
+				"itemCode":"2",
+				"observation":"TESTE DE ITEM",
+				"status":"P",
+				"preparationTime":10,
+				"quantity":1,
+				"total":64.9,
+				"price":64.9,
+				"complements":[
+					{
+						"name":"Limao",
+						"price":0,
+						"productId":null,
+						"productCode":null,
+						"quantity":1,
+						"observation":""
+					},
+										{
+						"name":"Gelo",
+						"price":0,
+						"productId":null,
+						"productCode":null,
+						"quantity":1,
+						"observation":""
+					}
+				]
+			}    		
+    	]
+    }
+}')
+
+
+// Obtém o item atualizado em um pedido feito na mesa.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |orderCode|texto|Código de integração do pedido|
+// |date|data/hora|Data e hora da inclusão|
+// |table|inteiro|Número da mesa|
+// |userName|texto|Nome do cliente|
+// |waiter|texto|Código de integração do garçom|
+// |items.id|texto|Código do item no Onpub|
+// |items.itemCode|texto|Código de integração do item|
+// |items.productName|texto|Nome do produto|
+// |items.productId|texto|Código do produto no Onpub|
+// |items.productCode|texto|Código de integração do produto|
+// |items.quantity|número|Quantidade|
+// |items.price|número|Preço unitário|
+// |items.total|número|Total do item|
+// |items.status|texto|Situação do item (vide tabela de [status](#status-do-item))|
+// |items.preparationTime|inteiro|Tempo de preparo (minutos)|
+// |items.observation|texto|Observações|
+// |items.complements.name|texto|Nome do complemento|
+// |items.complements.price|número|Preço do complemento|
+// |items.complements.quantity|número|Quantidade|
+// |items.complements.total|número|Total do complemento|
+// 
+// Exemplo:
+// 
+//     {
+//     "order": {
+//     	"oderCode":"998",
+//         "date": "2019-04-06T17:05:28-0300",
+//         "table": 10,
+//         "userName": "Eleno Oliveira Adm",
+//         "items": [
+//             {
+//                 "id": "XyZzCICUUEhGXGxsnCaG",
+//                 "itemCode":"9873"
+//                 "productName": "Salmão",
+//                 "productId": "-L_rUQPdR6wBMiB9trYg",
+//                 "productCode": "8760",
+//                 "quantity": 1,
+//                 "price": 59.9,
+//                 "total": 59.9,
+//                 "status": "P",
+//                 "observation": "Para viagem.\r\nMuito azeite",
+//                 "preparationTime": 0,
+//                 "complements": [
+//                     {
+//                         "name": "Purê de batata baroa com crispy de alho poró",
+//                         "price": 0,
+//                         "quantity": 1,
+//                         "total": 0
+//                     },
+//                     {
+//                         "name": "Ao ponto",
+//                         "price": 0,
+//                         "quantity": 1,
+//                         "total": 0
+//                     }
+//                 ]
+//             }
+//         ]
+//     }
+//     }
+
+@name("getTableOrderItem")
+GET "https://{{onpubUrl}}/partner/pos/table/order/{orderId}/item/{itemId}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Informar que um item foi iniciado o seu atendimento ou produção.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |orderCode|texto|Código de integração do pedido|
+// |itemCode|texto|Código de integração do item do pedido|
+// |preparationTime|inteiro|Tempo de preparo ou atendimento (mintuos)
+
+@name("InitiatedTableOrderItem")
+PUT "https://{{onpubUrl}}/partner/pos/table/order/item/initiated"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "item":{
+    	"orderCode":"1300",
+    	"itemCode":"1301",
+    	"preparationTime":30
+    }
+}')
+
+
+// Informar que um item foi cancelado.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |orderCode|texto|Código de integração do pedido|
+// |itemCode|texto|Código de integração do item do pedido|
+
+@name("canceledTableOrderItem")
+PUT "https://{{onpubUrl}}/partner/pos/table/order/item/canceled"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "item":{
+    	"orderCode":"1800",
+    	"itemCode":"1801"
+    }
+}')
+
+
+// Informar que um item foi finalizado o seu preparo ou atendimento.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |orderCode|texto|Código de integração do pedido|
+// |itemCode|texto|Código de integração do item do pedido|
+
+@name("finishedTableOrderItem")
+PUT "https://{{onpubUrl}}/partner/pos/table/order/item/finished"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "item":{
+    	"orderCode":"1850",
+    	"itemCode":"1234"
+    }
+}')
+
+
+// Obter um pagamento realizado.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |id|inteiro|Código do Onpub|
+// |table|inteiro|Número da mesa|
+// |code|texto|Código de integração|
+// |date|data/hora|Data e hora do pagamento|
+// |amount|número|Valor pago|
+// |discount|número|Valor do desconto|
+// |serviceTax|número|Valor da taxa de serviço|
+// |waiter|texto|Código de integração do garçom|
+// |userName|texto|Nome do cliente|
+// |type|texto|Tipo da forma de pagamento (vide tabela [formas de pagamento](#formas-de-pagamento))|
+// 
+// Exemplo:
+// 
+//     {
+//     	"payment": {
+//     		"id":"11f3e8a9-5622-4409-a83d-ecd555c12827",
+//         	"table": 10,
+//         	"code":"999944",
+//         	"date": "2019-04-06T16:48:44-0300",
+//         	"amount": 50,
+//         	"discount": 0,
+//         	"serviceTax": 0,
+//         	"waiter": "60",
+//         	"userName": "Eleno Oliveira Adm",
+//         	"type": "VISA-CREDITO"
+//     	}
+//     }
+
+@name("getPayment")
+GET "https://{{onpubUrl}}/partner/pos/table/payment/{paymentId}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Inserir um pagamento na mesa.
+// 
+// Os campos estão detalhados no método **getPayment**.
+
+@name("insertPayment")
+POST "https://{{onpubUrl}}/partner/pos/table/payment"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "payment": {
+        "table": 2,
+        "date": "2019-05-08T15:34:16-0300",
+        "amount": 4.95,
+        "discount": 0,
+        "serviceTax": 0,
+        "waiter": "1",
+        "type": "Dinheiro",
+        "code": "1108"
+    }
+}')
+
+
+// Cancelar um pagamento realizado na mesa.
+// Obrigatório enviar o *code* ou *id*, sendo:
+// **code** - quando o pagamento foi realizado pelo sistema de automação/PDV.
+// **id** - quando o pagamento foi realizado pelo OnPub.
+// 
+// ## Envio
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |table|inteiro|Número da mesa|
+// |code|texto|Código de integração|
+// |id|texto|Código do Onpub|
+
+@name("cancelPayment")
+PUT "https://{{onpubUrl}}/partner/pos/table/payment/cancel"
+"posToken": "{{token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "payment": {
+        "table": 1,
+        "code": "99994",
+        "id":""
+    }
+}')
+
+
+// Obtém a lista atualizada dos usuários logados nas mesas.
+// Não há necessidade de enviar nenhum parâmetro.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |user|texto|Código do usuário no OnPub|
+// |userName|texto|Nome do usuário|
+// |photo|texto|Caminho da foto do usuário|
+// |dateOfBirth|texto|Data de aniversário no formato dd/MM/aaaa|
+// |table|inteiro|Número da mesa|
+// |email|texto|Email do usuário|
+// |phone|texto|Número do celular/telefone do usuário|
+// 
+// Exemplo:
+// 
+//     {
+//     "users": [
+//         {
+//             "user": "A7JVwCoJocbqPmjMT81q3RCpUTo1",
+//             "userName": "Jose da Silva",
+//             "photo": "https://firebasestorage.googleapis.com/v0/b/onpub-production.appspot.com/o/users%2FqaVJ3IHdn7PgrZXnnvAnW97MzD93%2Fprofile.jpg?alt=media&token=2d547d52-9a5c-4ac9-8838-a05016e90c16",
+//             "table": 8,
+//             "email": "jose@gmail.com.br",
+//             "dateOfBirth": "14/08/1992",
+//             "phone": "(27) 9991-58764"
+//             
+//         }
+//     ]
+//     }
+
+@name("usersLogged")
+GET "https://{{onpubUrl}}/partner/pos/users/logged/status"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+// Obtém o status do usuário.
+// 
+// ## Envio
+// Código do usuário.
+// 
+// ## Retorno
+// 
+// |Campo|Tipo|Descrição|
+// |---|---|---|
+// |user|texto|Código do usuário no OnPub|
+// |userName|texto|Nome do usuário|
+// |photo|texto|Caminho da foto do usuário|
+// |dateOfBirth|texto|Data de aniversário no formato dd/MM/aaaa|
+// |table|inteiro|Número da mesa|
+// |email|texto|Email do usuário|
+// |phone|texto|Número do celular/telefone do usuário|
+// 
+// 
+// ## Ações do Usuário
+// |Código|Descrição|
+// |---|---|
+// |JOINED_TABLE|Entrou/juntou-se a uma mesa|
+// |LEFT_TABLE|Saiu da mesa|
+// |TABLE_CHANGED|Mudou (transferiu) para outra mesa|
+// 
+// Exemplo:
+// 
+//     {
+//     "users": [
+//         {
+//             "user": "A7JVwCoJocbqPmjMT81q3RCpUTo1",
+//             "userName": "Jose da Silva",
+//             "photo": "https://firebasestorage.googleapis.com/v0/b/onpub-production.appspot.com/o/users%2FqaVJ3IHdn7PgrZXnnvAnW97MzD93%2Fprofile.jpg?alt=media&token=2d547d52-9a5c-4ac9-8838-a05016e90c16",
+//             "table": 8,
+//             "email": "jose@gmail.com.br",
+//             "dateOfBirth": "14/08/1992",
+//             "phone": "(27) 9991-58764"
+//         }
+//     ]
+//     }
+
+@name("userStatus")
+GET "https://{{onpubUrl}}/partner/pos/users/logged/status/{user}"
+"posToken": "{{token}}"
+"Accept": "application/json"
+
+
+

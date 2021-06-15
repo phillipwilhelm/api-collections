@@ -1,0 +1,48 @@
+#!/usr/bin/env dothttp
+
+// Lista os turnos.
+// 
+// # Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code | String (60) | Código identificador do turno |
+// | name | String (60) | Nome do turno |
+// | active | Boolean | Ativo? (*true - sim \| false - não*) |
+// | shift_type | Integer | Tipo de turno (veja a tabela **Tipo de turno** abaixo) |
+// | without_holidays | Boolean | Ignora feriados? (*true - sim \| false - não*) |
+// | flexible | Boolean | Jornada flexível? (*true - sim \| false - não*) |
+// | flexible_interval | Boolean | Intervalo flexível? (*true - sim \| false - não*) |
+// | auto_interval | Boolean | Intervalo pré-assinalado? (*true - sim \| false - não*) |
+// | ignore_absences_in_cyclical_shift | Boolean | Ignorar afastamento em turno cíclico? (*true - sim \| false - não*) |
+// 
+// ## Tipos de turno
+// 
+// | Código	| Nome			|
+// | ---------	| -------------	|
+// | 1			| Semanal		| 
+// | 2			| 12h/36h		|
+// | 3			| 24h/72h		|
+// | 4			| 5d/1d			|
+// | 5			| Customizado	|
+// | 6			| Intermitente	|
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/shifts"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,shift_type,advanced,flexible,flexible_interval,auto_interval,without_holidays,holiday"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Exibe os dias do ciclo, usado quando o turno é 12h/36h, 24h/72h, 5d/1d.
+
+@name("Listar dias")
+GET "https://{{server_url}}/external_api/v1/shifts/{{shift_id}}/days"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,shift_type,advanced,flexible,flexible_interval,auto_interval,without_holidays,holiday"
+
+
+

@@ -1,0 +1,167 @@
+#!/usr/bin/env dothttp
+
+// Get information on a list of sender email addresses and/or domains. The e-mail address or domain has to be registered and validated before being used to send e-mails. Validation is done via /sender/{sender_id}/validate. In order to manage a sender available across multiple API Keys, see the related /metasender resource.
+// 
+// Note: The maximum number of senders and metasenders per user is 100. This includes both validated (Active) and non-validated (Inactive) ones, but does not include Deleted senders / metasenders.
+// 
+
+@name("Retrieve All Senders")
+GET "https://api.mailjet.com/v3/REST/sender"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "DnsID"= "{{DnsID}}"
+? "Domain"= "example.com"
+? "Email"= "email@example.com"
+? "IsDomainSender"= "true"
+? "LocalPart"= "email"
+? "ShowDeleted"= "true"
+? "Status"= "Active"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve details on a specific sender email address or domain.
+// 
+
+@name("Retrieve a Single Sender")
+GET "https://api.mailjet.com/v3/REST/sender/{{sender_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new sender email address or domain. The e-mail address or domain has to be registered and validated before being used to send e-mails. Validation is done via /sender/{sender_id}/validate. In order to manage a sender available across multiple API Keys, see the related /metasender resource.
+// 
+// Note: The maximum number of senders and metasenders per user is 100. This includes both validated (Active) and non-validated (Inactive) ones, but does not include Deleted senders / metasenders.
+// 
+
+@name("Create a Sender")
+POST "https://api.mailjet.com/v3/REST/sender/"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "EmailType": "transactional",
+    "IsDefaultSender": true,
+    "Name": "Sender1",
+    "Email": "user@example.com"
+}')
+
+
+// Update an existing sender email address or domain.
+// 
+
+@name("Update a Sender")
+PUT "https://api.mailjet.com/v3/REST/sender/{{sender_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "EmailType": "bulk",
+    "IsDefaultSender": false,
+    "Name": "Sender2"
+}')
+
+
+// Delete an existing sender email address or domain.
+// 
+
+@name("Delete a Sender")
+DELETE "https://api.mailjet.com/v3/REST/sender/{{sender_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Validate a registered sender email address or domain. A sender domain (*@domain.com) is validated by checking the caller's rights, the existence of a metasender for that domain or by searching for the ownership token on the domain root or in the DNS.
+// 
+
+@name("Validate a Sender")
+POST "https://api.mailjet.com/v3/REST/sender/{{sender_ID}}/validate"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Retrieve a list of all metasenders and their configuration settings. A metasender is a sender available for use by the Master API Key and all sub-accounts. The e-mail address or domain has to be registered and validated before being used to send e-mails. Validation is done by contacting the Mailjet Support team. In order to manage a sender available for a single API Key, see the related /sender resource.
+// 
+// Note: The maximum number of senders and metasenders per user is 100. This includes both validated (Active) and non-validated (Inactive) ones, but does not include Deleted senders / metasenders.
+// 
+
+@name("Retrieve All Metasenders")
+GET "https://api.mailjet.com/v3/REST/metasender"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "DNS"= "{{DnsID}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve an existing metasender object and its configuration settings.
+// 
+
+@name("Retrieve a Single Metasender")
+GET "https://api.mailjet.com/v3/REST/metasender/{{metasender_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new metasender email address or domain. A metasender is a sender available for use by the Master API Key and all sub-accounts. The e-mail address or domain has to be registered and validated before being used to send e-mails. Validation is done by contacting the Mailjet Support team. In order to manage a sender available for a single API Key, see the related /sender resource.
+// 
+// Note: The maximum number of senders and metasenders per user is 100. This includes both validated (Active) and non-validated (Inactive) ones, but does not include Deleted senders / metasenders.
+// 
+
+@name("Create a Metasender")
+POST "https://api.mailjet.com/v3/REST/metasender"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Description": "Metasender 1 - used for Promo emails",
+    "Email": "user@example.com"
+}')
+
+
+// Update and existing metasender email address or domain. Only the email address and description can be updated.
+// 
+
+@name("Update a Metasender")
+PUT "https://api.mailjet.com/v3/REST/metasender/{{metasender_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+  "Description": "Updated metasender description",
+  "IsEnabled": false
+}')
+
+
+// Retrieve the SPF and DKIM settings for all sender domains on this API Key. The information will help you configure your SPF and DKIM settings on the respective domain, before running a DNS check with /dns/{dns_id}/check to validate it and complete the SPF and DKIM authentication.
+// 
+
+@name("Retrieve SPF / DKIM Settings of All Sender Domains")
+GET "https://api.mailjet.com/v3/REST/dns"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "IsCheckInProgress"= "false"
+? "IsSenderIdentified"= "true"
+? "IsYahooFBL"= "false"
+? "MaxLastCheckAt"= "2018-01-01T00:00:00"
+? "MinLastCheckAt"= "2018-01-01T00:00:00"
+? "SPFStatus"= "OK"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve the SPF and DKIM settings for a specific sender domain on this API Key. The information will help you configure your SPF and DKIM settings on the respective domain, before running a DNS check with /dns/{dns_id}/check to validate it.
+// 
+
+@name("Retrieve SPF / DKIM Settings of a Sender Domain")
+GET "https://api.mailjet.com/v3/REST/dns/{{dns_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Perform a DNS validation of a sender domain. The Mailjet API will check for a TXT record in the domain's DNS zone file. 
+// 
+
+@name("Do a DNS Validation of a Sender Domain")
+POST "https://api.mailjet.com/v3/REST/dns/{{dns_ID}}/check"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+

@@ -1,0 +1,57 @@
+#!/usr/bin/env dothttp
+
+// Endpoint to be authorized for using this API
+
+@name("Get Token")
+POST "https://sandbox.partner.api.bri.co.id/oauth/client_credential/accesstoken"
+"Content-Type": "application/x-www-form-urlencoded"
+? "grant_type"= "client_credentials"
+data({
+    "client_id": [
+        "{{id_key}}"
+    ],
+    "client_secret": [
+        "{{secret_key}}"
+    ]
+})
+
+
+// Endpoint for getting user information/data from BRI Credit Card system
+// 
+// ### REQUEST FIELD (JSON)
+// 
+// Field | Data Type | Mandatory | Rule
+// ----- | --------- | --------- | ----
+// cardNumber | string | Yes | Max : 16 Char
+// 
+// ### RESPONSE FIELD (JSON)
+// 
+// Field | Data Type
+// ----- | ---------
+// responseCode | string
+// responseMessage | string
+// encrypted | text
+// signature | text
+// 
+// 
+// ### RESPONSE CODES
+// 
+// Response Code | Description
+// ------------- | -----------
+// 00 | Success
+// DT1 | Data Not Found
+// DT2 | Select Data Error
+// EN1 | Public Key Data Not Found
+// EN2 | Select Public Key Data Error
+
+@name("Information")
+POST "https://sandbox.partner.api.bri.co.id/v1/cardlink/otpinformation"
+"Content-Type": "application/json"
+"BRI-Timestamp": "{{timestamp}}"
+"BRI-Signature": "{{signature}}"
+data('{
+	"cardNumber" :  "5188280131148208"
+}')
+
+
+

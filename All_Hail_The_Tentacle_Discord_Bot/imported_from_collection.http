@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// We retrieve all recent channel messages. 
+// Most recent messages returned at top of the array -- returns about 50 previous messages
+
+@name("Get Channel Message")
+GET "https://discordapp.com/api/channels/{{channel_id}}/messages"
+"Authorization": "Bot {{bot_token}}"
+
+
+// Create a new webhook instead of using the Gateway connection in Discord since we are running serverless here we cannot connect to a WebSocket. 
+// Requires the MANAGE_WEBHOOKS permission. 
+// Returns a webhook object on success. 
+// Webhook names follow our naming restrictions that can be found in our Usernames and Nicknames documentation, with the following additional stipulations:
+// ```https://discordapp.com/developers/docs/resources/webhook#create-webhook```
+
+@name("Create Discord Webhook")
+POST "https://discordapp.com/api/channels/{{channel_id}}/webhooks"
+"Authorization": "Bot {{bot_token}}"
+json({
+    "name": "send the tentacle"
+})
+
+
+// Here we are using the webhook to post the message to the channel. 
+
+@name("Send Channel Message")
+POST "https://discordapp.com/api/webhooks/{{webhook_id}}/{{webhook_token}}"
+json({
+    "content": "All Hail The Tentacle! 
+ Sacrifices: <@!{{author}}>",
+    "tts": "true",
+    "allowed_mentions": {
+        "parse": [
+            "users"
+        ]
+    }
+})
+
+
+

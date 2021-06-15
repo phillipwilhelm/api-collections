@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// ## Get a short-lived access token for public frontend functionality
+// 
+// ---
+// 
+// > ## *Do NOT expose your Authentication code to public! If the code accidentally got exposed, even briefly, go to [Account settings](https://sagenda.net/Settings/AccountSettings) and re-generate it*
+// > _Resulting token CAN to be used on or exposed to client-side (web-app)_
+// 
+// ---
+// 
+// Before getting a token you need to acquire `Authentication code` from the [Account settings](https://sagenda.net/Settings/AccountSettings)  page of your Sagenda dashboard.
+// 
+// __Keep authentication code server-side and only communicate access tokens to front-end__
+
+@name("Using authentication code")
+POST "https://{{domain}}/api/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "api_token"
+    ],
+    "api_token": [
+        "{{authenticationCode}}"
+    ]
+})
+
+
+// # Get a short-lived access token to the private API endpoints
+// 
+// ---
+// 
+// > ## *This token is NOT supposed to be used on or exposed to client-side*
+// > *Doing so WILL compromise your account security! In this case you must re-generate your client secret and ask support to revoke a refresh token*
+// 
+// ---
+// 
+// Before getting a token you need to acquire `client credentials` from [Account settings](https://sagenda.net/Settings/AccountSettings) page of your Sagenda account. 
+// In the `Developer Settings` section in the bottom of the page you can generate up one or more client credentials
+// 
+// **We recommend using separate client credentials for development and production use**
+
+@name("Using client credentials")
+POST "https://{{domain}}/api/v3/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ],
+    "client_id": [
+        "{{clientId}}"
+    ],
+    "client_secret": [
+        "{{clientSecret}}"
+    ]
+})
+
+
+// # Renew access token without re-authorizing using client credentials
+// 
+// ---
+// 
+// > ## Only tokens acquired using *client credentials* flow can be renewed
+// ---
+// 
+// To renew your access token you should save `refresh_token` value from your previous access token and use it in the request. You will get a new access and refresh tokens from this endpoint
+// 
+// **Please note that each refresh token is valid one-time only. Each time you request access token you should save a new refresh token value**
+
+@name("Renew using refresh token")
+POST "https://{{domain}}/api/v3/token"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "refresh_token": [
+        "{{refreshToken}}"
+    ],
+    "client_id": [
+        "{{clientId}}"
+    ]
+})
+
+
+

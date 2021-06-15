@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// If the authenticated user is authenticated through basic authentication or OAuth with the `user` scope, then the response lists public and private profile information.
+// 
+// If the authenticated user is authenticated through OAuth without the `user` scope, then the response lists only public profile information.
+
+@name("Get the authenticated user")
+GET "https://{{baseUrl}}/user"
+
+
+// **Note:** If your email is set to private and you send an `email` parameter as part of this request to update your profile, your privacy settings are still enforced: the email address will not be displayed on your public profile or via the API.
+
+@name("Update the authenticated user")
+PATCH "https://{{baseUrl}}/user"
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "email": "<string>",
+    "blog": "<string>",
+    "twitter_username": "<string>",
+    "company": "<string>",
+    "location": "<string>",
+    "hireable": "<boolean>",
+    "bio": "<string>"
+}')
+
+
+// Sets the visibility for your primary email addresses.
+
+@name("Set primary email visibility for the authenticated user")
+PATCH "https://{{baseUrl}}/user/email/visibility"
+"Content-Type": "application/json"
+data('{
+    "email": "<string>",
+    "visibility": "<string>"
+}')
+
+
+// Lists the people following the authenticated user.
+
+@name("List followers of the authenticated user")
+GET "https://{{baseUrl}}/user/followers"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// List issues across owned and member repositories assigned to the authenticated user.
+// 
+// **Note**: GitHub's REST API v3 considers every pull request an issue, but not every issue is a pull request. For this
+// reason, "Issues" endpoints may return both issues and pull requests in the response. You can identify pull requests by
+// the `pull_request` key. Be aware that the `id` of a pull request returned from "Issues" endpoints will be an _issue id_. To find out the pull
+// request id, use the "[List pull requests](https://docs.github.com/rest/reference/pulls#list-pull-requests)" endpoint.
+
+@name("List user account issues assigned to the authenticated user")
+GET "https://{{baseUrl}}/user/issues"
+? "filter"= "assigned"
+? "state"= "open"
+? "labels"= "<string>"
+? "sort"= "created"
+? "direction"= "desc"
+? "since"= "<string>"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// List organizations for the authenticated user.
+// 
+// **OAuth scope requirements**
+// 
+// This only lists organizations that your authorization allows you to operate on in some way (e.g., you can list teams with `read:org` scope, you can publicize your organization membership with `user` scope, etc.). Therefore, this API requires at least `user` or `read:org` scope. OAuth requests with insufficient scope receive a `403 Forbidden` response.
+
+@name("List organizations for the authenticated user")
+GET "https://{{baseUrl}}/user/orgs"
+? "per_page"= "30"
+? "page"= "1"
+
+
+@name("Create a user project")
+POST "https://{{baseUrl}}/user/projects"
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "body": "<string>"
+}')
+
+
+// Lists your publicly visible email address, which you can set with the [Set primary email visibility for the authenticated user](https://docs.github.com/rest/reference/users#set-primary-email-visibility-for-the-authenticated-user) endpoint. This endpoint is accessible with the `user:email` scope.
+
+@name("List public email addresses for the authenticated user")
+GET "https://{{baseUrl}}/user/public_emails"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Lists repositories the authenticated user is watching.
+
+@name("List repositories watched by the authenticated user")
+GET "https://{{baseUrl}}/user/subscriptions"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// List all of the teams across all of the organizations to which the authenticated user belongs. This method requires `user`, `repo`, or `read:org` [scope](https://docs.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/) when authenticating via [OAuth](https://docs.github.com/apps/building-oauth-apps/).
+
+@name("List teams for the authenticated user")
+GET "https://{{baseUrl}}/user/teams"
+? "per_page"= "30"
+? "page"= "1"
+
+
+

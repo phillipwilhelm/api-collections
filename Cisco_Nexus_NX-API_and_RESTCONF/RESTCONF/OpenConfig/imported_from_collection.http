@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+@name("Create VLAN 200")
+POST "https://{{nxos}}/restconf/data/openconfig-network-instance:network-instances/network-instance=default/vlans/vlan"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+json({
+    "vlan-id": 200
+})
+
+
+@name("Get VLAN 200")
+GET "https://{{nxos}}/restconf/data/openconfig-network-instance:network-instances/network-instance=default/vlans/vlan=200"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Assign VLAN 200 to eth1/21")
+PUT "https://{{nxos}}/restconf/data/openconfig-interfaces:interfaces/interface=eth1%2f21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+json({
+    "ethernet": {
+        "switched-vlan": {
+            "config": {
+                "access-vlan": 200,
+                "interface-mode": "ACCESS"
+            }
+        }
+    }
+})
+
+
+@name("Get interface eth1/21")
+GET "https://{{nxos}}/restconf/data/openconfig-interfaces:interfaces/interface=eth1%2f21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Get platform components")
+GET "https://{{nxos}}/restconf/data/openconfig-platform:components"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+@name("Get system users")
+GET "https://{{nxos}}/restconf/data/openconfig-system:system/aaa/authentication/users"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang.data+json"
+"Content-Type": "application/yang.data+json"
+
+
+

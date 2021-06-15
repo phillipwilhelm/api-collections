@@ -1,0 +1,43 @@
+#!/usr/bin/env dothttp
+
+@name("Get Groups")
+POST "https://api.dropboxapi.com/2/team/groups/list"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "limit": 100
+}')
+
+
+@name("Get More Groups")
+POST "https://api.dropboxapi.com/2/team/groups/list/continue"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "cursor": "{{cursor_bulk_add_groups}}"
+}')
+
+
+@name("Add Member To Group")
+POST "https://api.dropboxapi.com/2/team/groups/members/add"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+json({
+    "group": {
+        ".tag": "group_id",
+        "group_id": "{{group_id_bulk_add_groups}}"
+    },
+    "members": [
+        {
+            "user": {
+                ".tag": "{{team_member_identifier}}",
+                "{{team_member_identifier}}": "{{team_member}}"
+            },
+            "access_type": "member"
+        }
+    ],
+    "return_members": true
+})
+
+
+

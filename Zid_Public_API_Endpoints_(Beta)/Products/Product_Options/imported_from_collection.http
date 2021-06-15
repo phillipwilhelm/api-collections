@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+// This endpoint converts a product from stand-alone into a parent product (if it wasn't already a parent) and creates variants as children, to create variants you need to first create product attributes for the store using the `Create attribute` endpoint, and then use the attribute slug and define choices for them here.
+// for example: if attribute is `size` choices are `small`, `big`, ...etc.
+// 
+// Each choice is an object that accepts values in different languages, only English and Arabic are supported for now.
+// 
+// This endpoint accepts an array of attributes and their choices, the variants will be generated using the cartesian product of these attribute values.
+
+@name("Add product variants")
+POST "https://{{api_url}}/products/:product_id/options/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+data('[
+    {
+        "slug": "size",
+        "choices": [
+            {
+                "en": "Small",
+                "ar": "صغير"
+            },
+            {
+                "en": "Large",
+                "ar": "كبير"
+            }
+        ]
+    },
+    {
+        "slug": "color",
+        "choices": [
+            {
+                "en": "Red",
+                "ar": "احمر"
+            },
+            {
+                "en": "Black",
+                "ar": "اسود"
+            }
+        ]
+    }
+]')
+
+
+@name("Add product custom user input field")
+POST "https://{{api_url}}/products/:product_id/custom_user_input_fields/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+data('{
+    "type": "TEXT",
+    "price": "10.20",
+    "hint": {
+    	"en": "test",
+    	"ar": "تجربة"
+    },
+    "label": {
+    	"ar": "جرب",
+    	"en": "Test"
+    }
+}')
+
+
+@name("Add product custom option fields")
+POST "https://{{api_url}}/products/:product_id/custom_options_fields/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Accept-Language": "ar"
+data('{
+	"hint": {
+		"ar": "هنت",
+		"en": "my hint"
+	},
+	"label": {
+		"ar": "ليبل"
+	},
+	"choices": [
+		{
+			"ar": "قيمة",
+			"en": "Value",
+			"price": "10.00"
+		}
+	]
+	
+}')
+
+
+

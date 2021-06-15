@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+@name("Create Audience type Mass Market")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+json({
+    "name": "Netherlands - Mass Market",
+    "source": "mass_market",
+    "country": "nl"
+})
+
+
+@name("Create Audience type CRM")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+json({
+    "name": "The Hague 2 ",
+    "source": "pipedrive"
+})
+
+
+@name("Create Audience type File")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+json({
+    "name": "Test",
+    "source": "manual"
+})
+
+
+@name("Create Audience type Manual")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+json({
+    "name": "File import - 10 prospects - identifier",
+    "source": "file"
+})
+
+
+@name("Update Audience Status")
+PUT "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+json({
+    "status": "defined"
+})
+
+
+@name("Upload csv for Audience")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}/upload"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Audience-Import-Token": "{{sb_audience_import_token}}"
+files(
+	("file", "None")
+)
+
+
+@name("Set task status")
+POST "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}/progress"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Audience-Import-Token": "{{sb_audience_import_token}}"
+json({
+    "eta": 1592563102,
+    "percentage": 13.8,
+    "mapping_errors": "some test error2",
+    "upload_errors": [
+        "upload error 3"
+    ]
+})
+
+
+@name("Get Available types from CRM")
+GET "https://{{sb_client}}.salesboard.biz/v1/audiences/available/pipedrive"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+// Get a fresh token to upload a new csv (invalidates the previous one)
+
+@name("Request to refresh Audience token")
+PUT "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}/token"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+
+
+
+@name("Delete Audience - TODO")
+DELETE "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+@name("Delete Audience Prospects (truncate)")
+DELETE "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}/prospects"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+@name("Get Audience by ID")
+GET "https://{{sb_client}}.salesboard.biz/v1/audiences/{{sb_audience_id}}"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+@name("Get Audiences")
+GET "https://{{sb_client}}.salesboard.biz/v1/audiences"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+

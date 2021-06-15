@@ -1,0 +1,84 @@
+#!/usr/bin/env dothttp
+
+// Returns 20 news headlines. Use `start` query parameter to page through the headlines.
+
+@name("List")
+GET "https://{{url}}/api/research/news"
+? "start"= "0"
+? "count"= "100"
+? "filter"= "[[-](provider|aggregator):value1,valueN];"
+
+
+
+// Load news article based off a symbol.
+
+@name("News by Symbol")
+GET "https://{{url}}/api/research/news/ticker/{symbol}"
+
+
+
+// Load SEC filings for given symbol. Retuns standard news items:
+// 
+// ```javascript
+// [
+//     {
+//         "newsId": 167243152,
+//         "headline": "Form  4          Alphabet Inc.             For: Aug 15  Filed by: Pichai Sundar",
+//         "body": "http://archive.fast-edgar.com/20180815/A7ZZCQ2C3Z22KZCV229R2ZZ2NN4NZ22RZ5A2\n\n\nFiled on: August 15, 2018",
+//         "provider": "SEC_____",
+//         "aggregator": "EDGAR___",
+//         "language": "",
+//         "createdOn": "08/15/2018 21:37:00 EDT"
+//     },
+//     {
+//         "newsId": 167241252,
+//         "headline": "Form  4          Alphabet Inc.             For: Aug 15  Filed by: DOERR L JOHN",
+//         "body": "http://archive.fast-edgar.com/20180815/A3Z84G2C3Z22JZLV229N2ZZ2R8BFZ22RZ2A2\n\n\nFiled on: August 15, 2018",
+//         "provider": "SEC_____",
+//         "aggregator": "EDGAR___",
+//         "language": "",
+//         "createdOn": "08/15/2018 19:01:00 EDT"
+//     }
+// ]
+// ```
+
+@name("SEC")
+GET "https://{{url}}/api/research/news/sec/{symbol}"
+? "start"= "0"
+? "count"= "2"
+
+
+// Return news item for given ID:
+// 
+// ```javascript
+// {
+//     "newsId": 165689032,
+//     "headline": "Form  4          Alphabet Inc.             For: Jul 11  Filed by: HENNESSY JOHN L",
+//     "body": "http://archive.fast-edgar.com/20180713/AJZIS22C3Z224JK2229N2ZZ2QLPNZ22RO2A2\n\n\nFiled on: July 13, 2018",
+//     "provider": "SEC_____",
+//     "aggregator": "EDGAR___",
+//     "xmlBody": "<body.content>\n    <p>\n        <a href=\"http://archive.fast-edgar.com/20180713/AJZIS22C3Z224JK2229N2ZZ2QLPNZ22RO2A2\">\n            <a href=\"http://archive.fast-edgar.com/20180713/AJZIS22C3Z224JK2229N2ZZ2QLPNZ22RO2A2\">http://archive.fast-edgar.com/20180713/AJZIS22C3Z224JK2229N2ZZ2QLPNZ22RO2A2</a>\n        </a>\n    </p>\n    <p>\nFiled on: July 13, 2018\n</p>\n</body.content>",
+//     "language": "en",
+//     "subjects": [
+//         "IS/spec",
+//         "IS/impact",
+//         "IS/biz.filings",
+//         "IS/biz.corpcomm",
+//         "IS/biz.spec",
+//         "IS/biz.form4",
+//         "IS/fin.intrade"
+//     ],
+//     "symbols": [
+//         "GOOG"
+//     ],
+//     "createdOn": "07/13/2018 19:55:00 EDT",
+//     "firstLink": "http://archive.fast-edgar.com/20180713/AJZIS22C3Z224JK2229N2ZZ2QLPNZ22RO2A2"
+// }
+// ```
+
+@name("Lookup")
+GET "https://{{url}}/api/research/news/{newsId}"
+
+
+
+

@@ -1,0 +1,3 @@
+To generate the key ID and key secret the user needs to use the App ID value generated while registering the adapter in BOFX and pass it in the API GET credential from APIP.
+
+As part of GET credential API response you will see two fields - keyID and keySecret.Copy both of these. In the Actual API call (for eg Get post), you have pass an Authorization token header in this format- Header Name: Authorization, Value: Bearer keyId:Keysecret. (i.e Bearer space KeyID that you copied followed by ":" followed by KeySecret)

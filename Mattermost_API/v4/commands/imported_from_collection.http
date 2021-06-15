@@ -1,0 +1,102 @@
+#!/usr/bin/env dothttp
+
+// List commands for a team.
+// ##### Permissions
+// `manage_slash_commands` if need list custom commands.
+
+@name("List commands for a team")
+GET "https://{{baseURL}}/commands"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "team_id"= "{{team_id}}"
+? "custom_only"= "false"
+
+
+// Create a command for a team.
+// ##### Permissions
+// `manage_slash_commands` for the team the command is in.
+
+@name("Create a command")
+POST "https://{{baseURL}}/commands"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+        "team_id": "{{team_id}}",
+        "trigger": "foo",
+        "method": "G",
+        "auto_complete": true,
+        "auto_complete_desc": "Turns off desktop, email and push notifications for the current channel or the [channel] specified.",
+        "auto_complete_hint": "~[channel]",
+        "display_name": "mute",
+        "url": "http://"
+    }')
+
+
+// Update a single command based on command id string and Command struct.
+// ##### Permissions
+// Must have `manage_slash_commands` permission for the team the command is in.
+
+@name("Update a command")
+PUT "https://{{baseURL}}/commands/{{command_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+        "id": "gt916w5wzids5rn5ygox8ysreo",
+        "token": "",
+        "create_at": 1560883865064,
+        "update_at": 1560883865064,
+        "delete_at": 0,
+        "creator_id": "",
+        "team_id": "4bsj5jzfu7d83mz9t3f5piwccc",
+        "trigger": "foo2",
+        "method": "G",
+        "username": "",
+        "icon_url": "",
+        "auto_complete": true,
+        "auto_complete_desc": "Turns off desktop, email and push notifications for the current channel or the [channel] specified.",
+        "auto_complete_hint": "~[channel]",
+        "display_name": "mute",
+        "description": "",
+        "url": "http://foo.com/blah"
+    }')
+
+
+// Delete a command based on command id string.
+// ##### Permissions
+// Must have `manage_slash_commands` permission for the team the command is in.
+
+@name("Delete a command")
+DELETE "https://{{baseURL}}/commands/{{command_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Generate a new token for the command based on command id string.
+// ##### Permissions
+// Must have `manage_slash_commands` permission for the team the command is in.
+
+@name("Generate a new token")
+PUT "https://{{baseURL}}/commands/{{command_id}}/regen_token"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Execute a command on a team.
+// ##### Permissions
+// Must have `use_slash_commands` permission for the team the command is in.
+
+@name("Execute a command")
+POST "https://{{baseURL}}/commands/execute"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('{
+    "command": "/invite @carlos.test",
+    "channel_id": "{{channel_id}}",
+    "team_id": "{{team_id}}"
+}')
+
+
+

@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+// Note: this will only have data if service instances already exist.
+// Shows all service instances. In this case we have just one. 
+// CLI version:
+// admin@ncs# show running-config simple-sample-snmp-server-service
+// simple-sample-snmp-server-service first_service_instance
+//  device [ ios0 ]
+//  dummy  10.0.0.0
+
+@name("Get List of Service Instances for a Service")
+GET "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/svi_verify_example:svi_verify_example"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+
+
+
+// Creates a service and applies the corresponding template. 
+// 
+// to add a package on the sandbox system install do the following:
+// 
+// cd /var/opt/ncs/packages
+// ncs-make-package --service-skeleton template snmp-servers
+// vi snmp-servers/src/yang/snmp-servers.yang
+// 
+// ** add type string / remove type ip address **
+// https://github.com/jabelk/snmp-servers/blob/main/src/yang/snmp-servers.yang#L31
+// 
+// cd snmp-servers/src/
+// make
+// cd ..
+// cd templates/
+// vi snmp-servers-template.xml
+// 
+// ** add in the templates **
+// 
+// https://github.com/jabelk/snmp-servers/blob/main/templates/snmp-servers-template.xml#L19
+// 
+// log into NSO
+// ncs_cli -C
+// packages reload
+
+@name("Create Service Instance for Single Device")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/svi_verify_example:svi_verify_example/"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+? "dry-run"= "native"
+data('{
+    "svi_verify_example:svi_verify_example": [
+        {
+            "name": "first-instance",
+            "switches": [
+                {
+                    "id": "first-sw",
+                    "switch-device": "dist-sw01"
+                },
+                {
+                    "id": "second-sw",
+                    "switch-device": "dist-sw02"
+                }
+            ],
+            "firewalls": [
+                {
+                    "id": "first-fw",
+                    "firewall-device": "edge-firewall01"
+                }
+            ],
+            "vlan-id": 1337,
+            "vlan-name": "SVI-DEMO"
+        }
+    ]
+}')
+
+
+// Note: this will only have data if service instances already exist.
+// CLI version to do the same:
+// admin@ncs# show running-config simple-sample-snmp-server-service first_service_instance
+
+@name("Get Service Info For Single Service Instance")
+GET "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/svi_verify_example:svi_verify_example=first-instance"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+
+
+
+// Updating the VLAN Name and Number
+
+@name("Update an Existing Service Instance")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/svi_verify_example:svi_verify_example=first-instance"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+data('{
+    "svi_verify_example:svi_verify_example": [
+        {
+            "name": "first-instance",
+            "switches": [
+                {
+                    "id": "first-sw",
+                    "switch-device": "dist-sw01"
+                },
+                {
+                    "id": "second-sw",
+                    "switch-device": "dist-sw02"
+                }
+            ],
+            "firewalls": [
+                {
+                    "id": "first-fw",
+                    "firewall-device": "edge-firewall01"
+                }
+            ],
+            "vlan-id": 1503,
+            "vlan-name": "NEW-SVI-DEMO"
+        }
+    ]
+}')
+
+
+// This will remove any configuration template based on the inputs stored in the service. 
+// CLI way of doing the same thing:
+// no simple-sample-snmp-server-service first_service_instance
+
+@name("Remove Device from Service")
+DELETE "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/svi_verify_example:svi_verify_example=first-instance"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+
+
+
+

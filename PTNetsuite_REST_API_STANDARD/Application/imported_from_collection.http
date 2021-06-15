@@ -1,0 +1,211 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the existing applications related to the current user.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key   | Value   | Description               | 
+// | ----- | ------- | ------------------------- |
+// | aid   | {{aid}}   | Global id that uniquely identifies the application
+// | appid | {{appid}} | Application id used by the MQTT topics
+// | label | {{label}} | Label used to tag the application
+// 
+// Supported filtering and paging is described in the `Common` section.
+//  
+// Details:
+//    * The request has no body
+//    * Examples of response are available in the right section
+// 
+//  ---
+// 
+//  **NOTE:** `aid` and `appid` are not alike.
+
+@name("Application List")
+GET "{{protocol}}://{{host}}/api/v2/applications"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns the application associated with the given `aid`, the unique identifier associated to each application.
+// 
+// The response will provide an object that containssssssss the info about the related application.
+// 
+// Details:
+//    * No body in the request
+//    * The requested application is identified in the url by `{{aid}}`
+//    * The possible responses are listed in the section on the right
+//    * No filtering or paging supported
+
+@name("Application Information")
+GET "{{protocol}}://{{host}}/api/v2/application/{{aid}}"
+"Authorization": "Bearer {{token}}"
+
+
+// This API creates a new application and returns the object related to the application.
+//  
+// Details:
+//    * The request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "label": {
+//       "type": [
+//         "number",
+//         "string"
+//       ],
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this application"
+//     },
+//     "appid": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "maximum": 9007199254740991,
+//       "description": "Uniquely identify an application for the current user. If omitted will be auto-generated"
+//     }
+//   },
+//   "required": [
+//     "label"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property        | Type      | Required     | Nullable | Defined by    |
+// | --------------- | --------- | ------------ | -------- | ------------- |
+// | [appid](#appid) | `integer` | Optional     | No       | schema above |
+// | [label](#label) | `string`  | **Required** | No       | schema above |
+// 
+// ## appid
+// 
+// ID that uniquely identifies the application. Auto-generated if omitted
+// 
+// `appid`
+// 
+// - optional
+// - type: `integer`
+// - defined in the schema above
+// 
+// ### appid Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## label
+// 
+// The label is a field used to describe the application
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in the schema above
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Create Application")
+POST "{{protocol}}://{{host}}/api/v2/application"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label":"{{label}}"
+}')
+
+
+// This API allows to update the information of the own application identified by `{{aid}}`.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change label.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "label": {
+//       "type": [
+//         "number",
+//         "string"
+//       ],
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this application"
+//     }
+//   },
+//   "required": [
+//     "label"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property        | Type     | Required     | Nullable | Defined by    |
+// | --------------- | -------- | ------------ | -------- | ------------- |
+// | [label](#label) | `string` | **Required** | No       | (this schema) |
+// 
+// ## label
+// 
+// The label is a field used to describe this application
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Update Application Information")
+PUT "{{protocol}}://{{host}}/api/v2/application/{{aid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label":"{{new-label}}"
+}')
+
+
+// This API allows to delete an existing application and all the relationship with other users if the application is shared with some user.
+// 
+// The application to delete is passed in the URL using the ApplciationId as `{{aid}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The application to delete is identified in the url by `{{aid}}`
+//    * The possible responses are listed in the section on the right
+//    * We can't delete an application if it has some device associated
+
+@name("Remove Application")
+DELETE "{{protocol}}://{{host}}/api/v2/application/{{aid}}"
+"Authorization": "Bearer {{token}}"
+
+
+

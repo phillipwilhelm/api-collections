@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+@name("Create a Deployment Group (project)")
+POST "https://dev.azure.com/{{organization}}/_apis/distributedtask/pools"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+json({
+    "name": "OrgLevelPool2",
+    "poolType": 2
+})
+
+
+@name("Get Deployment Pools with Project References")
+GET "https://dev.azure.com/{{organization}}/_apis/distributedtask/deploymentPools/deploymentPoolsSummary"
+basicauth("Basic", "{{OPAT}}")
+? "expands"= "2"
+
+
+@name("List Role definitions for Deployment Groups")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globaldeploymentpoolrole/roledefinitions"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("Get Deployment Pool Memberships at Root")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globaldeploymentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+
+
+@name("Get Deployment Pool Memberships given Pool ID")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.deploymentpoolrole/roleassignments/resources/{{deploymentPoolID}}"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("Set Org Root level Deployment Group Pemissions")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globaldeploymentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+json([
+    {
+        "roleName": "User",
+        "userId": "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+    }
+])
+
+
+@name("Set Deployment Pool Memberships given Pool ID")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.deploymentpoolrole/roleassignments/resources/{{deploymentPoolID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+json([
+    {
+        "roleName": "Reader",
+        "userId": "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+    }
+])
+
+
+@name("Remove Deployment Pool Memberships given Pool ID")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.deploymentpoolrole/roleassignments/resources/{{deploymentPoolID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+json([
+    "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Remove Org Root Level Deployment Group Permissions")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globaldeploymentpoolrole/roleassignments/resources/0"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "6.0-preview.1"
+json([
+    "91aa4375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+

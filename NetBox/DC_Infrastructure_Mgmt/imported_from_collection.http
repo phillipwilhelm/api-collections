@@ -1,0 +1,244 @@
+#!/usr/bin/env dothttp
+
+@name("Get racks")
+GET "{{protocol}}://{{netbox}}/api/dcim/racks/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create rack A1")
+POST "{{protocol}}://{{netbox}}/api/dcim/racks/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "A1",
+    "status": "planned",
+    "site": 3,
+    "serial": "SN111",
+    "asset_tag": "TAG111",
+    "type": "4-post-cabinet",
+    "width": 19,
+    "u_height": 42,
+    "desc_units": true,
+    "outer_width": 24,
+    "outer_depth": 36,
+    "outer_unit": "in"
+}')
+
+
+@name("Create rack A2")
+POST "{{protocol}}://{{netbox}}/api/dcim/racks/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "A2",
+    "status": "planned",
+    "site": 3,
+    "serial": "SN222",
+    "asset_tag": "TAG222",
+    "type": "4-post-frame",
+    "width": 19,
+    "u_height": 34,
+    "desc_units": true,
+    "outer_width": 22,
+    "outer_depth": 32,
+    "outer_unit": "in"
+}')
+
+
+@name("Get manufacturers")
+GET "{{protocol}}://{{netbox}}/api/dcim/manufacturers/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create Cisco manufacturer")
+POST "{{protocol}}://{{netbox}}/api/dcim/manufacturers/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "name": "Cisco",
+  "slug": "Cisco"
+}')
+
+
+@name("Create Dell manufacturer")
+POST "{{protocol}}://{{netbox}}/api/dcim/manufacturers/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "name": "Dell",
+  "slug": "Dell"
+}')
+
+
+@name("Get device types")
+GET "{{protocol}}://{{netbox}}/api/dcim/device-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create ISR4K device type")
+POST "{{protocol}}://{{netbox}}/api/dcim/device-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "manufacturer": 1,
+    "model": "ISR4451",
+    "slug": "ISR4451",
+    "u_height": 2,
+    "is_full_depth": true
+}')
+
+
+@name("Create N9K device type")
+POST "{{protocol}}://{{netbox}}/api/dcim/device-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "manufacturer": 1,
+    "model": "Nexus 9372TX",
+    "slug": "N9K-C9372TX",
+    "u_height": 1,
+    "is_full_depth": true
+}')
+
+
+@name("Create R420XR device type")
+POST "{{protocol}}://{{netbox}}/api/dcim/device-types/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "manufacturer": 2,
+    "model": "R420XR",
+    "slug": "R420XR",
+    "u_height": 1,
+    "is_full_depth": true
+}')
+
+
+@name("Get device roles")
+GET "{{protocol}}://{{netbox}}/api/dcim/device-roles/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+
+
+@name("Create network device role")
+POST "{{protocol}}://{{netbox}}/api/dcim/device-roles/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "name": "Network Devices",
+  "slug": "Network",
+  "color": "00ff00"
+}')
+
+
+@name("Create compute device role")
+POST "{{protocol}}://{{netbox}}/api/dcim/device-roles/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+  "name": "Compute Devices",
+  "slug": "Compute",
+  "color": "ff0000"
+}')
+
+
+@name("Get devices")
+GET "{{protocol}}://{{netbox}}/api/dcim/devices"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+? "manufacturer"= "Cisco"
+? "name"= "R420XR1"
+
+
+@name("Create router device")
+POST "{{protocol}}://{{netbox}}/api/dcim/devices/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "Edge Router",
+    "device_type": 1,
+    "device_role": 1,
+    "serial": "ISR44445511",
+    "asset_tag": "TAG44445511",
+    "site": 3,
+    "rack": 2,
+    "position": 1,
+    "face": "front",
+    "status": "planned"
+}')
+
+
+@name("Create switch device")
+POST "{{protocol}}://{{netbox}}/api/dcim/devices/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "Access Switch",
+    "device_type": 2,
+    "device_role": 1,
+    "serial": "NEXUS99337722",
+    "asset_tag": "TAG99337722",
+    "site": 3,
+    "rack": 2,
+    "position": 9,
+    "face": "front",
+    "status": "planned"
+}')
+
+
+@name("Create server 1")
+POST "{{protocol}}://{{netbox}}/api/dcim/devices/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "R420XR1",
+    "device_type": 3,
+    "device_role": 2,
+    "serial": "DELL111",
+    "site": 3,
+    "rack": 3,
+    "position": 1,
+    "face": "front",
+    "status": "planned"
+}')
+
+
+@name("Create server 2")
+POST "{{protocol}}://{{netbox}}/api/dcim/devices/"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authorization": "Token {{api_token}}"
+data('{
+    "name": "R420XR2",
+    "device_type": 3,
+    "device_role": 2,
+    "serial": "DELL222",
+    "site": 3,
+    "rack": 3,
+    "position": 2,
+    "face": "front",
+    "status": "planned"
+}')
+
+
+

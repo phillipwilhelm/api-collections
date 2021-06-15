@@ -1,0 +1,230 @@
+#!/usr/bin/env dothttp
+
+@name("Operational State interfaces")
+GET "https://{{host}}/restconf/data/ietf-interfaces:interfaces-state/"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// /api is the top level REST resource.
+// Reading this resource shows what datastores
+// are available and what operations are available.
+// 
+// Operations are executed by sending a GET command
+// to the URL identified for the operation.
+
+@name("Read the top level REST resource")
+GET "https://{{host}}/.well-known/host-meta"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+@name("Read Top Level RESTCONF")
+GET "https://{{host}}/restconf"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// This command reads a subset of the information available
+// in the ietf-netconf-monitoring model.  The information returned
+// is the list of all models, revisions, deviations on this device.
+// 
+// Using this command is the definitive way to determine the exact
+// implementation and versions on the device.  This information can
+// be used by an intelligent management client to make decisions
+// on how to use the RESTCONF interface.
+// 
+// This example for the ietf-interfaces model identifies the 
+// revision data as 5.8.2014 and lists specific feature options
+// supported and also the name of the module applying deviations 
+// that change the information exposed by the model.
+// 
+//       "urn:ietf:params:xml:ns:yang:
+//       ietf-interfaces?module=ietf-interfaces&
+//       revision=2014-05-08&features=pre-provisioning,if-mib,
+//       arbitrary-names&deviations=ietf-ip-devs",
+
+@name("Read models implemented by the device")
+GET "https://{{host}}/restconf/data/netconf-state/capabilities"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// This command reads a subset of the information available
+// in the ietf-netconf-monitoring model.  The information returned
+// is the list of all models, revisions, deviations on this device.
+// 
+// Using this command is the definitive way to determine the exact
+// implementation and versions on the device.  This information can
+// be used by an intelligent management client to make decisions
+// on how to use the RESTCONF interface.
+// 
+// This example for the ietf-interfaces model identifies the 
+// revision data as 5.8.2014 and lists specific feature options
+// supported and also the name of the module applying deviations 
+// that change the information exposed by the model.
+// 
+//       "urn:ietf:params:xml:ns:yang:
+//       ietf-interfaces?module=ietf-interfaces&
+//       revision=2014-05-08&features=pre-provisioning,if-mib,
+//       arbitrary-names&deviations=ietf-ip-devs",
+
+@name("Read ietf-yang-library")
+GET "https://{{host}}/restconf/data/ietf-yang-library:modules-state"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// This message uses the ietf-interface model to read
+// a list of the names of each interface managed using
+// the model.  The model mapping infrastructure converts
+// the native model configuration into the form defined
+// by the ietf-interfaces common model
+// 
+// {
+//   "ietf-interfaces:interfaces": {
+//     "interface": [
+//       {
+//         "name": "FastEthernet0/0/0"
+//       },
+//       {
+//         "name": "FastEthernet0/0/1"
+//       },
+//       {
+//         "name": "FastEthernet0/0/2"
+//       },
+
+@name("Read ietf-interfaces list of interfaces")
+GET "https://{{host}}/restconf/data/ietf-interfaces:interfaces"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// This reads a single interface from the IOS XE box which already has been configured as a 802.1Q subinterface
+
+@name("Read ietf-interfaces single interface")
+GET "https://{{host}}/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet0/0"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+@name("Configure ietf-interfaces single interface")
+PUT "http://{{host}}/restconf/data/ietf-interfaces:interfaces/interface=GigabitEthernet2"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+json"
+data('{
+    "ietf-interfaces:interface": {
+        "name": "GigabitEthernet2",
+        "description": "Configured by RESTCONF",
+        "type": "iana-if-type:ethernetCsmacd",
+        "enabled": true,
+        "ietf-ip:ipv4": {
+            "address": [
+                {
+                    "ip": "10.255.255.1",
+                    "netmask": "255.255.255.0"
+                }
+            ]
+        }
+    }
+}')
+
+
+@name("Add new loopback interface")
+POST "http://{{host}}/restconf/data/ietf-interfaces:interfaces"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+"Accept": "application/yang-data+json"
+"Content-Type": "application/yang-data+json"
+data('{
+    "ietf-interfaces:interface": {
+        "name": "Loopback100",
+        "description": "Configured by RESTCONF",
+        "type": "iana-if-type:softwareLoopback",
+        "enabled": true,
+        "ietf-ip:ipv4": {
+            "address": [
+                {
+                    "ip": "172.16.100.1",
+                    "netmask": "255.255.255.0"
+                }
+            ]
+        }
+    }
+}')
+
+
+@name("Delete Loopback Interface")
+DELETE "http://{{host}}/restconf/data/ietf-interfaces:interfaces/interface=Loopback100"
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+// This reads a single interface from the IOS XE box which already has been configured as a 802.1Q subinterface
+// It uses the native device model (e.g. NED, network element driver)
+
+@name("Read native device single interface")
+GET "http://{{host}}/restconf/data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=2"
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+@name("Read native hostname")
+GET "https://{{host}}/restconf/data/Cisco-IOS-XE-native:native/hostname"
+basicauth("admin", "Cisco123")
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+
+
+@name("Retrieve the Server Module Information")
+GET "https://{{host}}/restconf/data/ietf-yang-library:modules-state"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+@name("Retrieve RESTCONF Monitoring Capabilities")
+GET "https://{{host}}/restconf/data/ietf-restconf-monitoring:restconf-state/capabilities"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+@name("Filter Fields Returned in Response")
+GET "https://{{host}}/restconf/data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=2"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+? "fields"= "Cisco-IOS-XE-native:GigabitEthernet(name;description;ip)"
+? "depth"= "unbounded"
+
+
+@name("IOS XE Save Configuration RPC")
+POST "https://{{host}}/restconf/operations/cisco-ia:save-config/"
+basicauth("admin", "Cisco123")
+"Content-Type": "application/yang-data+json"
+"Accept": "application/yang-data+json"
+"Authorization": "Basic cm9vdDpEX1ZheSFfMTAm"
+
+
+

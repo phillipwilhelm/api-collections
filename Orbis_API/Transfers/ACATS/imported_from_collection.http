@@ -1,0 +1,122 @@
+#!/usr/bin/env dothttp
+
+// Returns an array of ACAT requests matching given search criteria.
+
+@name("Search")
+GET "https://{{url}}/api/transfer/acat/search"
+
+
+// * can request batch cancellation by specifying `batchId` and `status=Cancelled`
+// * if given `status=Disgarded`, ACAT requests matching criteria will be wiped out from the system (useful for batch termination). Disgard is not supported for any ACAT that was dispatched.
+// * either `batchId`, `requestId` or account must be provided. _NOTE:_ individual users cannot supply `batchId`.
+
+@name("Cancel")
+POST "https://{{url}}/api/transfer/acat/cancel"
+"Content-Type": "application/json"
+json({
+    "account": "AC123",
+    "accountId": 0,
+    "batchId": "{batchId}",
+    "requestId": "{requestId}",
+    "comment": "something for the record",
+    "status": "{optional}|Cancelled|Disgarded",
+    "remoteIp": "{optional}",
+    "remoteDevice": "{optional}"
+})
+
+
+// Request:
+// * If `status` is omitted, ACAT request will be sent to custodian immediately.
+// * If `status` is set to `Scheduled`, ACAT will be schduled for future trigger. `batchId` must be provided.
+// * If `status` is set to `RequestPlaced`, ACAT request will be triggered and delivered to the custiodian. Either `batchId` or `requestId` must be provided.
+// 
+// Response:
+// * Requested data will be echoed back.
+// * Field `requestId` will contain unique ID assigned to the request.
+// * Quotes for partial ACATs will be included in each asset entry as `quote` property.
+
+@name("Initiate/Schedule")
+POST "https://{{url}}/api/transfer/acat/initiate"
+"Content-Type": "application/json"
+json({
+    "account": {
+        "accountNumber": "AC123",
+        "accountId": 0
+    },
+    "batchId": "{batchId}",
+    "comment": "something for the record",
+    "status": "{optional}|RequestPlaced|Scheduled",
+    "remoteIp": "{optional}",
+    "remoteDevice": "{optional}",
+    "contraNumber": "",
+    "contraAccount": "",
+    "contraTitle": "",
+    "contraAccountType": "",
+    "primaryTaxId": "",
+    "secondaryTaxId": "",
+    "participantNumber": "",
+    "type": "Full|Partial",
+    "assets": [
+        {
+            "symbol": "ZVZZT",
+            "quote": {
+                "symbol": "",
+                "cusip": "0A1B2C"
+            },
+            "quantity": 1000,
+            "optionFlag": 1,
+            "isShort": 0
+        }
+    ]
+})
+
+
+// * Cannot schedule more than one ACAT request for an account
+// * `batchId` must be supplied for all entries (can be different)
+// * Each entry is validated on an individual basis
+// * Some or all entries can be rejected.
+// 
+// Response structure:
+// ```json
+// {
+// 	"errors": {
+// 		"accountNumber": "ERR_"
+// 	},
+// 	"requestRefs": {
+// 		"accountNumber": "RF00001"
+// 	}
+// }
+// ```
+
+@name("Bulk schedule")
+POST "https://{{url}}/api/transfer/acat/schedule"
+"Content-Type": "application/json"
+json([
+    {
+        "account": {
+            "accountNumber": "AC123",
+            "accountId": 0
+        },
+        "batchId": "{batchId}",
+        "comment": "something for the record",
+        "remoteIp": "{optional}",
+        "remoteDevice": "{optional}",
+        "contraNumber": "",
+        "contraAccount": "",
+        "contraTitle": "",
+        "contraAccountType": "",
+        "primaryTaxId": "",
+        "secondaryTaxId": "",
+        "participantNumber": "",
+        "type": "Full|Partial",
+        "assets": [
+            {
+                "symbol": "ZVZZT",
+                "quantity": 1000
+            }
+        ]
+    }
+])
+
+
+

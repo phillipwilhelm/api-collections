@@ -1,0 +1,331 @@
+#!/usr/bin/env dothttp
+
+// With this `POST` request you will be able to login to Mati and use an `JWT` access token it is valid for `3600` seconds. After that you will need to resend this request to get a new one.
+// 
+// Authorization: `Basic Auth` 
+// 
+// Both username and password are available through [your dashboard](https://dashboard.getmati.com/) in the **SDKs integration tab.**
+// 
+// You should send: 
+// 
+// Username= `ClientID` 
+// 
+// Password = `Client Secret`
+
+@name("1. Get API Authorization Token")
+POST "https://api.getmati.com/oauth"
+basicauth("{{client ID}}", "{{client_secret}}")
+"Content-Type": " application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ],
+    "": [
+        ""
+    ]
+})
+
+
+// With this `POST` request you will be able to create new `identities` that are the strings that you will be able to use to reference your users.
+// 
+// Use the JWT `access_token` obtained in the previous step to generate a new identity.
+// 
+// Authorization: `Bearer Token` 
+// 
+// 
+// You can send metadata as an `object` in the `body` so you can use your own internal reference to identify your users and requests.
+// Any metadata values to pass through verification.
+// There are 2 rules: 
+// 1. We support only one level of nesting.
+// 2. The metadata should weight less than 4Kb.
+// 
+// 
+// For example: 
+// 
+// ```json
+// {
+//     "flowID": "5e95d9bc728ddc001b57ef94",
+//     "metadata": {
+//         "user": "JOHN MALCOVICH",
+//         "id": "1234",
+//         "email": "john@example.com"
+//     }
+// }
+// ```
+
+@name("2. Create Identity")
+POST "https://api.getmati.com/v2/verifications"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+json({
+    "flowId": "6022baac1efc87001b940099",
+    "metadata": {
+        "u_id": "193589035809",
+        "date": "05Oct2020",
+        "u_email": "john@example.com"
+    }
+})
+
+
+// With this `POST` request you will be able to send the user's fieles to its `identity`.
+// 
+// Authorization: `Bearer Token` 
+// 
+// It is very important that the `JSON` in `inputs` matches the flow configuration on your dashboard. **Otherwise you will not be able to send this request.**
+// 
+// In `inputs` you will need to specify the country of origin of the ID document. Use [ISO-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+// 
+// List of country names in ISO-2 format:
+// ```json
+// {"AD","AE","AF","AG","AI","AL","AM","AO","AR","AT","AU","AW","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BM","BN","BO","BR","BS","BT","BW","BZ","CA","CD","CF","CG","CH","CI","CL","CM","CN","CO","CR","CW","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","ER","ES","ET","FI","FJ","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GT","GW","GY","HK","HN","HR","HT","HU","ID","IE","IL","IN","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KV","KW","KZ","LA","LB","LC","LI","LK","LS","LT","LU","LV","LY","MA","MC","MD","ME","MG","MK","ML","MM","MN","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PS","PT","PY","QA","RO","RS","RU","RW","SA","SB","SC","SE","SG","SI","SK","SL","SM","SN","SO","SR","SS","ST","SV","SZ","TD","TG","TH","TJ","TL","TM","TN","TO","TP","TR","TT","TV","TZ","UA","UG","US","UY","UZ","VA","VE","VN","VU","WS","YE","ZA","ZM"}
+// 
+// ```
+// If you verify users from the United States you will also have to specify the `region` (state):
+// 
+// ```JSON
+// {"AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NJ","NM","NY","NC","NH","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"}
+// ```
+// Otherwise you can leave `region:""`empty.
+// 
+// Use `document` to upload the user's files, so they can be verified.
+
+@name("3. Send Input example:  (BR National ID, No Biometrics)")
+POST "https://api.getmati.com/v2/identities/{{identity}}/send-input"
+"Authorization": "Bearer {{access_token}}"
+files(
+	("inputs", "[{"inputType":"document-photo","group":0,"data":{"type":"national-id","country":"BR","region":"","page":"front","filename":"43_front.jpg"}},{"inputType":"document-photo","group":0,"data":{"type":"national-id","country":"BR","region":"","page":"back","filename":"43_back.jpg"}}]"),
+	("document", "None"),
+	("document", "None")
+)
+
+
+@name("3. Send Input example: (MX NI + MX Passport + PoR + Selfie)")
+POST "https://api.getmati.com/v2/identities/{{identity}}/send-input"
+"Authorization": "Bearer {{access_token}}"
+files(
+	("inputs", "[
+  {
+    "inputType": "document-photo",
+    "group": 0,
+    "data": {
+      "type": "national-id",
+      "country": "MX",
+      "page": "front",
+      "filename": "MX_NI_FRONT.jpg"
+    }
+  },
+  {
+    "inputType": "document-photo",
+    "group": 0,
+    "data": {
+      "type": "national-id",
+      "country": "MX",
+      "page": "back",
+      "filename": "MX_NI_BACK.jpg"
+    }
+  },
+    {
+    "inputType": "document-photo",
+    "group": 1,
+    "data": {
+      "type": "passport",
+      "country": "MX",
+      "page": "front",
+      "filename": "MX_PASSPORT.jpg"
+    }
+    },
+   {
+    "inputType": "document-photo",
+    "group": 2,
+    "data": {
+      "type": "proof-of-residency",
+      "country": "MX",
+      "page": "front",
+      "filename": "proof-of-residence.png"
+    }
+  },
+  {
+    "inputType": "selfie-photo",
+    "data": {
+      "type": "selfie-photo",
+      "filename": "selfie-photo.jpg"
+    }
+  }
+]"),
+	("document", "None"),
+	("document", "None"),
+	("document", "None"),
+	("document", "None"),
+	("document", "None")
+)
+
+
+@name("3. Send Input example: (US DL, + Liveness video)")
+POST "https://api.getmati.com/v2/identities/{{identity}}/send-input"
+"Authorization": "Bearer {{access_token}}"
+files(
+	("inputs", "[
+  {
+    "inputType": "document-photo",
+    "group": 0,
+    "data": {
+      "type": "national-id",
+      "country": "US",
+      "region" : "CA",
+      "page": "front",
+      "filename": "US_CA_DL_FRONT.jpg"
+    }
+  },
+  {
+    "inputType": "document-photo",
+    "group": 0,
+    "data": {
+      "type": "national-id",
+      "country": "US",
+      "region" : "CA",
+      "page": "back",
+      "filename": "US_CA_DL_BACK.jpg"
+    }
+  },
+   {
+    "inputType": "selfie-video",
+    "data": {
+      "type":"video/mp4",
+      "filename": "Liveness_video.mp4"
+    }
+  }
+]"),
+	("document", "None"),
+	("document", "None"),
+	("video", "None")
+)
+
+
+// Use the `JWT` `access_token` obtained in **1. Authorization** to obtain the user's information **after** they have submitted their documents or completed the verification via our Web SDK. 
+// 
+// The endpoint used is the one contained in the Mati Webhook as  `resource` 
+// 
+// For example:
+// 
+// ```JSON
+// {
+//   "eventName": "verification_completed",
+//   "details": {},
+//   "identityStatus": "verified",
+//   "matiDashboardUrl": "https://dashboard.getmati.com/identities/5e2a2fcb09b87d001bb61399",
+//   "metadata": {
+//     "email": "miguel@mati.io",
+//     "Client": "id3452"
+//   },
+//   "resource": "https://api.getmati.com/api/v2/verifications/5e2a2fcb09b87d001bb6139b",
+//   "status": "verified"
+// }
+// ```
+
+@name("4. Retrieve Webhook Resource Data")
+GET "https://api.getmati.com/v2/verifications/5e3dafea1e9b6c001b73ea5d"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{access_token}}"
+
+
+// Use the `JWT` `access_token` obtained in **Authorization V1 or V2** to download any the user's verification images.
+// This is ony possible **after** you have done step `5` since you have to use an the `URL` contained in the verification profile. 
+
+@name("5. Download Verification Media")
+GET "https://media.getmati.com/media/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHRwOi8vbW9sLW1lZGlhLXByb3h5LTc2NDdiNjZmZjQtOGZtNTY6MzAwMS9tZWRpYS9kb2N1bWVudC81YzQzNGQ4MS1mODZkLTRjOGUtOWJiMC1kMGM4Y2VlNDk3MGIucG5nIiwiaWF0IjoxNTgxNTQ4NzYyLCJleHAiOjE1ODE2MzUxNjJ9.xP_7kFLLCagdrQsTL1d8aVycgGi-7KBf_sxLeEMQVno"
+"Authorization": "Bearer {{access_token}}"
+
+
+// With this `POST` request you will be able to ensure that your user's email are both safe and deliverable.
+// 
+// Authorization: `Bearer` 
+// 
+// You can send an email address as a JSON and the API will return two parameters.
+// 
+// -`Deliverable`: It checks for the availability of the mailbox. If it is `true` then the mailbox has confirmed to be available. `false` indicates an inexistent mailbox and `unknown` means that the existence of the maibox cannot be determined. 
+// - `Safe` if the email is deliverable an if it is not a `disposable` or `spam`  account.
+
+@name("[Optional] Email Validation")
+POST "https://api.getmati.com/safety/v1/checks/email"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "email": "email@email.com"
+}')
+
+
+// With this `POST` request you will be able to ensure that your user's email are both safe and deliverable.
+// 
+// Authorization: `Bearer` 
+// 
+// You can send an email address as a JSON and the API will return two parameters.
+// 
+// -`Deliverable`: It checks for the availability of the mailbox. If it is `true` then the mailbox has confirmed to be available. `false` indicates an inexistent mailbox and `unknown` means that the existence of the maibox cannot be determined. 
+// - `Safe` if the email is deliverable an if it is not a `disposable` or `spam`  account.
+
+@name("[Optional] Comply Advantage Validation")
+POST "https://api.getmati.com/safety/v1/checks/comply-advantage"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "John Doe",
+    "birthYear": 1969
+}')
+
+
+@name("[Govcheck] MX CURP Validation")
+POST "https://api.getmati.com/govchecks/v1/mx/curp"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{"curp": "AAAA990101HCHLRN00"}')
+
+
+@name("[Govcheck] BR CPF Validation")
+POST "https://api.getmati.com/govchecks/v1/br/cpf"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{
+  "cpfNumber": "12345678900",
+  "fullName" : "JOHN DOE",
+  "documentNumber": "1234567890",
+  "dateOfBirth":"1999-01-01",
+  "dateOfExpiry": "2021-12-31",
+  "documentType":"driving-license"
+ }
+')
+
+
+@name("[Govcheck] PE RENIEC Validation")
+POST "https://api.getmati.com/govchecks/v1/pe/reniec"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{
+  "callbackUrl": "{{callback_URL}}",
+  "documentNumber": "123456789"
+ }')
+
+
+@name("[Govcheck] AR DNI Validation")
+POST "https://api.getmati.com/govchecks/v1/ar/dni"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{
+    "documentNumber": "1234567890",
+    "dateOfBirth": "1998-04-06",
+    "gender": "M",
+    "dateOfIssue": "2018-07-23",
+    "callbackUrl": "{{callback_URL}}"
+}')
+
+
+@name("[Govcheck] CR TSE Validation")
+POST "https://api.getmati.com/govchecks/v1/cr/tse"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{access_token}}"
+data('{
+    "documentNumber": "1234567890",
+    "callbackUrl": "{{callback_URL}}"
+}')
+
+
+

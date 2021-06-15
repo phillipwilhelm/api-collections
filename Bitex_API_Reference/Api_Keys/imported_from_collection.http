@@ -1,0 +1,60 @@
+#!/usr/bin/env dothttp
+
+// Show all Api Keys.
+// 
+// **Important:** The tokens will be obfuscated after 10 minutes of the Api Key's creation (for security purposes).
+
+@name("List Api Keys")
+GET "https://{{domain}}/api/api_keys"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// **Important:** The token will be obfuscated after 10 minutes of the Api Key's creation (for security purposes).
+
+@name("Show Api Key")
+GET "https://{{domain}}/api/api_keys/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// Create an Api Key.
+// 
+// This endpoint **always requires an OTP**. Users that don't have the 2FA enabled, will not be able to create Api Keys.
+
+@name("Create Api Key")
+POST "https://{{domain}}/api/api_keys"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+"One-Time-Password": "valid_otp"
+data('{
+  "data": {
+    "type": "api_keys",
+    "attributes": {
+    	"fund_account": false,
+        "create_withdrawal": false,
+        "get_withdrawal": false,
+        "get_balances": true,
+        "trading": false,
+        "payments": false,
+        "compliance": false,
+        "api_keys": false
+    }
+  }
+}')
+
+
+@name("Delete Api Key")
+DELETE "https://{{domain}}/api/api_keys/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

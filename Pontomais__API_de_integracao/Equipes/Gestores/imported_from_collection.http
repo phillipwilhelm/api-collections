@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// Lista colaboradores que possuem configurações para um perfil gestor.
+// 
+// ## Formato do retorno
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60)  | Nome do colaborador |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/possible_leaders"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Adiciona gestor à equipe
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | team_id | Integer | Sim | ID da equipe |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | leader_ids | Array | Sim | Array de ids dos colaboradores que serão adicionados como gestores da equipe |
+
+@name("Adicionar")
+POST "https://{{server_url}}/external_api/v1/teams/{{team_id}}/leaders"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "team":
+  {
+    "employee_ids":[10]
+  }
+}')
+
+
+// Remove gestor de uma equipe
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | team_id | Integer | Sim | ID da equipe |
+// | leader_id | Integer | Sim | ID do gestor |
+
+@name("Remover")
+DELETE "https://{{server_url}}/external_api/v1/teams/{{team_id}}/leaders/{{leader_id}}"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+
+
+

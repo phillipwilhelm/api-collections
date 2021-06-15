@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// API to list all projects.
+
+@name("List all projects")
+GET "https://dev.azure.com/{{organization}}/_apis/projects"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// {{storagekey}} is the ADO project ID 
+
+@name("Get Descriptors")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{storageKey}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get all teams under a Project (optional)")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("Get team by ID")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams/{{teamID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+@name("Get Team Descriptors")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{teamID}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// Reference: https://docs.microsoft.com/en-us/rest/api/azure/devops/security/security%20namespaces/query?view=azure-devops-rest-5.1#all-security-namespaces
+
+@name("List the Security Namespaces ")
+GET "https://dev.azure.com/{{organization}}/_apis/securitynamespaces"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// To get the existing ACL for the group
+
+@name("Get ACL/Tokens")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{NamespaceID}}"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("List all users at Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// Another way to get user details
+
+@name("Get User Subject")
+POST "https://vssps.dev.azure.com/{{organization}}/_apis/graph/subjectlookup"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+json({
+    "lookupKeys": [
+        {
+            "descriptor": "aad.OFFwYTAzNzUtODg5Yi03NzdkLWFkZTItMDYyNGI0NDgxxxxx"
+        }
+    ]
+})
+
+
+// You can get the descriptor from the create call/call the Groups list with the project scope set to get the group https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/groups/list?view=azure-devops-rest-5.1
+
+@name("Get all teams under a Project (optional)")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("List all repos")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/git/repositories"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+@name("Get Service Endpoints")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/serviceendpoint/endpoints"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.2"
+
+
+// You need Visual Studio Profile member-id and a PAT with "all accessible organizations permissions"
+// 
+// To get your member-id go to https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=5.1 and sign in, a JSON will return with "id:"
+
+@name("List Accounts/Org")
+GET "https://app.vssps.visualstudio.com/_apis/accounts"
+basicauth("Basic", "{{OPAT}}")
+? "ownerId"= "{ownerId}"
+? "properties"= "{properties}"
+? "memberId"= "{{memberID}}"
+? "api-version"= "5.0"
+
+
+

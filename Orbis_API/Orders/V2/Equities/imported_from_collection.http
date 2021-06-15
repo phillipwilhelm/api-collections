@@ -1,0 +1,264 @@
+#!/usr/bin/env dothttp
+
+// Used for order validation. This step should be performed before order placement. The result will either be a server error (with an error code) or response as shown below. `quote` field will be returned only when `requireNbbo` has been set to _true_. Setting `requireNbbo` may result in quote lookup charge and exist to accomodate rule SEC603.
+// 
+// ```javascript
+// {
+// 	expectedPx: 1234.5, 
+// 	orderFeesCharges: {
+// 		commission: 0.0,
+// 		sec: 0.0,
+// 		orf: 0.0,
+// 		taf: 0.0,
+// 		ess: 0.0,
+// 		pef: 0.0
+// 	},
+// 	quote: {
+// 		symbol: 'ZVZZT'
+// 	},
+// 	warnings: []
+// }
+// ```
+
+@name("Preview")
+POST "https://{{url}}/api/orders/v2/preview/equity"
+"Content-Type": "application/json"
+data('{
+	"requireNbbo": false,
+	"account": {
+		"accountId": 12345, // optional
+		"accountNumber": "optional"
+	},
+	"order": {
+		"quote": {
+			"symbol": "ZVZZT"
+		},
+		"transaction": "BUY|SELL|SHORT_SELL|BUY_TO_COVER|Liquidate",
+		"marketTime": "PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE",
+		"orderType": "MARKET|LIMIT|STOP|STOP_LIMIT",
+		"fillType": "ANY|AON",
+		"validity": "DAY|GTC",
+		"quantity": 123,
+		"limitPrice": 123,
+		"stopPrice": 123,
+		"expectedValue": 1000.5,
+        "orderAccountType": 0
+	}
+}')
+
+
+// Request is the same as preview. Response:
+// 
+// ```javascript
+// {OrderRef: 'XX123456'}
+// ```
+
+@name("Placement")
+POST "https://{{url}}/api/orders/v2/place/equity"
+"Content-Type": "application/json"
+data("{
+	account: {
+		accountId: 12345, // optional
+		accountNumber: 'optional'
+	},
+	order: {
+		quote: {
+			symbol: 'ZVZZT'
+		},
+		transaction: 'BUY|SELL|SHORT_SELL|BUY_TO_COVER|Liquidate',
+		marketTime: 'PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE',
+		orderType: 'MARKET|LIMIT|STOP|STOP_LIMIT|Notional',
+		fillType: 'ANY|AON',
+		validity: 'DAY|GTC',
+		quantity: 123,
+		limitPrice: 123,
+		stopPrice: 123,
+		expectedValue: 1000.5
+	}
+}")
+
+
+// Used for order validation. This step should be performed before order placement. The result will either be a server error (with an error code) or response as shown below. `quote` field will be returned only when `requireNbbo` has been set to _true_. Setting `requireNbbo` may result in quote lookup charge and exist to accomodate rule SEC603.
+// 
+// ```javascript
+// {
+// 	'ZVZZT': {
+// 		expectedPx: 1234.5, 
+// 		expectedQty: 100.0,
+// 		orderFeesCharges: {
+// 			commission: 0.0,
+// 			sec: 0.0,
+// 			orf: 0.0,
+// 			taf: 0.0,
+// 			ess: 0.0,
+// 			pef: 0.0
+// 		},
+// 		quote: {
+// 			symbol: 'ZVZZT'
+// 		},
+// 		warnings[]
+// 	},
+// 	'TESTA': {
+// 		expectedPx: 10.1000,
+// 		expectedQty: 100.0,
+// 		orderFeesCharges: {
+// 			commission: 0.0,
+// 			sec: 0.0,
+// 			orf: 0.0,
+// 			taf: 0.0,
+// 			ess: 0.0,
+// 			pef: 0.0
+// 		},
+// 		quote: {
+// 			symbol: 'TESTA'
+// 		},
+// 		warnings: []
+// 	}
+// }
+// ```
+
+@name("Basket preview")
+POST "https://{{url}}/api/orders/v2/basket/preview/equity"
+"Content-Type": "application/json"
+data('{
+	"requireNbbo": false,
+	account: {
+		accountId: 12345, // optional
+		accountNumber: \'optional\'
+	},
+	orders: [{
+		quote: {
+			symbol: \'ZVZZT\'
+		},
+		transaction: \'BUY|SELL|SHORT_SELL|BUY_TO_COVER\',
+		marketTime: \'PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE\',
+		orderType: \'MARKET|LIMIT|STOP|STOP_LIMIT\',
+		fillType: \'ANY|AON\',
+		validity: \'DAY|GTC\',
+		quantity: 123,
+		limitPrice: 123,
+		stopPrice: 123,
+		expectedValue: 1000.5
+	}, {
+		quote: {
+			symbol: \'TESTA\'
+		},
+		transaction: \'BUY|SELL|SHORT_SELL|BUY_TO_COVER\',
+		marketTime: \'PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE\',
+		orderType: \'MARKET|LIMIT|STOP|STOP_LIMIT\',
+		fillType: \'ANY|AON\',
+		validity: \'DAY|GTC\',
+		quantity: 123,
+		limitPrice: 123,
+		stopPrice: 123,
+		expectedValue: 1000.5
+	}]
+}')
+
+
+// Request is the same as preview. Response:
+// 
+// ```javascript
+// {basketRef: 'XX123456', orderReferences: ['CC1234', 'CC5678']}
+// ```
+
+@name("Basket placement")
+POST "https://{{url}}/api/orders/v2/basket/place/equity"
+"Content-Type": "application/json"
+data('{
+	"account": {
+		"accountId": 12345, // optional
+		"accountNumber": "optional"
+	},
+	"orders": [{
+		"quote": {
+			"symbol": "ZVZZT"
+		},
+		"transaction": "BUY|SELL|SHORT_SELL|BUY_TO_COVER",
+		"marketTime": "PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE",
+		"orderType": "MARKET|LIMIT|STOP|STOP_LIMIT",
+		"fillType": "ANY|AON",
+		"validity": "DAY|GTC",
+		"quantity": 123,
+		"limitPrice": 123,
+		"stopPrice": 123,
+		"expectedValue": 1000.5,
+        "orderAccountType": 0
+	}, {
+		"quote": {
+			"symbol": "TESTA"
+		},
+		"transaction": "BUY|SELL|SHORT_SELL|BUY_TO_COVER",
+		"marketTime": "PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE",
+		"orderType": "MARKET|LIMIT|STOP|STOP_LIMIT",
+		"fillType": "ANY|AON",
+		"validity": "DAY|GTC",
+		"quantity": 123,
+		"limitPrice": 123,
+		"stopPrice": 123,
+		"expectedValue": 1000.5,
+        "orderAccountType": 0
+	}]
+}')
+
+
+@name("Advisory preview")
+POST "https://{{url}}/api/orders/v2/advisory/equity/preview"
+"Content-Type": "application/json"
+data('{
+  // optional field, mandatory in leu of `inventory`
+  model: {
+  	id: 1
+  },
+  
+  // optional field, mandatory in leu of `model`
+  inventory: false,
+  
+  // actual order 
+  "requireNbbo": false,
+  order: {
+  	quote: {
+  		symbol: \'MSFT\'
+  	},
+  	orderType: \'MARKET\',		// MARKET|LIMIT|STOP|STOP_LIMIT|MARKET_ON_OPEN|MARKET_ON_CLOSE|LIMIT_ON_OPEN|LIMIT_ON_CLOSE
+  	transaction: \'BUY\',			// BUY|SELL|SHORT_SELL|BUY_TO_COVER
+  	fillType: \'ANY\',			// ANY|AON
+  	validity: \'DAY\',			// DAY|GTC
+  	limitPrice: 1,				// limit/stop_limit orders only
+  	stopPrice: 1,				// stop/stop_limit orders only
+  	quantity: 100,				// no fractional shares
+  	marketTime: \'CORE_MARKET\',	// PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE
+  }
+}')
+
+
+@name("Advisory placement")
+POST "https://{{url}}/api/orders/v2/advisory/equity/place"
+"Content-Type": "application/json"
+data("{
+  // optional field, mandatory in leu of `inventory`
+  model: {
+  	id: 1
+  },
+  
+  // optional field, mandatory in leu of `model`
+  inventory: false,
+  
+  // actual order to be submitted
+  order: {
+  	quote: {
+  		symbol: 'MSFT'
+  	},
+  	orderType: 'MARKET',		// MARKET|LIMIT|STOP|STOP_LIMIT|MARKET_ON_OPEN|MARKET_ON_CLOSE|LIMIT_ON_OPEN|LIMIT_ON_CLOSE
+  	transaction: 'BUY',			// BUY|SELL|SHORT_SELL|BUY_TO_COVER
+  	fillType: 'ANY',			// ANY|AON
+  	validity: 'DAY',			// DAY|GTC
+  	limitPrice: 1,				// limit/stop_limit orders only
+  	stopPrice: 1,				// stop/stop_limit orders only
+  	quantity: 100,				// no fractional shares
+  	marketTime: 'CORE_MARKET',	// PRE_MARKET|CORE_MARKET|POST_MARKET|ALL_MARKET|PRE_CORE|POST_CORE
+  }
+}")
+
+
+

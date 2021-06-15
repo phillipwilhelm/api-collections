@@ -1,0 +1,47 @@
+#!/usr/bin/env dothttp
+
+@name("Media Agent Id")
+GET "https://{{ServerUrl}}/GetId"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+? "clientname"= "{{MAclientName}}"
+
+
+@name("Install Client with Media Agent Package")
+POST "https://{{ServerUrl}}/InstallClient"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "rebootClient": false,
+    "entities": [
+        {
+            "hostName": "{{hostName}}",
+            "clientName": "{{clientName}}",
+            "clientId": 0
+        }
+    ],
+    "createPseudoClientRequest": {
+        "registerClient": true,
+        "clientInfo": {
+            "clientType": 0
+        }
+    },
+    "packages": [
+        {
+            "packageId": 702,
+            "packageName": "File System"
+        },
+        {
+            "packageId": 51,
+            "packageName": "MediaAgent"
+        }
+    ],
+    "clientAuthForJob": {
+        "password": "{{Base64encodedpassword}}",
+        "userName": "{{userName}}"
+    }
+}')
+
+
+

@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+// Gets a payment based on its id.
+
+@name("/payments/:id")
+GET "https://{{API_BASE_URL}}/payments/:id"
+
+
+// Sends a new payment in the platform, registering it in the Stellar blockchain.
+
+@name("/payments/:assetId")
+POST "https://{{API_BASE_URL}}/payments/:assetId"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+data('{
+	"source": "4df9597f-887e-49c9-b7ec-0550e73af748",
+	"recipients": [{
+		"amount": "1.00",
+		"destination": "b0066e16-04da-4908-9560-fb72c2585148"
+	}]
+}')
+
+
+// Process a payment (withdrawal or deposit) originated outside of the BitCapital Platform whose postback was not sent by the provider or was not processed due to some internal error.
+
+@name("/payments/offline/manual-operation")
+POST "https://{{API_BASE_URL}}/postbacks/payments"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+data('{
+    "providerId": "cards",
+    "adjustmentTypeId": 1085,
+    "accountId": "aaaa2004-3c8e-4162-819c-b076e06cff38",
+    "amount": 241.7,
+    "transactionId": "586486056-8506-279061843 431438-358240-818223",
+    "reason": "Falha da plataforma CDT no envio do postback referente a saque de cliente"
+}')
+
+
+

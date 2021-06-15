@@ -1,0 +1,118 @@
+#!/usr/bin/env dothttp
+
+// <p>This method allows the developer to check if a keyword is available on the cloudwi.re marketing/opt-in short codes. Keywords must be unique in order for cloudwi.re to know what store the opt-in or responder belongs too. As such, other cloudwi.re Clients may be using a keyword that you want. See the considerations below for other important limitations on keywords.
+// </p>
+// <p>
+// You will note below that special characters are not allowed.  If you wish to do an emoji keyword such as "text 😃 to 444999" we do allow it and you'll need to contact us to do so.  Fair warning that carrier transcriptions can vary and we highly recommend testing on as many carriers as possible outside of the big four.  
+// </p>
+// 
+// <p>If the keyword is available, then you may use CreateKeyword to lock it into the store you are calling with your authentication.  Keyword charges apply.
+// </p>
+// <p>Remember that you can also create keywords on our Canadian long codes.<br><br>  Canadian Marketing Keyword Long Codes (Like 444999)<br>
+// 
+// (587) 319-2400<br>
+// (647) 799-2400
+// <br><br>
+// Canadian Sticky Keyword Long Codes (Like 345345)<br>
+// 
+// (587) 815-4000<br>
+// (581) 221-5000
+// <br><br>
+// </p>
+// <b>Other Considerations</b>
+// <ul>
+// <li>The character limit for keywords are 2-30.</li>
+// <li>You may uses spaces as you wish for potential auto-correct issues.</li>
+// <li>case sensitivity is not enforced for keywords.</li>
+// <li>Special characters are not allowed.  Please use only alpha or numeric keywords or a blend of both.</li>
+// </ul>
+
+@name("Is Keyword Available")
+POST "https://moonbeamapi.cloudwi.re/keyword/iskeywordavailable"
+"authorization": "{{Authorization}}"
+files(
+	("keyword", "The Keyword"),
+	("shortCode", "The Short Code")
+)
+
+
+// <p>This method allows the developer to add a keyword to the store you assign it to with your auth string. When you make a call to this method, the cloudwi.re SMS API will approve your keyword instantly as long as it meets the considerations listed below. Although not required, we'd advise checking keyword availability first using IsKeywordAvailable.  Additionally, in order to edit responder keyword content or delete keywords, make sure you store the keyword ID returned to you in this method.
+// </p>
+// <p>
+// You will note below that special characters are not allowed.  If you wish to do an emoji keyword such as "text 😃 to 444999" we do allow it and you'll need to contact us to do so.  Fair warning that carrier transcriptions can vary and we highly recommend testing on as many carriers as possible outside of the big four.
+// </p>
+// 
+// <p>There are two types of keywords within the cloudwi.re SMS API:<br><br>
+// <b>Opt-In Keyword </b>
+// The opt-in keyword, which will opt the mobile subscriber into the store. From there, ongoing 2-way SMS communications can be implemented for as long as the subscriber remains opted-in.<br><br>
+// <b>Responder Keyword</b>
+// The Responder keyword, which will only allow one response text message back to the mobile subscriber. It’s generally used for coupons or informational tips. This keyword type does not change the opt-in status of the mobile subscriber.  </p>
+// <p>Remember that you can also create keywords on our Canadian long codes.<br><br>  Canadian Marketing Keyword Long Codes (Like 444999)<br>
+// (587) 319-2400<br>
+// (647) 799-2400
+// <br><br>
+// Canadian Sticky Keyword Long Codes (Like 345345)<br>
+// (587) 815-4000<br>
+// (581) 221-5000
+// <br><br>
+// <b>Other Considerations</b>
+// <ul>
+// <li>The character limit for keywords are 2-30.</li>
+// <li>You can wild card keywords if you like</li>
+// <li>case sensitivity is not enforced for keywords.</li>
+// <li>You may uses spaces as you wish for potential auto-correct issues</li>
+// <li>Special characters are not allowed.  Please use only alpha or numeric keywords or a blend of both.</li>
+// <li>An opt-in keyword will utilize the default store opt-in template unless you have keyword automation turned off.</li>
+// </ul>
+
+@name("Create Keyword")
+POST "https://moonbeamapi.cloudwi.re/account/store/keyword/create"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("keyword", "The Keyword"),
+	("keywordType", "The Keyword Type"),
+	("shortCode", "The Short Code")
+)
+
+
+// <p>This method allows the developer to either add content or overwrite responder keyword content of an established keyword.  You should only need this method if cloudwi.re keyword automation is turned on.  If keyword  automation is turned off for responder keywords, you will need a special unpublished parameter for sending a message from the marketing short code.  Contact <a href="mailto:support@cloudwi.re">support@cloudwi.re</a> and we'll get you hooked up.</p>
+// <b>Other Considerations</b>
+// <ul>
+// <li>Messages are limited to 1600 characters, but we advise 160. </li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// <li>Your content and offer are important. The mobile subscriber is taking time to text you. Give them something good and you’ll be rewarded with high response rates.</li>
+// </ul>
+
+@name("Edit Responder Keyword Content")
+POST "https://moonbeamapi.cloudwi.re/account/store/keyword/editresponderkeywordcontent"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("keywordId", "{{keywordId}}"),
+	("responderContent", "This is why you should never go to the University of Michigan."),
+	("mediaUrl", "Your MMS URL")
+)
+
+
+// This method allows the developer delete a keyword from a store and remove it from any future billing to your cloudwi.re account.  Subscribers who used the keyword will see no change in their opt-in status.  As for what happens when you delete the keyword and a subscriber sends it in?  cloudwi.re will not know where to route the keyword and respond to the subscriber with a keyword unrecognized message.   
+// 
+// If you forget or did not store the keyword ID, head over to Get Store Details in the Store Management Folder.
+// 
+// If you have a lot of stores and are completely lost in the sauce (It happens to us all the time!) as to where the keyword you want to remove is, then head over to Get Account Details in the Account Management Folder.
+
+@name("Delete Keyword")
+POST "https://moonbeamapi.cloudwi.re/account/store/keyword/delete"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("keywordId", "{{keywordId}}")
+)
+
+
+

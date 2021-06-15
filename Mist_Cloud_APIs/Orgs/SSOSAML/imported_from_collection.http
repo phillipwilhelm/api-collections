@@ -1,0 +1,146 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgSso")
+GET "https://{{host}}/api/v1/orgs/:org_id/ssos"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|name
+// issuer|string|IDP issuer URL
+// idp_cert|string|IDP Cert (used to verify the signed response)
+// idp_sso_url|string|IDP Single-Sign-On URL
+// idp_sign_algo|string|signing algorithm for SAML Assertion
+// nameid_format|string|email (default) / unspecified
+// ignore_unmatched_roles|boolean|ignore any unmatched roles provided in assertion. By default, an assertion is treated as invalid for any unmatched role
+// default_role|string|default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
+// role_attr_extraction|string|optional, custom role attribute parsing scheme. See Supported Role Parsing Schemes
+// custom_logout_url|string|optional, a URL we will redirect the user after user logout from Mist (for some IdP which supports a custom logout URL that is different from SP-initiated SLO process)
+// 
+// #### Supported Role Parsing Schemes
+// <table>
+// <tr><th>Name</th><th>Scheme</th></tr>
+// <tr><td>cn</td><td><ul><li>The expected role attribute format in SAML Assertion is “CN=cn,OU=ou1,OU=ou2,…”</li><li>CN (the key) is case insensitive and exactly 1 CN is expected (or the entire entry will be ignored)</li><li>E.g. if role attribute is “CN=cn,OU=ou1,OU=ou2” then parsed role value is “cn”</li></ul></tr></table>
+
+@name("createOrgSso")
+POST "https://{{host}}/api/v1/orgs/:org_id/ssos"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "onelogin",
+    "issuer": "https://app.onelogin.com/saml/metadata/138130",
+    "idp_cert": "-----BEGIN CERTIFICATE-----
+MIIFZjCCA06gAwIBAgIIP61/1qm/uDowDQYJKoZIhvcNAQELBQE
+-----END CERTIFICATE-----",
+    "idp_sign_algo": "sha256",
+    "idp_sso_url": "https://yourorg.onelogin.com/trust/saml2/http-post/sso/138130",
+    "nameid_format": "email",
+    "ignore_unmatched_roles": false,
+    "default_role": null,
+    "custom_logout_url": "https://6.4.5.7/saml/idp/SingleLogoutService.php?param1=value1"
+})
+
+
+@name("updateOrgSso")
+PUT "https://{{host}}/api/v1/orgs/:org_id/ssos/:sso_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "onelogin"
+})
+
+
+@name("deleteOrgSso")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/ssos/:sso_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+@name("getOrgSsoSamlMetadata")
+GET "https://{{host}}/api/v1/orgs/:org_id/ssos/:sso_id/metadata"
+
+
+@name("downloadOrgSsoSamlMetadata")
+GET "https://{{host}}/api/v1/orgs/:org_id/ssos/:sso_id/metadata.xml"
+
+
+@name("getOrgSsoLatestFailures")
+GET "https://{{host}}/api/v1/orgs/:org_id/ssos/:sso_id/failures"
+
+
+@name("getOrgSsoRoles")
+GET "https://{{host}}/api/v1/orgs/:org_id/ssoroles"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|name that would match the Role from SSO Login. unique per Org, maximum length is 32
+// privileges|list|see Authentication>Privileges
+
+@name("createOrgSsoRole")
+POST "https://{{host}}/api/v1/orgs/:org_id/ssoroles"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "NOC",
+    "privileges": [
+        {
+            "scope": "org",
+            "role": "admin"
+        },
+        {
+            "scope": "site",
+            "site_id": "d96e3952-53e8-4266-959a-45acd55f5114",
+            "role": "admin"
+        },
+        {
+            "scope": "sitegroup",
+            "sitegroup_id": "581328b6-e382-f54e-c9dc-999983183a34",
+            "role": "admin"
+        }
+    ]
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|name that would match the Role from SSO Login. unique per Org, maximum length is 32
+// privileges|list|see Authentication>Privileges
+
+@name("updateOrgSsoRole")
+PUT "https://{{host}}/api/v1/orgs/:org_id/ssoroles/:ssorole_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "NOC",
+    "privileges": [
+        {
+            "scope": "org",
+            "role": "admin"
+        },
+        {
+            "scope": "site",
+            "site_id": "d96e3952-53e8-4266-959a-45acd55f5114",
+            "role": "admin"
+        },
+        {
+            "scope": "sitegroup",
+            "sitegroup_id": "581328b6-e382-f54e-c9dc-999983183a34",
+            "role": "admin"
+        }
+    ]
+})
+
+
+@name("deleteOrgSsoRoles")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/ssoroles/:ssorole_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

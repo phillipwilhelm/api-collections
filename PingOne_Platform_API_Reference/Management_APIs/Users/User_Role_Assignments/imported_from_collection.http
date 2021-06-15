@@ -1,0 +1,54 @@
+#!/usr/bin/env dothttp
+
+// Users in PingOne can be assigned one or more roles. You can view the roles assigned to a specific user, and you can view the role assignment scopes that define the limitations of each role.
+// 
+// The `GET /environments/{environmentId}/users/{userId}/roleAssignments` operation returns the list of roles assigned to the user identified by the user's ID.
+// 
+
+@name("READ Role Assignments")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/roleAssignments"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET /environments/{environmentId}/users/{userId}/roleAssignments/{roleAssignmentId}` operation returns the specific role assignment assigned to the user identified by the user's ID.
+
+@name("READ One Role Assignment")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/roleAssignments/{{roleAssignmentID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can manage the roles assigned to specific users. When you assign a role to a user, you provide the attribute values required to identify the role and designate the role assignment scope for this user.
+// 
+// The sample shows the `POST /environments/{environmentId}/users/{userId}/roleAssignments` operation to create the role assignment for the user in the specified environment resource.
+// 
+// 
+// 
+// The request URL identifies the environment ID and user ID. The request body specifies the `role` ID and the `scope` attribute values. The `scope` attribute provides the resource ID and resource type to designate the role assignment scope associated with this actor. In this sample, the scope `type` is `ENVIRONMENT` and the specific environment to which the role assignment scope applies is specified in the `id` value.
+
+@name("CREATE User Role Assignment")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/roleAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "role": {
+        "id": "{{roleID}}"
+    },
+    "scope": {
+        "id": "{{envID}}",
+        "type": "ENVIRONMENT"
+    }
+}')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/users/{userId}/roleAssignments/{roleAssignmentId}` operation to delete the role assignment specified by its ID in the request URL. The role assignment is deleted only for the actor identified in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE User's Role Assignment")
+DELETE "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/roleAssignments/{{roleAssignmentID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

@@ -1,0 +1,106 @@
+#!/usr/bin/env dothttp
+
+// With this service, the calling apps can get available balance for a given source.
+// 
+// **NOTE**: Amount in response is in `kobo`.
+// 
+// 
+// Please see information on how to compute the `Signature` header [here](#authentication-headers).
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **WaitingForOTP**: Requires OTP, use `/v2/transact/validate` as [follow up](#f1bdb553-68dd-4016-aeed-e4c3d1e27fe4) call to complete transaction
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Get balance")
+POST "https://{{url}}/v2/transact"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": " {{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "get_balance",
+    "auth": {
+        "type": "bank.account",
+        "secure": "{{encrypted_account_number}}",
+        "auth_provider": "Polaris",
+        "route_mode": null
+    },
+    "transaction": {
+        "mock_mode": "Live",
+        "transaction_ref": "{{transaction-ref}}",
+        "transaction_desc": "A random transaction",
+        "transaction_ref_parent": null,
+        "amount": 0,
+        "customer": {
+            "customer_ref": "{{customer_id}}",
+            "firstname": "Uju",
+            "surname": "Usmanu",
+            "email": "ujuusmanu@gmail.com",
+            "mobile_no": "234802343132"
+        },
+        "meta": {
+            "a_key": "a_meta_value_1",
+            "b_key": "a_meta_value_2"
+        },
+        "details": null
+    }
+}')
+
+
+// With this service, the calling apps can get statements of accounts. Apps will forward the customer reference account number they will like to obtain information on and forward to SureGate.
+// 
+// **NOTE**: Amount in response is in `kobo`.
+// 
+// 
+// Please see information on how to compute the `Signature` header [here](#authentication-headers).
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **WaitingForOTP**: Requires OTP, use `/v2/transact/validate` as [follow up](#f1bdb553-68dd-4016-aeed-e4c3d1e27fe4) call to complete transaction
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Get Statement")
+POST "https://{{url}}/v2/transact"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": " {{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "get_statement",
+    "auth": {
+        "type": "bank.account",
+        "secure": "{{encrypted_account_number}}",
+        "auth_provider": "Polaris",
+        "route_mode": null
+    },
+    "transaction": {
+        "mock_mode": "Live",
+        "transaction_ref": "{{transaction-ref}}",
+        "transaction_desc": "A random transaction",
+        "transaction_ref_parent": null,
+        "amount": 0,
+        "customer": {
+            "customer_ref": "{{customer_id}}",
+            "firstname": "Uju",
+            "surname": "Usmanu",
+            "email": "ujuusmanu@gmail.com",
+            "mobile_no": "234802343132"
+        },
+        "meta": {
+            "a_key": "a_meta_value_1",
+            "b_key": "a_meta_value_2"
+        },
+        "details": {
+            "start_date": "2020-02-10",
+            "end_date": "2020-02-14"
+        }
+    }
+}')
+
+
+

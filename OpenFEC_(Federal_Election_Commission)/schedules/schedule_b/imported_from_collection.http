@@ -1,0 +1,247 @@
+#!/usr/bin/env dothttp
+
+// 
+// Schedule B filings describe itemized disbursements. This data
+// explains how committees and other filers spend their money. These figures are
+// reported as part of forms F3, F3X and F3P.
+// 
+// The data is divided in two-year periods, called `two_year_transaction_period`, which
+// is derived from the `report_year` submitted of the corresponding form. If no value is supplied, the results will
+// default to the most recent two-year period that is named after the ending,
+// even-numbered year.
+// 
+// Due to the large quantity of Schedule B filings, this endpoint is not paginated by
+// page number. Instead, you can request the next page of results by adding the values in
+// the `last_indexes` object from `pagination` to the URL of your last request. For
+// example, when sorting by `disbursement_date`, you might receive a page of
+// results with the following pagination information:
+// 
+// ```
+// pagination: {
+//     pages: 965191,
+//     per_page: 20,
+//     count: 19303814,
+//     last_indexes: {
+//         last_index: "230906248",
+//         last_disbursement_date: "2014-07-04"
+//     }
+// }
+// ```
+// 
+// To fetch the next page of sorted results, append `last_index=230906248` and
+// `last_disbursement_date=2014-07-04` to the URL.  We strongly advise paging through
+// these results by using the sort indices (defaults to sort by disbursement date, e.g.
+// `last_disbursement_date`), otherwise some resources may be unintentionally filtered out.
+// This resource uses keyset pagination to improve query performance
+// and these indices are required to properly page through this large dataset.
+// 
+// Note: because the Schedule B data includes many records, counts for
+// large result sets are approximate; you will want to page through the records until no records are returned.
+
+@name("/schedules/schedule_b/")
+GET "https://{{baseUrl}}/schedules/schedule_b/"
+? "disbursement_purpose_category"= "<string>"
+? "disbursement_purpose_category"= "<string>"
+? "max_image_number"= "<string>"
+? "disbursement_description"= "<string>"
+? "disbursement_description"= "<string>"
+? "spender_committee_org_type"= "<string>"
+? "spender_committee_org_type"= "<string>"
+? "recipient_committee_id"= "<string>"
+? "recipient_committee_id"= "<string>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "spender_committee_designation"= "<string>"
+? "spender_committee_designation"= "<string>"
+? "recipient_state"= "<string>"
+? "recipient_state"= "<string>"
+? "spender_committee_type"= "<string>"
+? "spender_committee_type"= "<string>"
+? "recipient_city"= "<string>"
+? "recipient_city"= "<string>"
+? "sort_hide_null"= "false"
+? "sort"= "-disbursement_date"
+? "min_image_number"= "<string>"
+? "recipient_name"= "<string>"
+? "recipient_name"= "<string>"
+? "per_page"= "20"
+? "min_amount"= "<string>"
+? "api_key"= "DEMO_KEY"
+? "max_amount"= "<string>"
+? "image_number"= "<string>"
+? "image_number"= "<string>"
+? "two_year_transaction_period"= "<integer>"
+? "two_year_transaction_period"= "<integer>"
+? "max_date"= "<date>"
+? "line_number"= "<string>"
+? "min_date"= "<date>"
+
+
+// 
+// Schedule B disbursements aggregated by disbursement purpose category. To avoid double counting,
+// memoed items are not included.
+// Purpose is a combination of transaction codes, category codes and disbursement description.
+// Inspect the `disbursement_purpose` sql function within the migrations for more details.
+
+@name("/schedules/schedule_b/by_purpose/")
+GET "https://{{baseUrl}}/schedules/schedule_b/by_purpose/"
+? "per_page"= "20"
+? "purpose"= "<string>"
+? "purpose"= "<string>"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "page"= "1"
+? "sort_hide_null"= "false"
+
+
+// 
+// Schedule B disbursements aggregated by recipient name. To avoid double counting,
+// memoed items are not included.
+
+@name("/schedules/schedule_b/by_recipient/")
+GET "https://{{baseUrl}}/schedules/schedule_b/by_recipient/"
+? "per_page"= "20"
+? "recipient_name"= "<string>"
+? "recipient_name"= "<string>"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "page"= "1"
+? "sort_hide_null"= "false"
+
+
+// 
+// Schedule B disbursements aggregated by recipient committee ID, if applicable.
+// To avoid double counting, memoed items are not included.
+
+@name("/schedules/schedule_b/by_recipient_id/")
+GET "https://{{baseUrl}}/schedules/schedule_b/by_recipient_id/"
+? "per_page"= "20"
+? "recipient_id"= "<string>"
+? "recipient_id"= "<string>"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "cycle"= "<integer>"
+? "cycle"= "<integer>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "page"= "1"
+? "sort_hide_null"= "false"
+
+
+// 
+// Efiling endpoints provide real-time campaign finance data received from electronic filers. Efiling endpoints only contain the most recent four months of data and don't contain the processed and coded data that you can find on other endpoints.
+
+@name("/schedules/schedule_b/efile/")
+GET "https://{{baseUrl}}/schedules/schedule_b/efile/"
+? "per_page"= "20"
+? "sort"= "-disbursement_date"
+? "min_amount"= "<string>"
+? "disbursement_description"= "<string>"
+? "disbursement_description"= "<string>"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "sort_nulls_last"= "false"
+? "api_key"= "DEMO_KEY"
+? "max_amount"= "<string>"
+? "recipient_city"= "<string>"
+? "recipient_city"= "<string>"
+? "image_number"= "<string>"
+? "image_number"= "<string>"
+? "sort_null_only"= "false"
+? "sort_hide_null"= "false"
+? "page"= "1"
+? "recipient_state"= "<string>"
+? "recipient_state"= "<string>"
+
+
+// 
+// Schedule B filings describe itemized disbursements. This data
+// explains how committees and other filers spend their money. These figures are
+// reported as part of forms F3, F3X and F3P.
+// 
+// The data is divided in two-year periods, called `two_year_transaction_period`, which
+// is derived from the `report_year` submitted of the corresponding form. If no value is supplied, the results will
+// default to the most recent two-year period that is named after the ending,
+// even-numbered year.
+// 
+// Due to the large quantity of Schedule B filings, this endpoint is not paginated by
+// page number. Instead, you can request the next page of results by adding the values in
+// the `last_indexes` object from `pagination` to the URL of your last request. For
+// example, when sorting by `disbursement_date`, you might receive a page of
+// results with the following pagination information:
+// 
+// ```
+// pagination: {
+//     pages: 965191,
+//     per_page: 20,
+//     count: 19303814,
+//     last_indexes: {
+//         last_index: "230906248",
+//         last_disbursement_date: "2014-07-04"
+//     }
+// }
+// ```
+// 
+// To fetch the next page of sorted results, append `last_index=230906248` and
+// `last_disbursement_date=2014-07-04` to the URL.  We strongly advise paging through
+// these results by using the sort indices (defaults to sort by disbursement date, e.g.
+// `last_disbursement_date`), otherwise some resources may be unintentionally filtered out.
+// This resource uses keyset pagination to improve query performance
+// and these indices are required to properly page through this large dataset.
+// 
+// Note: because the Schedule B data includes many records, counts for
+// large result sets are approximate; you will want to page through the records until no records are returned.
+
+@name("/schedules/schedule_b/:sub_id/")
+GET "https://{{baseUrl}}/schedules/schedule_b/:sub_id/"
+? "disbursement_purpose_category"= "<string>"
+? "disbursement_purpose_category"= "<string>"
+? "max_image_number"= "<string>"
+? "disbursement_description"= "<string>"
+? "disbursement_description"= "<string>"
+? "spender_committee_org_type"= "<string>"
+? "spender_committee_org_type"= "<string>"
+? "recipient_committee_id"= "<string>"
+? "recipient_committee_id"= "<string>"
+? "sort_null_only"= "false"
+? "committee_id"= "<string>"
+? "committee_id"= "<string>"
+? "spender_committee_designation"= "<string>"
+? "spender_committee_designation"= "<string>"
+? "recipient_state"= "<string>"
+? "recipient_state"= "<string>"
+? "spender_committee_type"= "<string>"
+? "spender_committee_type"= "<string>"
+? "recipient_city"= "<string>"
+? "recipient_city"= "<string>"
+? "sort_hide_null"= "false"
+? "sort"= "-disbursement_date"
+? "min_image_number"= "<string>"
+? "recipient_name"= "<string>"
+? "recipient_name"= "<string>"
+? "per_page"= "20"
+? "min_amount"= "<string>"
+? "api_key"= "DEMO_KEY"
+? "max_amount"= "<string>"
+? "image_number"= "<string>"
+? "image_number"= "<string>"
+? "two_year_transaction_period"= "<integer>"
+? "two_year_transaction_period"= "<integer>"
+? "max_date"= "<date>"
+? "line_number"= "<string>"
+? "min_date"= "<date>"
+
+
+

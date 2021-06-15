@@ -1,0 +1,118 @@
+#!/usr/bin/env dothttp
+
+// Lista os usuários.
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | employee | Object | Colaborador ao qual o usuário pertence (id,name) |
+// | group | Object | Grupo ao qual o usuário pertence (id,name)|
+// | sign_in_count | String | Contagem de acessos |
+// | last_sign_in_at | Timestamp | Data do último acesso |
+// | last_sign_in_ip | String | IP do último acesso |
+// | confirmed_at | String | Data de confirmação do usuário |
+// | active | String | Ativo? (*true - sim \| false - não*) |
+// | admin | String | É administrador? (*true - sim \| false - não*) |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/users"
+"access-token": "{{client_token}}"
+? "attributes"= "id,group,employee"
+
+
+// Exibe os atributos de um usuário.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | user_id | Integer | Sim | ID do usuário |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | employee | Object | Colaborador ao qual o usuário pertence (id,name) |
+// | group | Object | Grupo ao qual o usuário pertence (id,name)|
+// | sign_in_count | String | Contagem de acessos |
+// | last_sign_in_at | Timestamp | Data do último acesso |
+// | last_sign_in_ip | String | IP do último acesso |
+// | confirmed_at | String | Data de confirmação do usuário |
+// | active | String | Ativo? (*true - sim \| false - não*) |
+// | admin | String | É administrador? (*true - sim \| false - não*) |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/users/{{user_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,employee,group"
+
+
+// Cria um usuário para o colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | id do colobarador a ser criado o usuário|
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | send_confirmation_email | Boolean | Sim | Envia email de confirmação para colaborador? (*true - sim \| false - não*)|
+// | group_id | Integer | Sim | ID do grupo de acesso do qual o usuário fará parte. Verificar grupos [aqui](https://documenter.getpostman.com/view/4785048/RWMCvVxN?version=latest#15a2e830-2db9-4609-84b4-3cd7e74ba81b). |
+// | password | String | Sim | Senha |
+// | password_confirmation | String | Sim | Confirmação da senha |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/user"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"user":{
+		"send_confirmation_email": false, 
+		"group_id": 2, 
+		"password": "23123123" , 
+		"password_confirmation": "23123123"
+	}
+}')
+
+
+// Edita o usuário de um colaborador.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | id do colobarador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | active | Boolean | Não | Ativo? (*true - sim \| false - não*) |
+// | send_confirmation_email | Boolean | Não | Envia email de confirmação para colaborador? (*true - sim \| false - não*)|
+// | group_id | Integer | Não | ID do grupo de acesso ná qual o usuário fara parte |
+// | password | String | Não | Senha |
+// | password_confirmation | String | Não | Confirmação da senha |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/user"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"user":{
+		"active": true,
+		"send_confirmation_email": false, 
+		"group_id": 1, 
+		"password": "123123123" , 
+		"password_confirmation": "123123123"
+	}
+}')
+
+
+

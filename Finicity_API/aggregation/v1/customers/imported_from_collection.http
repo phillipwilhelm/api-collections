@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+// Find all customers enrolled by the current partner, where the search text is found in the customer’s username or any combination of firstName and lastName fields. If no search text is provided, return all customers.
+// 
+// Valid values for type are testing, active.
+// 
+// If the value of moreAvailable in the response is true, you can retrieve the next page of results by increasing the value of the start parameter in your next request:
+// 
+//   …&start=6&limit=5
+
+@name("Get Customers")
+GET "https://{{baseUrl}}/aggregation/v1/customers"
+? "search"= "searchvalue"
+? "username"= "customerusername1"
+? "start"= "1"
+? "limit"= "25"
+? "type"= "active"
+
+
+// Enroll a testing customer. A testing customer may only register accounts with FinBank institutions.
+
+@name("Add Testing Customer V1")
+POST "https://{{baseUrl}}/aggregation/v1/customers/testing"
+"Content-Type": "application/json"
+data('{
+    "username": "customerusername1",
+    "firstName": "John",
+    "lastName": "Smith",
+    "applicationId": "repre"
+}')
+
+
+// This version 1 service has been replaced with version 2
+// 
+// Enroll an active customer, which is the actual owner of one or more real-world accounts. This is a billable customer.
+// 
+// This service is not available from the Test Drive. Calls to this service before enrolling in a paid plan will return HTTP 429 (Too Many Requests).
+
+@name("Add Customer V1")
+POST "https://{{baseUrl}}/aggregation/v1/customers/active"
+"Content-Type": "application/json"
+data('{
+    "username": "USERNAME",
+    "firstName": "FIRST_NAME",
+    "lastName": "LAST_NAME"
+}')
+
+
+

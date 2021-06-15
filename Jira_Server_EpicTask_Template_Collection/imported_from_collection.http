@@ -1,0 +1,335 @@
+#!/usr/bin/env dothttp
+
+@name("1) EPIC Post")
+POST "https://{{JiraHost}}/rest/api/2/issue/bulk"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "issueUpdates": 
+    [
+        {
+      "fields":
+      {
+        "project": 
+          {
+          "key": "{{Project Key}}"
+          },
+        "customfield_#####": "{{EPIC REF}} - {{EPIC NAME}}", --EPICLINK (Remove this comment before running)
+        "summary": "{{EPIC REF}} - {{EPIC NAME}}",
+        "issuetype": 
+        {
+          "name": "Epic"
+        },
+        "priority": 
+        {
+          "name": "3",
+          "id": "8" 								--IF ID NEEDED (Remove this comment before running)
+        },
+        "reporter": 
+        {
+          "name": "{{Reporter}}"
+        },
+        "versions":
+        [
+        {
+        	"name":"{{Version}}"
+        }
+        ],
+        "description": "{{EPIC NAME}}\r\n\r\nThis is a top level EPIC issue.\r\n\r\nThis relates to {{Impact Name}}",
+        "assignee":{"name":"{{Assignee}}"},
+        "customfield_#####":							--Client or Impact Area (Remove this comment before running)
+        [
+          {
+            "value": "{{Impact Name}}"
+          }
+        ]
+       }
+    }
+    ],
+    
+  "links": []
+}')
+
+
+@name("2) Task With 2 Sub-Tasks")
+POST "https://{{JiraHost}}/rest/api/2/issue/bulk"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "issueUpdates": 
+    [
+        
+    {
+      "fields": 
+      {
+          "project": 
+          {
+          "key": "{{Project Key}}"
+          },
+          "customfield_#####": "{{EPIC KEY}}",
+          "summary": "{{EPIC REF}} - {{Version}} - Static Summary Text",
+          "issuetype":
+          {
+              "name": "Task"
+          },
+          "priority": 
+          {
+              "name": "3"
+          },
+          "reporter": 
+          {
+              "name": "{{Reporter}}"
+          },
+          "versions":
+          [
+          {
+        	"name":"{{Version}}"
+          }
+          ],
+          "description": "This task has 2 sub-tasks. Below example bullet list:\r\n * Point 1\r\n * Point 2\r\n * Here is a URL - [Click Here|https://www.InsertWebAddress.com]\r\n * *{color:#FF0000}Here is some Bold and Red formatted text.{color}*",
+          "assignee":{"name":"{{Assignee}}"},
+          "labels": 
+          [
+              "LabelForTicket",
+              "LabelForTicket2"
+          ],
+          "customfield_#####": 							--Client or Impact Area (Remove this comment before running)
+          [
+              {
+                  "value": "{{Impact Name}}"
+              }
+          ],
+          "duedate": "{{Due Date}}"
+        },
+            "subTasks": [],
+  "links": []
+}
+]
+}')
+
+
+@name("2.1) Sub-Task 1")
+POST "https://{{JiraHost}}/rest/api/2/issue/bulk"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "issueUpdates": 
+    [
+        
+    {
+      "fields": 
+      {
+          "project": 
+          {
+          "key": "{{Project Key}}"
+          },  
+          "parent":
+        {
+            "key": "{{Task 2 Key}}"
+        },
+          "summary": "{{EPIC ABC}} - {{Version}} - Static Summary Text",
+          "issuetype":
+          {
+              "name": "Sub-task"
+          },
+          "priority": 
+          {
+              "name": "3"
+          },
+          "reporter": 
+          {
+              "name": "{{Reporter}}"
+          },
+           "versions":
+          [
+          {
+        	"name":"{{Version}}"
+          }
+          ],
+          "description": "* This is Sub-Task 1 of 2",
+          "assignee":{"name":"{{Assignee}}"},
+          "labels": 
+          [
+              "Sub-Task-1"
+          ],
+          "customfield_#####": 							--Client or Impact Area (Remove this comment before running)
+          [
+              {
+                  "value": "{{Impact Name}}"
+              }
+          ],
+          "duedate": "{{Due Date}}"
+        },
+  "subTasks": [],
+  "links": []
+}
+]
+}')
+
+
+@name("2.2) Sub-Task 2")
+POST "https://{{JiraHost}}/rest/api/2/issue/bulk"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "issueUpdates": 
+    [
+        
+    {
+      "fields": 
+      {
+          "project": 
+          {
+          "key": "{{Project Key}}"
+          },  
+          "parent":
+        {
+            "key": "{{Task 2 Key}}"
+        },
+          "summary": "{{EPIC ABC}} - {{Version}} - Static Summary Text",
+          "issuetype":
+          {
+              "name": "Sub-task"
+          },
+          "priority": 
+          {
+              "name": "3"
+          },
+          "reporter": 
+          {
+              "name": "{{Reporter}}"
+          },
+           "versions":
+          [
+          {
+        	"name":"{{Version}}"
+          }
+          ],
+          "description": "This is Sub-Task 2 of 2.\r\nh1. list\r\n # Item 1\r\n # Item 2\r\n # Item 3\r\n\r\nh2. List 2 \r\n\r\nItem 4\r\nh2. List 3\r\n * Item 5\r\n * Item 6\r\n * Item 7\r\n * Item 8\r\n\r\nh2. New Section:\r\n\r\nSee ([*Bold Webpage Link*|https://www.yourlink.com])\r\n\r\nMore Format Examples \r\n|h3. EG1|h3. Name|h3. EG2|h3. Name|h3. EG3|h3. Name|h3. EG4|h3. Name|h3. EG5)|\r\n|{color:#505f79}Red Text{color}|{color:#505f79}Red text{color}|{color:#505f79}Red Text{color}|{color:#505f79}Red Text{color}|{color:#505f79}Red Text{color}|{color:#505f79}Red Text{color}|{color:#505f79}Red Text{color}|{color:#505f79} Red Text{color}|{color:#505f79}Red Text{color}|\r\n\r\n",
+          "assignee":{"name":"{{Assignee}}"},
+          "labels": 
+          [
+              "Sub-Task-2"
+          ],
+          "customfield_#####": 							--Client or Impact Area (Remove this comment before running)
+          [
+              {
+                  "value": "{{Impact Name}}"
+              }
+          ]
+        },
+  "subTasks": [],
+  "links": []
+}
+]
+}')
+
+
+@name("3) Task With Issue Link")
+POST "https://{{JiraHost}}/rest/api/2/issue/bulk"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "issueUpdates": 
+    [
+        
+    {
+      "fields": 
+      {
+          "project": 
+          {
+          "key": "{{Project Key}}"
+          },
+          "customfield_10711": "{{EPIC KEY}}",
+          "summary": "{{EPIC ABC}} - {{Version}} - Static Summary Text",
+          "issuetype":
+          {
+              "name": "Task"
+          },
+          "priority": 
+          {
+              "name": "3"
+          },
+          "reporter": 
+          {
+              "name": "{{Reporter}}"
+          },
+          "versions":
+          [
+          {
+        	"name":"{{Version}}"
+          }
+          ],
+          "description": "Sample Description Text\r\n\r\nSample Description Text\r\n\r\nLink to GIT Repository(CLICK HERE|https://confluence.kalibrate.com/display/AD2/Continuous+Delivery+-+Phase+1)",
+          "assignee":{"name":"{{Assignee}}"},
+          "labels": 
+          [
+              "Label-For-Issue-With-Link-Ticket"
+          ],
+          "customfield_#####": 							--Client or Impact Area (Remove this comment before running)
+          [
+              {
+                  "value": "{{Impact Name}}"
+              }
+          ]
+      	 },
+      	  "update":{
+        "issuelinks":[
+         {
+            "add":{
+               "type":{
+                  "name":"Gantt End to Start",
+                  "inward":"has to be done after",
+                  "outward":"has to be done before"
+               },
+               "inwardIssue":{
+                  "key":"{{Task 2 Key}}"
+                              }
+                   }
+         }
+               ]
+          },
+            "subTasks": []
+    }
+  ],
+  "links": []
+}')
+
+
+@name("4) Update Task Link Only - Do Before")
+POST "https://{{JiraHost}}/rest/api/2/issueLink"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "type": {
+        "name": "Gantt End to Start",
+	    "inward": "has to be done after",
+	    "outward": "has to be done before"
+    },
+    "inwardIssue": {
+        "key": "{{Task 2 Key}}"
+    },
+    "outwardIssue": {
+        "key": "{{Task 3 Key}}"
+    }
+}')
+
+
+@name("5) Update Task Link Only - Relates")
+POST "https://jira.kalibrate.com/rest/api/2/issueLink"
+basicauth("[UserName]", "[Password]")
+"Content-Type": "application/json"
+data('{
+    "type": {
+        "name": "Relates"
+    },
+    "inwardIssue": {
+        "key": "{{Task 2 Key}}"
+    },
+    "outwardIssue": {
+        "key": "{{Task 3 Key}}"
+    }
+}')
+
+
+

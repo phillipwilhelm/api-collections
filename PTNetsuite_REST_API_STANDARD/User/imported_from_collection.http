@@ -1,0 +1,213 @@
+#!/usr/bin/env dothttp
+
+// This API returns the details of the current user, that performs the login.
+// 
+// The response will provide an object that containsssssss the User details.
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Own User Information")
+GET "{{protocol}}://{{host}}/api/v2/user"
+"Authorization": "Bearer {{token}}"
+
+
+// This API allows to update only the password for the user, the UserId is passed in the URL.
+//  
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The user to update is identified in the url by {{uid}}
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//  
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//       "password": {
+//       "type": "string",
+//       "minLength": 8,
+//       "maxLength": 32, 
+//       "description": "Password used to perform https/mqtt authentication"
+//       } 
+//     },
+//     "required": [
+//       "password"
+//     ],    
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property              | Type     | Required     | Nullable | Defined by    |
+// | --------------------- | -------- | ------------ | -------- | ------------- |
+// | [password](#password) | `string` | **Required** | No       | (this schema) |
+// 
+// ## password
+// 
+// Password used to perform https/mqtt authentication
+// 
+// `password`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### password Type
+// 
+// `string`
+// 
+// - minimum length: 8 characters
+// - maximum length: 32 characters
+
+@name("Update Password")
+PUT "{{protocol}}://{{host}}/api/v2/user/{{uid}}/change-password"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"password": "{{password}}"
+}')
+
+
+// This API allows to update the information of the current user that perform the login.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change lastname or firstname.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "firstname": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255, 
+//       "description": "Account firstname"
+//     },
+//     "lastname": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255, 
+//       "description": "Account lastname"
+//     },
+//     "company": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255, 
+//       "description": "Company name associated to this user"
+//     },
+//     "commercialAds": {
+//       "type": "boolean",
+//       "default": true,
+//       "description": "Receive newsletter and commercial email"
+//     }
+//   },
+//  "anyOf": [
+//     { "required": ["firstname"] },
+//     { "required": ["lastname"] },
+//     { "required": ["company"] },
+//     { "required": ["commercialAds"] }
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// # Properties
+// 
+// | Property                        | Type      | Required | Nullable | Default | Defined by    |
+// | ------------------------------- | --------- | -------- | -------- | ------- | ------------- |
+// | [commercialAds](#commercialads) | `boolean` | Optional | No       | `true`  | (this schema) |
+// | [company](#company)             | `string`  | Optional | No       |         | (this schema) |
+// | [firstname](#firstname)         | `string`  | Optional | No       |         | (this schema) |
+// | [lastname](#lastname)           | `string`  | Optional | No       |         | (this schema) |
+// 
+// ## commercialAds
+// 
+// Receive newsletter and commercial email
+// 
+// `commercialAds`
+// 
+// - is optional
+// - type: `boolean`
+// - default: `true`
+// - defined in this schema
+// 
+// ### commercialAds Type
+// 
+// `boolean`
+// 
+// ## company
+// 
+// Company name associated to this user
+// 
+// `company`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### company Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## firstname
+// 
+// Account firstname
+// 
+// `firstname`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### firstname Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## lastname
+// 
+// Account lastname
+// 
+// `lastname`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### lastname Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Update User Information")
+PUT "{{protocol}}://{{host}}/api/v2/user/{{uid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"firstname": "{{firstname}}",
+    "lastname": "{{lastname}}",
+    "company": "{{company}}",
+    "commercialAds": {{commercialAds}}
+}')
+
+
+

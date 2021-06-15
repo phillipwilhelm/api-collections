@@ -1,0 +1,115 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of extractors for a given user with relevent parent/child information included, as well as schedule information
+
+@name("Get Extractors")
+GET "https://api.import.io/maestro/extractor"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a given extractor with relevent parent/child information included, as well as schedule information
+
+@name("Get Extractor")
+GET "https://api.import.io/maestro/extractor/:extractorId"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Duplicates a given extractor and all of its attachments
+
+@name("Duplicate Extractor")
+POST "https://api.import.io//extractor/:extractorId"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a list of extractors that currently have an active crawl run.
+
+@name("Get Running Extractors")
+GET "https://api.import.io/maestro/crawlRun/inProgress"
+? "type"= "extractor"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns the latest successful crawl run for a given extractor
+
+@name("Get latest crawl run")
+GET "https://api.import.io/maestro/extractor/:extractorId/crawlRun/latest"
+? "type"= "extractor"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a list of extractors that have had a crawk run that has started or finished since the given timestamp. If no timestamp is provided defaults to the user's lastSeen value
+// GET
+
+@name("Get Extractors Since")
+GET "https://api.import.io/maestro/crawlRun/since"
+? "type"= "extractor"
+? "timestamp"= ":timestamp"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Update a url list for an extractor
+// 
+// Body is a list of URLs, line separated. Be sure to keep one URL per line. (Not a JSON array)
+
+@name("Update Url List")
+PUT "https://store.import.io/store/extractor/:extractorId/_attachment/urlList"
+? "_apikey"= "{{apikey}}"
+data('https://website.com
+https://website.com/test1')
+
+
+// Update a url list for an extractor
+// 
+// Body is a list of json inputs, line separated. Be sure to keep one object per line. (Not a JSON array)
+
+@name("Update Inputs List json")
+PUT "https://store.import.io/store/extractor/:extractorId/_attachment/inputs"
+? "_apikey"= "{{apikey}}"
+data('{"_url":"http://owlkingdom.com/pointy.html"}
+{"_url":"http://owlkingdom.com/needy.html"}
+{"_url":"http://owlkingdom.com/smart.html"}
+{"_url":"http://owlkingdom.com/tall.html"}
+{"_url":"http://owlkingdom.com/shy.html"} 
+{"_url":"http://owlkingdom.com/snowy.html"}')
+
+
+// Download the url list or input list for an extractor 
+// 
+// Available attachment types are `inputs` (interaction extractors) and `urlList` (standard extractors)
+
+@name("Download Extractor Attachment")
+GET "https://store.import.io/store/extractor/:extractorId/_attachment/:attachmentType/:attachmentId"
+"Content-Type": "application/json"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Parameters:
+// 
+// * Query - _q_ - An elasticsearch query string - String (optional)
+// * Query - __page_ - What page to fetch - Integer (optional)
+// * Query - __perpage_ - How many results per page - Integer (optional)
+// * Query - __sort_ - The field to sort on - String (optional)
+// * Query - __sortDirection_ - ASC or DESC (default) - String (optional)
+// * Query - __exists_ - Multi-valued parameter for fields that must exist - String (optional)
+// * Query - __missing_ - Multi-valued parameter for fields that must be missing - String (optional)
+// * Query - __facet_ - Multi-valued parameter for fields to aggregate - String (optional)
+// * Query - __field_ - Field to operate upon if not searching all - String (optional)
+// * Query - __type_ - Type of ES query; `query_string` (default), `matchphrase`, `term` - String (optional)
+// * Query - __mine_ - Restrict to just objects you own if you have permission to search all - Boolean (optional)
+// * Query - __default_operator_ - either `OR` or `AND` - String (optional)
+// * Query - `faceted field name` - for any field specified as facetable you can apply a filter on a facet value - String (optional)
+
+@name("Search for extractors")
+GET "https://store.import.io/store/extractor/_search"
+? "_apikey"= "{{apikey}}"
+
+
+
+

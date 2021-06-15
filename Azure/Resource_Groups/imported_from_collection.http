@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// Lists all the resource groups for a subscription.
+// 
+// [Microsoft Azure API Reference](https://docs.microsoft.com/en-us/rest/api/resources/resourcegroups/list)
+
+@name("List RGs")
+GET "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2017-05-10"
+
+
+// Checks whether a resource group exists.
+// 
+// [Microsoft Azure API Reference](https://docs.microsoft.com/en-us/rest/api/resources/resourcegroups/checkexistence)
+
+@name("Check existence RG")
+GET "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+
+
+// Creates or updates a resource group.
+// 
+// [Microsoft Azure API Reference](https://docs.microsoft.com/en-us/rest/api/resources/resourcegroups/createorupdate)
+
+@name("Create RG")
+PUT "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+json({
+    "location": "{{location}}"
+})
+
+
+// Deletes a resource group. When you delete a resource group, all of its resources are also deleted.
+// 
+// [Microsoft Azure API Reference](https://docs.microsoft.com/en-us/rest/api/resources/resourcegroups/delete)
+
+@name("Delete RG")
+DELETE "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2020-06-01"
+
+
+@name("Delete all resources in RG")
+PUT "https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}/providers/Microsoft.Resources/deployments/{{deploymentName}}"
+"Authorization": "bearer {{azureBearerToken}}"
+? "api-version"= "2019-10-01"
+json({
+    "properties": {
+        "templateLink": {
+            "uri": "https://raw.githubusercontent.com/www42/arm/master/templates/empty.json",
+            "contentVersion": "1.0.0.0"
+        },
+        "mode": "complete"
+    }
+})
+
+
+

@@ -1,0 +1,82 @@
+#!/usr/bin/env dothttp
+
+// Allows to request a journal of funds between different accounts. Sample response:
+// 
+// ```json
+// {
+// 	"transferId": "JR123456789",
+// 	"status": "B"
+// }
+// ```
+// 
+// #uat
+
+@name("Journal request")
+POST "https://{{url}}/api/transfer/journal/request"
+"Content-Type": "application/json"
+data('{
+	"deliverFrom": {
+		"accountId": 124,
+		"accountNumber": "ABC123456"
+	},
+	"deliverTo": {
+		"accountId": 456,
+		"accountNumber": "DEF123456"
+	},
+	"remoteAddr": "0.0.0.0",
+	"remoteDevice": "Ultra fast proxy",
+	"amount": 1000.0,
+	"deliveryDate": "MM/dd/yyyy HH:mm:ss z",
+	"reason": "",
+	"purpose": "NoPurpose|Gift|StockGift",
+	"symbol": "required for StockGift",
+	"loa": {
+		"remoteAddr": "",
+		"remoteDevice": "",
+		"fullName": "",
+		"timestamp": "MM/dd/yyyy HH:mm:ss z",
+		"signature": ""
+	}
+}')
+
+
+// Ability to search all journal requests: 
+// 
+// ```json
+// [{
+// 	"journalRef": "JR1234", 
+// 	"status": "B",
+// 	"deliverFrom": {
+// 		"accountNumber": "ABC12345",
+// 		"fullName": "John Smith"
+// 	},
+// 	"deliverTo": {
+// 		"accountNumber": "DEF12345",
+// 		"fullName": "Amy Smith"
+// 	},
+// 	"submittedOn": "{timestamp}",
+// 	"updatedOn": "{timestamp}",
+// 	"remoteIp": "",
+// 	"remoteDevice": "",
+// 	"items": {
+// 		"MSFT": 100,
+// 		"TSLA": 100
+// 	}
+// }]
+// ```
+// 
+// #uat
+
+@name("Search")
+POST "https://{{url}}/api/transfer/journal/search"
+json({
+    "transferId": "AB123456",
+    "status": "PLACED|SENT|...",
+    "account": {
+        "accountNumber": "ABC123456",
+        "accountId": 0
+    }
+})
+
+
+

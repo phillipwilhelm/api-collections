@@ -1,0 +1,1 @@
+Kirim Pesan API is the Unofficial Rest API allows you to send and receive messages throught your WhatsApp account. With this API you can create notification, OTP, sending secret code, broadcast message, order info, payment info and others. So sign up now and get free 1,000 credit for 15 days. https://clientks.ristekmuslim.com/#/register

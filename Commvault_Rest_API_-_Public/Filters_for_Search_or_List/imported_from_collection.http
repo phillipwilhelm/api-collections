@@ -1,0 +1,215 @@
+#!/usr/bin/env dothttp
+
+// <h2> Description </h2>
+// Add this filter to display the search or browse results that match a specific keyword name or file type.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=60036.htm)
+// 
+// <p>&nbsp;</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Mode</p>
+// </td>
+// <td>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, EndUser</li>
+// <li class="listbullet">2, Compliance</li>
+// <li>3, Admin</li>
+// <li>4, WebConsole</li>
+// </ul>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Data_Type</p>
+// </td>
+// <td>
+// <p class="tabletext">Data Type Values</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, File</li>
+// <li class="listbullet">2, Email</li>
+// <li>3, Sharepoint</li>
+// <li>4, Folder</li>
+// <li>5, Mailbox</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Filter Based on File Name or Type")
+POST "https://{{ServerUrl}}/performSearch"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "mode": 2,
+  "advSearchGrp": {
+    "commonFilter": [
+      {
+        "filter": {
+          "filters": [
+            {
+              "field": "DATA_TYPE",
+              "fieldValues": {
+                "values": [
+                  "2"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "cvSearchKeyword": {
+      "keyword": ""
+    },
+    "cvSearchCondition": {}
+  },
+  "searchProcessingInfo": {
+    "resultOffset": 0,
+    "pageSize": 50,
+    "sampleSize": 1
+  }
+}')
+
+
+// <h2> Description </h2>
+// Add this filter to search or list results that match a specific custom property.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=60040.htm)
+// 
+// <p>&nbsp;</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Mode</p>
+// </td>
+// <td>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, EndUser</li>
+// <li class="listbullet">2, Compliance</li>
+// <li>3, Admin</li>
+// <li>4, WebConsole</li>
+// </ul>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Data_Type</p>
+// </td>
+// <td>
+// <p class="tabletext">Data Type Values</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, File</li>
+// <li class="listbullet">2, Email</li>
+// <li>3, Sharepoint</li>
+// <li>4, Folder</li>
+// <li>5, Mailbox</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Filter Based on Custom Properties")
+POST "https://{{ServerUrl}}/performSearch"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "mode": 2,
+  "advSearchGrp": {
+    "commonFilter": [
+      {
+        "filter": {
+          "filters": [
+            {
+              "field": "DATA_TYPE",
+              "fieldValues": {
+                "values": [
+                  "2"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "emailFilter": [
+      {
+        "interGroupOP": 0,
+        "interGroupOPStr": "OR",
+        "filter": {
+          "interFilterOP": 2,
+          "interFilterOPStr": "OR",
+          "shareFolder": {
+            "flags": {
+              "include": false,
+              "deleted": false,
+              "exclude": false,
+              "disabled": false,
+              "includeAll": false
+            }
+          },
+          "filters": [
+            {
+              "field": "EMAIL_TO",
+              "intraFieldOpStr": "OR",
+              "fieldValues": {
+                "values": [
+                  "*@commvault.com"
+                ]
+              }
+            },
+            {
+              "field": "EMAIL_FROM",
+              "intraFieldOpStr": "OR",
+              "fieldValues": {
+                "values": [
+                  "*@CommVault.com"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "cvSearchKeyword": {
+      "keyword": ""
+    },
+    "cvSearchCondition": {}
+  },
+  "searchProcessingInfo": {
+    "resultOffset": 0,
+    "pageSize": 50
+  }
+}')
+
+
+

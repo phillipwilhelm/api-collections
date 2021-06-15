@@ -1,0 +1,250 @@
+#!/usr/bin/env dothttp
+
+// 
+// 
+// ### BODY PARAMS
+// 
+// * gstin (required) - GST number which needs to be verified
+// * consent (required) - Consent of the end user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ### Result Parameters
+// 
+// | Field Name | Description                                                                                              |
+// |------------|----------------------------------------------------------------------------------------------------------|
+// | stjCd      | State Jurisdiction Code                                                                                  |
+// | dty        | Taxpayer Type                                                                                            |
+// | stj        | State Jurisdiction                                                                                       |
+// | lgnm       | Legal Name of the Business or Individual corresponding to the GSTIN                                      |
+// | adadr      | Address                                                                                                  |
+// | cxdt       | Date of Cancellation of Registration                                                                     |
+// | nba        | Nature of business registered under GST                                                                  |
+// | gstin      | Given GSTIN                                                                                              |
+// | lstupdt    | Last Updated                                                                                             |
+// | ctb        | Constitution of Business (proprietorship partnership private limited company public limited company etc) |
+// | rgdt       | Registration date under GST                                                                              |
+// | pradr      | Primary business contact information including                                                           |
+// | addr       | Address                                                                                                  |
+// | bnm        | Building name                                                                                            |
+// | st         | state                                                                                                    |
+// | loc        | Location                                                                                                 |
+// | bno        | Buliding number                                                                                          |
+// | dst        | distriict                                                                                                |
+// | stcd       | State Jurisdiction Code                                                                                  |
+// | city       | city                                                                                                     |
+// | flno       | Flat number                                                                                              |
+// | lt         | -                                                                                                        |
+// | pncd       | Pincode                                                                                                  |
+// | lg         | -                                                                                                        |
+// | ntr        | Nature of business carried out at the address                                                            |
+// | ctjCd      | Central Jurisdiction Code                                                                                |
+// | sts        | Current status of registration under GST                                                                 |
+// | tradeNam   | Trade Name                                                                                               |
+// | ctj        | Central Jurisdiction                                                                                     |
+// ## OUTPUT
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invalid Agency ID"
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not white listed :(IP address)".
+// }
+// ```
+// 
+// <h4>Missing/invalid GSTIN</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Gstin is either invalid or empty"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//     "id": "70808d7d-0f22-4474-a3a9-f013a3446e2d",
+//     "consent": "Y",
+//     "consent_text": "I hearby declare my random consent agreement for xyz company via abc and test 123.",
+//     "env": 2,
+//     "response_code": "101",
+//     "response_msg": "Success",
+//     "transaction_status": 1,
+//     "request_timestamp": "2019-06-06 11:01:37:320 +05:30",
+//     "response_timestamp": "2019-06-06 11:01:37:701 +05:30",
+//     "result": {
+//         "stjCd": "MH025",
+//         "lgnm": "QUAGGA TECH PRIVATE LIMITED",
+//         "stj": "PUNE-1",
+//         "dty": "Regular",
+//         "adadr": [],
+//         "cxdt": "",
+//         "gstin": "27AAACQ419XXXXXX",
+//         "nba": [
+//             "Supplier of Services"
+//         ],
+//         "lstupdt": "14/04/2018",
+//         "rgdt": "12/07/2017",
+//         "ctb": "Private Limited Company",
+//         "pradr": {
+//             "addr": {
+//                 "bnm": "MIDC IT TOWER",
+//                 "st": "Kharadi South Main Road",
+//                 "loc": "Pune",
+//                 "bno": "S NO 5 2A 1 Office No 406",
+//                 "stcd": "Maharashtra",
+//                 "dst": "Pune",
+//                 "city": "",
+//                 "flno": "IT Division",
+//                 "lt": "",
+//                 "pncd": "411014",
+//                 "lg": ""
+//             },
+//             "ntr": "Supplier of Services"
+//         },
+//         "tradeNam": "QUAGGA TECH PRIVATE LIMITED",
+//         "sts": "Active",
+//         "ctjCd": "UC0503",
+//         "ctj": "RANGE-III"
+//     }
+// }
+// 
+// ```
+// 
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID>>",
+//     "response_code": "102",
+//     "env": 1,
+//     "request_timestamp": "2018-09-19 18:08:55:947 +05:30",
+//     "response_timestamp": "2018-09-19 18:08:57:366 +05:30",
+//     "response_msg": "Invalid ID number or combination of inputs"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-gst-lite"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+    "gstin":"<< GST Number >>",
+    "consent":"<< Y or N >>",
+    "consent_text":"<< Consent Message >>"
+} ')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID >>",
+//     "consent": "Y",
+//     "consent_text": "<< Consent Text >>",
+//     "env": 1,
+//     "response_code": 101,
+//     "response_msg": "Valid Authentication",
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-09-14 15:09:49:107 +05:30",
+//     "response_timestamp": "2018-09-14 15:09:50:391 +05:30"
+// }
+// ```
+
+@name("Fetch API")
+GET "https://{{base_url}}/verify-gst-lite/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

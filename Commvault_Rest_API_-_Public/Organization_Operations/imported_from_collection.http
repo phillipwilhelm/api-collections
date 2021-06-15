@@ -1,0 +1,548 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation creates an Organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92485.htm)
+
+@name("Organization")
+POST "https://{{ServerUrl}}/Organization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "organizationInfo": {
+        "organization": {
+            "connectName": "autocvlt",
+            "emailDomainNames": [
+                "commvault.com"
+            ],
+            "shortName": {
+                "domainName": "autocvlt"
+            }
+        },
+        "organizationProperties": {
+            "primaryDomain": "",
+            "primaryContacts": [
+                {
+                    "fullName": "fullName",
+                    "email": "email@commvault.com"
+                }
+            ]
+        }
+    },
+    "sendEmail": false
+}
+')
+
+
+// <h2>Description</h2>
+// This operation creates an Organization User.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">groupId</p>
+// </td>
+// <td>
+// <p class="tabletext">Organization User Group Id.</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">password</p>
+// </td>
+// <td>
+// <p class="tabletext">Base64 Encoded String</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=49306.htm)
+
+@name("Organization User")
+POST "https://{{ServerUrl}}/User"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "users": [
+    {
+      "email": "email@domain.com",
+      "systemGeneratePassword": false,
+      "password": "VGVzdFBhc3N3b3JkITEy",
+      "fullName": "local_testuser3",
+      "enableUser": true,
+      "associatedExternalUserGroups": [
+        {
+          "groupId": 8
+        }
+      ],
+      "userEntity": {
+        "userName": "testuser3"
+      }
+    }
+  ]
+}')
+
+
+// <h2>Description</h2>
+// This operation Updates the properties associated with an Organization User.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=49316.htm)
+
+@name("Organization User Properties")
+POST "https://{{ServerUrl}}/User/{{UserId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "users": [
+    {
+      "associatedUserGroupsOperationType": "OVERWRITE",
+      "email": "email@domain.com",
+      "systemGeneratePassword": false,
+      "associatedExternalUserGroupsOperationType": "OVERWRITE",
+      "fullName": "local_testuser3",
+      "enableUser": true,
+      "associatedExternalUserGroups": [
+        {
+          "groupId": 8
+        }
+      ],
+      "userEntity": {
+        "userName": "test\\testuser3"
+      }
+    }
+  ]
+}')
+
+
+// <h2>Description</h2>
+// This operation returns a list of organizations.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92470.htm)
+
+@name("Organization")
+GET "https://{{ServerUrl}}/Organization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns the details associated with an organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92475.htm)
+
+@name("Organization Details")
+GET "https://{{ServerUrl}}/Organization/{{organizationId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns the user groups associated with an organization.
+
+@name("Organization User Groups")
+GET "https://{{ServerUrl}}/UserGroup"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "parentProvider/providerId"= "{{organizationId}}"
+
+
+// <h2>Description</h2>
+// This operation returns the authorization code for the organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=97097.htm)
+
+@name("Organization Authorization Code")
+GET "https://{{ServerUrl}}/Organization/{{organizationId}}/AuthToken"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns the default plan for the organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=97048.htm)
+
+@name("Organization Default Plan")
+GET "https://{{ServerUrl}}/Organization/{{organizationId}}/defaultplan"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation sets Default Plan for the Company.
+// <br>
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>defaultPlansOperationType</td>
+// <td>
+// <p>values:<br />- OVERWRITE : 1<br />- ADD : 2<br />- DELETE : 3<br /></p>
+// </td>
+// </tr>
+// <tr>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Default Plan for Company")
+PUT "https://{{ServerUrl}}/Organization"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+? "organizationId"= "{{organizationId}}"
+data('{
+    "organizationInfo": {
+        "organization": {
+            "shortName": {
+                "id": 3
+            }
+        },
+        "organizationProperties": {
+            "defaultPlansOperationType": 1,
+            "defaultPlans": [
+                {
+                    "plan": {
+                        "planName": "{{planName}}"
+                    }
+                }
+            ]
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation returns the email message header and footer configured for the organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=98507_1.htm)
+
+@name("Organization Email Header and Footer")
+GET "https://{{ServerUrl}}/Organization/{{organizationId}}/EmailCustomization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation updates an Organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92489.htm)
+
+@name("Organization Details")
+PUT "https://{{ServerUrl}}/Organization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+? "organizationId"= "{{organizationId}}"
+data('{
+  "organizationInfo": {
+    "planDetails": [
+      {
+        "plan": {
+          "planId": {{PlanId}}
+        }
+      }
+    ],
+    "organization": {
+      "serviceType": 5,
+      "flags": 0,
+      "description": "test Company",
+      "login": "",
+      "enabled": 1,
+      "useSecureLdap": 0,
+      "connectName": "test Company",
+      "port": 0,
+      "tppm": {
+        "enable": false,
+        "tppmType": 4,
+        "proxyInformation": {
+          "portNumber": 0,
+          "proxyEntity": {
+            "clientName": "0",
+            "clientId": 0,
+            "_type_": 3
+          }
+        }
+      },
+      "emailDomainNames": [
+        "mail.com"
+      ],
+      "resourceProvider": {
+        "domainName": "Qinetix Commcell",
+        "id": 0
+      },
+      "shortName": {
+        "domainName": "testalias",
+        "id": 16
+      }
+    },
+    "organizationProperties": {
+      "physicalDeviceCount": 0,
+      "authCode": "",
+      "deviceCount": 0,
+      "orgCreationDateTime": 1507659390,
+      "hypervisiorCount": 0,
+      "totalMachineCount": 0,
+      "enableAuthCodeGen": false,
+      "miscMachineCount": 0,
+      "serverCount": 0,
+      "userCount": 1,
+      "vmCount": 0,
+      "primaryContacts": [
+        {
+          "fullName": "testadmin",
+          "user": {
+            "_type_": 13,
+            "userName": "testalias\\testmail2",
+            "userId": 140
+          }
+        }
+      ]
+    }
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation enables the need for an authorization code when clients are installed for the organization.
+
+@name("Generate Authorization Code")
+POST "https://{{ServerUrl}}/Organization/{{organizationId}}/AuthToken"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation disables the need for an authorization code when clients are installed for the organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=97099.htm)
+
+@name("Disable Authorization Code")
+PUT "https://{{ServerUrl}}/Organization/{{organizationId}}/AuthToken/Action/disable"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation updates the email message header and footer configured for the organization.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=98533_1.htm)
+
+@name("Organization Email Header and Footer")
+PUT "https://{{ServerUrl}}/Organization/{{organizationId}}/EmailCustomization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "headerTemplate": "<p><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIgAALiIBquLdkgAAAAd0SU1FB9wLExYuHwLwZI8AAAMZSURBVDhPpZT9TwxwHMf5H8T8wESeZZKkHbq6yConQpJZo2Se5qGteUjZKMlduc3CPMTuRtfD8nDSwz2Xy446V1LpjiMPp9PdPMT44eW6JvOQX3y3z/b94fN97fP+fD7v70iPx8OI/z0DkOHitfMtj1910el4yhuna9i8EX8D1HU0kHrjHGJFOVOrogm7LCWmsI0tpxvRWa1/wH6B9Pa52KbNZZxqHsvri0lXPybpVi3xVeUkVJhZWHaBsVULSdPtx+V+NwQbgri9stbrdjHRIGC+XkCi+iTZ9/rZr//Aztsu4lSHiGyIJUgvZGxdKIm6nbg9bh9oCHLlUQVj1MHMMyxms0FOnuUTud7IafKQqXGRZjrKKksUkc2RzDZG4lcTQklr2U9In7uPkOurmFotYrXxOKc6oajjG5LWjxw3f+ZgwxMy7EmsNW4ivDaeOdoI/DXhzLkTxzuvLF8lnTYHQYo9xKmLSDFdJL/DSWH7F6TWfgpanEhenOBIr5jtDjGxpkTmqkUEaL2yVPN51NMxCGl6aGOFUk9E/SE2auVsM1aQb/lI/oOv5LVqkLwXk+VcQao9hthWEcENEQTUiBhVEoW+2zQIufewi+TSHtbcURFrzCLNrOBwk4ucxn4yDEZ2P4knvTuate3RCO8vIdAoZOKtZYw+IMXY1jwIsTt6WHnWSnJ1O4G6KARmARuaCsio9bBD9Zp1ZSriFBcJVycQbBIyRRtOwIVsxqXfxGZ/MQhxu92kyeq9u9BNoCqZmd4Jhd2NJl4jY2O5jST5S8RnHAQr9zLFEEZA3VIm5F5jWWaF7+3QiBvNbQhPtCAsVzBJs5jJ+lBm1SwlpqSRmDNdCAutzCjdyiSdAH9FCn4ZEnSmtl/3ZKAimVzL7CI5/tVLmK5IRVBciUjWziJpCwvyLEw7nYN/cRZ+W6+Tf776z431echb2qXKWqZnSpl7rJkFkk5CCiwE5T1gxhEz4/dpGJ9Synmlxpf7w3d/NaDN/hyZoo6EbCVhe5WE7r6G+MBVpJdrvI189m8D/u7ogab19rp8MXAf7sv4DsuZPMsmG/YnAAAAAElFTkSuQmCC/></p>\n"
+}')
+
+
+// <h2>Description</h2>
+// This operation deactivates an Organization.
+
+@name("Organization Deactivate")
+POST "https://{{ServerUrl}}/Organization/{{organizationId}}/action/deactivate"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "deactivateOptions": {
+    "disableBackup": true,
+    "disableRestore": true,
+    "disableLogin": true
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation activates an Organization.
+
+@name("Organization Activate")
+POST "https://{{ServerUrl}}/Organization/{{organizationId}}/action/activate"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+
+
+
+// This operation onboards a subclient.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114080.htm)
+
+@name("Subclient Onboard")
+POST "https://{{ServerUrl}}/Subclient/byName(clientName='dm2perf3',appName='Windows File System',instanceName='DefaultInstanceName',backupsetName='defaultBackupSet',subclientName='backedup_test')/Onboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "StoragePool": "SP_Admin",
+    "serviceLevel": "Economy",
+    "ForceReplace": true,
+    "role": {
+        "roleName": "Client Admins"
+    },
+    "CycleDay": [
+        {
+            "day": 3,
+            "time": [
+                {
+                    "startTime": "12AM",
+                    "endTime": "12AM"
+                }
+            ]
+        },
+        {
+            "day": 4,
+            "time": [
+                {
+                    "startTime": "8AM",
+                    "endTime": "3PM"
+                },
+                {
+                    "startTime": "6PM",
+                    "endTime": "9PM"
+                }
+            ]
+        }
+    ],
+    "user": {
+        "userName": "tapicompany\\tapicompany"
+    }
+}')
+
+
+// This operation offboards a subclient.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114115.htm)
+
+@name("Subclient Offboard")
+POST "https://{{ServerUrl}}/Subclient/byName(clientName='dm2perf3',appName='Windows File System',instanceName='DefaultInstanceName',backupsetName='defaultBackupSet',subclientName='backedup_test')/Offboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// This operation onboards a virtual machine client based on the GUID of the client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114111.htm)
+
+@name("VMClient Onboard")
+POST "https://{{ServerUrl}}/VM/{{vmGuid}}/Onboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "StoragePool": "SP_Admin",
+    "serviceLevel": "Economy",
+    "ForceReplace": true,
+    "role": {
+        "roleName": "Client Admins"
+    },
+    "CycleDay": [
+        {
+            "day": 3,
+            "time": [
+                {
+                    "startTime": "12AM",
+                    "endTime": "12AM"
+                }
+            ]
+        },
+        {
+            "day": 4,
+            "time": [
+                {
+                    "startTime": "8AM",
+                    "endTime": "3PM"
+                },
+                {
+                    "startTime": "6PM",
+                    "endTime": "9PM"
+                }
+            ]
+        }
+    ],
+    "user": {
+        "userName": "tapicompany\\tapicompany"
+    }
+}')
+
+
+// This operation offboards a VM client based on GUID of the VM client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114116.htm)
+
+@name("VMClient Offboard")
+POST "https://{{ServerUrl}}/VM/{{vmGuid}}/Offboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "vmName": "HMLMV2RegVM1VM1"
+}')
+
+
+// This operation identifies all the users belonging to the tenant and offboards the subclients and VM clients for all the users one by one.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114117.htm)
+
+@name("Tenant Offboard")
+POST "https://{{ServerUrl}}/Tenant/Offboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+json({
+    "tenantHostName": "tapicompany"
+})
+
+
+// This operation identifies all the subclients and Virtual Machine clients that are associated with a user and offboards them for the specific user.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=114732.htm)
+
+@name("User Offboard")
+POST "https://{{ServerUrl}}/User/Offboard"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+json({
+    "userName": "tapicompany\\tapicompany"
+})
+
+
+// <h2>Description</h2>
+// This operation deletes an Organization
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92483.htm)
+
+@name("Organization")
+DELETE "https://{{ServerUrl}}/Organization/{{organizationId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+

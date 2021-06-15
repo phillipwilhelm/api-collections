@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// This call will be used by a process that monitors/listens for product changes occuring within the commerce platform to create/update SKUs in GlobalCommerce as needed.
+
+@name("Create a digital/services sku")
+POST "https://api.digitalriver.com/skus"
+"Content-Type": "application/json"
+data('{
+    "id": "{{uuid}}",
+    "eccn": "EAR99",
+    "countryOfOrigin": "US",
+    "taxCode": "4323.310_A",
+    "name": "Test Product",
+    "fulfill": false,
+    "metadata": {
+        "customAttribute1": "some value"
+    }
+}')
+
+
+// Creates a checkout resource with line item pricing and shipping address supplied by the commerce platform.
+// Note that if email hasnt been collected yet in the shopper-present UI, the null placeholder below can be provided initially and updated in later steps.
+
+@name("Create checkout")
+POST "https://api.digitalriver.com/checkouts"
+"Content-Type": "application/json"
+data('{
+    "currency": "USD",
+    "taxInclusive": false,
+    "browserIp": "111.111.111.111",
+    "email": "null@digitalriver.com",
+    "shipTo": {
+        "address": {
+            "line1": "10380 Bren Road West",
+            "city": "Minnetonka",
+            "postalCode": "55343",
+            "state": "MN",
+            "country": "US"
+        },
+        "name": "William Brown"
+    },
+    "shipFrom": {
+        "address": {
+            "country": "US"
+        }
+    },
+    "items": [
+        {
+            "skuId": "{{skuId-D}}",
+            "quantity": 2,
+            "price": 15.99,
+            "metadata": {
+                "key1_LineLevel": "987654321"
+            }
+        }
+    ],
+    "upstreamId": "{{uuid}}",
+    "metadata": {
+        "key1_OrderLevel": 12345,
+        "key2_OrderLevel": true
+    }
+}')
+
+
+// In a full API-implementation, sources are created in the shopper-present UI (browser) via the digitalriver.js payment library. This API call is included in this Postman collection for convenience only.
+
+@name("Create Payment Source")
+POST "https://api.digitalriver.com/sources"
+"Content-Type": "application/json"
+data('{
+	"type": "creditCard",
+    "paymentSessionId": "{{paymentSessionId}}",
+	"reusable": false,
+	"owner": {
+		"firstName": "William",
+		"lastName": "Brown",
+		"email": "apiTester@digitalriver.com",
+		"address": {
+			"line1": "10380 Bren Road West",
+			"city": "Minnetonka",
+			"state": "MN",
+			"country": "US",
+			"postalCode": "55343"
+		}
+	},
+	"creditCard": {
+		"number": "4444222233331111",
+		"expirationMonth": 7,
+		"expirationYear": 2027,
+		"cvv": "415"
+	}
+}')
+
+
+// Creates/Submits an order based on all of the details attached to the specified checkout.
+
+@name("Create Order w/ CheckoutID")
+POST "https://api.digitalriver.com/orders"
+"Content-Type": "application/json"
+data('{
+"checkoutId": "{{checkoutId}}"
+}')
+
+
+

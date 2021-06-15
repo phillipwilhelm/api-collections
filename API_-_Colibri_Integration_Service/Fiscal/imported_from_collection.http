@@ -1,0 +1,39 @@
+#!/usr/bin/env dothttp
+
+// Emite o comprovante fiscal eletrônico (NFCe ou SAT) de uma conta. O endpoint retorna uma lista de um elemento com a chave de acesso do comprovante.
+// 
+// Caso o comprovante já tenha sido emitido, o endpoint funciona como uma consulta, retornando os dados sem tentar emitir novamente o comprovante.
+// 
+// É possível dividir a conta em vários comprovantes fiscais informando uma lista de CPFs. Se quiser dividir a conta mas sem informar CPF, basta enviar o CPF vazio (""). A resposta neste caso é uma lista com todas as chaves de acesso dos comprovantes emitidos.
+// 
+
+@name("Emitir comprovante fiscal")
+POST "https://{{url}}/{{version}}/comprovante/"
+basicauth("super", "{{password}}")
+? "api_key"= "{{apikey}}"
+? "operacao_id"= "{{operacao_id}}"
+? "imprimir"= "0"
+data('{
+	"consumidor": {
+		"cpf": "",
+		"nome": "NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL",
+		"endereco": "",
+		"email": "",
+		"cpfs": []
+	}
+}
+')
+
+
+// Retorna os dados da DANFe de um comprovante fiscal eletrônico já emitido, a partir do identificador único de uma venda.
+
+@name("Consultar DANFe do comprovante fiscal")
+GET "https://{{url}}/FiscalServer/danfe"
+basicauth("super", "{{password}}")
+? "api_key"= "{{apikey}}"
+? "operacao_id"= "{{operacao}}"
+? "numero"= "{{numero}}"
+
+
+
+

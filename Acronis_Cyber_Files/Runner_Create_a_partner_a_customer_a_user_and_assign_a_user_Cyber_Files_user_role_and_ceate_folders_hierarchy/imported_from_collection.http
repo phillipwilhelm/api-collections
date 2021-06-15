@@ -1,0 +1,235 @@
+#!/usr/bin/env dothttp
+
+@name("Issue a JWT token for Account Management API Calls")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "grant_type": [
+        "client_credentials"
+    ]
+})
+
+
+@name("Create a partner tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Cyber Files Partner",
+    "parent_id": "{{my_tenant_id}}",
+    "kind": "partner"
+}')
+
+
+@name("Set only Cyber Files for the parter")
+PUT "https://{{base_url}}/api/2/tenants/{{partner_tenant_id}}/offering_items"
+json({
+    "offering_items": [
+        {
+            "name": "fc_storage",
+            "infra_id": "fbc254b9-d8be-4daf-94f6-0253d23b63f0",
+            "usage_name": "fc_storage",
+            "quota": {
+                "value": null,
+                "version": 0,
+                "overage": null
+            },
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "type": "infra",
+            "edition": null,
+            "locked": false,
+            "measurement_unit": "bytes",
+            "status": 1
+        },
+        {
+            "name": "fc_seats",
+            "usage_name": "fc_seats",
+            "quota": {
+                "value": null,
+                "version": 0,
+                "overage": null
+            },
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "type": "count",
+            "edition": null,
+            "locked": true,
+            "measurement_unit": "quantity",
+            "status": 1
+        },
+        {
+            "name": "fc_child_storages",
+            "usage_name": "fc_child_storages",
+            "quota": {
+                "value": null,
+                "version": 0,
+                "overage": null
+            },
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "type": "count",
+            "edition": null,
+            "locked": false,
+            "measurement_unit": "bytes",
+            "status": 1
+        }
+    ]
+})
+
+
+@name("Create a customer tenant")
+POST "https://{{base_url}}/api/2/tenants"
+"Content-Type": "application/json"
+data('{
+    "name": "Cyber Files Customer",
+    "parent_id": "{{partner_tenant_id}}",
+    "kind": "Customer"
+}')
+
+
+@name("Set only Cyber Files for the parter")
+PUT "https://{{base_url}}/api/2/tenants/{{customer_tenant_id}}/offering_items"
+json({
+    "offering_items": [
+        {
+            "name": "fc_storage",
+            "infra_id": "fbc254b9-d8be-4daf-94f6-0253d23b63f0",
+            "usage_name": "fc_storage",
+            "quota": {
+                "value": null,
+                "version": 0,
+                "overage": null
+            },
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "type": "infra",
+            "edition": null,
+            "locked": false,
+            "measurement_unit": "bytes",
+            "status": 1
+        },
+        {
+            "name": "fc_seats",
+            "usage_name": "fc_seats",
+            "quota": {
+                "value": null,
+                "version": 0,
+                "overage": null
+            },
+            "application_id": "dfd85a5f-a464-32ab-81fd-99bcc66a070f",
+            "type": "count",
+            "edition": null,
+            "locked": true,
+            "measurement_unit": "quantity",
+            "status": 1
+        }
+    ]
+})
+
+
+@name("Create a new user for a customer")
+POST "https://{{base_url}}/api/2/users"
+"Content-Type": "application/json"
+data('{
+  "tenant_id": "{{customer_tenant_id}}",
+  "login": "{{login}}",
+  "contact": {
+      "email": "{{login}}@example.com",
+      "firstname": "First{{login}}",
+      "lastname": "Last{{login}}"
+  }
+}')
+
+
+@name("Activate a user by setting a password")
+POST "https://{{base_url}}/api/2/users/{{user_id}}/password"
+"Content-Type": "application/json"
+data('{
+  "password": "{{user_password}}"
+}')
+
+
+@name("Set a user the Cyber Files user role")
+PUT "https://{{base_url}}/api/2/users/{{user_id}}/access_policies"
+"Content-Type": "application/json"
+data('{
+    "items": [
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "issuer_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "sync_share_admin",
+            "tenant_id": "{{customer_tenant_id}}",
+            "trustee_id": "{{user_id}}",
+            "trustee_type": "user",
+            "version": 0
+        },
+        {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "issuer_id": "00000000-0000-0000-0000-000000000000",
+            "role_id": "sync_share_user",
+            "tenant_id": "{{customer_tenant_id}}",
+            "trustee_id": "{{user_id}}",
+            "trustee_type": "user",
+            "version": 0
+        }
+    ]
+}')
+
+
+// For Cyber Files API other type of grant type than for Account Management API. It must be grant_type equals password.
+
+@name("Issue a JWT token for Cyber Files API Calls")
+POST "https://{{base_url}}/api/2/idp/token"
+basicauth("{{client_id}}", "{{client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data({
+    "grant_type": [
+        "password"
+    ],
+    "username": [
+        "{{login}}"
+    ],
+    "password": [
+        "{{user_password}}"
+    ]
+})
+
+
+@name("Get a user info")
+GET "https://{{base_url}}/fc/api/v1/users"
+"Content-Type": "application/json"
+
+
+
+@name("Create a folder")
+POST "https://{{base_url}}/fc/api/v1/sync_and_share_nodes"
+json({
+    "name": "Cyber Folder 1"
+})
+
+
+@name("Create a sub-folder")
+POST "https://{{base_url}}/fc/api/v1/sync_and_share_nodes"
+json({
+    "name": "Cyber Folder 2",
+    "parent_uuid": "{{parent_folder_uuid}}"
+})
+
+
+@name("Upload a File")
+POST "https://{{base_url}}/fc/api/v1/sync_and_share_nodes/{{sub_folder_uuid}}/upload"
+"Accept": "application/json"
+"Content-Length": "19"
+"Content-Type": "text/plain"
+? "filename"= "test.txt"
+? "size"= "19"
+data('Cyber File API Test')
+
+
+@name("Download the sub folder  ZIP archive")
+GET "https://{{base_url}}/fc/api/v1/sync_and_share_nodes/{{sub_folder_uuid}}/download"
+
+
+@name("Download the file")
+GET "https://{{base_url}}/fc/api/v1/sync_and_share_nodes/{{file_uuid}}/download"
+
+
+

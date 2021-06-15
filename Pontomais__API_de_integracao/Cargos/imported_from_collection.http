@@ -1,0 +1,136 @@
+#!/usr/bin/env dothttp
+
+// Lista os cargos.
+// 
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id | Integer | Identificador único |
+// | code | Code (60) | Código identificador do cargo |
+// | name | String (60) | Nome do cargo |
+// | female_name | String (60) | Nome feminino do cargo |
+// | cbo | Object | CBO (Classificação Brasileira de Ocupações) |
+// 
+// ## Formato do objeto cbo
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id | Integer | Identificador único |
+// | code | String (6) | Código CBO (Classificação Brasileira de Ocupações). Esse código pode ser encontrado em http://www.mtecbo.gov.br/cbosite/pages/pesquisas/BuscaPorTitulo.jsf|
+// | name | String | Nome da ocupação |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/job_titles"
+"access-token": "{{external_token}}"
+? "attributes"= "id,code,name,female_name,cbo"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Exibe os atributos de um cargo.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | job_title_id | Integer | Sim | ID do cargo |
+// 
+// 
+// ## Atributos disponíveis
+// 
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id | Integer | Identificador único |
+// | code | Code (60) | Código identificador do cargo |
+// | name | String (60) | Nome do cargo |
+// | female_name | String (60) | Nome feminino do cargo |
+// | cbo | Object | CBO (Classificação Brasileira de Ocupações) |
+// 
+// ## Formato do objeto cbo
+// | Nome               | Tipo      | Descrição                                                    |
+// | ------------------ | --------- | ------------------------------------------------------------ |
+// | id | Integer | Identificador único |
+// | code | String (6) | Código CBO (Classificação Brasileira de Ocupações). Esse código pode ser encontrado em http://www.mtecbo.gov.br/cbosite/pages/pesquisas/BuscaPorTitulo.jsf|
+// | name | String | Nome da ocupação |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/job_titles/533813"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,cbo"
+
+
+// Cria um cargo.
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | code | Code (60) | Não | código |
+// | name | String (60) | Sim | Nome do cargo |
+// | female_name | String (60) | Não | Nome feminino do cargo|
+// | cbo_code | String (6) | Não | Código CBO (Classificação Brasileira de Ocupações). Esse código pode ser encontrado em http://www.mtecbo.gov.br/cbosite/pages/pesquisas/BuscaPorTitulo.jsf |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/job_titles"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "job_title": {
+  	"code":"{{job_title_code}}",
+  	"name":"{{job_title_name}}",
+    "female_name":"{{job_title_female_name}}",
+    "cbo_code": "{{cbo_code}}"
+  }
+}')
+
+
+// Edita um cargo.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | job_title_id | Integer | Sim | ID do cargo |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | code | Code (60) | Não | código |
+// | name | String (60) | Sim | Nome do cargo |
+// | female_name | String (60) | Não | Nome feminino do cargo|
+// | cbo_code | String (6) | Não | Código CBO (Classificação Brasileira de Ocupações). Esse código pode ser encontrado em http://www.mtecbo.gov.br/cbosite/pages/pesquisas/BuscaPorTitulo.jsf |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/job_titles/26385"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "job_title":
+  {
+    "code":"{{code}}",
+    "name":"{{name}}",
+    "female_name":"{{female_name}}",
+    "cbo_code": "{{cbo_code}}"
+  }
+}')
+
+
+// Inativa um cargo.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- | ----------- | --------- |
+// | job_title_id | Integer | Sim | ID do cargo |
+
+@name("Inativar")
+DELETE "https://{{server_url}}/external_api/v1/job_titles/{{job_title_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

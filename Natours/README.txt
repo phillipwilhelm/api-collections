@@ -1,0 +1,1 @@
+The Natours Api contains endpoints for Tours, Users and Reviews and Tour Bookings.

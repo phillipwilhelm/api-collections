@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// #### Attribute Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | Y | Y | String; must be unique w/in IdP | Name of an enabled, updateable, String-valued (User Schema) Attribute, e.g. `name.given`.<br>Cannot be one of the reserved attributes: `account`, `id`, `created`, `updated`, `lifecycle`, `mfaEnabled`, `enabled`.
+// value | Y | Y | String | Placeholder referring to the attribute from the provider.<br>Format:  `${providerAttributes.<attributeName>}`
+// update | Y | Y | One of: `EMPTY_ONLY`, `ALWAYS` | Mappings for unique attributes may only use `EMPTY_ONLY`.
+// 
+// #### Available Attributes by IdP Type
+// Type | Attribute Names
+// ---- | ---------------
+// FACEBOOK | `id`, `first_name`, `last_name`, `middle_name`, `name`, `name_format`, `email`, `age_range.max`, `age_range.min`,  `birthday`, `gender`
+// GOOGLE | `ageRange.ageRange`, `birthday.date.day`, `birthday.date.month`, `birthday.date.year`, `birthday.text`, `emailAddress.value`, `etag`, `gender.formattedValue`, `gender.value`, `locale.value`, `name.displayName`, `name.familyName`, `name.givenName`, `name.middleName`, `nickname.type`, `nickname.value`, `phoneNumber.canonicalForm`, `phoneNumber.formattedType`, `phoneNumber.type`, `phoneNumber.value`, `resourceName`
+// LINKEDIN | `emailAddress`, `id`, `localizedFirstName`, `localizedLastName`
+// SAML | _Any_ placeholder with the `${providerAttributes.<attributeName>}` format is acceptable and will be mapped against the attributes available in the SAML assertion after authentication.<br>`${samlAssertion.subject}` is a special reserved placeholder that can be used to refer to the subject name ID in the SAML Assertion response.
+
+@name("CREATE Identity Provider Attribute")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes"
+"Content-Type": "application/json"
+data('{
+    "name": "email",
+    "update": "EMPTY_ONLY",
+    "value": "${providerAttributes.email}"
+}')
+
+
+@name("READ All Identity Provider Attributes")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes"
+"Content-Type": "application/json"
+
+
+@name("READ One Identity Provider Attribute")
+GET "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes/{{idpAttrID}}"
+"Content-Type": "application/json"
+
+
+// See `CREATE` request for data model.
+
+@name("UPDATE Identity Provider Attribute")
+PUT "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes/{{idpAttrID}}"
+"Content-Type": "application/json"
+data('{
+	"name": "name.given",
+	"value": "${providerAttributes.first_name}",
+	"update": "EMPTY_ONLY"
+}')
+
+
+@name("DELETE Identity Provider Attribute")
+DELETE "https://{{apiPath}}1/environments/{{envID}}/identityProviders/{{idpID}}/attributes/{{idpAttrID}}"
+
+
+
+

@@ -1,0 +1,52 @@
+#!/usr/bin/env dothttp
+
+@name("Create pre-authorized payment")
+POST "https://{{UNLIMINT_API_URL}}/api/payments"
+"Content-Type": "application/json"
+data('{
+    "request": {
+        "id": "{{$guid}}",
+        "time": "{{request_time}}"
+    },
+    "merchant_order": {
+        "id": "{{merchant_order_id}}",
+        "description": "Postman Collection Order (\'{{request_name}}\')"
+    },
+    "payment_method": "BANKCARD",
+    "payment_data": {
+        "amount": "12.34",
+        "currency": "{{TERMINAL_CURRENCY}}",
+        "note": "{{$randomCatchPhrase}}",
+        "preauth": true
+    },
+    "customer": {
+        "email": "{{CUSTOMER_EMAIL}}",
+        "phone": "{{$randomPhoneNumber}}"
+    },
+    "card_account": {
+        "card": {
+            "pan": "{{CARD_NON3DS_CONFIRMED}}",
+            "holder": "{{$randomFullName}}",
+            "expiration": "{{expiration}}",
+            "security_code": "100"
+        }
+    }
+}')
+
+
+@name("Complete pre-authorized payment")
+PATCH "https://{{UNLIMINT_API_URL}}/api/payments/{{payment_id_to_complete}}"
+"Content-Type": "application/json"
+data('{
+  "request": {
+    "id": "{{$guid}}",
+    "time": "{{request_time}}"
+  },
+  "operation": "CHANGE_STATUS",
+  "payment_data": {
+    "status_to": "COMPLETE"
+  }
+}')
+
+
+

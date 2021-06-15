@@ -1,0 +1,460 @@
+#!/usr/bin/env dothttp
+
+// 
+// 
+// ### BODY PARAMS
+// 
+// * gstin (required) - GST number which needs to be verified
+// * consent (required) - Consent of the end user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ### Result Parameters
+// 
+// | Field Name      | Description                                                                                              |
+// |-----------------|----------------------------------------------------------------------------------------------------------|
+// | mbr             | Member names if provided by GSP                                                                          |
+// | canFlag         | -                                                                                                        |
+// | pradr           | Primary business contact information including                                                           |
+// | em              | Email ID                                                                                                 |
+// | adr             | Complete Address                                                                                         |
+// | addr            | Address                                                                                                  |
+// | mb              | Mobile Number                                                                                            |
+// | ntr             | Nature of business carried out at the address                                                            |
+// | lastUpdatedDate | Last updated date of this address                                                                        |
+// | tradeNam        | Trade Name                                                                                               |
+// | lstupdt         | Last Updated                                                                                             |
+// | contacted       | Contact Information                                                                                      |
+// | name            | Name                                                                                                     |
+// | mobNum          | Mobile number                                                                                            |
+// | email           | Email ID                                                                                                 |
+// | rgdt            | Registration date under GST                                                                              |
+// | stjCd           | State Jurisdiction Code                                                                                  |
+// | stj             | State Jurisdiction                                                                                       |
+// | ctjCd           | Central Jurisdiction Code                                                                                |
+// | ppr             | -                                                                                                        |
+// | dty             | Taxpayer Type                                                                                            |
+// | cmpRt           | Compliance rating if provided by GSP                                                                     |
+// | cxdt            | Date of Cancellation of Registration                                                                     |
+// | ctb             | Constitution of Business (proprietorship partnership private limited company public limited company etc) |
+// | sts             | Current status of registration under GST                                                                 |
+// | gstin           | Given GSTIN                                                                                              |
+// | lgnm            | Legal Name of the Business or Individual corresponding to the GSTIN                                      |
+// | nba             | Nature of business registered under GST                                                                  |
+// | ctj             | Central Jurisdiction                                                                                     |
+// | adadr           | Address information                                                                                      |
+// | em              | Email ID                                                                                                 |
+// | adr             |Additional address                                                                                                  |
+// | addr            | Address                                                                                                  |
+// | mb              | Mobile Number                                                                                            |
+// | ntr             | Nature of business carried out at the address                                                            |
+// | lastUpdatedDate | Last updated date of place of business                                                                       |
+// |aggreTurnOver | Annual Aggregate Turnover                                                                         |
+// |mandatedeInvoice| Mandatory e Invoicing                                                                         |
+// |isFieldVisitConducted| Field Visit Conducted                                                                         |
+// |bzsdtl|  Business Details|
+// |saccd|  HSN|
+// |sdes| Service details
+// | filingStatus { | -                                
+// | fy             | filling year                     |
+// | taxp           | month of filing                  |
+// | mof            | method of filling                |
+// | dof            | date of filling                  |
+// | rtntype        | GST type                         |
+// | arn            | Annual return                    |
+// | status }       | GST Status                       |
+// | gti            | Gross total Income               |
+// | gtiFY          | Gross total Income financal year |
+// 
+// ## OUTPUT
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invalid Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not whitelisted :(IP address)".
+// }
+// ```
+// 
+// <h4>Missing/invalid GSTIN</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Gstin is either invalid or empty"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//     "id": "00214021-49c4-48a9-88a5-73e6f56aa574",
+//     "env": 1,
+//     "request_timestamp": "2021-03-23 11:57:37:147 +05:30",
+//     "response_timestamp": "2021-03-23 11:57:38:231 +05:30",
+//     "transaction_status": 1,
+//     "result": {
+//         "canFlag": "NA",
+//         "pradr": {
+//             "adr": "SKY LOFT, CREATICITY MALL, 1ST AND 2ND FLOOR, OPP. GOLF COURSE, SHASTRI NAGAR, YERWADA, Pune, Pune, Maharashtra, 411006",
+//             "em": "accounts@zoop.one",
+//             "mb": 942011XXXX,
+//             "ntr": "Supplier of Services",
+//             "addr": "NA",
+//             "lastUpdatedDate": "NA"
+//         },
+//         "contacted": {
+//             "mobNum": 942011XXXX,
+//             "email": "accounts@zoop.one",
+//             "name": ""
+//         },
+//         "bzsdtls": [
+//             {
+//                 "saccd": "00440452",
+//                 "sdes": "INFORMATION TECHNOLOGY SOFTWARE SERVICE"
+//             }
+//         ],
+//         "ctb": "Private Limited Company",
+//         "rgdt": "01/07/2017",
+//         "stj": "State - Maharashtra,Zone - Pune,Division - PUNE_SOUTH,Charge - VADGAON-SHERI_701",
+//         "ctj": "Commisionerate - PUNE - I,Division - DIVISION-V-VIMAN NAGAR,Range - RANGE-III (Jurisdictional Office)",
+//         "dty": "Regular",
+//         "cmpRt": "NA",
+//         "tradeNam": "QUAGGA TECH PRIVATE LIMITED",
+//         "sts": "Active",
+//         "gstin": "27AAACQ4198G1Z7",
+//         "lgnm": "QUAGGA TECH PRIVATE LIMITED",
+//         "nba": [
+//             "Supplier of Services"
+//         ],
+//         "mbr": [
+//             "RITESH MAHENDRA KOTXXXX ",
+//             "VIJAY  CHHUXXXXX "
+//         ],
+//         "cxdt": "",
+//         "aggreTurnOver": "Slab: Rs.X Cr. to XX Cr.",
+//         "mandatedeInvoice": "No",
+//         "isFieldVisitConducted": "No",
+//         "gti": "Up to Rs. X.X lakhs",
+//         "gtiFY": "2018-2019",
+//         "filingStatus": [
+//             [
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "February",
+//                     "mof": "ONLINE",
+//                     "dof": "11/03/2021",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "January",
+//                     "mof": "ONLINE",
+//                     "dof": "11/02/2021",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "December",
+//                     "mof": "ONLINE",
+//                     "dof": "11/01/2021",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "November",
+//                     "mof": "ONLINE",
+//                     "dof": "10/12/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "October",
+//                     "mof": "ONLINE",
+//                     "dof": "11/11/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "September",
+//                     "mof": "ONLINE",
+//                     "dof": "31/10/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "August",
+//                     "mof": "ONLINE",
+//                     "dof": "08/09/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "July",
+//                     "mof": "ONLINE",
+//                     "dof": "11/08/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "June",
+//                     "mof": "ONLINE",
+//                     "dof": "12/07/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "May",
+//                     "mof": "ONLINE",
+//                     "dof": "23/06/2020",
+//                     "rtntype": "GSTR1",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "January",
+//                     "mof": "ONLINE",
+//                     "dof": "23/02/2021",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "December",
+//                     "mof": "ONLINE",
+//                     "dof": "24/01/2021",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "November",
+//                     "mof": "ONLINE",
+//                     "dof": "21/12/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "October",
+//                     "mof": "ONLINE",
+//                     "dof": "26/11/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "September",
+//                     "mof": "ONLINE",
+//                     "dof": "21/10/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "August",
+//                     "mof": "ONLINE",
+//                     "dof": "25/09/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "July",
+//                     "mof": "ONLINE",
+//                     "dof": "20/08/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "June",
+//                     "mof": "ONLINE",
+//                     "dof": "20/08/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "May",
+//                     "mof": "ONLINE",
+//                     "dof": "19/06/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 },
+//                 {
+//                     "fy": "2020-2021",
+//                     "taxp": "April",
+//                     "mof": "ONLINE",
+//                     "dof": "19/06/2020",
+//                     "rtntype": "GSTR3B",
+//                     "arn": "NA",
+//                     "status": "Filed"
+//                 }
+//             ]
+//         ]
+//     },
+//     "response_msg": "Success",
+//     "response_code": "101"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-gst"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+    "gstin":"<< GST Number >>",
+    "consent":"<< Y or N >>",
+    "consent_text":"<< Consent Message >>"
+} ')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID >>",
+//     "consent": "Y",
+//     "consent_text": "<< Consent Text >>",
+//     "env": 1,
+//     "response_code": 101,
+//     "response_msg": "Valid Authentication",
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-09-14 15:09:49:107 +05:30",
+//     "response_timestamp": "2018-09-14 15:09:50:391 +05:30"
+// }
+// ```
+// <h4>Transaction not found</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Transaction not found in your company records"
+// }
+// ```
+
+@name("Fetch API")
+GET "https://{{base_url}}/verify-gst/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

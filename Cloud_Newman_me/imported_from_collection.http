@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+// ## Running a collection as an API
+// You make a POST request to http://www.cloudnewman.me/v1 with the collectionuid, environmentuid and apikey.
+// 
+// CloudNewman will get the data from Postman API:
+// -  use collectionuid+apikey to request the collection using the Postman API.
+// -  use environmentuid+apikey to request the environment using the Postman API.
+// -  use environmentoverlayuid+apikey to request the environment using the Postman API.
+// NOTE: Be sure to pass UID and not the ID values.
+// 
+// CloudNewman operates on "initial values" in the environment, which are often just placeholder values, especially in Public Workspaces.  The recommended practice is to create an environment in the "My Workspace" which has visibility of Personal and cannot be changed.  I named my environment "Private.<MyPublicWorkspaceName>" (for example "Private.CoinStop").
+// 
+// If an environmentoverlayuid was specified, any values in that environment will have precedence (overriding whatever data came from your environmentuid). Effectively this data is overlay'ed on top of the original environment.  
+// 
+// *NOTE: If you are not working on a team project, then you could put **all** environment variables in your "Private.<MyPublicWorkspaceName>" and just provide that environment as your 'environmentuid' and not specify any environmentoverlayuid. When working with a team, it can be difficult to keep them in sync, which is why there are two environments that get merged.*
+// 
+// ClouldNewman now has all of the information now, so what it does is use the Newman API to run the collection.  It registers event handlers for 'start', 'console', 'beforeItem', 'assertion', and 'done'.  The event handles do the following...
+// -  'start' logs "Running collection <ref>"
+// -  'console' logs the message in the securelog.
+// -  'beforeitem' logs "Running collection item <name>"
+// -  'assertion' checks for failure.  On failure:
+//    - logs "Assertion failed: <assertion>"
+//    - securelog the stack.
+// -  'done' logs "Collection run completed."
+// 
+// Once it is done, the last console.log output is converted to a JSON object.  If it is successful then the response will be JSON; otherwise the last console.log message will be returned as text/html.
+// 
+// ## Changing the content type (not returning JSON data)
+// 
+// You can override the Content-Type response header by specifying a 'contenttype' parameter when you make the request.  For example if you need to treat the response as XML (and you console.log an XML message).
+// 
+// ## Passing query parameters
+// 
+// You can pass new environment parameters in the query parameter or post body.  To allow a parameter to get passed, you must first set an environment variable named "allow.<parameter name>" and then in the query or post body you can use "<parameter name>" to pass in dynamic information to your collection.  Your collection still accesses these parameters using pm.variables.get("<parameter name>"); or using /path/:parametername/example or using {{parameter name}}; just like any other environment parameter.
+// 
+// 
+// ## Debugging.  
+// Once in a while you need to debug to figure out why you didn't get the result back from your collection that you were expecting.  
+// 
+// In that case in your "Private.<MyPublicWorkspaceName>" environment add a new variable called "return_logs".  Now you will get back everything that was logged as your response body.
+// 
+// Okay, you have an idea where it is failing but you need a little more details.  You can set the value of the "return_logs" environment variable to **secure** and you will get back all of the details that were in the securelogs as well.  YOU SHOULD UNDO THIS SOON, SINCE IT CONTAINS DETAILS SUCH AS URLS, POTENTIALLY API KEYS, PII DATA, ETC.  The requests you make while you enable securelogs should not be customer data, but should be your own test data.
+// 
+// 
+// ## Future
+// My other hackathon project, CoinStop, wants to consume cloudnewman.me/v1 so that we can use our collection on a web site.  I probably won't get back to this project until after the hack.
+
+@name("Executes a Postman collection and returns the last console.log result.  You must specify a collectionuid, environmentuid, (apikey or X-API-Key).  You can optionally specify a environmentoverlayuid to add/override environment variables.  You can optionally")
+POST "https://{{baseUrl}}/v1"
+? "contenttype"= "application/xml"
+? "apikey"= "{{postman_api_key}}"
+? "collectionuid"= "{{collection_uid}}"
+? "environmentuid"= "{{environment_uid}}"
+? "environmentoverlayuid"= "{{environment_overlay_uid}}"
+json({
+    "collectionuid": "{{collection_uid}}",
+    "environmentuid": "{{environment_uid}}",
+    "environmentoverlayuid": "{{environment_overlay_uid}}"
+})
+
+
+

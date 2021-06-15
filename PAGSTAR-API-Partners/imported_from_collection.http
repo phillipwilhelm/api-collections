@@ -1,0 +1,155 @@
+#!/usr/bin/env dothttp
+
+// A transferência tem o objetivo de transferir automaticamente um determinado valor diretamente para a sua Conta pagstar
+// 
+// Essa rota é usada para transferir pagstar entre contas  da Pagstar. Se você está no nosso Time como Partner está habilitado a fazer uma transação para outra conta cadastrada no Pagstar. 
+// 
+// Abaixo os campos necessários para executar a tarefa:
+// 
+//     "sender_email": E-mail Pagstar a enviar,
+//     "receiver_email": E-mail Pagstar a receber,
+//     "value": Valor a receber,
+//     "currency": Moeda a escolher: "brl", "usd" ou "eur" (default: "brl"),
+//     "description": "Descrição da transferência"
+
+@name("Transferir entre contas Pagstar")
+POST "http://18.224.82.80/api/partner/transfer"
+json({
+    "sender_email": "isaackb1@gmail.com",
+    "receiver_email": "khyroow@gmail.com",
+    "value": 100,
+    "currency": "brl",
+    "description": "string"
+})
+
+
+// Nessa rota é possível validar se o saldo de um usuário pagstar existe.
+// 
+// 	"email": E-mail pagstar,
+// 	"value": Valor,
+// 	"currency": Moeda a escolher: "brl", "usd" ou "eur" (default: "brl")
+
+@name("Validar saldo de uma conta Pagstar")
+POST "http://18.224.82.80/api/partner/verify/balance"
+json({
+    "email": "isaackb1@gmail.com",
+    "value": 100.0,
+    "currency": "brl"
+})
+
+
+// Retorna o saldo de um único usuário Pagstar desde que ele seja cadastrado pelo próprio Partner.
+// 
+// 	"email": "E-mail Pagstar",
+// 	"currency": Moeda a escolher: "brl", "usd" ou "eur" (default: "brl")
+
+@name("Analisar saldo de uma conta Pagstar")
+POST "http://18.224.82.80/api/partner/user/balance"
+json({
+    "email": "isaackb1@gmail.com",
+    "currency": "brl"
+})
+
+
+// Verifique o status de cadastro de uma conta Pagstar
+// 
+// 	"email": E-mail Pagstar,
+// 	"document_number": CPF/CNPJ
+
+@name("Validar uma conta Pagstar")
+POST "http://18.224.82.80/api/partner/verify/user"
+json({
+    "email": "isaackb1@gmail.com",
+    "document_number": "47497065823"
+})
+
+
+// Essa rota irá cadastrar uma nova conta Pagstar
+// 
+// 	"name": Nome do usuário,
+// 	"email": E-mail do usuário,
+// 	"password": Senha do usuário,
+// 	"phone_number": Número do celular do usuário,
+// 	"cpf": CPF/CNPJ do usuário 
+
+@name("Registrar uma conta na Pagstar")
+POST "http://18.224.82.80/api/partner/new-user"
+json({
+    "name": "IsaacKB",
+    "email": "teste@email.com",
+    "password": "123",
+    "phone_number": "13982334569",
+    "cpf": "47497065823"
+})
+
+
+// Essa rota irá uma String de recebimento para leitura de um QRcode, com esse retorno o Partner direciona automaticamente para o seu Website a imagem do QRCODE com informações para o recebimento.
+// 
+// 	"name": Nome do usuário,
+// 	"email": E-mail do usuário,
+// 	"valor": valor
+
+@name("Gerar QRCode de Recebimento")
+POST "http://18.224.82.80/api/partner/qrcodereceive"
+json({
+    "name": "Nome do Recebedor",
+    "receiver_email": "receive@email.com",
+    "value": 123
+})
+
+
+// Essa rota irá uma confirmação de Callback de acordo com configurações pré determinadas com a Pagstar.
+// Deverá ser informado como base64 padrão JWT:
+// 
+// **Nesta caso a rota para teste deve utilizar o IP:
+// 18.216.61.230:3001**
+// 
+// 
+// {
+//   "id_transaction": "99163",
+//   "value": 101,
+//   "TenantId": "4c61fa5c-c8sf-11ea-bd1f-92782918161",
+//   "CallBack": "http://www.seusite.online/Account/code?ti=45029657",
+//   "type": "deposit"
+// }
+
+@name("Transação com Callback")
+POST "https://18.216.61.230/api/transaction/generate/eyJpZF90cmFuc2FjdGlvbiI6IjU1MTYzIiwidmFsdWUiOjEwMS4wMCwiVGV9383838393iLCJDYWxsQmFjayI6Imh0dHA6Ly93d3cucm95YWxwbGF5Lm9ubGluZS9BY2NvdW50L1RyYW5zYWN0aW9uU3RhdHVzLz90aT00NTAyOTY1NyIsInR5cGUiOiJkZXBvc2l0In0="
+
+
+// Essa rota permite a geração de Boleto via API da Pagstar.
+// 
+// deverá informar no Body.
+// 
+// {
+//     "value": 100,
+//     "currency": "brl",
+//     "customer_email": "aategste@gmail.com"
+// }
+// 
+// 
+// Token para testes na Sandbox
+// 
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNhbmRib3hAc2FuZGJveC5jb20iLCJwYXNzd29yZCI6InNhbmRib3giLCJkYXRlIjoiMjAyMC0wNy0wOFQxMDozNjo0MC41OTNaIiwiaWF0IjoxNTk0MjA0NjAwfQ.eGJUXWunM3CdgZ_Db0zWIYxtM2J5BYTfgp42e4hLNAI
+
+@name("Geração de Boleto")
+POST "https://apip.pagstar.com/api/partner/buy/bank-slip"
+json({
+    "value": 5,
+    "currency": "brl",
+    "customer_email": "aaopenteado@gmail.com"
+})
+
+
+// Rota de Gerar Boleto v
+
+@name("https://apip.pagstar.com/api/partner/buy/bank-slip")
+POST "https://apip.pagstar.com/api/partner/buy/bank-slip"
+json({
+    "value": 10,
+    "currency": "brl",
+    "customer_email": "aaopenteado@gmail.com"
+})
+
+
+

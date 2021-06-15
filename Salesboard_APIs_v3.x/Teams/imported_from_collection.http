@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+@name("Get Teams for My User")
+GET "https://{{sb_client}}.salesboard.biz/v1/teams/me"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"cookie": "PHPSESSID={{sb_token}}"
+"apiversion": "1.4"
+"buildversion": "60"
+"appversion": "2.2.7.60"
+"client": "Android"
+"clientversion": "6.0.1"
+"deviceid": "68e99683899ead9c"
+"host": "{{sb_client}}.salesboard.biz"
+"connection": "Keep-Alive"
+"user-agent": "Apache-HttpClient/UNAVAILABLE (java 1.4)"
+? "include"= "campaigns,tags,contactTypes"
+
+
+// It fetches all Campaigns for the user. 
+// Possible "status": ['draft', 'running', 'paused', 'stoped']
+// Possible values for 'include': ['users', 'tags', 'campaigns', 'contactTypes']
+
+@name("Get Teams")
+GET "https://{{sb_client}}.salesboard.biz/v1/teams"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+? "include"= "campaigns, users"
+
+
+@name("Create Team")
+POST "https://{{sb_client}}.salesboard.biz/v1/teams"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+json({
+    "name": "Team H",
+    "teamReference": "",
+    "contactTypes": [
+        "video"
+    ],
+    "tags": [],
+    "users": [
+        1,
+        2,
+        3,
+        4
+    ],
+    "managers": [
+        1,
+        4
+    ]
+})
+
+
+// It fetches all Campaigns for the user. 
+// Possible "status": ['draft', 'running', 'paused', 'stoped']
+// Possible values for 'include': ['tags', 'campaigns', 'contactTypes', 'managers']
+
+@name("Get Team")
+GET "https://{{sb_client}}.salesboard.biz/v1/teams/{{sb_team_id}}"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+? 'filters'= '{"roles":[1,2], "tags": [2,3,4]}'
+? "include"= "tags,contactTypes,users,managers"
+
+
+@name("Update Team")
+PUT "https://{{sb_client}}.salesboard.biz/v1/teams/{{sb_team_id}}"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+json({
+    "name": "Team F",
+    "teamReference": "",
+    "contactTypes": [
+        "video",
+        "face"
+    ],
+    "tags": [
+        3,
+        4,
+        5
+    ],
+    "users": [
+        1,
+        2,
+        3
+    ],
+    "managers": [
+        2,
+        3
+    ]
+})
+
+
+@name("Delete Team")
+DELETE "https://{{sb_client}}.salesboard.biz/v1/teams/{{sb_team_id}}"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+
+

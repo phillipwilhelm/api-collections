@@ -1,0 +1,107 @@
+#!/usr/bin/env dothttp
+
+// Example of request to get a JWT token for a WP user account.
+// 
+// Required POST params are the username and password.
+// 
+// NONCE
+// If you have the optional REST nonce module enabled you will need to pass a valid nonce via the X-WP-NONCE header.
+
+@name("JWT get-token")
+POST "http://car-shows.test/wp-json/wp-headless/v1/jwt/get-token"
+"X-WP-NONCE": "216978f2f7"
+? "username"= "test@test.com"
+? "password"= "$GH345kh8923"
+files(
+	("username", "test@test.com"),
+	("password", "$GH345kh8923")
+)
+
+
+// Make a request to validate a user JWT token. If succesful the rest api will return a JSON object with some basic user data.
+// 
+// You can edit the data returned via the filter 'wp_headless_rest__generate_jwt_response'
+// 
+// See the request headers for example of what to pass in the request.
+// 
+// !NOTE!
+// 
+// Ensure your web server supports the HTTP Authorization Header. If you are using a shared host, this is often disabled by default. To enable it, add the following to your WordPress’ .htaccess file:
+// 
+// 	RewriteEngine on
+// 	RewriteCond %{HTTP:Authorization} ^(.*)
+// 	RewriteRule ^(.*) - [E=HTTP_AUTHORIZATION:%1]
+// 
+// NONCE
+// This is note required for this request, ever!
+
+@name("JWT validate-token")
+POST "http://car-shows.test/wp-json/wp-headless/v1/jwt/validate-token"
+"Content-Type": "application/json"
+"accept": "application/json"
+"Authorization": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodH"
+
+
+// Similar to the standard WP Rest API create request but you must pass the Headers demonstrated in the example.
+// 
+// The Authorization header contains the User JWT token, this is how we authorise the request with WordPress so it's kind of important.
+// 
+// NONCE
+// Nonce isn't required for this request, ever!
+
+@name("Create Post")
+POST "http://local.wordpress.test/wp-json/wp/v2/posts"
+"Content-Type": "application/json"
+"accept": "application/json"
+"Authorization": "eyJ0eXAiOiJKV1QiLCJhbGlwvXC9sb2NhbC53b3JkcHJlc3MudGVzdCIsImlhdCI6MTU0ODg5MTMyMSwibmJmIjoxNTQ4ODkxMzIxLCJleHAiOjE1NDk0OTYxMjEsImRhdGEiOnsidXNlciI6eyJpZCI6IjIifX19.3I2m8LzcApHC7dEFFV_LQ2xXFT1mYoqG_yN-i80JiCA"
+files(
+	("title", "rest jwt post test 2"),
+	("content", "lorum ipsum stuff.."),
+	("status", "draft")
+)
+
+
+// An example of a standard GET request when the optional REST API Nonce module is enabled.
+// 
+// When enabled you must pass the X-WP-NONCE header with a valid nonce key in each request.
+// 
+// See the plugin admin page for more documentation on the nonce module
+
+@name("Posts Nonce Example")
+GET "http://local.wordpress.test/wp-json/wp/v2/posts/"
+"X-WP-NONCE": "de2b1832342"
+
+
+// If you are using the nonce module with WordPress in true Headless mode. Then you will have enabled the nonce generator endpoint via the REST nonce module setting filters (see the plugin admin page for docs).
+// 
+// You will need to set a public key for the generator endpoint with the filter 'wp_headless_rest__rest_nonce_generator_key' (see the plugin admin page for docs)
+// 
+// Pass this key in the X-WP-NONCE-GENERATOR header, this will allow the endpoint to return you a fresh nonce.
+// 
+// JWT NOTES: If all requests to the REST api provide the JWT auth header a nonce key is NOT required. Also, any requests to the JWT get-token endpoint do not require a Nonce.
+
+@name("rest-nonce generate")
+POST "http://local.wordpress.test/wp-json/wp-headless/v1/rest-nonce/generate"
+"X-WP-NONCE-GENERATOR": "B*&dU:J73w6KYc~|7XVOwVoXSJ#&tAF(&EM@BDh5Ba!&X|Im[`u+/#?[h=<!2z/s"
+
+
+// If you are using the nonce module with WordPress in true Headless mode. 
+// 
+// Then you will have enabled the nonce generator endpoint via the REST nonce module setting filters (see the plugin admin page for docs).
+// 
+// With the REST Nonce module enable you will have to pass a valid nonce key with every rest request.
+// 
+// The rest api will return an error on any request if a nonce is invalid and needs to be re-generated.
+// 
+// But you can also check if a nonce is valid with this request.
+// 
+// Just add the nonce key into X-WP-NONCE header as ususal
+// 
+// JWT NOTES: If all requests to the REST api provide the JWT auth header a nonce key is NOT required. Also, any requests to the JWT get-token endpoint do not require a Nonce.
+
+@name("rest-nonce validate")
+POST "http://local.wordpress.test/wp-json/wp-headless/v1/rest-nonce/validate"
+"X-WP-NONCE": "beb6e8034f"
+
+
+

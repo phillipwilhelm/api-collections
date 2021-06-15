@@ -1,0 +1,158 @@
+#!/usr/bin/env dothttp
+
+// This API returns information about frequency and data rate set for RX2 on the device choosed in the URL by `{{did}}`.
+// 
+// The reply contains information about frequency and data rate set for RX2.
+// Moreover we receive the data rate offset between the uplink and the RX1 on the device choosed in the URL by `{{did}}`.
+// 
+// MAC command: LoRaWAN RXParamsSetupReq/Ans
+//  
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Receive Windows Configuration")
+GET "{{protocol}}://{{host}}/api/v2/device/{{did}}/params/rx-param"
+"Authorization": "Bearer {{token}}"
+
+
+// Set the maximum aggregated transmit duty cycle of a device.
+// 
+// Executing this request will enqueue the corresponding LoRa MAC command on the device downlink queue.
+// 
+// As soon as the device is reachable the request will be sent, and the corresponding MAC event will be published as soon as the device replies.
+// 
+// Details:
+//    * The possible responses are listed in the section on the right
+// 
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "rx1DRoffset": {
+//       "type": "integer",
+//       "enum": [
+//         0,
+//         1,
+//         2,
+//         3,
+//         4,
+//         5
+//       ],
+//       "default": 0,
+//       "description": "Offset between the uplink data rate and the downlink data rate used to communicate with the end-device on the first reception slot"
+//     },
+//     "rx2DataRate": {
+//       "type": "integer",
+//       "enum": [
+//         0,
+//         1,
+//         2,
+//         3,
+//         4,
+//         5,
+//         6
+//       ],
+//       "default": 0,
+//       "description": "Data rate of a downlink using the second receive window"
+//     },
+//     "rx2Frequency": {
+//       "type": "number",
+//       "minimum": 100,
+//       "maximum": 1670,
+//       "default": 869.525,
+//       "description": "Frequency of the channel used for the second receive window [MHz]"
+//     }
+//   },
+//   "required": [
+//     "rx1DRoffset",
+//     "rx2DataRate",
+//     "rx2Frequency"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                      | Type     | Required     | Nullable | Defined by    |
+// | ----------------------------- | -------- | ------------ | -------- | ------------- |
+// | [rx1DRoffset](#rx1droffset)   | `enum`   | **Required** | No       | (this schema) |
+// | [rx2DataRate](#rx2datarate)   | `enum`   | **Required** | No       | (this schema) |
+// | [rx2Frequency](#rx2frequency) | `number` | **Required** | No       | (this schema) |
+// 
+// ## rx1DRoffset
+// 
+// Offset between the uplink data rate and the downlink data rate used to communicate with the end-device on the first
+// reception slot
+// 
+// `rx1DRoffset`
+// 
+// - is **required**
+// - type: `enum`
+// - default: 0
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#rx1droffset-known-values).
+// 
+// ### rx1DRoffset Known Values
+// 
+// | Value | Description |
+// | ----- | ----------- |
+// | `0`   |             |
+// | `1`   |             |
+// | `2`   |             |
+// | `3`   |             |
+// | `4`   |             |
+// | `5`   |             |
+// 
+// ## rx2DataRate
+// 
+// Data rate of a downlink using the second receive window
+// 
+// `rx2DataRate`
+// 
+// - is **required**
+// - type: `enum`
+// - default: 0
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#rx2datarate-known-values).
+// 
+// ### rx2DataRate Known Values
+// 
+// | Value | Description |
+// | ----- | ----------- |
+// | `0`   | LoRa SF12 BW 125KHz            |
+// | `1`   | LoRa SF11 BW 125KHz             |
+// | `2`   | LoRa SF10 BW 125KHz             |
+// | `3`   | LoRa SF9  BW 125KHz             |
+// | `4`   | LoRa SF8 BW 125KHz             |
+// | `5`   | LoRa SF7 BW 125KHz             |
+// | `6`   | LoRa SF7 BW 250KHz             |
+// 
+// ## rx2Frequency
+// 
+// Frequency of the channel used for the second receive window [MHz].
+// 
+// `rx2Frequency`
+// 
+// - is **required**
+// - type: `number`
+// - default: 869.525
+// - defined in this schema
+// 
+// ### rx2Frequency Type
+// 
+// `number`
+// 
+// - minimum value: `1`
+// - maximum value: `1670`
+
+@name("Receive Windows Update")
+PUT "{{protocol}}://{{host}}/api/v2/device/{{did}}/params/rx-param"
+"Authorization": "Bearer {{token}}"
+
+
+

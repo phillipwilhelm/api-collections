@@ -1,0 +1,125 @@
+#!/usr/bin/env dothttp
+
+@name("Get Service Endpoints")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/serviceendpoint/endpoints"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.2"
+
+
+@name("Create an Endpoint (Generic Example)")
+POST "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/serviceendpoint/endpoints"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.2"
+json({
+    "administratorsGroup": null,
+    "authorization": {
+        "scheme": "UsernamePassword",
+        "parameters": {
+            "username": "user",
+            "password": "password"
+        }
+    },
+    "createdBy": null,
+    "data": {},
+    "description": "Connection Description",
+    "groupScopeId": null,
+    "name": "Generic Connection Using API",
+    "operationStatus": null,
+    "readersGroup": null,
+    "serviceEndpointProjectReferences": [
+        {
+            "description": "Connection Description",
+            "name": "Generic Connection Using API",
+            "projectReference": {
+                "id": "4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+                "name": "RBAC"
+            }
+        }
+    ],
+    "type": "generic",
+    "url": "https://sample.server.com",
+    "isShared": false,
+    "owner": "library"
+})
+
+
+@name("Grant Access permission to Pipelines (optional)")
+PATCH "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/pipelines/pipelinePermissions/endpoint/{{endpointID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+json({
+    "resource": {
+        "id": "b538ae47-a541-4cb1-bce9-1c8b041584ee",
+        "type": "endpoint",
+        "name": ""
+    },
+    "pipelines": [],
+    "allPipelines": {
+        "authorized": true,
+        "authorizedBy": null,
+        "authorizedOn": null
+    }
+})
+
+
+@name("Delete Endpoint")
+DELETE "https://dev.azure.com/{{organization}}/_apis/serviceendpoint/endpoints/{{endpointID}}"
+basicauth("Basic", "{{OPAT}}")
+? "projectIds"= "{{projectID}}"
+? "api-version"= "6.0-preview.4"
+
+
+@name("Get role definitions")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.project.serviceendpointrole/roledefinitions"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+
+
+@name("Get Service Endpoint root permissions")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.project.serviceendpointrole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("Set Service Endpoint root permissions")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.project.serviceendpointrole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    {
+        "roleName": "Reader",
+        "userId": "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+    }
+])
+
+
+@name("Remove Service Endpoint root permissions")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.project.serviceendpointrole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Set Service Endpoint Given ID Permissions")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.serviceendpointrole/roleassignments/resources/{{projectID}}_{{endpointID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    {
+        "roleName": "Reader",
+        "userId": "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+    }
+])
+
+
+@name("Remove  Service Endpoint Given ID Permissions")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.serviceendpointrole/roleassignments/resources/{{projectID}}_{{endpointID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+

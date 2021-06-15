@@ -1,0 +1,438 @@
+#!/usr/bin/env dothttp
+
+// # Asset Retrieval
+// 
+// ***
+// 
+// Fetch a publicly-available Help asset (such as a CSS or JavaScript file) that is contained in the set of OODAPI Asset
+// 
+// # Parameters
+// ---
+// 
+// **AssetName** - Type *string* **:**
+// The name of the asset to fetch. If not provided, it will return the document script by default.
+
+@name("/Asset")
+GET "https://{{ServerPath}}/Help/Asset"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "AssetName"= "{{AssetName}}"
+
+
+
+// # Help Category Search
+// 
+// ***
+// 
+// Fetch a list of help categories for a company for a given document code. 
+// 
+// # Parameters
+// ---
+// 
+// **DocCode** - Type *string* **:**
+// The identifier for the group of categories you wish to retrieve
+// 
+// **CompanyID** - Type *string* **:**
+// The company for which you wish to find categories.
+
+@name("/Category")
+GET "https://{{ServerPath}}/Help/Category"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "DocCode"= "{{DocCode}}"
+? "CompanyID"= "{{CompanyID}}"
+
+
+
+// # Get Documents by Category
+// ---
+// 
+// Fetch a list of help documents for a given Category ID.
+// 
+// # Parameters
+// ---
+// 
+// **CategoryID** - Type *integer* **:**
+// The Category ID for which you wish to find documents.
+// 
+// **DocCode** - Type *string* **:**
+// The identifier for the group of documents you wish to retrieve
+// 
+// **CompanyID** - Type *string* **:**
+// The company for which you wish to find documents.
+
+@name("/Category/CategoryID")
+GET "https://{{ServerPath}}/Help/Category/{{CategoryID}}/Documents"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "DocCode"= "{{DocCode}}"
+? "CompanyID"= "{{CompanyID}}"
+
+
+
+// # Word Document to HTML Help Document Conversion
+// ---
+// 
+// This procedure allows you to upload a DOCX file and convert it to UTF-8 HTML.
+// If you're unable to upload form data in the form of a ConvertHelpRequest, you must add a Url Parameter named PublicKey this request. You must use this when using Public/Private key pairs.
+// Additionally, you may need to provide a Url Parameter named CompanyID to specify the company.
+// 
+// # Notes
+// ---
+// 
+// This method should be constructed as a `multipart/form-data` request, and it should contain the file that you wish to convert. This file should be a Word `.docx` file.
+// 
+// # Parameters
+// ---
+// 
+// **DocCode** - Type *string* **:**
+// The DocCode for the set of documents you're modifying
+// 
+// **DocName** - Type *string* **:**
+// The name of the document
+// 
+// **UniqueID** - Type *string* **:**
+// The unique ID of the document
+
+@name("/Convert")
+POST "https://{{ServerPath}}/Help/Convert"
+"X-API-Key": "{{APIKey}}"
+? "PublicKey"= "{{PublicKey}}"
+? "CompanyID"= "{{CompanyID}}"
+files(
+	("DocCode", "{{DocCode}}"),
+	("DocName", "{{DocName}}"),
+	("UniqueID", "{{DocumentId}}"),
+	("Button Designer.docx", "None")
+)
+
+
+// # Search By Document ID
+// ---
+// 
+// Return a document based on the document identifier.
+// 
+// # Parameters
+// ---
+// 
+// **DocumentId** - Type *integer* **:**
+// The unique ID of the document you're fetching.
+// 
+// **DocCode** - Type *string* **:**
+// The document code.
+// 
+// **CompanyID** - Type *string* **:**
+// The CompanyID you are logging into.
+// 
+// **PublicKey** - Type *string* **:**
+// This parameter is optional.
+// 
+// **DocName** - Type *string* **:**
+// If you provide a DocName, it will be used to search instead of the given unique ID
+// 
+// **SearchWords** - Type *string* **:**
+// A list of search words to try to highlight in the document, comma separated
+// 
+// **NoCache** - Type *boolean* **:**
+// Whether to ignore the cache for this request
+
+@name("/{DocumentId}")
+GET "https://{{ServerPath}}/Help/{{DocumentId}}"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "DocCode"= "{{DocCode}}"
+? "CompanyID"= "{{CompanyID}}"
+? "PublicKey"= "{{PublicKey}}"
+? "DocName"= "{{DocName}}"
+? "SearchWords"= "{{SearchWords}}"
+
+
+
+// # Help Document Information
+// ---
+// 
+// This procedure allows you to find the UniuqeID of a document given its name, or it allows you to find the DocName of a document, give its UniuqeID.
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the document you're requesting information for
+// 
+// **DocCode** - Type *string* **:**
+// The DocCode you're requesting information for
+// 
+// **DocName** - Type *string* **:**
+// The name of the document you're requesting information for
+// 
+// **IsSystem** - Type *boolean* **:**
+// Whether this is a system document. Set this to false when looking for Custom Help information. Set this to true when looking for System Help information.
+// 
+// **APIKey** - Type *string* **:**
+// A valid APIKey to authenticate access to the API.
+// 
+// **CompanyID** - Type *string* **:**
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Info")
+POST "https://{{ServerPath}}/Help/Info"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "UniqueID": "0",
+  "DocCode": "ODSYWHELP",
+  "DocName": "WELCOME",
+  "IsSystem": "true"
+}')
+
+
+// # Rapid Support Link Request
+// ---
+// 
+// Gets a temporary, encrypted link to Rapid Support
+// 
+// # Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The CompanyID you are going to login to Rapid Support with
+
+@name("/RapidSupport/Link")
+GET "https://{{ServerPath}}/Help/RapidSupport/Link"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "CompanyID"= "{{CompanyID}}"
+
+
+// # Lock or Unlock Documents
+// ---
+// 
+// This procedure allows to request a document lock or unlock within the help system.
+// Locking a help document will prevent other users from attempting to edit it while you are editing it. Unlocking a document is necessary when finished editing so that others may edit the document.
+// 
+// Please note that when you log out of the Odyssey application, any active document locks that were generated by your UserID + CompanyID are removed.
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the document you're updating.
+// 
+// **DocCode** - Type *string* **:**
+// The DocCode you're updating
+// 
+// **DocName** - Type *string* **:**
+// The name of the document you're updating.
+// 
+// **IsSystem** - Type *boolean* **:**
+// Whether this is a system document. Set this to false when requesting a lock/unlock for Custom Help. Set this to true when requesting a lock/unlock for System Help.
+// 
+// **IsManagement** - Type *boolean* **:**
+// Whether this is a lock request for management of the structure of help, not just a single document.
+// 
+// **RequestLock** - Type *boolean* **:**
+// Whether you're requesting a new lock in this request. The default is true. If this value is false, then the associated record will be unlocked.
+// 
+// **APIKey** - Type *string* **:**
+// A valid APIKey to authenticate access to the API.
+// 
+// **CompanyID** - Type *string* **:**
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/RequestLock")
+POST "https://{{ServerPath}}/Help/RequestLock"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "UniqueID": "0",
+  "DocCode": "ODSYWHELP",
+  "DocName": "WELCOME",
+  "IsSystem": "true",
+  "IsManagement": "false",
+  "RequestLock": "false"
+}')
+
+
+// # Help Search
+// ---
+// 
+// Fetch a list of help documents that match the search strings for a company for a given document code.
+// 
+// # Parameters
+// ---
+// 
+// **SearchPartsString** - Type *string* **:**
+// The JSON string version of a HelpSearchParts instance, containing an array of strings for "Phrases" and an array of strings for "Words".
+// 
+// **DocCode** - Type *string* **:**
+// The identifier for the group of categories you wish to retrieve
+// 
+// **CompanyID** - Type *string* **:**
+// The company for which you wish to find categories.
+// 
+// **PublicKey** - Type *string* **:**
+// This parameter should only be used with a temporary, encrypted API Key.
+
+@name("/Search")
+GET "https://{{ServerPath}}/Help/Search"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "SearchPartsString"= "{{SearchPartsString}}"
+? "DocCode"= "{{DocCode}}"
+? "CompanyID"= "{{CompanyID}}"
+? "PublicKey"= "{{PublicKey}}"
+? "DocName"= "{{DocName}}"
+
+
+
+// # Help Search by Page
+// ---
+// 
+// Fetch a specific page of help documents returned that match the search strings for a company for a given document code.
+// 
+// # Parameters
+// ---
+// 
+// **PageNumber** - Type *integer* **:**
+// The current page of search results for the given query.
+// 
+// **SearchPartsString** - Type *string* **:**
+// The JSON string version of a HelpSearchParts instance, containing an array of strings for "Phrases" and an array of strings for "Words".
+// 
+// **DocCode** - Type *string* **:**
+// The identifier for the group of categories you wish to retrieve
+// 
+// **CompanyID** - Type *string* **:**
+// The company for which you wish to find categories.
+// 
+// **BatchSize** - Type *integer* **:**
+// The number of records to return at the given page.
+// 
+// **PublicKey** - Type *string* **:**
+// This parameter should only be used with a temporary, encrypted API Key.
+
+@name("/Search/{Page}")
+GET "https://{{ServerPath}}/Help/Search/{{PageNumber}}"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+? "SearchPartsString"= "{{SearchPartsString}}"
+? "DocCode"= "{{DocCode}}"
+? "CompanyID"= "{{CompanyID}}"
+? "BatchSize"= "{{BatchSize}}"
+? "PublicKey"= "{{PublicKey}}"
+? "DocName"= "{{DocName}}"
+
+
+
+// # Update Help Structure
+// ---
+// 
+// This procedure allows you to update the structure of documents in the help system based on DocCode. Please note that this is an advanced function and should only be performed under the supervision of B&L.
+// 
+// # Parameters
+// ---
+// 
+// **DocCode** - Type *string* **:**
+// The DocCode for the set of documents you're modifying
+// 
+// **Categories** - Type *Collection of UpdateHelpModel* **:**
+// The new list of all categories.
+// 
+// **Documents** - Type *Collection of UpdateHelpModel* **:**
+// A list of documents that we have added, updated, or deleted.
+// 
+// **APIKey** - Type *string* **:**
+// A valid APIKey to authenticate access to the API.
+// 
+// **CompanyID** - Type *string* **:**
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Update")
+POST "https://{{ServerPath}}/Help/Update"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "DocCode": "DocCode",
+  "Categories": 
+  [
+	{
+		"UniqueID": 0,
+		"DocCode" : "DocCode",
+		"DocName": "DocName",
+		"DocTitle": "The title of the doc",
+		"ParentCategory": "ParentCategoryID",
+		"Overview": "The overview of this document",
+		"CategoryTitle" : "",
+		"CategoryID" : 0,
+		"GUID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+		"Action": "A|U|D",
+		"IsNew": true
+	}
+  ],
+  "Documents": 
+	[
+	  	{
+			"UniqueID": 0,
+			"DocCode" : "DocCode",
+			"DocName": "DocName",
+			"DocTitle": "The title of the doc",
+			"ParentCategory": "ParentCategoryID",
+			"Overview": "The overview of this document",
+			"CategoryTitle" : "",
+			"CategoryID" : 0,
+			"GUID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"Action": "A|U|D",
+			"IsNew": true
+		}
+	]
+}')
+
+
+// # Update Help Document
+// ---
+// 
+// This procedure allows you to update the contents of a document in the help system. You can provide new UTF-8 HTML content for an existing document in the help system.
+// 
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the document you're updating.
+// 
+// **DocCode** - Type *string* **:**
+// The DocCode you're updating
+// 
+// **DocName** - Type *string* **:**
+// The name of the document you're updating.
+// 
+// **DocBody** - Type *string* **:**
+// The base64 encoded string version of the UTF-8 HTML content of the document.
+// 
+// **IsSystem** - Type *boolean* **:**
+// Whether this is a system document
+// 
+// **APIKey** - Type *string* **:**
+// A valid APIKey to authenticate access to the API.
+// 
+// **CompanyID** - Type *string* **:**
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/UpdateDocument")
+POST "https://{{ServerPath}}/Help/UpdateDocument"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "UniqueID": "0",
+  "DocCode": "DocCode",
+  "DocName": "DocName",
+  "DocBody": "The content of my Help document",
+  "IsSystem": "false"
+}')
+
+
+

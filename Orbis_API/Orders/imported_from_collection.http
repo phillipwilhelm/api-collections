@@ -1,0 +1,131 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of orders as specified by `type`. Each object is formatted as in status request. All times are in `America/New_York` timezone. Supported `type` values:
+// * open
+// * executed
+// * latest
+// * today
+// * cost
+//  
+// When loading `cost` orders, notable information would be:
+// ```javascript
+// {
+// 	execPx: 123.45, 		// the cost
+// 	execTime: 'timestamp',	// when position was established
+// 	ourRef: 'CC1234',		// may or may not indicate actual order
+// 	quote: {
+// 		lastPrice: 123.65	// if `loadQuotes` was part of request, this allows to calculate P&L
+// 	}
+// }
+// ```
+
+@name("Listing")
+GET "https://{{url}}/api/orders/{type}"
+basicauth("", "")
+
+
+// Returns array of orders:
+// * modelId - model's ID
+// * type - one of: `unallocated`, `cancelled`, `open`, `today`, `rejected`, `latest`, `executed`
+
+@name("Listing for model")
+GET "https://{{url}}/api/orders/model/{modelId}/{type}"
+? "loadQuotes"= "false"
+
+
+
+// Returns array of orders for whole branch where _{type}_ is one of: `unallocated`, `cancelled`, `open`, `today`, `rejected`, `latest`, `executed`
+
+@name("Listing for branch")
+GET "https://{{url}}/api/orders/branch/{type}"
+
+
+@name("Status")
+GET "https://{{url}}/api/orders/status/{orderRef}"
+basicauth("", "")
+
+
+// Used for order validation. This step should be performed before order placement. The request is POST. Required fields are indicated with a star (*). The result will be quote information user is entitled to for the given security upon success and a server error if there’s a problem.
+
+@name("Equity preview (deprecated)")
+POST "https://{{url}}/api/orders/preview/equity"
+basicauth("", "")
+
+
+
+// Used for order validation. This step should be performed before order placement. The request is POST. The result will be quote information user is entitled to for the given security upon success and a server error if there’s a problem. Symbol must be OSI formatted.
+// 
+// |Form Fields| |
+// |----------|-|
+// |Covered|For SELL_TO_OPEN transactions only. Valid values - NAKED, COVERED|
+// |Trx|BUY_TO_OPEN, BUY_TO_CLOSE, SELL_TO_OPEN, SELL_TO_CLOSE|
+
+@name("Option preview (deprecated)")
+POST "https://{{url}}/api/orders/preview/option"
+basicauth("", "")
+
+
+
+// Allows placement of the equity order. The request is made via POST with all parameters sent as if a form submission. Required fields are indicated with a star (*). The result will be an order reference or an error. Each order placement will be validated against the portfolio and/or buying power for validity. Additional checks will be performed.
+// 
+// |Form Fields|          |
+// |-----------|-------------------|
+// |AccountId|Who this order belongs to|
+// |Type *|Order type. Valid values - MARKET, LIMIT, STOP, STOP_LIMIT|
+// |Qty *|Number of shares|
+// |Trx *|Transaction type. Valid values - BUY, SELL, SHORT_SELL, BUY_TO_COVER|
+// |Symbol *|A valid equity symbol.|
+// |Validity|Defaults to DAY. Valid values - DAY, GTC|
+// |FillType|Defaults to ANY. Valid values - ANY, AON|
+// |MarketTime|Execution time for the orders. Defaults to normal trading hours. Examples of valid values are below this table.|
+// |LimitPx|Required for limit/stop-limit orders|
+// |StopPx|Required for stop/stop-limit orders|
+// |ClientRef|An ability to add a tag to the order.|
+// 
+// Valid MarketTime values: 
+// * **PRE_MARKET** - orders to be executed before 9:30AM
+// * **CORE_MARKET** - regular market hours 
+// * **POST_MARKET** - post-market trading lasts until 5PM
+
+@name("Equity placement (deprecated)")
+POST "https://{{url}}/api/orders/place/equity"
+basicauth("", "")
+
+
+
+@name("Option placement (deprecated)")
+POST "https://{{url}}/api/orders/place/option"
+basicauth("", "")
+
+
+// Initiates a cancel/replace request on the order. Returns an error upon failure or echoes back a reference upon success:
+// 
+// ```javascript
+// {OrderRef: 'CC123456789', Market: 'U'}
+// ```
+
+@name("Cancel/Replace (deprecated)")
+POST "https://{{url}}/api/orders/replace"
+files(
+	("OrderRef", "CC123456789"),
+	("Market", "U"),
+	("Qty", "100"),
+	("LimitPx", "10.0000"),
+	("StopPx", "12.0000")
+)
+
+
+// Requests cancellation of a single order as specified by `orderRef`. If order hasn't been routed out yet, it will be cancelled immediately. Returns either error or echoes `orderRef` upon success:
+// 
+// ```javascript
+// {OrderRef: 'CC123456789'}
+// ```
+
+@name("Cancellation (deprecated)")
+POST "https://{{url}}/api/orders/cancel"
+files(
+	("orderRef", "CC123456789")
+)
+
+
+

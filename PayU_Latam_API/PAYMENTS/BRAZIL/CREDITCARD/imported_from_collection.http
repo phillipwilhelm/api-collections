@@ -1,0 +1,237 @@
+#!/usr/bin/env dothttp
+
+// Se envía a autorización el monto de la transacción y si es aprobada, inmediatamente se realiza la captura.
+// 
+// Franquisias disponibles para `AUTHORIZATION_AND_CAPTURE`:
+// - `VISA`
+// - `MASTERCARD`
+// - `AMEX`
+// - `DINERS`
+// - `HIPERCARD`
+// - `ELO`
+
+@name("AUTHORIZATION AND CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_BRAZIL}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTORIZATION AND CAPTURE OF PAY TEST WITH CREDITCARD IN BRAZIL",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "BRL"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "000.000.000-00",
+				"cnpj": "00000000000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Brasilia",
+					"state": "DF",
+					"country": "BR",
+					"postalCode": "00000-000",
+					"phone": "(00)000000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Brasilia",
+				"state": "DF",
+				"country": "BR",
+				"postalCode": "00000-000",
+				"phone": "(00)000000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Brasilia",
+				"state": "DF",
+				"country": "BR",
+				"postalCode": "00000-000",
+				"phone": "(00)000000000"
+			}
+		},
+		"creditCard": {
+			"processWithoutCvv2": false,
+			"number": "4097440000000004",
+			"securityCode": "123",
+			"expirationDate": "2019/12",
+			"name": "{{STATE}}"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "BR",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0",
+		"termsAndConditionsAcepted": true
+	}
+}')
+
+
+// Se verifica junto con el banco si la compra puede ser ralizada. Se confirma si la tarjeta está activa y posee fondos.
+// 
+// Franquisias disponibles para `AUTHORIZATION`:
+// - `VISA`
+// - `MASTERCARD`
+// - `AMEX`
+// - `DINERS`
+// - `HIPERCARD`
+// - `ELO`
+
+@name("AUTHORIZATION")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_BRAZIL}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTORIZATION AND CAPTURE OF PAY TEST WITH CREDITCARD IN BRAZIL",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "BRL"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "000.000.000-00",
+				"cnpj": "00000000000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Brasilia",
+					"state": "DF",
+					"country": "BR",
+					"postalCode": "00000-000",
+					"phone": "(00)000000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Brasilia",
+				"state": "DF",
+				"country": "BR",
+				"postalCode": "00000-000",
+				"phone": "(00)000000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Brasilia",
+				"state": "DF",
+				"country": "BR",
+				"postalCode": "00000-000",
+				"phone": "(00)000000000"
+			}
+		},
+		"creditCard": {
+			"processWithoutCvv2": false,
+			"number": "4097440000000004",
+			"securityCode": "123",
+			"expirationDate": "2019/12",
+			"name": "{{STATE}}"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "BR",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0",
+		"termsAndConditionsAcepted": true
+	}
+}')
+
+
+// La compra es confirmada y cobrada en la tarjeta de crédito. Solamente después de realizar la captura el pagador prodrá ver reflejada la compra en su extracto
+// 
+// Franquisias disponibles para `CAPTURE`:
+// - `VISA`
+// - `MASTERCARD`
+// - `AMEX`
+// - `DINERS`
+// - `HIPERCARD`
+// - `ELO`
+
+@name("CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"id": 000000
+		},
+		"type": "CAPTURE",
+		"parentTransactionId": "PARENT_TRANSACTION_ID"
+	}
+}')
+
+
+

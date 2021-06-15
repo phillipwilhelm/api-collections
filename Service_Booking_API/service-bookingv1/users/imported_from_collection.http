@@ -1,0 +1,29 @@
+#!/usr/bin/env dothttp
+
+// This endpoint creates a user within the service that will correspond to an HqO user.  It accepts a User object with and returns a UserCredentials object.  This object includes a service-generated user ID and a refresh token, which serve as proxy login credentials and are stored in the HqO Platform on behalf of that user.  If the user does not yet exist, it is created and the response is HTTP 201.  If the user already exists and was originally created by this endpoint for HqO, the existing credentials are returned, but with HTTP 200.  This may occur if the service developer implements multiple HqO Platform verticals, but with a common set of HqO user objects.
+
+@name("Create user")
+POST "https://{{baseUrl}}/service-booking/v1/users"
+"Accept-Encoding": "gzip"
+"Content-Type": "application/json; charset=utf-8"
+"Accept": "application/json; charset=utf-8"
+? "trid"= "{{trackingId}}"
+data('"<object>"')
+
+
+// This endpoint deletes the specified user from within the service.  This is a critical endpoint for enabling the user's "right to be forgotten", which is a statutory requirement in many privacy regulation frameworks.  In order to comply fully with these regulations, HqO requires the service to respond by permanently deleting all non-anonymized or non-aggregated data related to this user including credentials and tokens.
+
+@name("Delete user")
+POST "https://hqo-dev-api.kadbu.com/v1/service-booking/v1/login"
+"Authorization": "HqO api=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxNDg2LCJ1c2VybmFtZSI6Imhxb2M1MDA2OCIsImV4cCI6MTYwMTMyMTg4MCwiZW1haWwiOiJ0aWRpbmdzK2hxb0BpYW1ob20uY29tIn0.5j1bkNfk89H9wIqzpJsuicytWqeh50IdQrdxq4Wkixg"
+"Content-Type": "application/json; charset=utf-8"
+? "trid"= "111"
+json({
+    "user_credentials": {
+        "id": "1520",
+        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxNTIwLCJ1c2VybmFtZSI6Imhxb0B0ZW5zcG90LmNvbSIsImV4cCI6MTYzMjg1NDMwNSwiaWF0IjoxNjAxMzE4MzA1fQ.AOifET1iT8wha7rS-NptEy3Q5bwmBVZbodBeZGFw0rY"
+    }
+})
+
+
+

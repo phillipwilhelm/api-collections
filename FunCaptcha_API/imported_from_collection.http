@@ -1,0 +1,171 @@
+#!/usr/bin/env dothttp
+
+// Fetches initial game_token for authorization and basic session information
+
+@name("/fc/gt2/public_key/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/gt2/public_key/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "bda": [
+        "e30="
+    ],
+    "public_key": [
+        "{{public_key}}"
+    ],
+    "site": [
+        "{{origin}}"
+    ],
+    "userbrowser": [
+        "{{user-agent}}"
+    ],
+    "simulate_rate_limit": [
+        "0"
+    ],
+    "simulated": [
+        "0"
+    ],
+    "language": [
+        "{{language}}"
+    ],
+    "rnd": [
+        "0.21477650373695933"
+    ]
+})
+
+
+// Fetches nessasary information about the captcha, most importantly the game_token and the captcha image
+
+@name("/fc/gfct/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/gfct/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "render_type": [
+        "canvas"
+    ],
+    "data[status]": [
+        "init"
+    ],
+    "token": [
+        "{{session_token}}"
+    ],
+    "sid": [
+        "{{server_id}}"
+    ],
+    "lang": [
+        "{{lang}}"
+    ],
+    "analytics_tier": [
+        "{{analytics_tier}}"
+    ]
+})
+
+
+// Get decryption key to decrypt AES-256 encoded FunCaptcha image
+
+@name("/fc/ekey/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/ekey/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "sid": [
+        "{{server_id}}"
+    ],
+    "game_token": [
+        "{{game_token}}"
+    ],
+    "session_token": [
+        "{{session_token}}"
+    ]
+})
+
+
+// Answers the curent captcha question with the supplied angles, you must pass all the previous angles in the array
+
+@name("/fc/ca/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/ca/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "sid": [
+        "{{server_id}}"
+    ],
+    "game_token": [
+        "{{game_token}}"
+    ],
+    "session_token": [
+        "{{session_token}}"
+    ],
+    "guess": [
+        "{{guess}}"
+    ],
+    "analytics_tier": [
+        "{{analytics_tier}}"
+    ]
+})
+
+
+// Querries if a refresh is needed
+
+@name("/fc/misc/refresh/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/misc/refresh/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "analytics_tier": [
+        "{{analytics_tier}}"
+    ],
+    "cache_key": [
+        "{{session_token}}"
+    ],
+    "sid": [
+        "{{server_id}}"
+    ]
+})
+
+
+// Logs user action
+
+@name("/fc/a/")
+POST "https://{{subdomain}}.arkoselabs.com/fc/a/"
+"User-Agent": "{{user-agent}}"
+"Referer": "{{referer}}"
+"Origin": "{{origin}}"
+data({
+    "category": [
+        "begin load"
+    ],
+    "render_type": [
+        "canvas"
+    ],
+    "analytics_tier": [
+        "{{analytics_tier}}"
+    ],
+    "session_token": [
+        "{{session_token}}"
+    ],
+    "sid": [
+        "{{server_id}}"
+    ],
+    "game_token": [
+        "{{game_token}}"
+    ],
+    "game_type": [
+        "1"
+    ],
+    "action": [
+        "next app is loaded"
+    ],
+    "label": [
+        "triggered event to current captcha to show try again"
+    ]
+})
+
+
+

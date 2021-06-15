@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+// The following example logs in using the Admin Super-User - it is the equivalent of using the log-in screen of the GUI.
+// The URL `https://localhost:3443/v1/auth/tokens` should also work in a secure system.
+// 
+// The response header returns an `X-Subject-token` which identifies who has logged on the application.
+// This token is required in all subsequent requests to gain access.
+
+@name("Create token with Password")
+POST "http://{{keyrock}}/v1/auth/tokens"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+  "name": "admin@test.com",
+  "password": "1234"
+}')
+
+
+// In order to manage the Identity Manager through the API you must obtain an access token to be included in HTTP headers. There are two methods to obtain an access token.
+
+@name("Get User Information via a Token")
+GET "http://{{keyrock}}/v1/auth/tokens"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+"X-Subject-token": "{{X-Subject-token}}"
+
+
+
+// Tokens are time limited - it is no longer possible to gain access once a token has expired.
+// However it is possible to refresh a token for a newer one prior to expiry.
+// 
+// Most applications use this end-point to avoid timing out a user whilst they are interacting with the application.
+// 
+//  A new token is returned in the `X-Subject-Token` header of the response.
+
+@name("Refresh token with Token")
+POST "http://{{keyrock}}/v1/auth/tokens"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+  "token": "70bb37f8-938e-4158-a8ab-7218af3c384d"
+}')
+
+
+

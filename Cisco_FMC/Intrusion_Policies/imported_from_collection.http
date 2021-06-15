@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+@name("Get intrusion policies")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/intrusionpolicies"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Update VPN rule with balanced intrusion")
+PUT "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468482451/accessrules/005056BB-0B24-0ed3-0000-000268488197"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+data('{
+    "name": "OUT_TO_IN_VPN",
+    "id": "005056BB-0B24-0ed3-0000-000268488197",
+    "enabled": true,
+    "action": "ALLOW",
+    "ipsPolicy": {
+        "name": "Balanced Security and Connectivity",
+        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+        "type": "IntrusionPolicy"
+    },
+    "destinationZones": {
+        "objects": [
+            {
+                "name": "inside-zone",
+                "id": "30b7717e-23c4-11e9-8047-ef3db50da465",
+                "type": "SecurityZone"
+            }
+        ]
+    },
+    "destinationNetworks": {
+        "objects": [
+            {
+                "name": "NETG_VPN_CONCENTRATORS",
+                "id": "005056BB-0B24-0ed3-0000-880468480522",
+                "type": "NetworkGroup"
+            }
+        ]
+    },
+    "destinationPorts": {
+        "objects": [
+            {
+                "name": "PORTG_IPSEC",
+                "id": "005056BB-0B24-0ed3-0000-880468480727",
+                "type": "PortObjectGroup"
+            }
+        ]
+    },
+    "enableSyslog": false,
+    "logFiles": false,
+    "logBegin": false,
+    "logEnd": true,
+    "sendEventsToFMC": true,
+    "type": "AccessRule"
+}')
+
+
+@name("Get updated access rule")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/policy/accesspolicies/005056BB-0B24-0ed3-0000-880468482451/accessrules/005056BB-0B24-0ed3-0000-000268488197"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+

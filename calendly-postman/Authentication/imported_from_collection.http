@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// Authenticate user to get back API TOKEN to be used in subsequent API calls. If the user passes or does not pass an apitoken header, will be handled on server side for this API endpoint.
+
+@name("User registration API")
+POST "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/user"
+"Content-Type": "application/json"
+"apitoken": "hello"
+data('{"my_email_id":"chanderprabhjain96@gmail.com"}')
+
+
+// Even if you send APItoken for the user endpoint with HTTP method as POST, it will ignore it and return you a new API TOKEN
+
+@name("Send apitoken in user /post")
+POST "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/user"
+"Content-Type": "application/json"
+"apitoken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbF9pZCI6ImNoYW5kZXJwcmFiaGphaW45OTlAZ21haWwuY29tIn0.JVARb3EBTkUDH9HIBbCFqTtWwnrkCNL1lam08ssM52"
+data('{"my_email_id":"chanderprabhjain96@gmail.com"}')
+
+
+// Invalid key returns a Payloadvalidation error while registering to get an apitoken
+
+@name("Invalid Key in Payload")
+POST "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/user"
+"Content-Type": "application/json"
+"apitoken": "heloooooooooooooooooooooooooo"
+data('{"email_id":"chanderprabhjain999@gmail.com"}')
+
+
+// Invalid EmailID returns a InvalidInputerror whiel registering to get an API token
+
+@name("Invalid EmailID in payload")
+POST "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/user"
+"Content-Type": "application/json"
+"apitoken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbF9pZCI6ImNoYW5kZXJwcmFiaGphaW45OTlAZ21haWwuY29tIn0.JVARb3EBTkUDH9HIBbCFqTtWwnrkCNL1lam08ssM5Lq"
+data('{"my_email_id":"chande@12"}')
+
+
+// When a API token is pased with incorrect number of segments in it.
+
+@name("Incorrect API token passed")
+PATCH "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/slots"
+"Content-Type": "application/json"
+"apitoken": "xyz"
+data('{"date":"10-04-2020",
+"from_time":"14:30",
+"to_time":"15:59",
+"subject":"Documenation Discussion",
+"state":"book",
+"email_id":"chanderprabhjain@gmail.com"
+}')
+
+
+// Incorrect API token passed when onyl just a single charcter is changed in the token. IT raises a Signature invalid error
+
+@name("Signature Invalid error")
+PATCH "https://5jdyjjjnq7.execute-api.us-west-2.amazonaws.com/prod/slots"
+"Content-Type": "application/json"
+"apitoken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJteV9lbWFpbF9pZCI6ImNoYW5kZXJwcmFiaGphaW45NkBnbWFpbC5jb20ifQ.DLUH2Ww096qNj2To_YgSY0KF6xiZhdjNfPTOD1GOi-"
+data('{"date":"10-04-2020",
+"from_time":"14:30",
+"to_time":"15:59",
+"subject":"Documenation Discussion",
+"state":"book",
+"email_id":"chanderprabhjain@gmail.com"
+}')
+
+
+

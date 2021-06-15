@@ -1,0 +1,119 @@
+#!/usr/bin/env dothttp
+
+// This example updates the value of the `category` attribute of the Entity with `id=urn:ngsi-ld:TemperatureSensor:001`
+// 
+// Existing attribute values can be altered by making a PATCH request to the
+// `/ngsi-ld/v1/entities/<entity-id>/attrs/<attribute>` endpoint. The appropriate `@context` should be supplied as a `Link`
+// header.
+
+@name("Overwrite the value of an Attribute value")
+PATCH "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/attrs/category"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+data('{
+    "value": ["sensor", "actuator"],
+    "type": "Property"
+}')
+
+
+// This example simultaneously updates the values of both the `category` and `controlledAsset` attributes of the Entity
+// with `id=urn:ngsi-ld:TemperatureSensor:001`.
+// 
+
+@name("Overwrite Multiple Attributes of a Data Entity")
+PATCH "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/attrs"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+data('{
+      "category": {
+            "value": [
+                  "sensor",
+                  "actuator"
+            ],
+            "type": "Property"
+      },
+      "controlledAsset": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Building:barn001"
+      }
+}')
+
+
+// This example uses the convenience batch processing endpoint to update existing sensors.
+// 
+// Batch processing uses the `/ngsi-ld/v1/entityOperations/upsert` endpoint. The payload body holds an array of the
+// entities and attributes we wish to update.The `options=update` parameter indicates we will not remove existing
+// attributes if they already exist and have not been included in the payload.
+// 
+// An alternative would be to use the `/ngsi-ld/v1/entityOperations/update` endpoint. Unlike `upsert`, the `update`
+// operation will not silently create any new entities - it fails if the entities do not already exist.
+
+@name("Batch Update Attributes of Multiple Data Entities")
+POST "http://{{orion}}/ngsi-ld/v1/entityOperations/upsert"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "options"= "update"
+data('[
+  {
+    "id": "urn:ngsi-ld:TemperatureSensor:003",
+    "type": "TemperatureSensor",
+    "category": {
+      "type": "Property",
+      "value": [
+        "actuator",
+        "sensor"
+      ]
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:TemperatureSensor:004",
+    "type": "TemperatureSensor",
+    "category": {
+      "type": "Property",
+      "value": [
+        "actuator",
+        "sensor"
+      ]
+    }
+  }
+]')
+
+
+// This example uses the convenience batch processing endpoint to replace entity data of existing sensors.
+// 
+// Batch processing uses the `/ngsi-ld/v1/entityOperations/update` endpoint with a payload with the - `options=replace`
+// parameter, this means we will overwrite existing entities. `/ngsi-ld/v1/entityOperations/upsert` could also be used if
+// new entities are also to be created.
+
+@name("Batch Replace Entity Data")
+POST "http://{{orion}}/ngsi-ld/v1/entityOperations/update"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "options"= "replace"
+data('[
+  {
+    "id": "urn:ngsi-ld:TemperatureSensor:003",
+    "type": "TemperatureSensor",
+    "category": {
+      "type": "Property",
+      "value": [
+        "actuator",
+        "sensor"
+      ]
+    }
+  },
+  {
+    "id": "urn:ngsi-ld:TemperatureSensor:004",
+    "type": "TemperatureSensor",
+    "temperature": {
+      "type": "Property",
+      "value": [
+        "actuator",
+        "sensor"
+      ]
+    }
+  }
+]')
+
+
+

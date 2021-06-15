@@ -1,0 +1,34 @@
+#!/usr/bin/env dothttp
+
+// Pay the current order with deposit.
+
+@name("Checkout Payment Deposit")
+GET "https://api.tiketsandbox.net/checkout/checkout_payment/8"
+"accessToken": "{{accessToken}}"
+"Content-Type": "application/json"
+? "btn_booking"= "1"
+? "token"= "{{orderHash}}"
+? "output"= "json"
+
+
+
+// Confirm the processed Payment. The success result will return these following codes :
+// - **200**: success. Your deposit will be deducted.
+// - **209**: payment was expired. Need to reorder the transaction. Your deposit will not be deducted.
+// - **216**: paid but not yet issued. Wait for 5-10 minutes, if the response still returning this code, please contact our customer service. Your deposit will be deducted.
+// - **220**: textarea_note and tanggal must be filled. Your deposit will not be deducted.
+// - **224**: not enough deposit. The Deposit for your payment was not enough, please make the deposit request from the partner dashboard. Your deposit will not be deducted.
+// - **250**: You dont have any order. It rarely happened, but you can treat this process as failed transaction. Your deposit was not deducted, and you need to do the booking process again.
+
+@name("Confirm Payment Deposit")
+GET "https://api.tiketsandbox.net/partner/transactionApi/confirmPayment"
+"accessToken": "{{accessToken}}"
+"Content-Type": "application/json"
+? "order_id"= "{orderId}"
+? "secretkey"= "{clientSecret}"
+? "confirmkey"= "{clientSecret}"
+? "output"= "json"
+
+
+
+

@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// If you match the Query param according to what is saved in an example response, you'll be able to receive the required response.
+// 
+// You can also try unchecking the Query param and send the request, this should provide you the default response.
+
+@name("MockUrl with Param_1")
+GET "https://{{mock-url}}/endpoint"
+? "x-mock-response-name"= "swagger"
+
+
+
+// If you match the Query param according to what is saved in example response, you'll be able to receive the required second response.
+// 
+// You will see that even if the endpoints saved are the same, to retrieve the required response - query params can help you do the work.
+
+@name("MockUrl with Param_2")
+GET "https://{{mock-url}}/endpoint"
+? "x-mock-response-name"= "MockValue"
+
+
+// In addition, if you want to mock a particular response even with examples having the same endpoints, you can also use the "Headers" by specifying the header value. The header required to be used here is: x-mock-match-request-headers. This should point to the header name defined in your example responses.
+// 
+// Change the header-value under _Header section_ to newly_defined to check the change in the response.
+
+@name("MockUrl_with_Headers")
+GET "https://{{mock-url}}/endpoint"
+"x-mock-match-request-headers": "header-value"
+"header-value": "defined"
+"x-mock-response-name": "Mock API Data"
+
+
+// If you want to mock a particular response even with examples having same endpoints, you can also use the "Headers" by specifying the name of the example. The header required to be used here is: x-mock-response-name
+
+@name("MockUrl_with_ResponseName")
+GET "https://{{mock-url}}/endpoint"
+"x-mock-response-name": "Mock API Data"
+
+
+// To check how the response is recorded when a test script is used to extract the data out of the JSON response.
+
+@name("Mock Response")
+POST "https://{{mock-url}}/response"
+
+
+// Check how the values can be retrieved from an environment and be saved to a variable. And this variable is inturn used to set new Environment variable.
+// 
+// Also, on how the environment values can be set using the path.
+
+@name("Parse Response")
+PUT "https://{{mock-url}}/parse"
+
+
+@name("TestScripts")
+GET "https://{{mock-url}}/endpoint"
+? "client_id"= "{{CLIENT_ID}}"
+? "redirect_url"= "{{REDIRECT_URL}}"
+? "response_type"= "code"
+? "scope"= "openid"
+? "code_challenge"= "{{challenge}}"
+? "code_challenge_method"= "S256"
+
+
+// https://community.postman.com/t/mock-server-and-regular-expression/11245/9
+
+@name("Mock match request Body")
+{{METHOD}} "https://{{mock-url}}/login"
+"Content-Type": "application/json"
+"x-mock-match-request-body": "true"
+json({
+    "customerid": 789,
+    "body": "Should match exactly"
+})
+
+
+@name("Random generator - Sandbox ")
+GET "https://{{mock-url}}/randomsandbox"
+
+
+@name("Match_Mock_response_code")
+GET "https://{{mock-url}}/code"
+"x-mock-response-code": "400"
+
+
+

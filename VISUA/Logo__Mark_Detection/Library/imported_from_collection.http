@@ -1,0 +1,173 @@
+#!/usr/bin/env dothttp
+
+// This endpoint allows to activate new brand logos for your account by specifying a JSON Object with the list of brand logos to activate.
+// 
+// To activate a brand you only need to specify its name and the url of its website via the fields `name` and `url` respectively. As VISUA maintains a global library the `name` you supplied might be different from the existing brand name, e.g., _Apple Computers_ vs _Apple_. If you wish to refer to the brand by a different name please use the meta functionality as described below.
+// 
+// Optionally you can specify example images via the `exampleUrls` field to further define which logo variations you are interested in if they differ from the standard ones.
+// 
+// All URLs submitted, including the example URLs, need to be accessible otherwise the request will be rejected with status code `400 Bad Request` detailing which URLs could not be accessed.
+// 
+// The `meta` field is also optional and it is useful when you want to attach custom information such as your internal identifier or a custom property for a specific brand logo. The `meta` information will be included in every detection of the brand. See the [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) endpoint for further details. If you wish to refer to the brand by a custom name and have it override the internal name you can specify a `.name` entry in the meta field. 
+// 
+// Below is an example of a valid JSON Object for this endpoint
+// 
+// <pre>
+// [{
+// 	"name": "Apple",
+// 	"url": "www.apple.com",
+// 	"exampleUrls": [
+// 		"https://i.pinimg.com/originals/32/30/01/3230018d8ec9b5fa969bcad6b3ea2760.jpg"
+// 	],
+// 	"meta": {
+// 		".name": "Apple Computers"
+// 	}
+// }, {
+// 	"name": "Coca Cola",
+// 	"url": "www.coca-cola.com",
+// 	"meta": {
+// 		"keyA": "valueA",
+// 		"myCustomBrandName": "cocacola"
+// 	}
+// }]
+// </pre>
+// 
+// #### Response
+// 
+// The field `requestHash` contains an unique identifier for your activation request.
+// 
+// #### Dry Run
+// 
+// In [Dry Run mode](https://docs.visua.com/#dry-run) the format of your request will be checked and validated with the same methodology as a live request. Hence a status code `200 OK` in _Dry Run_ will ensure the request will yield the same result when executed live. The response format is the same except for the field `requestHash` that will contain an empty string.
+
+@name("Activate Brands")
+POST "https://{{socket}}/brands/activate"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "brands": [
+        "[{\"name\": \"Apple\",\"url\": \"www.apple.com\",\"exampleUrls\": [\"https://goo.gl/dj5rXM\",\"https://goo.gl/oz6WUB\"],\"meta\": {\"keyA\": \"valueA\",\"myCustomBrandName\": \"brandA\"}},{\"name\": \"Coca Cola\",\"url\": \"www.coca-cola.com\",\"exampleUrls\": [\"https://goo.gl/aKzWxu\"]}]"
+    ]
+})
+
+
+// If you have submitted an activation request via the [Activate Brands](https://docs.logograb.com/#98683d3d-e777-4219-983e-fdeda9e55cea) endpoint, you have received a `requestHash` which is an unique identifier for you request. Using the `requestHash` you can now query this endpoint to retrieve the progress of your activation request.
+
+@name("Activate Brands Status")
+GET "https://{{socket}}/brands/activate/:requestHash/status"
+"X-DEVELOPER-KEY": ""
+
+
+// Return the list of brand logos currently associated to your developer key.
+// 
+// #### Response
+// 
+// The field `brands` contains a list of every brand logo currently active in your account, each characterized by its id, name and icon.
+// 
+// Within each brand, the array `logoVersionArray` contains the different variations of the brand logos. Each variation is characterized by an icon URL which is a graphical representation of the logo variation. The field `timeCreated` indicates when the logo variation was added to your library. The field `id` rappresents a unique identifier of the logo version.
+// 
+// If you have previously defined custom meta tags via [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) they will be returned in the key `meta` for each logo variation.
+// 
+// Every logo variation is accompanied by a [Quality Assurance metric](https://en.wikipedia.org/wiki/Precision_and_recall#Precision) called `precision`. `precision` represents the percentage of true positives within a random sample of detections of the specific logo variation. For most logo variations you can expect `precision` to range between `0.98` and `1`. If Quality Assurance data is not available for a specific logo variation or in case your account is configured with custom settings the field `precision` is `null`.
+
+@name("Active Brands")
+GET "https://{{socket}}/brands/active"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Add a brand logo to your developer key. The brand needs to be already associated to one of your developer keys.
+// 
+// _This endpoint requires a special permission that needs to be granted to your developer key._
+// 
+// #### Response
+// 
+// The field `brands` contains a list of every brand logo currently active in your account, each characterized by its id, name and icon.
+// 
+// Within each brand, the array `logoVersionArray` contains the different variations of the brand logos. Each variation is characterized by an icon URL which is a graphical representation of the logo variation. The field `timeCreated` indicates when the logo variation was added to your library. The field `id` rappresents a unique identifier of the logo version.
+// 
+// If you have previously defined custom meta tags via [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) they will be returned in the key `meta` for each logo variation.
+// 
+// Every logo variation is accompanied by a [Quality Assurance metric](https://en.wikipedia.org/wiki/Precision_and_recall#Precision) called `precision`. `precision` represents the percentage of true positives within a random sample of detections of the specific logo variation. For most logo variations you can expect `precision` to range between `0.98` and `1`. If Quality Assurance data is not available for a specific logo variation or in case your account is configured with custom settings the field `precision` is `null`.
+
+@name("Active Brand")
+POST "https://{{socket}}/brands/active/:brandId"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Remove a brand currently associated to your developer key.
+// 
+// _This endpoint requires a special permission that needs to be granted to your developer key._
+// 
+// #### Response
+// 
+// The field `brands` contains a list of every brand logo currently active in your account, each characterized by its id, name and icon.
+// 
+// Within each brand, the array `logoVersionArray` contains the different variations of the brand logos. Each variation is characterized by an icon URL which is a graphical representation of the logo variation. The field `timeCreated` indicates when the logo variation was added to your library. The field `id` rappresents a unique identifier of the logo version.
+// 
+// If you have previously defined custom meta tags via [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) they will be returned in the key `meta` for each logo variation.
+// 
+// Every logo variation is accompanied by a [Quality Assurance metric](https://en.wikipedia.org/wiki/Precision_and_recall#Precision) called `precision`. `precision` represents the percentage of true positives within a random sample of detections of the specific logo variation. For most logo variations you can expect `precision` to range between `0.98` and `1`. If Quality Assurance data is not available for a specific logo variation or in case your account is configured with custom settings the field `precision` is `null`.
+
+@name("Active Brand")
+DELETE "https://{{socket}}/brands/active/:brandId"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+
+
+// Associate custom tags to a brand within your library. These custom tags, expressed as key/value pairs, can be used to link your internal identifiers or for example to specify additional properties for individual logo variations within a brand.
+// 
+// If you want the same tags to be applied to all logo variations of the brand you should provide a JSON Object as `meta` parameter containing your key/value pairs.
+// 
+// If instead you want to associate different tags to each logo variation you can do so via [Active Logo Version Meta](https://docs.visua.com/?version=latest#fcc77e63-155c-427a-9443-c6fadf74dc4b).
+// 
+// Once your custom tags have been set they will be returned in every detection of the brand within the `meta` key.
+// 
+// #### Response
+// 
+// The field `brands` contains a list of every brand logo currently active in your account, each characterized by its id, name and icon.
+// 
+// Within each brand, the array `logoVersionArray` contains the different variations of the brand logos. Each variation is characterized by an icon URL which is a graphical representation of the logo variation. The field `timeCreated` indicates when the logo variation was added to your library. The field `id` rappresents a unique identifier of the logo version.
+// 
+// If you have previously defined custom meta tags via [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) they will be returned in the key `meta` for each logo variation.
+// 
+// Every logo variation is accompanied by a [Quality Assurance metric](https://en.wikipedia.org/wiki/Precision_and_recall#Precision) called `precision`. `precision` represents the percentage of true positives within a random sample of detections of the specific logo variation. For most logo variations you can expect `precision` to range between `0.98` and `1`. If Quality Assurance data is not available for a specific logo variation or in case your account is configured with custom settings the field `precision` is `null`.
+
+@name("Active Brand Meta")
+PUT "https://{{socket}}/brands/active/:brandId/meta"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-DEVELOPER-KEY": ""
+data({
+    "meta": [
+        "{\"keyA\": \"valueA\", \"myCustomBrandName\": \"brandA\"}"
+    ]
+})
+
+
+// Associate custom tags to a logo variation within your library. These custom tags, expressed as key/value pairs, can be used to link your internal identifiers or for example to specify additional properties for individual logo variations within a brand.
+// 
+// Once your custom tags have been set they will be returned in every detection of the brand within the `meta` key.
+// 
+// #### Response
+// 
+// The field `brands` contains a list of every brand logo currently active in your account, each characterized by its id, name and icon.
+// 
+// Within each brand, the array `logoVersionArray` contains the different variations of the brand logos. Each variation is characterized by an icon URL which is a graphical representation of the logo variation. The field `timeCreated` indicates when the logo variation was added to your library. The field `id` rappresents a unique identifier of the logo version.
+// 
+// If you have previously defined custom meta tags via [Active Brands Meta](https://docs.visua.com/?version=latest#aba9d64e-1929-4a83-a5af-b44a4e427d63) they will be returned in the key `meta` for each logo variation.
+// 
+// Every logo variation is accompanied by a [Quality Assurance metric](https://en.wikipedia.org/wiki/Precision_and_recall#Precision) called `precision`. `precision` represents the percentage of true positives within a random sample of detections of the specific logo variation. For most logo variations you can expect `precision` to range between `0.98` and `1`. If Quality Assurance data is not available for a specific logo variation or in case your account is configured with custom settings the field `precision` is `null`.
+
+@name("Active Logo Version Meta")
+PUT "https://{{socket}}/brands/active/:brandId/logoVersions/:logoVersionId/meta"
+"X-DEVELOPER-KEY": ""
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "meta": [
+        "{\"keyA\": \"valueA\", \"myCustomLogoVersionName\": \"logoVersionA\"}"
+    ]
+})
+
+
+

@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of content items from your project. By default, the API returns an unfiltered paginated list of content items ordered alphabetically by codename. The [response size](#section/Response-size) is limited to 2000 items.
+// 
+// If you need to export all content items from your project, we recommend using the [Enumerate content item](https://docs.kontent.ai/link-to/enumerate_content_items) endpoint.
+// 
+// You can change the order by specifying the `order` query parameter. You can customize pagination by specifying both the `skip` and `limit` query parameters.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p><strong>Get only the items you need</strong></p>
+// <p>To retrieve specific content items, use the <a data-item-id="b6cf1d73-471a-4f1e-b0a9-f0e041e2d905" href="https://docs.kontent.ai/link-to/filtering_content">filtering parameters</a> in your requests. For example, you can request items tagged with a taxonomy term, items of a specific type, or items modified in the past three days.</p>
+// 
+// <!--Callout-end-->
+
+@name("List content items")
+GET "https://deliver.kontent.ai/:project_id/items"
+"X-KC-Wait-For-Loading-New-Content": "<boolean>"
+? "language"= "<string>"
+? "elements"= "<string>,<string>"
+? "order"= "<string>"
+? "depth"= "<integer>"
+? "skip"= "<integer>"
+? "limit"= "<integer>"
+? "includeTotalCount"= "<boolean>"
+
+
+// Retrieve a specific content item by specifying its codename.
+// 
+// The [response size](#section/Response-size) is limited to 2000 items.
+
+@name("Retrieve a content item")
+GET "https://deliver.kontent.ai/:project_id/items/:item_codename"
+"X-KC-Wait-For-Loading-New-Content": "<boolean>"
+? "language"= "<string>"
+? "elements"= "<string>,<string>"
+? "depth"= "<integer>"
+
+
+// Retrieve a dynamically paginated list of content items in your project. The items are ordered alphabetically by codename.
+// 
+// If the response comes with the `X-Continuation` header, it means that there are more pages to retrieve. To get the next page of results, send the `X-Continuation` header with your request as you received it.
+// 
+// This endpoint, unlike the [List content items](https://docs.kontent.ai/link-to/list_content_items) endpoint, guarantees enumerating all items in the specified project. We recommend using this endpoint for warming up your app's cache (i.e., getting all content into the cache after the app starts) or for exporting content of your project.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p><strong>Get only the items you need</strong></p>
+// <p>To retrieve specific content items, use the <a data-item-id="b6cf1d73-471a-4f1e-b0a9-f0e041e2d905" href="https://docs.kontent.ai/link-to/filtering_content">filtering parameters</a> in your requests. For example, you can request items tagged with a taxonomy term, items of a specific type, or items modified in the past three days.</p>
+// 
+// <!--Callout-end-->
+
+@name("Enumerate content items")
+GET "https://deliver.kontent.ai/:project_id/items-feed"
+"X-KC-Wait-For-Loading-New-Content": "<boolean>"
+"X-Continuation": "<string>"
+? "language"= "<string>"
+? "elements"= "<string>,<string>"
+? "order"= "<string>"
+
+
+

@@ -1,0 +1,234 @@
+#!/usr/bin/env dothttp
+
+// Se envía a autorización el monto de la transacción y si es aprobada, inmediatamente se realiza la captura.
+// 
+// Franquisias disponibles para `AUTHORIZATION_AND_CAPTURE`:
+// - `VISA`
+
+@name("AUTHORIZATION AND CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_COLOMBIA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTHORIZATION AND CAPTURE OF PAY TEST WITH CREDITCARD IN COLOMBIA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 20000,
+					"currency": "COP"
+				},
+				"TX_TAX": {
+					"value": 3800,
+					"currency": "COP"
+				},
+				"TX_TAX_RETURN_BASE": {
+					"value": 16200,
+					"currency": "COP"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Bogota",
+					"state": "Bogota D.C.",
+					"country": "CO",
+					"postalCode": "00000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Bogota",
+				"state": "Bogota D.C.",
+				"country": "CO",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"dniType": "CC",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Bogota",
+				"state": "Bogota D.C.",
+				"country": "CO",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"debitCard": {
+			"number": "4097440000000004",
+			"securityCode": "123",
+			"expirationDate": "2019/12",
+			"name": "{{STATE}}"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "CO",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+// Se verifica junto con el banco si la compra puede ser ralizada. Se confirma si la tarjeta está activa y posee fondos.
+// 
+// Franquisias disponibles para `AUTHORIZATION`:
+// - `VISA`
+
+@name("AUTHORIZATION")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_COLOMBIA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTHORIZATION OF PAY TEST WITH CREDITCARD IN COLOMBIA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 20000,
+					"currency": "COP"
+				},
+				"TX_TAX": {
+					"value": 3800,
+					"currency": "COP"
+				},
+				"TX_TAX_RETURN_BASE": {
+					"value": 16200,
+					"currency": "COP"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Bogota",
+					"state": "Bogota D.C.",
+					"country": "CO",
+					"postalCode": "00000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Bogota",
+				"state": "Bogota D.C.",
+				"country": "CO",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"dniType": "CC",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Bogota",
+				"state": "Bogota D.C.",
+				"country": "CO",
+				"postalCode": "00000",
+				"phone": "10000000"
+			}
+		},
+		"debitCard": {
+			"number": "4097440000000004",
+			"securityCode": "123",
+			"expirationDate": "2019/12",
+			"name": "{{STATE}}"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "CO",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+// La compra es confirmada y cobrada en la tarjeta de crédito. Solamente después de realizar la captura el pagador prodrá ver reflejada la compra en su extracto
+// 
+// Franquisias disponibles para `CAPTURE`:
+// - `VISA`
+
+@name("CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"id": 000000
+		},
+		"type": "CAPTURE",
+		"parentTransactionId": "PARENT_TRANSACTION_ID"
+	}
+}')
+
+
+

@@ -1,0 +1,95 @@
+#!/usr/bin/env dothttp
+
+// This example updates the value of the `price` attribute of the Entity with `id=urn:ngsi-ld:Product:001`
+// 
+// Exisiting attribute values can be altered by making a PUT request to the `/v2/entities/<entity>/attrs/<attribute>/value` endpoint.
+
+@name("Overwrite the value of an Attribute value")
+PUT "http://{{orion}}/v2/entities/urn:ngsi-ld:Product:001/attrs/price/value"
+"Content-Type": "text/plain"
+data('89')
+
+
+// This example simultaneously updates the values of both the `price` and `name` attributes of the Entity with `id=urn:ngsi-ld:Product:001`
+// 
+// Multiple Existing attribute values can be updated by making a PATCH request to the `/v2/entities/<entity>/attrs` endpoint.
+
+@name("Overwrite Multiple Attributes of a Data Entity")
+PATCH "http://{{orion}}/v2/entities/urn:ngsi-ld:Product:001/attrs"
+"Content-Type": "application/json"
+data(' {
+      "price":{"type":"Integer", "value": 89}
+}')
+
+
+// This example uses the convenience batch processing endpoint to create a series of available products.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes - `actionType=update` means we will overwrite existing entities if they exist whereas the `entities` attribute holds an array of entities we wish to update.
+// 
+// Each product has a unique `id` following the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+
+@name("Batch Overwrite Attributes of Multiple Data Entities")
+POST "http://{{orion}}/v2/op/update"
+"Content-Type": "application/json"
+data('{
+  "actionType":"update",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:001", "type":"Product",
+      "price":{"type":"Integer", "value": 1199}
+    },
+    {
+      "id":"urn:ngsi-ld:Product:002", "type":"Product",
+      "price":{"type":"Integer", "value": 1199},
+      "size": {"type":"Text", "value": "L"}
+    }
+  ]
+}')
+
+
+// This example uses the convenience batch processing endpoint to create a series of available products.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes - `actionType=append` means we will overwrite existing entities if they exist whereas the `entities` attribute holds an array of entities we wish to update.
+// 
+// Each product has a unique `id` following the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+
+@name("Batch  Create/Overwrite Attributes of Multiple Data Entities")
+POST "http://{{orion}}/v2/op/update"
+"Content-Type": "application/json"
+data('{
+  "actionType":"append",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:001", "type":"Product",
+      "price":{"type":"Integer", "value": 1199}
+    },
+    {
+      "id":"urn:ngsi-ld:Product:002", "type":"Product",
+      "price":{"type":"Integer", "value": 1199},
+      "specialOffer": {"type":"Boolean", "value":  true}
+    }
+  ]
+}')
+
+
+// This example uses the convenience batch processing endpoint to create a series of available products.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes - `actionType=replace` means we will overwrite existing entities if they exist whereas the `entities` attribute holds an array of entities we wish to update.
+// 
+// Each product has a unique `id` following the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+
+@name("Batch Replace Entity Data")
+POST "http://{{orion}}/v2/op/update"
+"Content-Type": "application/json"
+data('{
+  "actionType":"replace",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:010", "type":"Product",
+      "price":{"type":"Integer", "value": 1199}
+    }
+  ]
+}')
+
+
+

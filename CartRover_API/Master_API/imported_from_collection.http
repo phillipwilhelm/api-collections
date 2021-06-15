@@ -1,0 +1,146 @@
+#!/usr/bin/env dothttp
+
+// Get a list of all Sub Accounts
+// 
+// **Note:** Any filters should be passed with the URL as GET arguments. 
+// ### Filters
+// |    Argument    |    Description    |
+// |----------------|-----------------------------------------------------------------|
+// |    include_discontinued    |    N or Y. Default N. If Y, accounts that have been discontinued will be returned as well    |
+// 
+// ### Response Fields
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    warehouses    |    Array    |        |   List of Warehouse sub-accounts    |
+// |    merchants    |    Array    |        |    List of Merchant sub-accounts    |
+// 
+// #### warehouses Fields
+// warehouses is a numerically indexed array with each element containing the following keys.
+// 
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    fclient_pk    |    Int    |        |   CartRover warehouse ID    |
+// |    company    |    String    |        |    Warehouse Company Name    |
+// |    discontinued_sw    |    String    |        |    Y or N. Y for disabled.    |
+// 
+// #### merchants Fields
+// merchants is a numerically indexed array with each element containing the following keys.
+// 
+// |     Field      |     Data Type         |     Length      |     Description         |
+// |-------------------|-----------------------|-----------------|----------------------------------|
+// |    merchant_pk    |    Int    |        |   CartRover merchant ID    |
+// |    company    |    String    |        |    Merchant Company Name    |
+// |    discontinued_sw    |    String    |        |    Y or N. Y for disabled.    |
+
+@name("List Sub Accounts")
+GET "https://{{BASE_URL}}/v1/master/list_sub"
+basicauth("{{api_user}}", "{{api_key}}")
+
+
+// Create a new Standalone Merchant account.
+// 
+// ### Post Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |------------------|-----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    company    |    Array    |  |    Y    |    Company details    |
+// |    user       |    Array    |  |    N    |    Optionally create a new user for this merchant.    |
+// |    wms    |    Array    |  |    N    |    Order Destination Info    |
+// 
+// ### Company Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    company    |    String    |    45    |    Y    |    Company Name    |
+// |    phone    |    String    |    45    |    N    |    Company Phone Number    |
+// 
+// ### User Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    name    |    String    |    45    |    Y    |    User Name    |
+// |    email    |    String    |    255    |    Y    |    User email    |
+// |    password    |    String    |    45    |    N   |   Account activation will be sent if you send the user object with no password.     |
+// |    repeat_password    |    String    |    45    |    N    |   Must match the password     |
+// 
+// ### wms Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    wms_name    |    String    |        |    Y    |    Which WMS should be setup?    |
+// |    merchant_params    |    Array    |  |  N  |    Array of WMS Merchant level param values to set for this merchant. You can   get a list of valid values from the merchant section of the [/wms/params](#99aefc50-34e7-4fa5-b944-9cbb24eaf594)   endpoint.    |
+// |    wms_params    |    Array    |  |  N  |    Array of WMS level param values to set for this account. You can   get a list of valid values from the wms section of the [/wms/params](#99aefc50-34e7-4fa5-b944-9cbb24eaf594)   endpoint. NOTE: This section only usable by independant Merchant accounts, not ones that belong to a warehouse account.    |
+// |   schedules   |   Array   |  |  N  |   A list of schedules to update with the keys: order, confirm, inventory. Pass "ON" or "OFF" for each value.  |
+// 
+// ### Array Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |----------------|-----------------|--------------|---------------------------------|
+// |    merchant_pk    |    Int    |  |    Unique identifier for this merchant account    |
+
+@name("New Merchant Sub Account")
+POST "https://{{BASE_URL}}/v1/master/merchant"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+  "company": {
+      "company": "My Company Name",
+      "phone": "1-805-399-2278"
+  },
+  "user": {
+      "name": "Mrs. Bigglesworth",
+      "email": "biggle@evil.com",
+      "password": "Optional Password",
+      "repeat_password": "Optional Password"
+  }
+}')
+
+
+// Create a new Warehouse / 3PL account.
+// 
+// ### Post Fields
+// |    Field    |    Data Type    |    Length    |    Required?    |    Description    |
+// |------------------|-----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    company    |    Array    |  |    Y    |    Company details    |
+// |    user       |    Array    |  |    N    |    Optionally create a new user for this warehouse.    |
+// |    wms    |    Array    |  |    N    |    Order Destination Info    |
+// 
+// ### Company Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    company    |    String    |    45    |    Y    |    Company Name    |
+// |    phone    |    String    |    45    |    N    |    Company Phone Number    |
+// 
+// ### User Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    name    |    String    |    45    |    Y    |    User Name    |
+// |    email    |    String    |    255    |    Y    |    User email    |
+// |    password    |    String    |    45    |    N   |   Account activation will be sent if you send the user object with no password.     |
+// |    repeat_password    |    String    |    45    |    N    |   Must match the password     |
+// 
+// ### wms Array
+// |    Field    |    Data Type    |    Length    |    Required    |    Description    |
+// |-------------|-----------------|--------------|----------------|-------------------|
+// |    wms_name    |    String    |        |    Y    |    Which WMS should be setup?    |
+// |    wms_params    |    Array    |  |  N  |    Array of WMS level param values to set for this account. You can   get a list of valid values from the wms section of the [/wms/params](#99aefc50-34e7-4fa5-b944-9cbb24eaf594)   endpoint. NOTE: This section only usable by independant Merchant accounts, not ones that belong to a warehouse account.    |
+// 
+// ### Array Response Fields
+// |    Field    |    Data Type    |    Length    |    Description    |
+// |----------------|-----------------|--------------|---------------------------------|
+// |    warehouse_pk    |    Int    |  |    Unique identifier for this warehouse account    |
+
+@name("New Warehouse Sub Account")
+POST "https://{{BASE_URL}}/v1/master/warehouse"
+basicauth("{{api_user}}", "{{api_key}}")
+"Content-Type": "application/json"
+data('{
+  "company": {
+      "company": "My Company Name",
+      "phone": "1-805-399-2278"
+  },
+  "user": {
+      "name": "Mrs. Bigglesworth",
+      "email": "biggle@evil.com",
+      "password": "Optional Password",
+      "repeat_password": "Optional Password"
+  }
+}')
+
+
+

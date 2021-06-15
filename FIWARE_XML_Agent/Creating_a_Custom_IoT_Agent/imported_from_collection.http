@@ -1,0 +1,437 @@
+#!/usr/bin/env dothttp
+
+// Once the IoT Agent is running, You can check the status by making an HTTP request to the exposed port. 
+// If the response is blank, this is usually because the MongoDB database holding the context information is not running or not connected.
+// 
+// This is standard functionality coming directly from the IoT Agent Node.js library and does not involve an code changes.
+
+@name("IoT Agent - Obtain Version Information")
+GET "http://{{iot-agent}}/iot/about"
+
+
+// In the example the IoT Agent is informed that the `/iot/xml` endpoint will be used and that devices will authenticate
+// themselves by including the token `4jggokgpepnvsb2uv4s40d59ov`. For the custom XML IoT Agent this means devices will be
+// sending POST requests to:
+// 
+// ```
+// http://iot-agent:7896/iot/xml
+// ```
+// 
+// Where the `<measure>` holds the relevant device ID and API key.
+// 
+// ```
+// <measure device="motion001" key="4jggokgpepnvsb2uv4s40d59ov">
+//     <c value="3"/>
+// </measure>
+// ```
+// 
+// This syntax differs from the Ultralight IoT Agent where the device ID and API key are sent as URL parameters.
+// 
+// The relevant changes can be found in the `HTTPBindings.js` file where an XML parser is instanciated.
+// 
+// ```javascript
+// const xmlBodyParser = require("express-xml-bodyparser");
+// ```
+// 
+// ```javascript
+// httpBindingServer.router.post(
+//     config.getConfig().iota.defaultResource || constants.HTTP_MEASURE_PATH,
+//     ...xmlBodyParser({ trim: false, explicitArray: false }),
+//     checkMandatoryParams(false),
+//     ...etc
+// );
+// ```
+// 
+// This means that attributes from the XML request can be accessed using the square-bracket syntax. Since both `apiKey` and
+// `deviceId` are required parameters, they can be found within the received `<measure>`.
+// 
+// ```javascript
+// function checkMandatoryParams(queryPayload) {
+//     return function(req, res, next) {
+//         var notFoundParams = [],
+//             error;
+// 
+//         req.apiKey = req.body["measure"]["$"]["key"];
+//         req.deviceId = req.body["measure"]["$"]["device"];
+// 
+//         if (!req.apiKey) {
+//             notFoundParams.push("API Key");
+//         }
+// 
+//         if (!req.deviceId) {
+//             notFoundParams.push("Device Id");
+//         }
+// 
+//         // CHeck if retrievingParam
+//         if (queryPayload && !req.query.d && req.query.getCmd !== "1") {
+//             notFoundParams.push("Payload");
+//         }
+// 
+//         if (req.method === "POST" && !req.is("application/xml")) {
+//             error = new errors.UnsupportedType("application/xml");
+//         }
+// 
+//         if (notFoundParams.length !== 0) {
+//             next(new errors.MandatoryParamsNotFound(notFoundParams));
+//         } else {
+//             next(error);
+//         }
+//     };
+// }
+// ```
+// 
+// This function also checks that the appropriate MIME type has been received and fails fast if the incoming message does
+// not hold sufficient information.
+
+@name("IoT Agent - Create a Service Group")
+POST "http://{{iot-agent}}/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+ "services": [
+   {
+     "apikey":      "4jggokgpepnvsb2uv4s40d59ov",
+     "cbroker":     "http://orion:1026",
+     "entity_type": "Thing",
+     "resource":    "/iot/xml"
+   }
+ ]
+}')
+
+
+// As expected the HTTP command to **provision a device** does not change based on the underlying payload or transport
+// protocol since we are using the same HTTP transport as the original Ultralight IoT Agent. `internal_atttributes` can be
+// used to supply additional information for the custom IoT Agent if necessary. In the request we are associating the
+// device `motion001` with the URN `urn:ngsi-ld:Motion:001` and mapping the device reading `c` with the context attribute
+// `count` (which is defined as an `Integer`) A `refStore` is defined as a `static_attribute`, placing the device within
+// **Store** `urn:ngsi-ld:Store:001`
+
+@name("IoT Agent - Provision a Sensor")
+POST "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+ "devices": [
+   {
+     "device_id":   "motion001",
+     "entity_name": "urn:ngsi-ld:Motion:001",
+     "entity_type": "Motion",
+     "timezone":    "Europe/Berlin",
+     "attributes": [
+       { "object_id": "c", "name":"count", "type":"Integer"}
+      ],
+      "static_attributes": [
+         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
+      ]
+   }
+ ]
+}
+')
+
+
+// You can simulate a dummy IoT device measurement coming from the **Motion Sensor** device `motion001`, by making the
+// following XML request
+// 
+// Both the payload and the `Content-Type` have been updated. The dummy devices made a similar Ultralight request in the
+// previous tutorials when the door was unlocked, you will have seen the state of each motion sensor changing and a
+// Northbound request will be logged in the device monitor.
+// 
+// Now the IoT Agent is connected, the service group has defined the resource upon which the IoT Agent is listening
+// (`iot/xml`) and the API key used to authenticate the request (`4jggokgpepnvsb2uv4s40d59ov`) is found in the body. Since
+// both of these are recognized, the measurement is valid.
+// 
+// The next step is to parse the payload extract the attributes. This can be found in the amended `parse` method of the
+// `xmlparser.js` file
+// 
+// ```javascript
+// function parse(payload) {
+//     let result = [];
+//     const keys = Object.keys(payload["measure"]);
+//     for (let i = 0; i < keys.length; i++) {
+//         if (keys[i] !== "$") {
+//             let obj = {};
+//             obj[keys[i]] = payload["measure"][keys[i]]["$"].value;
+//             result.push(obj);
+//         }
+//     }
+//     return result;
+// }
+// ```
+// 
+// `parse()` returns a JSON array of key-value pairs which can then be mapped from device attribute names (like `c`) to
+// entity attribute names (like `count`) - obviously the mapping is based on the values sent in the original provisioning.
+
+@name("Dummy Device  - Measurement")
+POST "http://localhost/iot/xml"
+"Content-Type": "application/xml"
+data('<measure device="motion001" key="4jggokgpepnvsb2uv4s40d59ov">
+	<c value="3"/>
+</measure>')
+
+
+// You can see that a measurement has been recorded, by retrieving the entity data from the context broker. Don't forget to
+// add the `fiware-service` and `fiware-service-path` headers.
+// 
+// 
+// The response shows that the device with `id=motion001` has been successfully identifed by the IoT Agent and mapped to the
+// entity `id=urn:ngsd-ld:Motion:001`. This new entity has been created within the context data. The `c` 
+// attribute from the dummy device measurement request has been mapped to the more meaningful `count` attribute
+// within the context. As you will notice, a `TimeInstant` attribute has been added to both the entity and the
+// meta data of the attribute - this represents the last time the entity and attribute have been updated, and is
+// automatically added to each new entity because the `IOTA_TIMESTAMP`  environment variable was set when the
+// IoT Agent was started up. The `refStore` attribute comes from the `static_attributes` set when the device was provisioned.
+
+@name("Context Broker - Read the Motion Sensor")
+GET "http://{{orion}}/v2/entities/urn:ngsd-ld:Motion:001"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+// Provisioning an actuator is similar to provisioning a sensor. This time an `endpoint` attribute holds the location where
+// the IoT Agent needs to send the JSON command and the `commands` array includes a list of each command that can be
+// invoked. The example below provisions a bell with the `deviceId=bell001`. The endpoint is
+// `http://iot-sensors:3001/iot/bell001` and it can accept the `ring` command. The `transport=HTTP` attribute defines the
+// communications protocol to be used.
+// 
+// As is the case with provisioning a measure, this request remains unchanged. Implicitly within the structure of the IoT
+// Agent the provisioning of commands fulfills the following implied contract:
+// 
+// 1.  The custom IoT Agent is making a registration for an attribute
+// 2.  The custom IoT Agent each request for updating context (on the `/v2/op/update` endpoint)
+// 3.  A decision is made how to handle the request - for both the Custom IoT Agent and the Ultralight Agent this follows
+//     the paradigm of setting a `<command>State` attribute, amending and forwarding the request on a `/cmd` endpoint to
+//     the device (or alternatively to a middleware responsible for the device).
+// 
+// The first two items - listening to context changes from the context broker follow the well-defined NGSI syntax and
+// therefore are common to all IoT Agents. However the third item - what to do to prepare the message for ongoing
+// consumption will vary according to the protocol which is being abstracted out.
+
+@name("IoT Agent - Provision an Actuator")
+POST "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "devices": [
+    {
+      "device_id": "bell001",
+      "entity_name": "urn:ngsi-ld:Bell:001",
+      "entity_type": "Bell",
+      "transport": "HTTP",
+      "endpoint": "http://context-provider:3001/iot/bell001",
+      "commands": [ 
+        {
+          "name": "ring",
+          "type": "command"
+        }
+       ],
+       "static_attributes": [
+         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
+    	]
+    }
+  ]
+}
+')
+
+
+// Before we wire-up the context broker, we can test that a command can be send to a device by making a REST request
+// directly to the IoT Agent's North Port using the `/v2/op/update` endpoint. It is this endpoint that will eventually be
+// invoked by the context broker once we have connected it up. To test the configuration you can run the command directly
+// as shown
+// 
+// If you are viewing the device monitor page, you can also see the state of the bell change.
+// 
+// ![](https://fiware.github.io/tutorials.IoT-Agent/img/bell-ring.gif)
+// 
+// The result of the command to ring the bell can be read by querying the entity within the Orion Context Broker.
+// 
+// Within the custom IoT Agent the `start()` function sets a series of handler functions to fire when a request arrives
+// from the context broker.
+// 
+// ```javascript
+// iotAgentLib.setProvisioningHandler(deviceProvisioningHandler);
+// iotAgentLib.setConfigurationHandler(configurationHandler);
+// iotAgentLib.setCommandHandler(commandHandler);
+// iotAgentLib.setDataUpdateHandler(updateHandler);
+// ```
+// 
+// This is passed to the appropriate transport binding and in this case, the `commandHandler()` method within
+// `HTTPBindings.js` is fired. It provides an HTTP error handler, but delegates the actual work of creating and sending the
+// command to the device to `generateCommandExecution()`.
+// 
+// ```javascript
+// function generateCommandExecution(apiKey, device, attribute) {
+// ...
+//     const options = {
+//         url: device.endpoint,
+//         method: 'POST',
+//         body: xmlParser.createCommandPayload(device, cmdName, cmdAttributes),
+//         headers: {
+//             'fiware-service': device.service,
+//             'fiware-servicepath': device.subservice
+//         }
+//     };
+// ... etc
+// ```
+// 
+// The payload itself, in other words how a command must be created such that it can be interpreted by the device, is
+// unique to our custom XML messaging protocol and is generated in `createCommandPayload()` method in `xmlParser.js`.
+// 
+// ```javascript
+// function createCommandPayload(device, command, attributes) {
+//     if (typeof attributes === "object") {
+//         let payload = "<" + command + '  device="' + device.id + '">';
+// 
+//         Object.keys(attributes).forEach(function(key, value) {
+//             payload = payload + "<" + key + ">" + value + "</" + key + ">";
+//         });
+//         payload = payload + "</" + command + ">";
+//         return payload;
+//     } else {
+//         return "<" + command + '  device="' + device.id + '"/>';
+//     }
+// }
+// ```
+// 
+// This is an amendment from the Ultralight protocol where the `@` and `|` symbol is generated for Ultralight devices.
+// 
+// Howver creating a payload is only half the job, it must be sent to the device and understood, so communications must be
+// completed using a well-defined communications handshake. So after generating the payload the `sendXMLCommandHTTP()`
+// method of `HTTPBindings.js` sends the message and passes the response to the `result()` method in `xmlParser.js` to
+// interprets the command response from the device.
+// 
+// ```javascript
+// function result(payload) {
+//     const xmlToJson = require("xml-parser");
+//     const data = xmlToJson(payload);
+//     const result = {};
+//     result.deviceId = data.root.attributes.device;
+//     result.command = data.root.attributes.command;
+//     result.result = data.root.name;
+// 
+//     return result;
+// }
+// ```
+// 
+// Finally the success or failure of the command is updated into the context broker using common code from the IoT Agent
+// node library.
+// 
+// As is typical for IoT Agents, creation of payloads and the handshake of communications has been split into two separate
+// concerns for ease of maintenance. Therefore since in our case only the payload has changed, it is only the XML payload
+// side of the code that needs modification to fulfil our custom use case.
+
+@name("IoT Agent - Invoke a Command")
+POST "http://{{iot-agent}}/v2/op/update"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+    "actionType": "update",
+    "entities": [
+        {
+            "type": "Bell",
+            "id": "urn:ngsi-ld:Bell:001",
+            "ring" : {
+                "type": "command",
+                "value": ""
+            }
+        }
+    ]
+}')
+
+
+// The result of the command to ring the bell can be read by querying the entity within the Orion Context Broker. 
+
+@name("Context Broker - Read the Command Result")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Bell:001"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+? "options"= "keyValues"
+
+
+// Provisioning  a device which offers both commands and measurements is merely a matter of making an HTTP POST request
+// with both `attributes` and `command` attributes in the body of the request.
+// 
+// This example provisions a smart door with four commands `lock`, `unlock`, `open` and `close` and maps a single attribute.
+
+@name("IoT Agent - Provision a Smart Door")
+POST "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "devices": [
+    {
+      "device_id": "door001",
+      "entity_name": "urn:ngsi-ld:Door:001",
+      "entity_type": "Door",
+      "protocol": "PDI-IoTA-UltraLight",
+      "transport": "HTTP",
+      "endpoint": "http://context-provider:3001/iot/door001",
+      "commands": [ 
+        {"name": "unlock","type": "command"},
+        {"name": "open","type": "command"},
+        {"name": "close","type": "command"},
+        {"name": "lock","type": "command"}
+       ],
+       "attributes": [
+       	{"object_id": "s", "name": "state", "type":"Text"}
+       ],
+       "static_attributes": [
+         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
+       ]
+    }
+  ]
+}
+')
+
+
+// Provisioning  a device which offers both commands and measurements is merely a matter of making an HTTP POST request
+// with both `attributes` and `command` attributes in the body of the request.
+// 
+// This example provisions a smart door with two commands `on` and `off` and maps two attributes.
+
+@name("IoT Agent - Provision a Smart Lamp")
+POST "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "devices": [
+    {
+      "device_id": "lamp001",
+      "entity_name": "urn:ngsi-ld:Lamp:001",
+      "entity_type": "Lamp",
+      "protocol": "PDI-IoTA-UltraLight",
+      "transport": "HTTP",
+      "endpoint": "http://context-provider:3001/iot/lamp001",
+      "commands": [ 
+        {"name": "on","type": "command"},
+        {"name": "off","type": "command"}
+       ],
+       "attributes": [
+       	{"object_id": "s", "name": "state", "type":"Text"},
+        {"object_id": "l", "name": "luminosity", "type":"Integer"}
+       ],
+       "static_attributes": [
+         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
+    	]
+    }
+  ]
+}
+')
+
+
+// This example lists all provisioned devices by making a GET request to the `/iot/devices` endpoint.
+// 
+// The response includes all the commands and attributes mappings associated with all provisioned IoT devices.
+
+@name("IoT Agent - List all Provisioned Devices")
+GET "http://{{iot-agent}}/iot/devices"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+

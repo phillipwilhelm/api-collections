@@ -1,0 +1,1 @@
+This collection uses cheerio.js to scrape html from https://remoteok.io and display scraped data in  a bootstrap based visualizer.

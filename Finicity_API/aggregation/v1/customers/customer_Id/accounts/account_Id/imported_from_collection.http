@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Get details for the specified account.
+
+@name("Get Customer Account")
+GET "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId"
+
+
+// Remove the specified account from Finicity Aggregation.
+// 
+
+@name("Delete Customer Account")
+DELETE "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId"
+
+
+// Return the account owner’s name and address.
+// 
+// This is a premium service. The billable event is a successful call to this service.
+// 
+// HTTP status of 200 means the account owner’s name and address were retrieved successfully.
+// 
+// HTTP status of 203 means the response contains an MFA challenge in XML or JSON format. Contact your Account Manager or Systems Engineers to determine the best route to handle this HTTP status code.
+// 
+// This service retrieves account data from the institution. This usually returns quickly, but in some scenarios may take a few minutes to complete. In the event of a timeout condition, please retry the call.
+
+@name("Get Account Owner")
+GET "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/owner"
+
+
+// Retrieve the customer's bank statements in PDF format. Up to 24 months of history is available depending on the financial institution. Since this is a premium service, charges incur per each successful statement retrieved. 
+// 
+// Our list of [Supported Institutions](https://docs.finicity.com/institutions/) confirms that you can retrieve statements for the following account types:
+// * Checking
+// * Savings 
+// * Money market
+// * CDs
+// * Investments
+// * Mortgage
+// * Credit cards
+// * Loans
+// * Line of credit
+// 
+// ** Set request timeout **:  We recommend setting the timeout to 180 seconds to allow plenty of time for a response. 
+// 
+// ** Error codes **
+// * **HTTP 200**: Success. The response is a binary string that you can save as a PDF file.  
+// 
+// * ** HTTP 203 **: The response contains an MFA challenge question in JSON format. 
+// Contact one of our system engineers for help in resolving this error.
+
+@name("Get Customer Account Statement")
+GET "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/statement"
+? "index"= "1"
+
+
+// This will return loan payment details of customer for account. Only applies to loan type accounts.
+
+@name("Get Loan Payment Details")
+GET "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/loanDetails"
+
+
+// This will return account details for ACH
+
+@name("Get Account ACH Details")
+GET "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/details"
+
+
+

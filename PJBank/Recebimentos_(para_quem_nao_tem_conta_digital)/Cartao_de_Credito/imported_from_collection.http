@@ -1,0 +1,382 @@
+#!/usr/bin/env dothttp
+
+// O credenciamento para utilização de cartão de crédito deve ser feito pelo site https://pjbank.com.br. No entanto, alguns parceiros são autorizados a fazerem o credenciamento via API. 
+// 
+// Após o credenciamento nosso time tem até `5 dias úteis` para aprovar a conta. Ou seja, a credencial não será liberada imediatamente.
+// 
+// Opcionalmente, é possível informar vários endereços de e-mail, passando uma lista separada por `;`, como no exemplo:
+// `email1@empresa.com.br;email2@empresa.com.br;email3@empresa.com.br`
+
+@name("Credenciar uma conta para recebimento")
+POST "https://api.pjbank.com.br/recebimentos"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "nome_empresa": [
+        "Empresa Exemplo LTDA"
+    ],
+    "nome_fantasia": [
+        "Exemplo"
+    ],
+    "conta_repasse": [
+        "99999-9"
+    ],
+    "agencia_repasse": [
+        "0001"
+    ],
+    "banco_repasse": [
+        "001"
+    ],
+    "tipo_conta_repasse": [
+        "corrente"
+    ],
+    "cnpj": [
+        "50282264000153"
+    ],
+    "ddd": [
+        "19"
+    ],
+    "telefone": [
+        "40096830"
+    ],
+    "email": [
+        "atendimento@pjbank.com.br"
+    ],
+    "endereco": [
+        "Rua Joaquim Vilac, 509"
+    ],
+    "bairro": [
+        "Vila Teixeira"
+    ],
+    "cidade": [
+        "Campinas"
+    ],
+    "estado": [
+        "SP"
+    ],
+    "cep": [
+        "13301-510"
+    ],
+    "agencia": [
+        ""
+    ],
+    "ticket_medio": [
+        "125.00"
+    ],
+    "faturamento_mensal": [
+        "10000.00"
+    ],
+    "site": [
+        "https://www.empresaexemplo.com.br"
+    ],
+    "cartao": [
+        "true"
+    ]
+})
+
+
+// Retornar as informações da credencial, o status de aprovação da conta, taxas configuradas e demais configurações.
+
+@name("Consultar informações de uma credencial")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}"
+"X-CHAVE": "{{chave-cartao}}"
+
+
+// Cria um token com as informações do cartão de crédito informado e valida o cartão de crédito enviado.
+// 
+// **Importante:** Este recurso só deve ser utilizado diretamente por quem possui a Certificação PCI. Se não for o seu caso, utilize a tokenização via browser que atende todos os requisitos de segurança para a maioria das necessidades.
+// 
+// * O primeiro passo para receber de seus clientes é converter o número do cartão de crédito em um dado criptografado e mais seguro: o token. Este processo é chamado de tokenização do número do cartão e é melhor explicado na documentação do método "Tokenizar um cartão de crédito" disponível ao lado.
+// * O token é válido apenas para sua empresa/cartão então é inútil se for roubado. Desta forma, é possível armazená-lo em um banco de dados sem representar risco de segurança ou de conformidade com o PCI.
+// * O token deve ser armazenado para futuramente efetuar um pagamento.
+
+@name("Criar um token de cartão de crédito")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/tokens"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE": "{{chave-cartao}}"
+data({
+    "nome_cartao": [
+        "Cliente Exemplo"
+    ],
+    "numero_cartao": [
+        "4012001037141112"
+    ],
+    "mes_vencimento": [
+        "05"
+    ],
+    "ano_vencimento": [
+        "2018"
+    ],
+    "cpf_cartao": [
+        "64111456529"
+    ],
+    "email_cartao": [
+        "api@pjbank.com.br"
+    ],
+    "celular_cartao": [
+        "978456723"
+    ],
+    "codigo_cvv": [
+        "123"
+    ]
+})
+
+
+// Consulta informações do token e indica se ele já foi validado anteriormente tanto pelo processo de validação quanto por uma transação (quando um token não validado é utilizado em uma transação nós entendemos que ele é um token válido).
+
+@name("Consultar um token de cartão de crédito")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/tokens/{{token-cartao}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE": "{{chave-cartao}}"
+
+
+// Adiciona no token gerado pela Tokenização via browser os demais dados do cartão e do portador e realiza uma transação de validação do cartão informado.
+// 
+// Para apenas complementar os dados - e não validar o token nesse momento - faça a mesma transação sem o parâmetro `validar_cartao`. Nesse caso o cartão será validado durante a primeira transação que utilizar esse token.
+// 
+// Algumas bandeiras ainda não aceitam transações de validação, nesse caso o sistema fará uma pré-autorização de R$ 1,00 cancelando logo em seguida.
+
+@name("Validar um token de cartão de crédito")
+PUT "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/tokens/{{token-cartao}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE": "{{chave-cartao}}"
+data({
+    "nome_cartao": [
+        "Cliente Exemplo"
+    ],
+    "mes_vencimento": [
+        "05"
+    ],
+    "ano_vencimento": [
+        "2025"
+    ],
+    "cpf_cartao": [
+        "37843514171"
+    ],
+    "email_cartao": [
+        "api@pjbank.com.br"
+    ],
+    "celular_cartao": [
+        "1187906534"
+    ],
+    "codigo_cvv": [
+        "123"
+    ],
+    "validar_cartao": [
+        "1"
+    ]
+})
+
+
+// É responsável por criar uma transação de cartão de crédito utilizando um cartão tokenizado que pode ser gerado no endpoint `[POST] /recebimentos/{credenciar}/tokens` ou diretamente no browser do cliente.
+// 
+// * É recomendado usar o endpoint com token sempre, ou com o cartão apenas no primeiro pagamento.
+
+@name("Criar uma transação utilizando um token")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes"
+"X-CHAVE": "{{chave-cartao}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token_cartao": [
+        "edd4705894591f3d513e626a6a65bf4d642c142f"
+    ],
+    "valor": [
+        "10"
+    ],
+    "parcelas": [
+        "2"
+    ],
+    "pedido_numero": [
+        "1111111"
+    ],
+    "descricao_pagamento": [
+        "Pagamento de teste"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ]
+})
+
+
+// É responsável por criar uma transação de cartão de crédito sem a necessidade de um `token_cartao`, utilizando os dados reais do cartão. Para isso, a empresa precisa ser [PCI Compliance](https://pt.pcisecuritystandards.org/).
+// 
+// * É recomendado tokenizar no browser sempre, pois elimina a necessidade de ter contato com os dados do portador do cartão. Isto elimina a necessidade de ser PCI Compliance.
+
+@name("Criar uma transação utilizando os dados do cartão")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE": "{{chave-cartao}}"
+data({
+    "numero_cartao": [
+        "4012001037141112"
+    ],
+    "nome_cartao": [
+        "Cliente Exemplo"
+    ],
+    "mes_vencimento": [
+        "05"
+    ],
+    "ano_vencimento": [
+        "2025"
+    ],
+    "cpf_cartao": [
+        "37843514171"
+    ],
+    "email_cartao": [
+        "api@pjbank.com.br"
+    ],
+    "celular_cartao": [
+        "1187906534"
+    ],
+    "codigo_cvv": [
+        "123"
+    ],
+    "valor": [
+        "1"
+    ],
+    "parcelas": [
+        "1"
+    ],
+    "descricao_pagamento": [
+        "Pagamento de teste "
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ]
+})
+
+
+// Para setores onde é necessário operar com maior proteção contra fraudes oferecemos a funcionalidade de análise antifraude para as transações. Nosso processo funciona em duas etapas: pré-autorização e captura, que ocorrem de forma assíncrona.
+// 
+// **Pré-autorização:** verifica se os dados do cartão são válidos e sensibiliza o seu saldo para compras. Na pré-autorização a fatura do seu cliente já indica que houve a transação.
+// 
+// **Captura:** confirma uma pré-autorização e efetiva a cobrança desse valor no cartão do cliente.
+// 
+// **Importante:** o processo de pré-autorização e captura deve ser transparente para seu cliente, tanto a fatura quanto o saldo do cartão serão alterados somente uma vez, não gerando cobranças ou linhas adicionais na fatura do cartão.
+// 
+// #### Fluxo da transação com antifraude
+// 1. Ao receber a requisição de cobrança realizamos a pré-autorização da cobrança no cartão;
+// 2. Se a pré-autorização for bem sucedida iniciamos o processo de análise dos dados e comportamento do cliente;
+// 3. Em até 1 hora, se o sistema antifraude recusar ou aprovar o pedido automaticamente, você receberá uma chamada de webhook informando a decisão tomada;
+// 4. Caso o sistema não chegue à uma decisão automática nosso time de operação tem até 48 horas para analisar manualmente a transação;
+// 5. Após a análise manual (quando necessária) você receberá uma chamada de webhook informando a decisão de aprovar ou recusar o pedido.
+// 
+// Após a decisão da análise antifraude (seja manual ou automática) nós iremos capturar ou cancelar a transação pré-autorizada que estiver pendente no cartão do cliente. Sempre que executarmos a captura ou cancelamento você será informado desse processo através de uma chamada de webhook.
+// 
+// #### Como diferenciar uma transação pré-autorizada de uma capturada?
+// O parâmetro `autorizada` na resposta da transação ou em uma chamada de webhook indica se a transação se encontra pré-autorizada, capturada ou cancelada. Os valores possíveis são:
+// 
+// | Valor | Significado |
+// |--|--|
+// | 0 | Cancelada |
+// | 1 | Capturada/Confirmada |
+// | 2 | Pré-autorizada |
+// 
+// Esse parâmetro estará presente nos métodos `POST` e `GET` para transações e nas chamadas de webhook que enviamos a cada mudança de status (captura, cancelamento ou alteração da data de crédito).
+
+@name("Criar uma transação utilizando a análise antifraude")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes"
+"X-CHAVE": "{{chave-cartao}}"
+"Content-Type": "application/json"
+files(
+	("token_cartao", "da3a8e80dee28f343ab454bdc7c4a309ee12fdda"),
+	("mes_vencimento", "03"),
+	("ano_vencimento", "2027"),
+	("codigo_cvv", "999"),
+	("nome_cartao", "Nome do portador"),
+	("cpf_cartao", "99999999999"),
+	("email_cartao", "api@pjbank.com.br"),
+	("celular_cartao", "19999999999"),
+	("endereco_cartao", "Rua Joaquim Vilac, 510"),
+	("complemento_cartao", "Sala 2"),
+	("cidade_cartao", "Campinas"),
+	("estado_cartao", "SP"),
+	("cep_cartao", "13032385"),
+	("pais_cartao", "BR"),
+	("valor", "100"),
+	("valor_frete", "10"),
+	("valor_imposto", "0"),
+	("parcelas", "1"),
+	("data_compra", "12/20/2018 15:59:01"),
+	("descricao_pagamento", "Compra na Loja PJBank"),
+	("pedido_numero", "458754"),
+	("webhook", "https://pjbank.com.br/exemplo"),
+	("cliente[nome]", "Nome do cliente"),
+	("cliente[data_nascimento]", "12/25/2018"),
+	("cliente[documento]", "99999999999"),
+	("cliente[telefone]", "19999999999"),
+	("cliente[celular]", "19999999999"),
+	("cliente[email]", "api@pjbank.com.br"),
+	("cliente[data_cadastro]", "12/20/2018 15:59:01 "),
+	("entrega[nome]", "Nome do destinatário"),
+	("entrega[endereco]", "Rua Joaquim Vilac, 509"),
+	("entrega[complemento]", "Sala 2"),
+	("entrega[cidade]", "Campinas"),
+	("entrega[estado]", "SP"),
+	("entrega[cep]", "13920000"),
+	("entrega[pais]", "BR"),
+	("carrinho[0][codigo_produto]", "789658895"),
+	("carrinho[0][nome]", "Power Bank"),
+	("carrinho[0][valor_unitario]", "45.00"),
+	("carrinho[0][quantidade]", "1"),
+	("carrinho[0][valor_desconto]", "0.00")
+)
+
+
+// Retorna uma transação de cartão pelo `tid` passado na **URL**.
+
+@name("Consultar uma transação por identificador")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes/{{tid}}"
+"X-CHAVE": "{{chave-cartao}}"
+
+
+// Lista o que foi recebido em um determinado dia em formato ideal para realizar as baixas. Observações:
+// * A resposta sempre será paginada em `50` itens.
+// * Se não passar nenhuma data de parâmetro, será usada a data de `HOJE`
+// * O filtro de data será aplicado à `data_vencimento`
+// 
+// ---
+// ## Filtro de Data
+// **Parâmetros:** `data_inicio` e `data_fim` (opcional) 
+// 
+// **Valor:** Datas no formato `mm/dd/aaaa`
+// 
+// Retorna itens com vencimento dentro do período.
+// 
+// ---
+// ## Filtro de Pagamento
+// **Parâmetros:** `pago` (opcional)
+// 
+// **Valor:** 1
+// Filtro aplicado para listar somente os recebimentos liquidados da conta.
+// 
+// Lembrando que se passados os parâmetros de datas (`data_inicio` e `data_fim`), o filtro será aplicado ao campo `data_pagamento`.
+// 
+// ---
+// ## Filtro de Paginação
+// **Parâmetros:** `pagina` (opcional) 
+// 
+// **Valor:** número inteiro >= 1
+// 
+// Por padrão o extrato só retorna `50` itens por vez. Você pode navegar entre esses itens utilizando o parâmetro `pagina`.
+
+@name("Consultar transações por período")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes"
+"X-CHAVE": "{{chave-cartao}}"
+? "data_inicio"= "01/01/2019"
+? "data_fim"= "04/30/2025"
+? "pago"= "0"
+? "pagina"= "1"
+
+
+// O cancelamento de um pagamento também pode ser feito por esta API.
+// 
+// No entanto, existem regras dos adquirentes, bandeiras e banco que podem impactar no sucesso da operação.
+// 
+// Quanto antes for feito, maior a chance de sucesso.
+
+@name("Cancelar uma transação")
+DELETE "https://api.pjbank.com.br/recebimentos/{{credencial-cartao}}/transacoes/{{tid-cartao}}"
+"X-CHAVE": "{{chave-cartao}}"
+
+
+

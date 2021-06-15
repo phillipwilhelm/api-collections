@@ -1,0 +1,104 @@
+#!/usr/bin/env dothttp
+
+// This example reads the full context from an existing **TemperatureSensor** entity with a known `id`.
+// 
+// TemperatureSensor `urn:ngsi-ld:TemperatureSensor:001` is returned as _normalized_ NGSI-LD. Additional metadata is
+// returned because `options=sysAttrs`. By default the `@context` is returned in the payload body (although this could be
+// moved due to content negotiation if the `Accept:application/json` had been set.
+// 
+// Individual context data entities can be retrieved by making a GET request to the `/ngsi-ld/v1/entities/<entity>`
+// endpoint.
+
+@name("Read a Data Entity (verbose)")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "options"= "sysAttrs"
+
+
+// This example reads the value of a single attribute (`temperature`) from an existing **TemperatureSensor** entity with a
+// known `id`.
+// 
+// The sensor `urn:ngsi-ld:TemperatureSensor:001` is reading at 25°C.
+// 
+// Because `options=keyValues` was not used this is the normalized response including the metadata such as `unitCode`.
+// Context data can be retrieved by making a GET request to the `/ngsi-ld/v1/entities/<entity-id>` endpoint and selecting
+// the `attrs` using a comma separated list.
+
+@name("Read an Attribute from a Data Entity")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "attrs"= "temperature"
+
+
+// This example reads the key-value pairs  from the context of an existing **TemperatureSensor** entities with a known `id`.
+// 
+// The response contains an unfiltered list of context data from an entity containing all of the attributes of the
+// `urn:ngsi-ld:TemperatureSensor:001`. The payload body does not contain an `@context` attribute since the
+// `Accept: application/json` was set.
+// 
+// Combine the `options=keyValues` parameter with the `attrs` parameter to retrieve a limited set of key-value pairs.
+
+@name("Read a Data Entity (key value pairs)")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/"
+"Link": "<{{json-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "options"= "keyValues"
+
+
+// 
+// This example reads the value of two attributes (`category` and `temperature`) from the context of an existing
+// **TemperatureSensor** entity with a known ID.
+// 
+// Combine the `options=keyValues` parameter and the `attrs` parameter to return a list of values.
+
+@name("Read Multiple attributes values from a Data Entity")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/"
+"Link": "<{{json-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "options"= "keyValues"
+? "attrs"= "category,temperature"
+
+
+// This example lists the full context of all **TemperatureSensor** entities.
+// 
+// On start-up the context was empty, four **TemperatureSensor** entities have been added by create operations so the full
+// context will now contain four sensors.
+
+@name("List all Data Entities (verbose)")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "TemperatureSensor"
+
+
+// This example lists the `temperature` attribute of all **TemperatureSensor** entities.
+// 
+// The full context contains four sensors, they are returned in a random order.
+// 
+// Full context data for a specified entity type can be retrieved by making a GET request to the `/ngsi-ld/v1/entities/` endpoint
+// and supplying the `type` parameter, combine this with the `options=keyValues` parameter and the `attrs` parameter to
+// retrieve key-values.
+
+@name("List all Data Entities (key value pairs)")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{json-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "type"= "TemperatureSensor"
+? "options"= "keyValues"
+? "attrs"= "temperature"
+
+
+// This example lists selected data from two **TemperatureSensor** entities chosen by `id`. Note that every `id` must be
+// unique, so `type` is not required for this request. To filter by `id` add the entries in a comma delimted list.
+// 
+// The response details the selected attributes from the selected entities.
+
+@name("List Data Entity by id")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{json-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "id"= "urn:ngsi-ld:TemperatureSensor:001,urn:ngsi-ld:TemperatureSensor:002"
+? "options"= "keyValues"
+? "attrs"= "temperature"
+
+
+

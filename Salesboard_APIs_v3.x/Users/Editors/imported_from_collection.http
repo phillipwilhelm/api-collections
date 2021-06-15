@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+@name("Get  Users (include, search, filters)")
+GET "https://{{sb_client}}.salesboard.biz/v1/users"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"cookie": "PHPSESSID={{sb_token}}"
+? "include"= "tags,teams,avatar"
+? "search"= "sharewire"
+? 'filters'= '{"roles":[1,2], "tags": [2,3,4], "teams": [3,4]}'
+
+
+// This is how User is created with a given password.
+// To generate the password on the server side, set "generate_password" as true, in this case the field "password" will be ignored. To ask the user to reset the password via email set "send_email" as true.
+
+@name("Create User")
+POST "https://{{sb_client}}.salesboard.biz/v1/users"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+json({
+    "name": "Ricardo",
+    "surname": "Cadete 6",
+    "username": "ricardo6",
+    "email": "ricardo.cadete@salesboard.biz",
+    "password": "eH7m2Q5gWWNR({Z",
+    "role": 8,
+    "is_active": true,
+    "is_billable": true,
+    "sso_enabled": false,
+    "avatar": null,
+    "generate_password": false,
+    "send_email": false
+})
+
+
+// Possible values for 'include': teams, tags, scopes, avatar
+
+@name("Get  User")
+GET "https://{{sb_client}}.salesboard.biz/v1/users/{{sb_user_id}}"
+"XREQUESTEDWITH": "mobileHttpRequest"
+"cookie": "PHPSESSID={{sb_token}}"
+? "include"= "tags,teams,avatar"
+
+
+@name("Update User")
+PUT "https://{{sb_client}}.salesboard.biz/v1/users/{{sb_user_id}}"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+json({
+    "name": "Ricardo",
+    "surname": "Cadete 7.1",
+    "username": "ricardo7",
+    "email": "ricardo.cadete@salesboard.biz",
+    "password": "eH7m2Q5gWWNR({Zv2",
+    "role": 8,
+    "is_active": true,
+    "is_billable": true,
+    "sso_enabled": false,
+    "avatar": null,
+    "generate_password": false,
+    "send_email": false
+})
+
+
+// Login
+
+@name("Update Avatar")
+POST "https://{{sb_client}}.salesboard.biz/v1/users/{{sb_user_id}}/avatar"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("image", "None")
+)
+
+
+// Login
+
+@name("Users Import")
+POST "https://{{sb_client}}.salesboard.biz/v1/users/import"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("name", "None")
+)
+
+
+@name("Users Export")
+GET "https://{{sb_client}}.salesboard.biz/v1/users/export"
+"XREQUESTEDWITH": "WebAppHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+@name("Delete User")
+DELETE "https://{{sb_client}}.salesboard.biz/v1/users/{{sb_user_id}}"
+"XREQUESTEDWITH": "APIHttpRequest"
+"Cookie": "PHPSESSID={{sb_token}}"
+
+
+
+

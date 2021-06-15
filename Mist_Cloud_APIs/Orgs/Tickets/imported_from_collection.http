@@ -1,0 +1,144 @@
+#!/usr/bin/env dothttp
+
+// #### Query Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// start|string|start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+// end|string|end datetime, can be epoch or relative time like -1d, -2h
+// duration|string|duration like 7d, 2w
+// 
+// 
+// NOTE: end & duration if both specified, will take precedence over start time
+// 
+// 
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// id|string|id of the ticket
+// created_at|int|when the ticket was created
+// updated_at|int|when the ticket was last updated
+// type|string|question (default) / bug / critical
+// subject|string|subject
+// status|string|open / pending / solved / closed
+// requester|string|name of the requester
+// 
+// 
+// Ticket Status open: 
+// * `open`: Mist is working on it 
+// * `pending`: ticket is open and Requester attention is needed (e.g. Mist is asking for some more information) 
+// * `solved`: ticket is marked as solved / considered by Mist (requester can update it, causing it to re-open; or rate it) 
+// * `closed`: ticket is archived and cannot be changed
+
+@name("getOrgTickets")
+GET "https://{{host}}/api/v1/orgs/:org_id/tickets"
+
+
+// #### Query Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// start|string|start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+// end|string|end datetime, can be epoch or relative time like -1d, -2h
+// duration|string|duration like 7d, 2w
+// 
+// 
+// NOTE: end & duration if both specified, will take precedence over start time
+// 
+// 
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// id|string|id of the ticket
+// created_at|int|when the ticket was created
+// updated_at|int|when the ticket was last updated
+// type|string|question (default) / bug / critical
+// subject|string|subject
+// status|string|open / pending / solved / closed
+// requester|string|name of the requester
+// 
+// 
+// Ticket Status open: 
+// * `open`: Mist is working on it 
+// * `pending`: ticket is open and Requester attention is needed (e.g. Mist is asking for some more information) 
+// * `solved`: ticket is marked as solved / considered by Mist (requester can update it, causing it to re-open; or rate it) 
+// * `closed`: ticket is archived and cannot be changed
+
+@name("getOrgTicketDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/tickets/:ticket_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// subject|string|Required subject (usually short)
+// type|string|question (default) / bug / critical
+// comment|string|Required description
+// 
+
+@name("createOrgTicket")
+POST "https://{{host}}/api/v1/orgs/:org_id/tickets"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "subject": "question regarding WPA",
+    "type": "question",
+    "comment": "where do I configure WPA1 / WPA2 / Auto?"
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// subject|string|Required subject (usually short)
+// type|string|question (default) / bug / critical
+// comment|string|Required description
+// 
+
+@name("addOrgTicketCommentWithAttachment")
+POST "https://{{host}}/api/v1/orgs/:org_id/tickets/:ticket_id/comments"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+files(
+	("file", "None"),
+	("comment", "")
+)
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// subject|string|Required subject (usually short)
+// type|string|question (default) / bug / critical
+// comment|string|Required description
+// 
+
+@name("addOrgTicketComment")
+POST "https://{{host}}/api/v1/orgs/:org_id/tickets/:ticket_id/comments"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "comment": "this is urgent"
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// subject|string|subject (usually short)
+// type|string|question (default) / bug / critical
+// status|string|open / solved
+
+@name("updateOrgTicket")
+PUT "https://{{host}}/api/v1/orgs/:org_id/tickets/:ticket_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "subject": "question regarding WPA/WPA2",
+    "type": "question",
+    "status": "solved"
+})
+
+
+

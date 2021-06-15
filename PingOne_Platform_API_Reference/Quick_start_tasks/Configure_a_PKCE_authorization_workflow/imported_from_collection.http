@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// The `POST /environments/{environmentId}/applications` endpoint creates the application connection and sets the `pkceEnforcement` property to one of the `REQUIRED` options.
+// 
+// 
+// 
+// The response returns a 201 Created message and shows the application connection data. In this request, the `pkceEnforcement` property value is set to `S256_REQUIRED`, which specifies that a PKCE `code_challenge` parameter is required in the authorize request and the `code_challenge_method` is also required and must specify `S256` (a SHA2 256-bit hash).
+// 
+// 
+// 
+// ::: info
+// **Note:** In this activity, the `tokenEndpointAuthMethod` in the application's OIDC properties is set to `NONE`, which specifies that no authentication credentials are required in the request. Conversely, if the application's `tokenEndpointAuthMethod` is set to `CLIENT_SECRET_BASIC` or `CLIENT_SECRET_POST`, authentication credentials would be required in the request. For example, if the `tokenEndpointAuthMethod` value is set to `CLIENT_SECRET_BASIC`, the `client_id` and `client_secret` attribute values are needed but cannot be part of the request body. In these cases, the `client_id` and `client_secret` are passed in as a Base64 encoded authorization header in the request, like this `--user 'client_id:client_secret'`.
+// :::
+// 
+
+@name("Step 1: Create the application connection")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  {
+    "name": "MyApp",
+    "description": "this is my application",
+    "pkceEnforcement": "S256_REQUIRED",
+    "enabled": true,
+    "type": "NATIVE_APP",
+    "protocol": "OPENID_CONNECT",
+    "responseTypes": [
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "grantTypes": [
+        "IMPLICIT"
+    ],
+    "tokenEndpointAuthMethod": "NONE",
+    "postLogoutRedirectUris": [
+        "https://example.com"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ]
+}
+}')
+
+
+// You can use the `/{environmentId}/as/authorize` endpoint to initiate authorization. This request must include the `code_challenge` and `code_challenge_method` parameters.  
+// 
+// 
+// In the request, the `response_type` property specifies that the request returns an authorization `code` that can be exchanged for a token. The `client_id` property identifies the application ID for the application you created in Step 1. The `code_challenge` value is computed using the `code_verifier` prior to submitting the authorize request. The `code_challenge_method` value specifies the `S256` method.
+// 
+// 
+// The request returns a `Location` HTTP header that specifies the URL for the sign-on screen and the flow ID for this specific authentication workflow. The user's browser is redirected to the sign-on screen to enter account credentials, usually a username and password. For more information about sign-on flows, see [Authentication workflow walkthrough](https://apidocs.pingidentity.com/pingone/customer/v1/api/concepts/p1-a_DefineAuthFlow/).
+// 
+
+@name("Step 2: Submit the authorize request")
+GET "https://auth.pingone.com/{{envID}}/as/authorize"
+"Authorization": "Bearer {{jwtToken}}"
+? "response_type"= "code"
+? "redirect_uri"= "https://example.com"
+? "nonce"= "<nonce value>"
+? "state"= "<state value>"
+? "prompt"= "login"
+? "max_age"= "3600"
+? "acr_values"= "Single_Factor"
+? "client_id"= "{applicationId}"
+? "scope"= "openid"
+? "code_challenge"= "{codeChallenge}"
+? "code_challenge_method"= "S256"
+
+
+// You can use the `/{environmentId}/as/token` endpoint to obtain an access token by presenting its authorization grant. In this activity, the token request identifies `authorization_code` as the grant type, and it must also provide the `code` value returned in Step 2.
+// 
+// With the `pkceEnforcment` property enabled on the application, the token request must provide the `code_verifier` parameter value. This parameter is used to verify the `code_challenge` value submitted in the authorization request in Step 2.
+// 
+// 
+// The token request transforms the `code_verifier` property value using the `code_challenge_method` specified in the authorize request. If the transformed `code_verifier` value is equal to the `code_challenge` value submitted in the authorize request, then the authorization server issues the token.
+
+@name("Step 3: Get the token")
+POST "https://auth.pingone.com/{{envID}}/as/token"
+basicauth("{{appID}}", "{{appSecret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{jwtToken}}"
+data({
+    "grant_type": [
+        "authorization_code"
+    ],
+    "code": [
+        "{{authCode}}"
+    ],
+    "redirect_uri": [
+        "https://example.com"
+    ],
+    "client_id": [
+        "{{appID}}"
+    ],
+    "client_secret": [
+        "{{appSecret}}"
+    ],
+    "code_verifier": [
+        "{{codeVerifier}}"
+    ]
+})
+
+
+

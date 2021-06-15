@@ -1,0 +1,107 @@
+#!/usr/bin/env dothttp
+
+// You can get all environment resources for an organization, a selected set of environments (using a filter), or a specific environment.
+// 
+// The sample shows the `GET /environments` operation to return all environments associated with the organization.
+// 
+// This request supports the `limit` parameter (for example, `?limit=1`). You can also use `limit` in conjunction with an `eq` SCIM filtering expression that includes `organization.id` or `license.id` (for example, `?filter=license.id eq "34f0efac-21d9-4a17-8a35-196bb3362983"&limit=1`. If you use `limit` with other supported SCIM filtering options, `limit` is ignored.
+// 
+// The `GET /environments` and `GET /environments/{environmentId}` endpoints allow an `expand` query parameter on the `billOfMaterials` embedded resource. Queries that expand `billOfMaterials` show the licensed product information encapsulated in the environment's Bill of Materials as an `_embedded` resource. See the response data for details.
+// 
+
+@name("READ All Environments")
+GET "https://{{apiPath}}/environments"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET /environments/{environmentId}` operation returns data only for the environment resource identified by its ID in the request URL.
+
+@name("READ One Environment")
+GET "https://{{apiPath}}/environments/{{envID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The sample shows the `POST /environments` operation to create a new environment associated with the organization encoded in the access token. In the request body, the `name`, `region`, and `type` attributes are required. The value of the `name` attribute must be unique within the organization.
+// 
+// If you set the `type` attribute to `PRODUCTION`, you cannot delete the environment until you reset the value to `SANDBOX`. If you have a trial license, you cannot create `PRODUCTION` environments or promote `SANDBOX` environments to `PRODUCTION`.
+// 
+// 
+// ::: info
+// **Note:** If a worker application creates a new environment, that worker application is given an Identity Data Admin role assignment for that environment automatically. Only the worker application can perform Identity Data Admin operations in that environment. However, the worker application can give the same role assignment to another user or another worker application. For more information about roles, see [Roles](#roles).
+// :::
+// 
+
+@name("CREATE Environment")
+POST "https://{{apiPath}}/environments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "Environment name",
+  "description": "North America Environment",
+  "region": "NA",
+  "type": "SANDBOX"
+}')
+
+
+// If your organization has more than one active license, the `license.id` property must be specified in the request body.
+// 
+// The response data shows the license ID associated with the environment.
+
+@name("CREATE Environment (Active License)")
+POST "https://{{apiPath}}/environments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "Environment name",
+  "description": "Test Environment",
+  "region": "NA",
+  "type": "SANDBOX",
+  "license": {
+    "id": "{licenseId}"
+  }
+}')
+
+
+// To update the configuration of your environment, you can use `PUT /environments/{environmentId}` to modify the attributes of the specified environment. The sample shows an update to the `name` and `description` attributes.
+// 
+// **Note:** The environment's `region` attribute cannot be modified in a `PUT` request. The `region` attribute value is defined when the environment resource is created (`POST` request) and cannot be changed.
+
+@name("UPDATE Environment")
+PUT "https://{{apiPath}}/environments/{{envID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "Updated-Environment-Name",
+    "region": "NA",
+    "type": "SANDBOX",
+    "description": "Updated Description"
+}')
+
+
+// To update the configuration of your environment, you can use `PUT /environments/{environmentId}` to modify the attributes of the specified environment. The sample shows a `SANDBOX` environment resource `type` is changed to `PRODUCTION`.
+// 
+// ::: info
+// **Note:** You cannot delete a `PRODUCTION` environment unless you first demote it to `SANDBOX`.  If you have a trial license, you cannot create `PRODUCTION` environments or promote `SANDBOX` environments to `PRODUCTION`.
+// :::
+
+@name("UPDATE Environment Type")
+PUT "https://{{apiPath}}/environments/{{envID}}/type"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "type": "PRODUCTION"
+}')
+
+
+// You can delete an environment resource, but only if the `type` attribute is set to `SANDBOX`. Production environments cannot be deleted. The sample shows the `DELETE /environments/{environmentId}` operation to delete an environment from the organization.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Environment")
+DELETE "https://{{apiPath}}/environments/{{envID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

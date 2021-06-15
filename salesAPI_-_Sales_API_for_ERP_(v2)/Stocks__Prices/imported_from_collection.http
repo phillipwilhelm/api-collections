@@ -1,0 +1,160 @@
+#!/usr/bin/env dothttp
+
+// #### Search stocks in ERP
+// *(sapBusinessOne=OITW-OIBQ, totvsProtheus=SB2-x)*
+// 
+// The inventory search allows you to filter the ERP by:
+// - List Search: by `itemType` or `itemGroup` or `brand` or `whsCode` or `binCode` {optional only for sapBusinessOne}
+// - Unitary Search: by `erpKey` or `codeBars`
+// 
+// If no field for unitary search (`erpKey` or `codeBars`) is informed in the request, the search will return the stock of all valid products. The list search can be filtered by `itemType` or `itemGroup` or `brand` or `whsCode` or `binCode` (only sapBusinessOne).
+// 
+// Fields in response:
+// - `erpKey`, `codeBars`, `partNumber` (if UdfPartNumber is enabled in API Setup)
+// - `whsCode`, `binCode` (if UseBin is enabled in API Setup - only sapBusinessOne)
+// - `stock` (quantity), `stockValue` (currency), `availableStock`
+// - `batchNumbers`: array of batch numbers with stock (if `showBatchNumbers`=true and product has batch stock control)
+// 
+// Comments:
+// - Item Type: [1] SAP Business One: OITM.MatType (table OMTP), [2] TOTVS Protheus: B1_TIPO (table SX5/02 - ToDo)
+// - Item Group: [1] SAP Business One: OITM.ItmsGrpCod (table OITB), [2] TOTVS Protheus: B1_GRUPO (table SBM - ToDo)
+// - `brand` (or Manufacturer): [1] SAP Business One: OITM.FirmCode (table OMRC), [2] TOTVS Protheus: B1_FABRIC
+// 
+// The stocks service will consider as valid products:
+// - SAP Business One: [1] Sale Item (OITM.SellItem = Y), [2] Valid and not canceled (OITM.validFor = Y AND OITM.Canceled = N)
+// - TOTVS Protheus: “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// If `whsCode` is not informed, the stock in all warehouses will be searched. If `binCode` is not informed, the stock in all bin locations will be searched (if UseBin=true in API Setup). 
+// 
+// Treatment for `batchNumbers` {only SAP Business One}:
+// - If `showBatchNumbers` is not informed or not true, only total stock is returned. 
+// - To show batch numbers details, do the request with `showBatchNumbers`=true.
+// 
+// Treatment for `availableStock`:
+// - SAP Business One: [1] OITW.OnHand - SUM (PKL1.RelQtty + PKL1.PickQtty linked with RDR1 and WTQ1). [2] OIBQ.OnHandQty - SUM (PKL1.RelQtty + PKL1.PickQtty linked with RDR1 and WTQ1), [3] Batch Numbers: OIBT.Quantity-OIBT.IsCommited
+// - TOTVS Protheus: According to parameter MV_TPSALDO, TOTVS documentation at https://centraldeatendimento.totvs.com/hc/pt-br/articles/360013215531-MP-SIGAEST-Utiliza%C3%A7%C3%A3o-do-par%C3%A2metro-SX6-MV-TPSALDO
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = number of records on each page (eg 100), defined in the API configuration and informed in the response
+// - `pageNum` = desired page, provided in the request and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service will allow you to search the stocks list in two situations:
+// - Full Search: will result in all items with an inventory balance greater than zero, optionally by brand and by warehouse.
+// - Incremental Search: will result in all items that had inventory movements after a certain date / time provided in the request, with a balance greater than or equal to zero. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which stocks should be returned. This information will be used in conjunction with: [1] SAP Business One: the fields Creation Date and Creation Time of the transaction table in SAP Business One (OIVL.CreateDate and OIVL.CreateTime), [2]  TOTVS Protheus: not implemented
+// 
+// For use of user fields (UDF) created in the product table (SAPB1: -, TOTVS: SB2) the respective registration must be performed in the Custom Table.
+
+@name("Stocks")
+GET "https://{{endpoint}}/stocks"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "whsCode"= "01"
+? "binCode"= "001-07"
+? "itemType"= "4"
+? "itemGroup"= "103"
+? "brand"= "2"
+? "erpKey"= "PA00244"
+? "codeBars"= "78968064001054"
+? "pageNum"= "1"
+? "updatedAt"= "2020-01-01T00:00:00"
+? "showBatchNumbers"= "true"
+
+
+// #### Search priceLists in ERP
+// *(sapBusinessOne=6/OPLN, totvsProtheus=DA0)*
+// 
+// The priceList search allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary search (`erpKey`) is informed in the request, the search will return all valid priceLists.
+// 
+// The priceLists service will consider as valid priceList:
+// - SAP Business One: [1] Valid (OPLN.validFor = Y)
+// - TOTVS Protheus: [1] active (DA0_ATIVO=1), [2] initial validity (DA0_DATDE<=dDataBase)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("PriceLists")
+GET "https://{{endpoint}}/priceLists"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+// #### Search prices in ERP
+// *(sapBusinessOne=ITM1, totvsProtheus=DA1)*
+// 
+// The prices search allows you to filter the ERP by:
+// - List Search: by `priceListKey` or `brand`  or `itemType`  or `itemGroup` {optional}
+// - Unitary Search: by `productKey` or `codeBars`
+// 
+// If no field for unitary search (`productKey` or `codeBars`) is informed in the request, the search will return the price of all valid products. The list search can be filtered by `priceListKey` or by `brand` or by `itemType` or by `itemGroup`.
+// 
+// PriceList: 
+// - SAP Business One: ITM1.PriceList=OPLN.LineNum. The service does not treat Special Prices (OSPP), Special Prices for Groups (OSPG), Interest Prices (OIRT).
+// - TOTVS Protheus: DA1_CODTAB=DA0_CODTAB
+// 
+// Comments:
+// - Item Type: [1] SAP Business One: OITM.MatType (table OMTP), [2] TOTVS Protheus: B1_TIPO (table SX5/02 - ToDo)
+// - Item Group: [1] SAP Business One: OITM.ItmsGrpCod (table OITB), [2] TOTVS Protheus: B1_GRUPO (table SBM - ToDo)
+// - Brand (or Manufacturer): [1] SAP Business One: OITM.FirmCode (table OMRC), [2] TOTVS Protheus: B1_FABRIC
+// 
+// The prices service will consider as valid price:
+// - SAP Business One: 
+// - TOTVS Protheus: [1] active (DA1_ATIVO=1), [2] initial validity (DA1_DATVIG<=dDataBase)
+// 
+// The prices service will consider as valid priceList:
+// - SAP Business One: [1] Valid (OPLN.validFor = Y)
+// - TOTVS Protheus: [1] active (DA0_ATIVO=1), [2] initial validity (DA0_DATDE<=dDataBase)
+// 
+// The prices service will consider as valid products:
+// - SAP Business One: [1] Sale Item (OITM.SellItem = Y), [2] Valid and not canceled (OITM.validFor = Y AND OITM.Canceled = N)
+// - TOTVS Protheus: “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// If `priceListKey` is not informed, the price in all priceLists will be searched. 
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = number of records on each page (eg 100), defined in the API configuration and informed in the response
+// - `pageNum` = desired page, provided in the request and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page.
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service will allow you to search the list in two situations:
+// - Full Search: will result in all items with the price, optionally by priceList.
+// - Incremental Search: will result in all objects with changes after a certain date / time provided in the request, with a balance greater than or equal to zero. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which stocks should be returned. This information will be used in conjunction with: [1] SAP Business One: the fields Creation Date and Creation Time of the transaction table in SAP Business One (OITM.CreateDate+OITM.CreateTS and OITM.UpdateDate+OITM.UpdateTS), [2]  TOTVS Protheus: not implemented
+// 
+// This service does not have user field (UDF) treatment.
+// 
+// Observation: products/GET service can consider two prices in response:
+// - `price` = normal price (API Setup > GP PriceList or IGT_PRICEL)
+// - `pricePromo` = promotional price (API Setup > GP PriceListPromo or IGT_PRICELP)
+
+@name("Prices")
+GET "https://{{endpoint}}/prices"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "priceListKey"= "2"
+? "itemType"= "4"
+? "itemGroup"= "103"
+? "brand"= "1"
+? "productKey"= "PA00773"
+? "codeBars"= "I004"
+? "pageNum"= "2"
+? "updatedAt"= "2020-08-04T00:00:00"
+
+
+

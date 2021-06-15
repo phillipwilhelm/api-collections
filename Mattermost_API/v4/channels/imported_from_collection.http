@@ -1,0 +1,295 @@
+#!/usr/bin/env dothttp
+
+@name("Get Channels")
+GET "https://{{baseURL}}/channels"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XmlHttpRequest"
+? "page"= "0"
+? "per_page"= "3"
+? "exclude_default_channels"= "true"
+
+
+@name("Search Channels")
+POST "https://{{baseURL}}/channels/search"
+"Authorization": "Bearer {{token}}"
+"X-Requested-With": "XMLHttpRequest"
+"Content-Type": "application/json"
+data('{
+    "term": "bar1",
+    "not_associated_to_group": "",
+    "exclude_default_channels": false,
+    "page": 0,
+    "per_page": 10
+}')
+
+
+// Create a new direct message channel between two users.
+// ##### Permissions
+// Must be one of the two users and have `create_direct_channel` permission. Having the `manage_system` permission voids the previous requirements.
+
+@name("Create a direct message channel")
+POST "https://{{baseURL}}/channels/direct"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('The two user ids to be in the direct message')
+
+
+// Get statistics for a channel.
+// ##### Permissions
+// Must have the `read_channel` permission.
+
+@name("Get channel statistics")
+GET "https://{{baseURL}}/channels/{{channel_id}}/stats"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+// Update a user's notification properties for a channel. Only the provided fields are updated.
+// ##### Permissions
+// Must be logged in as the user or have `edit_other_users` permission.
+
+@name("Update channel notifications")
+PUT "https://{{baseURL}}/channels/{{channel_id}}/members/{{user_id}}/notify_props"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Get a page of members for a channel.
+// ##### Permissions
+// `read_channel` permission for the channel.
+
+@name("Get channel members")
+GET "https://{{baseURL}}/channels/{{channel_id}}/members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "per_page"= "60"
+
+
+
+// Update a user's roles for a channel.
+// ##### Permissions
+// Must have `manage_channel_roles` permission for the channel.
+
+@name("Update channel roles")
+PUT "https://{{baseURL}}/channels/{{channel_id}}/members/{{user_id}}/roles"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Space-delimited channel roles to assign to the user')
+
+
+// Update a channel. The fields that can be updated are listed as paramters. Omitted fields will be treated as blanks.
+// ##### Permissions
+// If updating a public channel, `manage_public_channel_members` permission is required. If updating a private channel, `manage_private_channel_members` permission is required.
+
+@name("Update a channel")
+PUT "https://{{baseURL}}/channels/{{channel_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Channel object to be updated')
+
+
+// Partially update a channel by providing only the fields you want to update. Omitted fields will not be updated. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// If updating a public channel, `manage_public_channel_members` permission is required. If updating a private channel, `manage_private_channel_members` permission is required.
+
+@name("Patch a channel")
+PUT "https://{{baseURL}}/channels/{{channel_id}}/patch"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+    "display_name": "Test Public ",
+    "name": "test-public"
+}')
+
+
+// Get a channel member.
+// ##### Permissions
+// `read_channel` permission for the channel.
+
+@name("Get channel member")
+GET "https://{{baseURL}}/channels/{{channel_id}}/members/{{user_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Restore channel from the provided channel id string.
+// 
+// __Minimum server version__: 3.10
+// 
+// ##### Permissions
+// `manage_team` permission for the team of channel.
+
+@name("Restore a channel")
+POST "https://{{baseURL}}/channels/{{channel_id}}/restore"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Partially update a team by providing only the fields you want to update. Omitted fields will not be updated. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// Must have the `manage_team` permission.
+
+@name("Update channel scheme")
+PUT "https://{{baseURL}}/channels/{{channel_id}}/scheme"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{"scheme_id": "{{scheme_id}}"}')
+
+
+// Add a user to a channel by creating a channel member object.
+
+@name("Add user to channel")
+POST "https://{{baseURL}}/channels/{{channel_id}}/members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('{"user_id":"98bke6q4gtyz5rzpmjaqnuef8e","channel_id":"{{channel_id}}","post_root_id":""}')
+
+
+// Create a new group message channel to group of users. If the logged in user's id is not included in the list, it will be appended to the end.
+// ##### Permissions
+// Must have `create_group_channel` permission.
+
+@name("Create a group message channel")
+POST "https://{{baseURL}}/channels/group"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('User ids to be in the group message channel')
+
+
+// Soft deletes a channel, by marking the channel as deleted in the database. Soft deleted channels will not be accessible in the user interface.
+// ##### Permissions
+// `delete_public_channel` permission if the channel is public,
+// `delete_private_channel` permission if the channel is private,
+// or have `manage_system` permission.
+
+@name("Delete a channel")
+DELETE "https://{{baseURL}}/channels/{{channel_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Get a list of pinned posts for channel.
+
+@name("Get a channel's pinned posts")
+GET "https://{{baseURL}}/channels/{{channel_id}}/pinned"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Create a new channel.
+// ##### Permissions
+// If creating a public channel, `create_public_channel` permission is required. If creating a private channel, `create_private_channel` permission is required.
+
+@name("Create a channel")
+POST "https://{{baseURL}}/channels"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Channel object to be created')
+
+
+// Get a page of posts in a channel. Use the query parameters to modify the behaviour of this endpoint. The parameters `since`, `before` and `after` must not be used together.
+// ##### Permissions
+// Must have `read_channel` permission for the channel.
+
+@name("Get posts for a channel")
+GET "https://{{baseURL}}/channels/{{channel_id}}/posts"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "page"= "0"
+? "per_page"= "60"
+? "since"= "{{since}}"
+? "before"= "{{before}}"
+? "after"= "{{after}}"
+
+
+
+// Perform all the actions involved in viewing a channel. This includes marking channels as read, clearing push notifications, and updating the active channel.
+// ##### Permissions
+// Must be logged in as user or have `edit_other_users` permission.
+// 
+// __Response only includes `last_viewed_at_times` in Mattermost server 4.3 and newer.__
+
+@name("View channel")
+POST "https://{{baseURL}}/channels/members/{{user_id}}/view"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Paremeters affecting how and which channels to view')
+
+
+// Get channel from the provided channel id string.
+// ##### Permissions
+// `read_channel` permission for the channel.
+
+@name("Get a channel")
+GET "https://{{baseURL}}/channels/{{channel_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+
+
+// Get a list of channel members based on the provided user ids.
+// ##### Permissions
+// Must have the `read_channel` permission.
+
+@name("Get channel members by ids")
+POST "https://{{baseURL}}/channels/{{channel_id}}/members/ids"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('List of user ids')
+
+
+// Delete a channel member, effectively removing them from a channel.
+// ##### Permissions
+// `manage_public_channel_members` permission if the channel is public.
+// `manage_private_channel_members` permission if the channel is private.
+
+@name("Remove user from channel")
+DELETE "https://{{baseURL}}/channels/{{channel_id}}/members/wfsugawbfpddffyr6w6mirxbcr"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+
+
+
+// Update a channel member's scheme_admin/scheme_user properties. Typically this should either be `scheme_admin=false, scheme_user=true` for ordinary channel member, or `scheme_admin=true, scheme_user=true` for a channel admin.
+// __Minimum server version__: 5.0
+// ##### Permissions
+// Must be authenticated and have the `manage_channel_roles` permission.
+
+@name("Update the scheme-derived roles of a channel member.")
+PUT "https://{{baseURL}}/channels/{{channel_id}}/members/{{user_id}}/schemeRoles"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+  "scheme_admin": false,
+  "scheme_user": true
+}')
+
+
+@name("Channel members minus group members")
+GET "https://{{baseURL}}/channels/{{channel_id}}/members_minus_group_members"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+? "group_ids"= "{{group_ids}}"
+? "page"= "0"
+? "per_page"= "100"
+
+
+@name("Member count by group")
+GET "https://{{baseURL}}/channels/{{channel_id}}/member_counts_by_group"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+? "include_timezones"= "true"
+
+
+

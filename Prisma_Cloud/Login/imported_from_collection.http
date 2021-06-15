@@ -1,0 +1,24 @@
+#!/usr/bin/env dothttp
+
+// Returns a JWT auth token for accessing the Prisma Cloud APIs. To generate a token, you must have an access key and include the following values in the request body parameter — access key ID as the username and your secret key as the password. Prisma Cloud requires this JWT in the request header to authorize API access.
+
+@name("Login")
+POST "https://{{api-endpoint}}/login"
+"accept": "application/json; charset=UTF-8"
+"content-type": "application/json"
+data('{
+    "username": "{{user-name}}",
+    "password": "{{pass-word}}"
+}')
+
+
+// Extend a user's session. The JWT token returned is valid until the next session timeout occurs. This method requires a valid session token to be passed (token from a prior successful extend or login calls).
+
+@name("Refresh Session")
+GET "https://{{api-endpoint}}/auth_token/extend"
+"accept": "application/json; charset=UTF-8"
+"content-type": "application/json"
+"x-redlock-auth": "{{token}}"
+
+
+

@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// Returns a map of the direct children of a piece of content. A piece of content
+// has different types of child content, depending on its type. These are
+// the default parent-child content type relationships:
+// 
+// - `page`: child content is `page`, `comment`, `attachment`
+// - `blogpost`: child content is `comment`, `attachment`
+// - `attachment`: child content is `comment`
+// - `comment`: child content is `attachment`
+// 
+// Apps can override these default relationships. Apps can also introduce
+// new content types that create new parent-child content relationships.
+// 
+// Note, the map will always include all child content types that are valid
+// for the content. However, if the content has no instances of a child content
+// type, the map will contain an empty array for that child content type.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**: 'View' permission for the space,
+// and permission to view the content if it is a page.
+
+@name("Get content children")
+GET "https://{{baseUrl}}/api/content/:id/child"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "parentVersion"= "0"
+
+
+// Returns the comments on a piece of content.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**: 'View' permission for the space,
+// and permission to view the content if it is a page.
+
+@name("Get content comments")
+GET "https://{{baseUrl}}/api/content/:id/child/comment"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "parentVersion"= "0"
+? "start"= "<integer>"
+? "limit"= "25"
+? "location"= "inline"
+? "depth"= "<string>"
+
+
+// Returns all children of a given type, for a piece of content.
+// A piece of content has different types of child content, depending on its type:
+// 
+// - `page`: child content is `page`, `comment`, `attachment`
+// - `blogpost`: child content is `comment`, `attachment`
+// - `attachment`: child content is `comment`
+// - `comment`: child content is `attachment`
+// 
+// Custom content types that are provided by apps can also be returned.
+// 
+// Note, this method only returns direct children. To return children at all
+// levels, use [Get descendants by type](#api-content-id-descendant-type-get).
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**: 'View' permission for the space,
+// and permission to view the content if it is a page.
+
+@name("Get content children by type")
+GET "https://{{baseUrl}}/api/content/:id/child/:type"
+? "expand"= "<string>"
+? "expand"= "<string>"
+? "parentVersion"= "0"
+? "start"= "<integer>"
+? "limit"= "25"
+
+
+

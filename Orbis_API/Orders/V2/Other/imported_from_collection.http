@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+@name("Bonds placement")
+POST "https://{{url}}/api/orders/v2/bond/place"
+"Content-Type": "application/json"
+data('{
+	"quote": {
+		"cusip": "",
+		"quoteId": ""    // QuoteID from tradeweb direct
+	},
+	"quantity": 0,       // face value is 1000. so 100 will be worth 100*1000
+	"transaction": "",   // either "BUY" or "SELL"
+	"price": 0           // optional. when specified, it is a limit order, otherwise a market order. 
+	                     // face value is quanity*price
+}')
+
+
+// Request for a quote on a bond with CUSIP number
+
+@name("Bonds quote request")
+POST "https://{{url}}/api/orders/v2/bond/quote/request"
+"Content-Type": "application/json"
+data('{
+	"quote": {
+		"cusip": "" 
+	},
+	"quantity": 0,
+	"transaction": "" // either "BUY" or "SELL"
+}')
+
+
+// Accept the quote received after /orders/v2/quote/request
+
+@name("Bonds quote acceptance")
+POST "https://{{url}}/api/orders/v2/bond/quote/accept"
+"Content-Type": "application/json"
+data('{
+    "orderRef": ""  // OurRef after calling /orders/v2/quote/request
+}')
+
+
+

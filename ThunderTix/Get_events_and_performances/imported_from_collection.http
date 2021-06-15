@@ -1,0 +1,159 @@
+#!/usr/bin/env dothttp
+
+// Get a list of all upcoming events.
+// 
+// #### Response
+// 
+// Returns an array of objects, each one represents an event with the following attributes:
+// 
+// | Attribute     | Value                                |
+// |---------------|--------------------------------------|
+// | id            | Event ID.                            |
+// | name          | Event Name.                          |
+// | seating_chart | TRUE if the event has seating chart. |
+// 
+// Example:
+// 
+// ```
+// [
+//     {
+//         "id": 100919,
+//         "name": "Daily for a Year",
+//         "seating_chart": false
+//     },
+//     {
+//         "id": 100917,
+//         "name": "First Event",
+//         "seating_chart": false
+//     },
+//     ...
+// ]
+// ```
+
+@name("Events")
+GET "https://{{thundertix_url}}/barcode/events.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+
+
+// Get a list of all performances that belong to a given event.
+// 
+// The event ID is passed in the URL, in this case, it is {{event_id}}.
+// 
+// #### Response
+// Returns an array of objects, each one represents a performance with the following attributes:
+// 
+// | Attribute        | Value                                               |
+// |------------------|-----------------------------------------------------|
+// | id               | Performance ID.                                     |
+// | time             | Date and time when the performance will take place. |
+// | name             | Performance Name / Event Name.                      |
+// | available        | TRUE if there are tickets left in the inventory.    |
+// | sold_seats       | Total of sold and reserved tickets.                 |
+// | hide_date        | TRUE when the event's date is hidden to the public, it can be set at {{thundertix_url}}/visibility/EVENT_ID |
+// | replace_date     | If the event's date is hidden to the public, show this text instead. |
+// | hide_sold_out    | TRUE when the "Sold Out" message is hidden to the public. |
+// | sold_out_message | Text shown to the public when the performance is sold out instead of "SOLD OUT". |
+// 
+// Example:
+// 
+// ```
+// [
+//     {
+//         "id": 1799209,
+//         "time": "2020-05-22T16:00:00.000-05:00",
+//         "name": "Daily for a Year",
+//         "available": true,
+//         "sold_seats": 0,
+//         "hide_date": false,
+//         "replace_date": "",
+//         "hide_sold_out": false,
+//         "sold_out_message": ""
+//     },
+//     {
+//         "id": 1799211,
+//         "time": "2020-05-23T16:00:00.000-05:00",
+//         "name": "Daily for a Year",
+//         "available": true,
+//         "sold_seats": 0,
+//         "hide_date": false,
+//         "replace_date": "",
+//         "hide_sold_out": false,
+//         "sold_out_message": ""
+//     },
+//     ...
+// ]
+// ```
+
+@name("Performances")
+GET "https://{{thundertix_url}}/barcode/performances/{{event_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+
+
+// Get all performances that will take place from 3 days ago until 14 days from now, no matter which event it belongs to.
+// 
+// #### Response
+// Returns an array of objects, each one represents a performance.
+// 
+// ```
+// [
+//     {
+//         "id": 1799209,
+//         "time": "2020-05-22T16:00:00.000-05:00",
+//         "name": "Daily for a Year",
+//         "available": true,
+//         "sold_seats": 0,
+//         "hide_date": false,
+//         "replace_date": "",
+//         "hide_sold_out": false,
+//         "sold_out_message": ""
+//     },
+//     {
+//         "id": 1799211,
+//         "time": "2020-05-23T16:00:00.000-05:00",
+//         "name": "Daily for a Year",
+//         "available": true,
+//         "sold_seats": 0,
+//         "hide_date": false,
+//         "replace_date": "",
+//         "hide_sold_out": false,
+//         "sold_out_message": ""
+//     },
+//     ...
+// ]
+// ```
+
+@name("Selected Performances")
+GET "https://{{thundertix_url}}/barcode/selected_performances.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+
+
+// #### Response
+// Returns an object with the user's venue ID.
+// 
+// | Attribute             | Value     |
+// |-----------------------|-----------|
+// | current_user_venue_id | Venue ID. |
+// | begin_day             | Not used. |
+// | end_day               | Not used. |
+// 
+// Example:
+// 
+// ```
+// {
+//     "current_user_venue_id": 3455,
+//     "begin_day": "05/19/2020",
+//     "end_day": "05/20/2020"
+// }
+// ```
+
+@name("Get current_user_venue_id")
+GET "https://{{thundertix_url}}/barcode/selected_performances.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+? "current_user_venue_id"= "true"
+
+
+

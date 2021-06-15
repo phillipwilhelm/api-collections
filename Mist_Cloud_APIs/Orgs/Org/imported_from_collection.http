@@ -1,0 +1,276 @@
+#!/usr/bin/env dothttp
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|org name
+// session_expiry|int|how long the login session should last, in minutes, default is 1440 (24 hours), between 10 (min) and 20160 (2 weeks)
+// alarmtemplate_id|string|Alarm Template ID, the default Alarm Template to use for the Org, can be override by Site
+// orggroup_ids|list|list of OrgGroup ids
+// allow_mist|boolean|whether to allow Mist to look at this org, default is True
+
+@name("createOrg")
+POST "https://{{host}}/api/v1/orgs"
+? "Accept"= "application/json"
+? "X-CSRFToken"= "{{csrftoken}}"
+? "Content-Type"= "application/json"
+json({
+    "name": "ABC Company",
+    "session_expiry": 1440,
+    "alarmtemplate_id": "684dfc5c-fe77-2290-eb1d-ef3d677fe168",
+    "orggroup_ids": [
+        "507f1bab-13ba-73e2-f291-2bcb8d1362b0"
+    ],
+    "allow_mist": true
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|org name
+// session_expiry|int|how long the login session should last, in minutes, default is 1440 (24 hours), between 10 (min) and 20160 (2 weeks)
+// alarmtemplate_id|string|Alarm Template ID, the default Alarm Template to use for the Org, can be override by Site
+// orggroup_ids|list|list of OrgGroup ids
+// allow_mist|boolean|whether to allow Mist to look at this org, default is True
+
+@name("updateOrg")
+PUT "https://{{host}}/api/v1/orgs/:org_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "ABC Company"
+})
+
+
+@name("deleteOrg")
+DELETE "https://{{host}}/api/v1/orgs/:org_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// num_inventory|int|number of devices claimed
+// num_devices|int|number of devices in use
+// num_devices_connected|int|number of devices in use that are connected
+// num_devices_disconnected|int|number of devices in use that are not connected
+
+@name("getOrgStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats"
+
+
+// #### Response Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|org name
+// password_policy|object|password policy
+// enabled|boolean|whether the policy is enabled, default is false
+// freshness|int|days, required if password policy is enabled
+// min_length|int|required password length, default is 8
+// requires_special_char|boolean|whether to require special character, default is false
+// requires_two_factor_auth|boolean|whether to require two-factor auth, default is false
+// ui_idle_timeout|int|automatically logout the user when UI session is inactive, 0-480 in minutes, default is 0 (disabled)
+// mgmt|object|management-related properties
+// use_wxtunnel|boolean|whether to use wxtunnel for mgmt connectivity, default is false
+// use_mxtunnel|boolean|whether to use Mist Tunnel for mgmt connectivity, default is false, this takes precedence over use_wxtunnel
+// mxtunnel_ids|list|list of Mist Tunnels
+// disable_pcap|boolean|whether to disallow Mist to analyze pcap files (this is required for marvis pcap), default is false
+// max_pkt_len|int|max_len of non-management packets to capture, default is 128, maximum is 128
+// disable_local_ssh|boolean|whether to disable local SSH (by default, local SSH is enabled with allow_mist in Org is enabled
+// limit_ssh_access|boolean|whether to allow certain SSH keys to SSH into the AP (see Site:Setting), default is false
+// fips_zeroize_password|string|password required to zeroize devices (FIPS) on site level
+// remote_syslog|object|syslog parameters
+// cacerts|list|list of PEM-encoded ca certs
+// device_cert|object|common device cert, optional
+// tags|list|list of tags
+// device_updown_threshold|int|enable threshold-based device down delivery via 1) device-updowns webhooks topic, 2) Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 30, default is 0 (trigger immediate)
+// 
+// #### Automatic Site Assignment
+// Auto Site Assignment can be enabled to automatically assign APs to sites. Once enabled, when an AP in the Org inventory is seen online (e.g. freshly installed), we will try to use the criteria defined to identify the Site Name. Only when a non-empty Site Name is identified and the Site exists, the AP will be assigned to the site.
+// 
+// #### Automatic Device Naming
+// Automatic Device Naming works along with Automatic Site Assignment. When an AP that’s already assigned to a site that has no name, we will try to use the criteria defined to name the device. Only when a non-empty Name is identified and no AP with the same name exists in the same Site, the AP will be assigned the name.
+
+@name("getOrgSettings")
+GET "https://{{host}}/api/v1/orgs/:org_id/setting"
+
+
+// #### Body Parameters
+// See `getOrgSetting` Response Parameters
+
+@name("updateOrgSettings")
+PUT "https://{{host}}/api/v1/orgs/:org_id/setting"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "password_policy": {
+        "enabled": true,
+        "freshness": 60,
+        "min_length": 8,
+        "requires_special_char": false,
+        "requires_two_factor_auth": true
+    },
+    "ui_idle_timeout": 10,
+    "mgmt": {
+        "use_wxtunnel": false,
+        "use_mxtunnel": true,
+        "mxtunnel_ids": [
+            "08cd7499-5841-51c8-e663-fb16b6f3b45e"
+        ]
+    },
+    "disable_pcap": false,
+    "pcap": {
+        "bucket": "myorg-pcap",
+        "max_pkt_len": 128
+    },
+    "pcap_bucket_verified": true,
+    "security": {
+        "disable_local_ssh": false,
+        "limit_ssh_access": false,
+        "fips_zeroize_password": "NUKETHESITE"
+    },
+    "installer": {
+        "grace_period": 14,
+        "extra_site_ids": [
+            "4ac1dcf4-9d8b-7211-65c4-057819f0862b",
+            "52f4347e-3e4b-186c-21ca-ad5b70eb23d6"
+        ],
+        "allow_all_sites": false
+    },
+    "remote_syslog": {
+        "enabled": true,
+        "send_to_all_servers": true,
+        "servers": [
+            {
+                "host": "syslogd.internal",
+                "port": 514,
+                "protocol": "udp",
+                "facility": "config",
+                "severity": "info",
+                "tag": ""
+            }
+        ]
+    },
+    "auto_site_assignment": {
+        "enable": true,
+        "rules": [
+            // use device name (via Installer APIs)
+            {
+                "src": "name",
+                "expression": "[0:3]", // "abcdef" -> "abc"
+                "prefix": "XX-",
+                "suffix": "-YY"
+            },
+            // use subnet
+            {
+                "src": "subnet",
+                "expression": "split(.)[1]", // "a.b.c" -> "b"            
+                "subnet": "10.1.2.0/18",
+                "value": "s1351"
+            },
+            // use LLDP System Name
+            {
+                "src": "lldp_system_name",
+                "expression": "split(-)[1][0:3]" // "a1234-b5678-c90" -> "b56"  
+            },
+            // use DNS Suffix
+            {
+                "src": "dns_suffix",
+                "expression": "..." // same as above
+            },
+            {
+                "src": "model",
+                "model": "AP41",
+                "value": "s1351"
+            }
+        ]
+    },
+    "auto_device_naming": {
+        "enable": true,
+        "rules": [
+            {
+                // use LLDP Port Description
+                "src": "lldp_port_desc",
+                "expression": "..." // same as above
+            }
+        ]
+    },
+    "cloudshark": {
+        "apitoken": "accbd6f10c6d05c3",
+        // if using CS Enteprise
+        "url": "https://cloudshark.hosted.domain"
+    },
+    "auto_deviceprofile_assignment": {
+        "enable": true,
+        "rules": [
+            // same rules definition that can be used for auto_site_assignment
+        ]
+    },
+    "cacerts": [
+        "-----BEGIN CERTIFICATE-----\nMIIFZjCCA06gAwIBAgIIP61/1qm/uDowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----",
+        "-----BEGIN CERTIFICATE-----\nBhMCRVMxFDASBgNVBAoMC1N0YXJ0Q29tIENBMSwwKgYDVn-----END CERTIFICATE-----"
+    ],
+    "device_cert": {
+        "cert": "-----BEGIN CERTIFICATE-----\nMIIFZjCCA06gAwIBAgIIP61/1qm/uDowDQYJKoZIhvcNAQELBQE\n-----END CERTIFICATE-----",
+        "key": "-----BEGIN PRI..."
+    },
+    "tags": [
+        "beta"
+    ],
+    "device_updown_threshold": 0,
+    "mxedge_mgmt": {
+        "mist_password": "MIST_PASSWORD",
+        "root_password": "ROOT_PASSWORD"
+    },
+    "vpn_options": {
+        "st_subnet": "10.254.0.0/16"
+    },
+    "blacklist_url": "https://papi.s3.amazonaws.com/blacklist/xxx..."
+}')
+
+
+// Create an Org by cloning from another one. Org Settings, Templates, Wxlan Tags, Wxlan Tunnels, Wxlan Rules, Org Wlans will be copied. Sites and Site Groups will not be copied, and therefore, the copied template will not be applied to any site/sitegroups.
+
+@name("cloneOrg")
+POST "https://{{host}}/api/v1/orgs/:org_id/clone"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "New Org"
+})
+
+
+// If there is already a blacklist, this API will replace it with the new one. Max number of blacklist clients is 1000.
+// 
+// Retrieve the current blacklisted clients from `blacklist_url` under Org:Setting
+// 
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  macs|array|list of mac addresses to blacklist
+
+@name("createOrgClientsBlocklist")
+POST "https://{{host}}/api/v1/orgs/:org_id/setting/blacklist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "18-65-90-de-f4-c6",
+        "84-89-ad-5d-69-0d"
+    ]
+})
+
+
+@name("deleteOrgClientsBlocklist")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/setting/blacklist"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

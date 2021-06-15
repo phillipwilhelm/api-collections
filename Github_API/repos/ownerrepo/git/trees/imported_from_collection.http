@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+// The tree creation API accepts nested entries. If you specify both a tree and a nested path modifying that tree, this endpoint will overwrite the contents of the tree with the new path contents, and create a new tree structure.
+// 
+// If you use this endpoint to add, delete, or modify the file contents in a tree, you will need to commit the tree and then update a branch to point to the commit. For more information see "[Create a commit](https://docs.github.com/rest/reference/git#create-a-commit)" and "[Update a reference](https://docs.github.com/rest/reference/git#update-a-reference)."
+
+@name("Create a tree")
+POST "https://{{baseUrl}}/repos/:owner/:repo/git/trees"
+"Content-Type": "application/json"
+data('{
+    "tree": [
+        {
+            "path": "<string>",
+            "mode": "<string>",
+            "type": "<string>",
+            "sha": "<string>",
+            "content": "<string>"
+        },
+        {
+            "path": "<string>",
+            "mode": "<string>",
+            "type": "<string>",
+            "sha": "<string>",
+            "content": "<string>"
+        }
+    ],
+    "base_tree": "<string>"
+}')
+
+
+// Returns a single tree using the SHA1 value for that tree.
+// 
+// If `truncated` is `true` in the response then the number of items in the `tree` array exceeded our maximum limit. If you need to fetch more items, use the non-recursive method of fetching trees, and fetch one sub-tree at a time.
+
+@name("Get a tree")
+GET "https://{{baseUrl}}/repos/:owner/:repo/git/trees/:tree_sha"
+? "recursive"= "<string>"
+
+
+

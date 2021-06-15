@@ -1,0 +1,125 @@
+#!/usr/bin/env dothttp
+
+// https://www.digicert.com/services/v2/documentation/order/order-ssl-determinator
+// 
+// The endpoint is used to request SSL certificates.
+// The org_id should match an Organization from the "Get Organizations List" endpoint which is validated at the same level as the value being passed in for cert_type. 
+// cert_type should be one of these values:
+// ov, ev, or private
+
+@name("Request SSL Certificate using Product Determinator")
+POST "https://{{url}}/order/certificate/ssl"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "certificate": {
+    "common_name": "{{domain_name}}",
+    "dns_names": [
+      "{{san_1}}",
+      "{{san_2}}"
+    ],
+    "csr": "{{csr}}",
+    "signature_hash": "{{sig_hash}}"
+  },
+  "organization": {
+    "id": {{org_id}}
+  },
+  "validity_years": {{validity_years}},
+  "comments": "{{note}}",
+  "product":{
+  	"type_hint": "{{cert_type}}"
+  },
+  "disable_issuance_email":{{no_issuance_email_bool}},
+  "disable_renewal_notifications":{{no_renewal_email_bool}}
+}')
+
+
+// https://www.digicert.com/services/v2/documentation/order/order-ssl-determinator
+// 
+// The endpoint is used to request SSL certificates.
+// The org_id should match an Organization from the "Get Organizations List" endpoint which is validated at the same level as the value being passed in for cert_type. 
+// cert_type should be one of these values:
+// ov, ev, or private
+
+@name("Request EV SSL Certificate with a new Organization using Product Determinator")
+POST "https://{{url}}/order/certificate/ssl"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "certificate": {
+    "common_name": "{{domain_name}}",
+    "dns_names": [
+      "{{san_1}}",
+      "{{san_2}}"
+    ],
+    "csr": "{{csr}}",
+    "server_platform": {
+      "id": "-1"
+    },
+    "organization_units": [
+    	""
+    ],
+    "signature_hash": "sha256"
+	},
+	"organization": {
+		"name": "{{org_name}}",
+		"assumed_name": "{{org_assumed_name}}",
+		"address": "{{org_address_1}}",
+		"address2": "{{org_address_2}}",
+		"zip": {{org_postal}},
+		"city": "{{org_city}}",
+		"state": "{{org_state}}",
+		"country": "{{org_country}}",
+		"telephone": {{org_telephone}},
+		"contacts": [
+				{
+				"contact_type": "organization_contact",
+				"first_name": "{{org_contact_first_name}}",
+				"last_name": "{{org_contact_last_name}}",
+				"email": "{{org_contact_email}}",
+				"job_title": "{{org_contact_job_title}}",
+				"telephone": {{org_contact_telephone}},
+				"telephone_extension": {{org_contact_telephone_extension}}
+				},
+				{
+				"contact_type": "tech_contact",
+				"first_name": "{{tech_contact_first_name}}",
+				"last_name": "{{tech_contact_last_name}}",
+				"email": "{{tech_contact_email}}",
+				"job_title": "{{tech_contact_job_title}}",
+				"telephone": {{tech_contact_telephone}},
+				"telephone_extension": {{tech_contact_telephone_extension}}
+				},
+				{
+				"contact_type": "ev_approver",
+				"user_id": {{ev_approver_user_id}},
+				"job_title": "{{ev_approver_job_title}}",
+				"telephone": {{ev_approver_telephone}},
+				"telephone_extension": {{ev_approver_telephone_extension}}
+				},
+				{
+				"contact_type": "ev_approver",
+				"first_name": "{{ev_approver_first_name}}",
+				"last_name": "{{ev_approver_last_name}}",
+				"email": "{{ev_approver_email}}",
+				"job_title": "{{ev_approver_job_title}}",
+				"telephone": {{ev_approver_telephone}},
+				"telephone_extension": {{ev_approver_telephone_extension}}
+				},	
+				{
+				"contact_type": "ev_approver",
+				"user_id": {{ev_approver_user_id}}
+				}
+			]
+		},
+  "validity_years": 1,
+  "comments": "{{note}}",
+  "disable_issuance_email":true,
+  "disable_renewal_notifications":true,
+  "skip_approval":true
+}')
+
+
+

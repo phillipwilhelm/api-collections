@@ -1,0 +1,188 @@
+#!/usr/bin/env dothttp
+
+// # Ending Shots
+// ---
+// 
+// Report ending shots to an existing jobbed-on production transaction.
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the jobbed on production record you're updating.
+// 
+// **Shots** - Type *integer* **:**
+// The number of shots to report as the ending shots of a job.
+
+@name("/EndingShots")
+POST "https://{{ServerPath}}/Production/EndingShots"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "UniqueID": "",
+  "Shots": "",
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+// # Hourly Punch
+// ---
+// 
+// Perform an hourly punch against an existing jobbed-on production transaction.
+// In order to use this method, you must be authorized for both the Odyssey API module and the Production Interface module
+// 
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// Unique ID of the jobbed-on production transaction that will be updated with an hourly punch
+// 
+// **TimeSlot** - Type *integer* **:**
+// Optional timeslot to apply the production shots or quantity to.
+// 
+// **Shots** - Type *integer* **:**
+// Optional number of shots to report. If specified, quantity will be updated based on the current product number-on.
+// 
+// **Quantity** - Type *integer* **:**
+// Optional number of pieces to report. If Shots is specified, Quantity is ignored.
+// 
+// **ScrapQty** - Type *integer* **:**
+// Optional number of pieces to report as scrap.
+// 
+// **ReasonCode** - Type *String* **:**
+// If reporting scrap quantity, this is the reason code for the 34 transaction.
+// 
+// **Date** - Type *String* **:**
+// Optional date that the hourly punch is being reported for. This must be in MMDDYYYY format. If not specified, the current system date will be used.
+// 
+// **Time** - Type *String* **:**
+// Optional time that the hourly punch is being reported for. This must be in military time with a HHMMSS format. If not specified, the current system time will be used.
+// 
+// # Response
+// ---
+// 
+// **Success** - Type *boolean* **:**
+// Returns true if the request was successful.
+// 
+// **ErrorMessage** - Type *string* **:**
+// The error message that was returned by the system, if any was present.
+// 
+// **JobOnUniqueID** - Type *integer* **:**
+// The UniqueID of the ProductionTran record that was created for the next jobbed-on record, if this HourlyPunch submission was successful
+// 
+// **Attempted** - Type *integer* **:**
+// If your HourlyPunch parameters were entered, this value should always be 1, to indicate that the system attempted to job on with a single record.
+// 
+// **Successful** - Type *integer* **:**
+// If your HourlyPunch on was successful, this value should be 1. Otherwise, 0 indicates that the HourlyPunch was not successful.
+// 
+// **Logging** - Type *Collection of `EntryLogging`* **:**
+// If an error message was generated during this job on operation, this will contain one entry for the error that was generated from your production record.
+//   
+// An `EntryLogging` object contains the following fields:
+// -  **ErrorType** - Type *string* **:** - The type of error generated from your production record
+// -  **TextString** - Type *string* **:** - The content of the error that was generated
+// -  **LineNumber** - Type *string* **:** - The line number associated with this error, if one exists
+
+@name("/HourlyPunch")
+POST "https://{{ServerPath}}/Production/HourlyPunch"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "UniqueID": "",
+  "TimeSlot": "",
+  "Shots": "",
+  "Qty": "",
+  "ScrapQty": "",
+  "ReasonCode": "",
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+// # Job Off
+// ---
+// The /Production/JobOff endpoint allows you to "job off" an employee from a job.
+// 
+// In order to use this method, you must be authorized for both the Odyssey API module and the Production Interface module
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the ProductionTran record you're jobbing off.
+// 
+// **Qty** - Type *integer* **:**
+// The Quantity being reported for this transaction. Leave as 0 or omit this property if reporting Shots instead of Quantity.
+// 
+// **Shots** - Type *integer* **:**
+// The Shots being reported for this transaction. Leave as 0 or omit this property if reporting Quantity instead of Shots.
+// 
+// **Date** - Type *string* **:**
+// The optional Date that the employee is jobbing off. (MMDDYYYY)
+// 
+// **Time** - Type *string* **:**
+// The optional Military Time that the employee is jobbing off. (HHMMSS)
+// 
+// # Response
+// ---
+// 
+// **Success** - Type *boolean* **:**
+// Returns true if there were no errors generated during the processing of your JobOff request.
+// 
+// **ErrorMessage** - Type *string* **:**
+// The error message that was returned by the system, if any was present.
+// 
+// **Attempted** - Type *integer* **:**
+// The number of production records that were attempted to be processed. For this JobOff endpoint, this value should always be 1.
+// 
+// **Successful** - Type *integer* **:**
+// The number of production records that were successfully processed. For this JobOff endpoint, this value should always be 1 when successful, and 0 when not successful.
+// 
+// **Logging** - Type *Collection of `EntryLogging`* **:**
+// If errors were generated during the processing of your JobOff request, this collection of errors will contain an entry for each error.
+//   
+// An `EntryLogging` object contains the following fields:
+// -  **ErrorType** - Type *string* **:** - The type of error generated from your production record
+// -  **TextString** - Type *string* **:** - The content of the error that was generated
+// -  **LineNumber** - Type *string* **:** - The line number associated with this error, if one exists
+
+@name("/JobOff")
+POST "https://{{ServerPath}}/Production/JobOff"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "UniqueID": "",
+  "Date": "",
+  "Time": "",
+  "Qty": "",
+  "Shots": ""
+}')
+
+
+// # Starting Shots
+// ---
+// 
+// Report starting shots to an existing jobbed-on production transaction.
+// 
+// # Parameters
+// ---
+// 
+// **UniqueID** - Type *integer* **:**
+// The UniqueID of the jobbed on production record you're updating.
+// 
+// **Shots** - Type *integer* **:**
+// The number of shots to report as the starting shots of a job.
+
+@name("/StartingShots")
+POST "https://{{ServerPath}}/Production/StartingShots"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "UniqueID": "",
+  "Shots": "",
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+

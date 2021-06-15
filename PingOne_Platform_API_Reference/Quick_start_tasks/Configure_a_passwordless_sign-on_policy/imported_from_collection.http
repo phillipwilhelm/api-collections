@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+// You can use the `POST /environments/{environmentId}/signOnPolicies` endpoint to create the new sign-on policy. In the request, the `name` property is required and must be unique within the environment. The `description` property is optional, but recommended.
+// 
+// The response shows the property data for the new sign-on policy. It includes an `actions` HAL link to the sign-on policy actions endpoint, which is used to assign an action to the new sign-on policy. The policy must have at least one associated action before it can be assigned to an application.
+// 
+
+@name("Step 1: Create the new sign-on policy")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "Passwordless",
+  "description": "A passwordless sign-on policy."
+}')
+
+
+// The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates the new sign-on policy action resource, which is associated with the sign-on policy (`{policyId}`) specified in the request URL.
+// 
+// PingOne supports several sign-on policy action types:
+// 
+// * `LOGIN`
+// 
+//   Basic authentication that prompts for a username and password.
+// 
+// * `MULTI_FACTOR_AUTHENTICATION`
+// 
+//   An authentication method that prompts users to enter a one-time password received on a registered device or accept a push confirmation on a registered mobile device.
+// 
+// * `IDENTIFIER_FIRST`
+// 
+//   An action used to identify the user by username and determine the applicable authentication methods for this user.
+// 
+// * `PROGRESSIVE_PROFILING`
+// 
+//   An action to prompt users to provide additional data at sign on. This action type does not authenticate users. It is used only to obtain additional profile data.
+// 
+// 
+// To initiate a "passwordless" login flow, the `type` property for the action resource associated with the sign-on policy must be set to `MULTI_FACTOR_AUTHENTICATION`. You are creating a multi-factor action that validates the username and prompts users to enter a one-time password or accept a push confirmation.
+// 
+// 
+
+@name("Step 2: Create the sign-on policy action")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "priority": 2,
+    "type": "MULTI_FACTOR_AUTHENTICATION",
+	  "sms": {
+        "enabled": true
+    },
+    "email": {
+        "enabled": true
+    }
+}')
+
+
+// To use the new sign-on policy, the `POST /environments/{environmentId}/applications/{applicationId}/signOnPolicyAssignments` operation assigns the new "passwordless" sign-on policy to the application specified by its ID in the request URL. The request body requires the sign-on policy property `id` and an integer value for the `priority` property.
+// 
+// 
+// 
+// ::: info
+// **Note:** If an application's sign-on policy assignments include only one policy, such as the `Passwordless` sign-on policy, then the application uses only that sign-on policy. If the application has multiple assigned sign-on policies, it uses uses sign-on policies by priority (in ascending order). If an authorization request specifies the `Passwordless` sign-on policy in the `acr_values` property, then the application uses only the `Passwordless` sign-on policy. When `acr_values` are specified in the authorization request, the sign-on policy (or policies) specified must be assigned to the application.
+// :::
+// 
+
+@name("Step 3: Assign the sign-on policy to an application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "signOnPolicy": {
+      "id": "5edef002-3f1f-4e00-a4db-130807f41234"
+    },
+    "priority": 2
+}')
+
+
+

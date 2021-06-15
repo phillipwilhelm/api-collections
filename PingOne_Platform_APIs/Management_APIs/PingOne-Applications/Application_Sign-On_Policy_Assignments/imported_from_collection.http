@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+// #### Sign-on Policy Assignment Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// priority | Y | Y | Integer (1 - {maxInt}) | Unless otherwise specified (e.g. by using the `acr_values` parameter), (Sign-on) Policies will be evaluated from lowest -> highest `priority`. Ties broken with (SOP) `id`.
+// signOnPolicy | | | Array | A list of objects that reference the SOPs that may be used for authentication.
+// --id | Y | N | UUID | 
+
+@name("CREATE SOP Assignment")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
+"Content-Type": "application/json"
+data('{
+    "priority": 1,
+    "signOnPolicy": {
+    	"id": "{{policyID}}"
+    }
+}')
+
+
+@name("READ All SOP Assignments")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
+
+
+@name("READ One SOP Assignment")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments/{{SOPAssignmentID}}"
+
+
+// "signOnPolicy": "id" -> must be included and match current value
+// 
+// See `CREATE` request for data model.
+
+@name("UPDATE SOP Assignment")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments/{{SOPAssignmentID}}"
+"Content-Type": "application/json"
+data('{
+    "priority": 5,
+    "signOnPolicy": {
+    	"id": "{{policyID}}"
+    }
+}')
+
+
+@name("DELETE SOP Assignment")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments/{{SOPAssignmentID}}"
+
+
+
+

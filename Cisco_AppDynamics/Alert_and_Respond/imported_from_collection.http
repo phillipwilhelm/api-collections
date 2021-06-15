@@ -1,0 +1,293 @@
+#!/usr/bin/env dothttp
+
+@name("Get health rules")
+GET "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/health-rules"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Get specific health rule")
+GET "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/health-rules/21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Update health rule (disable)")
+PUT "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/health-rules/21"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "id": 21,
+    "name": "Business Transaction Health",
+    "enabled": false,
+    "useDataFromLastNMinutes": 30,
+    "waitTimeAfterViolation": 30,
+    "scheduleName": "Always",
+    "affects": {
+        "affectedEntityType": "BUSINESS_TRANSACTION_PERFORMANCE",
+        "affectedBusinessTransactions": {
+            "businessTransactionScope": "ALL_BUSINESS_TRANSACTIONS"
+        }
+    },
+    "evalCriterias": {
+        "criticalCriteria": {
+            "conditionAggregationType": "CUSTOM",
+            "conditionExpression": "(A AND B) OR (C AND D AND E)",
+            "conditions": [
+                {
+                    "name": "Average Response Time (ms) Baseline Condition",
+                    "shortName": "A",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Average Response Time (ms)",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "BASELINE_TYPE",
+                            "baselineCondition": "GREATER_THAN_BASELINE",
+                            "baselineName": "Default Baseline",
+                            "compareValue": 3,
+                            "baselineUnit": "STANDARD_DEVIATIONS"
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Calls per Minute Condition",
+                    "shortName": "B",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Calls per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 50
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Calls per Minute Condition",
+                    "shortName": "E",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Calls per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 50
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Errors per Minute Condition",
+                    "shortName": "D",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "SUM",
+                        "metricPath": "Errors per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 10
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Errors per Minute Baseline Condition",
+                    "shortName": "C",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Errors per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "BASELINE_TYPE",
+                            "baselineCondition": "GREATER_THAN_BASELINE",
+                            "baselineName": "Default Baseline",
+                            "compareValue": 3,
+                            "baselineUnit": "STANDARD_DEVIATIONS"
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                }
+            ],
+            "evalMatchingCriteria": {
+                "matchType": "AVERAGE",
+                "value": null
+            }
+        },
+        "warningCriteria": {
+            "conditionAggregationType": "CUSTOM",
+            "conditionExpression": "(A AND B) OR (C AND D AND E)",
+            "conditions": [
+                {
+                    "name": "Average Response Time (ms) Baseline Condition",
+                    "shortName": "A",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Average Response Time (ms)",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "BASELINE_TYPE",
+                            "baselineCondition": "GREATER_THAN_BASELINE",
+                            "baselineName": "Default Baseline",
+                            "compareValue": 2,
+                            "baselineUnit": "STANDARD_DEVIATIONS"
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Calls per Minute Condition",
+                    "shortName": "B",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Calls per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 100
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Calls per Minute Condition",
+                    "shortName": "E",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Calls per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 50
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Errors per Minute Condition",
+                    "shortName": "D",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "SUM",
+                        "metricPath": "Errors per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "SPECIFIC_TYPE",
+                            "compareCondition": "GREATER_THAN_SPECIFIC_VALUE",
+                            "compareValue": 5
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                },
+                {
+                    "name": "Errors per Minute Baseline Condition",
+                    "shortName": "C",
+                    "evaluateToTrueOnNoData": false,
+                    "evalDetail": {
+                        "evalDetailType": "SINGLE_METRIC",
+                        "metricAggregateFunction": "VALUE",
+                        "metricPath": "Errors per Minute",
+                        "metricEvalDetail": {
+                            "metricEvalDetailType": "BASELINE_TYPE",
+                            "baselineCondition": "GREATER_THAN_BASELINE",
+                            "baselineName": "Default Baseline",
+                            "compareValue": 2,
+                            "baselineUnit": "STANDARD_DEVIATIONS"
+                        }
+                    },
+                    "triggerEnabled": false,
+                    "minimumTriggers": 0
+                }
+            ],
+            "evalMatchingCriteria": {
+                "matchType": "AVERAGE",
+                "value": null
+            }
+        }
+    }
+}')
+
+
+@name("Get policies")
+GET "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/policies"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Create policy")
+POST "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/policies"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "id": 2,
+    "name": "njrusmc",
+    "enabled": true,
+    "executeActionsInBatch": true,
+    "actions": [
+        {
+            "actionName": "njrusmc@gmail.com",
+            "actionType": "EMAIL",
+            "notes": "a bad thing happened"
+        }
+    ],
+    "events": {
+        "healthRuleEvents": {
+            "healthRuleEventTypes": [
+                "HEALTH_RULE_OPEN_CRITICAL",
+                "HEALTH_RULE_CLOSE_CRITICAL"
+            ],
+            "healthRuleScope": {
+                "healthRuleScopeType": "ALL_HEALTH_RULES"
+            }
+        },
+        "otherEvents": [
+            "APPLICATION_CRASH",
+            "VERY_SLOW",
+            "APPLICATION_DISCOVERED"
+        ],
+        "anomalyEvents": null,
+        "customEvents": []
+    },
+    "selectedEntities": {
+        "selectedEntityType": "ANY_ENTITY"
+    }
+}')
+
+
+@name("Get specific policy")
+GET "{{protocol}}://{{appd}}/controller/alerting/rest/v1/applications/6/policies/3"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+

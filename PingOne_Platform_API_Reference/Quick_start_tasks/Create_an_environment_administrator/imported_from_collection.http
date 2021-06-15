@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// You can use the `GET /environments` endpoint to retrieve all environment resources associated with your organization.
+// 
+// The response data returns information about every environment referenced by your organization. For each environment resource, the data contains HAL links for related resources as well as the properties for the environment. The `id` property identifies the UUID for the environment resource. The response data shows the environment resources associated with this organization.
+
+@name("Step 1: Get the Environment ID")
+GET "https://{{apiPath}}/environments"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// Before you create a user resource and assign administrator privileges to the user, you must create a population resource to associate with the user. You need the environment `id` property value returned in Step 1 to specify the environment resource in the request URL to create the population.
+// 
+// 
+// The `POST /environments/{environmentId}/populations/` creates a new population resource in the specified environment. The request body for the `POST` must provide a value for the required `name` property.
+
+@name("Step 2: Create a Population")
+POST "https://{{apiPath}}/environments/{{envID}}/populations"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "Administrators",
+    "description": "Population for environment admins"
+}')
+
+
+// Use the population `id` returned in Step 2 to create a new user resource, which is associated with the `Administrators` population.
+// 
+// The request body for the `POST` to create the new user must provide values for these required properties:
+// 
+// * `email`
+// 
+//   The unique email address for the new user.
+// 
+// *  `username`
+// 
+//   A name for the new user that must be unique within the specified environment.
+// 
+// *  `population.id`
+// 
+//   The population to associate with the new user resource.
+// 
+// 
+// The `POST /environments/{environmentId}/users` operation creates the new user resource in the specified environment. The user is associated with a population identified by the population `id` generated in Step 2. The request URL specifies the environment `id` generated in Step 1.
+// 
+// 
+// The request body specifies values for the `username`, `email`, and `population` properties.
+
+@name("Step 3: Create the User")
+POST "https://{{apiPath}}/environments/{{envID}}/users"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "email": "gracepotter@example.com",
+    "name": {
+        "given": "Grace",
+        "family": "Potter"
+    },
+    "population": {
+        "id": "57f237fa-7de7-49b5-a769-f516983d36dc"
+    },
+    "username": "gracepotter"
+}')
+
+
+// The permissions service provides functions to get role IDs and assign roles to users. To assign a role (and its corresponding permissions) to a user, you must get the role's `id`.
+// 
+// The `GET /roles` operation returns each platform role, its `id`, `name`, and `description`. It also lists all permissions associated with the role.
+// 
+// 
+// The response data returned for the `GET` request displays a list of role resources. Make a note of the Environment Admin role ID, which is the one to associated with the new user.
+
+@name("Step 4: Get Roles")
+GET "https://{{apiPath}}/roles"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// After retrieving all the platform role IDs from the `GET /roles` request, you can use the `POST /environments/{environmentId}/users/{userId}/roleAssignments` operation to assign the Environment Admin role to the new user (actor). The request URL specifies the actor’s environment ID, actor type, and actor ID.
+// 
+// 
+// In the request body, the `role` attribute specifies the ID of the role assigned to the actor. In this case, the assigned role is the Environment Admin role. The `scope` attribute provides the resource ID and resource type to designate the role assignment scope associated with this actor. In this case, the role `type` is `ENVIRONMENT` and the `id` attribute specifies the ID of the scope resource.
+// 
+// To assign this actor the Identity Data Admin role so that the new administrator can add and manage user resources within the scope of this environment, you can perform the same operation, but in this request you specify the ID for the Identity Data Admin role. The `scope` attribute is exactly the same.
+
+@name("Step 5: Assign Roles to a User")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/roleAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "role": {
+        "id": "29ddce68-cd7f-4b2a-b6fc-f7a19553b496"
+    },
+    "scope": {
+        "id": "{{envID}}",
+        "type": "ENVIRONMENT"
+    }
+}')
+
+
+

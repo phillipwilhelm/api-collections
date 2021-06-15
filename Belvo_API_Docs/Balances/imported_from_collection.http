@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of all existing balances in your Belvo account. We return up to 100 results per page.
+
+@name("List")
+GET "https://{{baseUrl}}/api/balances/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+? "page"= "1"
+
+
+// Retrieve balances from one or more accounts for a specific link within a specified date range.
+
+@name("Retrieve")
+POST "https://{{baseUrl}}/api/balances/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "date_from": "1950-10-08",
+    "date_to": "1998-12-26",
+    "link": "2ccd5e15-194a-4a19-a45a-e7223c7e6717",
+    "token": "1234ab",
+    "save_data": true,
+    "account": "d4617561-1c01-4b2f-83b6-a594f7b3bc57"
+}')
+
+
+// Used to resume a Balance retrieve session that was paused because an MFA token was required by the institution.
+
+@name("Resume")
+PATCH "https://{{baseUrl}}/api/balances/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "session": "39cd6a88-8ee3-4e59-a861-b8a2187e0f4c",
+    "token": "1234ab",
+    "link": "683005d6-f45c-4adb-b289-f1a12f50f80c",
+    "save_data": true
+}')
+
+
+// Get the details of a specific balance.
+
+@name("Detail")
+GET "https://{{baseUrl}}/api/balances/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+// Delete a specific balance from your Belvo account.
+
+@name("Destroy")
+DELETE "https://{{baseUrl}}/api/balances/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+

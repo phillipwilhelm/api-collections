@@ -1,0 +1,73 @@
+#!/usr/bin/env dothttp
+
+@name("getSiteWxlanTags")
+GET "https://{{host}}/api/v1/sites/:site_id/wxtags"
+
+
+@name("getSiteWxlanTagDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/wxtags/:wxtag_id"
+
+
+// #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|the name
+//  type|string|match / client / resource / subnet
+//  match|string|type of match, wlan_id / ap_id / client_mac / ip_range_subnet / radius_group / radius_username / radius_attr / hostname / app / port / psk_name / psk_role
+//  op|string|in / not_in, default is in
+//  values|list|list of values to match
+// 
+// * type:
+//  * client: created manually (e.g. on wireless client table, when they spot a device of interest, they can create an wxlan tag for it
+//  * resource: created automatically when we discover a network resource
+//  * subnet: create automatically when a subnet is discovered
+// * match:
+//  * wlan_id, ap_id: values are a list of Wlan / Device ids
+//  * client_mac: values are a list of MAC addresses
+// * radius_group: this is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)
+// * radius_username: this matches the ATTR-User-Name(1)
+// * radius_class: thie matches the ATTR-Class(25)
+// * radius_attr: the values are [ “6=1”, “26=10.2.3.4” ], this support other RADIUS attributes where we know the type
+// * radius_vendor: the values are [ “14179.10=1”, “14178.16=1.2.3.4” ], this matches vendor attributes and will be dynamically evaluated
+
+@name("createSiteWxlan")
+POST "https://{{host}}/api/v1/sites/:site_id/wxtags"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "type": "match",
+    "name": "VIP",
+    "match": "radius_group",
+    "values": [
+        "vip"
+    ]
+})
+
+
+@name("editSiteWxlan")
+PUT "https://{{host}}/api/v1/sites/:site_id/wxtags/:wxtag_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "conference room"
+})
+
+
+@name("deleteSiteWxlan")
+DELETE "https://{{host}}/api/v1/sites/:site_id/wxtags/:wxtag_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+@name("getSiteApplicationList")
+GET "https://{{host}}/api/v1/sites/:site_id/wxtags/apps"
+
+
+@name("getSiteCurrentMatchingClientsOfAWxlanTag")
+GET "https://{{host}}/api/v1/sites/:site_id/wxtags/:wxtag_id/clients"
+
+
+

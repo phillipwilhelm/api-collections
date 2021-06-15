@@ -1,0 +1,126 @@
+#!/usr/bin/env dothttp
+
+// This example adds a new **Product** entity to the context.
+// 
+// New entities can be added by making a POST request to the `/v2/entities/` endpoint.
+// 
+// The request will **fail** if any of the attributes already exist in the context.
+// 
+// Any entity must have a `id` and `type` attributes, each additional attributes are optional 
+// and will depend on the system being described. Each additional attribute should also have a 
+// defined `type` and a `value` attribute. The product has been assigned a unique `id` following
+// the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+// 
+// ---
+// Subsequent requests using the same `id` will result in an error response.
+
+@name("Create a New Data Entity")
+POST "http://{{orion}}/v2/entities/"
+"Content-Type": "application/json"
+data(' {
+      "id":"urn:ngsi-ld:Product:010", "type":"Product",
+      "name":{"type":"Text", "value":"Lemonade"},
+      "size":{"type":"Text", "value": "S"},
+      "price":{"type":"Integer", "value": 99}
+}')
+
+
+// This example adds a new `specialOffer` attribute to the existing **Product** entity with `id=urn:ngsi-ld:Product:001`
+// 
+// New attributes can be added by making a POST request to the `/v2/entities/<entity>/attrs` endpoint. 
+// 
+// The payload should consist of a JSON object holding the attribute names and values as shown. 
+// 
+// If no `type` is specified a default `type` (`Boolean`, `Text` or `Number` or `StructuredValue`) will be assigned.
+// 
+// ---
+// Subsequent requests using the same `id` will update the value of the attribute in the context
+
+@name("Create a New Attribute")
+POST "http://{{orion}}/v2/entities/urn:ngsi-ld:Product:001/attrs"
+"Content-Type": "application/json"
+data('{
+      "specialOffer":{"value": true}
+}')
+
+
+// This example uses the convenience batch processing endpoint to add two new **Product** entities and one new attribute (`offerPrice`)
+// to the context. 
+// 
+// The request will **fail** if any of the attributes already exist in the context.
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes
+// * `actionType=append_strict` means that the request only succeed if all entities / attributes are new.
+// * The `entities` attribute holds an array of entities we wish to create.
+// 
+// Each product has a unique `id` following the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+// 
+// ---
+// Subsequent requests using the same data with the `actionType=append_strict` batch operation will result in an error response.
+
+@name("Batch Create New Data Entities or Attributes")
+POST "http://{{orion}}/v2/op/update/"
+"Content-Type": "application/json"
+data('{
+  "actionType":"append_strict",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:011", "type":"Product",
+      "name":{"type":"Text", "value":"Brandy"},
+      "size":{"type":"Text", "value": "M"},
+      "price":{"type":"Integer", "value": 1199}
+    },
+    {
+      "id":"urn:ngsi-ld:Product:012", "type":"Product",
+      "name":{"type":"Text", "value":"Port"},
+      "size":{"type":"Text", "value": "M"},
+      "price":{"type":"Integer", "value": 1099}
+    },
+    {
+      "id":"urn:ngsi-ld:Product:001", "type":"Product",
+      "offerPrice":{"type":"Integer", "value": 89}
+    }
+  ]
+}')
+
+
+// This example uses the convenience batch processing endpoint to add or amend two **Product** entities and one attribute (`offerPrice`) to the context.
+// 
+// -   `actionType=append` means we will overwrite existing entities if they exist
+// -   The entities attribute holds an array of entities we wish to
+//     create/overwrite.
+// 
+// A subsequent request containing the same data (i.e. same entities and `actionType=append`)
+// won't change the context state.
+// 
+// 
+// 
+// Batch processing uses the `/v2/op/update` endpoint with a payload with two attributes:
+// * `actionType=append` means we will overwrite existing entities if they exist
+// * The `entities` attribute holds an array of entities we wish to create/overwrite.
+// 
+// Each product has a unique `id` following the NGSI-LD  [draft recommendation](https://docbox.etsi.org/ISG/CIM/Open/ISG_CIM_NGSI-LD_API_Draft_for_public_review.pdf)  and has been assigned `type=Product`.
+
+@name("Batch Create/Overwrite New Data Entities")
+POST "http://{{orion}}/v2/op/update/"
+"Content-Type": "application/json"
+data('{
+  "actionType":"append",
+  "entities":[
+    {
+      "id":"urn:ngsi-ld:Product:011", "type":"Product",
+      "name":{"type":"Text", "value":"Brandy"},
+      "size":{"type":"Text", "value": "M"},
+      "price":{"type":"Integer", "value": 1199}
+    },
+    {
+      "id":"urn:ngsi-ld:Product:012", "type":"Product",
+      "name":{"type":"Text", "value":"Port"},
+      "size":{"type":"Text", "value": "M"},
+      "price":{"type":"Integer", "value": 1099}
+    }
+  ]
+}')
+
+
+

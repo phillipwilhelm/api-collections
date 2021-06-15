@@ -1,0 +1,188 @@
+#!/usr/bin/env dothttp
+
+@name("/research/marketDate")
+GET "https://{{url}}/api/research/marketDate"
+
+
+// Returns a list of known markets:
+// 
+// ```javascript
+// [
+//   {
+//     "market": "AU",
+//     "country": "AUS",
+//     "currency": "AUD",
+//     "primary": false
+//   },
+//   {
+//     "market": "U",
+//     "country": "USA",
+//     "currency": "USD",
+//     "primary": true
+//   }
+// ]
+// ```
+
+@name("/research/dates/markets")
+GET "https://{{url}}/api/research/dates/markets"
+
+
+// Returns last known date of the market
+// 
+// ```javascript
+// {
+//   "date": "09/24/2018 00:00:00 EDT",
+//   "closing": "09/24/2018 16:00:00 EDT",
+//   "timezone": "America/New_York",
+//   "currentlyOpen": false,
+//   "opens": 9.5,
+//   "opening": "09/24/2018 09:30:00 EDT",
+//   "closes": 16
+// }
+// ```
+
+@name("/research/dates/lastOpen")
+GET "https://{{url}}/api/research/dates/lastOpen"
+? "market"= "U"
+
+
+// Checks whether given data and/or market is known. Will return `204` if date is not known (aka invalid).
+// 
+// ```javascript
+// {
+//   "date": "09/24/2018 00:00:00 EDT",
+//   "closing": "09/24/2018 16:00:00 EDT",
+//   "timezone": "America/New_York",
+//   "currentlyOpen": false,
+//   "opens": 9.5,
+//   "opening": "09/24/2018 09:30:00 EDT",
+//   "closes": 16
+// }
+// ```
+
+@name("/research/dates/check")
+GET "https://{{url}}/api/research/dates/lastOpen"
+? "market"= "U"
+? "date"= "9/24/2018"
+
+
+// Returns information for advisory firm:
+// 
+// ```javascript
+// {
+// 	name: 'RoboAdvisors',
+// 	description: 'AI robo advisory',
+// 	url: 'https://advisory.ai',
+// 	street: '123 Main St\n50th floor',
+// 	city: 'Central City',
+// 	state: 'CS',
+// 	zip: 'HBY T4Y',
+// 	country: 'USA',
+// 	phone: '123.456.7890\n987.654.3210\n258.147.3690'
+// }
+// ```
+
+@name("/v2/advisory/info")
+GET "https://{{url}}/api/v2/advisory/info"
+
+
+// Allows to update information
+
+@name("/v2/advisory/info/update")
+POST "https://{{url}}/api/v2/advisory/info/update"
+"Content-Type": "application/json"
+data("{
+	name: 'RoboAdvisors',
+	description: 'AI robo advisory',
+	url: 'https://advisory.ai',
+	street: '123 Main St\n50th floor',
+	city: 'Central City',
+	state: 'CS',
+	zip: 'HBY T4Y',
+	country: 'USA',
+	phone: '123.456.7890\n987.654.3210\n258.147.3690'
+}")
+
+
+// Avatar upload for the user.
+
+@name("/v1/files/user/avatar/upload")
+POST "https://{{url}}/api/v1/files/user/avatar/upload"
+"Content-Type": "application/json"
+data("{
+	contents: '<base64 encoded file contents>',
+	filename: 'image1.png'
+}")
+
+
+// Uploads file into the system. File belongs to the user that uploaded it. Both `tag` and `id` must be provided. `id` is an arbitrary numerical number that uniquely identifies file within `tag` universe. `avatar` tag bears special meaning and should be avoided for files purposes.
+
+@name("/v1/files/upload")
+POST "https://{{url}}/api/v1/files/upload"
+"Content-Type": "application/json"
+data("{
+	contents: '<base64 encoded file contents>',
+	filename: 'document.docx',
+	tag: 'documents',
+	id: 1234
+}")
+
+
+// Avatar upload for the user.
+
+@name("/v1/files/upload/avatar/{userId}")
+POST "https://{{url}}/api/v1/files/upload/avatar/{userId}"
+"Content-Type": "application/json"
+data("{
+	contents: '<base64 encoded file contents>',
+	filename: 'image1.png'
+}")
+
+
+// Returns avatar from previous upload
+
+@name("/v1/files/user/avatar")
+GET "https://{{url}}/api/v1/files/user/avatar"
+
+
+// Returns avatar from previous upload for requested `userId`
+
+@name("/v1/files/{userId}/avatar")
+GET "https://{{url}}/api/v1/files/{userId}/avatar"
+
+
+// Returns binary contents of the file identified by `tag` & `id`
+
+@name("/v1/files/download/{tag}/{id}")
+GET "https://{{url}}/api/v1/files/download/{tag}/{id}"
+
+
+// Lists files available for current user:
+// 
+// ```javascript
+// [
+// 	{id: 1234, filename: 'document.docx', tag: 'documents'}
+// ]
+// ```
+
+@name("/v1/files/list")
+GET "https://{{url}}/api/v1/files/list"
+? "tag"= "document*"
+? "filename"= "application*"
+
+
+// Lists supported file extensions: `['jpg', 'png', 'docx']`
+
+@name("/v1/files/allowed/exts")
+GET "https://{{url}}/api/v1/files/allowed/exts"
+
+
+@name("Error code listing")
+GET "https://{{url}}/api/general/errors"
+
+
+@name("Ping Copy")
+GET "https://{{url}}/api/general/ping"
+
+
+

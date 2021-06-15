@@ -1,0 +1,77 @@
+#!/usr/bin/env dothttp
+
+// Vous devez utiliser l'onglet Pre-request Script dans Postman pour remplir la variable xml. Cette variable contient le payload NeTEx correctement échappé.
+// Un exemple se trouve ci-dessous : 
+// 
+// ```javascript
+// var xml = JSON.stringify('<StopPlace dataSourceRef="FR1-ARRET_AUTO" version="880901" created="2014-12-28T23:00:00Z" changed="2018-08-29T19:53:22Z" id="webhook-1">\
+//   <Name>Webhook Test</Name>\
+//   <Centroid>\
+//   <Location>\
+//     <gml:pos srsName="EPSG:2154">626874.5 6856185.5</gml:pos>\
+//   </Location>\
+//   </Centroid>\
+//   <PostalAddress version="any" id="FR1:PostalAddress:63922:">\
+//   <Town>Bois-d Arcy</Town>\
+//   <PostalRegion>78073</PostalRegion>\
+//   </PostalAddress>\
+//   <StopPlaceType>onstreetBus</StopPlaceType>\
+// </StopPlace>');
+// postman.setEnvironmentVariable("xml", xml);
+// ```
+
+@name("Créer Modifier un Arrêt")
+POST "https://{{IBOO_URL}}/api/v1/stop_area_referentials/{{stop_area_referential}}/webhook"
+"Content-Type": "application/json"
+data('{
+  "type": "updated",
+  "stop_place": {{xml}}
+}')
+
+
+// Vous devez utiliser l'onglet Pre-request Script dans Postman pour remplir la variable xml. Cette variable contient le payload NeTEx correctement échappé.
+// Un exemple se trouve ci-dessous : 
+// 
+// ```javascript
+// var xml = JSON.stringify('<StopPlace dataSourceRef="FR1-ARRET_AUTO" version="880901" created="2014-12-28T23:00:00Z" changed="2018-08-29T19:53:22Z" id="webhook-1">\
+//   <Name>Webhook Test</Name>\
+//   <Centroid>\
+//   <Location>\
+//     <gml:pos srsName="EPSG:2154">626874.5 6856185.5</gml:pos>\
+//   </Location>\
+//   </Centroid>\
+//   <PostalAddress version="any" id="FR1:PostalAddress:63922:">\
+//   <Town>Bois-d Arcy</Town>\
+//   <PostalRegion>78073</PostalRegion>\
+//   </PostalAddress>\
+//   <StopPlaceType>onstreetBus</StopPlaceType>\
+// </StopPlace>');
+// postman.setEnvironmentVariable("xml", xml);
+// ```
+
+@name("Créer Modifier des Arrêts")
+POST "https://{{IBOO_URL}}/api/v1/stop_area_referentials/{{stop_area_referential}}/webhook"
+"Content-Type": "application/json"
+data('{
+  "type": "updated",
+  "stop_places": {{xml}}
+}')
+
+
+@name("Supprimer des Arrêts")
+POST "https://{{IBOO_URL}}/api/v1/stop_area_referentials/{{stop_area_referential}}/webhook"
+"Content-Type": "application/json"
+json({
+    "type": "destroyed",
+    "stop_places": [
+        {
+            "id": "webhook-1"
+        },
+        {
+            "id": "webhook-2"
+        }
+    ]
+})
+
+
+

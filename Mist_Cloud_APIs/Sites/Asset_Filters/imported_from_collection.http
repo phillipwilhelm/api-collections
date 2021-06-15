@@ -1,0 +1,65 @@
+#!/usr/bin/env dothttp
+
+// Get the list of all BLE asset filters for the given site. Each asset filter in the list operates independently. For a filter object to match an asset, all of the filter properties must match (logical ‘AND’ of each filter property). For example, the “Visitor Tags” filter below will match an asset when both the “ibeacon_uuid” and “ibeacon_major” properties match the asset. All non-matching assets are ignored.
+
+@name("getSiteAssetFilters")
+GET "https://{{host}}/api/v1/sites/:site_id/assetfilters"
+
+
+@name("getSiteAssetFiltersDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/assetfilters/:assetfilter_id"
+
+
+//  #### Create Asset Filter
+// Creates a single BLE asset filter for the given site. Any subset of filter properties can be included in the filter. A matching asset must meet the conditions of all given filter properties (logical ‘AND’).
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|asset filter name
+//  disabled|boolean|optional; whether the asset filter is disabled, default is false
+//  ibeacon_uuid|string|optional; ibeacon uuid used to filter assets
+//  ibeacon_major|int|optional; ibeacon major value used to filter assets
+//  eddystone_uid_namespace|string|optional; eddystone uid namespace used to filter assets
+//  eddystone_url|string|optional; eddystone url used to filter assets
+//  mfg_company_id|int|optional; ble manufacturing-specific company-id used to filter assets
+
+@name("createSiteAssetFilters")
+POST "https://{{host}}/api/v1/sites/:site_id/assetfilters"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Visitor Tags",
+    "ibeacon_uuid": "f3f17139-704a-f03a-2786-0400279e37c3",
+    "ibeacon_major": 13,
+    "eddystone_uid_namespace": "2818e3868dec25629ede",
+    "eddystone_url": "https://www.abc.com",
+    "mfg_company_id": 935
+})
+
+
+// Updates an existing BLE asset filter for the given site.
+// 
+
+@name("updateSiteAssetFilters")
+PUT "https://{{host}}/api/v1/sites/:site_id/assetfilters/:assetfilter_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Visitor Tags"
+})
+
+
+// Deletes an existing BLE asset filter for the given site.
+// 
+
+@name("deleteSiteAssetFilters")
+DELETE "https://{{host}}/api/v1/sites/:site_id/assetfilters/:assetfilter_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// #### Search production routes in ERP
+// *(totvsProtheus=SG2)*
+// 
+// The search of production routes allows you to filter the ERP by:
+// - Unitary: by productKey or erpId (TOTVS Protheus only)
+// 
+// If no field for unitary query (productKey or erpId) is informed in the request, the search returns all valid records.
+// 
+// The service will consider as valid products:
+// - TOTVS Protheus: [1] “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// TOTVS Protheus: 
+// - The service will also take into account the use of Alternative Resources (SH3 table), if the API Setup parameter (IG_USERALT) is set to true. In this situation, if any, the same production route will have more than one record with different resources for the same sequence.
+// - The service treat the field "G2_TPOPER" only for 1=normal and 2=fixed time
+// - There isn't treatment for the fields: "G2_TPALOCF", "G2_MAOOBRA", "G2_FORMSTP", "G2_TPSOBRE", "G2_TPDESD", "G2_DESPROP", "G2_ROTALT", "G2_TEMPEND"
+// 
+// The response will inform:
+// - The number of returned objects in the “count” field
+// 
+// For all searches on production routes, the pagination feature will be used in the response, where the following fields are used to control the pagination:
+// - “pageSize” = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - “pageNum” = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - “pageTotal” = total pages, reported in the response
+// - “hasNext” = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search production routes in two situations:
+// - Full query: will result in all valid records.
+// - Incremental Consultation: will result in all valid records that have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the updatedAt field of the body request (format YYYY-MM-DDTHH: MM: SS) will be used to determine which products (partnumber / skus) should be returned. This information will be used in conjunction with: [1] TOTVS Protheus: fields G2_USERLGI and G2_USERLGA
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Production Routes")
+GET "https://{{endpoint}}/productionRoutes"
+basicauth("{{user}}", "{{pass}}")
+? "productKey"= "900.000.003"
+? "erpId"= "4"
+
+
+

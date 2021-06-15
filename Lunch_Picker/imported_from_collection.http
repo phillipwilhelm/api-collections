@@ -1,6 +1,14 @@
 #!/usr/bin/env dothttp
 
-// Get a [Yelp Acess Token](https://www.yelp.com/developers/documentation/v3/authentication) from a Yelp client ID and Yelp client secret key. Make sure that both `yelpClientID` and `yelpClientSecret` are set in your environment.// // |Environment Variable Name |Required? |Description// |--------------------------|----------|--------------// |`yelpClientID`            |**YES**   |[A Yelp client ID.](https://www.yelp.com/developers/documentation/v3/authentication)// |`yelpClientSecret`        |**YES**   |[A Yelp client secret.](https://www.yelp.com/developers/documentation/v3/authentication)
+// Get a [Yelp Acess Token](https://www.yelp.com/developers/documentation/v3/authentication) from a Yelp client ID and Yelp client secret.
+// 
+// Make sure both `yelpClientID` and `yelpClientSecret` are set in your environment.
+// 
+// |Environment Variable Name |Required? |Description
+// |--------------------------|----------|--------------
+// |`yelpClientID`            |**YES**   |[A Yelp client ID.](https://www.yelp.com/developers/documentation/v3/authentication)
+// |`yelpClientSecret`        |**YES**   |[A Yelp client secret.](https://www.yelp.com/developers/documentation/v3/authentication)
+
 @name("Get Yelp Access Token")
 POST "https://api.yelp.com/oauth2/token"
 ? "grant_type"= "client_credentials"
@@ -9,7 +17,22 @@ POST "https://api.yelp.com/oauth2/token"
 
 
 
-// Get restaurants using the [Yelp Business Search API](https://www.yelp.com/developers/documentation/v3/business_search). Pick restaurants using a randomized process that favors popular, well-rated, and nearby restaurants while disallowing repetition of restaurants and categories from saved history.// // Make sure the variable `location` is set in your environment.// // |Environment Variable Name |Required? |Description// |--------------------------|----------|--------------// |`location`                |**YES**   |Specifies the combination of address, neighborhood, city, state or zip, and optional country to be used when searching for restaurants.// |`price`                   |_no_      |Pricing levels to filter the search result by: 1 = $, 2 = $$, 3 = $$$, 4 = $$$$. The price filter can be a list of comma delimited pricing levels. For example, "1,2,3" will filter the results to show the ones that are $, $$, or $$$. Includes all price levels by default.// |`radius`                  |_no_      |A search radius in meters. If the value is too large, an `AREA_TOO_LARGE` error may be returned. The max value is 40000 meters (25 miles). Default value is 5000.// |`maxResults`              |_no_      |The target maximum number of results to get. Default value is 200. (_Note: Since setting this value too high could cause a long-running loop, the max allowed value is 1000._)// |`choiceCount`             |_no_      |The number of restaurant choices to make between 1 and 10. Default value is 3.// |`historyLength`           |_no_      |Customize the number of restaurants you want saved in the history. Default value is (3 × `choiceCount`).// |`favorites`               |_no_      |A comma delimited list of Yelp restaurant IDs. You can find a restaurant's Yelp ID in the URL of its Yelp page. Restaurants added to favorites have a higher chance of being picked.// |`openIn`                  |_no_      |A number of hours in which to check open times, used to populate the `open_at` query parameter. This parameter is useful when creating a monitor or running a local cron job: set `openIn` to the difference in hours between your meal time and the scheduled run time. For example, if `openIn` is set to 4 and a monitor is scheduled at 8:00am local time, it will return results open at 12:00pm local time. Setting `openIn` to 0 will return restaurants open now. When `openIn` is not specified, results are not filtered by open time.// |`walking`                 |_no_      |A boolean (`true` or `false`) that makes the selection process favor places that are closer to the location. See the `getWalkScore` function in the Tests tab for an description of how this works. Default value is `false`.
+// Get restaurants using the [Yelp Business Search API](https://www.yelp.com/developers/documentation/v3/business_search). Pick restaurants using a randomized process that favors popular, well-rated, and nearby restaurants while disallowing repetition of restaurants and categories from saved history.
+// 
+// Make sure the variable `location` is set in your environment.
+// 
+// |Environment Variable Name |Required? |Description
+// |--------------------------|----------|--------------
+// |`location`                |**YES**   |Specifies the combination of address, neighborhood, city, state or zip, and optional country to be used when searching for restaurants.
+// |`price`                   |_no_      |Pricing levels to filter the search result by: 1 = $, 2 = $$, 3 = $$$, 4 = $$$$. The price filter can be a list of comma delimited pricing levels. For example, "1,2,3" will filter the results to show the ones that are $, $$, or $$$. Includes all price levels by default.
+// |`radius`                  |_no_      |A search radius in meters. If the value is too large, an `AREA_TOO_LARGE` error may be returned. The max value is 40000 meters (25 miles). Default value is 5000.
+// |`maxResults`              |_no_      |The target maximum number of results to get. Default value is 200. (_Note: Since setting this value too high could cause a long-running loop, the max allowed value is 1000._)
+// |`choiceCount`             |_no_      |The number of restaurant choices to make between 1 and 10. Default value is 3.
+// |`historyLength`           |_no_      |Customize the number of restaurants you want saved in the history. Default value is (3 × `choiceCount`).
+// |`favorites`               |_no_      |A comma delimited list of Yelp restaurant IDs. You can find a restaurant's Yelp ID in the URL of its Yelp page. Restaurants added to favorites have a higher chance of being picked.
+// |`openIn`                  |_no_      |A number of hours in which to check open times, used to get the `open_at` query parameter. This is useful when setting up a monitor; set `openIn` to the difference in hours between your meal time and the monitor's scheduled run time. For example, if `openIn` is set to 4 and a monitor is scheduled at 8:00am local time, it will return results open at 12:00pm local time. Setting `openIn` to 0 will return restaurants open now. When `openIn` is not specified, results are not filtered by open time.
+// |`walking`                 |_no_      |A boolean (`true` or `false`) that makes the selection process favor places that are closer to the location. Default value is `false`.
+
 @name("Pick Restaurants")
 GET "https://api.yelp.com/v3/businesses/search"
 "Authorization": "Bearer {{yelpAccessToken}}"
@@ -24,7 +47,15 @@ GET "https://api.yelp.com/v3/businesses/search"
 
 
 
-// Update the Postman environment for the lunch picker. This step is necessary when running the collection as a monitor, since updates to the environment that happen during a monitor run don't persist otherwise.// // Make sure `postmanApiKey` and `environmentID` are set in your environment. See the [Postman Pro API documentation](https://docs.api.getpostman.com/#authentication). You can get your environment id by downloading your environment and copying it from the `id` property, or you can get your environment from the [Postman Pro API](https://docs.api.getpostman.com/#d26bd079-e3e1-aa08-7e21-66f55df99351). Make sure the `environmentID` matches the id of the environment you run the collection with!// // |Environment Variable Name |Required? |Description// |--------------------------|----------|--------------// |`postmanApiKey`            |**YES**  |A Postman Pro [API key](https://docs.api.getpostman.com/#authentication).// |`environmentID`            |**YES**  |The id for your environment.
+// Update the Postman environment for the lunch picker. This step is necessary when running the collection as a monitor, since updates to the environment that happen during a monitor run don't persist otherwise.
+// 
+// Make sure `postmanApiKey` and `environmentID` are set in your environment. See the [Postman Pro API documentation](https://docs.api.getpostman.com/#authentication). You can get your environment id by downloading your environment and copying it from the `id` property, or you can get your environment from the [Postman Pro API](https://docs.api.getpostman.com/#d26bd079-e3e1-aa08-7e21-66f55df99351). Make sure the `environmentID` matches the id of the environment you run the collection with!
+// 
+// |Environment Variable Name |Required? |Description
+// |--------------------------|----------|--------------
+// |`postmanApiKey`            |**YES**  |A Postman Pro [API key](https://docs.api.getpostman.com/#authentication).
+// |`environmentID`            |**YES**  |The id for your environment.
+
 @name("Update Environment")
 PUT "https://api.getpostman.com/environments/{{environmentID}}"
 "x-api-key": "{{postmanApiKey}}"
@@ -36,7 +67,18 @@ data('{
 }')
 
 
-// Post formatted restaurant choices to Slack. Include voting instructions if there's more than one choice.   // // // > Side note: This is the last request in the collection for a reason. Posting to Slack is the main side effect of this collection, and we don't want it to happen more than once. When a monitor is created for this collection, an abnormal failure of the monitor will trigger a retry. By putting this request last, we get some failure tolerance in case there is an abnormal failure of one of the previous requests _and_ avoid an undesired duplication of the collection's primary side effect.//    // // Make sure `webhook` is set in your environment. To get a webhook url, [create a Slack app](https://api.slack.com/slack-apps), [activate incoming webhooks](https://api.slack.com/incoming-webhooks), and add a webhook for your team.// // |Environment Variable Name |Required? |Description// |--------------------------|----------|--------------// |`webhook`                 |**YES**   |An [incoming webhook](https://api.slack.com/incoming-webhooks) url.
+// Post formatted restaurant choices to Slack. Include voting instructions if there's more than one choice.   
+// 
+// 
+// > Side note: This is the last request in the collection for a reason. Posting to Slack is the main side effect of this collection, and we don't want it to happen more than once. When a monitor is created for this collection, an abnormal failure of the monitor will trigger a retry. By putting this request last, we get some failure tolerance in case there is an abnormal failure of one of the previous requests _and_ avoid an undesired duplication of the collection's primary side effect.
+//    
+// 
+// Make sure `webhook` is set in your environment. To get a webhook url, [create a Slack app](https://api.slack.com/slack-apps), [activate incoming webhooks](https://api.slack.com/incoming-webhooks), and add a webhook for your team.
+// 
+// |Environment Variable Name |Required? |Description
+// |--------------------------|----------|--------------
+// |`webhook`                 |**YES**   |An [incoming webhook](https://api.slack.com/incoming-webhooks) url.
+
 @name("Post to Slack")
 POST "https://{{webhook}}/"
 "Content-Type": "application/json"

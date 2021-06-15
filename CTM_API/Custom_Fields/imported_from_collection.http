@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// 
+// To edit the custom fields on a particular call, see Calls - Modify Call Details.
+
+@name("list of custom fields")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("list of custom panels")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields/panels"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |custom_field_id|yes|the custom field's id|
+
+@name("custom field")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields/{{custom_field_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |custom_panel_id|yes|the custom panel's id|
+
+@name("custom panel")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields/{{custom_panel_id}}/panel"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// 
+// Responds with status and (if status is success) array of panel IDs and array of field IDs.
+
+@name("save panels")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields/save"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "panels": [
+    {
+    "name": "Sample",
+    "icon": "user",
+    "description": "this is another example",
+    "id": "_0",
+      "log_type": "none"
+    }
+  ],
+  "fields": [
+    {
+      "name": "example",
+      "api_name": "example",
+      "field_type": "text",
+      "object_type": "Caller",
+      "panel": "contact",
+      "released": false
+    },
+    {
+      "name": "another_example",
+      "api_name": "another_example",
+      "field_type": "number",
+      "object_type": "Caller",
+      "panel": "_0",
+      "released": false
+    }
+  ]
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |custom_field_id|yes|the custom field id|
+// |options|yes|a string containing line-feed (\n) delineated list of fields|
+// 
+// options may optionally specify an internal name using ':' separators (value:label) such as: "Option 1:option1\nOption 2:option2\nOption 3:option3"
+// 
+// Responds with status and (if status is success) the new custom field with similar output.
+
+@name("update picker options")
+PATCH "https://{{host}}/{{base_path}}/accounts/{{account_id}}/custom_fields/{{custom_field_id}}/update_picker_options"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "options": "Choice 1\nChoice 2\nChoice3"
+}')
+
+
+

@@ -1,0 +1,155 @@
+#!/usr/bin/env dothttp
+
+// This is a starting point for clients to identify all the possible packaging formats that are available. Use these individual options or a pre-built bundle of options (below) to pass into the packaging request.
+
+@name("Get available packaging options")
+GET "http://covid19.richdataservices.com/rds/api/package/options/select"
+
+
+// Packaging bundles are groups of related OptionSets grouped together with some pre-configuration already done. This can ensure that users can get a set of options quickly and already set up with all the options needed.
+
+@name("Get available packaging bundles")
+GET "http://covid19.richdataservices.com/rds/api/package/option/bundles/select"
+
+
+// Get an option bundle by id
+
+@name("Get option bundle")
+GET "http://covid19.richdataservices.com/rds/api/package/option/bundle/{bundleId}"
+
+
+// Starts the packaging process. Pass in the desired select query (url) and packaging options (request body), and receive a processId. Use this id to check the status and download packaged data when completed. Be sure to use "https" when posting to RDS.
+
+@name("Send packaging request")
+POST "http://covid19.richdataservices.com/rds/api/package/{catalog}/{dataProductId}/select"
+json([
+    {
+        "formatType": "CSV Options",
+        "format": "data-delimited",
+        "id": "179a3759-24fa-4ad9-8ed4-a69e204394d4",
+        "options": [
+            {
+                "dataType": "TEXT",
+                "description": "The name of the file that will be output after being packaged. The file name will default to the name of the data set if not specified here.",
+                "name": "File Name",
+                "required": false
+            },
+            {
+                "dataType": "BOOLEAN",
+                "description": "If this option is set to true there will be a header row in the file that contains the variable names, otherwise no header row will be included.",
+                "name": "header",
+                "required": false,
+                "value": true
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The desired format of the delimited file.",
+                "name": "format",
+                "options": [
+                    "CSV",
+                    "MySQL",
+                    "Oracle",
+                    "PostgreSQL",
+                    "TDF"
+                ],
+                "required": true,
+                "value": "MySQL"
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The operating system that the file will be used on. This is used to determine how to write new lines in the file as this differs between Windows and Unix systems. This is a convenience feature and will not affect the content of the file, but may make it more usable in basic text editors.",
+                "name": "Operating System",
+                "options": [
+                    "Windows",
+                    "Unix"
+                ],
+                "required": false
+            }
+        ],
+        "type": "DATA"
+    },
+    {
+        "formatType": "SQL DataSet Options",
+        "format": "script-sql",
+        "id": "0aa55c22-26fc-4654-8020-d694cff73a84",
+        "options": [
+            {
+                "dataType": "TEXT",
+                "description": "The name of the file that will be output after being packaged. The file name will default to the name of the data set if not specified here.",
+                "name": "File Name",
+                "required": false
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The operating system that the file will be used on. This is used to determine how to write new lines in the file as this differs between Windows and Unix systems. This is a convenience feature and will not affect the content of the file, but may make it more usable in basic text editors.",
+                "name": "Operating System",
+                "options": [
+                    "Windows",
+                    "Unix"
+                ],
+                "required": false
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The name of the database that the table should created in. If empty the data product name will be used.",
+                "name": "database name",
+                "required": false,
+                "value": ""
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The name of the the table that will be created. If empty the data product name will be used.",
+                "name": "table name",
+                "required": false,
+                "value": ""
+            },
+            {
+                "dataType": "BOOLEAN",
+                "description": "Indicates that dimension (lookup) tables should be created to store classifications in. If false only the data table will be written.",
+                "name": "dimension tables",
+                "required": false,
+                "value": true
+            },
+            {
+                "dataType": "BOOLEAN",
+                "description": "Indicates that insert statements should be used to load data into the created tables.",
+                "name": "insert statements",
+                "required": false,
+                "value": false
+            },
+            {
+                "dataType": "TEXT",
+                "description": "The syntax of the script.",
+                "name": "SQL type",
+                "options": [
+                    "MICROSOFT",
+                    "MONET",
+                    "MYSQL",
+                    "ORACLE",
+                    "POSTGRE",
+                    "VERTICA",
+                    "H2",
+                    "VIRTUOSO"
+                ],
+                "required": true,
+                "value": "MYSQL"
+            }
+        ],
+        "type": "SCRIPT"
+    }
+])
+
+
+// Use the processId that was returned from the `Send packaging request` process to check the status of the data packaging.
+
+@name("Check packaging status")
+GET "http://covid19.richdataservices.com/rds/api/package/processdetails/{processId}"
+
+
+// Use the processId returned from the packaging POST request to retrieve the packaged data once the process has completed. If you are in the Postman app, use the "Send and Download" button to download the data.
+
+@name("Get data package")
+GET "http://covid19.richdataservices.com/rds/api/package/{processId}"
+
+
+

@@ -1,0 +1,191 @@
+#!/usr/bin/env dothttp
+
+// <h3>This API can be used to verify an Electricity Bill.</h3>
+// <br>
+// <h4>REQUEST:</h4>
+// <br>
+// 
+// ```
+// {
+//     "consumer_id":"<< Consumer ID provided on bill >>",
+//     "service_provider":"<<Electricity Service Provider>>",
+//     "consent":"<< Y or N >>",
+//     "consent_text":"<< Consent Message >>"
+// } 
+// ```
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invalid Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not white listed :(IP address)".
+// }
+// ```
+// 
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <br>
+// <h5>Transaction Success </h5>
+// <br>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID >>",
+//     "response_code": "101",
+//     "env": 1,
+//     "request_timestamp": "2018-09-17 11:56:23:226 +05:30",
+//     "response_timestamp": "2018-09-17 11:56:25:541 +05:30",
+//     "transaction_status": 1,
+//     "result": {
+//         "address": "SMG P 195/**********",
+//         "amount_payable": "",
+//         "bill_amount": "",
+//         "bill_date": "",
+//         "bill_due_date": "",
+//         "bill_issue_date": "",
+//         "bill_no": "",
+//         "consumer_name": "VXXXY CXXXXX",
+//         "consumer_number": "13XXXXXX61XX",
+//         "email_address": "",
+//         "mobile_number": "7XX99XXXXX",
+//         "total_amount": ""
+//     },
+//     "response_msg": "Valid Authentication"
+// }
+// ```
+// 
+// <br>
+// <h5>Transaction Failure:</h5>
+// <br>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID>>",
+//     "response_code": "102",
+//     "env": 1,
+//     "request_timestamp": "2018-09-19 18:08:55:947 +05:30",
+//     "response_timestamp": "2018-09-19 18:08:57:366 +05:30",
+//     "response_msg": "Invalid ID number or combination of inputs"
+// }
+// ```
+// 
+// <br>
+// 
+// 
+
+@name("Verification API")
+POST "https://{{base_url}}/verify-electricitybill"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+    "consumer_id":"<<Consumer Id>>",
+    "service_provider":"<<Service Provider Code>>",
+    "consent":"<< Y or N >>",
+    "consent_text":"<< Consent Message >>"
+} ')
+
+
+// This API can be used to fetch the Electricity bill verification transaction's meta-data (no customer data is stored) for any status check etc.
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<< Transaction ID>>",
+//     "consent": "Y",
+//     "consent_text": "<< Consent Text >>",
+//     "env": 1,
+//     "response_code": 101,
+//     "response_msg": "Valid Authentication",
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-09-14 15:09:49:107 +05:30",
+//     "response_timestamp": "2018-09-14 15:09:50:391 +05:30"
+// }
+// ```
+// <h4>Transaction not found</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Transaction not found in your company records"
+// }
+// ```
+
+@name("Fetch API")
+GET "https://{{base_url}}/verify-lpg/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

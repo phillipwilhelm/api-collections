@@ -1,0 +1,412 @@
+#!/usr/bin/env dothttp
+
+// This operation will create a new patient resource in the system. The FHIR representation of that resource will return complete with ID if sucessful.
+// 
+// This example assumes that the practitioner with ID BOYAR already exists in the system.
+
+@name("Create a new Patient resource")
+POST "https://{{hostname}}/{{api_endpoint_path}}/Patient"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "identifier": [
+        {
+            "system": "http://hl7.org/fhir/sid/us-ssn",
+            "value": "123456789"
+        }
+    ],
+    "address": [
+        {
+            "country": "US",
+            "city": "SYRACUSE",
+            "use": "home",
+            "line": [
+                "123 DAVIS BLVD"
+            ],
+            "postalCode": "84075",
+            "text": "123 DAVIS BLVD  SYRACUSE UT 84075 US",
+            "state": "UT",
+            "type": "physical"
+        }
+    ],
+    "gender": "male",
+    "active": true,
+    "birthDate": "2003-01-01",
+    "deceasedBoolean": false,
+    "contact": [
+        {
+            "address": {
+                "country": "US",
+                "city": "CLEVELAND",
+                "use": "home",
+                "line": [
+                    "123 TEST ST"
+                ],
+                "postalCode": "44101",
+                "text": "123 TEST ST  CLEVELAND OH 44101 US",
+                "state": "OH",
+                "type": "physical"
+            },
+            "gender": "male",
+            "name": {
+                "given": [
+                    "FIRST",
+                    "V"
+                ],
+                "use": "usual",
+                "family": "TEST",
+                "suffix": [
+                    "JR"
+                ]
+            },
+            "telecom": [
+                {
+                    "system": "phone",
+                    "use": "home",
+                    "value": "(555) 555-5555"
+                }
+            ],
+            "relationship": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/v2/0131",
+                            "code": "EP",
+                            "display": "Emergency contact person"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "generalPractitioner": [
+        {
+            "reference": "Practitioner/BOYAR"
+        }
+    ],
+    "name": [
+        {
+            "given": [
+                "KRISTOPHER"
+            ],
+            "use": "usual",
+            "family": "JENSEN"
+        }
+    ],
+    "telecom": [
+        {
+            "system": "phone",
+            "use": "home",
+            "value": "(801) 555-5555"
+        }
+    ],
+    "communication": [
+        {
+            "language": {
+                "coding": [
+                    {
+                        "system": "urn:ietf:bcp:47",
+                        "code": "en",
+                        "display": "English"
+                    }
+                ]
+            },
+            "preferred": true
+        }
+    ],
+    "maritalStatus": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/v3/MaritalStatus",
+                "code": "M",
+                "display": "Married"
+            }
+        ]
+    },
+    "resourceType": "Patient"
+}')
+
+
+// This operation will create a new guarantor (RelatedPerson Resource) in the system. The FHIR representation of that resource will return complete with ID if successful.
+// 
+// This RelatedPerson will be linked to the patient created above.
+
+@name("Create a new guarantor (RelatedPerson resource)")
+POST "https://{{hostname}}/{{api_endpoint_path}}/RelatedPerson"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "identifier": [
+        {
+            "value": "guarantor"
+        }
+    ],
+    "address": [
+        {
+            "country": "US",
+            "city": "COLUMBUS",
+            "use": "home",
+            "line": [
+                "PO BOX 123"
+            ],
+            "postalCode": "43221-2550",
+            "text": "PO BOX 123  COLUMBUS OH 43221-2550 US",
+            "state": "OH",
+            "type": "physical"
+        }
+    ],
+    "gender": "male",
+    "patient": {
+        "reference": "Patient/20165"
+    },
+    "name": [
+        {
+            "given": [
+                "ERIC"
+            ],
+            "use": "usual",
+            "family": "JENSEN"
+        }
+    ],
+    "active": true,
+    "telecom": [
+        {
+            "system": "phone",
+            "use": "home",
+            "value": "(614) 796-0330"
+        },
+        {
+            "system": "phone",
+            "use": "work",
+            "value": "(614) 796-0330"
+        },
+        {
+            "system": "phone",
+            "use": "mobile",
+            "value": "(614) 796-0330"
+        }
+    ],
+    "relationship": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/v2/0131",
+                "code": "CHILD",
+                "display": "child"
+            }
+        ]
+    },
+    "birthDate": "2000-01-01",
+    "resourceType": "RelatedPerson"
+}')
+
+
+// This operation will create a new policy holder (RelatedPerson Resource) in the system. The FHIR representation of that resource will return complete with ID if successful.
+// 
+// This RelatedPerson will be linked to the patient created above.
+
+@name("Create a new policy holder (RelatedPerson resource)")
+POST "https://{{hostname}}/{{api_endpoint_path}}/RelatedPerson"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "identifier": [
+        {
+            "value": "policyholder"
+        }
+    ],
+    "address": [
+        {
+            "country": "US",
+            "city": "COLUMBUS",
+            "use": "home",
+            "line": [
+                "PO BOX 123"
+            ],
+            "postalCode": "43221-2550",
+            "text": "PO BOX 123  COLUMBUS OH 43221-2550 US",
+            "state": "OH",
+            "type": "physical"
+        }
+    ],
+    "gender": "male",
+    "patient": {
+        "reference": "Patient/20165"
+    },
+    "name": [
+        {
+            "given": [
+                "ERIC"
+            ],
+            "use": "usual",
+            "family": "JENSEN"
+        }
+    ],
+    "active": true,
+    "telecom": [
+        {
+            "system": "phone",
+            "use": "home",
+            "value": "(614) 796-0330"
+        },
+        {
+            "system": "phone",
+            "use": "work",
+            "value": "(614) 796-0330"
+        },
+        {
+            "system": "phone",
+            "use": "mobile",
+            "value": "(614) 796-0330"
+        }
+    ],
+    "relationship": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/v2/0131",
+                "code": "CHILD",
+                "display": "child"
+            }
+        ]
+    },
+    "birthDate": "2000-01-01",
+    "resourceType": "RelatedPerson"
+}')
+
+
+// This operation will create a new coverage in the system. The FHIR representation of that resource will return complete with ID if successful.
+// 
+// This coverage resource represents the linkage between all of the resources created in the above examples. Any references made in the body of this example are assumed created.
+
+@name("Create a new Coverage resource")
+POST "https://{{hostname}}/{{api_endpoint_path}}/Coverage"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "subscriber": {
+        "reference": "RelatedPerson/ph12601"
+    },
+    "payor": [
+        {
+            "reference": "Organization/102"
+        }
+    ],
+    "beneficiary": {
+        "reference": "Patient/20165"
+    },
+    "subscriberId": "123456798",
+    "type": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/v3/ActCode",
+                "code": "pay",
+                "display": "Pay"
+            }
+        ]
+    },
+    "relationship": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/policyholder-relationship",
+                "code": "child",
+                "display": "Child"
+            }
+        ]
+    },
+    "grouping": {
+        "groupDisplay": "TEST GROUP",
+        "class": "Copay",
+        "classDisplay": "0.0",
+        "group": "123456ABCD"
+    },
+    "resourceType": "Coverage",
+    "status": "active",
+    "policyHolder": {
+        "reference": "RelatedPerson/ph12601"
+    },
+    "order": 2
+}')
+
+
+// This operation will create a new account in the system. The FHIR representation of that resource will return complete with ID if sucessful.
+// 
+// This account resource represents the linkage between all of the resources created in the above examples. Any references made in the body of this example are assumed created.
+// 
+// This account is the final resource of this patient registration. It will become the best starting point to traverse the resource tree as it relates to this patient.
+
+@name("Create a new Account resource")
+POST "https://{{hostname}}/{{api_endpoint_path}}/Account"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+    "coverage": [
+        {
+            "coverage": {
+                "reference": "Coverage/12601"
+            },
+            "priority": 1
+        },
+        {
+            "coverage": {
+                "reference": "Coverage/12600"
+            },
+            "priority": 1
+        },
+        {
+            "coverage": {
+                "reference": "Coverage/12602"
+            },
+            "priority": 1
+        },
+        {
+            "coverage": {
+                "reference": "Coverage/12600"
+            },
+            "priority": 2
+        },
+        {
+            "coverage": {
+                "reference": "Coverage/12601"
+            },
+            "priority": 2
+        },
+        {
+            "coverage": {
+                "reference": "Coverage/12602"
+            },
+            "priority": 2
+        }
+    ],
+    "balance": {
+        "value": 0
+    },
+    "subject": {
+        "reference": "Patient/20165"
+    },
+    "name": "KRISTOPHER JENSEN",
+    "guarantor": [
+        {
+            "party": {
+                "reference": "Patient/20165"
+            }
+        },
+        {
+            "party": {
+                "reference": "Patient/20019"
+            }
+        }
+    ],
+    "type": {
+        "coding": [
+            {
+                "system": "http://hl7.org/fhir/ValueSet/account-type",
+                "code": "PBILLACCT",
+                "display": "patient billing account"
+            }
+        ]
+    },
+    "resourceType": "Account",
+    "status": "active"
+}')
+
+
+

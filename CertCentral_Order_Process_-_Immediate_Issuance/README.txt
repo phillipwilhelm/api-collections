@@ -1,0 +1,1 @@
+This Collection will go through the process of ordering an SSL certificate via the DigiCert API, utilizing the Immediate Issuance capabilities of an account configured to Auto-Approve Requests with pre-validated Domain and Organization details.

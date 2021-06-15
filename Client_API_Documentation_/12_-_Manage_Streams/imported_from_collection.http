@@ -1,0 +1,138 @@
+#!/usr/bin/env dothttp
+
+// # ViewContent API
+// 
+// Retrieve the content location(URL) for viewing the content associated with a product
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// * This method is available when the system is in maintenance mode.
+// * This message supports session cloning. A cloned session can be obtained via this API by including the HTTP Request Header, CD-CloneSession = true. If provided, a new session for the requested device type will returned in the HTTP Response Header, CD-ClonedSessionId
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1004 | ContentNotAvailable | Fault thrown when a piece of content is not available for viewing for the given subscriber |
+// | 1001 | ContentAccessLimitExceeded | Fault thrown when a request for a piece of content has exceeded it's limit for the subscriber. When this fault is raised, the subscriber must renew the content in order to regain access |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 1002 | ContentAvailabilityViolation | Fault indicating that a product was requested that is not yet available |
+// | 1005 | ContentTimeLimitExceeded | Fault thrown when a request for a piece of content has exceeded it's time limit for the subscriber. When this fault is raised, the subscriber must renew the content in order to regain access |
+// | 954 | ViewProductContentNotInitialized | Fault thrown when a view product content intialization fails with a content provider |
+// | 964 | ExternalProductAccessDenied | Fault thrown when product access is denied by an external content provider |
+// | 1050 | ConcurrencyLimitExceeded | Fault thrown when a request for a piece of content has exceeded the number of allowed concurrent views. In this scenario, another stream must be stopped before the subscriber may request access again. If a player crashed and did not close the stream, the orphaned stream will be closed when the session is cleaned up |
+// | 1003 | ContentLicenseLimitExceeded | Fault thrown when a request for a piece of content has exceeded it's limit for the subscriber. When this fault is raised, the subscriber must renew the content in order to regain access |
+// | 913 | PlayerNotFound | Fault indicating that a player was not found given the input. |
+// | 1158 | ProgramNotFound | Indicates that the requested program was not found |
+// | 900 | ContentItemNotFound | Fault indicating that a media could not be found. |
+// | 975 | ChannelNotFound | Fault indicating that the requested channel is not found |
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// | 815 | DeviceTypeNotValid | Fault indicating that the device type is not valid for the method |
+// | 914 | PlaylistNotFound | Fault indicating that an invalid playlist was referenced |
+// 
+// # Request
+// 
+// Request to view the content associated with a product or channel. The content can only be viewed if either the subscriber has access to an "Instantly Viewable" pricing plan on the product or the subscriber has ordered the product and it is active as a SubscriberProduct on the subscriber.
+// 
+
+@name("ViewContent (open new stream)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/ViewContent"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"Content-Type": "application/json"
+data('{
+  "ProductPricingPlanExternalReference": "concurrent_stream_manager",
+  "ProductPricingPlanExternalReferenceType": "Offer"
+}
+')
+
+
+// # UpdateContentProgress API
+// 
+// Update the subscriber's progress through viewing a piece of content.
+// 
+// Also used to mark the viewing as complete.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an unauthenticated subscriber session.
+// * This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 955 | ViewProductContentNotCompleted | Fault thrown when a view product content completion fails with a content provider |
+// | 1050 | ConcurrencyLimitExceeded | Fault thrown when a request for a piece of content has exceeded the number of allowed concurrent views. In this scenario, another stream must be stopped before the subscriber may request access again. If a player crashed and did not close the stream, the orphaned stream will be closed when the session is cleaned up |
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// 
+// # Request
+// 
+// Request to update content progress and optionally close streams on a channel or a product and pricing plan for the current subscriber.
+
+@name("UpdateContentProgress (continue streaming)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/UpdateContentProgress"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductPricingPlanExternalReference": "concurrent_stream_manager",
+    "ProductPricingPlanExternalReferenceType": "Offer",
+    "StreamingComplete": false,
+    "ViewContentReference": "{{VIEW_CONTENT_REFERENCE_1}}"
+}
+')
+
+
+// # UpdateContentProgress API
+// 
+// Update the subscriber's progress through viewing a piece of content.
+// 
+// Also used to mark the viewing as complete.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an unauthenticated subscriber session.
+// * This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 955 | ViewProductContentNotCompleted | Fault thrown when a view product content completion fails with a content provider |
+// | 1050 | ConcurrencyLimitExceeded | Fault thrown when a request for a piece of content has exceeded the number of allowed concurrent views. In this scenario, another stream must be stopped before the subscriber may request access again. If a player crashed and did not close the stream, the orphaned stream will be closed when the session is cleaned up |
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// 
+// # Request
+// 
+// Request to update content progress and optionally close streams on a channel or a product and pricing plan for the current subscriber.
+
+@name("UpdateContentProgress (end streaming)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/UpdateContentProgress"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductPricingPlanExternalReference": "concurrent_stream_manager",
+    "ProductPricingPlanExternalReferenceType": "Offer",
+    "StreamingComplete": true,
+    "ViewContentReference": "{{VIEW_CONTENT_REFERENCE_1}}"
+}
+')
+
+
+

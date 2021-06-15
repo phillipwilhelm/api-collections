@@ -1,0 +1,125 @@
+#!/usr/bin/env dothttp
+
+// Get list of psks on the org. Use query param, to filter or sort by name/role/ssid
+
+@name("getOrgPsks")
+GET "https://{{host}}/api/v1/orgs/:org_id/psks"
+
+
+@name("filterOrgPsks")
+GET "https://{{host}}/api/v1/orgs/:org_id/psks"
+? "name"= "{{psk_name}}"
+
+
+@name("getOrgPskDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/psks/:psk_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|a name for the PSK
+//  passphrase|string|passphrase of the PSK (8-63 character or 64 in hex)
+//  ssid|string|SSID this PSK should be applicable to
+//  usage|string|multi (default) / single
+//  max_usage|int|max concurrent users for this PSK key. Default is 0 (unlimited)
+//  vlan_id|int|VLAN for this PSK key
+//  mac|string|if usage==single, the mac that this PSK ties to, empty if auto-binding
+//  expire_time|int|Expire time for this PSK key. Default is half year, max is 5 year
+
+@name("createOrgPsk")
+POST "https://{{host}}/api/v1/orgs/:org_id/psks"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Common",
+    "passphrase": "foryoureyesonly",
+    "ssid": "warehouse",
+    "usage": "single",
+    "vlan_id": 417,            // optional
+    "mac": "5684dae9ac8b",     // optional
+    "role": "",                // optional
+    "expire_time": 1614990263,  // optional
+    "max_usage": 20            // optional, default is 0 (unlimited)
+}')
+
+
+@name("updateOrgPsk")
+PUT "https://{{host}}/api/v1/orgs/:org_id/psks/:psk_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "vlan_id": 20
+}')
+
+
+@name("deleteOrgPsk")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/psks/:psk_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// #### PSK Import CSV File Format
+// ```
+// name,ssid,passphrase,usage,vlan_id,mac,max_usage,role,expire_time
+// Common,warehouse,foryoureyesonly,single,35,a31425f31278,0,student,1618594236
+// Justin,reception,visible,multi,1002,200,teacher,1618594236
+// ```
+// #### Definition
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|a name for the PSK
+// passphrase|string|passphrase of the PSK (8-63 character or 64 in hex)
+// ssid|string|SSID this PSK should be applicable to
+// usage|string|multi (default) / single
+// vlan_id|int|VLAN for this PSK key
+// mac|string|if usage==single, the mac that this PSK ties to, empty if auto-binding
+// max_usage|int|max concurrent users for this PSK key. Default is 0 (unlimited)
+// role|int|Role for this PSK key
+// expire_time|int|Expire time for this PSK key. Default is half year, max is 1 year
+
+@name("importOrgPskCsv")
+POST "https://{{host}}/api/v1/orgs/:org_id/psks/import"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|a name for the PSK
+// passphrase|string|passphrase of the PSK (8-63 character or 64 in hex)
+// ssid|string|SSID this PSK should be applicable to
+// usage|string|multi (default) / single
+// vlan_id|int|VLAN for this PSK key
+// mac|string|if usage==single, the mac that this PSK ties to, empty if auto-binding
+
+@name("importOrgPskJson")
+POST "https://{{host}}/api/v1/orgs/:org_id/psks/import"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('[
+    {
+        "name": "Common",
+        "ssid": "warehouse",
+        "passphrase": "foryoureyesonly",
+        "usage": "single",
+        "vlan_id": 35,
+        "mac": "a31425f31278"
+    },
+    {
+        "name": "Justin",
+        "ssid": "reception",
+        "passphrase": "visible",
+        "usage": "multi",
+        "vlan_id": 1002,
+        "mac": null
+    }    
+]')
+
+
+

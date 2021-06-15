@@ -1,0 +1,172 @@
+#!/usr/bin/env dothttp
+
+// This method returns a balance of server based wallet. Its allow to control the state before sending funds to another address. The number of digits to appear after the decimal point is 6.
+// <br><br>
+// Returns:
+// - <b>address</b>: ETH address of server based wallet (string)
+// - <b>gold</b>: GOLD token balance of wallet (string)
+// - <b>silver</b>: SILVER token balance of wallet (string)
+// - <b>eth</b>: ETH balance of wallet (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Server address details")
+GET "http://bcs.oropocket.com/api/rootAddressBalances"
+
+
+// This method returns a balance of certain ETH wallet. ETH wallet should be included on body or request. The number of digits to appear after the decimal point is 6.
+// <br/><br/>
+// Params:
+// - <b>address</b>: ETH address of certain user (string)<br/><br/>
+// 
+// Returns:
+// - <b>address</b>: ETH address of server based wallet (string)
+// - <b>gold</b>: GOLD token balance of wallet (string)
+// - <b>silver</b>: SILVER token balance of wallet (string)
+// - <b>eth</b>: ETH balance of wallet (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Any address details")
+GET "http://bcs.oropocket.com/api/addressBalances"
+"Content-Type": "application/json"
+json({
+    "address": "0xe910EE7caC44c890d89B220B182f46b4123f091A"
+})
+
+
+// This method returns array of wallets of all registered users on db. Each item includes information about that account.<br><br>
+// 
+// Returns:
+// - <b>id</b>: Numerical id of wallet in DB (number)
+// - <b>publicKey</b>: ETH address of user wallet (string)
+// - <b>created</b>: Wallet creation timestamp (string)
+
+@name("Get all wallets")
+GET "http://bcs.oropocket.com/api/getAllAccounts"
+
+
+// Transfer certain amount of tokens from sender wallet to receiver wallet. The sender wallet should be stored on API database (check <b>Get all wallets</b> method), otherwise transaction will be failed.<br><br>
+// 
+// All params should be included on body or request. API wait for 1 confirmation from blockchain and then response to request.<br><br>
+// 
+// Params:
+// - <b>sender</b>: ETH address of account who send tokens (string)
+// - <b>receiver</b>: ETH address of account who should receive tokens (string)
+// - <b>amount</b>: amount of tokens (in Eth format, with max 6 numbers after decimal point) (string)<br/>
+// - <b>tokenId</b>: '0' for GOLD, '1' for SILVER<br/><br/>
+// 
+// Returns:
+// - <b>fee</b>: fee of transaction in ETH, float number (string)
+// - <b>transaction</b>: hash of generated tx (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Transfer tokens")
+POST "http://bcs.oropocket.com/api/transfer"
+"Content-Type": "application/json"
+json({
+    "sender": "0xe910EE7caC44c890d89B220B182f46b4123f091A",
+    "receiver": "0x84B81d05958Fe7AFcc20fB7d2374fd0a9A503e71",
+    "amount": "10",
+    "tokenId": "0"
+})
+
+
+// Transfer certain amount of tokens from server based wallet to receiver wallet. The method works the same way as <b>Transfer tokens</b> method, but in this case <b>sender</b> parameter is not needed.<br><br>
+// 
+// All params should be included on body or request. API wait for 1 confirmation from blockchain and then response to request.<br><br>
+// 
+// Params:
+// - <b>receiver</b>: ETH address of account who should receive tokens (string)
+// - <b>amount</b>: amount of tokens (in Eth format, with max 6 numbers after decimal point) (string)<br/>
+// - <b>tokenId</b>: '0' for GOLD, '1' for SILVER<br/><br/>
+// 
+// Returns:
+// - <b>fee</b>: fee of transaction in ETH, float number (string)
+// - <b>transaction</b>: hash of generated tx (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Transfer server tokens")
+POST "http://bcs.oropocket.com/api/transferFromServer"
+"Content-Type": "application/json"
+json({
+    "receiver": "0xe910EE7caC44c890d89B220B182f46b4123f091A",
+    "amount": "10",
+    "tokenId": "0"
+})
+
+
+// Method creates new eth wallet (public\private keys), and save it on DB. Only public key can be reachable for requests, private key is hidden from external requests. The cethod can be used during new user registration.
+// <br><br>
+// Returns:
+// - <b>id</b>: numerical id of new created wallet (number)
+// - <b>address</b>: the address of new wallet (public key) (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Create ETH wallet")
+POST "http://bcs.oropocket.com/api/createAccount"
+"Content-Type": "application/json"
+
+
+// Mint certain amount of new tokens to certain ETH address.<br><br>
+// All params should be included on body or request. API wait for 1 confirmation from blockchain and then response to request.<br><br>
+// 
+// Params:
+// - <b>receiver</b>: ETH address who should receive minted tokens (string)
+// - <b>amount</b>: amount of tokens (in ETH format, with max 6 numbers after decimal point) (string)<br/>
+// - <b>tokenId</b>: '0' for GOLD, '1' for SILVER<br/><br/>
+// 
+// Returns:
+// - <b>transaction</b>: hash of generated tx (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Mint new tokens")
+POST "http://bcs.oropocket.com/api/mint"
+"Content-Type": "application/json"
+json({
+    "receiver": "0xe910EE7caC44c890d89B220B182f46b4123f091A",
+    "amount": "10",
+    "tokenId": "0"
+})
+
+
+// Mint certain amount of new tokens to server based wallet. This method should be used after burning tokens on Matic network.<br><br>
+// All params should be included on body or request. API wait for 1 confirmation from blockchain and then response to request.<br><br>
+// 
+// Params:
+// - <b>amount</b>: amount of tokens (in ETH format, with max 6 numbers after decimal point) (string)<br/>
+// - <b>tokenId</b>: '0' for GOLD, '1' for SILVER<br/><br/>
+// 
+// Returns:
+// - <b>transaction</b>: hash of generated tx (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Mint tokens to server wallet")
+POST "http://bcs.oropocket.com/api/mintToServer"
+"Content-Type": "application/json"
+json({
+    "amount": "0.1",
+    "tokenId": "0"
+})
+
+
+// Burn certain amount tokens from server based ETH address balance. Should be used after deposit tokens on Matic network.<br><br>
+// 
+// All params should be included on body or request. API wait for 1 confirmation from blockchain and then response to request.<br><br>
+// 
+// Params:
+// - <b>amount</b>: amount of tokens (in Eth format, with max 6 numbers after decimal point) (string)
+// - <b>tokenId</b>: '0' for GOLD, '1' for SILVER<br/><br/>
+// 
+// Returns:
+// - <b>transaction</b>: hash of generated tx (string)
+// - <b>success</b>: the result of request (boolean)
+
+@name("Burn tokens")
+POST "http://bcs.oropocket.com/api/burn"
+"Content-Type": "application/json"
+json({
+    "amount": "2.563477",
+    "tokenId": "0"
+})
+
+
+

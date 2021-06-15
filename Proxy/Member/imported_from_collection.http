@@ -1,0 +1,133 @@
+#!/usr/bin/env dothttp
+
+// Login to get access\_token, access\_token must be sent within every endpoint request under [[access_token]] query parameter, please (I beg you!!!, LOL) save it to secure location. Don't let some random guy from the internet touch this token, this token is the only way other apps can get the member data, which is when some evil bastard get this token we totally screwed
+
+@name("Login")
+POST "https://{{base_url}}/member/login"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("username", "PIXELINC"),
+	("password", "rifan1234")
+)
+
+
+// Reset member password by email, this endpoint will sent an email to member containing password reset link
+
+@name("Password Reset")
+POST "https://{{base_url}}/member/password-reset"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("email", "rifanfirdhaus@gmail.com")
+)
+
+
+// Get statistic of the current member, this endpoint uses heavily SQL Query, make sure to only get what you needed
+
+@name("Statistic")
+GET "https://{{base_url}}/member/statistic"
+? "access_token"= "{{access_token}}"
+? "expand"= "leadershipPotential"
+
+
+// Profile of current member
+
+@name("Profile")
+GET "https://{{base_url}}/member/profile"
+? "access_token"= "{{access_token}}"
+
+
+@name("Update Profile Picture")
+POST "https://{{base_url}}/member/profile-picture"
+? "access_token"= "{{access_token}}"
+files(
+	("uploaded_profile_picture", "None")
+)
+
+
+// Change member password
+
+@name("Change Password")
+POST "https://{{base_url}}/member/change-password"
+? "access_token"= "{{access_token}}"
+files(
+	("old_password", "rifan1234"),
+	("password", "rifan1234"),
+	("password_repeat", "rifan1234")
+)
+
+
+// Get points the current member referrenced
+
+@name("Referenced Points")
+GET "https://{{base_url}}/point/referral"
+? "access_token"= "{{access_token}}"
+? "generation"= "0"
+
+
+// Get rewards the current member already reached
+
+@name("Rewards")
+GET "https://{{base_url}}/member/rewards"
+? "access_token"= "{{access_token}}"
+
+
+// Get transaction code/s owned by the current member. Transaction code is a code that member should buy from company in order to used it to register a referral/upgrade a point/expand an account.
+
+@name("Transaction Code")
+GET "https://{{base_url}}/transaction-code/get"
+? "access_token"= "{{access_token}}"
+? "filter"= "available"
+
+
+// Get payment receipt owned by current member, payment receipt is daily grouped version of endpoint [[cash/get]], in general it tells member how much he earns this day and is it already paid by company
+
+@name("Payment Receipt")
+GET "https://{{base_url}}/payment/get"
+? "access_token"= "{{access_token}}"
+
+
+// Get cash/es recorded in the database. Cash is the breakdown version of payment receipt, in general it tells what bonus member gets, when does it happens and what kind of bonus he gets.
+// 
+// There are two currency of cash (see field [[currency]]): 
+// - Cash (C) = This currency will be paid by company to member's bank account
+// - Point / Auto Maintain (P) = This currency can't be withdrawed, user must spend this currency to purchase products of Proxy
+// 
+// By the caused of the cash, there are 5 types you could possibly meet (see field [[type]]):
+// - Leadership Bonus (L)
+// - Referral Bonus (R)
+// - Reward Bonus (W)
+// - Pairing Bonus (P)
+// - Adjustment (A)
+
+@name("Cash")
+GET "https://{{base_url}}/cash/get"
+? "access_token"= "{{access_token}}"
+
+
+// This Endpoint will return a tree for mobile view as HTML Format, when user click register button, it will redirect member to endpoint [[member/network-pick]], it contains informationn about the position of point the member just clicked
+
+@name("Network Tree")
+GET "https://{{base_url}}/member/network"
+"": ""
+? "access_token"= "{{access_token}}"
+
+
+// Get summary of cash
+
+@name("Cash Report")
+GET "https://{{base_url}}/cash/report"
+? "access_token"= "{{access_token}}"
+? "date_from"= "01-02-2019"
+? "date_to"= "28-02-2019"
+
+
+// Get announcement/s recorded in the database
+
+@name("Announcement")
+GET "https://{{base_url}}/announcement/get"
+? "access_token"= "{{access_token}}"
+? "is_active"= "1"
+? "expand"= "pictureUrl"
+
+
+

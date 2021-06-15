@@ -1,0 +1,137 @@
+#!/usr/bin/env dothttp
+
+// Will return portfolio entries that surpass given threshold for portfolio loaded as:
+// - type: `Security`, `SecurityType`, `Sector`, `Industry`
+// - scope: `model`, `account`, `group`, `branch`
+// - id: either `groupId`, `modelId`, `accountId` or `accountNumber`
+
+@name("Overexposure analysis")
+GET "https://{{url}}/api/v2/advisory/analytics/overexposure/{type}/{scope}/{id}"
+? "threshold"= ".7"
+
+
+// Group accounts into given buckets. 
+// 
+// Where scope is one of:
+// * `model`
+// * `group`
+// 
+// Where `id` can be:
+// * `all` - all models (doesn't apply to groups)
+// * `1` - actual model ID or group ID (depending on the scope)
+// 
+// Example result:
+// ```javascript
+// {
+//     "totalBalance": 21400.93,					// Total balance of all selected accounts
+//     "distributions": [
+//         {
+//             "balances": [],
+//             "percentage": 0,
+//             "total": 0
+//         },
+//         {
+//             "balances": [
+//                 {
+//                     "accountId": 92645,
+//                     "modelId": 92645,
+//                     "balance": 10160.37
+//                 }
+//             ],
+//             "percentage": 0.47476301263543225,	// percentage in decimal of the total
+//             "total": 10160.37					// total of all balances in this bucket
+//         },
+//         {
+//             "balances": [
+//                 {
+//                     "accountId": 92644,
+//                     "modelId": 92644,
+//                     "balance": 6160.37
+//                 },
+//                 {
+//                     "accountId": 92646,
+//                     "modelId": 92646,
+//                     "balance": 5080.19
+//                 }
+//             ],
+//             "percentage": 0.5252369873645678,
+//             "total": 11240.56
+//         }
+//     ]
+// }
+// ```
+
+@name("Realtime balance breakdown")
+GET "https://{{url}}/api/v2/advisory/analytics/breakdown/rtbs/{modelId}"
+? "bucket"= "10000"
+
+
+// How model(s) perform along with its balance history.
+// * `modelId` - model's ID in question (`all` not implemented yet)
+// * `range` - how far back to load the history (1y, 2y, 1m, 50d)
+// 
+// ```javascript
+// [{
+//   "totalValue": 5057.65,
+//   "dividendAmount": 1.2827000000000002,
+//   "dividendsPerMonth": 0.10689166666666668,
+//   "dividendYield": 11.75353,
+//   "balanceHistory": [
+//     {
+//       "date": "09/20/2018 00:00:00 EDT",
+//       "balance": 21417.38
+//     },
+//     {
+//       "date": "09/21/2018 00:00:00 EDT",
+//       "balance": 21407.78
+// 	}
+//   ],
+//   "realtimeBalance": {
+//     "accountId": 0,
+//     "balance": 21183.68,
+//     "modelId": 0
+//   },
+//   "model": {
+//     "identifierBreakdown": "DEFAULT",
+//     "reserve": 0.05,
+//     "description": "The more the faster the better",
+//     "reserveType": "PERCENTAGE",
+//     "id": 1,
+//     "roboActive": false,
+//     "identifierType": "MODEL",
+//     "title": "Growth",
+//     "minimum": 5000,
+//     "robo": false
+//   }
+// }]
+// 
+// ```
+
+@name("Model performance")
+GET "https://{{url}}/api/v2/advisory/analytics/model/performance/{modelId}/{range}"
+
+
+// Generates allocation schedule based on account's position drift. Response:
+// 
+// ```json
+// [
+// {
+// 	"symbol": "ZVZZT",
+// 	"transaction": "BUY|SELL",
+// 	"totalAllocationQty": "500",
+// 	"accountNumbers": ["ACCOUNT1", "ACCOUNT2"],
+// 	"quote": {},
+// 	"targets": [
+// 		{drift: .5, currentPct: .6, expectedPct: .1, rtb: {}, account: {}},
+// 		{drift: .5, currentPct: .6, expectedPct: .1, rtb: {}, account: {}}
+// 	]
+// }
+// ]
+// ```
+
+@name("Model drift report")
+GET "https://{{url}}/api/v2/advisory/analytics/model/drift/{modelId}"
+? "threshold"= ".1"
+
+
+

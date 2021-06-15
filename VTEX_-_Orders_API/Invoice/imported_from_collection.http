@@ -1,0 +1,110 @@
+#!/usr/bin/env dothttp
+
+// Order invoice notification
+// 
+// > know more about [Order Invoice Notification in VTEX Help](https://help.vtex.com/en/tutorial/entering-tax-receipts-in-the-order/child)
+// 
+// 
+// ## Request object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `orderId` | string | Order Id |
+// | `type` | string | Invoice type, values accept:"Output", for output invoices like a normal delivery, and "Input", for input invoice like a package return |
+// | `issuanceDate` | string | Invoice Date |
+// | `invoiceNumber` | string | Invoice Number |
+// | `invoiceValue` | string | Invoice Value |
+// | `invoiceKey` | string | Invoice Access Key |
+// | `invoiceUrl` | string | Invoice Url |
+// | `courier` | string | Selected Courier |
+// | `trackingNumber` | string | Package Tracking Number |
+// | `trackingUrl` | string | Package Tracking URL |
+// | `items` | object | Packge SKU Array |
+// | `id` | string | SKU Id |
+// | `price` | integer | SKU Price |
+// | `quantity` | integer | SKU Quantity |
+// 
+// 
+// > We strongly suggest that you always send the object of the invoiced items, with this practice the rounding errors will be avoided
+// 
+// > It is not allowed to use more than once the Invoice Notification API with the same `invoiceNumber`
+// 
+// ## Response object has the following properties:
+// 
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `date` | string | Invoice Date |
+// | `orderId` | string | Order Id |
+// | `receipt` | string | Invoice receipt confirmation ID |
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Invoice Notification")
+POST "https://bazarhorizonte.vtexcommercestable.com.br/api/oms/pvt/orders/{{pedido}}/invoice"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "INVZFNFDYQKGSGYUQWPFXMYGGOSIVUPXCICPFLYUABYOTDRJDVUBKMJVPOSQVWHEAMEKEJPFYUEWOJMCWIFZZOMPYHZQSHZDTTOHYHFTGPDPHMGFCQTNRIEMZPLXJZNQ"
+"X-VTEX-API-AppKey": "vtexappkey-bazarhorizonte-INQSQG"
+data('{
+ "type":"Output",
+ "issuanceDate":"{{data}}",
+ "invoiceNumber":"{{nota}}",
+ "invoiceValue":"{{valor}}",
+ "trackingNumber": "{{rastreio}}",
+ "trackingUrl": "{{url}}"
+ 
+ }')
+
+
+// Update invoice with tracking number
+// 
+// > know more about [Order Invoice Notification in VTEX Help](https://help.vtex.com/en/tutorial/entering-tax-receipts-in-the-order/child)
+// 
+// 
+// ## Request object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `orderId` | string | Order Id |
+// | `invoiceNumber` | string | Invoice Number |
+// | `trackingNumber` | string | Package Tracking Number |
+// | `trackingUrl` | string | Package Tracking URL |
+// | `courier` | string | Selected Courier |
+// 
+// ## Response object has the following properties:
+// 
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `date` | string | Invoice Date |
+// | `orderId` | string | Order Id |
+// | `receipt` | string | Invoice receipt confirmation ID |
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+
+@name("Update partial invoice (Send Tracking Number)")
+PATCH "https://{{accountName}}.{{environment}}.com.br/api/oms/pvt/orders/{{orderId}}/invoice/{{invoiceNumber}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+data('{
+  "trackingNumber": "87658",
+  "trackingUrl": null,
+  "courier": null
+}')
+
+
+

@@ -1,0 +1,325 @@
+#!/usr/bin/env dothttp
+
+// This will search for a specific module and it will produce all the details about the module that yangcatalog contains
+// 
+// /search/modules/<name>,<revision>,<organization>
+// 
+// Note that there are 3 indices
+
+@name("Return all metadata for specific module in the catalog")
+GET "https://yangcatalog.org/api/search/modules/ietf-l3vpn-svc,2018-01-19,ietf"
+
+
+// Search for all the modules in yangcatalog
+// 
+// Warning!!!
+// This might take a long time since there might be a lot of data
+// 
+// On Dec 2017, we speak about 2878 YANG modules, with some of them having multiple revisions.
+
+@name("Return all YANG modules in the catalog")
+GET "https://yangcatalog.org/api/search/modules"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+// Searching for all the modules for a specific vendor. This will not produce all the module details. You can search for any part of this request as a example you can serach for vendor cisco and it will produce response with all the platforms, versions and flavors.
+// /search/vendors/vendor/<vendor-id>/platforms/platform/<platform-id>/software-versions/software-version/<software-version-id>/software-flavors/software-flavor/<software-flavor-id>
+
+@name("Return all YANG modules for the ISR4000 running IOS 16.6.2")
+GET "https://yangcatalog.org/api/search/vendors/vendor/cisco/platforms/platform/ISR4000/software-versions/software-version/16.6.2"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+// This way you can search for any specific entry in the yangcatalog
+// 
+// /search/<yang-moodule-leaf>/<name>
+// 
+// <yang-module-leaf> can be one of the following:
+// 'ietf/ietf-wg', 'maturity-level', 'document-name', 'author-email', 'compilation-status', 'namespace', 'conformance-type', 'module-type', 'organization', 'yang-version', 'name', 'revision', 'tree-type', 'belongs-to', 'generated-from'
+// 
+// <name> needs to be anything you are looking for
+
+@name("Return all revisions of a specific YANG module")
+GET "https://yangcatalog.org/api/search/name/ietf-l3vpn-svc"
+basicauth("admin", "admin")
+"Content-Type": "application/json"
+
+
+// This request requires a body with root input element that contains two child elements. Old and new. In those elements you can specify any condition you want from your modules and it will produce a list of modules that are same in old and new container but have different semantic version. It will also produce a information of why the semantic version is different as well as diff of yang tree and yang module itself
+
+@name("Check semantic differences between ISR4000 IOS 16.6.1 and 16.6.2")
+POST "https://yangcatalog.org/api/check-semantic-version"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+   "input": {
+      "old":{
+    "implementations": {
+        "implementation" :[
+        {
+           "vendor": "cisco", 
+           "software-version": "16.6.1",
+           "platform": "ISR4000"
+        }]
+    }
+     },
+     
+    "new": {
+    "implementations": {
+        "implementation" :[
+        {
+           "vendor": "cisco", 
+           "software-version": "16.6.2",
+           "platform": "ISR4000"
+        }]
+    }
+    }
+   }
+}')
+
+
+@name("Check sematic difference for same module with different revision")
+POST "https://yangcatalog.org/api/check-semantic-version"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+   "input": {
+        "old":{
+            "name": "Cisco-IOS-XE-policy",
+            "revision": "2017-06-07",
+            "organization": "cisco"
+        },
+     
+        "new": {
+            "name": "Cisco-IOS-XE-policy",
+            "revision": "2017-08-21",
+            "organization": "cisco"
+        }
+   }
+}')
+
+
+// This is a request that needs to have body specified with root named input and its child should contain any conditions that output module needs to meet. These conditions must be compliant with yang-catalog.yang module.
+
+@name("Return all YANG modules and metadata for IOS XE 16.6.2")
+POST "https://yangcatalog.org/api/search-filter"
+basicauth("admin", "admin")
+"Accept": ""
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+   "input":{
+      "implementations":{
+         "implementation":[
+            {
+               "vendor":"cisco",
+               "software-version":"16.6.2"
+            }
+         ]
+      }
+   }
+}')
+
+
+// This request is same as serach-filter exept it will produce set of names requested in the path. As an example this specific request will produce set of author-emails of the modules that has a dependencie on ietf-routing
+// 
+// /search-filter/<yang-catalog-leaf>
+// 
+// <yang-catalog-leaf> leaf that will be serched for
+
+@name("For a specific IETF draft, provide the emails addresses of all dependent YANG modules")
+POST "https://yangcatalog.org/api/search-filter/author-email"
+basicauth("admin", "admin")
+"Accept": ""
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+  "input":{
+    "dependencies": [{
+    	"name": "ietf-inet-types"
+    }]
+  }
+}')
+
+
+// This request is same as serach-filter exept it will produce set of names requested in the path. As an example this specific request will produce set of author-emails of the modules that has a dependencie on ietf-routing
+// 
+// /search-filter/<yang-catalog-leaf>
+// 
+// <yang-catalog-leaf> leaf that will be serched for
+
+@name("Search for all module names with ietf-routing dependencie")
+POST "https://yangcatalog.org/api/search-filter/name"
+basicauth("admin", "admin")
+"Accept": ""
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+  "input":{
+    "dependencies": [{"name": "ietf-inet-types"
+    }]
+  }
+}')
+
+
+// Search for all the vendors in yangcatalog
+
+@name('Return all entries with the YANG module "vendor" branch')
+GET "https://yangcatalog.org/api/search/vendors"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+// Search for all the data that are in yangcatalog
+// 
+// Warning!!!
+// This might take a long time since there might be a lot of data
+
+@name('Return all YANG modules and all entries with the YANG module "vendor" branch')
+GET "https://yangcatalog.org/api/search/catalog"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+// This request requires a body with root input element that contains two child elements. Old and new. In those elements you can specify any condition you want from your modules and it will produce a list of modules that are same in old and new container but have different semantic version. It will also produce a information of why the semantic version is different as well as diff of yang tree and yang module itself
+
+@name("Return all vendors and organizations that contributed to yangcatalog")
+GET "https://yangcatalog.org/api/contributors"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+// Search for anything with "?latest-revision=True" argument for receiving only latest revision of each module
+
+@name("Return all latest revisions from IETF YANG modules")
+GET "https://yangcatalog.org/api/search/organization/ietf"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/vnd.yang.data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+? "latest-revision"= "True"
+
+
+@name("Return all latest revisions from IEEE YANG modules")
+POST "https://yangcatalog.org/api/search-filter"
+"Content-Type": "application/json"
+? "latest-revision"= "True"
+data('{
+  "input": {
+  "organization": "ieee"
+  }
+}')
+
+
+@name("Return all YANG modules that are common between ISR4000 IOS 16.6.1 and 16.6.2")
+POST "https://yangcatalog.org/api/get-common"
+basicauth("admin", "admin")
+"Accept": "application/vnd.yang.data+json"
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+data('{
+   "input": {
+      "first":{
+           "implementations": {
+               "implementation" :[{
+                    "vendor": "cisco", 
+                    "software-version": "16.6.1",
+                    "platform": "ISR4000"
+                }]
+            }
+        },
+        "second": {
+           "implementations": {
+               "implementation" :[{
+                   "vendor": "cisco", 
+                    "software-version": "16.6.2",
+                    "platform": "ISR4000"
+                }]
+            }
+        }
+    }
+}')
+
+
+@name("Return all IEEE YANG modules in the catalog")
+POST "https://yangcatalog.org/api/search-filter"
+"Content-Type": "application/json"
+data('{
+  "input": {
+  "organization": "ieee"
+  }
+}')
+
+
+@name("Return all IETF YANG modules in the catalog")
+POST "https://yangcatalog.org/api/search-filter"
+"Content-Type": "application/json"
+data('{
+  "input": {
+  "organization": "ietf"
+  }
+}')
+
+
+@name("Return all openconfig YANG modules for the ISR4000 IOS 16.6.2")
+POST "https://yangcatalog.org/api/search-filter"
+"Content-Type": "application/json"
+data('{
+  "input": {
+  "organization": "openconfig",
+  "implementations": {
+    "implementation" :[
+    {
+      "vendor": "cisco",
+      "software-version": "16.6.2",
+      "platform": "ISR4000"
+    }]
+    }
+  }
+}')
+
+
+@name("Return all openconfig YANG modules in the catalog")
+POST "https://yangcatalog.org/api/search-filter"
+"Content-Type": "application/json"
+data('{
+  "input": {
+  "organization": "openconfig"
+  }
+}')
+
+
+@name("Return only latest revision modules for ietf organization ")
+GET "https://yangcatalog.org/api/search/organization/ietf"
+basicauth("", "")
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46WUBuZ19hZG0xbi0+KHBhU1Mp"
+? "latest-revision"= "True"
+
+
+// Requesting a status of a job-id
+
+@name("Return a status of a specific job id")
+GET "https://yangcatalog.org/api/job/12asdf56asdf132sdf5asd4f86a"
+basicauth("admin", "admin")
+"Content-Type": "application/json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+
+
+

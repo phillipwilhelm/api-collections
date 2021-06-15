@@ -1,0 +1,44 @@
+#!/usr/bin/env dothttp
+
+// Inject a transaction into the transaction list for a testing account. This allows an app to trigger TxPush notifications for the account in order to test the app’s TxPush Listener service. This causes the platform to send one transaction event and one account event (showing that the account balance has changed). This service is only supported for testing accounts (accounts on institution 101732).
+
+@name("Create TxPush Test Transaction")
+POST "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/transactions"
+"Content-Type": "application/json"
+data('{
+    "amount": -4.25,
+    "description": "a testing transaction description",
+    "status": "pending",
+    "postedDate": 1588888169,
+    "transactionDate": 1588801769
+}')
+
+
+// Connect to the account’s financial institution and load up to 24 months of historic transactions for the account. Length of history varies by institution.
+// 
+// This is a premium service. The billable event is a call to this service specifying a customerId that has not been seen before by this service. (If this service is called multiple times with the same customerId, to load transactions from multiple accounts, only one billable event has occurred.)
+// 
+// HTTP status of 204 means historic transactions have been loaded successfully. The transactions are now available by calling Get Customer Account Transactions.
+// 
+// HTTP status of 203 means the response contains an MFA challenge. Contact your Account Manager or Systems Engineers to determine the best route to handle this HTTP status code.
+// 
+// The recommended timeout setting for this request is 180 seconds in order to receive a response. However you can terminate the connection after making the call the operation will still complete. You will have to pull the account records to check for an updated aggregation attempt date to know when the refresh is complete.
+// 
+// This service usually requires the HTTP header Content-Length: 0 because it is a POST request with no request body.
+// 
+// The date range sent to the institution is calculated from the account’s createdDate. This means that calling this service a second time for the same account normally will not add any new transactions for the account. For this reason, a second call to this service for a known accountId will usually return immediately with HTTP 204.
+// 
+// In a few specific scenarios, it may be desirable to force a second connection to the institution for a known accountId. Some examples are:
+// 
+// - The institution’s policy has changed, making more transactions available.
+// - Finicity has now added a longer transaction history support for the institution.
+// - The first call encountered an error, and the resulting Aggregation Ticket has now been fixed by the Finicity Support Team.
+// 
+// In these cases, the POST request can contain the parameter force=true in the request body to force the second connection.
+
+@name("Load Historic Transactions For Customer Account")
+POST "https://{{baseUrl}}/aggregation/v1/customers/:customerId/accounts/:accountId/transactions/historic"
+"Content-Length": "0"
+
+
+

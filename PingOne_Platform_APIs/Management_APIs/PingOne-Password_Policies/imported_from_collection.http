@@ -1,0 +1,53 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Password Policies")
+GET "https://{{apiPath}}/environments/{{envID}}/passwordPolicies"
+"Content-Type": "application/json"
+
+
+
+@name("READ One Password Policy")
+GET "https://{{apiPath}}/environments/{{envID}}/passwordPolicies/{{passwordPolicyID}}"
+"Content-Type": "application/json"
+
+
+
+// #### Password Policy Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | Y | Y | String; must be unique w/in Env |
+// description | Y | N | String |
+// default | Y | N | Boolean; default `false` | When set to true, all other policies are set to false. If the default policy is being updated, then default cannot be set to false.
+// excludesProfileData | Y | Y | Boolean | When true, ensure the password does not match (exact and substring) the value of any attribute in the user’s profile, such as name, phone number, or address.
+// notSimilarToCurrent | Y | Y | Boolean | When true, ensures the proposed password is not too similar to the user’s current password based on the Levenshtein distance algorithm.
+// excludesCommonlyUsed | Y | Y | Boolean | When true, ensures the password is not one of the commonly used passwords.
+// minComplexity | Y | N | Integer | The minimum complexity of the password based on the concept of password haystacks. Value is number of days required to exhaust the entire search space during a brute force attack. Not enforced when not present.
+// minAgeDays | Y | N | Integer | The minimum number of days a password must be used before changing.
+// maxAgeDays | Y | N | Integer | The maximum number of days the same password may be used before it must be changed.
+// maxRepeatedCharacters | Y | N | Integer | The maximum number of repeated characters allowed. Not enforced when not present.
+// minUniqueCharacters | Y | N | Integer | The minimum number of unique characters required. Not enforced when not present.
+// history | | | | Both values count and retentionDays are required for configuration.
+// -- count | Y | N | Integer | The number of prior passwords to keep for prevention of password re-use.
+// -- retentionDays | Y | N | Integer | The length of time to keep recent passwords for prevention of password re-use.
+// lockout | | | | Both values failureCount and durationSeconds are required for configuration.
+// -- failureCount | Y | N | Integer | The number of tries before a password is placed in the Lock Out state.
+// -- durationSeconds | Y | N | Integer | The length of time before a password is automatically moved out of the Lock Out state.
+// length | | | | Not enforced when not present. Only enforced when both min / max properties are provided with values 8 / 255 respectively.
+// -- min | Y | N | Integer | The minimum number of characters required.
+// -- max | Y | N | Integer | The maximum number of characters allowed.
+// minCharacters | | | | A set key-value pairs where the keys is a string containing all the characters that may be included and the value is the minimum number of times one of the characters must appear in the password. Not enforced when not present.
+// -- ~!@#$%^&*()-_=+[]{}&#124;;:,.<>/? | Y | N | Integer; must be `1` |
+// -- 0123456789 | Y | N | Integer; must be `1` |
+// -- ABCDEFGHIJKLMNOPQRSTUVWXYZ | Y | N | Integer; must be `1` |
+// -- abcdefghijklmnopqrstuvwxyz | Y | N | Integer; must be `1` |
+
+@name("UPDATE Password Policy")
+PUT "https://{{apiPath}}/environments/{{envID}}/passwordPolicies/{{passwordPolicyID}}"
+"content-type": "application/json"
+data('{
+  "default": "true"
+}')
+
+
+

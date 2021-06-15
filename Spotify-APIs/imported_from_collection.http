@@ -1,0 +1,322 @@
+#!/usr/bin/env dothttp
+
+@name("Get User Details")
+POST "https://localhost/disco/user/logon"
+"Content-Type": "application/json"
+json({
+    "userName": "test2",
+    "password": "Disco123"
+})
+
+
+// FUNCTION NAME:				
+// fnc_get_home_pg_details		
+// 
+// TYPE
+// RETURNS RECORD
+// 
+// INPUT BODY				
+// ip_user_id
+// 
+// TYPE
+// bigint
+// 
+// Output	
+// op_status				refcursor
+// 
+// op_section_details		json
+
+@name("Get Home Page Detail")
+POST "http://localhost/disco/gethomepagedetail"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTEyMTgzLCJleHAiOjE1ODM5MTM5ODN9.F43-oLoGCFYkYhSbxM3GPfmiuqDaUWOqXtXs6TFyAG2QCO0Bxjdemw0lJRuxf0NdUE0f-NEDckAb_dGcZOozyg"
+json({
+    "userId": 1235
+})
+
+
+// FUNCTION NAME	
+// fnc_get_album_playlist_genre
+// 
+// RETURNS RECORD
+// 
+// INPUT
+// 
+// ip_user_id	(bigint)
+// 
+// ip_called_from	(bigint)
+// 
+// OUTPUT
+// 
+// op_status	(refcursor)
+// 
+// op_detail_list	(refcursor)
+// 		
+// LOGIC	
+// Fetch the playlist and/or albums as per the browse tabs based on the songs to which the user have access to.
+
+@name("Get Album Play List Genre")
+GET "http://localhost/disco/getalbumplaylistgenre"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTE1ODIxLCJleHAiOjE1ODM5MTc2MjF9.7k4hBZeY6x-SApxBAwwsclLjlChsd0VV_TUNymKqtOVJDkg6Bo1fZn8m5TQN8eYVRykdQblKtQqVaDWYSmHGEA"
+? "userId"= "1235"
+? "calledFrom"= "2"
+
+
+// FUNCTION NAME
+// 
+// fnc_follow_playlist_song
+// 
+// RETURNS (refcursor)
+// 
+// INPUT
+// 
+// ip_user_id	(bigint)
+// 
+// ip_application_type_id	(bigint)	[Song/Playlist/Album]
+// 
+// ip_application_id	(bigint)	
+// 
+// ip_follow	(int)	
+// 
+// OUTPUT	
+// 
+// op_status	(refcursor)	
+// 
+// Logic
+// For Song/Playlist/Album, either follow or unfollow and populate the main and history tables.
+
+@name("Follow Playlist Song")
+POST "http://localhost/disco/followplaylistsong"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+"": ""
+data('{
+	"userId":1234,
+	"applicationTypeId":2,
+	"applicationId":5,
+	"follow":1
+}')
+
+
+// FUNCTION NAME	
+// 
+// fnc_get_song_page	
+// 
+// RETURNS RECORD	
+// 
+// INPUT
+// 
+// ip_user_id	(bigint)	
+// 
+// ip_called_from	(int)	[playlist/album/genre/favourite/mostviewed]
+// 
+// ip_entity_id	(bigint)	[playlist_id/album_id/lifecycle_metadata_id/null/null]
+// 
+// OUTPUT
+// 
+// op_status	(refcursor)
+// 
+// op_caller_detail	(refcursor)	[Detail of playlist/album/genre/favourite default folder/ most viewed folder]
+// 
+// op_song_list	(refcursor)	[Show Title, Artist, Album based on playlist_id, album_id, lifecycle_metadata_id, all liked song, top 20 viewed song.]
+// 
+// Logic
+// 
+// Show playlist/album/genre/favourite/mostviewed details, list of songs, follow flag. Show song list for grid.
+
+@name("Get Song Grid")
+GET "http://localhost/disco/getsonggrid"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTE4NjcyLCJleHAiOjE1ODM5MjA0NzJ9.qRAqAc5kYAFik3IHO0bV95byy4NdqwMBrtpPKi0o6mj6hIG3Pw7HAoYL6p6BociCL2aP4PwEayTrxxCv3O6WCw"
+"": ""
+? "userId"= "1235"
+? "calledFrom"= "1"
+? "entityId"= "1"
+
+
+// FUNCTION NAME	
+// 
+// fnc_get_my_playlist_and_default
+// 
+// RETURNS RECORD								
+// 
+// INPUT	
+// ip_user_id	(bigint)
+// 
+// OUTPUT
+// 
+// op_status	(refcursor)
+// 
+// op_user_playlist_and_default				(refcursor)					[The Playlists created by me and the default My Favourites and Most Viewed Songs.]
+
+@name("Get User Playlist And Default")
+GET "http://localhost/disco/getuserplaylistanddefault"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTMxNjAwLCJleHAiOjE1ODM5MzM0MDB9.23pHhHyzNB5-1kCcj76PNqoRfeVv0yrYll3iDYSGSjyzkblirJaBYDgA5-W_6epwhNIYPdAKxVa7Re_lDjelow"
+"": ""
+? "userId"= "1235"
+
+
+// FUNCTION NAME
+// 
+// fnc_get_song_page
+// 
+// RETURNS RECORD
+// 
+// INPUT	
+// 
+// ip_user_id	(bigint)												
+// 
+// ip_called_from	(int)		[playlist/album/genre/favourite/mostviewed]
+// 
+// ip_entity_id	(bigint)	[playlist_id/album_id/lifecycle_metadata_id/null/null]
+// 
+// OUTPUT	
+// 
+// op_status	(refcursor)												
+// 
+// op_caller_detail	(refcursor)	[Detail of playlist/album/genre/favourite default folder/ most viewed folder]	
+// 
+// op_song_list	(refcursor)	[Show Title, Artist, Album based on playlist_id, album_id, lifecycle_metadata_id, all liked song, top 20 viewed song.]									
+// LOGIC	
+// Show playlist/album/genre/favourite/mostviewed details, list of songs, follow flag. Show song list for grid.
+
+@name("Get User Song Page")
+GET "http://localhost/disco/getusersongpage"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTE4NjcyLCJleHAiOjE1ODM5MjA0NzJ9.qRAqAc5kYAFik3IHO0bV95byy4NdqwMBrtpPKi0o6mj6hIG3Pw7HAoYL6p6BociCL2aP4PwEayTrxxCv3O6WCw"
+"": ""
+? "userId"= "1235"
+? "calledFrom"= "1"
+? "entityId"= "1"
+
+
+// FUNCTION NAME	
+// 
+// fnc_get_recommended_playlist	
+// 
+// RETURNS RECORD					
+// 
+// INPUT	
+// 
+// ip_user_id	(bigint)					
+// 
+// OUTPUT	
+// 
+// op_status	(refcursor)
+// 
+// op_recommended_playlist	(refcursor)
+// 
+// Logic	Fetch all the recommended playlists based on my playlist having the songs to which the user have access to.
+
+@name("Get Recommended Playlist")
+GET "http://localhost/disco/getrecommendedplaylist"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM2MTE5LCJleHAiOjE1ODM5Mzc5MTl9.Zj1AmHdBlibSCihhex6e_wJ5JZy92WlVncYH_-Rdfp8v7CAT_wOvbVdSafEZK2rsTnT5QzSpIIIvAgpHgFXGFA"
+? "userId"= "1234"
+
+
+// FUNCTION NAME	
+// 
+// fnc_get_new_releases	
+// 
+// RETURNS RECORD			
+// 
+// INPUT	
+// 
+// ip_user_id	(bigint)
+// 
+// OUTPUT	
+// 
+// op_status	(refcursor)			
+// 
+// op_new_releases	(refcursor)
+// 
+// Logic	Fetch all the newly released playlists having the songs to which the user have access to.
+
+@name("Get New Releases")
+GET "http://localhost/disco/getnewreleases"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+? "userId"= "1234"
+
+
+// FUNCTION NAME	
+// 
+// fnc_get_recently_played	
+// 
+// RETURNS RECORD
+// 
+// INPUT	
+// 
+// ip_user_id	(bigint)
+// 
+// OUTPUT	
+// 
+// op_status	(refcursor)		
+// 
+// op_recently_played	(refcursor)
+// 
+// LOGIC	
+// Fetch all the recently played playlists having the songs to which the user have access to.
+
+@name("Get Recently Played")
+GET "http://localhost/disco/getrecentlyplayed"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+? "userId"= "1234"
+
+
+// Function Name 
+// 
+// admin.fnc_overview_pg_details 
+// 
+// INPUT
+// 
+// userId (bigint)
+// 
+// Output
+
+@name("Browse Pg Detail")
+GET "http://localhost/disco/browsepgdetail"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+? "userId"= "1234"
+
+
+// Function Name
+// 
+// admin.fnc_overview_pg_details
+// 
+// INPUT
+// 
+// userId (bigint)
+// 
+// OUTPUT
+
+@name("Over View pg Detail")
+GET "http://localhost/disco/overviewpgdetail"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+? "userId"= "1234"
+
+
+// Function Name 
+// 
+// admin.fnc_get_most_viewed_list
+// 
+// INPUT
+// 
+// userId
+// 
+// Output
+
+@name("Get Most Viewed")
+GET "http://localhost/disco/getmostviewed"
+"Content-Type": "application/json"
+"X-Authorization": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0MiIsImRhdGEiOlsiQWRtaW5Sb2xlIl0sImR1cmF0aW9uVGltZSI6MzAsImlzcyI6Imh0dHBzOi8vYXBwLnRlc3QuY29tIiwiaWF0IjoxNTgzOTM4MjI3LCJleHAiOjE1ODM5NDAwMjd9.t3PJ_LooqZa9h3OzpOdWpVPfVMSVdPOpBtobkA1vEJsTQnTfZZ8qkTgUpucgk95NsVA6CIc6rIIm-3tbZ9aPBw"
+? "userId"= "1234  "
+
+
+

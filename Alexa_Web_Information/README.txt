@@ -1,0 +1,1 @@
+The Alexa Web Information Service (AWIS) offers a platform for creating innovative web solutions and services based on Alexa's vast information about websites, accessible via API. The following documentation describes how to use the Alexa Web Information Service.

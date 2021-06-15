@@ -1,0 +1,106 @@
+#!/usr/bin/env dothttp
+
+// # Get Odyssey Files
+// ---
+// 
+// Gets the list of files that exist at the given path. If no path is provided, an error will be returned. A valid path must be specified
+// 
+// # Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The name of the Company to use to authenticate your API request. This is optional if using a company-specific API Key
+// 
+// **Path** - Type *string* **:**
+// The URL-encoded path to location which you wish to find files in
+
+@name("{GET}")
+GET "https://{{ServerPath}}/FileSystem/Files"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+? "Path"= "[LINKS]/AGB/Test"
+
+
+
+// # Upload Odyssey Files
+// ---
+// 
+// Uploads new files to the target path. In order for this request to work properly, you must attach files to it in the content of a multipart/form-data request.
+// 
+// # Parameters
+// ---
+// 
+// **CompanyID** - Type *string* **:**
+// The name of the Company to use to authenticate your API request. This is optional if using a company-specific API Key
+// 
+// **Path** - Type *string* **:**
+// The URL-encoded path to location which you wish to find files in
+
+@name("{POST}")
+POST "https://{{ServerPath}}/FileSystem/Files"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+? "CompanyID"= "{{CompanyID}}"
+? "Path"= "[LINKS]/AGB/Test"
+files(
+	("test-file.txt", "None")
+)
+
+
+// # Delete Odyssey Files
+// ---
+// 
+// Deletes the list of Odyssey files.
+
+@name("{DELETE}")
+DELETE "https://{{ServerPath}}/FileSystem/Files"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+data('{
+    "Files": [
+        "[LINKS]/AGB/Folder1/some-file.txt",
+        "[LINKS]/AGB/Folder1/some-photo.jpg"
+    ]
+}')
+
+
+// # Copy Odyssey Files
+// ---
+// 
+// Copies the given list of files to the target path
+
+@name("/Copy {POST}")
+POST "https://{{ServerPath}}/FileSystem/Files/Copy"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+data('{
+    "Files": [
+        "[LINKS]/AGB/Folder1/some-file.txt",
+        "[LINKS]/AGB/Folder1/some-photo.jpg"
+    ],
+    "TargetPath": "[LINKS]/AGB/Folder2",
+    "Overwrite": false
+}')
+
+
+// # Move Odyssey Files
+// ---
+// 
+// Moves the given list of files to the target path
+
+@name("/Move {POST}")
+POST "https://{{ServerPath}}/FileSystem/Files/Move"
+"Content-Type": "application/json"
+"X-API-Key": "{{APIKey}}"
+data('{
+    "Files": [
+        "[LINKS]/AGB/Folder1/some-file.txt",
+        "[LINKS]/AGB/Folder1/some-photo.jpg"
+    ],
+    "TargetPath": "[LINKS]/AGB/Folder2",
+    "Overwrite": false
+}')
+
+
+

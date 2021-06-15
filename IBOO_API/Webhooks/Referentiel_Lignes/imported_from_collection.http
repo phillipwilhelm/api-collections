@@ -1,0 +1,207 @@
+#!/usr/bin/env dothttp
+
+// Vous devez utiliser l'onglet Pre-request Script dans Postman pour remplir la variable xml. Cette variable contient le payload NeTEx correctement échappé.
+// Un exemple se trouve ci-dessous : 
+// 
+// ```javascript
+// var xml = JSON.stringify(`<Line version="any"
+// dataSourceRef="FR1:OrganisationalUnit::"
+// created="2015-12-04T17:18:34Z"
+// changed="2019-06-25T22:00:02Z" status="active"
+// id="webhook-2">
+//   <ValidBetween>
+//     <FromDate>2015-12-04T00:00:00</FromDate>
+//     <ToDate>2020-02-01T00:00:00</ToDate>
+//   </ValidBetween>
+//   <Name>Ligne 3 : Boucle de Chevry</Name>
+//   <ShortName>Ligne 3 : Boucle de Chevry</ShortName>
+//   <TransportMode>bus</TransportMode>
+//   <TransportSubmode>
+//     <BusSubmode>demandAndResponseBus</BusSubmode>
+//   </TransportSubmode>
+//   <PublicCode></PublicCode>
+//   <PrivateCode>210677013</PrivateCode>
+//   <OperatorRef version="any"
+//   ref="FR1:Operator:210:LOC" />
+//   <additionalOperators>
+//     <OperatorRef version="any"
+//     ref="FR1:Operator:210:LOC" />
+//   </additionalOperators>
+//   <Presentation>
+//     <Colour>aaaaaa</Colour>
+//     <ColourName>RGB:170 170 170</ColourName>
+//     <TextColour>000000</TextColour>
+//   </Presentation>
+//   <AlternativePresentation>
+//     <ColourName>CMYK:0 0 0 33</ColourName>
+//     <TextColour>000000</TextColour>
+//   </AlternativePresentation>
+//   <AccessibilityAssessment id="FR1:AccessibilityAssessment:C01931:"
+//   version="any">
+//     <MobilityImpairedAccess>
+//     false</MobilityImpairedAccess>
+//     <limitations>
+//       <AccessibilityLimitation>
+//         <WheelchairAccess>unknown</WheelchairAccess>
+//         <AudibleSignalsAvailable>
+//         unknown</AudibleSignalsAvailable>
+//         <VisualSignsAvailable>
+//         unknown</VisualSignsAvailable>
+//       </AccessibilityLimitation>
+//     </limitations>
+//   </AccessibilityAssessment>
+//   <noticeAssignments>
+//     <NoticeAssignment id="FR1:NoticeAssignment:C01931:"
+//     version="any" order="0">
+//       <NoticeRef version="any"
+//       ref="FR1:Notice:C01931:" />
+//     </NoticeAssignment>
+//   </noticeAssignments>
+// </Line>`);
+// postman.setEnvironmentVariable("xml", xml);
+// ```
+
+@name("Créer Modifier des Lignes")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+data('{
+  "type": "updated",
+  "line": {{xml}}
+}')
+
+
+@name("Supprimer des Lignes")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+json({
+    "type": "destroyed",
+    "lines": [
+        {
+            "id": "webhook-1"
+        },
+        {
+            "id": "webhook-2"
+        }
+    ]
+})
+
+
+// Vous devez utiliser l'onglet Pre-request Script dans Postman pour remplir la variable xml. Cette variable contient le payload NeTEx correctement échappé.
+// Un exemple se trouve ci-dessous : 
+// 
+// ```javascript
+// var xml = JSON.stringify(`<organisations>
+//   <Operator version="any"
+//             dataSourceRef="FR1:OrganisationalUnit:IDFM:"
+//             changed="2019-09-09T09:03:22Z"
+//             id="webhook-1">
+//               <BrandingRef ref="/uploads/logos/" />
+//               <Name>MOBICITE</Name>
+//               <ContactDetails>
+//                 <ContactPerson></ContactPerson>
+//                 <Email></Email>
+//                 <Phone>01 30 16 13 00</Phone>
+//                 <Url></Url>
+//                 <FurtherDetails></FurtherDetails>
+//               </ContactDetails>
+//               <Address>
+//                 <HouseNumber>9</HouseNumber>
+//                 <AddressLine1></AddressLine1>
+//                 <Street>avenue Jean-Pierre Timbaud</Street>
+//                 <Town>TRAPPES</Town>
+//                 <PostCode>78190</PostCode>
+//                 <PostCodeExtension></PostCodeExtension>
+//               </Address>
+//             </Operator>
+//     <Operator version="any"
+//             dataSourceRef="FR1:OrganisationalUnit:IDFM:"
+//             changed="2019-09-09T09:03:22Z"
+//             id="webhook-2">
+//               <BrandingRef ref="/uploads/logos/" />
+//               <Name>MOBICITE</Name>
+//               <ContactDetails>
+//                 <ContactPerson></ContactPerson>
+//                 <Email></Email>
+//                 <Phone>01 30 16 13 00</Phone>
+//                 <Url></Url>
+//                 <FurtherDetails></FurtherDetails>
+//               </ContactDetails>
+//               <Address>
+//                 <HouseNumber>9</HouseNumber>
+//                 <AddressLine1></AddressLine1>
+//                 <Street>avenue Jean-Pierre Timbaud</Street>
+//                 <Town>TRAPPES</Town>
+//                 <PostCode>78190</PostCode>
+//                 <PostCodeExtension></PostCodeExtension>
+//               </Address>
+//             </Operator>        
+// </organisations>`);
+// postman.setEnvironmentVariable("xml", xml);
+// ```
+
+@name("Créer Modifier des Transporteurs")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+data('{
+  "type": "updated",
+  "operators": {{xml}}
+}')
+
+
+@name("Supprimer des Transporteurs")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+json({
+    "type": "destroyed",
+    "operators": [
+        {
+            "id": "webhook-1"
+        },
+        {
+            "id": "webhook-2"
+        }
+    ]
+})
+
+
+// Vous devez utiliser l'onglet Pre-request Script dans Postman pour remplir la variable xml. Cette variable contient le payload NeTEx correctement échappé.
+// Un exemple se trouve ci-dessous : 
+// 
+// ```javascript
+// var xml = JSON.stringify(`<networks>
+//   <Network version="any" id="webhook-1">
+//     <Name>TRAMWAY</Name>
+//   </Network>
+//   <Network version="any" id="webhook-2">
+//     <Name>VEXINBUS</Name>
+//   </Network>
+// </networks>`);
+// postman.setEnvironmentVariable("xml", xml);
+// ```
+
+@name("Créer Modifier des Réseaux")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+data('{
+  "type": "updated",
+  "networks": {{xml}}
+}')
+
+
+@name("Supprimer un Réseau")
+POST "https://{{IBOO_URL}}/api/v1/line_referentials/{{line_referential}}/webhook"
+"Content-Type": "application/json"
+json({
+    "type": "destroyed",
+    "networks": [
+        {
+            "id": "webhook-1"
+        },
+        {
+            "id": "webhook-2"
+        }
+    ]
+})
+
+
+

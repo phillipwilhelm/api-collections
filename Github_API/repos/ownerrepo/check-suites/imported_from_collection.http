@@ -1,0 +1,34 @@
+#!/usr/bin/env dothttp
+
+// **Note:** The Checks API only looks for pushes in the repository where the check suite or check run were created. Pushes to a branch in a forked repository are not detected and return an empty `pull_requests` array and a `null` value for `head_branch`.
+// 
+// By default, check suites are automatically created when you create a [check run](https://docs.github.com/rest/reference/checks#check-runs). You only need to use this endpoint for manually creating check suites when you've disabled automatic creation using "[Update repository preferences for check suites](https://docs.github.com/rest/reference/checks#update-repository-preferences-for-check-suites)". Your GitHub App must have the `checks:write` permission to create check suites.
+
+@name("Create a check suite")
+POST "https://{{baseUrl}}/repos/:owner/:repo/check-suites"
+"Content-Type": "application/json"
+data('{
+    "head_sha": "<string>"
+}')
+
+
+// Changes the default automatic flow when creating check suites. By default, a check suite is automatically created each time code is pushed to a repository. When you disable the automatic creation of check suites, you can manually [Create a check suite](https://docs.github.com/rest/reference/checks#create-a-check-suite). You must have admin permissions in the repository to set preferences for check suites.
+
+@name("Update repository preferences for check suites")
+PATCH "https://{{baseUrl}}/repos/:owner/:repo/check-suites/preferences"
+"Content-Type": "application/json"
+data('{
+    "auto_trigger_checks": [
+        {
+            "app_id": "<integer>",
+            "setting": true
+        },
+        {
+            "app_id": "<integer>",
+            "setting": true
+        }
+    ]
+}')
+
+
+

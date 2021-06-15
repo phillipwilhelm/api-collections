@@ -1,0 +1,35 @@
+#!/usr/bin/env dothttp
+
+@name("List Wikis")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/wiki/wikis"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+// SecurityNamespace is same as Git Repo 
+// 
+// Token format is "repoV2/PROJECT_ID/WIKI_ID/"
+
+@name("Edit Wiki Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{GitRepoSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+json({
+    "token": "repoV2/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/2f93b00e-f48a-45a1-8345-55e74bc36041/",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\\user@company.com",
+            "allow": 0,
+            "deny": 4096,
+            "extendedInfo": {
+                "effectiveAllow": 0,
+                "effectiveDeny": 4096,
+                "inheritedAllow": 0,
+                "inheritedDeny": 4096
+            }
+        }
+    ]
+})
+
+
+

@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+// You can get active identity counts for a selected environment over a specified time period. The `GET /environments/{environmentId}/activeIdentityCounts` request must specify a SCIM filtering expression that designates a start date and a sampling period value in the request URL.
+// 
+// The `GET /environments/{environmentId}/activeIdentityCounts?filter=startDate ge "2019-05-01T19:00:00Z" and samplingPeriod eq "10"&limit=10&order=-startDate"` operation returns active identity counts for the designated number of sampling periods from the specified start date.
+// 
+// 
+// ## Cached responses
+// 
+// A request to retrieve the count of active identities since the start of the parent organization’s licensing period for a given environment is common practice.  This request processes large amounts of data and the response can take up to a minute to produce. For this common use case, the response is pre-calculated and cached to return the data quickly. The following request parameters are required to return a cached response:
+// 
+// * `startDate`
+// 
+//   This value must be equal to the `beginsAt` date of the active license for the specified environment’s parent organization. For more information about licenses, see [Licensing](https://apidocs.pingidentity.com/pingone/customer/v1/api/man/p1_Licensing/).
+// 
+// * `samplingPeriod`
+// 
+//   This value must be set to 8760 (the number of hours in a year).
+// 
+// * `limit`
+// 
+//   This value is set to 1 to return only the current count of active identities since the start of the parent organization’s licensing period.
+// 
+// * `order`
+// 
+//   This value is set to `-startDate` to return the list in descending order, which shows the current cached count.
+// 
+// 
+// The cached value for the environment's count of active identities since the beginning of the license period is calculated and refreshed once per hour.
+// 
+// ```
+
+@name("READ Active Identity Counts")
+GET "https://{{apiPath}}/environments/{{envID}}/activeIdentityCounts"
+"Authorization": "Bearer {{jwtToken}}"
+? 'filter'= 'startDate ge "2019-05-01T19:00:00Z" and samplingPeriod eq "10"'
+? "limit"= "10"
+? "order"= "-startDate"
+
+
+

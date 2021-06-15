@@ -1,0 +1,89 @@
+#!/usr/bin/env dothttp
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  type|string|sdkclient / client / asset
+//  sdkclient_id|string|if type==sdkclient, sdkclient_id of this recording
+//  sdkclient_uuid|string|if type==sdkclient, device_id of sdkclient
+//  asset_id|string|if type==asset, id of the asset
+//  mac|string|if type==client or type==asset, mac of the device
+//  start_time|int|timestamp of the recording (the start)
+//  end_time|int|timestamp of end of recording
+//  duration|int|recording length in seconds, max is 120
+//  ready|boolean|whether it’s ready for playback
+//  url|string|URL to a JSON file that contains an array of frames, each frame is the same format
+//  raw_events|string|URL to a JSON file that contains array of raw location diag events
+//  frame_count|int|Number of frames in the output
+//  sdkclient_name|string|if type==sdkclient, name of the sdkclient
+//  client_name|string|if type==client, hostname of the client
+//  asset_name|string|if type==asset, name of the asset
+//  next|string|Optional. id of the next recoding if present. Only valid for site survey.
+
+@name("listSiteRecordings")
+GET "https://{{host}}/api/v1/sites/:site_id/rfdiags"
+
+
+// Download raw_events blob
+// 
+
+@name("downloadSiteRecording")
+GET "https://{{host}}/api/v1/sites/:site_id/rfdiags/:rfdiag_id"
+
+
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|name of the recording, the name of the sdk client would be a good default choice
+// type|string|sdkclient / client/ asset
+// sdkclient_id|string|if type==sdkclient, sdkclient_id of this recording
+// mac|string|if type==client or asset, mac of the device
+// duration|int|recording length in seconds, max is 180. Default value is also 180.
+
+@name("startSiteRecording")
+POST "https://{{host}}/api/v1/sites/:site_id/rfdiags"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Troubleshooting",
+    "type": "sdkclient",
+    "sdkclient_id": "de87bf9d-183f-e383-cc68-6ba43947d403",
+    "duration": 120
+})
+
+
+// If the recording session is active for the given rfdiag_id, it will finish the recording. duration and end_time will be updated to reflect the correct values.
+// 
+
+@name("stopSiteRecording")
+POST "https://{{host}}/api/v1/sites/:site_id/rfdiags/:rfdiag_id/stop"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Troubleshooting",
+    "type": "sdkclient",
+    "sdkclient_id": "de87bf9d-183f-e383-cc68-6ba43947d403",
+    "duration": 120
+})
+
+
+@name("updateSiteRecording")
+PUT "https://{{host}}/api/v1/sites/:site_id/rfdiags/:rfdiag_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Trouble-Shoot"
+})
+
+
+@name("deleteSiteRecording")
+DELETE "https://{{host}}/api/v1/sites/:site_id/rfdiags/:rfdiag_id/download"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

@@ -1,0 +1,132 @@
+#!/usr/bin/env dothttp
+
+// The `POST /environment/{environmentId}/applications` endpoint creates the application connection and sets the `type` property to `NATIVE_APP` options. To enable push notifications for this mobile application, you must also specify the application's bundle ID, which you registered with the app ID in your Apple developer program account.
+// 
+// 
+// The response returns a 201 Created message and shows the application connection data. Note that the `pkceEnforcement` property was omitted from the request, and consequently, the value of this property is set automatically to `OPTIONAL`, which specifies that a PKCE `code_challenge` parameter is optional, and that any code challenge method is acceptable.
+
+@name("Step 1: Create the mobile application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "MyMobileApp",
+    "description": "Mobile app with push authentication",
+    "enabled": true,
+    "type": "NATIVE_APP",
+    "protocol": "OPENID_CONNECT",
+    "responseTypes": [
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "grantTypes": [
+        "IMPLICIT"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "postLogoutRedirectUris": [
+        "https://example.com"
+    ],
+    "redirectUris": [
+        "https://example.com"
+    ],
+    "bundleId": "{yourBundleID}"
+}')
+
+
+// Push credentials are required for the purpose of sending push notifications to a native application. Push credentials must be defined for the application. For an iOS mobile application, you must create Apple Push Notification service (APNS) credentials.
+// 
+// You can use the `POST /environments/{environmentId}/applications/{applicationId}/pushCredentials` endpoint to create the push credentials for the specified application.  
+// 
+// 
+// In the request, the `type` property specifies `APNS`. The `key`, `teamId`, and `token` properties are information that Apple uses and were created in your Apple developer account. The `key` is string that Apple uses as an identifier to identify an authentication key. The `teamId` is a string that Apple uses as an identifier to identify teams. This property is mandatory for APNS. The `token` is a string that Apple uses as the authentication token signing key to securely connect to APNS. This is a p8 file with a private key format.
+// 
+// ::: info
+// **Note:** The `token` property value must be expressed as a single-line string. To account for line breaks in the text, you must use the `\n` newline escape characters to represent a line break. For example:
+// 
+// -----BEGIN PRIVATE KEY-----\nMIGTA523123...\n-----END PRIVATE KEY-----
+// :::
+// 
+// 
+// Confidential information is not returned in the response.
+
+@name("Step 2: Create APNS push credentials")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/pushCredentials"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "type": "APNS",
+  "key": "<Your Key ID>",
+  "teamId": "<Your Apple Team ID>",
+  "token": "<Your Apple Key P8 Body>"
+}')
+
+
+// ### Download the PingOne Mobile SDK package
+// 
+// The PingOne Mobile SDK provides the ability to integrate PingOne MFA functionality into your mobile applications.
+// 
+// You can download the PingOne Mobile SDK package at [https://github.com/pingidentity/pingone-customers-mobile-sdk](https://github.com/pingidentity/pingone-customers-mobile-sdk). Further details for setup and integration of the PingOne Mobile SDK into your mobile apps are available in the README file in the iOS folder of the download package.
+// 
+// 
+// 
+// ### Open the SampleApp.xcodeproj project
+// 
+// Open the pingone-customers-mobile-sdk/iOS/Sample Code/SampleApp.xcodeproj in Xcode, and using the sample application, perform the following tasks:
+// 
+//   * Edit the **Bundle Identifier** field to specify your `bundleId` value.
+// 
+//   * Under Signing, enable **Automatically manage signing**. Next, open the **Team** menu and select your Apple developer team.
+// 
+//   * Connect and unlock your iOS device.
+// 
+//   * Change the build target to your iOS device.
+// 
+//   * Launch the app and allow push notifications. The mobile app prompts for a pairing code.
+// 
+// 
+// 
+// 
+// ### Create the pairing key
+// 
+// To enable multi-factor authentication through a push notification on a mobile device, the user resource must have a mobile device and an application associated with its user ID. The association is implemented with a pairing key.
+// 
+// ::: info
+// **Note:** Only native applications that have a `bundleId` and are associated with `pushCredentials` are considered available to create a pairing key. Such applications should represent mobile applications that exist in the Apple or Google applications store.
+// :::
+// 
+// The `POST /environments/{envId}/users/{userId}/pairingKeys` operation adds a pairing key to the specified user resource. The `applicationId` property value is the PingOne ID of your mobile application that you created in Step 1.
+// 
+// 
+// 
+// The response includes the `code` property, which is the pairing key needed to enable push authentication on your mobile app. The response data looks like this:
+// 
+// 
+// 
+// ### Complete pairing
+// 
+// The `code` property value returned in Step 5 is the key that you must enter in the sample app prompt to complete the pairing.
+// 
+// To complete device pairing:
+// 
+// 1. Return to the sample mobile app in Xcode, and on the pairing screen, enter the `code` property value in the field provided. From Step 5 above, the code is:
+// 
+//   `01646543025054`
+// 
+// 2. Click **Pair** to initiate pairing.
+// 
+// 3. After pairing is complete, click **OK**.
+
+@name("Step 3: Create and set the pairing key")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/pairingKeys"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "applications": [
+    { 
+      "id": "{{appID}}" 
+    }
+  ]
+}')
+
+
+

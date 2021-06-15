@@ -1,20 +1,190 @@
 #!/usr/bin/env dothttp
 
-// ## Basic Default Usage// // The default URL `https://randomuser.me/api?results=5` is going to make a request to the _randomuser_ API and return 5 individual users with a different data set. // // This script in the `Tests` tab is mapping certain parts of this response body and creating a new data set in the format that the Collection Runner accepts.// // If you're happy with the data in the `Data File Preview` panel, press the `Create Data File` button.// // ![Overview](https://i.ibb.co/bBZBpPx/Screenshot-2020-03-14-at-12-45-06.png)// // Pressing the `Download Data File` button will open your local file explorer, from here you can save the `data.json` file in a local directory.// // ![Creating a data file](https://i.ibb.co/5Y9g1HX/Screenshot-2020-03-14-at-12-45-21.png)// // The saved file can then be used in your Collections, the object keys `fullName`, `email` and `gender` would be the variable names that you would use in your requests.// // ```json// [//   {//     "fullName": "Ms Sheryl Neal",//     "email": "sheryl.neal@example.com",//     "gender": "female"//   }// ]// ```// A basic example of a POST body:// ```json// {// 	"fullName": "{{fullName}}",// 	"email": "{{email}}",// 	"gender": "{{gender}}"// }// ```// // ---// // ### Changing the script to create your own data files// // A basic JSON Response Body:// // ```json// {//     "results": [//         {//             "gender": "male",//             "name": {//                 "title": "Mr",//                 "first": "Flynn",//                 "last": "Thomas"//             },//             "location": {//                 "street": {//                     "number": 4474,//                     "name": "Taharoto Road"//                 },//                 "city": "Taupo",//                 "state": "Bay of Plenty",//                 "country": "New Zealand",//                 "postcode": 17489,//                 "coordinates": {//                     "latitude": "60.2359",//                     "longitude": "-175.9986"//                 },//                 "timezone": {//                     "offset": "-6:00",//                     "description": "Central Time (US & Canada), Mexico City"//                 }//             },//             "email": "flynn.thomas@example.com",//             "login": {//                 "uuid": "6b37db11-6302-461e-a569-4c58a7558a0a",//                 "username": "greenmeercat326",//                 "password": "elcamino",//                 "salt": "zocjzh45",//                 "md5": "69c79a8d481718c0046d5ef8d25e6375",//                 "sha1": "a0b93772355e80ad07b3c7ac8e846dfaa83cba63",//                 "sha256": "a0329b516d4504a33ec296d98e87b3ff57e4aea05bd213470b4e5a4c7b35fbe7"//             },//             "dob": {//                 "date": "1986-06-26T13:02:49.307Z",//                 "age": 34//             },//             "registered": {//                 "date": "2007-12-17T18:55:08.494Z",//                 "age": 13//             },//             "phone": "(643)-356-0648",//             "cell": "(265)-043-3830",//             "id": {//                 "name": "",//                 "value": null//             },//             "picture": {//                 "large": "https://randomuser.me/api/portraits/men/52.jpg",//                 "medium": "https://randomuser.me/api/portraits/med/men/52.jpg",//                 "thumbnail": "https://randomuser.me/api/portraits/thumb/men/52.jpg"//             },//             "nat": "NZ"//         }//     ]// }// ```// // The script in the `Tests` tab can be modified to capture data from any Response Body.// // For the example response above, all the data is inside the `results` array `[]` so to reference this in the script you would use `pm.response.json().results`, if the data was in a different array, you would just need to change `results` to the value in your response.// // The `.map()` function will loop through the array and store different parts of the data in the `container` object.// // The `email` part of `container.email` would be the property name that the value from the response would map too. // // The `email` part of `item.email` would be the `key` to the `value` you would like to capture. The example body should hopefully help you understand how this all ties together and serve as a reference guide when changing the script to suit your own context.// // ```javascript// let myfileData = pm.response.json().results.map(item => {//     const container = {};//     //     // Specify the values from the response body that you require in the Data file.//     container.fullName = `${item.name.title} ${item.name.first} ${item.name.last}`;//     container.email = item.email;//     container.gender = item.gender;//     //     return container;// });// ```// ---// // Once you have a data file created, you will be able to start using this in the Collection Runner.// // More information about how to use these can be found [here](https://learning.postman.com/docs/postman/collection-runs/working-with-data-files/).
+// ## Basic Default Usage
+// 
+// The default URL `https://randomuser.me/api?results=5` is going to make a request to the _randomuser_ API and return 5 individual users with a different data set. 
+// 
+// This script in the `Tests` tab is mapping certain parts of this response body and creating a new data set in the format that the Collection Runner accepts.
+// 
+// If you're happy with the data in the `Data File Preview` panel, press the `Create Data File` button.
+// 
+// ![Overview](https://i.ibb.co/bBZBpPx/Screenshot-2020-03-14-at-12-45-06.png)
+// 
+// Pressing the `Download Data File` button will open your local file explorer, from here you can save the `data.json` file in a local directory.
+// 
+// ![Creating a data file](https://i.ibb.co/5Y9g1HX/Screenshot-2020-03-14-at-12-45-21.png)
+// 
+// The saved file can then be used in your Collections, the object keys `fullName`, `email` and `gender` would be the variable names that you would use in your requests.
+// 
+// ```json
+// [
+//   {
+//     "fullName": "Ms Sheryl Neal",
+//     "email": "sheryl.neal@example.com",
+//     "gender": "female"
+//   }
+// ]
+// ```
+// A basic example of a POST body:
+// ```json
+// {
+// 	"fullName": "{{fullName}}",
+// 	"email": "{{email}}",
+// 	"gender": "{{gender}}"
+// }
+// ```
+// 
+// ---
+// 
+// ### Changing the script to create your own data files
+// 
+// A basic JSON Response Body:
+// 
+// ```json
+// {
+//     "results": [
+//         {
+//             "gender": "male",
+//             "name": {
+//                 "title": "Mr",
+//                 "first": "Flynn",
+//                 "last": "Thomas"
+//             },
+//             "location": {
+//                 "street": {
+//                     "number": 4474,
+//                     "name": "Taharoto Road"
+//                 },
+//                 "city": "Taupo",
+//                 "state": "Bay of Plenty",
+//                 "country": "New Zealand",
+//                 "postcode": 17489,
+//                 "coordinates": {
+//                     "latitude": "60.2359",
+//                     "longitude": "-175.9986"
+//                 },
+//                 "timezone": {
+//                     "offset": "-6:00",
+//                     "description": "Central Time (US & Canada), Mexico City"
+//                 }
+//             },
+//             "email": "flynn.thomas@example.com",
+//             "login": {
+//                 "uuid": "6b37db11-6302-461e-a569-4c58a7558a0a",
+//                 "username": "greenmeercat326",
+//                 "password": "elcamino",
+//                 "salt": "zocjzh45",
+//                 "md5": "69c79a8d481718c0046d5ef8d25e6375",
+//                 "sha1": "a0b93772355e80ad07b3c7ac8e846dfaa83cba63",
+//                 "sha256": "a0329b516d4504a33ec296d98e87b3ff57e4aea05bd213470b4e5a4c7b35fbe7"
+//             },
+//             "dob": {
+//                 "date": "1986-06-26T13:02:49.307Z",
+//                 "age": 34
+//             },
+//             "registered": {
+//                 "date": "2007-12-17T18:55:08.494Z",
+//                 "age": 13
+//             },
+//             "phone": "(643)-356-0648",
+//             "cell": "(265)-043-3830",
+//             "id": {
+//                 "name": "",
+//                 "value": null
+//             },
+//             "picture": {
+//                 "large": "https://randomuser.me/api/portraits/men/52.jpg",
+//                 "medium": "https://randomuser.me/api/portraits/med/men/52.jpg",
+//                 "thumbnail": "https://randomuser.me/api/portraits/thumb/men/52.jpg"
+//             },
+//             "nat": "NZ"
+//         }
+//     ]
+// }
+// ```
+// 
+// The script in the `Tests` tab can be modified to capture data from any Response Body.
+// 
+// For the example response above, all the data is inside the `results` array `[]` so to reference this in the script you would use `pm.response.json().results`, if the data was in a different array, you would just need to change `results` to the value in your response.
+// 
+// The `.map()` function will loop through the array and store different parts of the data in the `container` object.
+// 
+// The `email` part of `container.email` would be the property name that the value from the response would map too. 
+// 
+// The `email` part of `item.email` would be the `key` to the `value` you would like to capture. The example body should hopefully help you understand how this all ties together and serve as a reference guide when changing the script to suit your own context.
+// 
+// ```javascript
+// let myfileData = pm.response.json().results.map(item => {
+//     const container = {};
+//     
+//     // Specify the values from the response body that you require in the Data file.
+//     container.fullName = `${item.name.title} ${item.name.first} ${item.name.last}`;
+//     container.email = item.email;
+//     container.gender = item.gender;
+//     
+//     return container;
+// });
+// ```
+// ---
+// 
+// Once you have a data file created, you will be able to start using this in the Collection Runner.
+// 
+// More information about how to use these can be found [here](https://learning.postman.com/docs/postman/collection-runs/working-with-data-files/).
+
 @name("Create a JSON Data File - Example 1")
 GET "https://randomuser.me/api"
 ? "results"= "5"
 
 
 
-// This is an example using a different endpoint so that you can see the changes that would need to be made to capture the data.// // ```javascript// let myfileData = pm.response.json().data.map(item => {//     const container = {};//     //     // Specify the values from the response body that you require in the Data file.//     container.id = item.id;//     container.first_name = item.first_name;//     container.last_name = item.last_name;//     container.email = item.email;//     //     return container;// });// ```
+// This is an example using a different endpoint so that you can see the changes that would need to be made to capture the data.
+// 
+// ```javascript
+// let myfileData = pm.response.json().data.map(item => {
+//     const container = {};
+//     
+//     // Specify the values from the response body that you require in the Data file.
+//     container.id = item.id;
+//     container.first_name = item.first_name;
+//     container.last_name = item.last_name;
+//     container.email = item.email;
+//     
+//     return container;
+// });
+// ```
+
 @name("Create a JSON Data File - Example 2")
 GET "https://reqres.in/api/users"
 ? "page"= "2"
 
 
 
-// The Data file tool works best with response data in the form of an `array` but it _could_ be used with responses that are returned as a single `object`.// // In this secenario, you would need to add the names of the properties that you want to capture after the `responseData` key.// // ```javascript// let myResponseData = {//     firstName: responseData.firstname,//     lastName: responseData.lastname,//     checkIn: responseData.bookingdates.checkin,//     checkOut: responseData.bookingdates.checkout// };// ```// // The example above would create a data file which looks like this:// // ```json// [//   {//     "firstName": "Jim",//     "lastName": "Brown",//     "checkIn": "2016-05-27",//     "checkOut": "2017-10-13"//   }// ]// ```
+// The Data file tool works best with response data in the form of an `array` but it _could_ be used with responses that are returned as a single `object`.
+// 
+// In this secenario, you would need to add the names of the properties that you want to capture after the `responseData` key.
+// 
+// ```javascript
+// let myResponseData = {
+//     firstName: responseData.firstname,
+//     lastName: responseData.lastname,
+//     checkIn: responseData.bookingdates.checkin,
+//     checkOut: responseData.bookingdates.checkout
+// };
+// ```
+// 
+// The example above would create a data file which looks like this:
+// 
+// ```json
+// [
+//   {
+//     "firstName": "Jim",
+//     "lastName": "Brown",
+//     "checkIn": "2016-05-27",
+//     "checkOut": "2017-10-13"
+//   }
+// ]
+// ```
+
 @name("Create a JSON Data File - Example 3")
 GET "https://restful-booker.herokuapp.com/booking/1"
 

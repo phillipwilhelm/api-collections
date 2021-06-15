@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of all the existing links in your Belvo account. We return up to 100 results per page.
+
+@name("List")
+GET "https://{{baseUrl}}/api/links/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+? "page"= "1"
+
+
+// Register a new link with your Belvo account.
+
+@name("Register")
+POST "https://{{baseUrl}}/api/links/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "institution": "erebor_mx_retail",
+    "username": "username",
+    "password": "password",
+    "username2": "secondusername",
+    "username3": "thirdusername",
+    "password2": "pin",
+    "token": "1234ab",
+    "access_mode": "recurrent",
+    "username_type": "001",
+    "certificate": "1234567890abcd=",
+    "private_key": "1234567890abcd="
+}')
+
+
+// Used to resume a Link register session that was paused because an MFA token was required by the institution.
+
+@name("Resume")
+PATCH "https://{{baseUrl}}/api/links/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "session": "39cd6a88-8ee3-4e59-a861-b8a2187e0f4c",
+    "token": "1234ab",
+    "link": "683005d6-f45c-4adb-b289-f1a12f50f80c"
+}')
+
+
+// Get the details of a specific link.
+
+@name("Detail")
+GET "https://{{baseUrl}}/api/links/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+// Update the credentials of a specific link.
+// 
+// ✅ We recommend using our [Connect Widget in Update Mode](https://developers.belvo.com/docs/connect-widget-update-mode) to handle updating `invalid` or `token_required` links.
+
+@name("Update")
+PUT "https://{{baseUrl}}/api/links/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "password": "password",
+    "password2": "pin",
+    "token": "1234ab",
+    "encryption_key": "customencryptionkey",
+    "username_type": "001",
+    "certificate": "1234567890abcd=",
+    "private_key": "1234567890abcd="
+}')
+
+
+// Delete a specific link and all associated accounts, transactions, and owners from your Belvo account.
+
+@name("Destroy")
+DELETE "https://{{baseUrl}}/api/links/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+

@@ -1,0 +1,141 @@
+#!/usr/bin/env dothttp
+
+// You can get the descriptor from the create call/call the Groups list with the project scope set to get the group https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/groups/list?view=azure-devops-rest-5.1
+
+@name("Get all teams under a Project (optional)")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("List Iterations")
+GET "https://dev.azure.com/{{organization}}/{{project}}/{{teamID}}/_apis/work/teamsettings/iterations"
+basicauth("Basic", "{{PAT}}")
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+? "api-version"= "5.1"
+
+
+// Another way to get user details
+
+@name("Get User Subject")
+POST "https://vssps.dev.azure.com/{{organization}}/_apis/graph/subjectlookup"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+json({
+    "lookupKeys": [
+        {
+            "descriptor": "aad.ZjMwM2Y4MGMtMDNlOC03ZmQwLWJhM2ItZjhxxxxxxxxxxxx"
+        }
+    ]
+})
+
+
+@name("Get ACLs (Optional/for reference)")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{ProjectAreasecurityNamespaceId}}"
+basicauth("Basic", "{{OPAT}}")
+? "token"= "{token}"
+? "descriptors"= "ff4d008d-d153-44f9-a819-915f8667e6da"
+? "includeExtendedInfo"= "{includeExtendedInfo}"
+? "recurse"= "{recurse}"
+? "api-version"= "5.1"
+
+
+@name("Get Root nodes from Team information")
+GET "https://dev.azure.com/{{organization}}/{{project}}/{{teamID}}/_apis/work/teamsettings"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+@name("List Areas")
+GET "https://dev.azure.com/{{organization}}/{{project}}/_apis/wit/classificationnodes/Areas"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+@name("List Child-Areas")
+GET "https://dev.azure.com/{{organization}}/{{project}}/_apis/wit/classificationnodes/Areas"
+basicauth("Basic", "{{OPAT}}")
+? "$depth"= "1"
+? "api-version"= "5.1"
+
+
+// The Security Namespace for Area Security is "bf7bfa03-b2b7-47db-8113-fa2e002cc5b1"
+// 
+// To get the root Iteration, check the Get Root nodes call, 
+//             "identifier": *"eb479474-af2c-4905-a288-041c007c945b"*,
+//             "name": "RBAC",
+//             "structureType": "iteration",
+// 
+// If you need to update permissions for ProjectIteration1\TeamIteration1\TeamIteration1ChildIteration1, security token would look like this:
+// 
+// 'vstfs:///Classification/Node/ProjectIteration1_Identifier:vstfs:///Classification/Node/TeamIteration1_Identifier:vstfs:///Classification/Node/TeamIteration1ChildIteration1_Identifier'
+// 
+// For AAD users (including MSA guests in the tenant), you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantID\\user@domain.com as the descriptor.
+// 
+// 
+// Example 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity;82f988bf-86f1-41af-91ab-2d7cd011db47\\user@company.com
+// 
+// For MSA users, you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;PUID@Live.com.
+// 
+// If all you have is the aad.value or msa.value descriptor for the user, you can use this API to convert it to tenant\\UPN or PUID@Live.com: https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/subject%20lookup/lookup%20subjects?view=azure-devops-rest-5.1. For msa.value descriptors, the PUID would be the originId.
+
+@name("Edit/Set User Iteration Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectIterationsecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "vstfs:///Classification/Node/eb479474-af2c-4905-a288-041c007c945b:vstfs:///Classification/Node/b2590d49-9be0-49a7-95e8-0f812475ac64",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenant\\user@company.com",
+            "allow": 12,
+            "deny": 0,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Area Security is "bf7bfa03-b2b7-47db-8113-fa2e002cc5b1"
+// 
+// To get the root Iteration, check the Get Root nodes call, 
+//             "identifier": *"eb479474-af2c-4905-a288-041c007c945b"*,
+//             "name": "RBAC",
+//             "structureType": "iteration",
+// 
+// If you need to update permissions for ProjectIteration1\TeamIteration1\TeamIteration1ChildIteration1, security token would look like this:
+// 
+// 'vstfs:///Classification/Node/ProjectIteration1_Identifier:vstfs:///Classification/Node/TeamIteration1_Identifier:vstfs:///Classification/Node/TeamIteration1ChildIteration1_Identifier'
+// 
+// For AAD users (including MSA guests in the tenant), you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantID\\user@domain.com as the descriptor.
+// 
+// 
+// Example 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity;82f988bf-86f1-41af-91ab-2d7cd011db47\\user@company.com
+// 
+// For MSA users, you would use Microsoft.IdentityModel.Claims.ClaimsIdentity;PUID@Live.com.
+// 
+// If all you have is the aad.value or msa.value descriptor for the user, you can use this API to convert it to tenant\\UPN or PUID@Live.com: https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/subject%20lookup/lookup%20subjects?view=azure-devops-rest-5.1. For msa.value descriptors, the PUID would be the originId.
+
+@name("Edit/Set User Area Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{ProjectAreasecurityNamespaceId}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "vstfs:///Classification/Node/90779154-b841-4490-aaf8-7a84a44ad90f",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenant\\user@company.com",
+            "allow": 4,
+            "deny": 0,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+

@@ -1,0 +1,977 @@
+#!/usr/bin/env dothttp
+
+// Please find the push content example below for your reference,this is a body response expected, after success push content to partner API :
+// 
+// **Example Response after successes pushed inventory:**
+// ```
+// <OTA_HotelDescriptiveInfoRS Target="Production" PrimaryLangID="id-ID" Version="1.0" TimeStamp="2016-02-13T09:30:47Z" xmlns="http://www.opentravel.org/OTA/2003/05"
+//  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+// <Success />
+// </OTA_HotelDescriptiveInfoRS>
+// ```
+// 
+// **Example XML pushed inventory:**
+// ```
+// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// <soap:Envelope xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+//     xmlns:ns4="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//     <soap:Body>
+//         <ns4:OTA_HotelDescriptiveContentNotifRQ TimeStamp="2020-04-17T12:04:51.594+07:00" Target="Test" Version="1.0"
+//             PrimaryLangID="en-US">
+//             <ns4:POS>
+//                 <ns4:Source>
+//                     <ns4:RequestorID MessagePassword="{Your Partner Password}" Type="1" ID="{Your Partner ID}">
+//                         <ns4:CompanyName Code="C" CodeContext="1220" />
+//                     </ns4:RequestorID>
+//                 </ns4:Source>
+//             </ns4:POS>
+//             <ns4:HotelDescriptiveContents HotelCode="ea83d331-3304-4caa-abe0-ab68ef63d480">
+//                 <ns4:HotelDescriptiveContent>
+//                     <ns4:HotelInfo HotelStatus="Active" HotelCategory="">
+//                         <ns4:Descriptions>
+//                             <ns4:MultimediaDescriptions>
+//                                 <ns4:MultimediaDescription>
+//                                     <ns4:TextItems>
+//                                         <ns4:TextItem Title="Woodpecker Pavilion Hotel" Language="en-US">
+//                                             <ns4:Description>Woodpecker hotel is a 1 star accommodation located at Jalan Kenari No 2, Mrican, Demangan baru, Caturtunggal Yogyakarta. This accommodation has a futuristic modern architectural design with a unique design that is suitable for those of you who like to take pictures with a unique background. The location is also close to public transportation, the article from Tugu Station and Lempuyangan Station is only 4 KM away and from Jogjakarta Adi Sucipto International Airport only 15 KM away. In addition, you can also easily find public facilities such as ATMs, minimarkets, and self-service laundry around Woodpecker Hotel Yogyakarta. You can also easily visit various types of tours through this hotel, you can visit the famous areas of Malioboro and Tugu Jogja just a 10-minute drive from the hotel. Shopping on the Galeria Mall and Plaza Ambarukmo can be an attractive shopping choice because of its location, which is 1 km from the hotel. Besides that, art and cultural tourism options are also available, you can visit the Affandi museum, which is 500 m from the Woodpecker hotel. This accommodation provides modern rooms that are divided into several types of rooms ranging from standard double rooms, family rooms, and standard twin rooms. Each available room is equipped with good facilities ranging from air conditioning, flat-screen cable TV, seating area, coffee or tea maker, and an en-suite bathroom complete with shower and free toiletries. You can also take advantage of the cool Bromo backpacker Jogjakarta hotel given to save the cost of your accommodation accommodation. Adequate hotel facilities, ranging from 24-hour reception service, free WiFi access in all areas, free parking area, comfortable garden, restaurant with a unique design, as well as airport shuttle and laundry services at additional fees. With all the facilities and services provided, of course backpacker Hotel Yogyakarta is one of the best choices for you to make accommodation accommodations while in Yogyakarta. For that, immediately booking Woodpecker Hotel Yogyakarta Through the trusted online hotel booking application Tiket.com, because Tiket.com always provides a complete review of the hotel you want to occupy including Woodpecker Hotel review. Besides Tiket.com also always provides various payment options to make your transaction easier. So what are you waiting for ? Where are you going? Anywhere, Tiket.com!</ns4:Description>
+//                                         </ns4:TextItem>
+//                                     </ns4:TextItems>
+//                                 </ns4:MultimediaDescription>
+//                             </ns4:MultimediaDescriptions>
+//                         </ns4:Descriptions>
+//                         <ns4:Position Latitude="-7.778276" Longitude="110.393358" />
+//                     </ns4:HotelInfo>
+//                     <ns4:Policies>
+//                         <ns4:Policy>
+//                             <ns4:PolicyInfo CheckOutTime="12:00" />
+//                         </ns4:Policy>
+//                     </ns4:Policies>
+//                     <ns4:AffiliationInfo>
+//                         <ns4:Awards>
+//                             <ns4:Award Rating="2" RatingSymbol="Star" />
+//                         </ns4:Awards>
+//                     </ns4:AffiliationInfo>
+//                     <ns4:MultimediaDescriptions>
+//                         <ns4:MultimediaDescription>
+//                             <ns4:ImageItems>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/65f481ad-9bd8-4b0b-9b92-6c8fbfeb5a16-1571903365258-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/c8251a5e-ef56-404b-915f-3f904ccb4250-1571903365266-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Lobby and Reception</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/e44daf7d-512d-436f-abcf-969b96c76fc3-1571903365257-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/0931cc12-3029-4fcd-bc83-589d95e152b1-1571903370366-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/b9325fbe-711f-44e6-8bb9-f00f97b50caf-1571903365273-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/38385023-8b00-4f22-80ce-0588e98a5a99-1571903365254-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903378/tix-hotel/images-web/2019/10/24/6b75098b-a69a-45ec-a37a-dc4e24885a91-1571903376089-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/6b892d5d-641d-4178-bdc5-1b3d823d6d1d-1571903365266-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903369/tix-hotel/images-web/2019/10/24/e1558205-868c-4b24-8244-80302522c4b8-1571903365260-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/ab6b924a-4be0-4a8a-97c3-fe763bed1255-1571903365268-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Food</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/8bcc3617-a612-4dad-a980-8ea66be27b0c-1571903369350-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/88319f85-cd32-40a6-a7e3-f83fb67535ed-1571903365277-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/806f3250-ecae-4033-9b3d-e6edce1a32e1-1571903370187-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/b640672a-3899-418e-8b2f-55c280cdf8c9-1571903365249-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Lobby and Reception</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/5e891d5e-48d9-4f91-85bc-9a9fd6da03c5-1571903365278-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/0e7c7947-8449-4077-8fd4-3a5804ddb7de-1571903365258-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Restaurant</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/9d785e93-7313-48ad-b92d-fd6ad933cf11-1571903369871-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/36e965ce-44f1-4341-b774-e2be9e793caf-1571903365256-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/87a38c46-7032-47a5-acfa-b2ecf88b5d02-1571903365255-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/a177a652-e96e-4a05-a0ff-62e0fadd016e-1571903365261-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Balcony</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/24bbe6b6-9761-4dbe-beeb-8f2ee209b095-1571903370131-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903369/tix-hotel/images-web/2019/10/24/6b8ae1ea-15e1-44f4-8294-d9886fe481c4-1571903365270-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Restaurant</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/16f00831-79a5-4e2b-be65-bd1dc07b23c0-1571903370057-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/e4ca4319-3610-4280-9b27-903994148414-1571903365248-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/defa4d73-a547-40f8-ab6a-bd95b05917b3-1571903369954-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/ee99a921-7ec8-452f-9e4c-705bfced43d5-1571903365275-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Food</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/a77c5138-451d-45ab-bc36-eed31c1c8efd-1571903369940-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/3b38a9a5-9c91-4c08-8844-90854f0e8758-1571903365272-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903370/tix-hotel/images-web/2019/10/24/6a2f039d-5c63-42d1-89f7-240de1970945-1571903369417-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/6b38a385-7d7a-4ad1-8b40-edeb58b8736a-1571903369429-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/8fee04cb-f81c-49d9-8652-b0fb0f32a45f-1571903365262-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/55742a3e-9146-4627-8586-4f520d57aa13-1571903369504-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/e3df5843-4571-494b-b266-e227d878d682-1571903365241-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/5b263c16-95cb-4bf3-af50-cac71a99e035-1571903365278-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903371/tix-hotel/images-web/2019/10/24/aecd9169-a381-4821-acdc-0fc9ec413bfe-1571903369859-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903368/tix-hotel/images-web/2019/10/24/4afa6aa7-3480-4696-846f-e7984ba29e9c-1571903365270-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903367/tix-hotel/images-web/2019/10/24/a0be5a5e-5522-4537-b057-5b61927ea16b-1571903365260-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/24bdfea0-08d9-4709-9175-fbc7b8847a3b-1571903370858-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Others</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/53a14dd8-a19c-4df1-84c4-1b7e133e87a6-1571903370381-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Others</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/2869c015-afdd-4c52-b35d-9a6ad24c72cb-1571903370440-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/99818435-5676-4626-899e-98844bcada08-1571903370749-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/e115604a-4c73-4f92-8452-b665bd3748f5-1571903371011-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/8a2799e7-9b86-4e0b-9b71-86af111e9551-1571903370912-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Others</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/cb64eb67-ade5-4f95-b610-071c66338c77-1571903371112-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/bd515c29-e167-4f54-8d53-505d76423235-1571903374086-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/f2c749e9-207a-4092-8a0d-50d6fbc7e51d-1571903371179-d41d8cd98f00b204e9800998ecf8427e.jpg
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903372/tix-hotel/images-web/2019/10/24/f1b07bb4-76a0-4f5d-956a-aa62cb973603-1571903371654-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/b8a22f1e-22cc-4db8-9ba0-92a653b70d9c-1571903371540-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903374/tix-hotel/images-web/2019/10/24/03df9d96-39ab-44c9-af2d-b9555bd532da-1571903373131-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Lobby and Reception</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903373/tix-hotel/images-web/2019/10/24/8e45f205-e3bc-4742-aa2f-2d85d9862b9d-1571903372189-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bar, Cafe and Lounge</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903374/tix-hotel/images-web/2019/10/24/d0d306fb-f3a9-4a97-8ff8-4949fcf6619c-1571903373347-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903374/tix-hotel/images-web/2019/10/24/0de7b2af-409d-49c9-a439-b6b1931bfcaf-1571903373249-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/f8683a2b-fd9d-42d8-ad05-1670b9209422-1571903374894-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903375/tix-hotel/images-web/2019/10/24/1bde9d86-8e73-4f9b-aeb2-4684415c79ef-1571903374611-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/fde7939b-71ce-4783-9d98-6e24eae8fe11-1571903375583-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/be8b27c4-794a-44ac-8b52-a9094c1bb35a-1571903375601-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903380/tix-hotel/images-web/2019/10/24/5a48eab2-2e07-4cb5-90b3-cad2469cffb2-1571903379332-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/bb780ee6-1d7f-485e-b45d-042c23473223-1571903375537-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903375/tix-hotel/images-web/2019/10/24/165af427-ba58-46c9-9edc-55b779ab35da-1571903373728-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903374/tix-hotel/images-web/2019/10/24/29161b7a-ca6c-4950-98c6-671567607aa0-1571903373459-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Exterior</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903375/tix-hotel/images-web/2019/10/24/50845135-52a0-43f4-9e74-c82c0ad5c5b2-1571903374096-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Common Areas</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903375/tix-hotel/images-web/2019/10/24/2696da6f-4a01-4c62-a18e-1e1cf60b8f98-1571903374123-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/6647548d-8b07-4259-9408-4cca98caada3-1571903375071-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/65242752-d2d7-47f2-b408-553aa330184e-1571903374689-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903378/tix-hotel/images-web/2019/10/24/b63c3420-4ce3-4a87-9098-af40b10c9cf5-1571903376780-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903377/tix-hotel/images-web/2019/10/24/0a546486-6f41-4d1a-b4b6-02562a7b398a-1571903376474-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/ec43b373-2f64-4e2b-ba17-8426f938e59b-1571903375729-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903377/tix-hotel/images-web/2019/10/24/eb6cb711-07a4-49fb-a548-cc1c83581103-1571903376292-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                                 <ns4:ImageItem>
+//                                     <ns4:ImageFormat>
+//                                         <ns4:URL>
+//                                             https://static.tiket.photos/image/upload/v1571903376/tix-hotel/images-web/2019/10/24/258b5204-1ed1-4175-be13-a000016fb6d7-1571903375777-d41d8cd98f00b204e9800998ecf8427e.png
+//                                         </ns4:URL>
+//                                     </ns4:ImageFormat>
+//                                     <ns4:Description>
+//                                         <ns4:Text Language="en-US">Guest Room</ns4:Text>
+//                                     </ns4:Description>
+//                                 </ns4:ImageItem>
+//                             </ns4:ImageItems>
+//                         </ns4:MultimediaDescription>
+//                     </ns4:MultimediaDescriptions>
+//                     <ns4:ContactInfos>
+//                         <ns4:ContactInfo>
+//                             <ns4:Addresses Visible="true">
+//                                 <ns4:Address Language="en-US">
+//                                     <ns4:CountryName>Indonesia</ns4:CountryName>
+//                                     <ns4:CityName>Sleman</ns4:CityName>
+//                                     <ns4:AddressLine>Jalan Kenari No. 04 Mrican Demangan Baru Yogyakarta, Indonesia
+//                                         55281</ns4:AddressLine>
+//                                     <ns4:PostalCode>55281</ns4:PostalCode>
+//                                 </ns4:Address>
+//                             </ns4:Addresses>
+//                             <ns4:Phones>
+//                                 <ns4:Phone PhoneNumber="+622742921149" />
+//                                 <ns4:Phone PhoneNumber="+6287704469562" />
+//                             </ns4:Phones>
+//                         </ns4:ContactInfo>
+//                     </ns4:ContactInfos>
+//                 </ns4:HotelDescriptiveContent>
+//             </ns4:HotelDescriptiveContents>
+//         </ns4:OTA_HotelDescriptiveContentNotifRQ>
+//     </soap:Body>
+// </soap:Envelope>
+// ```
+
+@name("Hotel Content")
+POST "https://your-api.com/accept-hotel-content-from-tiket-com/"
+
+
+// Please find the push room content example below for your reference,this is a body response expected, after success push content to partner API :
+// 
+// **Example Response after complete pushed the inventory:**
+// ```
+// <OTA_HotelInvNotifRS Target="Production" PrimaryLangID="zh-CN" Version="1.0" TimeStamp="2016-02-13T09:30:47Z"
+//     xmlns="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//     <Success />
+// </OTA_HotelInvNotifRS>
+// ```
+// 
+// **Example response inventory:**
+// ```
+// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// <soap:Envelope xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+//     xmlns:ns4="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//     <soap:Body>
+//         <ns4:OTA_HotelInvNotifRQ TimeStamp="2020-04-17T12:05:16.969+07:00" Target="Test" Version="1.0"
+//             PrimaryLangID="en-US">
+//             <ns4:POS>
+//                 <ns4:Source>
+//                     <ns4:RequestorID MessagePassword="{Your Password Credential}" Type="1" ID="{Your ID Crednetial}">
+//                         <ns4:CompanyName Code="C" CodeContext="1220" />
+//                     </ns4:RequestorID>
+//                 </ns4:Source>
+//             </ns4:POS>
+//             <ns4:SellableProducts HotelCode="ea83d331-3304-4caa-abe0-ab68ef63d480"
+//                 HotelName="Woodpecker Pavilion Hotel">
+//                 <ns4:SellableProduct InvStatusType="Active" InvTypeCode="5b77803e25a8fa6a60bbff71">
+//                     <ns4:GuestRoom>
+//                         <ns4:Occupancy MinOccupancy="1" MaxOccupancy="3" AgeQualifyingCode="10" />
+//                         <ns4:Room SizeMeasurement="28" />
+//                         <ns4:Currency Code="IDR" />
+//                         <ns4:Description>
+//                             <ns4:Text Language="en-US">Family Room Only</ns4:Text>
+//                         </ns4:Description>
+//                         <ns4:LongDescription>
+//                             <ns4:Text Language="en-US">&lt;p&gt;Family Room&lt;/p&gt;</ns4:Text>
+//                         </ns4:LongDescription>
+//                         <ns4:ImageItems>
+//                             <ns4:ImageItem>
+//                                 <ns4:ImageFormat>
+//                                     <ns4:URL>
+//                                         https://static.tiket.photos/image/upload/v1570569178/tix-hotel/images-web/2019/10/09/c3fcf6fd-bd44-44aa-9174-9687821b2319-1570569177236-01d343365716d3d0c67ab43ce592b252.png
+//                                     </ns4:URL>
+//                                 </ns4:ImageFormat>
+//                                 <ns4:Description>
+//                                     <ns4:Text Language="en-US">Bed</ns4:Text>
+//                                 </ns4:Description>
+//                             </ns4:ImageItem>
+//                             <ns4:ImageItem>
+//                                 <ns4:ImageFormat>
+//                                     <ns4:URL>
+//                                         https://static.tiket.photos/image/upload/v1570569200/tix-hotel/images-web/2019/10/09/0eddc5a0-fd60-49e9-9729-343f1b59b0e6-1570569199631-01d343365716d3d0c67ab43ce592b252.png
+//                                     </ns4:URL>
+//                                 </ns4:ImageFormat>
+//                                 <ns4:Description>
+//                                     <ns4:Text Language="en-US">Amenities</ns4:Text>
+//                                 </ns4:Description>
+//                             </ns4:ImageItem>
+//                             <ns4:ImageItem>
+//                                 <ns4:ImageFormat>
+//                                     <ns4:URL>
+//                                         https://static.tiket.photos/image/upload/v1570569184/tix-hotel/images-web/2019/10/09/dd80bd7d-474c-42da-bfe5-ff77df8ba181-1570569183946-01d343365716d3d0c67ab43ce592b252.png
+//                                     </ns4:URL>
+//                                 </ns4:ImageFormat>
+//                                 <ns4:Description>
+//                                     <ns4:Text Language="en-US">Bed</ns4:Text>
+//                                 </ns4:Description>
+//                             </ns4:ImageItem>
+//                             <ns4:ImageItem>
+//                                 <ns4:ImageFormat>
+//                                     <ns4:URL>
+//                                         https://static.tiket.photos/image/upload/v1570569189/tix-hotel/images-web/2019/10/09/a1d2cd5e-2b15-4e84-b661-af2d2ed9f83d-1570569188268-01d343365716d3d0c67ab43ce592b252.png
+//                                     </ns4:URL>
+//                                 </ns4:ImageFormat>
+//                                 <ns4:Description>
+//                                     <ns4:Text Language="en-US">Bed</ns4:Text>
+//                                 </ns4:Description>
+//                             </ns4:ImageItem>
+//                             <ns4:ImageItem>
+//                                 <ns4:ImageFormat>
+//                                     <ns4:URL>
+//                                         https://static.tiket.photos/image/upload/v1570569167/tix-hotel/images-web/2019/10/09/6a8f12d1-8eed-4ca7-8f0c-964ff5e12995-1570569165954-01d343365716d3d0c67ab43ce592b252.png
+//                                     </ns4:URL>
+//                                 </ns4:ImageFormat>
+//                                 <ns4:Description>
+//                                     <ns4:Text Language="en-US">Bathroom</ns4:Text>
+//                                 </ns4:Description>
+//                             </ns4:ImageItem>
+//                         </ns4:ImageItems>
+//                     </ns4:GuestRoom>
+//                 </ns4:SellableProduct>
+//             </ns4:SellableProducts>
+//         </ns4:OTA_HotelInvNotifRQ>
+//     </soap:Body>
+// </soap:Envelope>
+// ```
+
+@name("Room Content")
+POST "https://your-api.com/accept-room-content-from-tiket-com/"
+
+
+// This interface is used to check the real status of content creation/update in partner
+// 
+// **Example Body Request**
+// ```
+// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// <soap:Envelope xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns4="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//     <soap:Body>
+//         <ns4:OTA_HotelStatsNotifRQ TimeStamp="2020-04-17T11:15:05.408+07:00" Target="Test" Version="1.0" PrimaryLangID="en-US">
+//             <ns4:POS>
+//                 <ns4:Source>
+//                     <ns4:RequestorID MessagePassword="{Your Password Credential}" Type="1" ID="{Your ID Credential}">
+//                         <ns4:CompanyName Code="C" CodeContext="1220"/>
+//                     </ns4:RequestorID>
+//                 </ns4:Source>
+//             </ns4:POS>
+//             <ns4:Statistics>
+//                 <ns4:Statistic HotelCode="123"/>
+//             </ns4:Statistics>
+//         </ns4:OTA_HotelStatsNotifRQ>
+//     </soap:Body>
+// </soap:Envelope>
+// ```
+// 
+// **Example Body Response**
+// ```
+// <OTA_HotelStatsNotifRS Target="Production" PrimaryLangID="zh-CN" Version="1.0" TimeStamp="2016-02-13T09:30:47Z"
+//     xmlns="http://www.opentravel.org/OTA/2003/05">
+//     <Success />
+//     <TPA_Extensions>
+//         <Hotels>
+//             <Hotel HotelCode="1332484" TiketHotelCode="123456" Status="Active">
+//                 <BasicRooms>
+//                     <BasicRoom RoomCode="3001" TiketRoomCode="12345612" Status="Active">
+//                         <RatePlans>
+//                             <RatePlan RatePlanCode="3001_3rd_Std" TiketRatePlanCode="12345612_1" Status="Active" />
+//                             <RatePlan RatePlanCode="3001_2nd_Std" TiketRatePlanCode="12345612_2" Status="Active" />
+//                         </RatePlans>
+//                     </BasicRoom>
+//                     <BasicRoom RoomCode="3003" Status="Pending" />
+//                     <BasicRoom RoomCode="3004" TiketRoomCode="12345613" Status="Active">
+//                         <RatePlans>
+//                             <RatePlan RatePlanCode="3004_3rd_Std" Status="Failed">
+//                                 <Errors>
+//                                     <Error Code="394" ShortText="Duplicated sub-room name" />
+//                                     <Error Code="394" ShortText="RatePlanCode: Field Missed" />
+//                                 </Errors>
+//                             </RatePlan>
+//                             <RatePlan RatePlanCode="3004_2nd_Std" Status="Failed">
+//                                 <Errors>
+//                                     <Error Code="394" ShortText="Duplicated sub-room name" />
+//                                 </Errors>
+//                             </RatePlan>
+//                         </RatePlans>
+//                     </BasicRoom>
+//                 </BasicRooms>
+//             </Hotel>
+//             <Hotel HotelCode="1332483" Status="Failed">
+//                 <Errors>
+//                     <Error Code="394" ShortText="Failed to find this hotel" />
+//                 </Errors>
+//             </Hotel>
+//         </Hotels>
+//     </TPA_Extensions>
+// </OTA_HotelStatsNotifRS>
+// ```
+
+@name("Get Status Content")
+GET "http://192.168.64.13/tix-hotel-b2b-search-service/search"
+"Content-Type": "application/xml"
+"channelId": "(DESKTOP/MOBILE)"
+"requestId": "{YOUR REQ ID}"
+"serviceId": "gateway"
+"username": "{YOUR USERNAME}"
+"lang": "(en/id)"
+"currency": "(IDR/USD)"
+"storeId": "{YOUR STORE ID}"
+"resellerId": "{YOUR RESELLER ID}"
+data('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<soap:Envelope xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns4="http://www.opentravel.org/OTA/2003/05" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <soap:Body>
+        <ns4:OTA_HotelStatsNotifRQ TimeStamp="2020-04-17T11:15:05.408+07:00" Target="Test" Version="1.0" PrimaryLangID="en-US">
+            <ns4:POS>
+                <ns4:Source>
+                    <ns4:RequestorID MessagePassword="XVtF5c" Type="1" ID="kamal.kripalaney@tiket.com">
+                        <ns4:CompanyName Code="C" CodeContext="1220"/>
+                    </ns4:RequestorID>
+                </ns4:Source>
+            </ns4:POS>
+            <ns4:Statistics>
+                <ns4:Statistic HotelCode="123"/>
+            </ns4:Statistics>
+        </ns4:OTA_HotelStatsNotifRQ>
+    </soap:Body>
+</soap:Envelope>
+')
+
+
+

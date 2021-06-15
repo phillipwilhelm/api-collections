@@ -1,0 +1,1 @@
+https://<management_center_IP_or_name>:<https_port>/api/api-explorer

@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Domains")
+GET "https://{{apiPath}}/environments/{{envID}}/customDomains"
+"Content-Type": "application/json"
+
+
+@name("READ One Domain")
+GET "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+
+
+@name("CREATE Domain")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains"
+"Content-Type": "application/json"
+data('{
+    "domainName": "{{$timestamp}}.custom-domain.example.com"
+}')
+
+
+@name("Verify Domain")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Content-Type": "application/vnd.pingidentity.domainName.verify+json"
+
+
+// #### SSL Certificate Import Request Data Model
+// 
+// Property | Required? | Type | Notes
+// -------- | --------- | ---- | -----
+// certificate | Y | String | PEM-encoded certificate to import. The following validation will be performed on the certificate: <br>- It MUST not be expired <br>- It MUST not be self signed <br>- The custom domain name MUST match one of the subject alternative name (SAN) values on the certificate.
+// intermediateCertificates | Y | String | PEM-encoded certificate chain
+// privateKey | Y | String | PEM-encoded, unencrypted private key that matches the certificate's public key
+// 
+// * *Note that all PEMs must use `\n` to denote newlines.
+
+@name("Import Certificate")
+POST "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+"Content-Type": "application/vnd.pingidentity.certificate.import+json"
+data('{
+	"certificate": "",
+	"intermediateCertificates": "",
+	"privateKey": ""
+}')
+
+
+@name("DELETE Domain")
+DELETE "https://{{apiPath}}/environments/{{envID}}/customDomains/{{domID}}"
+
+
+

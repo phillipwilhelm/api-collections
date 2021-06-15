@@ -1,0 +1,199 @@
+#!/usr/bin/env dothttp
+
+@name("Create order (Merchant authentication)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    }
+}')
+
+
+// Instead of sending the credit card attributes (`expirationMonth`, `expirationYear`, `number`, `cvc`) we suggest you encrypt this data it in the front end using our [JS Encryption SDK](https://github.com/moip/moip-sdk-js) and send just a `hash` attribute, this will make the transaction much safer.
+// 
+// Simulating status:
+// 
+// - Payment cancelled by the acquirer: send the string `REJECT` in the attribute `fundingInstrument.creditCard.holder.fullname`
+// - Payment cancelled by Moip's risk analysis: send the sting `CANCEL` in the attribute `fundingInstrument.creditCard.holder.fullname`
+// - Payment stays in analysis by Moip's risk analysis system: send the string `ANALYZE` in the attribute `fundingInstrument.creditCard.holder.fullname`
+
+@name("Create credit card payment (Merchant authentication)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+data('{
+  "installmentCount": 1,
+  "statementDescriptor": "MyStore",
+  "fundingInstrument": {
+    "method": "CREDIT_CARD",
+    "creditCard": {
+      "expirationMonth": "02",
+      "expirationYear": "20",
+      "number": "5555666677778884",
+      "cvc": "123",
+      "holder": {
+        "fullname": "Jose Portador da Silva",
+        "birthdate": "1988-12-30",
+        "taxDocument": {
+          "type": "CPF",
+          "number": "33333333333"
+        },
+        "phone": {
+          "countryCode": "55",
+          "areaCode": "11",
+          "number": "66778899"
+        }
+      }
+    }
+  }
+}')
+
+
+@name("Create credit card refund (Merchant authentication)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+
+
+
+@name("Create 2nd order (Merchant authentication)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    }
+}')
+
+
+@name("Create boleto payment (Merchant authentication)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+data('{  
+    "fundingInstrument": {
+        "method": "BOLETO",
+        "boleto": {
+            "expirationDate": "2020-09-30",
+            "instructionLines": {
+                "first": "TESTETETSTTTST",
+                "second": "tfcsddlksjsd",
+                "third": "lkshglashiuahgha"
+            },
+            "logoUri": "http://"
+        }
+    }
+}')
+
+
+// The purpose of this endpoint is to simulate boleto authorization in Sandbox.
+// This function is not available in production environment.
+
+@name("Authorized boleto (Merchant authentication)")
+POST "https://{{url}}/simulador/authorize"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+? "payment_id"= "{{payment_id}}"
+? "amount"= "2000"
+data('{}')
+
+
+@name("Create bank account refund (Merchant authentication)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{cmerchant_accessToken}}"
+data('{
+  "amount": 1000,
+  "refundingInstrument": {
+  	"method": "BANK_ACCOUNT",
+    "bankAccount": {
+      "bankNumber": "237",
+      "agencyNumber": "12345",
+      "agencyCheckNumber": "0",
+      "accountNumber": "12345678",
+      "accountCheckNumber": "7",
+      "type": "CHECKING",
+      "holder": {
+        "taxDocument": {
+          "type": "CPF",
+          "number": "22222222222"
+        },
+        "fullname": "Demo Moip"
+      }
+    }
+  }
+}')
+
+
+

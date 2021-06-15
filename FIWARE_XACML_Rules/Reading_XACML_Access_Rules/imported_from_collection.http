@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+// Once **Authzforce** is running, you can check the status by making an HTTP
+// request to the exposed administration port (usually `8080`. If the response is
+// blank, this is usually because **Authzforce** is not running or is listening on
+// another port.
+// 
+// The response returns information about the version of Authzforce.
+
+@name("Authzforce - Obtain Version Information")
+GET "http://{{authzforce}}/authzforce-ce/version"
+"Accept": "application/xml"
+
+
+// To request domain information from **Authzforce**, make a request to the
+// `/authzforce-ce/domains` endpoint.
+// 
+// The response lists the domains which are available in **Authzforce**. This
+// corresponds to the directory structure uploaded to **Authzforce** on start-up.
+
+@name("List all domains")
+GET "http://{{authzforce}}/authzforce-ce/domains"
+
+
+// To read information about a domain, and to explore further, make a request to
+// the `authzforce-ce/domains/{{domain-id}}` endpoint. The following request
+// obtains information about the `gQqnLOnIEeiBFQJCrBIBDA` domain, which has been
+// generated using using a random key by an external Policy Adminstration Point in
+// this case **Keyrock** has been used as the PAP, and pre-generated the rule sets.
+// 
+// The response lists more information about the domain, including the id used
+// within **Keyrock** (`tutorial-dckr-site-0000-xpresswebapp`)
+
+@name("Read a single domain")
+GET "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}"
+
+
+// To list the generated ids for all of the PolicySets found within a domain make a
+// request to the `authzforce-ce/domains/{{domain-id}}/pap/policies` endpoint. The
+// following request obtains a list of a given policy ids found within the
+// `gQqnLOnIEeiBFQJCrBIBDA` domain.
+// 
+// The response returns a list of available revisions of the given policy which are
+// available within. the **Authzforce** container. This corresponds the named XML
+// files `1.xml`, `2.xml` etc.
+
+@name("List all PolicySets available within a Domain")
+GET "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pap/policies"
+
+
+// To list the available revisions of a policy, make a request to the
+// `authzforce-ce/domains/{{domain-id}}/pap/policies/{{policy-id}}` endpoint.
+// Available policy id are randomly generated, and can be obtained by drilling down
+// using the previous request. The following request obtains a list revision of a
+// given policy found within the `gQqnLOnIEeiBFQJCrBIBDA` domain.
+// 
+// The response returns a list of available revisions of the given policy which are
+// available within the **Authzforce** container. This corresponds the named XML
+// files `1.xml`, `2.xml` etc.
+
+@name("List the available revisions of a PolicySet")
+GET "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pap/policies/{{policy-id}}"
+
+
+// To obtain a single revison of a `<PolicySet>`, make a request to the
+// `authzforce-ce/domains/{{domain-id}}/pap/policies/{{policy-id}}/{{revision-number}}`
+// endpoint. The following request obtains the second revision of the given policy
+// found within the `gQqnLOnIEeiBFQJCrBIBDA` domain.
+// 
+// The response contains the full `<PolicySet>` for the given revision. This is a
+// copy of
+// [the file](https://github.com/Fiware/tutorials.XACML-Access-Rules/blob/master/authzforce/domains/gQqnLOnIEeiBFQJCrBIBDA/policies/ZjgxOTRhZjUtOGEwNy00ODZhLTk1ODEtYzFmMDVkMDU0ODNj/2.xml)
+// held within **Authzforce**.
+
+@name("Read a single version of a PolicySet")
+GET "http://{{authzforce}}/authzforce-ce/domains/{{domain-id}}/pap/policies/{{policy-id}}/2"
+
+
+

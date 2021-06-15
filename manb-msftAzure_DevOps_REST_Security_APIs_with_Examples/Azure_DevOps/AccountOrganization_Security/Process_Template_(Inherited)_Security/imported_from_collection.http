@@ -1,0 +1,97 @@
+#!/usr/bin/env dothttp
+
+@name("List Processes")
+GET "https://dev.azure.com/{{organization}}/_apis/process/processes"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+
+
+// The token is of the format,
+// 
+// "token": "$PROCESS:SYS_PROCESS_ID:"
+// 
+// (colon at the end is mandatory)
+
+@name("Set Permissions to user/group for System Process")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{processSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "$PROCESS:b8a3a935-7e91-48b8-a94c-606d37c3e9f2:",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 0,
+            "deny": 4,
+            "extendedInfo": {
+                "effectiveAllow": 4,
+                "effectiveDeny": 0,
+                "inheritedAllow": 4,
+                "inheritedDeny": 0
+            }
+        }
+    ]
+})
+
+
+// The token is of the format,
+// 
+// "token": "$PROCESS:SYS_PROCESS_ID:INHERITED_PROCESS_ID:"
+// 
+// (colon at the end is mandatory)
+
+@name("Set Permissions to user/group for inherited processes")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{processSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "$PROCESS:adcc42ab-9882-485e-a3ed-7678f01f66bc:a51911d2-dca0-4a7e-abc8-94fa0f8358fb:",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\\user@company.com",
+            "allow": 1,
+            "deny": 0,
+            "extendedInfo": {
+                "effectiveAllow": 1,
+                "effectiveDeny": 0,
+                "inheritedAllow": 1,
+                "inheritedDeny": 0
+            }
+        }
+    ]
+})
+
+
+// You need to pass URL encoded query string parameters for Descriptor (with some modifications) and token
+// 
+// https://www.url-encode-decode.com/
+// 
+// Example,
+// 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity;72f998bf-86f1-42af-94ab-2d7cd111db47\user@company.com
+// 
+// should be encoded and passed as, 
+// 
+// Microsoft.IdentityModel.Claims.ClaimsIdentity%3B72f998bf-86f1-42af-94ab-2d7cd111db47%5Cuser%40company.com
+// 
+// *(NOTE: You must convert ID\\user@company.com to ID\user@company.com before encoding, if you encode as-is, ie, with \\ this will not work)*
+// 
+// And the token 
+// 
+// $PROCESS:adcc42ab-9882-485e-a3ed-7678f01f66bc:a51911d2-dca0-4a7e-abc8-94fa0f8358fb:
+// 
+// should be encoded and passed as
+// 
+// %24PROCESS%3Aadcc42ab-9882-485e-a3ed-7678f01f66bc%3Aa51911d2-dca0-4a7e-abc8-94fa0f8358fb%3A
+
+@name("Delete Permissions to user/group for inherited Process")
+DELETE "https://dev.azure.com/{{organization}}/_apis/Permissions/2dab47f9-bd70-49ed-9bd5-8eb051e59c02/1"
+basicauth("Basic", "{{OPAT}}")
+? "descriptor"= "Microsoft.IdentityModel.Claims.ClaimsIdentity;72f988bf-86f1-xxxx-91ab-2d7cd011xxxx\user@company.com"
+? "token"= "$PROCESS:adcc42ab-9882-485e-a3ed-7678f01f66bc:a51911d2-dca0-4a7e-abc8-94fa0f8358fb:"
+? "api-version"= "5.0"
+
+
+

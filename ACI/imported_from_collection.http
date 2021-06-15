@@ -1,0 +1,1679 @@
+#!/usr/bin/env dothttp
+
+@name("Last Login")
+POST "https://{{apic}}/api/uni/aaaLogin.json"
+"Content-Type": "application/json"
+data('{
+
+    "aaaUser" : {
+
+        "attributes" : {
+
+            "name" : "{{user}}",
+
+            "pwd" : "{{password}}"
+
+        }
+
+    }
+
+}')
+
+
+@name("create new tenant")
+POST "https://{{apic}}/api/node/mo/uni/tn-tenant-1.json"
+"Content-Type": "application/json"
+data('{"fvTenant":{"attributes":{"dn":"uni/tn-tenant-1","name":"tenant-1","rn":"tn-tenant-1","status":"created"},"children":[]}}')
+
+
+@name("create multiple EPGs")
+POST "https://{{apic}}/api/node/mo/uni/tn-tenant-1/ap-test-ap/epg-{{epgname}}.json"
+"Content-Type": "application/json"
+data('{
+  "fvAEPg": {
+    "attributes": {
+      "dn": "uni/tn-tenant-1/ap-test-ap/epg-{{epgname}}",
+      "name": "{{epgname}}",
+      "rn": "epg-{{epgname}}",
+      "status": "created"
+    },
+    "children": [{
+      "fvRsBd": {
+        "attributes": {
+          "tnFvBDName": "BD-sample",
+          "status": "created,modified"
+        },
+        "children": []
+      }
+    }]
+  }
+}')
+
+
+// EPG Static Binding
+
+@name("EPG Static Binding")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
+"Content-Type": "application/json"
+data('{
+    "fvRsPathAtt": {
+        "attributes": {
+            "encap": "vlan-{{vlan}}",
+            "tDn": "topology/pod-1/paths-{{node}}/pathep-[{{interface}}]",
+            "status": "created"
+        },
+        "children": []
+    }
+}')
+
+
+@name("Create Bridge Domain")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/BD-{{bdname}}.json"
+"Content-Type": "application/json"
+data('{
+    "fvBD": {
+        "attributes": {
+            "dn": "uni/tn-{{tenant}}/BD-{{bdname}}",
+            "name": "{{bdname}}",
+            "rn": "{{bdname}}-BD",
+            "status": "created"
+        },
+        "children": [
+            {
+                "fvRsCtx": {
+                    "attributes": {
+                        "tnFvCtxName": "{{vrfname}}",
+                        "status": "created,modified"
+                    },
+                    "children": []
+                }
+            }
+        ]
+    }
+}')
+
+
+@name("Create EPG")
+POST "https://{{apic}}/api/node/mo/uni/tn-TE/ap-{{approfile}}/epg-{{epgname}}.json"
+"Content-Type": "application/json"
+data('{
+  "fvAEPg": {
+    "attributes": {
+      "dn": "uni/tn-TE/ap-{{approfile}}/epg-{{epgname}}",
+      "name": "{{epgname}}",
+      "rn": "{{epgname}}-EPG",
+      "status": "created"
+    },
+    "children": [{
+      "fvRsBd": {
+        "attributes": {
+          "tnFvBDName": "{{bdname}}",
+          "status": "created,modified"
+        },
+        "children": []
+      }
+    }]
+  }
+}')
+
+
+@name("Create Application Profiles")
+POST "https://{{apic}}/api/node/mo/uni/tn-TE.json"
+"Content-Type": "application/json"
+data('{
+    "fvAp": {
+        "attributes": {
+            "dn": "uni/tn-TE/ap-{{approfile}}",
+            "name": "{{approfile}}",
+            "rn": "{{approfile}}-AppProf",
+            "status": "created"
+        },
+        "children": []
+    }
+}')
+
+
+@name("show VRFs")
+GET "https://{{apic}}/api/mo/uni/tn-TE.json"
+? "query-target"= "subtree"
+? "target-subtree-class"= "fvCtx"
+
+
+@name("Monitor BGP Route-Reflector")
+GET "https://{{apic}}/api/node/mo/uni/fabric/bgpInstP-default/rr.json"
+? "query-target"= "subtree"
+? "target-subtree-class"= "bgpRRNodePEp"
+
+
+@name("Monitor Routed L3-network under specific tenant")
+GET "https://{{apic}}/api/mo/uni/tn-TE.json"
+? "query-target"= "subtree"
+? "target-subtree-class"= "l3extOut"
+
+
+@name("L3OUT")
+POST "https://10.31.32.201/api/node/mo/uni/tn-TE/out-Force_Point_L3OUT.json"
+"Content-Type": "application/json"
+data('        {
+            "l3extOut": {
+                "attributes": {
+                    "annotation": "",
+                    "descr": "",
+                    "dn": "uni/tn-TE/out-Force_Point_L3OUT",
+                    "enforceRtctrl": "export",
+                    "name": "Force_Point_L3OUT",
+                    "nameAlias": "",
+                    "ownerKey": "",
+                    "ownerTag": "",
+                    "targetDscp": "unspecified"
+                },
+                "children": [
+                    {
+                        "l3extRsL3DomAtt": {
+                            "attributes": {
+                                "annotation": "",
+                                "tDn": "uni/l3dom-InterConn_ExtDom"
+                            }
+                        }
+                    },
+                    {
+                        "l3extRsEctx": {
+                            "attributes": {
+                                "annotation": "",
+                                "tnFvCtxName": "interconn"
+                            }
+                        }
+                    },
+                    {
+                        "l3extInstP": {
+                            "attributes": {
+                                "annotation": "",
+                                "descr": "",
+                                "exceptionTag": "",
+                                "floodOnEncap": "disabled",
+                                "matchT": "AtleastOne",
+                                "name": "FP_L3OUT_EEPG",
+                                "nameAlias": "",
+                                "prefGrMemb": "exclude",
+                                "prio": "unspecified",
+                                "targetDscp": "unspecified"
+                            },
+                            "children": [
+                                {
+                                    "fvRsProv": {
+                                        "attributes": {
+                                            "annotation": "",
+                                            "matchT": "AtleastOne",
+                                            "prio": "unspecified",
+                                            "tnVzBrCPName": "default"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.255.21/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.247.9/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.247.34/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.162.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.253.5.16/28",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.223.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.223.0/28",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.155/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.221.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.204.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.183.207/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.130.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.64.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.181.62/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.31.0.0/16",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.16.71.66/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.247.92/30",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.16.39.187/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.224.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.16.23.18/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.188.234/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.220.1.0/28",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.16.1.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.255.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.255.0.0/16",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.211.0.0/16",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.167/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.255.138/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.38.13.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.153.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.111.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.95.0.0/16",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.129.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.65.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.120.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.97/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.48.198.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.247.13/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.188.34/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.109.7.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.50/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.244.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.202.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.16.39.186/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.207.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.254.59/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.35/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.203.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.210.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.168.36/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.240.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.179/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.32.5.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.106.1.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.249.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.165.150/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.251.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.38/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.160.108/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.160.109/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.15/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.255.228/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.39/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "172.16.33.202/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.69/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.192/26",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.168.82/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.180.170/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.181.134/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.134.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.183.118/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.165.47/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.39.13.64/26",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.183.138/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.183.195/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.244.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.183.208/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.43/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.188.61/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.212.0.0/16",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.20/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.109.1.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "192.168.128.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.97.11/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.68/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.98/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.255.22/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.96/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.105/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.38.7.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.156.23/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.106/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.20.130.150/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "213.158.162.133/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.14.222/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "212.103.163.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.14.223/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.111.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.241.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.12.42.0/24",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.11.254.14/32",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "export-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "0.0.0.0/0",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "export-rtctrl,import-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "l3extSubnet": {
+                                        "attributes": {
+                                            "aggregate": "shared-rtctrl",
+                                            "annotation": "",
+                                            "descr": "",
+                                            "ip": "10.253.5.32/28",
+                                            "name": "",
+                                            "nameAlias": "",
+                                            "scope": "import-security,shared-rtctrl,shared-security"
+                                        }
+                                    }
+                                },
+                                {
+                                    "fvRsCustQosPol": {
+                                        "attributes": {
+                                            "annotation": "",
+                                            "tnQosCustomPolName": ""
+                                        }
+                                    }
+                                },
+                                {
+                                    "fvRsCons": {
+                                        "attributes": {
+                                            "annotation": "",
+                                            "prio": "unspecified",
+                                            "tnVzBrCPName": "default"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}')
+
+
+@name("EPG Static Binding (VPC)")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
+"Content-Type": "application/json"
+data('{
+    "fvRsPathAtt": {
+        "attributes": {
+            "encap": "vlan-{{vlan}}",
+            "tDn": "topology/pod-1/protpaths-{{node}}/pathep-[{{interface}}]",
+            "status": "created"
+        },
+        "children": []
+    }
+}')
+
+
+// gg
+
+@name("Add Subnets to External EPG")
+POST "https://{{apic}}/api/node/mo/uni/tn-TE/{{L3OUT}}/{{EXEPG}}.json"
+"Content-Type": "application/json"
+json({
+    "l3extSubnet": {
+        "attributes": {
+            "dn": "uni/tn-TE/{{L3OUT}}/{{EXEPG}}/extsubnet-[{{SUBNETS}}]",
+            "ip": "{{SUBNETS}}",
+            "scope": "export-rtctrl,import-security,shared-rtctrl,shared-security"
+        }
+    }
+})
+
+
+@name("Add Static routes")
+POST "https://10.31.31.201/api/node/mo/uni/tn-TE/out-{{L3OUT}}/lnodep-{{NodeProf}}/rsnodeL3OutAtt-[topology/pod-1/node-{{NODE}}]/rt-[{{SUBNETS}}].json"
+"Content-Type": "application/json"
+json({
+    "ipRouteP": {
+        "attributes": {
+            "dn": "uni/tn-TE/out-FP-ACI-L3OUT/lnodep-FP-ACI-NP/rsnodeL3OutAtt-[topology/pod-1/node-{{NODE}}]/rt-[{{SUBNETS}}]",
+            "ip": "{{SUBNETS}}",
+            "status": "created"
+        },
+        "children": [
+            {
+                "ipNexthopP": {
+                    "attributes": {
+                        "dn": "uni/tn-TE/out-FP-ACI-L3OUT/lnodep-FP-ACI-NP/rsnodeL3OutAtt-[topology/pod-1/node-{{NODE}}]/rt-[{{SUBNETS}}]/nh-[{{ipNexthopP}}]",
+                        "nhAddr": "{{ipNexthopP}}",
+                        "pref": "1",
+                        "status": "created"
+                    },
+                    "children": []
+                }
+            }
+        ]
+    }
+})
+
+
+@name("events")
+GET "https://10.31.32.201/api/node/class/faultInst.json"
+? 'query-target-filter'= 'eq(faultInst.descr,"VPC")'
+? "order-by"= "faultInst.created|desc'"
+
+
+@name("assign EGP to Physical Domain")
+POST "https://10.31.32.201/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
+"Content-Type": "application/json"
+data('{
+	"fvRsDomAtt": {
+		"attributes": {
+			"tDn": "uni/phys-{{PHYSICALDOM}}",
+			"status": "created"
+		},
+		"children": []
+	}
+}')
+
+
+@name("query BD")
+GET "https://10.31.32.201/api/node/mo/uni/tn-TE.json"
+? "query-target"= "children"
+? "target-subtree-class"= "fvBD"
+? 'query-target-filter'= 'wcard(fvBD.name,"	AVAYA")'
+
+
+@name("ACI OOB")
+POST "https://10.31.31.201/api/node/mo/uni/tn-mgmt/mgmtp-default/oob-default/rsooBStNode-[topology/pod-2/node-{{node}}].json"
+"Content-Type": "application/json"
+json({
+    "mgmtRsOoBStNode": {
+        "attributes": {
+            "tDn": "topology/pod-2/node-{{node}}",
+            "addr": "{{address}}",
+            "gw": "{{gw}}",
+            "status": "created"
+        },
+        "children": []
+    }
+})
+
+
+

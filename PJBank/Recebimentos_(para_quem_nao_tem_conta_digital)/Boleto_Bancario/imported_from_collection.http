@@ -1,0 +1,714 @@
+#!/usr/bin/env dothttp
+
+// Credenciar a empresa para recebimento com boleto bancário.
+// 
+// * A liberação é imediata, desde que o CNPJ do credenciamento seja igual ao CNPJ da `conta_repasse`;
+// * O `cnpj` deve ser o mesmo da razão social fornecida no parâmetro `nome_empresa` e da conta de repasse fornecida no parâmetro `conta_repasse`;
+// * Se o `cnpj` da credencial for diferente do `cnpj` da conta bancária de repasse, quando ocorrer o primeiro pagamento, você receberá um contato telefônico da equipe do PJBank para confirmar e retificar os dados cadastrais. Como o repasse somente será efetuado após esta confirmação, pode ocorrer atraso neste processo até a efetivação dos dados;
+// * É possível fazer o repasse para uma conta bancária pertencente a uma pessoa física (CPF). Para o repasse ser realizado em outra conta, informe a conta e CPF e, quando receber a ligação do nosso time, siga o procedimento solicitado.
+// * PJBank pode emitir automaticamente boletos através dos bancos `Santander`, `Itaú`, `Banco do Brasil` ou qualquer outro banco parceiro, não sendo permitido escolher entre eles.
+// * Opcionalmente, é possível informar vários endereços de e-mail, informando uma lista separada por `;`, conforme exemplo a seguir:
+// email1@empresa.com.br;email2@empresa.com.br;email3@empresa.com.br
+
+@name("Credenciar uma conta para recebimento")
+POST "https://api.pjbank.com.br/recebimentos"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "nome_empresa": [
+        "Empresa de Exemplo"
+    ],
+    "nome_fantasia": [
+        "Exemplo"
+    ],
+    "conta_repasse": [
+        "99999-9"
+    ],
+    "agencia_repasse": [
+        "0001"
+    ],
+    "banco_repasse": [
+        "033"
+    ],
+    "tipo_conta_repasse": [
+        "corrente"
+    ],
+    "cnpj": [
+        "50282264000153"
+    ],
+    "ddd": [
+        "19"
+    ],
+    "telefone": [
+        "40096830"
+    ],
+    "email": [
+        "atendimento@pjbank.com.br"
+    ],
+    "endereco": [
+        "Rua Joaquim Vilac, 509"
+    ],
+    "bairro": [
+        "Vila Teixeira"
+    ],
+    "cidade": [
+        "Campinas"
+    ],
+    "estado": [
+        "SP"
+    ],
+    "cep": [
+        "13301-510"
+    ],
+    "agencia": [
+        "0000"
+    ],
+    "ticket_medio": [
+        "125.00"
+    ],
+    "faturamento_mensal": [
+        "10000.00"
+    ],
+    "site": [
+        "https://www.empresaexemplo.com.br"
+    ]
+})
+
+
+// * IMPORTANTE: O parâmetro `id_unico` é um número de identificação interno do boleto dentro do PJBank. Você deve usar este número para identificar os boletos que foram pagos. Então, gravá-lo do seu lado é muito importante;
+// * Você pode enviar uma identificação própria no parâmetro `pedido_numero`. 
+// * Informando o parâmetro `pedido_numero`, você poderá editar o boleto via API sem o risco de duplicá-lo, uma vez que o sistema não vai gerar outro boleto caso o mesmo já exista. Ou seja, o sistema não vai criar dois boletos com o `pedido_numero` igual para a mesma credencial.
+// * A identificação pelo parâmetro `grupo` serve para fazer a impressão em lote de um grupo de boletos. Ao informá-lo, você receberá um link exclusivo para impressão em grupo.
+// * Você pode enviar uma URL de uma imagem no parâmetro `logo_url` para gerar um boleto com o logo da sua empresa.
+// * Você pode inserir um texto livre no parâmetro `texto` para mensagens ou observações customizadas aos seus clientes.
+// * O boleto será cancelado, automaticamente, após 58 dias do vencimento.
+// * Caso o boleto seja gerado sem o ‘nunca_atualizar_boleto’ e for gerado em feriado ou fim de semana, o vencimento será transferido automaticamente para o próximo dia útil. Além disso, iremos retornar, na geração do boleto, os parâmetros ‘vencimento_original’ e ‘vencimento_atualizado.
+// 
+// O campo `id_unico_original` é utilizado em 2 situações:
+// 
+// * Pagamentos duplicados: neste caso, o campo `duplicado` terá valor `1`;
+// 
+// * Boleto alterado: quando um boleto é modificado, há a necessidade de registrar um novo boleto no sistema bancário, alteração que é realizada automaticamente pelo PJBank.
+// 
+// 
+// ## Espécies de Documento 
+// 
+// No parâmetro `especie_documento` é possível informar a sigla do tipo do serviço da cobrança que está sendo gerada de acordo com o banco. Os tipos disponíveis são: 
+// 
+// 
+// ### SANTANDER
+// 
+//             
+// `AP` => `Apólice de Seguro`
+// 
+// `CH` => `Cheque`
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `LC` => `Letra de Câmbio`
+// 
+// `ND` => `Nota Promissória Direta`
+// 
+// `NP` => `Nota Promissória`
+// 
+// `NR` => `Nota Promissória Rural`
+// 
+// `RC` => `Recibo`  
+// 
+// 
+// ### ITAU
+// 
+// 
+// `CT` => `Contrato`
+// 
+// `CS` => `Concessionária de Seguro`
+// 
+// `CPS` => `Conta de Prestação de Serviços`
+// 
+// `DD` => `Documento de Dívida`
+// 
+// `DM` => `Duplicata Mercantil`
+// 
+// `DS` => `Duplicata de Serviço`
+// 
+// `EC` => `Encargo Condominiais`
+// 
+// `LC` => `Letra de Câmbio`
+// 
+// `ME` => `Mensalidade Escolar`
+// 
+// `ND` => `Nota de Débitos`
+// 
+// `NP` => `Nota Promissória`
+// 
+// `NS` => `Nota de Seguro`
+// 
+// `RC` => `Recibo`  
+
+@name("Emitir um boleto ou Pix")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "vencimento": [
+        "12/30/2019"
+    ],
+    "valor": [
+        "50.75"
+    ],
+    "juros": [
+        "0"
+    ],
+    "juros_fixo": [
+        "0"
+    ],
+    "multa": [
+        "0"
+    ],
+    "multa_fixo": [
+        "0"
+    ],
+    "desconto": [
+        ""
+    ],
+    "diasdesconto1": [
+        ""
+    ],
+    "desconto2": [
+        ""
+    ],
+    "diasdesconto2": [
+        ""
+    ],
+    "desconto3": [
+        ""
+    ],
+    "diasdesconto3": [
+        ""
+    ],
+    "nunca_atualizar_boleto": [
+        "0"
+    ],
+    "nome_cliente": [
+        "Cliente de Exemplo"
+    ],
+    "email_cliente": [
+        "cliente.exemplo@pjbank.com.br"
+    ],
+    "telefone_cliente": [
+        "1940096830"
+    ],
+    "cpf_cliente": [
+        "62936576000112"
+    ],
+    "endereco_cliente": [
+        "Rua Joaquim Vilac"
+    ],
+    "numero_cliente": [
+        "509"
+    ],
+    "complemento_cliente": [
+        ""
+    ],
+    "bairro_cliente": [
+        "Vila Teixeira"
+    ],
+    "cidade_cliente": [
+        "Campinas"
+    ],
+    "estado_cliente": [
+        "SP"
+    ],
+    "cep_cliente": [
+        "13301510"
+    ],
+    "logo_url": [
+        "https://pjbank.com.br/assets/images/logo-pjbank.png"
+    ],
+    "texto": [
+        "Texto opcional"
+    ],
+    "instrucoes": [
+        "Este \u00e9 um boleto de exemplo"
+    ],
+    "instrucao_adicional": [
+        "Este boleto n\u00e3o deve ser pago pois \u00e9 um exemplo"
+    ],
+    "grupo": [
+        "Boletos001"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ],
+    "pedido_numero": [
+        "89724"
+    ],
+    "especie_documento": [
+        "DS"
+    ],
+    "pix": [
+        "pix-e-boleto"
+    ]
+})
+
+
+// O split de pagamento é a divisão do repasse de um boleto entre uma ou mais contas (**consultar tarifa**).
+// 
+// Um boleto pode ser creditado em mais de uma conta. Para isto, você precisará informar os dados em um campo chamado `split`. Neste campo, você deve informar os dados da conta bancária de crédito e o valor ou porcentagem de cada pagamento adicional.
+// 
+// **CADA CONTA ADICIONAL SERÁ TARIFADA. PARA MAIS DETALHES, ENTRE EM CONTATO COM O TIME COMERCIAL.**
+
+@name("Emitir um boleto ou Pix com split de pagamento")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "vencimento": [
+        "12/30/2019"
+    ],
+    "valor": [
+        "50.75"
+    ],
+    "juros": [
+        "0"
+    ],
+    "juros_fixo": [
+        "0"
+    ],
+    "multa": [
+        "0"
+    ],
+    "multa_fixo": [
+        "0"
+    ],
+    "desconto": [
+        ""
+    ],
+    "diasdesconto1": [
+        ""
+    ],
+    "desconto2": [
+        ""
+    ],
+    "diasdesconto2": [
+        ""
+    ],
+    "desconto3": [
+        ""
+    ],
+    "diasdesconto3": [
+        ""
+    ],
+    "nunca_atualizar_boleto": [
+        "0"
+    ],
+    "nome_cliente": [
+        "Cliente de Exemplo"
+    ],
+    "email_cliente": [
+        "cliente.exemplo@pjbank.com.br"
+    ],
+    "telefone_cliente": [
+        "1940096830"
+    ],
+    "cpf_cliente": [
+        "62936576000112"
+    ],
+    "endereco_cliente": [
+        "Rua Joaquim Vilac"
+    ],
+    "numero_cliente": [
+        "509"
+    ],
+    "complemento_cliente": [
+        ""
+    ],
+    "bairro_cliente": [
+        "Vila Teixeira"
+    ],
+    "cidade_cliente": [
+        "Campinas"
+    ],
+    "estado_cliente": [
+        "SP"
+    ],
+    "cep_cliente": [
+        "13301510"
+    ],
+    "logo_url": [
+        "https://pjbank.com.br/assets/images/logo-pjbank.png"
+    ],
+    "texto": [
+        "Texto opcional"
+    ],
+    "instrucoes": [
+        "Este \u00e9 um boleto de exemplo"
+    ],
+    "instrucao_adicional": [
+        "Este boleto n\u00e3o deve ser pago pois \u00e9 um exemplo"
+    ],
+    "grupo": [
+        "Boletos001"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ],
+    "pedido_numero": [
+        "89724"
+    ],
+    "especie_documento": [
+        "DS"
+    ],
+    "split[0][nome]": [
+        "Fornecedor Exemplo"
+    ],
+    "split[0][cnpj]": [
+        "10488175000143"
+    ],
+    "split[0][banco_repasse]": [
+        "033"
+    ],
+    "split[0][agencia_repasse]": [
+        "0001"
+    ],
+    "split[0][conta_repasse]": [
+        "9999-9"
+    ],
+    "split[0][tipo_conta_repasse]": [
+        "corrente"
+    ],
+    "split[0][valor_fixo]": [
+        "10.00"
+    ],
+    "split[0][valor_porcentagem]": [
+        "50.00"
+    ],
+    "split[0][porcentagem_encargos]": [
+        "10.00"
+    ],
+    "split[0][porcentagem_multa]": [
+        "20.00"
+    ],
+    "split[0][porcentagem_juros]": [
+        "30.00"
+    ],
+    "split[0][porcentagem_desconto]": [
+        "45.00"
+    ],
+    "pix": [
+        "pix-e-boleto"
+    ]
+})
+
+
+// Você tem a opção de gerar boletos em lote, enviando as informações dos boletos dentro de um _array_, chamado `cobrancas`. 
+// 
+// Os boletos serão retornados individualmente dentro de outro _array_ de resposta. Recomendamos o envio de **50 boletos** por lote de cobranças.
+
+@name("Emitir boleto ou Pix em lote")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "cobrancas[0][vencimento]": [
+        "12/30/2019"
+    ],
+    "cobrancas[0][valor]": [
+        "50.75"
+    ],
+    "cobrancas[0][juros]": [
+        "0"
+    ],
+    "cobrancas[0][juros_fixo]": [
+        "0"
+    ],
+    "cobrancas[0][multa]": [
+        "0"
+    ],
+    "cobrancas[0][multa_fixo]": [
+        "0"
+    ],
+    "cobrancas[0][desconto]": [
+        ""
+    ],
+    "cobrancas[0][diasdesconto1]": [
+        ""
+    ],
+    "cobrancas[0][desconto2]": [
+        ""
+    ],
+    "cobrancas[0][diasdesconto2]": [
+        ""
+    ],
+    "cobrancas[0][desconto3]": [
+        ""
+    ],
+    "cobrancas[0][diasdesconto3]": [
+        ""
+    ],
+    "cobrancas[0][nunca_atualizar_boleto]": [
+        "0"
+    ],
+    "cobrancas[0][nome_cliente]": [
+        "Cliente de Exemplo"
+    ],
+    "cobrancas[0][email_cliente]": [
+        "cliente.exemplo@pjbank.com.br"
+    ],
+    "cobrancas[0][telefone_cliente]": [
+        "1940096830"
+    ],
+    "cobrancas[0][cpf_cliente]": [
+        "62936576000112"
+    ],
+    "cobrancas[0][endereco_cliente]": [
+        "Rua Joaquim Vilac"
+    ],
+    "cobrancas[0][numero_cliente]": [
+        "509"
+    ],
+    "cobrancas[0][complemento_cliente]": [
+        ""
+    ],
+    "cobrancas[0][bairro_cliente]": [
+        "Vila Teixeira"
+    ],
+    "cobrancas[0][cidade_cliente]": [
+        "Campinas"
+    ],
+    "cobrancas[0][estado_cliente]": [
+        "SP"
+    ],
+    "cobrancas[0][cep_cliente]": [
+        "13301510"
+    ],
+    "cobrancas[0][logo_url]": [
+        "https://pjbank.com.br/assets/images/logo-pjbank.png"
+    ],
+    "cobrancas[0][texto]": [
+        "Texto opcional"
+    ],
+    "cobrancas[0][instrucoes]": [
+        "Este \u00e9 um boleto de exemplo"
+    ],
+    "cobrancas[0][instrucao_adicional]": [
+        "Este boleto n\u00e3o deve ser pago pois \u00e9 um exemplo"
+    ],
+    "cobrancas[0][grupo]": [
+        "Boletos001"
+    ],
+    "cobrancas[0][pedido_numero]": [
+        "123456"
+    ],
+    "cobrancas[0][pix]": [
+        "pix-e-boleto"
+    ],
+    "cobrancas[1][vencimento]": [
+        "12/30/2019"
+    ],
+    "cobrancas[1][valor]": [
+        "50.75"
+    ],
+    "cobrancas[1][juros]": [
+        "0"
+    ],
+    "cobrancas[1][juros_fixo]": [
+        "0"
+    ],
+    "cobrancas[1][multa]": [
+        "0"
+    ],
+    "cobrancas[1][multa_fixo]": [
+        "0"
+    ],
+    "cobrancas[1][desconto]": [
+        ""
+    ],
+    "cobrancas[1][diasdesconto1]": [
+        ""
+    ],
+    "cobrancas[1][desconto2]": [
+        ""
+    ],
+    "cobrancas[1][diasdesconto2]": [
+        ""
+    ],
+    "cobrancas[1][desconto3]": [
+        ""
+    ],
+    "cobrancas[1][diasdesconto3]": [
+        ""
+    ],
+    "cobrancas[1][nunca_atualizar_boleto]": [
+        "0"
+    ],
+    "cobrancas[1][nome_cliente]": [
+        "Cliente de Exemplo"
+    ],
+    "cobrancas[1][email_cliente]": [
+        "cliente.exemplo@pjbank.com.br"
+    ],
+    "cobrancas[1][telefone_cliente]": [
+        "1940096830"
+    ],
+    "cobrancas[1][cpf_cliente]": [
+        "62936576000112"
+    ],
+    "cobrancas[1][endereco_cliente]": [
+        "Rua Joaquim Vilac"
+    ],
+    "cobrancas[1][numero_cliente]": [
+        "509"
+    ],
+    "cobrancas[1][complemento_cliente]": [
+        ""
+    ],
+    "cobrancas[1][bairro_cliente]": [
+        "Vila Teixeira"
+    ],
+    "cobrancas[1][cidade_cliente]": [
+        "Campinas"
+    ],
+    "cobrancas[1][estado_cliente]": [
+        "SP"
+    ],
+    "cobrancas[1][cep_cliente]": [
+        "13301510"
+    ],
+    "cobrancas[1][logo_url]": [
+        "https://pjbank.com.br/assets/images/logo-pjbank.png"
+    ],
+    "cobrancas[1][texto]": [
+        "Texto opcional"
+    ],
+    "cobrancas[1][instrucoes]": [
+        "Este \u00e9 um boleto de exemplo"
+    ],
+    "cobrancas[1][instrucao_adicional]": [
+        "Este boleto n\u00e3o deve ser pago pois \u00e9 um exemplo"
+    ],
+    "cobrancas[1][grupo]": [
+        "Boletos002"
+    ],
+    "cobrancas[1][pedido_numero]": [
+        "123456"
+    ],
+    "cobrancas[1][pix]": [
+        "pix-e-boleto"
+    ]
+})
+
+
+// Você pode enviar um _array_ contendo os números dos pedidos no parâmetro `pedido_numero`, para que seja possível a criação de uma impressão com vários boletos diferentes. 
+
+@name("Imprimir boletos bancários em lote")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes/lotes"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE": "{{chave-boleto}}"
+data({
+    "formato": [
+        ""
+    ],
+    "pedido_numero[]": [
+        "89722",
+        "89723",
+        "89724",
+        "89725"
+    ]
+})
+
+
+// Ao especificar o parâmetro `"formato":"carne"` na requisição, você pode gerar uma impressão de boletos no formato de 3 itens por página, utilizado para impressão de carnês.
+
+@name("Imprimir carnê de boletos bancários")
+POST "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes/lotes"
+"X-CHAVE": "{{chave-boleto}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "formato": [
+        "carne"
+    ],
+    "pedido_numero[]": [
+        "89722",
+        "89723",
+        "89724",
+        "89725"
+    ]
+})
+
+
+// É possível invalidar uma cobrança informando o `pedido_numero` indicado na requisição da criação do boleto.
+
+@name("Invalidar um boleto bancário")
+DELETE "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes/{{pedido-numero}}"
+"X-CHAVE": "{{chave-boleto}}"
+
+
+
+// Retornar as informações da credencial com a quantidade de cobranças que ainda não foram processadas, juntamente com as datas de pagamento.
+
+@name("Consultar informações da credencial")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}"
+"X-CHAVE": "{{chave-boleto}}"
+
+
+// Listar os boletos emitidos com vencimento ou pagamento em um determinado dia, em formato ideal para realizar as baixas. Observações:
+// * A resposta sempre será paginada em `50` itens;
+// * Se não passar nenhuma data de parâmetro, será utilizada a data de `HOJE`;
+// * O filtro de data considera a `data_vencimento` do boleto por padrão;
+// * Caso seja enviado o parâmetro `pago=1`, o filtro da data será aplicado a partir da `data_pagamento`;
+// * O campo `data_registro_sistema_bancario` é retornado apenas para boletos com registro confirmado.
+// 
+// O extrato de boleto retorna o campo `registro_sistema_bancario` com o valores abaixo. Estes valores não devem ser utilizados para validar o pagamento de um boleto, eles são apenas informativos do registro bancário:
+// * `pendente`: Aguardando o PJBank enviar para o banco registrar o boleto;
+// * `enviado`: Pedido de registro enviado para o banco, esperando a confirmação do registro;
+// * `confirmado`: Confirmação do registro do boleto pelo banco;
+// * `rejeitado`: Rejeição do registro do boleto pelo banco;
+// * `baixado`: Pedido de baixa realizado e enviado ao banco.
+// 
+// 
+// 
+// ---
+// ## Filtro de Data
+// 
+// **Parâmetros:** `data_inicio` e `data_fim` (opcional) 
+// 
+// **Valor:** Datas no formato `mm/dd/aaaa`
+// 
+// Retornar os itens com vencimento dentro do período.
+// 
+// 
+// ---
+// ## Filtro de Pagamento
+// **Parâmetros:** `pago` (opcional)
+// 
+// **Valor:** 1
+// 
+// Filtro aplicado para listar **somente** os boletos liquidados. 
+// 
+// Lembrando que, nesse caso, deve-se passar os parâmetros de datas (`data_inicio` e `data_fim`), que serão filtrados pela `data_pagamento`.
+// 
+// 
+// ---
+// ## Filtro de Paginação
+// **Parâmetros:** `pagina` (opcional) 
+// 
+// **Valor:** número inteiro >=1
+// 
+// Por padrão, o extrato retorna `50` itens por vez. Você pode navegar entre esses itens, adicionando o parâmetro `pagina`.
+
+@name("Consultar boletos por recebimento")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes"
+"X-CHAVE": "{{chave-boleto}}"
+? "data_inicio"= "04/01/2018"
+? "data_fim"= "04/30/2020"
+? "pago"= "0"
+? "pagina"= "1"
+
+
+// Retorna um boleto pelo `id_unico` informado na **URL**.
+
+@name("Consultar boletos por identificador")
+GET "https://api.pjbank.com.br/recebimentos/{{credencial-boleto}}/transacoes/{{id_unico}}"
+"X-CHAVE": "{{chave-boleto}}"
+
+
+

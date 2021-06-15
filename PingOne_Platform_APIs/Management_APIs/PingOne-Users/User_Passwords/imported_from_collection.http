@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// #### `expand` Parameter
+// Can set to `passwordPolicy` to have the User's Password Policy included in `_embedded`.
+
+@name("READ Password State")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/json"
+
+
+@name("Password Check")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.check+json"
+data('{
+  "password":"2Federate!"
+}')
+
+
+@name("Password Unlock")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"content-type": "application/vnd.pingidentity.password.check+json"
+
+
+
+@name("UPDATE Password (Self)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.reset+json"
+data('{
+  "currentPassword":"4Science!",
+  "newPassword":"2Federate!"
+}')
+
+
+@name("UPDATE Password (Admin)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.reset+json"
+data('{
+  "newPassword":"4Science!"
+}')
+
+
+// #### Set Password Request Data Model
+// 
+// Property | Required? | Type
+// -------- | --------- | ----
+// password | |
+// --value | N | String; either cleartext or pre-encoded*
+// --forceChange | N | Boolean; default `false`
+// --bypassPolicy | N | Boolean; default `false`
+// 
+// * Pre-encoded passwords must be provided using the [userPassword syntax supported by PingOne for Customers](https://apidocs.pingidentity.com/pingone/platform/v1/api/#put-update-password-set).
+
+@name("UPDATE Password (Set)")
+PUT "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/password"
+"Content-Type": "application/vnd.pingidentity.password.set+json"
+data('{
+  "value": "{SSHA512}UkGWfORubNKFpFBWh+Lgy4FrciclzUXneuryV+B+zBDR4Gqd5wvMqAvKRixgQWoZlZUgq8Wh40uMK3s6bWpzWt1/TqQH02hX",
+  "forceChange": true
+}')
+
+
+

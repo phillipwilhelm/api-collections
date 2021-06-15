@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// The **RetrieveToken** API is used to generate a bearer token from a Client Id and Client Secret.
+
+@name("RetrieveToken")
+POST "https://api.nrgsystems.com/api/RetrieveToken"
+? "code"= "y2/bWG4hRNf1E00lWICOp7nqLvpNPOtaiFf9Wq2bi1iUpdyQdjwicQ=="
+json({
+    "client_id": "{{client_id}}",
+    "client_secret": "{{client_secret}}"
+})
+
+
+// The **Convert** API takes in an RLD and format information (optional) and converts the RLD to an NRG export file.
+// The response contains a zipped export file. For more on NRG's default export format see the [SymphoniePRO Manual]( https://www.nrgsystems.com/support/product-support/manuals/manual-symphoniepro).
+
+@name("Convert ")
+POST "https://api.nrgsystems.com/api/Convert"
+"Authorization": "{{token}}"
+? "code"= "Z6czLero6fQthaM9TZ2DavSN9i7sIeESG/xxGr88JYYoIwypjL/7Uw=="
+files(
+	("filebytes", "{{filebytes}}"),
+	("exporttype", "measurements"),
+	("headertype", "standard"),
+	("encryptionkey", ""),
+	("columnheaderformat", "Channel_[ChannelNumber]_[Statistic]"),
+	("necfilebytes", "")
+)
+
+
+// The **Export** API takes in a logger serial number, date range and format information (optional) and returns an NRG export file for that date range.
+// The response contains a zipped export file. For more on NRG's default export format see the [SymphoniePRO Manual]( https://www.nrgsystems.com/support/product-support/manuals/manual-symphoniepro).
+
+@name("Export")
+POST "https://api.nrgsystems.com/api/Export"
+"Authorization": "{{token}}"
+? "code"= "2ZGPXDO8dmHF5IZdm3Qaqrlkf9Gs8930oFeN/MCwX8vcnazvCDkRdg=="
+files(
+	("serialnumber", "{{serialnumber}}"),
+	("startdate", "{{startdate}}"),
+	("enddate", "{{enddate}}"),
+	("headertype", "standard"),
+	("columnheaderformat", "Channel_[ChannelNumber]_[Statistic]"),
+	("necfilebytes", ""),
+	("exporttype", "measurements")
+)
+
+
+// The **Upload** API takes in an RLD and ingests it into NRG's cloud services where it can be stored or made available to the user via other API endpoints.
+
+@name("Upload")
+POST "https://api.nrgsystems.com/api/Upload"
+"Authorization": "{{token}}"
+? "code"= "YSy3yEeC6aYMNG9setSKvWe9tZAJJYQtXam1tGT7ADg9FTTCaNqFCw=="
+files(
+	("filebytes", "{{filebytes}}"),
+	("type", "RWD")
+)
+
+
+

@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+// This endpoint retrieves information about a specified schedule slot of a service in the form of the ScheduleSlot object.  Based on the composition parameter, this data can be “full” detail or an abbreviated “booked” view.
+
+@name("Get Booking")
+GET "https://{{baseUrl}}/service-booking/v1/vendors/:vendorid/services/:serviceid/bookings/:bookingid"
+"Accept": "application/json; charset=utf-8"
+"Accept-Encoding": "gzip"
+? "trid"= "{{trackingId}}"
+? "cmp"= "{{cmp}}"
+? "lang"= "{{lang}}"
+
+
+// This endpoint is used to cancel a service booking that was previously created by the user.  Its use is intended for cancelling a booking before it is scheduled to begin.
+
+@name("Cancel Booking")
+DELETE "https://{{baseUrl}}/service-booking/v1/vendors/:vendorid/services/:serviceid/bookings/:bookingid"
+"Accept": "application/json; charset=utf-8"
+"Accept-Encoding": "gzip"
+? "trid"= "{{trackingId}}"
+
+
+// OPTIONAL:  Only required if implementing features(s):  Change Notification
+// This endpoint enables the user to confirm a material change that was reported via a booking change notification (e.g., schedule change, price change, booking confirmed after being on a waitlist, etc.).  The posted object should use the “response” composition; attributes not in this composition must be ignored.  If the user confirms acceptance of the change, the endpoint returns a full and updated Booking object with HTTP 200.  If the user rejects the change, the booking is cancelled and the endpoint returns HTTP 204
+
+@name("Confirm Booking Change")
+PATCH "https://{{baseUrl}}/service-booking/v1/vendors/:vendorid/services/:serviceid/bookings/:bookingid/changes/:changeid"
+"Accept": "application/json; charset=utf-8"
+"Accept-Encoding": "gzip"
+"Content-Type": "application/json; charset=utf-8"
+? "trid"= "{{trackingId}}"
+data('{
+    "booking": {
+        "id": "booking_change_id_123",
+        "confirmation": 2
+    }
+}')
+
+
+

@@ -1,0 +1,57 @@
+#!/usr/bin/env dothttp
+
+// The Workflow has roles. When creating a new user, this is a mandatory field and determines what role the user plays in the workflow. 
+// 
+// For sake of simplicity in authorisation and authentication, a single user can only have one role. 
+
+@name("Get User Roles in the system")
+GET "https://{{URL}}/getRoles/"
+"Authorization": "Token {{token}}"
+
+
+@name("Update or Create PIN")
+PATCH "https://{{URL}}/createOrUpdatePIN/{{user_id}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Token {{token}}"
+data({
+    "username": [
+        "{{username}}"
+    ],
+    "password": [
+        "{{password}}"
+    ],
+    "restriction_pin": [
+        "235673"
+    ]
+})
+
+
+// API Call to allow you to validate the PIN on the backend
+
+@name("Validate PIN")
+GET "https://{{URL}}/validatePIN/{{PIN}}"
+"Authorization": "Token {{token}}"
+
+
+// Create a New User in the system. By default all users are inactive until they validate their emails.
+
+@name("Create a New User")
+POST "https://{{URL}}/createNewUser/"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "email": [
+        "joe@gmail.co"
+    ],
+    "role": [
+        "8d630fba-e7ba-408a-8c7a-062349d0b584"
+    ],
+    "username": [
+        "joe"
+    ],
+    "password": [
+        "jowpassword"
+    ]
+})
+
+
+

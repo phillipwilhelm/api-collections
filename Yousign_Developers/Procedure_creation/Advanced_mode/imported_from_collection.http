@@ -1,0 +1,115 @@
+#!/usr/bin/env dothttp
+
+// Starting a procedure means that you will trigger the start of the signing process for the different stakeholders. Consequently, the procedure will start and you won't be able to edit it anymore. 
+// 
+// In addition, the default value is `true` and all the other values, except `false`, will also start the procedure.
+// 
+// Finally, it is also possible to activate archiving service directly on your procedures if your subscription and plan allow it. For more information about archiving you can consult the [dedicated section](https://dev.yousign.com/?version=latest#0b2f0a42-6d9d-4f17-b49d-8ec0b2607921).
+
+@name("/procedures")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "My procedure",
+    "description": "Description of my procedure with advanced mode",
+    "metadata": {"procedure-key1": "procedure-value1"},
+    "start" : false,
+    "archive": true,
+    "archiveMetadata": {"archive-key1": "archive-key1"}
+}')
+
+
+@name("/files")
+POST "https://{{base-api-url}}/files"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Name of my signable file.pdf",
+    "content": "JVBERi0xLjUKJb/3ov4KNiA [...] VPRgo=",
+    "procedure": "/procedures/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+}')
+
+
+// There are 2 kinds of signers. 
+// 
+// On the one hand, there are the signers who do not have any account at the Yousign application and in this case these participants will be defined by the following information: `firstname`, `lastname`, `email`, `phone`. 
+// 
+// On the other hand, there are signatories who already have an account on the Yousign application. In this case, it's sufficient to add them via their ID:
+// 
+// Or, if the signer has a personal account on Yousign application: `"user": "/users/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",`.
+// 
+// 
+// The status field for a member can have many values:
+// 
+// 
+// | Status       | Description                                                                                                                                                                                        |
+// | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+// | `pending`    | The signer has been invited to sign but has not yet signed.                                                                                                                                        |
+// | `processing` | The signatory has signed and our system has received this request and is processing it (it's a temporary status).                                                                                  |
+// | `done`       | The signer has signed and our system has carried out the signature on all documents. If the documents are downloaded from this moment on, they will contain the signature of the signer concerned. |
+// | `refused`    | The participant refused to sign or validate the procedure. This usually means that he does not agree with the content of a document. A rejection message can be added by the participant.          |
+// 
+
+@name("/members")
+POST "https://{{base-api-url}}/members"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "firstname": "John",
+    "lastname": "Doe",
+    "email": "john.doe@yousign.fr",
+    "phone": "+33612345678",
+    "procedure": "/procedures/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+}')
+
+
+// File objects are used to represent the visual of signatures on documents once they have been signed.
+// 
+// 
+// 
+// | Param      | Description                                                                                                                                                                                                                                                                         |
+// | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+// | `file`     | Defined by the ID received in the previous response.                                                                                                                                                                                                                                |
+// | `member`     | Defines the member by his own UUID linked with the `fileObjects`.                                                                                    |
+// | `page`     | Defines the number of the page where the signature image will be displayed on the file. You can duplicate the `fileObjects` block if you want to add multiple signature images on your document.                                                                                    |
+// | `position` | Defines the coordinates of the signature image. You can go to [How to calculate the coordinates of signature image?](https://dev.yousign.com/?version=latest#08b82eef-d96a-49ea-9df6-4e3dfd4eacc7) if you want to understand how to calculate the position. If you want to define the position manually, you can use our free tool on: https://placeit.yousign.fr. |
+// | `mention`  | Optional field that add information on the signature image. `mention` is displayed on top of signature image.                                                                                                                                                                       |
+// | `mention2` | Optional field that add information on the signature image. `mention2` is displayed on bottom of signature image.                                                                                                                                                                   |
+// | `reason`   | Defines the reason of the signature. This information will be added into the signature panel, directly in the signed PDF document. For more information, please refer to [Reason](https://dev.yousign.com/#c910249b-49ae-47df-bb92-1d57b4ab9be5) section.                                                                                            |
+// 
+// 
+// 
+// 
+// If you **don't want a visual signature on your file**, you must create a `fileObjects` anyway with **no position and the page at 0** => `"page": 0,`. Otherwise, the file will be **NOT SIGNED** (visually) by the member.
+// 
+// You can add several signature images for the same signer and on the same file (for example on page 2 and also on the page 7 and 12) by simply doing several POST.
+// 
+
+@name("/file_objects")
+POST "https://{{base-api-url}}/file_objects"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "member": "/members/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "position": "230,499,464,589",
+    "page": 2,
+    "mention": "Read and approved",
+    "mention2": "Signed by John Doe",
+    "reason": "Signed by John Doe (Yousign)"
+}')
+
+
+// Start the procedure.
+
+@name("/procedures/{id}")
+PUT "https://{{base-api-url}}/procedures/{id}"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+   "start": true
+}')
+
+
+

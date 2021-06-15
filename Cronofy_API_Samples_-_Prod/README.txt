@@ -1,0 +1,1 @@
+A collection of requests to allow you to explore the Cronofy calendar and scheduling API. For more information see https://docs.cronofy.com/developers

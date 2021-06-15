@@ -1,0 +1,3 @@
+Ambient air quality monitoring data from 17 fixed stations around Victoria. Some data goes back to 1970. Parameters include particulates (PM10 and PM2.5), Gases (CO, NO2, NO3, O3, and SO2, etc) and meteorological (wind direction and speed, visibility, temperature, humidity) and an overall Air Quality Index (AQI). Data is available as 1 hour averages. Data is near real time. This data is supplimented with air quality for short periods from incidents.
+
+URL: [https://discover.data.vic.gov.au/dataset/airwatch-data](https://discover.data.vic.gov.au/dataset/airwatch-data)

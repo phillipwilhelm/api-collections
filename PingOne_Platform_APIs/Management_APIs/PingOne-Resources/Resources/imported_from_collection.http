@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+// #### Resource Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | Y | Y | String; must be unique w/in Env | Must be a URL w/o fragment or `@ObjectName`. Cannot be a URI that contains `pingone` or `pingidentity`. Cannot be "PingOne API" (ignoring case).
+// audience | Y | N | String; defaults to same as `name` value | Used for Access Token `aud` claim. Must be a URL w/o fragment or `@ObjectName`. Cannot contain `pingone` or `pingidentity`.
+// description | Y | N | String; `^[\p{L}\p{M}\p{N}\p{Zs}\p{P}]+$` |
+// accessTokenValiditySeconds | Y | N | Integer (300-2592000); default 3600 | How long Access Tokens for this Resource will last. <br> <br> 300 seconds is 5 minutes, 3600 is 1 hour, 2592000 is 30 days.
+
+@name("CREATE Resource")
+POST "https://{{apiPath}}/environments/{{envID}}/resources"
+"Content-Type": "application/json"
+data('{
+    "name": "resource_{{$timestamp}}",
+    "description": "this is my resource"
+}')
+
+
+// #### `expand` Parameter
+// Can set to `scopes` to have the Resources' Scopes included in `_embedded`.
+
+@name("READ All Resources")
+GET "https://{{apiPath}}/environments/{{envID}}/resources"
+
+
+@name("READ One Resource")
+GET "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+
+
+@name("UPDATE Resource")
+PUT "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Updated-Resource_{{$timestamp}}",
+    "description": "Updated Description"
+}')
+
+
+@name("DELETE Resource")
+DELETE "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+
+
+
+

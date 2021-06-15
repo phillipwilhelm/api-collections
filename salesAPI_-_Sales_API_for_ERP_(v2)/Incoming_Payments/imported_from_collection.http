@@ -1,0 +1,130 @@
+#!/usr/bin/env dothttp
+
+// #### Search incoming payments in ERP
+// *(sapBusinessOne=24/ORCT, totvsProtheus=SE5)*
+// 
+// Search of incoming payments is carried out by branch.
+// 
+// The search of incoming payments allows filtering the ERP by:
+// - List Search: by `paidFrom` + `paidTo` {required}, by `dueFrom` + `dueTo`, `branch`, `partnerKey`, `sellerKey` {optional}
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the query for incoming payments is performed as a list.
+// 
+// The incPayments service will consider valid receipts for receivables:
+// - SAP Business One: [1] Not canceled (ORCT.Canceled = 'N'), [2]  If boleto, only paid (OBOE.BoeStatus = 'P')
+// - TOTVS Protheus: [1] With positive value: FK1_VALUE> 0
+// 
+// Comments:
+// - `branch`: SAP Business One (ORCT.BPLId), TOTVS Protheus (FK1_FILIAL)
+// - `paidFrom` and `paidTo`: SAP Business One (ORCT.DocDate, ORCT.TrsfrDate, OBOE.PmntDate or BOT1. TranDate *), TOTVS Protheus (FK1_DATA)
+// - `dueFrom` and `dueTo`: SAP Business One (ORCR.DocDueDate, INV6.DueDate or OBOE.DueDate), TOTVS Protheus (FK1_VENCTO)
+// - `erpKey`: SAP Business One (ORCT.DocEntry), TOTVS Protheus (FK1_IDFK1)
+// - `baseObject`: 13 (invoice), 30 (journalEntry), 203 (creditNote)
+// - `baseKey`: SAP Business One (OINV.DocEntry, JDT1.AbsEntry, ORIN.DocEntry), TOTVS Protheus (E1_PREFIXO+'_'+E1_NUM)
+// - `lineNum`: parcel
+// - `paymentMethod`: cash, transfer, boe, check, creditCard
+// 
+// This service will allow you to search the receipt list in two situations:
+// - Full Search: will result in all orders from a specific branch that had a status change in the createdFrom / createdTo period.
+// - Incremental Search: will result in all orders from a specific branch that had a status change in the createdFrom / createdTo period and after a certain date / time provided in the request. For the Incremental query, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which records should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Creation Time fields of the transaction table in SAP Business One (not available), [2] TOTVS Protheus: FK1_USERLGI and FK1_USERLGA
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+
+@name("Incoming Payments")
+GET "https://{{endpoint}}/incPayments"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "paidFrom"= "2020-01-24"
+? "paidTo"= "2020-01-24"
+? "branch"= "1"
+? "dueFrom"= "2020-01-24"
+? "dueTo"= "2020-01-24"
+? "partnerKey"= "C001"
+? "sellerKey"= "120"
+? "erpKey"= "120"
+? "pageNum"= "1"
+? "updatedAt"= "2020-01-24T15:34:00"
+
+
+// #### Insert incoming payments in ERP
+// 
+// 
+// This service will allow to insert a new incoming payments in the ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new incoming payments will be insert if the informed sales invoice is located and validated on the ERP. The key for locating the sale invoice on the ERP can be:
+// - SAP Business One: OINV.DocEntry = baseKey or OINV.DocNum = baseNum (or OINV.NumAtCard = orderNum)
+// - TOTVS Protheus: F2_DOC = baseKey or R_E_C_N_O_ = baseNum or D2_PEDIDO = orderNum
+// 
+// For the use of user fields (UDF) created in the table of outcoming payments (SAPB1: XXXX, TOTVS: XXX, the respective registration must be performed in the Custom Table.
+// 
+// #### Request object has the following properties
+// 
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |baseObject | string | Base Object
+// baseKey | string | Base Key
+// paymentMethod | number | Payment method
+// amount | number | Amount
+// installments | number | Installments
+// details | object | details
+// details.cardName | string | Card name
+// details.acquirer | string | Acquire 
+// details.tid | string | tid
+// details.authid | string | Authid
+// details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// 
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | process
+// system | string | system
+// target | string | target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | CodeBars
+// success | booleano | success
+// values | array | values
+// values.object | string | Object      
+// values.table | string | table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Incoming Payment")
+PUT "https://{{endpoint}}/incPayments"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "baseObject": "13",
+    "baseKey": "168",
+    "paymentMethod": "creditCard",
+    "amount": 63.89,
+    "installments": 1,
+    "paymentDate": "2020-03-31",
+    "details": {
+        "transferAccount": "1.1.1.2.2",
+        "boeAccount": "1.1.1.2.2",
+        "cardName": "Visa",
+        "acquirer": "",
+        "tid": "12125",
+        "authid": "12121872612918721",
+        "nsu": "023567"
+    }
+})
+
+
+

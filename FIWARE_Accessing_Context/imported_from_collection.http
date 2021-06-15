@@ -1,0 +1,165 @@
+#!/usr/bin/env dothttp
+
+// This example returns the context data of `urn:ngsi-ld:Store:001`.
+// 
+// It is the equivalent of the following Node.js code:
+// 
+// ```javascript
+// function displayStore(req, res) {
+// 	retrieveEntity(
+// 		req.params.storeId, { options: 'keyValues', type: 'Store' })
+// 	.then(store => {
+// 		// If a store has been found display it on screen
+// 		return res.render('store', { title: store.name, store});
+// 	})
+// 	.catch(error => {
+// 		debug(error);
+// 		// If no store has been found, display an error screen
+//   		return res.render('store-error', {title: 'Error', error});
+// 	});
+// }
+// ```
+
+@name("Retrieve Data for Store 1")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Store:001"
+? "options"= "keyValues"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+
+// This example returns the context data of `urn:ngsi-ld:Store:005` which does not exist.
+// 
+// It is the equivalent of the following Node.js code:
+// 
+// ```javascript
+// function displayStore(req, res) {
+// 	retrieveEntity(
+// 		req.params.storeId, { options: 'keyValues', type: 'Store' })
+// 	.then(store => {
+// 		// If a store has been found display it on screen
+// 		return res.render('store', { title: store.name, store});
+// 	})
+// 	.catch(error => {
+// 		debug(error);
+// 		// If no store has been found, display an error screen
+//   		return res.render('store-error', {title: 'Error', error});
+// 	});
+// }
+// ```
+// 
+// Because the response is an error status, the `catch` clause will be activated and an error message displayed on screen.
+
+@name("Retrieve Data for Store 5")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Store:005"
+? "options"= "keyValues"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+
+// This example returns all the `Product` entities within the context data.
+// 
+// It is the equivalent of the following lines of Node.js code:
+// 
+// ```
+// function displayProducts(req, res) {
+// 	listEntities({
+// 		options: 'keyValues',
+// 		type: 'Product',
+// 	})
+// 	.then(products => {
+// 		// If products have been found display it on screen
+// 		return res.render('till', { products });
+// 	})
+// 	.catch(error => {
+// 		debug(error);
+// 		// An error occurred, return with no results
+// 		return res.render('till', { products : {}});
+// 	});
+// }
+// ```
+
+@name("Retrieve All Product Data")
+GET "http://{{orion}}/v2/entities/"
+? "type"= "Product"
+? "options"= "keyValues"
+? "attrs"= "name"
+
+
+
+// This example returns a filtered list of all `InventoryItem` entities associated with `urn:ngsi-ld:Store:001`
+// 
+// It is the equivalent of the following lines of Node.js code:
+// 
+// ```
+// function displayInventoryItems(req, res) {
+// 	listEntities({
+// 		q: 'refStore==' + req.params.storeId,
+// 		options: 'keyValues',
+// 		type: 'InventoryItem',
+// 	})
+// 	.then(inventory => {
+// 		// If inventory items have been found display it on screen
+// 		return res.render('till', { inventory });
+// 	})
+// 	.catch(error => {
+// 		debug(error);
+// 		// An error occurred, return with no results
+// 		return res.render('till', inventory : {}});
+// 	});
+// ```
+
+@name("Retrieve Inventory Items for Store 1")
+GET "http://{{orion}}/v2/entities/"
+? "type"= "InventoryItem"
+? "options"= "keyValues"
+? "attrs"= "name"
+? "q"= "refStore==urn:ngsi-ld:Store:001"
+
+
+
+// This example returns the number of items left on the shelf for InventoryItem `urn:ngsi-ld:InventoryItem:001`.
+// 
+// It is the equivalent of the following Node.js code:
+// 
+// ```
+// function getShelfCount(req, res){
+// 	const inventory = await getAttributeValue(req.params.inventoryId, 'shelfCount', {
+// 		type: 'InventoryItem',
+// 	});
+// }
+// ```
+
+@name("Retrieve the Shelf Count of an Inventory Item")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:InventoryItem:001/attrs/shelfCount/value"
+
+
+
+// This example amends the number of items left on the shelf for `InventoryItem` `urn:ngsi-ld:InventoryItem:001` and sets the value to 13.
+// 
+// It is the equivalent of the following Node.js code:
+// 
+// ```
+// function updateShelfCount(req, res, count){
+// 	await updateExistingEntityAttributes(
+// 		req.params.inventoryId,
+// 		{ 
+// 			shelfCount: { type: 'Integer', value: count } 
+// 			
+// 		},
+// 		{
+// 			type: 'InventoryItem',
+// 		});
+// }
+// ```
+
+@name("Update the Shelf Count of an Inventory Item")
+PATCH "http://{{orion}}/v2/entities/urn:ngsi-ld:InventoryItem:006/attrs"
+"Content-Type": "application/json"
+data('{ "shelfCount": 
+  { "type": "Integer", "value": "13" } 
+}')
+
+
+

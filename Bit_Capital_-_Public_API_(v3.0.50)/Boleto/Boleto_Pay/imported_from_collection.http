@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+// There are 2 types of Boletos that can be paid on the platform. Boletos issued by banks and Boletos issued by concessionaires.
+// 
+// **Boletos issued by banks**
+// - These are Boletos issued by banks, or financial institutions, with a fixed amount, and a pre-defined payment date. Ex: Bradesco, Neon, Nu Bank.
+// 
+// **Boletos issued by concessionaries**
+// - These are Boletos issued by service concessionaires. Services such as: Water bills, electricity bills, gas bills.
+// > NOTE: Boleto payment services from concessionaires are still under development. We will inform you when this service is available.
+
+@name("Pay a Boleto")
+POST "https://{{API_BASE_URL}}/boletos/pay"
+data('{
+	"source": "80349602-ad67-4737-a06b-e9918b51a38e",
+	"digitableLine": "65590.00002 00442.500005 36134.737000 3 85860000000501",
+	"amount": "5.01",
+	"asset": "BRLP", //asset ROOT
+	"extra": {}
+}')
+
+
+// Validate a Boleto means to update current value of a Boleto.
+// 
+// Some boletos have interest rates if paid late. In this case, the payment amounts of the boleto must be adjusted with the interest rates to be applied. In order to verify the current value of the boleto, before paying first, the new value of the bill must be "checked" with this endpoint.
+// 
+// This endpoint is used to:
+// 
+// - check the real value of the Boleto issued by a bank;
+// - check if the Boleto is not fake and is legally registered with the CIP;
+// - check only Boletos emitted and registered in CIP;  
+// - check who will receive the amount when you pay the Boleto;
+// - check the updated value of an expired Boleto with the rates. When a Boleto is paid after its due date, some fees are applied to this boleto according to your configuration. With this endpoint, it is possible to check the updated value of the boleto so that it can be paid normally.
+// <br />
+// 
+// This endpoint **is not used to**:
+// 
+// - check any status of a Boleto issued by a concessionary;
+
+@name("Validate a Boleto")
+GET "https://{{API_BASE_URL}}/boletos/validate"
+? "digitableLine"= "2379338128600339120015400006330218300000050000"
+
+
+// It is a endpoint the assures if a Concessionary Boleto is already paid **in the platform**.
+// 
+// If you pay a **Boleto to a payer** issued by another consumer that is also part of the Bit Capital platform, this endpoint can also validate this Boleto.
+// 
+// </br>
+// 
+// Necessary SCOPE to perform `payments:read`
+// 
+// <br />
+// 
+// **`GHERKIN`**
+// 
+// ```
+// GIVEN consumer is logged
+// GIVEN consumer has a paid Boleto in the platform
+// WHEN consumer perform the action
+// THEN the response should be 200
+// AND the settleDate field should be a valid date of paid Boleto 
+// ```
+
+@name("Payment poof")
+GET "https://{{API_BASE_URL}}/provider/boleto/payment-proof"
+? "key"= "digitableLine"
+? "value"= "836100000030974300403314633533936033100729644102"
+
+
+

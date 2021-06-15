@@ -1,0 +1,218 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgNetworkTemplates")
+GET "https://{{host}}/api/v1/orgs/:org_id/networktemplates"
+
+
+@name("getOrgNetworkTemplateDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/networktemplates/:networktemplate_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("createOrgNetworkTemplate")
+POST "https://{{host}}/api/v1/orgs/:org_id/networktemplates"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "xxx",
+
+    "networks": {
+        // additional networks that are not already defined from Networks
+    },
+
+    "port_config": {
+        // WAN 
+        "ge-0/0/0": {
+            "usage": "wan",
+            "wan_type": "broadband",  // broadband (default), dsl, lte
+
+            "ip_config": {
+                "type": "dhcp",  // dhcp (default), static, pppoe
+
+                // if type=pppoe
+                "pppoe_username": "u13534",
+                "pppoe_password": "foryoureyesonly"
+            },
+
+            "vpns": {
+                "data-center": {
+                    "role": "spoke",
+                    "links": ["wan0"],  // by default, all ports will be used
+
+                    // or on hub
+                    "role": "hub"
+                }
+            },
+
+            // optionally, a name that we\'ll use to derive config
+            "name": "wan0"
+        },
+        "cl-1/0/0": {
+            "usage": "wan",
+            "wan_type": "lte",
+            "lte_apn": "5ginternet",
+
+            "ip_config": {
+                "type": "dhcp"  // dhcp (default), static
+            },
+
+            // if the interface should only be used when all other WAN interfaces are down
+            "backup_only": false
+        },
+
+        // LAN
+        "ge-0/0/1-5": {
+            "usage": "lan",
+            "networks": ["default", "guest", "pos"],
+            "port_network": "default"
+        }
+    },
+
+    // all the IP configs on the LAN side
+    "ip_configs": {
+        "guest": {
+            "ip": "192.168.70.1",
+            "netmask": "/24"
+        }
+    },
+
+    "dhcpd_config": {
+        "enabled": true,
+        "guest": {
+            "type": "local",  // default
+            "ip_start": "192.168.70.100",
+            "ip_end": "192.168.70.200",                
+            "gateway": "192.168.70.1",
+
+            // optional, system one will be used
+            "dns_servers": [ "8.8.8.8", "4.4.4.4" ],
+            "dns_suffix": [ ".mist.local", ".mist.com" ],
+
+            // fixed binding
+            "fixed_bindings": {
+                "5684dae9ac8b": {
+                    "name": "John",
+                    "ip": "192.168.70.35"
+                }
+            },
+
+            // if using DHCP relay
+            "type": "relay",
+            "servers": ["11.2.3.4"]
+        }
+    },
+
+    // URL / Web filtering
+    "urlfilter_config": {
+        "enabled": "true",
+
+        // by default, this applies to all networks with Internet Access, but can be restricted as below
+        "profile": "default",  // default (default) / strict / custom
+        // if profile=custom    
+        "blocked_categories": [ "adult", "gaming", "violance" ],
+
+        // if desired, it can be network-specific
+        "networks": {
+            "guest": {
+                "profile": "default"
+            },            
+            "iot": {
+                "profile": "strict"
+            }
+        }
+    },
+
+    // IDP
+    "idp_config": {
+        "enabled": "true",
+
+        // by default, this applies to all networks with Internet Access, but can be restricted as below
+        "profile": "default",  // default (default) / enterprise
+
+        // if desired, it can be network-specific
+        "networks": {
+            "guest": {
+                "profile": "default"  // default (default) / enterprise
+            },            
+            "iot": {
+                "profile": "strict"
+            }
+        }
+    },
+
+    // experimental
+    "service_policies": [
+        {
+            "name": "dc-store-mgmt",
+            "tenants": ["it.datacenter"],
+            "services": ["store_servers"]
+        },
+        {
+            "name": "dc-apps-access",
+            "tenants": ["pos.store", "camera.store"],
+            "services": ["dc-apps"]
+        }
+    ],
+    // experimental
+    "gateway_matching": {
+        "enable": true
+        // see network template
+    }
+}')
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("updateOrgNetworkTemplate")
+PUT "https://{{host}}/api/v1/orgs/:org_id/networktemplates/:networktemplate_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "5G-Restricted"
+})
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|The name of the RF template
+// country_code|string|optional, country code to use. If specified, this gets applied to all sites using the RF Template
+// model_specific|object|overwrites for a specific model. If a band is specified, it will shadow the default.
+// channels|list|list of channels, null or empty array means auto
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5
+// power|int|tx power of the radio, 0 mean auto
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+
+@name("deleteOrgNetworkTemplate")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/networktemplates/:networktemplate_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

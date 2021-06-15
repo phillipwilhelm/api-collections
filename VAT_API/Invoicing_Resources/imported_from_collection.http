@@ -1,0 +1,219 @@
+#!/usr/bin/env dothttp
+
+// To create a new invoice post your invoice data as json in the body of the request, VAT API will work out the totals based on the line items you provide. Use the response data to render your own VAT compliant invoices or simply reference the vanity `invoice_url` value we provide in the response.
+// 
+// 
+// Attributes
+// ----------
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**settings_identifier**|String|**Yes**|The `identifier` value returned from a 'Create Invoice Setting' request.|
+// |invoice_number_prefix|String|No|You may want to prefix the invoice number to help identify a particular customers invoices in future. Max 16 characters.|
+// |order_ref|String|No|Specify an associated order reference. Max 128 characters.|
+// |issue_date|String|No|Defaults to todays date/time. Issue date/time of the invoice in 'YYYY-MM-DD HH:MM:SS' format.|
+// |tax_point|String|No|Defaults to todays date/time. The tax point (or 'time of supply'), in the 'YYYY-MM-DD HH:MM:SS' format is the date the transaction takes place for VAT purposes.|
+// |**type**|String|**Yes**|Specify whether the invoice is a 'sale' or 'refund'.|
+// |**currency**|String|**Yes**|The currency in which the customer is being invoiced specified by it's 3 character ISO 4217 code.|
+// |local_currency|Object|No|Reference Child Attribute table below.|
+// |order_discount_method|String|No|The discount method to be applied to line level discounts and invoice level discounts, set this to 'fixed' or 'percentage', defaults to 'fixed'.|
+// |order_discount_amount|Float|No|Specify a discount amount to apply at the invoice level, for example if you wanted to apply a 10% discount to an order you'd set this value at 20.00 and the `order_discount_method` to 'percentage'.|
+// |vat_charging_method|String|No|Defaults to exclusive. If your prices already include VAT then set this value to 'inclusive' otherwise set to 'exclusive' and the appropriate VAT will be added on.|
+// |zero_rated|Boolean|No|Defaults to false. If set to 'true' the invoice will be zero-rated in accordance with reverse charge provisions.|
+// |customer|Object|No|Reference Child Attribute table below.|
+// |**line_items**|Array|**Yes**|Reference Child Attribute table below.|
+// |notes|String|No|Add any notes you would like to store alongside the invoice. Max 1000 characters.|
+// 
+// 
+// Child Attributes
+// ----------------
+// 
+// `local_currency` Object
+// 
+// This applies to UK companies doing international trade but may also apply to other EU countries. For example, if the supply takes place in the UK and the sale is made in a foreign currency it is a requirement to show the Sterling total VAT payable on the VAT invoice.
+// 
+// Reference link:- [https://www.gov.uk/vat-record-keeping/vat-invoices](https://www.gov.uk/vat-record-keeping/vat-invoices) refer to the section 'International trade' toward the bottom of the page.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**to**|String|**Yes**|The 3 character ISO 4217 currency code to convert the total VAT payable amount to. Must be GBP or EUR|
+// |rate|Float|No|Defaults to current rate. The exchange rate between the `currency` and `local_currency` > `to` values, to be VAT compliant the rate used must align with the `tax_point` you specify, if you do not specify a rate the current HMRC or European Central Bank rate will be used.|
+// 
+// `customer` Object
+// 
+// In this object you can specify the details of your customer.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**name**|String|**Yes**|The name or business name of the customer. Max 255 characters.|
+// |address|String|No|The address of the customer. Max 255 characters.|
+// |vat_number|String|No|The VAT number of the customer. Max 16 characters.|
+// 
+// `line_items` Array
+// 
+// An array of line items being invoiced for.
+// 
+// **Note:- An invoice can contain a max of 100 line items.**
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |sku|String|No|A stock keeping unit to identify the item. Max 40 characters.|
+// |**description**|String|**Yes**|A description of the item. Max 600 characters.|
+// |**quantity**|Integer|**Yes**|The quantity of the item. Must be greater than 0.|
+// |**price_each**|Float|**Yes**|The price of the item. Must be to 2 decimal places. E.g. "10.00", "9.99".|
+// |discount|Float|No|A discount to be applied to the line item total, for example if you wanted to discount the line item total by 10% you'd set this value to 10.00 and the `order_discount_method` to 'percentage' or if you wanted to just knock £10.00 off you'd set at 10.00 and not pass in the `order_discount_method` value as it defaults to 'fixed'.|
+// |**vat_rate**|Integer|**Yes**|The % VAT rate to apply to the item.|
+
+@name("Create Invoice")
+POST "https://{{region}}.vatapi.com/v2/invoice"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+  "settings_identifier": "12a048d4094337e07efd0f1fd9fe6521",
+  "invoice_number_prefix": "VA-",
+  "issue_date": "2019-01-17 11:00:00",
+  "tax_point": "2019-01-17 11:00:00",
+  "type": "sale",
+  "currency": "EUR",
+  "local_currency": {
+	"to": "GBP",
+	"rate":	0.88
+  },
+  "vat_charging_method": "inclusive",
+  "zero_rated": true,
+  "customer": {
+	"name": "Amazon Europe Core SARL",
+	"address": "Société à responsabilité limitée, 38 avenue John F. Kennedy, L-1855 Luxembourg",
+	"vat_number": "LU26375245"
+  },
+  "line_items": [
+    {
+      "sku": "PROD1",
+      "description": "Product 1",
+      "quantity": 1,
+      "price_each": 10.00,
+      "discount_rate": 10.00,
+      "vat_rate": 17
+    },
+    {
+      "sku": "PROD2",
+      "description": "Product 2",
+      "quantity": 2,
+      "price_each": 20.00,
+      "discount_rate": 10.00,
+      "vat_rate": 17
+    }
+  ],
+  "notes": null
+}')
+
+
+// Specify an `invoice_id` value in the URI to retreive an invoice.
+
+@name("Retrieve Invoice")
+GET "https://{{region}}.vatapi.com/v2/invoice/{{invoice_id}}"
+"x-api-key": "{{x-api-key}}"
+
+
+// This resource allows you to retrieve and filter all the invoices for a particular `settings_identifier` value allowing you to paginate results.
+
+@name("Paginate Invoices")
+GET "https://{{region}}.vatapi.com/v2/invoice/paginate"
+"x-api-key": "{{x-api-key}}"
+? "settings_identifier"= "{{settings_identifier}}"
+? "limit"= "{{limit}}"
+? "offset"= "{{offset}}"
+? "type"= "{{type}}"
+? "customer_name"= "{{customer_name}}"
+? "order_by"= "{{order_by}}"
+? "sort"= "{{sort}}"
+
+
+// Specify an `invoice_id` value in the URI to update an invoice.
+// 
+// You can update any of the attributes below.
+// 
+// Attributes
+// ----------
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |order_ref|String|No|Specify an associated order reference. Max 128 characters.|
+// |issue_date|String|No|Defaults to todays date/time. Issue date/time of the invoice in 'YYYY-MM-DD HH:MM:SS' format.|
+// |tax_point|String|No|Defaults to todays date/time. The tax point (or 'time of supply'), in the 'YYYY-MM-DD HH:MM:SS' format is the date the transaction takes place for VAT purposes.|
+// |**type**|String|**Yes**|Specify whether the invoice is a 'sale' or 'refund'.|
+// |**currency**|String|**Yes**|The currency in which the customer is being invoiced specified by it's 3 character ISO 4217 code.|
+// |local_currency|Object|No|Reference Child Attribute table below.|
+// |order_discount_method|String|No|The discount method to be applied to line level discounts and invoice level discounts, set this to 'fixed' or 'percentage', defaults to 'fixed'.|
+// |order_discount_amount|Float|No|Specify a discount amount to apply at the invoice level, for example if you wanted to apply a 10% discount to an order you'd set this value at 20.00 and the `order_discount_method` to 'percentage'.|
+// |vat_charging_method|String|No|Defaults to exclusive. If your prices already include VAT then set this value to 'inclusive' otherwise set to 'exclusive' and the appropriate VAT will be added on.|
+// |zero_rated|Boolean|No|Defaults to false. If set to 'true' the invoice will be zero-rated in accordance with reverse charge provisions.|
+// |customer|Object|No|Reference Child Attribute table below.|
+// |line_items|Array|No|Reference Child Attribute table below.|
+// |notes|String|No|Add any notes you would like to store alongside the invoice. Max 1000 characters.|
+// 
+// 
+// Child Attributes
+// ----------------
+// 
+// `local_currency` Object
+// 
+// This applies to UK companies doing international trade but may also apply to other EU countries. For example, if the supply takes place in the UK and the sale is made in a foreign currency it is a requirement to show the Sterling total VAT payable on the VAT invoice.
+// 
+// Reference link:- [https://www.gov.uk/vat-record-keeping/vat-invoices](https://www.gov.uk/vat-record-keeping/vat-invoices) refer to the section 'International trade' toward the bottom of the page.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**to**|String|**Yes**|The 3 character ISO 4217 currency code to convert the total VAT payable amount to. Must be GBP or EUR|
+// |rate|Float|No|Defaults to current rate. The exchange rate between the `currency` and `local_currency` > `to` values, to be VAT compliant the rate used must align with the `tax_point` you specify, if you do not specify a rate the current HMRC or European Central Bank rate will be used.|
+// 
+// `customer` Object
+// 
+// In this object you can specify the details of your customer.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**name**|String|**Yes**|The name or business name of the customer. Max 255 characters.|
+// |address|String|No|The address of the customer. Max 255 characters.|
+// |vat_number|String|No|The VAT number of the customer. Max 16 characters.|
+// 
+// `line_items` Array
+// 
+// An array of line items being invoiced for.
+// 
+// **Note:- An invoice can contain a max of 100 line items. This is a soft limit, contact support if you need this limit upping.**
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**id**|String|**Yes**|The `id` of an existing line item.|
+// |sku|String|No|A stock keeping unit to identify the item. Max 40 characters.|
+// |**description**|String|**Yes**|A description of the item. Max 600 characters.|
+// |**quantity**|Integer|**Yes**|The quantity of the item. Must be greater than 0.|
+// |**price_each**|Float|**Yes**|The price of the item. Must be to 2 decimal places. E.g. "10.00", "9.99".|
+// |discount|Float|No|A discount to be applied to the line item total, for example if you wanted to discount the line item total by 10% you'd set this value to 10.00 and the `order_discount_method` to 'percentage' or if you wanted to just knock £10.00 off you'd set at 10.00 and not pass in the `order_discount_method` value as it defaults to 'fixed'.|
+// |**vat_rate**|Integer|**Yes**|The % VAT rate to apply to the item.|
+
+@name("Update Invoice")
+PATCH "https://{{region}}.vatapi.com/v2/invoice/{{invoice_id}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+	"line_items": [
+		{
+			"id": "{{1}}",
+			"quantity": 1
+		}	
+	]
+}')
+
+
+// Specify an `invoice_id` value in the URI to delete an invoice.
+
+@name("Delete Invoice")
+DELETE "https://{{region}}.vatapi.com/v2/invoice/{{invoice_id}}"
+"x-api-key": "{{x-api-key}}"
+
+
+

@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+@name("NOT CURRENTLY WORKING - PLEASE USER A BROWSER - SLAS Authorize Private Registered User - Google")
+GET "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/authorize"
+"Content-Type": "application/json"
+? "client_id"= "{{private_client_id}}"
+? "channel_id"= "SiteGenesis"
+? "redirect_uri"= "https://prd.us.shopper.commercecloud.salesforce.com/api/v1/idp/callback/Google"
+? "hint"= "Google"
+
+
+@name("SLAS - Private Client - Registered User - Access Token")
+POST "https://{{host}}{{base_uri}}{{tenant_id}}/oauth2/token"
+basicauth("{{private_client_id}}", "{{private_client_secret}}")
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "code": [
+        "UpxXzZWSvRZ8SUtm2GHdr56OvMwmTmRJokzZ51jysE8"
+    ],
+    "grant_type": [
+        "authorization_code"
+    ],
+    "redirect_uri": [
+        "{{redirect_url}}"
+    ],
+    "channel_id": [
+        "RefArch"
+    ]
+})
+
+
+@name("Create Basket with Private Client Registered User")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets"
+"Authorization": "{{slas_guest_jwt}}"
+"Content-Type": "application/json"
+? "siteId"= "SiteGenesis"
+? "client_id"= "{{private_client_id}}"
+data('{}')
+
+
+@name("Add item to basket with Private Client Registered User")
+POST "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}/items"
+"Content-Type": "application/json"
+data('[{
+  "product_id" : "nikon-d40-wlensM",
+  "quantity" : 5.00
+}]')
+
+
+@name("Get Basket with Private Client Registered User")
+GET "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+@name("Delete Basket with Private Client Registered User")
+DELETE "https://{{ocapi_uri}}/s/{{ocapi_site}}/dw/shop/v20_8/baskets/{{basket_id}}"
+
+
+

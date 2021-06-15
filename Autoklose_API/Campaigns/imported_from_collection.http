@@ -1,0 +1,194 @@
+#!/usr/bin/env dothttp
+
+// Provides list of all campaigns.
+// 
+// The available options for the expand parameter are "user", "statistics", "emails", "recipients".
+// 
+// The method uses paginitation.
+// 
+// 
+// 
+// 
+
+@name("List of all available campaigns")
+GET "https://{{url}}/api/campaigns"
+? "expand[]"= "user"
+? "expand[]"= "statistics"
+? "expand[]"= "emails"
+? "expand[]"= "recipients"
+
+
+// Provides information about single campaign providing campaign Id. Campaign Id can be found using [GET A list of all available campaigns](#9b04e6a8-a23d-4512-a4eb-98a6e33f1f5b) method.
+// 
+// The available options for the expand parameter are: user, statistics, emails, recipients.
+// 
+
+@name("View a single campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}"
+? "expand[]"= "user"
+? "expand[]"= "statistics"
+? "expand[]"= "emails"
+? "expand[]"= "recipients"
+
+
+// Provides information about campaign status by providing campaign id.
+// Status can be “draft”, “in_progress”, “pending”, “paused” or “finished”.
+// 
+// Refer to [Campaigns / Campaign cycle](#8ec4ed59-4ae5-4705-9178-332bb94d2833)
+
+@name("Get a campaign status")
+GET "https://{{url}}/api/campaigns/{{campaign}}/status"
+
+
+// Provide statistical information about specific email from  campaign. You need to provide Campaign Id and Email Id. 
+// 
+// To get Email Id you can use [GET List of all available](#9b04e6a8-a23d-4512-a4eb-98a6e33f1f5b) campaigns and check expand "email" parameter.
+
+@name("View the statistics from a campaign email")
+GET "https://{{url}}/api/campaigns/{{campaign}}/emails/{{email}}/statistics"
+
+
+// A method used to remove a campaign by providing campaign id.
+
+@name("Remove a campaign")
+DELETE "https://{{url}}/api/campaigns/{{campaign}}"
+
+
+// A method used for editing the first step in a campaign, you need to provide campaign id and change data in body options : 
+// 
+// 	"name": "Campaign name",
+// 	"work_hours_from": "08:00",
+// 	"work_hours_to": "15:00",
+// 	"timezone": "type time zone",
+// 	"start_date": - has to be correct start date in form of y/m/d
+// 	"sending_days": to choose sending days type “true” to select day and “false” to deselect desired days
+//     "cc": must be an array
+//     "bcc": must be an array
+// 		"Monday": true,
+// 		"Tuesday": false,
+// 		"Wednesday": true,
+// 		"Thursday": true,
+// 		"Friday": false,
+// 		"Saturday": true,
+// 		"Sunday": false
+// 	},
+// 	"track_open": false,    - Only true or false are accepted criteria.
+// 	"track_click": true,
+// 	"track_reply": false
+// To edit a campaign status must be "Paused or Draft".
+
+@name("Update a campaign")
+PATCH "https://{{url}}/api/campaigns/{{campaign}}"
+"Content-Type": "application/json"
+data('{
+	"name": "Test API Campaign",
+	"work_hours_from": "08:00",
+	"work_hours_to": "15:00",
+	"timezone": "America/New_York",
+	"start_date": "2021-07-29",
+	"sending_days": {
+		"Monday": true,
+		"Tuesday": false,
+		"Wednesday": true,
+		"Thursday": true,
+		"Friday": false,
+		"Saturday": true,
+		"Sunday": false
+	},
+    "cc": [
+        "testcc1@example.com",
+        "testcc2@example.com"
+          ],
+    "bcc": [
+        "testbcc1@example.com",
+        "testbcc2@example.com"
+           ],
+	"track_open": false,
+	"track_click": true,
+	"track_reply": false
+}')
+
+
+// Provides statistical information for specific campaign, need to provide Campaign id.
+
+@name("View the statistics for a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/statistics"
+
+
+// Providing Campaign id to get information about replies. 
+// 
+// The available option for the expand parameter is “replies”.
+
+@name("View the replies for a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/replies"
+
+
+// A method that allows you to change campaign status in the campaign status circle.
+// You need to provide campaign id and change “status” in body option.
+// 
+// Refer to [Campaign cycle](#8ec4ed59-4ae5-4705-9178-332bb94d2833) for the allowed status changes in the campaign  cycle.
+// 
+// It’s possible to add more recipients to the already completed campaign but doing so would make her paused.
+
+@name("Update campaign status")
+PATCH "https://{{url}}/api/campaigns/{{campaign}}/status"
+"Content-Type": "application/json"
+data('{
+	"status": "in_progress"
+}')
+
+
+// 
+// A method used to create the first step of starting a campaign. You need to provide data in body section :
+// 
+// 	"name": "Campaign name",
+// 	"work_hours_from": "08:00",
+// 	"work_hours_to": "15:00",
+// 	"timezone": "type time zone",
+// 	"start_date": - has to be correct start date in form of y/m/d
+//     "cc": must be an array
+//     "bcc": must be an array
+//     "sending_days": to choose sending days type “true” to select day and “false” to deselect desired days
+// 		"Monday": true,
+// 		"Tuesday": false,
+// 		"Wednesday": true,
+// 		"Thursday": true,
+// 		"Friday": false,
+// 		"Saturday": true,
+// 		"Sunday": false
+// 	},
+// 	"track_open": false,    - Only true or false are accepted criteria.
+// 	"track_click": true,
+// 	"track_reply": false
+
+@name("Create a new campaign")
+POST "https://{{url}}/api/campaigns"
+"Content-Type": "application/json"
+data('{
+	"name": "API Campaign 1",
+	"work_hours_from": "08:00",
+	"work_hours_to": "15:00",
+	"timezone": "America/New_York",
+	"start_date": "2021-06-28",
+	"sending_days": {
+		"Monday": true,
+		"Tuesday": true,
+		"Wednesday": true,
+		"Thursday": true,
+		"Friday": true,
+		"Saturday": false,
+		"Sunday": false
+	},
+    "cc": [
+        "testcc@example.com"
+          ],
+    "bcc": [
+        "testbcc@example.com"
+           ],
+	"track_open": false,
+	"track_click": true,
+	"track_reply": false
+}')
+
+
+

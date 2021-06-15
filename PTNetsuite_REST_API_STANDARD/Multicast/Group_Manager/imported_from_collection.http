@@ -1,0 +1,479 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the multicast group for the current user. 
+//  
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key      | Value       | Description               | 
+// | -------- | ----------- | ------------------------- |
+// | label    | {{label}}   | Label used to describe the multicast group.
+// | devaddr  | {{devaddr}} | Device Address that Identifies the device in the current network.
+// 
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+// 
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Multicast Group List")
+GET "{{protocol}}://{{host}}/api/v2/multicast-groups"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns a single multicast group identified by `{{mgid}}` in the url. 
+// 
+// The response will provide an object that containssssssss the Multicast group details.
+// 
+// Details:
+//    * The multicast group choosed is identified by the `{{mgid}}` in the URL.
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Multicast Group Information")
+GET "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}"
+"Authorization": "Bearer {{token}}"
+
+
+// This API adds a new downlink in queue for a device.
+// 
+// The reponse will contain the created object with the created downlink.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "label": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this multicast group"
+//     },
+//     "devaddr": {
+//       "type": "string",
+//       "pattern": "^[0-9a-f]{8}$",
+//       "description": "Identifies the device in the current network"
+//     },
+//     "appSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Application Session Key used to encrypt and decrypt the applciation payload"
+//     },
+//     "nwkSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Network Session Key used to ensure data integrity on the complete LoRaWAN frame"
+//     },
+//     "supports32bitFCnt": {
+//       "type": "boolean",
+//       "default": true,
+//       "description": "Flag used to indicate 16 or 32 bit frame counter length. If omitted is 32 bit length"
+//     },
+//     "fCnt": {
+//       "type": "integer",
+//       "minimum": 0,
+//       "default": 0,
+//       "description": "Starting frame counter for the devices in this group"
+//     }
+//   },
+//   "required": [
+//     "devaddr",
+//     "appSKey",
+//     "nwkSKey",
+//     "label"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                                | Type      | Required     | Nullable | Default | Defined by    |
+// | --------------------------------------- | --------- | ------------ | -------- | ------- | ------------- |
+// | [appSKey](#appskey)                     | `string`  | **Required** | No       |         | (this schema) |
+// | [devaddr](#devaddr)                     | `string`  | **Required** | No       |         | (this schema) |
+// | [fCnt](#fcnt)                           | `integer` | Optional     | No       | `0`     | (this schema) |
+// | [label](#label)                         | `string`  | **Required** | No       |         | (this schema) |
+// | [nwkSKey](#nwkskey)                     | `string`  | **Required** | No       |         | (this schema) |
+// | [supports32bitFCnt](#supports32bitfcnt) | `boolean` | Optional     | No       | `true`  | (this schema) |
+// 
+// ## appSKey
+// 
+// Application Session Key used to encrypt and decrypt the applciation payload
+// 
+// `appSKey`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### appSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## devaddr
+// 
+// Identifies the device in the current network
+// 
+// `devaddr`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### devaddr Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5B0-9a-f%5D%7B8%7D%24)):
+// 
+// ```regex
+// ^[0-9a-f]{8}$
+// ```
+// 
+// ## fCnt
+// 
+// Starting frame counter for the devices in this group
+// 
+// `fCnt`
+// 
+// - is optional
+// - type: `integer`
+// - default: `0`
+// - defined in this schema
+// 
+// ### fCnt Type
+// 
+// `integer`
+// 
+// - minimum value: `0`
+// 
+// ## label
+// 
+// The label is a field used to describe this multicast group
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## nwkSKey
+// 
+// Network Session Key used to ensure data integrity on the complete LoRaWAN frame
+// 
+// `nwkSKey`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### nwkSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## supports32bitFCnt
+// 
+// Flag used to indicate 16 or 32 bit frame counter length. If omitted is 32 bit length
+// 
+// `supports32bitFCnt`
+// 
+// - is optional
+// - type: `boolean`
+// - default: `true`
+// - defined in this schema
+// 
+// ### supports32bitFCnt Type
+// 
+// `boolean`
+
+@name("Create Multicast Group")
+POST "{{protocol}}://{{host}}/api/v2/multicast-group"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label": "{{label}}",
+	"devaddr": "{{devaddr}}",
+	"nwkSKey": "{{nwkskey}}",
+	"appSKey": "{{appskey}}"
+}')
+
+
+// This API allows to update the information of the own device identified by `{{did}}`.
+// 
+// This API requires at least a property to update. All the properties are optional but at least one is required. 
+//  
+// For example you can change model or DeviceProfileId.
+// 
+// Based on `type=[ABP, OTAA]` or `Key` update, there are additional required properties:
+// 
+// | Property  | Type      | Required Keyword  |
+// | --------- | --------- | -----------------
+// | `type`    | `OTAA`      | appKey, appeui    |
+// | `type`    | `ABP`       | appSKey, nwkSKey, devaddr    |
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+//    * If `type` is updated from `OTAA` to `ABP` (or vice-versa), there are other required information listed in the table on top
+//    * You need to set all the `Required Keyword` if you update only a single `properties` as written in the table on top. e.g if you update `appkey` you need to pass `appeui` and `type="OTAA"`
+// 
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "label": {
+//       "type": "string",
+//       "minLength": 1,
+//       "maxLength": 255,
+//       "description": "The label is a field used to describe this multicast group"
+//     },
+//     "devaddr": {
+//       "type": "string",
+//       "pattern": "^[0-9a-f]{8}$",
+//       "description": "Identifies the device in the current network"
+//     },
+//     "appSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Application Session Key used to encrypt and decrypt the applciation payload"
+//     },
+//     "nwkSKey": {
+//       "type": "string",
+//       "pattern": "^[a-f0-9]{32}$",
+//       "description": "Network Session Key used to ensure data integrity on the complete LoRaWAN frame"
+//     },
+//     "supports32bitFCnt": {
+//       "type": "boolean",
+//       "default": true,
+//       "description": "Flag used to indicate 16 or 32 bit frame counter length. If omitted is 32 bit length"
+//     },
+//     "fCnt": {
+//       "type": "integer",
+//       "minimum": 0,
+//       "default": 0,
+//       "description": "Starting frame counter for the devices in this group"
+//     }
+//   },
+//   "anyOf": [
+//     {
+//       "required": [
+//         "devaddr"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "appSKey"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "nwkSKey"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "label"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "supports32bitFCnt"
+//       ]
+//     },
+//     {
+//       "required": [
+//         "fCnt"
+//       ]
+//     }
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                                | Type      | Required | Nullable | Default | Defined by    |
+// | --------------------------------------- | --------- | -------- | -------- | ------- | ------------- |
+// | [appSKey](#appskey)                     | `string`  | Optional | No       |         | (this schema) |
+// | [devaddr](#devaddr)                     | `string`  | Optional | No       |         | (this schema) |
+// | [fCnt](#fcnt)                           | `integer` | Optional | No       | `0`     | (this schema) |
+// | [label](#label)                         | `string`  | Optional | No       |         | (this schema) |
+// | [nwkSKey](#nwkskey)                     | `string`  | Optional | No       |         | (this schema) |
+// | [supports32bitFCnt](#supports32bitfcnt) | `boolean` | Optional | No       | `true`  | (this schema) |
+// 
+// ## appSKey
+// 
+// Application Session Key used to encrypt and decrypt the applciation payload
+// 
+// `appSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### appSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## devaddr
+// 
+// Identifies the device in the current network
+// 
+// `devaddr`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### devaddr Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5B0-9a-f%5D%7B8%7D%24)):
+// 
+// ```regex
+// ^[0-9a-f]{8}$
+// ```
+// 
+// ## fCnt
+// 
+// Starting frame counter for the devices in this group
+// 
+// `fCnt`
+// 
+// - is optional
+// - type: `integer`
+// - default: `0`
+// - defined in this schema
+// 
+// ### fCnt Type
+// 
+// `integer`
+// 
+// - minimum value: `0`
+// 
+// ## label
+// 
+// The label is a field used to describe this multicast group
+// 
+// `label`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+// 
+// ## nwkSKey
+// 
+// Network Session Key used to ensure data integrity on the complete LoRaWAN frame
+// 
+// `nwkSKey`
+// 
+// - is optional
+// - type: `string`
+// - defined in this schema
+// 
+// ### nwkSKey Type
+// 
+// `string`
+// 
+// All instances must conform to this regular expression (test examples
+// [here](https://regexr.com/?expression=%5E%5Ba-f0-9%5D%7B32%7D%24)):
+// 
+// ```regex
+// ^[a-f0-9]{32}$
+// ```
+// 
+// ## supports32bitFCnt
+// 
+// Flag used to indicate 16 or 32 bit frame counter length. If omitted is 32 bit length
+// 
+// `supports32bitFCnt`
+// 
+// - is optional
+// - type: `boolean`
+// - default: `true`
+// - defined in this schema
+// 
+// ### supports32bitFCnt Type
+// 
+// `boolean`
+
+@name("Update Multicast Group")
+PUT "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label":"{{new-label}}"
+}')
+
+
+// This API removes a single multicast group for the current user.
+// 
+// The multicast group to delete is passed in the URL using the MulticastGroupId as `{{mgid}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The multicast group to delete is identified in the url by `{{mgid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Remove Multicast Group")
+DELETE "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}"
+"Authorization": "Bearer {{token}}"
+
+
+

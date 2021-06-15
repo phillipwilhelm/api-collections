@@ -1,0 +1,201 @@
+#!/usr/bin/env dothttp
+
+// Creates a new identity that can authenticate.
+
+@name("Create Identity")
+POST "{{protocol}}://{{host}}/api/v1/identities"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+
+
+
+// Suspends a existing identity preventing authentication.
+
+@name("Suspend Idenity")
+PUT "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{
+	"suspended": true
+}')
+
+
+// Removes suspenion of existing identity allowing authentication.
+
+@name("Unsuspend Idenity")
+PUT "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{
+	"suspended": false
+}')
+
+
+// Creates a new identity that can authenticate with the attached authentication methods.
+
+@name("Create Identity w/ Authentication Method(s)")
+POST "{{protocol}}://{{host}}/api/v1/identities"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{
+   "authenticationMethods": [
+    {
+      "method":"token",
+      "length": 64,
+      "ttl": 3600
+    },
+    {
+      "method":"key",
+      "name": "My Key"
+      
+    },
+    {
+      "applicationId": 1,
+      "method":"password",
+      "email": "{{identityEmail}}",
+      "password": "!Password1"
+      
+    }
+  ]
+}')
+
+
+// Creates a One Time Password authentication method for an existing identity.
+
+@name("Create Token Authentication Method")
+POST "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/authentication-methods"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{  
+   "authenticationMethods":[  
+      {  
+         "method":"token"
+      }
+   ]
+}')
+
+
+// Creates a One Time Password(with expiration) authentication method for an existing identity.
+
+@name("Create Token Authentication Method w/ TTL")
+POST "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/authentication-methods"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{  
+   "authenticationMethods":[  
+      {  
+         "method":"token",
+         "ttl":3600
+      }
+   ]
+}')
+
+
+// Creates a Password Authentication method for an existing identity.
+
+@name("Create Password Authentication Method")
+POST "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/authentication-methods"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{  
+   "authenticationMethods":[  
+      {  
+    	 "applicationId": 1,
+         "method":"password",
+         "email":"{{identityEmail}}",
+         "password":"!Password1"
+      }
+   ]
+}')
+
+
+// Creates an Api Key method for an existing identity.
+
+@name("Create Key Authentication Method")
+POST "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/authentication-methods"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+data('{  
+   "authenticationMethods":[  
+      {  
+         "method":"key",
+         "name":"My Key"
+      }
+   ]
+}')
+
+
+// Get the identity for a given id.
+
+@name("Get Identity")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+
+
+// Get a list of all sessions for the given identity id.
+
+@name("Get Sessions for Identity")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/sessions"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+
+
+
+// Get a paginated list of all sessions for the given identity id.
+
+@name("Get Sessions for Identity w/ Paging")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/sessions"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+? "pageNumber"= "{{pageNumber}}"
+? "pageSize"= "{{pageSize}}"
+? "includeCount"= "{{includeCount}}"
+
+
+
+// Get a list of all active sessions for an identity.
+
+@name("Get Active Sessions for Identity")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/sessions"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+? "status"= "active"
+
+
+
+// Get a list of all expired sessions for an identity.
+
+@name("Get Expired Sessions for Identity")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/sessions"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+? "status"= "expired"
+
+
+
+// Get a list of all terminated sessions for an identity.
+
+@name("Get Terminated Sessions for Identity")
+GET "{{protocol}}://{{host}}/api/v1/identities/{{identityId}}/sessions"
+"Accept": "application/json; charset=utf-8"
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Key {{apiKey}}"
+? "status"= "terminated"
+
+
+
+

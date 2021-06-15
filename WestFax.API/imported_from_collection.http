@@ -1,0 +1,345 @@
+#!/usr/bin/env dothttp
+
+// This returns your string with "Pong - " attached to the beginning.
+
+@name("Security_Ping")
+POST "https://{{Url}}/REST/Security_Ping/{{RespEnc}}"
+files(
+	("StringParams1", "ping ")
+)
+
+
+// Authenticate Method (User and Password Only)
+
+@name("Security_Authenticate (Usename, Pass only)")
+POST "https://{{Url}}/REST/Security_Authenticate/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false")
+)
+
+
+// Authenticate Method (User and Password Only) Throws error
+
+@name("Security_Authenticate (Usename, Pass only) Throws error")
+POST "https://{{Url}}/REST/Security_Authenticate/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Cookies", "false")
+)
+
+
+// Authenticate Method (User, Password, and ProductId)
+
+@name("Security_Authenticate (Usename, Pass, ProductId)")
+POST "https://{{Url}}/REST/Security_Authenticate/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}")
+)
+
+
+// Gets the current account details for the person indicated in the login credentials.
+// 
+
+@name("Profile_GetAccountInfo- Works for any product type")
+POST "https://{{Url}}/REST/Profile_GetAccountInfo/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}")
+)
+
+
+// Gets all of the products that the user has access to.
+// 
+// The Product Id is important in that most API functions take a Product Id.
+// 
+// This call will return both FaxForward and Brooadcast Fax Products.  
+// 
+// Not much detail is returned here.  But you have the Id that can be used in
+
+@name("Profile_GetProductList - All Prods")
+POST "https://{{Url}}/REST/Profile_GetProductList/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false")
+)
+
+
+// Gets the Fax to Email Products that the user has access to.
+// 
+// The Product Id is important in that most API functions take a Product Id.
+// 
+// This call will return only Fax to Email Products, and has more detail than the GetProductList() API call.
+
+@name("Profile_GetF2EProductList - Fax to Email only")
+POST "https://{{Url}}/REST/Profile_GetF2EProductList/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false")
+)
+
+
+// Gets the detail for the indicated Fax to Email product.
+
+@name("Profile_GetF2EProductDetail - Fax to Email only")
+POST "https://{{Url}}/REST/Profile_GetF2EProductDetail/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}")
+)
+
+
+// Gets the user's information.
+
+@name("Security_GetUserInfo")
+POST "https://{{Url}}/REST/Security_GetUserInfo/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}")
+)
+
+
+// Gets the user's information and logins.
+
+@name("Security_GetLoginInfo")
+POST "https://{{Url}}/REST/Security_GetLoginInfo/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false")
+)
+
+
+// Gets the current contact details for the person indicated in the login credentials.
+// 
+// ProductId is optional.
+// 
+
+@name("Contact_GetContactList - Works for any product type")
+POST "https://{{Url}}/REST/Contact_GetContactList/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}")
+)
+
+
+// Method to send a fax.  
+// 
+// Many Parameters here.
+
+@name("Fax_SendFax")
+POST "https://{{Url}}/REST/Fax_SendFax/{{RespEnc}}"
+"ContentType": "multipart/form-data"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("JobName", "Test Job"),
+	("Header", "Test Header"),
+	("BillingCode", "Customer Code 1234"),
+	("Numbers1", "823-555-0111"),
+	("Numbers2", "3035550101"),
+	("Files0", "None"),
+	("CSID", "3035550101"),
+	("ANI", "0000000000"),
+	("StartDate", "1/1/2019"),
+	("FaxQuality", "Fine"),
+	("FeedbackEmail", "(your email here)"),
+	("CallbackUrl", "[get]http://yourweburl.com/{@jobid}?prod={@prodid}&dir={@dir}")
+)
+
+
+// Retrieves only the list of outbound Fax Ids for the given product.
+// 
+// 
+
+@name("Fax_GetOutboundFaxIdentifiers")
+POST "https://{{Url}}/REST/Fax_GetFaxIdentifiers/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("StartDate", "1/1/2019"),
+	("FaxDirection", "Outbound")
+)
+
+
+// Retrieves detailed information about the requested outbound fax identifiers.
+
+@name("Fax_GetOutboundFaxDescriptions")
+POST "https://{{Url}}/REST/Fax_GetFaxDescriptions/{{RespEnc}}"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("StartDate", "1/1/19"),
+	("FaxDirection", "Outbound")
+)
+
+
+// Retrieves only the list of inbound Fax Ids for the given product.
+// 
+// 
+
+@name("Fax_GetInboundFaxIdentifiers")
+POST "https://{{Url}}/REST/Fax_GetFaxIdentifiers/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("StartDate", "1/1/2019"),
+	("FaxDirection", "Inbound")
+)
+
+
+// Retrieves detailed information about the requested inbound fax identifiers.
+
+@name("Fax_GetInboundFaxDescriptions")
+POST "https://{{Url}}/REST/Fax_GetFaxDescriptions/{{RespEnc}}"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("StartDate", "1/1/19"),
+	("FaxDirection", "Inbound")
+)
+
+
+// Retrieves the fax documents for the given fax Ids.
+// 
+// The Format Parameter supports:
+// 
+// pdf,
+// tiff,
+// jpeg,
+// png,
+// gif
+
+@name("Fax_GetFaxDocuments")
+POST "https://{{Url}}/REST/Fax_GetFaxDocuments/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("FaxIds1", "{{FaxIds1}}"),
+	("Format", "pdf")
+)
+
+
+// Changes the filter value of the Fax(s) identified.
+// 
+// Filter Values can be:
+// 
+// None (reset - marked as unread),
+// Retrieved (Marked as Read),
+// Removed (Deleted)
+
+@name("Fax_ChangeFaxFilterValue")
+POST "https://{{Url}}/REST/Fax_ChangeFaxFilterValue/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("FaxIds1", "{{FaxIds1}}"),
+	("Filter", "Removed")
+)
+
+
+// Retrieves the list of Fax Ids for the given product.  This returns a very "thin" list meaning there is not much inforamtion.  
+// 
+// The returned information contains the Guid (Id) of the fax, whether the fax was inbound or outbound, and the date of the fax.
+// 
+// The Tag value indicates whether the fax has been downloaded or not.
+// 
+
+@name("Fax_GetFaxIdentifiers")
+POST "https://{{Url}}/REST/Fax_GetFaxIdentifiers/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("StartDate", "12/1/2017")
+)
+
+
+// Retrieves detailed information about the requested fax identifiers.
+// 
+
+@name("Fax_GetFaxDescriptionsUsingIds")
+POST "https://{{Url}}/REST/Fax_GetFaxDescriptionsUsingIds/{{RespEnc}}"
+"Content-Type": "application/x-www-form-urlencoded"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("FaxIds1", "{{FaxIds1}}"),
+	("FaxIds2", "{{FaxIds2}}")
+)
+
+
+// Sends the indicated Fax to the indicated email address.
+
+@name("Fax_SendFaxAsEmail")
+POST "https://{{Url}}/REST/Fax_SendFaxAsEmail/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("FaxIds1", "{{FaxIds1}}"),
+	("FeedbackEmail", "(your email here)")
+)
+
+
+// Resends the Fax to Email email.
+// 
+// This is an inbound fax method only.  It causes re-delivery of the inbound fax or notification to all of the configured recipients.
+
+@name("Fax_ResendFaxNotification")
+POST "https://{{Url}}/REST/Fax_ResendFaxNotification/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Cookies", "false"),
+	("ProductId", "{{ProdId}}"),
+	("FaxIds1", "{{FaxIds1}}")
+)
+
+
+// Get a list of products with the number of faxes that match the filter conditions. Good for checking multiple fax lines for unread faxes. Will return a collection of Ids of Fax lines that have faxes that match the condition. You can follow up with other procs to retrieve the fax jobs.
+
+@name("Fax_GetProductsWithInboundFaxes")
+POST "https://{{Url}}/REST/Fax_GetProductsWithInboundFaxes/{{RespEnc}}"
+files(
+	("Username", "{{User}}"),
+	("Password", "{{Pass}}"),
+	("Filter", "None")
+)
+
+
+

@@ -1,0 +1,191 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Applications")
+GET "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// #### `expand` Parameter
+// Can set to `attributes` to have the App's (SAML) Attributes included in `_embedded`.
+
+@name("READ One Application")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+@name("CREATE Application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "name": "My Application",
+  "description": "Description for my application.",
+  "enabled": true,
+  "type": "SERVICE",
+  "loginPageUrl": "https://example.com",
+  "#icon": {
+    "href": "https://example.com/images/logo.jpg",
+    "id": "04ad537e-c9cd-45c3-abfb-f41946cfe374"
+  },
+  "protocol": "OPENID_CONNECT",
+  "responseTypes": [
+    "TOKEN",
+    "ID_TOKEN"
+  ],
+  "grantTypes": [
+    "IMPLICIT",
+    "REFRESH_TOKEN"
+  ],
+  "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+  "postLogoutRedirectUris": [
+    "https://example.com"
+  ],
+  "redirectUris": [
+    "https://example.com:3000/response",
+    "https://example.com:3000/code/response",
+    "https://example.com"
+  ]
+}')
+
+
+@name("DELETE Application")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appD}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+@name("CREATE Application (OIDC)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+data('{
+    "name": "app_{{$timestamp}}",
+    "description": "this is my application",
+    "enabled": true,
+    "type": "WEB_APP",
+    "loginPageUrl": "https://example.com",
+    "#icon": {
+        "id": "04ad537e-c9cd-45c3-abfb-f41946cfe374",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Baby_Jake.jpg"
+    },
+    "protocol": "OPENID_CONNECT",
+    "responseTypes": [
+        "CODE",
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "grantTypes": [
+        "AUTHORIZATION_CODE",
+        "CLIENT_CREDENTIALS",
+        "IMPLICIT",
+        "REFRESH_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "postLogoutRedirectUris": [
+        "https://example.com"
+    ],
+    "redirectUris": [
+        "https://localhost:3000/response",
+        "https://localhost:3000/code/response",
+        "https://example.com",
+        "https://www.getpostman.com/oauth2/callback"
+    ],
+    "#refreshTokenDuration": 3600,
+    "#refreshTokenRollingDuration": 604800
+}')
+
+
+@name("CREATE Application (SAML)")
+POST "https://{{apiPath}}/environments/{{envID}}/applications"
+"Content-Type": "application/json"
+data('{
+    "name": "app_{{$timestamp}}",
+    "description": "this is my application",
+    "enabled": true,
+    "#loginPageUrl": "https://example.com",
+    "type": "WEB_APP",
+    "protocol": "SAML",
+    "#icon": {
+        "id": "04ad537e-c9cd-45c3-abfb-f41946cfe374",
+        "href": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Baby_Jake.jpg"
+    },
+    "assertionDuration": 60,
+    "acsUrls": [
+        "https://example.com"
+    ],
+    "sloResponseEndpoint": "https://example.com",
+    "spEntityId": "test"
+}')
+
+
+@name("UPDATE Application (OIDC)")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Content-Type": "application/json"
+data('{
+    "name": "UPDATED_{{$timestamp}}",
+    "description": "this is my UPDATED client",
+    "enabled": false,
+    "protocol": "OPENID_CONNECT",
+    "type": "{appType}",
+    "#loginPageUrl": "https://example.com",
+    "responseTypes": [
+        "CODE",
+        "TOKEN",
+        "ID_TOKEN"
+    ],
+    "grantTypes": [
+        "AUTHORIZATION_CODE",
+        "CLIENT_CREDENTIALS",
+        "IMPLICIT",
+        "REFRESH_TOKEN"
+    ],
+    "tokenEndpointAuthMethod": "CLIENT_SECRET_BASIC",
+    "postLogoutRedirectUris": [
+        "https://example.com"
+    ],
+    "redirectUris": [
+        "https://localhost:3000/response",
+        "https://localhost:3000/code/response",
+        "https://example.com",
+        "https://www.getpostman.com/oauth2/callback"
+    ],
+    "#refreshTokenDuration": 3600,
+    "#refreshTokenRollingDuration": 604800
+}')
+
+
+@name("UPDATE Application (SAML)")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}"
+"Content-Type": "application/json"
+data('{
+    "name": "UPDATED_{{$timestamp}}",
+    "description": "this is my UPDATED client",
+    "enabled": false,
+    "type": "WEB_APP",
+    "protocol": "SAML",
+    "assertionDuration": 60,
+    "acsUrls": [
+        "https://example.com"
+    ],
+    "sloResponseEndpoint": "https://example.com",
+    "spEntityId": "test"
+}')
+
+
+@name("CREATE Application (SAML - Metadata Import)")
+POST "https://api.pingone.com/v1/environments/{{envID}}/applications"
+"Content-Type": "application/samlmetadata+xml"
+
+
+
+@name("CREATE Application (SAML - URL Import)")
+POST "https://api.pingone.com/v1/environments/{{envID}}/applications"
+"Content-Type": "application/x-www-form-urlencoded"
+data('{
+    "{{URL}}"
+}')
+
+
+

@@ -1,0 +1,103 @@
+#!/usr/bin/env dothttp
+
+// Add a new file. The uploaded file will not be visible in the Kentico Kontent UI unless you [add an asset](https://docs.kontent.ai/link-to/add_an_asset_a7cf801) using it.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p><strong>Adding assets is a 2-step process</strong></p>
+// <ol>
+//   <li><a href="#operation/upload-a-binary-file">Upload a binary file</a>&nbsp;– after uploading, you get a file reference to uploaded file.</li>
+//   <li><a href="#operation/add-an-asset">Create a new asset</a>&nbsp;– use the file reference to link the new asset with the file.</li>
+// </ol>
+// 
+// <!--Callout-end-->
+// 
+// <!--Callout type=Info-->
+// 
+// <p>Maximum size limit for binary files is 100 MB.</p>
+// 
+// <!--Callout-end-->
+
+@name("Upload a binary file")
+POST "https://manage.kontent.ai/v1/projects/:project_id/files/:file_name"
+"Content-type": "<string>"
+"Content-length": "<integer>"
+"Content-Type": "application/octet-stream"
+data('"<binary>"')
+
+
+// Use a file reference to link an existing [binary file](https://docs.kontent.ai/link-to/upload_a_binary_file_50fcad8) to a new asset. You can also create assets by upserting (PUT `/assets/external-id/<external_id>`).
+// 
+// <!--Callout type=Info-->
+// 
+// <p>Each binary file can be referenced only by a single asset.</p>
+// 
+// <!--Callout-end-->
+
+@name("Add an asset")
+POST "https://manage.kontent.ai/v1/projects/:project_id/assets"
+"Content-Type": "application/json"
+data('{
+    "file_reference": {
+        "id": "<uuid>",
+        "type": "<string>"
+    },
+    "descriptions": [
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        }
+    ],
+    "title": "<string>",
+    "external_id": "<string>"
+}')
+
+
+// Retrieve a dynamically paginated list of assets.
+
+@name("List assets")
+GET "https://manage.kontent.ai/v1/projects/:project_id/assets"
+? "continuationToken"= "<string>"
+
+
+// Retrieve information about an asset.
+
+@name("Retrieve an asset")
+GET "https://manage.kontent.ai/v1/projects/:project_id/assets/:asset_identifier"
+
+
+// Update an existing asset or add a new asset specified by external ID.
+
+@name("Upsert an asset")
+PUT "https://manage.kontent.ai/v1/projects/:project_id/assets/:asset_identifier"
+"Content-Type": "application/json"
+data('{
+    "descriptions": [
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        }
+    ],
+    "file_reference": {
+        "id": "<uuid>",
+        "type": "<string>"
+    },
+    "title": "<string>"
+}')
+
+
+// Removes an unused asset.
+
+@name("Delete an asset")
+DELETE "https://manage.kontent.ai/v1/projects/:project_id/assets/:asset_identifier"
+
+
+

@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+@name("Get network groups")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networkgroups"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get network objects")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networks"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get host objects")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/hosts"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Create VPN east object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/hosts"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NET_VPN_EAST",
+    "description": "VPN concentrator in Baltimore",
+    "value": "192.168.5.10",
+    "type": "Host"
+}')
+
+
+@name("Create VPN west object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/hosts"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NET_VPN_WEST",
+    "description": "VPN concentrator in Seattle",
+    "value": "192.168.6.10",
+    "type": "Host"
+}')
+
+
+@name("Create VPN network group")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networkgroups"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NETG_VPN_CONCENTRATORS",
+    "description": "All VPN concentrators",
+    "type": "NetworkGroup",
+    "objects": [
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468480478",
+            "name": "NET_VPN_EAST"
+        },
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468480504",
+            "name": "NET_VPN_WEST"
+        }
+    ]
+}')
+
+
+@name("Create TEST-NET-1 object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networks"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NET_TEST_1",
+    "description": "See RFC-5737 section 3",
+    "value": "192.0.2.0/24",
+    "type": "Network"
+}')
+
+
+@name("Create TEST-NET-2 object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networks"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NET_TEST_2",
+    "description": "See RFC-5737 section 3",
+    "value": "198.51.100.0/24",
+    "type": "Network"
+}')
+
+
+@name("Create TEST-NET-3 object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networks"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NET_TEST_3",
+    "description": "See RFC-5737 section 3",
+    "value": "203.0.113.0/24",
+    "type": "Network"
+}')
+
+
+@name("Create blacklist network group")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/networkgroups"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "NETG_BLACKLIST",
+    "description": "in-to-out blacklist",
+    "type": "NetworkGroup",
+    "objects": [
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468485067",
+            "name": "NET_TEST_1"
+        },
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468485085",
+            "name": "NET_TEST_2"
+        },
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468485103",
+            "name": "NET_TEST_3"
+        }
+    ]
+}')
+
+
+

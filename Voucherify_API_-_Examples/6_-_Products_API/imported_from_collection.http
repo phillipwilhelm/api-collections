@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+@name("Create")
+POST "https://{{url}}/products"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "name" : "Apple iPhone 7",
+    "source_id" : "internal_crm_id_{{$timestamp}}",
+    "attributes": [ "color", "memory" ],
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+@name("Add SKU")
+POST "https://{{url}}/products/{{product-id}}/skus"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "sku" : "APPLE_IPHONE_7",
+    "source_id" : "internal_erp_sku_id_{{$timestamp}}",
+    "currency": "USD",
+    "price": 70000,
+    "attributes": {
+      "color": "black",
+      "memory": "32"
+    }
+}')
+
+
+@name("Get product")
+GET "https://{{url}}/products/{{product-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+@name("Update product")
+PUT "https://{{url}}/products/{{product-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+  
+  "name" : "Apple iPhone 8",
+  "metadata" : {
+    "test2" : "false"
+  }
+}')
+
+
+@name("List products")
+GET "https://{{url}}/products"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+? "limit"= "10"
+data('{}')
+
+
+@name("Get SKU")
+GET "https://{{url}}/products/{{product-id}}/skus/{{sku-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+@name("Update SKU")
+PUT "https://{{url}}/products/{{product-id}}/skus/{{sku-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{
+    "price": 50000,
+    "attributes": {
+      "memory": 16
+    }
+}')
+
+
+@name("List SKUs")
+GET "https://{{url}}/products/{{product-id}}/skus"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+@name("Delete SKU")
+DELETE "https://{{url}}/products/{{product-id}}/skus/{{sku-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Delete product")
+DELETE "https://{{url}}/products/{{product-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Try get missing SKU")
+GET "https://{{url}}/products/{{product-id}}/skus/{{sku-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+@name("Try get missing product")
+GET "https://{{url}}/products/{{product-id}}"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+data('{}')
+
+
+

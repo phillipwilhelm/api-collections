@@ -1,0 +1,1 @@
+Welcome to the **Hull REST API v1** Collection which allows you to learn and execute common tasks.

@@ -1,0 +1,236 @@
+#!/usr/bin/env dothttp
+
+// Add a new file. The uploaded file will not be visible in the Kentico Kontent UI unless you [add an asset](https://docs.kontent.ai/link-to/add_an_asset) using it.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p><strong>Adding assets is a 2-step process</strong></p>
+// <ol>
+//   <li><a href="#operation/upload-a-binary-file">Upload a binary file</a>&nbsp;– after uploading, you get a file reference to uploaded file.</li>
+//   <li><a href="#operation/add-an-asset">Create a new asset</a>&nbsp;– use the file reference to link the new asset with the file.</li>
+// </ol>
+// 
+// <!--Callout-end-->
+// 
+// <!--Callout type=Info-->
+// 
+// <p>Maximum size limit for binary files is 100 MB.</p>
+// 
+// <!--Callout-end-->
+
+@name("Upload a binary file")
+POST "https://manage.kontent.ai/v2/projects/:project_id/files/:file_name"
+"Content-type": "<string>"
+"Content-length": "<integer>"
+"Content-Type": "application/octet-stream"
+data('"<binary>"')
+
+
+// Use a file reference to link an existing [binary file](https://docs.kontent.ai/link-to/upload_a_binary_file) to a new asset. You can also [create assets by upserting](https://docs.kontent.ai/link-to/upsert_an_asset) (PUT `/assets/external-id/<external_id>`).
+// 
+// <!--Callout type=Info-->
+// 
+// <p>Each binary file can be referenced only by a single asset.</p>
+// 
+// <!--Callout-end-->
+
+@name("Add an asset")
+POST "https://manage.kontent.ai/v2/projects/:project_id/assets"
+"Content-Type": "application/json"
+data('{
+    "file_reference": {
+        "id": "<uuid>",
+        "type": "<string>"
+    },
+    "descriptions": [
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        },
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        }
+    ],
+    "title": "<string>",
+    "folder": {
+        "external_id": "<string>",
+        "id": "<uuid>"
+    },
+    "external_id": "<string>"
+}')
+
+
+// Retrieve a dynamically paginated list of assets.
+
+@name("List assets")
+GET "https://manage.kontent.ai/v2/projects/:project_id/assets"
+"x-continuation": "<string>"
+
+
+// Retrieve information about a single asset.
+
+@name("Retrieve an asset")
+GET "https://manage.kontent.ai/v2/projects/:project_id/assets/:asset_identifier"
+
+
+// Update an existing asset or add a new asset specified by external ID.
+
+@name("Upsert an asset")
+PUT "https://manage.kontent.ai/v2/projects/:project_id/assets/:asset_identifier"
+"Content-Type": "application/json"
+data('{
+    "descriptions": [
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        },
+        {
+            "language": {
+                "id": "<uuid>",
+                "codename": "<string>",
+                "external_id": "<string>"
+            },
+            "description": "<string>"
+        }
+    ],
+    "file_reference": {
+        "id": "<uuid>",
+        "type": "<string>"
+    },
+    "folder": {
+        "id": "<uuid>",
+        "external_id": "<string>"
+    },
+    "title": "<string>"
+}')
+
+
+// Delete an unused asset from your project.
+
+@name("Delete an asset")
+DELETE "https://manage.kontent.ai/v2/projects/:project_id/assets/:asset_identifier"
+
+
+// Retrieve an array of all asset folders in your project.
+
+@name("Retrieve asset folders")
+GET "https://manage.kontent.ai/v2/projects/:project_id/folders"
+
+
+// Add one or more asset folders to a project. If your project already has folders, use [modify asset folders](https://docs.kontent.ai/link-to/modify_asset_folders) instead.
+
+@name("Add asset folders")
+POST "https://manage.kontent.ai/v2/projects/:project_id/folders"
+"Content-Type": "application/json"
+data('{
+    "folders": [
+        {
+            "folders": [
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                },
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                }
+            ],
+            "id": "id aute reprehenderit",
+            "name": "nisi",
+            "external_id": "ipsum elit do"
+        },
+        {
+            "folders": [
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                },
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                }
+            ],
+            "id": "Ut reprehenderit ut",
+            "name": "non ",
+            "external_id": "eu commodo"
+        }
+    ],
+    "aute46": 61016579
+}')
+
+
+// Modify the folders in your project using the `addInto`, `remove`, and `rename` operations.
+
+@name("Modify asset folders")
+PATCH "https://manage.kontent.ai/v2/projects/:project_id/folders"
+"Content-Type": "application/json"
+data('[
+    {
+        "op": "<string>",
+        "value": {
+            "folders": [
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                },
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                }
+            ],
+            "id": "in sint enim sit",
+            "name": "dolo",
+            "external_id": "magna ex dolor"
+        },
+        "reference": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        },
+        "after": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        },
+        "before": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        }
+    },
+    {
+        "op": "<string>",
+        "value": {
+            "folders": [
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                },
+                {
+                    "value": "<Circular reference to #/components/schemas/AssetFolder detected>"
+                }
+            ],
+            "id": "Excepteur commodo es",
+            "name": "aliq",
+            "external_id": "pariatur sed"
+        },
+        "reference": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        },
+        "after": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        },
+        "before": {
+            "id": "<uuid>",
+            "external_id": "<string>"
+        }
+    }
+]')
+
+
+

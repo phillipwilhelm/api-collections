@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// WebSocket endpoint for streaming quote updates. This endpoint accepts text JSON messages in order to subscribe or unsubscribe to quote feed. Updates are delived as binary messages formatted with BSON. System will try to minimize message sizes and attempt to deliver changes only.
+// 
+// Incoming commands:
+// ```javascript
+// {
+// 	action: 'sub|unsub',      // sub=subscribe, unsub=unsubscribe
+// 	symbols: ['MSFT'],	      // array of tickers (for sub or unsub)
+// 	mic: 'XNGS'
+// }
+// ```
+// 
+// BSON message:
+// ```javascript
+// {
+// 	ts: '{timestamp}',
+// 	u: {
+// 		MSFT: {
+// 			px: 93.23,          // last price
+// 			bx: 93.22,          // bid
+// 			ax: 93.23,          // ask
+// 			az: 100,            // ask size
+// 			bz: 100,            // bid size
+// 			v: 2160476,         // volume
+// 			ts: '{timestamp}'
+// 		}
+// 	}
+// }
+// ```
+// 
+// Sample usage - `https://github.com/SirDaniil/WebSocketTest`
+
+@name("Streaming Quotes (BSON)")
+GET "wss://{hostname}/stream"
+? "auth"= "{auth}"
+
+
+// WebSocket endpoint for streaming quote updates. This endpoint accepts text JSON messages in order to subscribe or unsubscribe to quote feed. Updates are delivered in plain text JSON formatted messages. System will try to minimize message sizes and attempt to deliver changes only.
+// 
+// Incoming commands:
+// ```javascript
+// {
+// 	action: 'sub|unsub|mode', // sub=subscribe, unsub=unsubscribe
+// 	symbols: ['MSFT'],        // array of tickers (for sub or unsub)
+// 	mic: 'XNGS'               // allows to subscribe to all ticked under given MIC
+// }
+// ```
+// 
+// BSON/JSON message:
+// ```javascript
+// {
+// 	ts: 12345,                  // unix time with milliseconds
+// 	u: {
+// 		MSFT: {
+// 			px: 93.23,          // last price
+// 			bx: 93.22,          // bid
+// 			ax: 93.23,          // ask
+// 			az: 100,            // ask size
+// 			bz: 100,            // bid size
+// 			v: 2160476,         // volume
+// 			ts: 12345678
+// 		}
+// 	}
+// }
+// ```
+// 
+// Sample usage - `https://github.com/SirDaniil/WebSocketTest`
+
+@name("Streaming Quotes (JSON)")
+GET "wss://{hostname}/stream/json"
+? "auth"= "{auth}"
+
+
+// Quote feed based on request/response concept. JSON formatted messages.
+// 
+// Request: ```['MSFT', 'GOOG']```
+// 
+// Response: `array of quote objects`
+
+@name("Equities")
+GET "wss://{hostname}/equities"
+? "auth"= "{auth}"
+
+
+
+

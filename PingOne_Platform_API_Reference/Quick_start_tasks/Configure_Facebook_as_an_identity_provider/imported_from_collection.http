@@ -1,0 +1,153 @@
+#!/usr/bin/env dothttp
+
+// You can use the `POST /environments/{environmentId}/identityProviders` endpoint to create the identity provider configuration for Facebook. This request automatically creates the core attribute mapping to associate the PingOne `username` attribute with the Facebook `email` attribute. To verify the mapping, you can use the `?expand=attributes` query filter to show the core attribute details in the `POST` response.  
+// 
+// 
+// In the request, the `name` property for the new identity provider is required and must be unique within the environment. The `enabled` property is required and should be set to `true`, and the `type` property is required and must specify `FACEBOOK` as the identity provider type.
+// 
+// The `{facebookAppId}` and `{facebookAppSecret}` are required. These are the values you must obtain from Facebook.
+// 
+// The response shows the configuration data for the new identity provider.
+// 
+// ::: info
+// **Note:** The response also includes an `attributes` HAL link to initiate a request to create additional attribute mappings.
+// :::
+// 
+
+@name("Step 1: Create the new identity provider resource")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "FacebookIdP",
+  "description": "Facebook social media identity provider.",
+  "enabled": true,
+  "type": "FACEBOOK",
+  "appId" : "{facebookAppId}",
+  "appSecret": "{facebookAppSecret}"
+}')
+
+
+// The `POST /environments/{environmentId}/identityProviders/{providerId}/attribute` endpoint creates the identity provider attribute mappings. The `attributes` HAL link returned in the Step 1 response provides the URL for the request.
+// 
+// It is recommended that you map the PingOne `email` attribute to the Facebook `email` attribute. If you do not map a value for the PingOne email address, the user will have to verify their email address when they sign on using Facebook.
+// 
+// The following sample shows the mapping between the PingOne `email` attribute and the Facebook `email` attribute.
+// 
+// 
+// In the request, the `name` property is required and must identify a valid PingOne user attribute. The `value` property is required and must specify a supported Facebook attribute. For more information about supported Facebook attributes, see [Facebook provider attributes](https://apidocs.pingidentity.com/pingone/customer/v1/api/man/p1_IdentityProvider/#Facebook-provider-attributes).
+// 
+// The `update` attribute is required and specifies whether to update the user attribute in the PingOne directory with the non-empty mapped value from Facebook. Optional values for this attribute are `EMPTY_ONLY` (only update the user attribute if it has an empty value), and `ALWAYS` (always update the user attribute value).
+// 
+
+@name("Step 2: Create an optional attribute mapping")
+POST "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "name": "email",
+    "update": "EMPTY_ONLY",
+    "value": "${providerAttributes.email}"
+}')
+
+
+// You can use the `POST /environments/{environmentId}/signOnPolicies` endpoint to create the new sign-on policy.
+// 
+// 
+// In the request, the `name` property is required and must be unique within the environment. The `description` property is optional, but recommended. The `default` property is optional, and should be set only if you want this sign-on policy to be the default policy for all applications in the environment. If this property is not set to `true` in the request, the value is set automatically to `false`.
+// 
+// 
+// The response shows the property data for the new sign-on policy. It includes an `actions` HAL link to the sign-on policy actions endpoint, which is used to assign an action to the new sign-on policy. The policy must have at least one associated action before it can be assigned to an application.
+// 
+
+@name("Step 3: Create the new sign-on policy")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "FacebookPolicy",
+  "description": "A sign-on policy for the Facebook identity provider."
+}')
+
+
+// This step associates a sign-on policy action with the new sign-on policy you created in Step 3. The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates the sign-on policy action resource, which is associated with the sign-on policy (`{policyId}`) specified in the request URL.
+// 
+// PingOne supports several sign-on policy action types:
+// 
+// * `LOGIN`
+// 
+//   Basic authentication that prompts for a username and password.
+// 
+// * `MULTI_FACTOR_AUTHENTICATION`
+// 
+//   An authentication method that prompts users to enter a one-time password received on a registered device or accept a push confirmation on a registered mobile device.
+// 
+// * `IDENTIFIER_FIRST`
+// 
+//   An action used to identify the user by username and determine the applicable authentication methods for this user.
+// 
+// * `PROGRESSIVE_PROFILING`
+// 
+//   An action to prompt users to provide additional data at sign on. This action type does not authenticate users. It is used only to obtain additional profile data.
+// 
+// 
+// To establish a Facebook username/password login flow, the `type` property for the action resource associated with the sign-on policy can be set to `LOGIN`.
+// 
+// ::: info
+// **Note:** At this time, you can add external identity providers only to `LOGIN` type sign-on policy actions.
+// :::
+// 
+// 
+// For a sign-on action that supports Facebook, the sign-on policy action must include the `socialProviders.id` property to specify the Facebook identity provider ID `{providerId}` that you created in Step 1.
+// 
+// In addition, it is highly recommended that a sign-on policy that supports Facebook also include the `registration` property to allow automatic account creation and account linking between the user's Facebook account and the PingOne account. For details about the `registration` sign-on action and how it relates to account linking, see [External identity provider login flow states](https://apidocs.pingidentity.com/pingone/customer/v1/api/concepts/p1-a_FlowStates/#External-identity-provider-login-flow-states).
+// 
+// ::: info
+// **Note:** If you do not enable the `registration` sign-on action, only existing PingOne for Customers users will be able to login.
+// :::
+// 
+// 
+// In this sample, the `priority` property is set to `1`, which designates this policy as the first sign-on policy executed, if there is more than one sign-on policy associated with the application. In addition, this action includes the `recovery` property to enable the `password.recover` authentication flow, allowing users to recover a forgotten password.
+// 
+
+@name("Step 4: Create the sign-on policy action")
+POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "environment": {
+        "id": "{{envID}}"
+    },
+    "signOnPolicy": {
+        "id": "{{policyId}}"
+    },
+    "priority": 1,
+    "type": "LOGIN",
+    "socialProviders.id": "{{idpID}}",
+    "registration" : {
+      "enabled" : true,
+      "population" : {
+        "id" : "{{PopID}}"
+      }
+    },
+    "recovery" : {
+      "enabled" : true
+    }
+}')
+
+
+// To use the new sign-on policy, the `POST /environments/{environmentId}/applications/{applicationId}/signOnPolicyAssignments` operation assigns the new sign-on policy to the application designated by its ID in the request URL. The request body requires the sign-on policy property `id` and an integer value for the `priority` property.
+
+@name("Step 5: Assign the sign-on policy to an application")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "signOnPolicy": {
+      "id": "5edef002-3f1f-4e00-a4db-130807f41234"
+    },
+    "priority": 1
+}')
+
+
+

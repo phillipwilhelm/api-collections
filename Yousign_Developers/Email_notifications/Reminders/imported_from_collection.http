@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+// Here are the details of the configuration:
+// 
+// * `interval: 5` means that the reminder will be sent every 5 days. This param is optional.
+// * `limit": 3` means that the reminder will be executed 3 times, after that, he will be desactivated. This param is optional.
+// * `config` is the same structure than the config field in a procedure object. Except that you can have only an `email` node with only the `reminder.executed` event.
+
+@name("/procedures")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Reminders",
+    "description": "Description of my first procedure with reminders",
+    "start" : true,
+    "members": [
+        {
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@yousign.fr",
+            "phone": "+33612345678",
+            "fileObjects": [
+                {
+                    "position": "191,497,507,603",
+                    "page": 2,
+                    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ]
+        }
+    ],
+    "config": {
+        "email": {
+            "member.started": [
+                {
+                    "subject": "Hey! You are invited to sign!",
+                    "message": "Hello <tag data-tag-type=\"string\" data-tag-name=\"recipient.firstname\"></tag> <tag data-tag-type=\"string\" data-tag-name=\"recipient.lastname\"></tag>, <br><br> You have ben invited to sign a document, please click on the following button to read it: <tag data-tag-type=\"button\" data-tag-name=\"url\" data-tag-title=\"Access to documents\">Access to documents</tag>",
+                    "to": ["@member"]
+                }
+            ]
+        },
+        "reminders": [
+            {
+                "interval": 5,
+                "limit": 3,
+                "config": {
+                    "email": {
+                        "reminder.executed": [
+                            {
+                                "subject": "[URGENT] Hey, you have to sign this documents !",
+                                "message": "Hello <tag data-tag-type=\"string\" data-tag-name=\"recipient.firstname\"></tag> <tag data-tag-type=\"string\" data-tag-name=\"recipient.lastname\"></tag>, <br><br> This is a reminder. You have not yet signed your document. Please access it directly with the button: <tag data-tag-type=\"button\" data-tag-name=\"url\" data-tag-title=\"Access to documents\">Access to documents</tag>",
+                                "to": ["@members.auto"]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}')
+
+
+

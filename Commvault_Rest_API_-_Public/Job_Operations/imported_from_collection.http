@@ -1,0 +1,336 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation returns a list of jobs for a client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_job.htm)
+
+@name("Job")
+GET "https://{{ServerUrl}}/Job"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "completedJobLookupTime"= "300"
+
+
+
+// <h2>Description</h2>
+// <p>This operation returns a list of jobs for an entity.</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">category</p>
+// </td>
+// <td>
+// <p class="tabletext">Category for which the list of jobs are to be retrieved.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">0, ALL</li>
+// <li class="listbullet">1, ACTIVE</li>
+// <li>2, FINISHED</li>
+// </ul>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">limit</p>
+// </td>
+// <td>
+// <p class="tabletext">Total number of jobs list that are to be returned.</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">completedJobLookupTime</p>
+// </td>
+// <td>
+// <p class="tabletext">List of jobs to be retrieved which are specified<br /> seconds older.</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">jobTypeList</p>
+// </td>
+// <td>
+// <p class="tabletext">List of job operation types.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">4, Backup Jobs</li>
+// <li>5, Restore Jobs</li>
+// <li class="listbullet">14, Synth Full Jobs</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_For All Job Types_](https://documentation.commvault.com/commvault/v11/article?p=105923.htm)
+
+@name("Jobs")
+POST "https://{{ServerUrl}}/Jobs"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('
+{
+	"pagingConfig": {
+		"sortDirection": 1,
+		"offset": 0,
+		"sortField": "jobStartTime",
+		"limit": 100
+	},
+	"jobFilter": {
+		"completedJobLookupTime": 31536000,
+		"backupLevel": [
+			"FULL"
+		],
+		"statusList": [
+			"Completed",
+			"Completed w/ one or more errors",
+			"Completed w/ one or more warnings"
+		],
+		"jobTypeList": [
+			4
+		],
+		"entity": {
+			"clientId": {{clientId}}
+		}
+	}
+}')
+
+
+// <h2>Description</h2>
+// This operation returns the summary for a specific job.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_job_summary.htm)
+
+@name("Job Summary")
+GET "https://{{ServerUrl}}/Job/{{jobId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns the details for a specific job.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">infoType</p>
+// </td>
+// <td>
+// <p class="tabletext">The option to return additional job information.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">1, RetentionInfo</li>
+// <li class="listbullet">2, reference copy information for reference copy jobs</li>
+// <li class="listbullet">4, DASH copy information for auxiliary copy jobs where the&nbsp;<span class="uilabel">Scalable Resource Allocation</span>&nbsp;check box is selected</li>
+// <li>8, administrative information for auxiliary copy jobs where the&nbsp;<span class="uilabel">Scalable Resource Allocation</span>&nbsp;check box is selected</li>
+// <li>16, backup information for Microsoft Exchange Server and Microsoft SQL Server agent jobs</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_job_summary.htm)
+
+@name("Job Advanced Details")
+GET "https://{{ServerUrl}}/Job/{{jobId}}/AdvancedDetails"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "infoType"= "1"
+
+
+// <h2>Description</h2>
+// This operation returns the summary for a specific job with its task details.
+
+@name("Job Task Details")
+GET "https://{{ServerUrl}}/Job/{{jobId}}/TaskDetails"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This opearation returns the details for a job.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_job_details.htm)
+
+@name("Job Details")
+POST "https://{{ServerUrl}}/JobDetails"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "jobId": {{jobId}}
+}')
+
+
+// <h2>Description</h2>
+// This operation kills a job.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_job_kill.htm)
+
+@name("Job Kill")
+POST "https://{{ServerUrl}}/Job/{{jobId}}/action/kill"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation suspends a job.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_job_suspend.htm)
+
+@name("Job Suspend")
+POST "https://{{ServerUrl}}/Job/{{jobId}}/action/pause"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation resumes a suspended job.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_job_resume.htm)
+
+@name("Job Resume")
+POST "https://{{ServerUrl}}/Job/{{jobId}}/action/resume"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation returns a list of CommCell events.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_events.htm)
+
+@name("Events")
+GET "https://{{ServerUrl}}/Events"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"paginginfo": "0,100"
+? "showInfo"= "false"
+? "showMinor"= "false"
+? "showMajor"= "false"
+
+
+// <h2>Description</h2>
+// This operation returns list of events for a job id.
+
+@name("Events - JobId")
+GET "https://{{ServerUrl}}/Events"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+? "jobId"= "{{jobId}}"
+
+
+// <h2>Description</h2>
+// This operation returns list of events for a client.
+
+@name("Events for a client")
+GET "https://{{ServerUrl}}/Events"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+? "clientId"= "{{clientId}}"
+
+
+// <h2>Description</h2>
+// This operation is used to return anomalous events.
+
+@name("Events - anomalous")
+GET "https://{{ServerUrl}}/Events"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+? "showInfo"= "True"
+? "showMinor"= "True"
+? "showMajor"= "True"
+? "showCritical"= "True"
+? "showGuiAudit"= "False"
+? "showAnomalous"= "True"
+
+
+// <h2>Description</h2>
+// This operation lists all the focused jobs.
+// 
+// Note: <i>category</i> 1 is for running jobs and <i>completedJobLookupTime<i> is number of seconds in one day.
+
+@name("List Anomalous Jobs")
+POST "https://{{ServerUrl}}/jobs"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "scope": 1,
+    "category": 1,
+    "jobFilter": {
+        "completedJobLookupTime": 86400,
+        "showAnomalous": true
+    }
+}
+')
+
+
+// <h2>Description</h2>
+// <p>This operation can be used to modify status of multiple jobs.</p>
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>operationType</td>
+// <td>
+// <p>values:<br />JOB_SUSPEND<br />JOB_RESUME<br />JOB_KILL<br />JOB_FORCE_RELEASE<br />JOB_SUSPEND_AUTORESUME</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("MultiJob Operation")
+POST "https://{{ServerUrl}}/Jobs/MultiJobOperation"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+   "operationDescription": "Test Job suspend",
+   "message": 1,
+   "jobOpReq": {
+      "operationType": "JOB_SUSPEND",
+      "jobs": [
+         {
+            "isVisible": true,
+            "jobId": 22718
+         },
+         {
+            "jobId": 22717
+         }
+      ]
+   }
+}')
+
+
+

@@ -1,0 +1,157 @@
+#!/usr/bin/env dothttp
+
+// # Fetch Data via ABL syntax
+// 
+// ***
+// 
+// This method allows you to specify a native Progress ABL query to fetch data. The ABL query must be a fully formed and syntactically valid ABL where clause. If the where clause contains `CompanyID`, then the query can span one or more companies. If `CompanyID` is not specified, then the query will only look in the company that you are logged into. 
+// 
+// 
+// # Parameters
+// ---
+// 
+// **Dates within the where clause must be in MM/DD/YY format**
+// 
+// **TableName** - Type *String* **:** 
+// The name of the Odyssey table from which you wish to return data.
+// 
+// **ABLQuery** - Type *String* **:** 
+// A fully formed and syntactically correct ABL where clause. This should not include the sort criteria as that is specified separately.
+// 
+// **Sort** - Type *String* **:** 
+// A list of fields that define the order that the record will be returned. This must conform to the ABL sort criteria.
+// 
+// **FieldList** - Type *String* **:** 
+// A comma-separated list of fields for which you are to receive data. If left blank, all fields in the table will be included in the return data set. If you specify only those fields that you want to see, the query will run faster and more efficiently.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/ABL")
+POST "https://{{ServerPath}}/FetchData/ABL"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "TableName": "Employees",
+  "ABLQuery": "Active = true",
+  "Sort": "ClockNumber",
+  "FieldList": "ClockNumber,Badge,Name",
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+// # Fetch DataView Data
+// ---
+// 
+// This method will run the specified data view and return the resulting data. All records, regardless of the batch size defined in the data view, will be returned. 
+// 
+// 
+// # Parameters
+// ---
+// 
+// **Dates parameters must be in the same format as Odyssey is configured.** If Odyssey’s system configuration for date format is DMY, then dates must be in DD/MM/YY format. Dates can also be separated by a back slash (\), forward slash (/), dash (-), or a period (.).
+// 
+// **DataView** - Type *String* **:**
+// This identifies the name of the Data View to run. It must exist in the same company that you logged into.
+// 
+// **ParameterList** - Type *List of* `DataViewParameter` **:**
+// A list of DataViewParameter's that define the parameters you're passing to the data view. Please refer to the OODAPI documentation on /Legacy/FetchData/DataView for more on `DataViewParameter`.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/DataView")
+POST "https://{{ServerPath}}/FetchData/DataView"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "DataView": "OODAPITest",
+  "ParameterList": [
+    {
+      "FieldName": "maindb.products.product",
+      "Operator": ">=",
+      "ParameterValue" : "b"
+    }
+	]
+}')
+
+
+// # Fetch Data With SQL Queries
+// ---
+// 
+// This method will allow you to return data from Odyssey using SQL-92 syntax.
+// 
+// This method uses the same ODBC connectivity as Crystal Reports and will use the PUB `username` and `password` as defined in Odyssey. 
+// 
+// # Parameters
+// ---
+// 
+// **Dates within the where clause must be in MM/DD/YY format.**
+// 
+// **SQLQuery** - Type *String* **:** 
+// This is a fully formed and fully qualified SQL query that conforms to SQL-92 syntax. The tables specified and the field specified in the SQL statement must exist as defined in the database in order for the query to work.
+// 
+// **Page** - Type *Integer* **:** 
+// If you only want to return a subset of records, you can identify which page of records to return. If this is 0, then all records from the database table specified in the SQL query are returned.
+// 
+// **Sort** - Type *String* **:** 
+// A list of fields that define the order that the record will be returned. This must conform to the ABL sort criteria.
+// 
+// **BatchSize** - Type *Integer* **:** 
+// A comma-separated list of fields for which you are to receive data. If left blank, all fields in the table will be included in the return data set. If you specify only those fields that you want to see, the query will run faster and more efficiently.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/SQL")
+POST "https://{{ServerPath}}/FetchData/SQL"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "SQLQuery": "SELECT TOP 5 * FROM Employees",
+  "Page": 1,
+  "BatchSize": 5,
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+// # Fetch Data With SQL Queries (as XML)
+// ---
+// 
+// **The response will contain an XML document.**
+// 
+// This method will allow you to return data from Odyssey using SQL-92 syntax.
+// 
+// This method uses the same ODBC connectivity as Crystal Reports and will use the PUB `username` and `password` as defined in Odyssey. 
+// 
+// **Dates within the where clause must be in MM/DD/YY format.**
+// 
+// # Parameters
+// ---
+// 
+// **SQLQuery** - Type *String* **:** 
+// This is a fully formed and fully qualified SQL query that conforms to SQL-92 syntax. The tables specified and the field specified in the SQL statement must exist as defined in the database in order for the query to work.
+// 
+// **Page** - Type *Integer* **:** 
+// If you only want to return a subset of records, you can identify which page of records to return. If this is 0, then all records from the database table specified in the SQL query are returned.
+// 
+// **BatchSize** - Type *Integer* **:** 
+// A comma-separated list of fields for which you are to receive data. If left blank, all fields in the table will be included in the return data set. If you specify only those fields that you want to see, the query will run faster and more efficiently.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/SQLasXML")
+POST "https://{{ServerPath}}/FetchData/SQLasXML"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "SQLQuery": "SELECT TOP 5 * FROM Employees",
+  "Page": 1,
+  "BatchSize": 5,
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+

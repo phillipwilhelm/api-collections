@@ -1,6 +1,12 @@
 #!/usr/bin/env dothttp
 
-// Returns a list of domains under your account in JSON. See examples.// // | Parameter | Description                                           |// |-----------|-------------------------------------------------------|// | limit     | Maximum number of records to return. (100 by default) |// | skip      | Number of records to skip. (0 by default)             |
+// Returns a list of domains under your account in JSON. See examples.
+// 
+// | Parameter | Description                                           |
+// |-----------|-------------------------------------------------------|
+// | limit     | Maximum number of records to return. (100 by default) |
+// | skip      | Number of records to skip. (0 by default)             |
+
 @name("Get domains")
 GET "https://{{BASE_URL}}/domains"
 "Authorization": "Basic {{token}}"
@@ -9,18 +15,29 @@ GET "https://{{BASE_URL}}/domains"
 
 
 // Returns a single domain, including credentials and DNS records.
+
 @name("Get single domain")
 GET "https://{{BASE_URL}}/domains/{{mydomain}}"
 "Authorization": "Basic {{token}}"
 
 
 // Verifies and returns a single domain, including credentials and DNS records. If the domain is successfully verified the message should be the following: _Domain DNS records have been updated_. For more information on verifying domains, visit the Mailgun [User Manual](https://documentation.mailgun.com/en/latest/user_manual.html#verifying-your-domain).
+
 @name("Verify domain")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/verify"
 "Authorization": "Basic {{token}}"
 
 
-// Create a new domain.// // | Parameter            | Description                                                                                                                                                                                                                                                                                       |// |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | name                 | Name of the domain (ex. domain.com)                                                                                                                                                                                                                                                               |// | smtp_password        | Password for SMTP authentication                                                                                                                                                                                                                                                                  |// | spam_action          | `disabled`, `block`, or `tag`  If disabled, no spam filtering will occur for inbound messages.  If block, inbound spam messages will not be delivered.  If tag, inbound messages will be tagged with a spam header. See [Spam Filter](https://documentation.mailgun.com/en/latest/user_manual.html#um-spam-filter).  The default is `disabled`.                                          |// | wildcard             | true or false Determines whether the domain will accept email for sub-domains.  The default is false.                                                                                                                                                                                             |// | force_dkim_authority | true or false  If set to true, the domain will be the DKIM authority for itself even if the root domain is registered on the same mailgun account  If set to false, the domain will have the same DKIM authority as the root domain registered on the same mailgun account  The default is false. |
+// Create a new domain.
+// 
+// | Parameter            | Description                                                                                                                                                                                                                                                                                       |
+// |----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | name                 | Name of the domain (ex. domain.com)                                                                                                                                                                                                                                                               |
+// | smtp_password        | Password for SMTP authentication                                                                                                                                                                                                                                                                  |
+// | spam_action          | `disabled`, `block`, or `tag`  If disabled, no spam filtering will occur for inbound messages.  If block, inbound spam messages will not be delivered.  If tag, inbound messages will be tagged with a spam header. See [Spam Filter](https://documentation.mailgun.com/en/latest/user_manual.html#um-spam-filter).  The default is `disabled`.                                          |
+// | wildcard             | true or false Determines whether the domain will accept email for sub-domains.  The default is false.                                                                                                                                                                                             |
+// | force_dkim_authority | true or false  If set to true, the domain will be the DKIM authority for itself even if the root domain is registered on the same mailgun account  If set to false, the domain will have the same DKIM authority as the root domain registered on the same mailgun account  The default is false. |
+
 @name("Create new domain")
 POST "https://{{BASE_URL}}/domains"
 "Authorization": "Basic {{token}}"
@@ -36,12 +53,19 @@ files(
 
 
 // Deletes a domain from your account
+
 @name("Delete domain")
 DELETE "https://{{BASE_URL}}/domains/{{mydomain}}"
 "Authorization": "Basic {{token}}"
 
 
-// Returns a list of SMTP credentials for the defined domain.// // | Parameter | Description                                           |// |-----------|-------------------------------------------------------|// | limit     | Maximum number of records to return. (100 by default) |// | skip      | Number of records to skip. (0 by default)             |
+// Returns a list of SMTP credentials for the defined domain.
+// 
+// | Parameter | Description                                           |
+// |-----------|-------------------------------------------------------|
+// | limit     | Maximum number of records to return. (100 by default) |
+// | skip      | Number of records to skip. (0 by default)             |
+
 @name("Get SMTP credentials for a domain")
 GET "https://{{BASE_URL}}/domains/{{mydomain}}/credentials"
 "Authorization": "Basic {{token}}"
@@ -49,7 +73,13 @@ GET "https://{{BASE_URL}}/domains/{{mydomain}}/credentials"
 ? "skip"= "0"
 
 
-// Creates a new set of SMTP credentials for the defined domain.// // | Parameter | Description                                                 |// |-----------|-------------------------------------------------------------|// | login     | The user name, for example `bob.bar`                          |// | password  | A password for the SMTP credentials. (Length Min 5, Max 32) |
+// Creates a new set of SMTP credentials for the defined domain.
+// 
+// | Parameter | Description                                                 |
+// |-----------|-------------------------------------------------------------|
+// | login     | The user name, for example `bob.bar`                          |
+// | password  | A password for the SMTP credentials. (Length Min 5, Max 32) |
+
 @name("Create new SMTP credentials")
 POST "https://{{BASE_URL}}/domains/{{mydomain}}/credentials"
 "Authorization": "Basic {{token}}"
@@ -59,7 +89,12 @@ files(
 )
 
 
-// Updates the specified SMTP credentials. Currently only the password can be changed.// // | Parameter | Description                                                 |// |-----------|-------------------------------------------------------------|// | password  | A password for the SMTP credentials. (Length Min 5, Max 32) |
+// Updates the specified SMTP credentials. Currently only the password can be changed.
+// 
+// | Parameter | Description                                                 |
+// |-----------|-------------------------------------------------------------|
+// | password  | A password for the SMTP credentials. (Length Min 5, Max 32) |
+
 @name("Update SMTP credentials")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/credentials/{{login}}"
 "Authorization": "Basic {{token}}"
@@ -68,19 +103,29 @@ files(
 )
 
 
-// Deletes the defined SMTP credentials.// // > Note: Mailgun imposes a rate limit for the Domains API endpoint. Users may issue no more than 300 requests per minute, per account. See the resultant rate limit response below.
+// Deletes the defined SMTP credentials.
+// 
+// > Note: Mailgun imposes a rate limit for the Domains API endpoint. Users may issue no more than 300 requests per minute, per account. See the resultant rate limit response below.
+
 @name("Delete SMTP credentials")
 DELETE "https://{{BASE_URL}}/domains/{{mydomain}}/credentials/{{login}}"
 "Authorization": "Basic {{token}}"
 
 
 // Returns delivery connection settings for the defined domain.
+
 @name("Get domain connection settings")
 GET "https://{{BASE_URL}}/domains/{{mydomain}}/connection"
 "Authorization": "Basic {{token}}"
 
 
-// Updates the specified delivery connection settings for the defined domain.// // | Parameter         | Description                                                                                                                                                                                                                                                                                                                                                       |// |-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | require_tls       | true or false  If set to true, this requires the message only be sent over a TLS connection. If a TLS connection can not be established, Mailgun will not deliver the message.  If set to false, Mailgun will still try and upgrade the connection, but if Mailgun cannot, the message will be delivered over a plaintext SMTP connection.  The default is false. |// | skip_verification | true or false  If set to true, the certificate and hostname will not be verified when trying to establish a TLS connection and Mailgun will accept any certificate during delivery.   If set to false, Mailgun will verify the certificate and hostname. If either one can not be verified, a TLS connection will not be established.   The default is false.     |
+// Updates the specified delivery connection settings for the defined domain.
+// 
+// | Parameter         | Description                                                                                                                                                                                                                                                                                                                                                       |
+// |-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | require_tls       | true or false  If set to true, this requires the message only be sent over a TLS connection. If a TLS connection can not be established, Mailgun will not deliver the message.  If set to false, Mailgun will still try and upgrade the connection, but if Mailgun cannot, the message will be delivered over a plaintext SMTP connection.  The default is false. |
+// | skip_verification | true or false  If set to true, the certificate and hostname will not be verified when trying to establish a TLS connection and Mailgun will accept any certificate during delivery.   If set to false, Mailgun will verify the certificate and hostname. If either one can not be verified, a TLS connection will not be established.   The default is false.     |
+
 @name("Update domain delivery connection settings")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/connection"
 "Authorization": "Basic {{token}}"
@@ -91,12 +136,18 @@ files(
 
 
 // Returns tracking settings for a domain.
+
 @name("Get domain tracking settings")
 GET "https://{{BASE_URL}}/domains/{{mydomain}}/tracking"
 "Authorization": "Basic {{token}}"
 
 
-// Updates the open tracking settings for a domain.// // | Parameter | Description |// |-----------|-------------|// | active    | `yes` or `no`   |
+// Updates the open tracking settings for a domain.
+// 
+// | Parameter | Description |
+// |-----------|-------------|
+// | active    | `yes` or `no`   |
+
 @name("Update domain tracking settings for OPENS")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/tracking/open"
 "Authorization": "Basic {{token}}"
@@ -105,7 +156,10 @@ files(
 )
 
 
-// | Parameter | Description                                                                                                                                                                                        |// |-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | active    | yes, no, or htmlonly  If set to yes, links will be overwritten and pointed to our servers so we can track clicks.  If set to htmlonly, links will only be rewritten in the HTML part of a message. |
+// | Parameter | Description                                                                                                                                                                                        |
+// |-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | active    | yes, no, or htmlonly  If set to yes, links will be overwritten and pointed to our servers so we can track clicks.  If set to htmlonly, links will only be rewritten in the HTML part of a message. |
+
 @name("Update domain tracking settings for CLICKS")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/tracking/click"
 "Authorization": "Basic {{token}}"
@@ -114,7 +168,12 @@ files(
 )
 
 
-// | Parameter   | Description                                                                                                                                                                                                                                                                                                            |// |-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | active      | true or false.                                                                                                                                                                                                                                                                                                         |// | html_footer | Custom HTML version of unsubscribe footer.                                                                                                                                                                                                                                                                             |// | text_footer | Custom text version of unsubscribe footer.Mailgun can automatically provide an unsubscribe footer in each email you send and also provides you with several unsubscribe variables. You can customize your unsubscribe footer by editing the settings in the Control Panel. See Tracking Unsubscribes for more details. |
+// | Parameter   | Description                                                                                                                                                                                                                                                                                                            |
+// |-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | active      | true or false.                                                                                                                                                                                                                                                                                                         |
+// | html_footer | Custom HTML version of unsubscribe footer.                                                                                                                                                                                                                                                                             |
+// | text_footer | Custom text version of unsubscribe footer.Mailgun can automatically provide an unsubscribe footer in each email you send and also provides you with several unsubscribe variables. You can customize your unsubscribe footer by editing the settings in the Control Panel. See Tracking Unsubscribes for more details. |
+
 @name("Update domain tracking settings for UNSUBSCRIBES")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/tracking/unsubscribe"
 "Authorization": "Basic {{token}}"
@@ -125,7 +184,13 @@ files(
 )
 
 
-// | Parameter | Description                                                                                                                                                                                                                                                                                                         |// |-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|// | self      | true or false  Change the DKIM authority for a domain.  If set to true, the domain will be the DKIM authority for itself even if the root domain is registered on the same mailgun account  If set to false, the domain will have the same DKIM authority as the root domain registered on the same mailgun account |// // // > Note: Use with caution: Do not forget to change the corresponding DNS record. It can take 24-48 hours for DNS changes to propagate. Changing the DKIM autority of an active domain affects its current deliveriability.
+// | Parameter | Description                                                                                                                                                                                                                                                                                                         |
+// |-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | self      | true or false  Change the DKIM authority for a domain.  If set to true, the domain will be the DKIM authority for itself even if the root domain is registered on the same mailgun account  If set to false, the domain will have the same DKIM authority as the root domain registered on the same mailgun account |
+// 
+// 
+// > Note: Use with caution: Do not forget to change the corresponding DNS record. It can take 24-48 hours for DNS changes to propagate. Changing the DKIM autority of an active domain affects its current deliveriability.
+
 @name("Change DKIM Authority")
 PUT "https://{{BASE_URL}}/domains/{{mydomain}}/dkim_authority"
 "Authorization": "Basic {{token}}"

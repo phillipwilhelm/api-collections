@@ -1,0 +1,1 @@
+BASIC API STRUCTURE: https://git.webkul.com/snippets/184

@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+@name("Create payout to reverse")
+POST "https://{{UNLIMINT_API_URL}}/api/payouts"
+"Content-Type": "application/json"
+data('{
+    "request": {
+        "id": "{{$guid}}",
+        "time": "{{request_time}}"
+    },
+    "merchant_order": {
+        "id": "{{merchant_order_id}}",
+        "description": "Postman Collection Order (\'{{request_name}}\')"
+    },
+    "payment_method": "BANKCARD",
+    "payout_data": {
+        "amount": "12.34",
+        "currency": "{{TERMINAL_CURRENCY}}"
+    },
+    "card_account": {
+        "card": {
+            "pan": "{{CARD_NON3DS_CONFIRMED}}",
+            "holder": "{{$randomFullName}}",
+            "expiration": "{{expiration}}",
+            "security_code": "100"
+        },
+        "recipient_info": "{{$randomUUID}}"
+    }
+}')
+
+
+@name("Reverse payout")
+PATCH "https://{{UNLIMINT_API_URL}}/api/payouts/{{payout_id_to_reverse}}"
+"Content-Type": "application/json"
+data('{
+    "request": {
+        "id": "{{$guid}}",
+        "time": "{{request_time}}"
+    },
+    "payout_data": {
+        "status_to": "REVERSE"
+    }
+}')
+
+
+

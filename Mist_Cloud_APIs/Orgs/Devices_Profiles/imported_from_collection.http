@@ -1,0 +1,240 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgDeviceProfiles")
+GET "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles"
+
+
+@name("getOrgDeviceProfilesDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles/:deviceprofile_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|name of the profile
+// vars|object|a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+// 
+// #### Radio Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// radio_config|object|radio configs
+// band_24|object|radio config for 2.4G
+// band_5|object|radio config for 5G
+// band\_24_usage|string|24 / 5 / auto, default is 24
+// scanning_enabled|boolean|whether scanning radio is enabled
+// disabled|boolean|whether to disable the radio
+// channel|int|(primary) channel for the band, 0 means using the Site Setting
+// power|int|tx power of the radio, 0 mean using the Site Setting
+// ant\_gain_24|int|antenna gain for 2.4G - for models with external antenna only
+// ant\_gain_5|int|antenna gain for 5G - for models with external antenna only
+// bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5, ignored if channel is 0
+// channels|list|list of channels, null or empty array means auto
+// antenna_mode|string|default / 1x1 / 2x2 / 3x3 / 1x4
+// power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+// power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+// preamble|string|short / long / auto, default is short
+// usage|string|for band_24 radio, 24 / 5 / rrm, default is 24
+// 
+// #### IP Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// vlan_id|int|management vlan id, default is 1 (untagged)
+// 
+// #### BLE Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ble_config|object|BLE config
+// power_mode|string|default / custom
+// power|int|required if power_mode==custom, 1-10, in dBm, default is currently 8
+// beacon_enabled|boolean|whether Mist beacons is enabled, default is true
+// beacon\_rate_mode|string|default / custom
+// beacon\_rate|int|required if beacon\_rate_mode==custom, 1-10, in number-beacons-per-second
+// beam_disabled|list|list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+// 
+// #### USB Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// usb_config|object|USB config
+// enabled|boolean|whether to enable any usb config
+// type|string|usb config type, option: imagotag
+// channel|int|channel selection, 0-10, not needed by default, required for manual channel override only
+// host|string|required if type==imagotag
+// port|int|port, default 0
+// verify_cert|boolean|whether to turn on SSL verification
+// cacert|string|ca certs
+// 
+// #### LED Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// led|object|LED control
+// 
+// #### Mesh Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// mesh|object|mesh-related
+// enabled|boolean|whether mesh is enabled on this AP, default is false
+// role|string|base / remote
+// group|int|mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
+// 
+// #### Ports Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// disable_eth1|boolean|whether to disable eth1 port, default is false
+// disable_module|boolean|whether to disable module port, default is false
+// 
+// #### Power Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// poe_passthrough|boolean|whether to enable power out through module port (for APH) or eth1 (for APL/BT11), default is false
+// pwr_config|object|power related configs
+// base|int|additional power to request during negotiating with PSE over PoE, in mW, default is 0
+// 
+// #### Switch Parameters
+// By default, configuration of the switch is automated/abstracted. If you have scenarios that cannot be covered, you can customize it here.
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// switch_config|object|switching-related
+// enabled|boolean|default is false
+// eth0|object|port config for eth0, available ports are eth0 / eth1 / module (only for AP41 and AP61) / wds (only when mesh is enabled)
+// vlan_ids|list|list of VLAN ids this
+// port_vlan_id|int|native VLAN id, optional
+// 
+// #### IoT Parameters
+// Configuration of IoT pins. By default, all the pins are disabled
+// 
+
+@name("createOrgDeviceProfiles")
+POST "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "LowPower",
+    "height": 3,
+    "radio_config": {
+        "band_24": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 20,
+            "power": 1,
+            "antenna_mode": "1x1",
+            "allow_rrm_disable": false
+        },
+        "band_5": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 40,
+            "power": 0,
+            "antenna_mode": "default"
+        },
+        "ant_gain_24": 4,
+        "ant_gain_5": 5,
+        "band_24_usage": "5",
+        "band_5_on_24_radio": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 40,
+            "power": 0,
+            "antenna_mode": "default"
+        },
+        "scanning_enabled": true
+    },
+    "ble_config": {
+        "power_mode": "custom",
+        "power": 10,
+        "beacon_enabled": true
+    },
+    "usb_config": {
+        "enabled": true,
+        "type": "imagotag",
+        "host": "1.1.1.1",
+        "channel": 3,
+        "port": 0,
+        "verify_cert": false,
+        "cacert": ""
+    },
+    "led": {
+        "enabled": true,
+        "brightness": 255
+    },
+    "mesh": {
+        "enabled": true,
+        "role": "base",
+        "group": 0
+    },
+    "switch_config": {
+        "enabled": true,
+        "eth0": {
+            "vlan_ids": [
+                1,
+                3055
+            ],
+            "port_vlan_id": 1
+        }
+    },
+    "disable_eth1": false,
+    "disable_module": false,
+    "poe_passthrough": false,
+    "pwr_config": {
+        "base": 2000
+    },
+    "vars": {
+        "RADIUS_SECRET": "11s64632d",
+        "RADIUS_IP1": "172.31.2.5"
+    }
+})
+
+
+@name("updateOrgDeviceProfiles")
+PUT "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles/:deviceprofile_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "radio_config": {
+        "band_24": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 20,
+            "power": 1,
+            "antenna_mode": "1x1",
+            "allow_rrm_disable": false
+        }
+    }
+})
+
+
+@name("deleteOrgDeviceProfiles")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles/:deviceprofile_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+@name("assignOrgDeviceProfileToDevices")
+POST "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles/:deviceprofile_id/assign    "
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "5c5b350e0001",
+        "5c5b350e0003"
+    ]
+})
+
+
+@name("unassignOrgDeviceProfilesFromDevices")
+POST "https://{{host}}/api/v1/orgs/:org_id/deviceprofiles/:deviceprofile_id/unassign    "
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "macs": [
+        "5c5b350e0001",
+        "5c5b350e0003"
+    ]
+})
+
+
+

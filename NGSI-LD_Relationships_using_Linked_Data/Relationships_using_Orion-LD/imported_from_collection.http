@@ -1,0 +1,300 @@
+#!/usr/bin/env dothttp
+
+// Information about the data models and relationships used within this tutorial
+// can be obtained by requesting the full `@context` and `@graph`.
+
+@name("Obtain full Linked Data model context")
+GET "https://{{datamodels-context.jsonld}}/"
+
+
+// The Stores of the supermarket have been created using the FIWARE
+// [**Building** model](https://fiware-datamodels.readthedocs.io/en/latest/Building/Building/doc/spec/index.html) and the
+// enumerated value of this type is `fiware:Building` which expands to `https://uri.fiware.org/ns/datamodels%23Building`.
+// It is therefore possible to request all building entities without supplying a known context.
+// 
+// The response returns all of the existing **Building** entities, with the attributes expanded as fully qualified names
+// (FQNs).
+// 
+// According to the [defined data model](https://fiware.github.io/tutorials.Step-by-Step/schema/Store/):
+// 
+// -   The `type` attribute is an `https://uri.etsi.org/ngsi-ld/type`
+// -   The `name` attribute is an `https://uri.etsi.org/ngsi-ld/name`
+// -   The `location` attribute is an `https://uri.etsi.org/ngsi-ld/location`
+// -   The `address` attribute is an `http://schema.org/address`
+// -   The `category` attribute is an `https://uri.fiware.org/ns/datamodels#category`
+// 
+// `type`, `name` and `location` are defined in the NGSI-LD Core Context:
+// [`https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld`](https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld).
+// The other attributes are defined using the Tutorial's own Context:
+// [`https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld`](https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld).
+// Both `category` and `address` are _common_ attributes the defintions of which are brought in from the FIWARE data models
+// and `schema.org` respectively.
+
+@name("Display all Buildings")
+GET "http://{{orion}}/ngsi-ld/v1/entities"
+"Link": "<https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "https://uri.fiware.org/ns/data-models#Building"
+? "options"= "keyValues"
+
+
+// Requesting the **Product** entities can be done by supplying the FQN of the entity `type` in the request as well.
+// 
+// However since the full context has been supplied in the `Link` header, the short names are returned.
+// 
+// According to the [defined data model](https://fiware.github.io/tutorials.Step-by-Step/schema/Product/):
+// 
+// -   The `type` attribute is an `https://uri.etsi.org/ngsi-ld/type`
+// -   The `name` attribute is an `https://uri.etsi.org/ngsi-ld/name`
+// -   The `price` attribute is an `https://fiware.github.io/tutorials.Step-by-Step/schema/price`
+// -   The `size` attribute is an `https://fiware.github.io/tutorials.Step-by-Step/schema/size`
+// -   The `currency` attribute is an `https://fiware.github.io/tutorials.Step-by-Step/schema/currency`
+// 
+// The programmatically the Product model is fully described in the
+// [`https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld`](https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld)
+
+@name("Display all Products")
+GET "http://{{orion}}/ngsi-ld/v1/entities"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "https://fiware.github.io/tutorials.Step-by-Step/schema/Product"
+? "options"= "keyValues"
+
+
+// Requesting the **Product** entities can be done by supplying the short of the entity `type` in the request as well,
+// provided the full context has been supplied in the `Link` header.
+// 
+// Once again the short names are returned.
+// 
+// According to the [defined data model](https://fiware.github.io/tutorials.Step-by-Step/schema/Shelf/):
+// 
+// -   The `type` attribute is an `https://uri.etsi.org/ngsi-ld/type`
+// -   The `name` attribute is an `https://uri.etsi.org/ngsi-ld/name`
+// -   The `location` attribute is an `https://uri.etsi.org/ngsi-ld/location`
+// -   The `maxCapacity` attribute is an `https://fiware.github.io/tutorials.Step-by-Step/schema/maxCapacity`
+// -   The `numberOfItems` attribute is an `https://fiware.github.io/tutorials.Step-by-Step/schema/numberOfItems`
+// 
+// The programmatically the Shelf model is fully described in the
+// [`https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld`](https://fiware.github.io/tutorials.Step-by-Step/tutorials-context.jsonld)
+
+@name("Display all Shelves")
+GET "http://{{orion}}/ngsi-ld/v1/entities"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "Shelf"
+? "options"= "keyValues"
+
+
+// This example returns the context data of the *Shelf* entity with the `id=urn:ngsi-ld:Shelf:unit001`.
+// 
+// There are currently three additional property attributes present `location`, `maxCapacity` and `name`
+
+@name("Obtain Shelf Information")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Shelf:unit001/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "Shelf"
+? "options"= "keyValues"
+
+
+// Within the `@context` a **Shelf** has been defined with two relationships. (`stocks` and `locatedIn`)
+// 
+// To create a relationship add a new attribute with `type=Relationship` and an associated `object` attribute. \
+// Value of `object` is the URN corresponding to the linked data entity.
+// 
+// **Note** that the relationship is currently unidirectional.
+
+@name("Adding 1-1 relationships")
+POST "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Shelf:unit001/attrs"
+"Content-Type": "application/ld+json"
+"fiware-servicepath": "/"
+data('{
+    "stocks": {
+    	"type": "Relationship",
+        "object": "urn:ngsi-ld:Product:001"
+    },
+    "numberOfItems": {"type": "Property","value": 50},
+    "locatedIn" : {
+    	"type": "Relationship", "object": "urn:ngsi-ld:Building:store001",
+    	"requestedBy": {
+			"type": "Relationship",
+			"object": "urn:ngsi-ld:Person:bob-the-manager"
+		},
+    	"installedBy": {
+			"type": "Relationship",
+			"object": "urn:ngsi-ld:Person:employee001"
+		},
+		"statusOfWork": {
+			"type": "Property",
+			"value": "completed"
+		}
+    },
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/data-models-context.jsonld"
+}')
+
+
+// This example returns the context data of the *Shelf* entity with the `id=urn:ngsi-ld:Shelf:unit001`.
+// 
+// There are now two additional property attributes present `stocks` and `locatedIn`.
+
+@name("Obtain the Updated Shelf")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Shelf:unit001"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"": ""
+? "type"= "Shelf"
+
+
+// This example returns the `locatedIn` value associated with a given `Shelf` unit. 
+// 
+// If the `id` and `type` of a data entity are known, a specific field can be requested by using the `attrs` parameter.
+
+@name("Finding the location of a Shelf")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Shelf:unit001/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+? "type"= "Shelf"
+? "options"= "keyValues"
+? "attrs"= "locatedIn"
+
+
+// This example returns the `locatedIn` URNs of all **Shelf** entities found within `urn:ngsi-ld:Building:store001`. This is purely an instance of using the `q` parameter to filter on attribute value
+
+@name("Find the ids of all Shelf Units in a Store")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "type"= "Shelf"
+? "options"= "keyValues"
+? 'q'= 'locatedIn=="urn:ngsi-ld:Building:store001"'
+? "attrs"= "locatedIn"
+
+
+// To add a 1-many relationship, add an array as 
+// the value of  `object` attribute. This can be used for simple links without additional data.
+// This method is used to add **Shelf** entities as `furniture` in the **Store**.
+// 
+// This is the reciprocal relationship to the `locatedIn` attribute on **Shelf**
+
+@name("Adding a 1-many relationship")
+POST "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/attrs"
+"Content-Type": "application/ld+json"
+data('{
+    "furniture": [
+        {
+            "type": "Relationship",
+            "datasetId": "urn:ngsi-ld:Relationship:1",
+            "object": "urn:ngsi-ld:Shelf:001"
+        },
+        {
+            "type": "Relationship",
+            "datasetId": "urn:ngsi-ld:Relationship:2",
+            "object": "urn:ngsi-ld:Shelf:002"
+        }
+    ],
+    "@context": "https://fiware.github.io/tutorials.Step-by-Step/data-models-context.jsonld"
+}')
+
+
+// To find all the `furniture` within a **Building**, simply make a request to 
+// retrieve the `furniture` attribute. 
+// 
+// Because the repicrocal relationship already exists,
+// Additional information can be obtained from the **Shelf** entities themselves.
+
+@name("Finding all Shelf Units found within a Store")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "options"= "keyValues"
+? "attrs"= "furniture"
+
+
+// To create a more complex relationship, and additional data entity must be created which holds the current state of the links between real world items.
+// In the case of the NGSI-LD data model we have already created, a **StockOrder** can be used to link **Product**, **Building** and **Person** entities and the state of the relationships between them. As well as _Relationship_ attributes,
+// a **StockOrder** can hold _Property_ attributes (such as the `stockCount`) and other more complex metadata such as _Properties-of-Properties_ or _Properties-of-Relationships_
+// 
+// The **StockOrder** is created as a standard NGSI-LD data entity.
+
+@name("Creating complex relationships")
+POST "http://{{orion}}/ngsi-ld/v1/entities/"
+"Content-Type": "application/ld+json"
+data('{
+  "id": "urn:ngsi-ld:StockOrder:001",
+  "type": "StockOrder",
+  "requestedFor": {
+    "type": "Relationship",
+    "object": "urn:ngsi-ld:Building:store001"
+  },
+  "requestedBy": {
+	"type": "Relationship",
+	"object": "urn:ngsi-ld:Person:bob-the-manager"
+  },
+  "orderedProduct": {
+    "type": "Relationship",
+    "object": "urn:ngsi-ld:Product:001"
+  },
+  "stockCount": {
+    "type": "Property",
+    "value": 10000
+  },
+  "orderDate": {
+    "type": "Property",
+    "value": {
+        "@type": "DateTime",
+        "@value": "2018-08-07T12:00:00Z"
+    }
+  },
+  "@context": "https://fiware.github.io/tutorials.Step-by-Step/data-models-context.jsonld"
+}')
+
+
+// This example returns the context data of the `Building` entity with the `id=urn:ngsi-ld:Building:store001`.
+// 
+// The response now includes the additional relationship property `furniture`, which has been added in the previous step.
+
+@name("Obtain Updated Building")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "options"= "keyValues"
+
+
+// Since _Relationship_ attributes are just like any other attribute, standard `q` parameter queries can be made on the **StockOrder** to obtain which entity relates to it. For example the query below returns an array of stores in which a given product is sold.
+// 
+// The query  `q==orderedProduct="urn:ngsi-ld:Product:001"`  is used to filter the entities.
+// 
+// The response returns an array of `requestedFor` attributes in the response.
+
+@name("Find all stores in which a product is sold")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "type"= "StockOrder"
+? 'q'= 'orderedProduct=="urn:ngsi-ld:Product:001"'
+? "attrs"= "requestedFor"
+? "options"= "keyValues"
+
+
+// The query below returns an array of stores in which a given product is sold.
+// 
+// The query  `q==requestedFor="urn:ngsi-ld:Building:store001"`  is used to filter the entities.
+// 
+// The request returns an array of `orderedProduct` attributes in the response.
+// This is the reciprocal of the previous request.
+
+@name("Find all Products sold in a Store")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+? "type"= "StockOrder"
+? 'q'= 'requestedFor=="urn:ngsi-ld:Building:store001"'
+? "options"= "keyValues"
+? "attrs"= "orderedProduct"
+
+
+// A complete stock order can be obtained by making a standard GET request to the `/ngsi-ld/v1/entities/` endpoint and adding the appropriate URN.
+// 
+// 
+// The response returns the fully expanded entity.
+
+@name("Obtain Stock Order")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:StockOrder:001"
+? "options"= "keyValues"
+
+
+

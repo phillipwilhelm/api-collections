@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// OAuth required scopes: OR.Folders or OR.Folders.Read.
+// 
+// Required permissions: (Units.View - Gets any folder) and (SubFolders.View - Gets folder only if user has SubFolders.View permission on it).
+
+@name("Gets a single folder, based on its Id.")
+GET "https://{{baseUrl}}/odata/Folders({{key}})"
+? "$expand"= "esse sit qui"
+? "$select"= "esse sit qui"
+
+
+// OAuth required scopes: OR.Folders or OR.Folders.Write.
+// 
+// Required permissions: (Units.Edit - Edits any folder) and (SubFolders.Edit - Edits folder only if user has SubFolders.Edit permission on it).
+
+@name("Edits a folder.")
+PUT "https://{{baseUrl}}/odata/Folders({{key}})"
+"Content-Type": "application/json"
+data('{
+    "DisplayName": "id Lorem dolor fugiat",
+    "Key": "50fc01ee-bb10-eee4-0d81-3f5dd777c4fc",
+    "FullyQualifiedName": "laborum amet dolore",
+    "Description": "nulla veniam sint dolore",
+    "ProvisionType": "Manual",
+    "PermissionModel": "FineGrained",
+    "ParentId": 44089649,
+    "ParentKey": "454922bc-b1ec-1a01-7bb5-d86144f49144",
+    "FeedType": "PersonalWorkspace",
+    "Id": -72269299
+}')
+
+
+// OAuth required scopes: OR.Folders or OR.Folders.Write.
+// 
+// Required permissions: (Units.Delete - Deletes any folder) and (SubFolders.Delete - Deletes folder only if user has SubFolders.Delete permission on it).
+
+@name("Deletes a folder. Succeeds only if no entities or user associations
+exist in this folder or any of its descendants.")
+DELETE "https://{{baseUrl}}/odata/Folders({{key}})"
+
+
+// OAuth required scopes: OR.Folders or OR.Folders.Write.
+// 
+// Required permissions: (Units.Edit - Removes machines from any folder) and (SubFolders.Edit - Removes machines from folder only if caller has SubFolders.Edit permission the folder provided).
+
+@name("Remove user assignment from a folder.")
+POST "https://{{baseUrl}}/odata/Folders({{key}})/UiPath.Server.Configuration.OData.RemoveMachinesFromFolder"
+"Content-Type": "application/json"
+data('{
+    "machineIds": [
+        23251265,
+        63666752
+    ]
+}')
+
+
+// OAuth required scopes: OR.Folders or OR.Folders.Write.
+// 
+// Required permissions: (Units.Edit - Remove user from any folder) and (SubFolders.Edit - Remove user only if caller has SubFolders.Edit permission on folder).
+
+@name("Remove user assignment from a folder.")
+POST "https://{{baseUrl}}/odata/Folders({{key}})/UiPath.Server.Configuration.OData.RemoveUserFromFolder"
+"Content-Type": "application/json"
+data('{
+    "userId": 2058521
+}')
+
+
+

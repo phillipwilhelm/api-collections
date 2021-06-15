@@ -1,0 +1,182 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation creates a request
+// 
+// <h2>Request Body</h2>
+// <table width="441">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>entity</td>
+// <td>--</td>
+// </tr>
+// <tr>
+// <td>operation</td>
+// <td>--</td>
+// </tr>
+// <tr>
+// <td>summary</td>
+// <td>Desired name of request</td>
+// </tr>
+// <tr>
+// <td>type</td>
+// <td>
+// <p>Type of request</p>
+// <p>values:<br />- "delete"<br />- "export"</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Request")
+POST "https://{{ServerUrl}}/EDiscoveryClient/CreateTask"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<WebReport_EDiscoveryCreateTaskReq> 
+    <taskReq entity="1" operation="1"> 
+        <tasks> 
+            <taskInfo summary="TestRequest1"/> 
+            <taskProps attrName="email" attrVal="testemail@test.com"/> 
+            <taskProps attrName="entities" attrVal=\'[{"entity_email":["email@domain.com"]}]\'/> 
+            <taskProps attrName="type" attrVal="delete"/> 
+            <taskProps attrName="DeleteFromBackup" attrVal="false"/> 
+            <taskProps attrName="EnableRelevantDoc" attrVal="true"/> 
+        </tasks> 
+    </taskReq> 
+</WebReport_EDiscoveryCreateTaskReq>   ')
+
+
+// <h2>Description</h2>
+// This operation retrieves all requests, or specific requests
+
+@name("Get Requests")
+POST "https://{{ServerUrl}}/GetCommcellProfileReq"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+   "taskBasicprop": {
+      "taskInfo": {
+         "taskId": {{requestId}}
+      }
+   }
+}')
+
+
+// <h2>Description</h2>
+// This operation an update the request configuration, or complete review of a request.
+
+@name("Configure Request")
+POST "https://{{ServerUrl}}/EDiscoveryClient/ConfigureTask"
+"Authtoken": "{{TOKEN}}"
+data(' <?xml version="1.0" encoding="UTF-8"?><WebReport_EDiscoveryCreateTaskReq> 
+    <taskReq> 
+        <tasks> 
+            <taskInfo taskId="{{requestId}}"/> 
+            <taskProps attrName="Reviewers" attrVal=\'[{"id":1,"name":"admin","text":"Administrator (admin)"}]\'/> 
+            <taskProps attrName="Approvers" attrVal=\'[{"id":53,"name":"dm2\\TestCEO","text":"TestCEO (dm2\\TestCEO)"}]\'/> 
+        </tasks> 
+    </taskReq> 
+</WebReport_EDiscoveryCreateTaskReq> ')
+
+
+// <h2>Description</h2>
+// This operation sets fileApproveId information for a specified request. Used in Review Request operation.
+
+@name("Get Request Information")
+POST "https://{{ServerUrl}}/GetCommcellProfileReq"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+   "taskBasicprop": {
+      "taskInfo": {
+         "taskId": {{requestId}}
+      }
+   }
+}')
+
+
+// <h2>Description</h2>
+// This operation searches a request's files for a specified value or entity.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>value</td>
+// <td>Search value</td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Search Request Files")
+POST "https://{{ServerUrl}}/dcube/federated/{{requestHandlerId}}/{{requestHandlerName}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/xml"
+data('{
+    "searchParams": [
+        {
+            "key": "q",
+            "value": "(entity_email:email@domain.com)"
+        }
+    ]
+}')
+
+
+// <h2>Description</h2>
+// This operation approves or declines a given request.
+
+@name("Review Request")
+PUT "https://{{ServerUrl}}/EDiscoveryClients/Tasks/{{requestId}}/Documents"
+"Authtoken": "{{TOKEN}}"
+data('<?xml version="1.0" encoding="UTF-8"?>
+<util_ArrayList>
+    <nameValues name="contentid" value="443b06748f13fe2485799745ec397a9b"/>
+    <nameValues name="datasourceId" value="{{datasourceId}}"/>
+    <nameValues name="ConsentFor_{{fileApproveId}}_b" value="true"/>
+    <nameValues name="RedactMode_{{fileApproveId}}_b" value="false"/>
+</util_ArrayList>')
+
+
+// <h2>Description</h2>
+// This operation completes review for a specified request.
+
+@name("Complete Request Review")
+POST "https://{{ServerUrl}}/EDiscoveryClient/ConfigureTask"
+"Authtoken": "{{TOKEN}}"
+data(' <?xml version="1.0" encoding="UTF-8"?><WebReport_EDiscoveryCreateTaskReq> 
+    <taskReq> 
+        <tasks> 
+            <taskInfo taskId="{{requestId}}"/> 
+            <taskProps attrName="Reviewers" attrVal=\'[{"id":1,"name":"admin","text":"Administrator (admin)","$$hashKey":"object:655"}]\'/> 
+            <taskProps attrName="Approvers" attrVal=\'[{"id":53,"name":"dm2\\TestCEO","text":"TestCEO (dm2\\TestCEO)","$$hashKey":"object:662"}]\'/> 
+        </tasks> 
+    </taskReq> 
+</WebReport_EDiscoveryCreateTaskReq> ')
+
+
+// <h2>Description</h2>
+// This operation requests approval for a given request.
+
+@name("Get Approval")
+POST "https://{{ServerUrl}}/EDiscoveryClients/Tasks/{{requestId}}/Workflows"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation deletes a given request
+
+@name("Request")
+DELETE "https://{{ServerUrl}}/EDiscoveryClients/Tasks/{{requestId}}"
+"Authtoken": "{{TOKEN}}"
+
+
+

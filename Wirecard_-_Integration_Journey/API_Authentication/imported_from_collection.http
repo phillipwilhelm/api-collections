@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+// In order to start splitting payments a marketplace must have an OAuth client.
+// It's necessary to store this client accessToken and secret so the client can require OAuth permission to classical Wirecard Accounts.
+// 
+// Below we have and example of the process regarding the integration of an OAuth APP.
+
+@name(" Create an OAuth APP ")
+POST "https://{{url}}/v2/channels"
+basicauth("{{token}}", "{{key}}")
+"Content-Type": "application/json"
+data('{
+   "name": "Marketplace do Moip",
+   "description": "Descrição do meu marketplace",
+   "site": "http://www.moip.com.br",
+   "redirectUri": "http://www.moip.com.br/redirect"
+}')
+
+
+// The marketplace also needs to setup one or multiple notification endpoints, where it's going to receive hooks and updates of its orders, payments, transfers and any other resources.
+
+@name("Set APP notification preferences")
+POST "https://{{url}}/v2/preferences/{{app_id}}/notifications"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "events": [
+    "ORDER.*",
+    "PAYMENT.*",
+    "MULTIORDER.*", 
+    "MULTIPAYMENT.*"    
+  ],
+  "target": "https://requestb.in/16pw5bl1",
+  "media": "WEBHOOK"
+}')
+
+
+

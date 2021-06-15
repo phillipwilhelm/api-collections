@@ -1,0 +1,388 @@
+#!/usr/bin/env dothttp
+
+// <span>CONSUMER</span>
+// <h3>User gets (new) UserApiKey</h3><br>
+// 
+// For security reasons, the UserAPiKey expires after a certain time. Then the user must get a new UserApiKey. This is done via this route <code><a href="#f45487ce-f41f-40b8-993f-132ce62843ec">POST auth</a></code>. The user hands over his ID and his stored password and then receives a new UserApiKey. This UserApiKey he needs for authentication. The UserApiKey is sent as a bearer token in the request header in other urls.<br>
+// 
+// <h4>Authorization</h4><br>
+// No Authorization is needed!
+// 
+// <h4>Response</h4><br>
+// <b>string</b> UserApiKey <i>needeb by the user to set as his Bearer Token</i>
+// 
+// <h4>Request</h4><br>
+// {{user_id}} <b>string</b> id of the user <br> 
+// <b>required</b>
+// {{user_pwd}} <b>string</b><br>
+// <b>required</b>
+// <br>
+
+@name("auth")
+POST "https://{{base_url}}/auth"
+json({
+    "user_id": "{{consumer_id}}",
+    "pwd": "{{user_pwd}}"
+})
+
+
+// <span>CONSUMER</span>
+// <h3>Get all Locks related to you</h3><br>
+// <p>Since the users can have different relationships to the locks of an application, the locks come divided into different arrays depending on the relationship from the user's perspective.</p>
+// <p>For this purpose the locks are divided into 5 different stages:<br><b>owned</b>, <b>licensed</b>, <b>active</b>, <b>ongoing</b> and <b>dead</b>.</p>
+// <li><b>owned</b>: A user can <b>own</b> a lock.</li>
+// <li><b>licensed</b>: A user can <b>manage</b> a lock.</li>
+// <li><b>active</b>: A user can be permitted to open a lock <b>at this exact moment</b>.</li>
+// <li><b>ongoing</b>: A user can be permitted to open a lock <b>again in the future</b> but not at this exact moment.</li>
+// <li><b>dead</b>: A user may have an elapsed and therefore invalid OpenPermission. This means he was already allowed to open the lock, but is <b>no longer allowed</b> to do so.</li>
+// <hr><br>
+// 
+// <i><b>Attention!</b> Every lock can only have one of those statuses at a time!</i>
+// <li><i>If several of the above statements apply to a lock, then the lock appears only in the category of the highest level. The levels are: <b>owned</b> > <b>licensed</b> > <b>active</b> > <b>ongoing</b> > <b>dead</b>. With <b>owned</b> at the highest level and <b>dead</b> at the lowest level.</i></li>
+// 
+// <li><i><b>First Example</b>: The user has several OpenPermissions for a lock, for example one OpenPermission for Mondays and one OpenPermission for Tuesdays. The user requests the lock on Monday => The lock ONLY appears in the LockPermittedActive array, even though he also has an ongoing OpenPermission for it. Same would be on Tuesdays. However, if he requests on a Wednesday, the lock will ONLY appear in the LocksPermittedOngoing array.</i></li>
+// 
+// <li><i><b>Second Example</b>: If the user is the owner of the lock, he/she cannot have any Licenses or OpenPermissions for this lock. Thus, the lock will ONLY appear in the LocksOwned array, although as the owner of the lock he/she can open it at any time.</i></li>
+// <hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>LocksPermittedActive</h5>
+// <b>Lock[]|null[]</b> locks the user can open now.<br>
+// <h5>LocksPermittedOngoing</h5>
+// <b>Lock[]|null[]</b> locks the user can open aigain in the future.<br>
+// <h5>LocksPermittedDead</h5>
+// <b>Lock[]|null[]</b> locks the user can not open again.<br>
+// <h5>LocksLicensed</h5>
+// <b>Lock[]|null[]</b> locks the user manages.<br>
+// <h5>LocksOwned</h5>
+// <b>Lock[]|null[]</b> locks the user owns.<br>
+// <p>Lock</p>
+// <li>id <b>string</b> lock id</li>
+// <li>name <b>string|null</b></li>
+// <li>battery <b>float</b> number between 0 & 1</li>
+// <li>bluetooth_address <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <hr><br>
+
+@name("locks")
+GET "https://{{base_url}}/locks"
+
+
+// <span>CONSUMER</span>
+// <h3>Get a Lock related to you</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Lock</h5>
+// <li>id <b>string</b> lock id</li>
+// <li>name <b>string|null</b></li>
+// <li>battery <b>float</b> number between 0 & 1</li>
+// <li>bluetooth_address <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <li>description <b>string|null</b></li>
+// <li>consumer_ids <b>string[]|null</b> only if requesting user is a manager of the lock</li>
+// <li>manager_ids <b>string[]|null</b> only if requesting user is the owner of the lock</li>
+// <li>model <b>LockModel</b>
+//  <ul>
+//   <li>id <b>string</b> id of the lockmodel</li>
+//   <li>designation <b>string</b> like name or description of lockmodel</li>
+//   <li>protocol <b>string</b> the protocol name (needed if your app knows lockf from different lockmodels</li>
+//   <li>manufacturer <b>string</b> manufacturer of lockmodel</li>
+//   <li>locktype <b>string</b> e.g. "Arc Lock", "Padlock"</li>
+//  </ul>
+// </li>
+// <li>location <b>Location|null</b>
+//  <ul>
+//   <li>longitude <b>decimal</b> number from -999.999999 to 999.999999</li>
+//   <li>latitude <b>decimal</b> number from -999.999999 to 999.999999</li> 
+//  </ul>
+// </li>
+// <hr><br>
+
+@name("locks/{{lock_id}}")
+GET "https://{{base_url}}/locks/{{lock_id}}"
+
+
+// <span>ALLNER</span>
+// <h3>Create a new Lock</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Lock</h5>
+// <b>Lock</b> when successfully stored the response is the new stored lock.<br>
+// see <code>GET locks</code>
+// <hr><br>
+// 
+// <h4>Request</h4>
+// <b>Lock</b> to store<br>
+// 
+// <h5>name</h5>
+// <b>string</b> custom name to identify your lock!
+// 
+// <h5>description</h5>
+// <b>string</b> custom description for your lock!
+// 
+// <h5>bluetooth_address</h5>
+// <b>string</b> bluetooth_address for the lock to find it later
+// <br><b>required</b>
+// 
+// <h5>model_id</h5>
+// <b>string</b> must be the id of an existing model. You can create any Lockmodel you want at {{web_url}}/lockmodels (Navbar Tab "Models")
+// <br><b>required</b>
+// 
+// <h5>battery</h5>
+// <b>float</b> value between 0 and 1. If your lock is battery powered you can save the percentage of battery left.
+// 
+// <h5>secret_key</h5>
+// <b>string</b> if your lock needs a secret to be opened it can be stored here.
+// 
+// <h5>secret_password</h5>
+// <b>string</b> if your lock needs a secret to be opened it can be stored here.
+// 
+// <h5>latitude</h5>
+// <b>float/decimal</b> you can store the exact location as latitude and longitude
+// 
+// <h5>longitude</h5>
+// <b>float/decimal</b> you can store the exact location as latitude and longitude
+// <hr><br>
+
+@name("locks")
+POST "https://{{base_url}}/locks"
+json({
+    "bluetooth_address": "iamabluetoothaddress10",
+    "model_id": "{{lock_model_id}}",
+    "description": "located at Freds landhouse at the old Barn door",
+    "battery": 0.9,
+    "secret_key": "secret_to_open_the_lock",
+    "secret_password": "password_needed_to_open_me",
+    "latitude": "52.303165",
+    "longitude": "8.008123",
+    "name": "PinkPony"
+})
+
+
+// <span>ALLNER</span>
+// <h3>Update existing Lock</h3><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>Lock</h5>
+// <b>Lock</b> when successfully stored the response is the updated lock.<br>
+// see <code><a href="#fac03070-92a6-4a53-aa99-c943054c3c80">GET locks</a></code>
+// <hr><br>
+// 
+// <h4>Request</h4>
+// <h5>Lock</h5>
+// <b>Lock</b> with updated values. the API will get the lock with given {{lock_id}} and update all its values. <i>If values are missing and nullable they are set to null. Make sure you send the whole lock.</i><br>
+// see <code><a href="#22882db5-65bd-44f9-bbc7-bd7e4350c232">POST locks</a></code>
+// <hr><br>
+
+@name("locks/{{lock_id}}")
+PUT "https://{{base_url}}/locks/{{lock_id}}"
+json({
+    "bluetooth_address": "iamabluetoothaddress10",
+    "model_id": "{{lock_model_id}}",
+    "description": "located at Freds landhouse at the old Barn door",
+    "battery": 0.9,
+    "secret_key": "secret_to_open_the_lock",
+    "secret_password": "password_needed_to_open_me",
+    "latitude": "52.303165",
+    "longitude": "8.008123",
+    "name": "RedPony"
+})
+
+
+// <span>ALLNER</span>
+// <h3>DELETE existing Lock</h3><hr><br>
+// 
+// <h4>Request</h4>
+// <h5>deleteOngoingActive</h5>
+// <b>boolean</b> determine whether the lock should be deleted even if active or ongoing OpenPermissions exist for this lock. <br>
+// <hr><br>
+
+@name("locks/{{lock_id}}")
+DELETE "https://{{base_url}}/locks/{{lock_id}}"
+json({
+    "deleteOngoingActive": true
+})
+
+
+// <span>CONSUMER</span>
+// <h3>Get OpenPermissions for Lock</h3>
+// <p>This route gives the consumer all his OpenPermissions for a particular lock.</p>
+// <hr><br>
+// 
+// <h4>Response</h4><br>
+// <i>ℹ See <code><a href="#fac03070-92a6-4a53-aa99-c943054c3c80">GET locks</a></code> for more information about <b>active</b>, <b>ongoing</b> and <b>dead</b> OpenPermissions.</i><br>
+// <h5>openPermissionsActive</h5>
+// <b>OpenPermission[]</b> all openPermisisons which are active right now.<br>
+// <h5>openPermissionsOngoing</h5>
+// <b>OpenPermission[]</b> all openPermisisons which are active again in the future.<br>
+// <h5>openPermissionsDead</h5>
+// <b>OpenPermission[]</b> all openPermisisons which have expired.<br>
+// <h5>lockSecret</h5>
+// <b>Secret|null</b> the secret of the requested lock. If the user has no OpenPermisison locksSecret is null.<hr><br>
+// 
+// <b>OpenPermission</b>
+// <li>id <b>string</b><br><i>openPermisison id</i></li>
+// <li>counter <b>number</b><br><i>determines how often the lock can be opened with this OpenPermission. <br>If the counter is 0 the OpenPermission is dead because it can never again be used to open the lock. <br>If the counter is -42 it means this OpenPermission can open the lock infinit times.</i></li>
+// <li>created_at <b>Date|null</b><br><i>e.g. "2020-08-20T16:08:56.000000Z"</i></li>
+// <li>updated_at <b>Date|null</b><br><i>e.g. "2020-08-22T12:12:45.000000Z"</i></li>
+// <li>lock_id <b>string</b><br><i>id of the lock that can be opened with this OpenPermission (if this OpenPermission is active).</i></li>
+// <li>manager_id <b>string</b><br><i>id of the user that created this OpenPermission. It could have been a manager of this OpenPermissions lock or the owner himself.</i></li>
+// <li>rrule <b>Rrule</b><br><i>a recurreny rule to determine WHEN this OpenPermission is active. The Rrule is an object we use to define Periods or Points in Time.</i></li>
+// <hr><br>
+// 
+// <b>Rrule</b>
+// <li>FREQ <b>string</b> specifies how the OpenPermission is repeated. e.g. "DAILY", "WEEKLY", "YEARLY</li>
+// <li>UNTIL <b>Date</b> date when the OpenPermission ends.</li>
+// <li>DTSTART <b>Date</b> timestamp the recurrency starts.</li>
+// <li>DTEND <b>Date</b> timestamp the recurrency starts.</li>
+// <li>INTERVAL <b>string</b> specifies how often the OpenPermission should occur til UNTIL Date. e.g. INTERAVL is "2" and FREQ is "DAILY" it is every second Day.</li><br>
+// For example the Rrule of the OpenPermission from the response below is valid daily from 18.00 to 20.00 o´clock until December 10th in 2021.
+// <hr><br>
+// 
+// <b>Secret</b>
+// <li>key <b>string</b></li>
+// <li>password <b>string</b></li>
+// <li>created_at <b>Date|null</b> e.g. "2020-08-20T16:08:56.000000Z"</li>
+// <li>updated_at <b>Date|null</b> e.g. "2020-08-22T12:12:45.000000Z"</li>
+// <hr><br>
+
+@name("locks/{{lock_id}}/open")
+GET "https://{{base_url}}/locks/{{lock_id}}/open"
+
+
+
+// <span>CONSUMER</span>
+// <h3>Open Lock</h3>
+// <p>This route lets the user open a lock or respectively note the opening of a lock.</p>
+// <p>To successfully open a lock, the requesting user must be the owner of the lock, be a manager of the lock or have an <b>active</b> OpenPermission for the lock as a consumer.</p>
+// <p>As a consumer you have the possibility to hand a specific OpenPermission to our API. This OpenPermission is then used to open the lock. This means that the counter is reduced if it is not infinite ({{m42}}) anyway.</p><hr><br>
+// 
+// <h4>Response</h4><br>
+// <h5>LockSecret</h5>
+// <b>Secret</b> the secret of the requested lock. If the user has no OpenPermisison locksSecret is null.<br>
+// <i>ℹ See <code>GET locks/{{lock_id}}/open</code> for more information about the <b>Secret</b></i>
+// 
+// <h5>OpenPermission</h5>
+// <b>OpenPermission|null</b> the openPermission used to open the lock. If the user doesn´t need no OpenPermisison because he/she is the owner/manager of the lock, the openPermission is null.<br>
+// <i>ℹ See <code>GET locks/{{lock_id}}/open</code> for more information about the <b>OpenPermission</b></i><hr><br>
+// 
+// <h4>Request</h4><br>
+// <h5>OpenPermission ID</h5>
+// <b>string|null</b> the id of the specified OpenPermision to use to open the lock. If the Request Body is empty our API will decide which OpenPermission is the most suitable one.
+// <br><i>It does this so that the user can open the lock as often as possible. E.g. there is an OpenPermisison with an infinite opening counter, this is the OpenPermision evaluated as most suitable as no counter gets reduced.</i><br><hr>
+
+@name("locks/{{lock_id}}/open")
+PUT "https://{{base_url}}/locks/{{lock_id}}/open"
+json({
+    "open_permission_id": "{{open_permission_id}}"
+})
+
+
+// <span>ALLNER</span>
+// <h3>Get all Licenses I granted</h3>
+// <p>An Allner can query all licenses he has issued for his locks. Every Allner can grant as many licenses for their locks as they like. However, there can only be one license per manallger and lock.</p>
+// <p><i>If you are looking for the route that gives all the licenses available to a manager... That route doesn´t exist. Instead manallgers have the opportunity to see all their managed locks via the route <code><a href="#fac03070-92a6-4a53-aa99-c943054c3c80">GET locks</a></code>. So this basically corresponds to the Licenses that have been granted to him</i></p><hr>
+
+@name("licenses")
+GET "https://{{base_url}}/licenses"
+
+
+// <span>ALLNER</span>
+// <h3>Get a License I granted</h3>
+// <hr><br>
+
+@name("licenses/{{license_id}}")
+GET "https://{{base_url}}/licenses/{{license_id}}"
+
+
+// <span>ALLNER</span>
+// <h3>License a Manallger</h3>
+// <hr><br>
+
+@name("licenses")
+POST "https://{{base_url}}/licenses"
+json({
+    "manager_id": "4f03eaf4-518e-4a2b-905e-fd80af16b760",
+    "lock_id": "26ee6a9d-62db-48fd-b420-e9cb34241819"
+})
+
+
+// <span>ALLNER</span>
+// <h3>Withdraw a License</h3>
+// <hr><br>
+
+@name("licenses/{{license_id}}")
+DELETE "https://{{base_url}}/licenses/{{license_id}}"
+
+
+// <span>MANALLGER</span>
+// <h3>Get all OpenPermissions I granted</h3>
+// <hr><br>
+
+@name("openpermissions/granted")
+GET "https://{{base_url}}/{{perm}}/granted"
+
+
+// <span>ALLNER</span>
+// <h3>Get all OpenPermissions for all my Locks</h3>
+// <hr><br>
+
+@name("openpermissions/owned")
+GET "https://{{base_url}}/{{perm}}/owned"
+
+
+// <span>MANALLGER</span>
+// <h3>Get an OpenPermission</h3>
+// <hr><br>
+
+@name("openpermissions/{{open_permission_id}}")
+GET "https://{{base_url}}/{{perm}}/{{open_permission_id}}"
+
+
+
+// <span>MANALLGER</span>
+// <h3>Grant an OpenPermission</h3>
+// <hr><br>
+
+@name("openpermissions")
+POST "https://{{base_url}}/{{perm}}"
+json({
+    "consumer_id": "{{consumer_id}}",
+    "lock_id": "{{lock_id}}",
+    "counter": 10,
+    "FREQ": "DAILY",
+    "UNTIL": "2049-12-31T23:59:59+01:00",
+    "DTSTART": "2020-08-10T06:00:00+02:00",
+    "DTEND": "2020-08-10T23:00:00+02:00",
+    "INTERVAL": "1"
+})
+
+
+// <span>MANALLGER</span>
+// <h3>Update an OpenPermission</h3>
+// <hr><br>
+
+@name("openpermissions/{{open_permission_id}}")
+PUT "https://{{base_url}}/{{perm}}/{{open_permission_id}}"
+json({
+    "counter": 12,
+    "FREQ": "DAILY",
+    "UNTIL": "2049-12-31T23:59:59+01:00",
+    "DTSTART": "2020-08-10T06:00:00+02:00",
+    "DTEND": "2020-08-10T23:00:00+02:00",
+    "INTERVAL": "1"
+})
+
+
+// <span>MANALLGER</span>
+// <h3>Delete an OpenPermission</h3>
+// <hr><br>
+
+@name("openpermissions/{{open_permission_id}}")
+DELETE "https://{{base_url}}/{{perm}}/{{open_permission_id}}"
+
+
+
+

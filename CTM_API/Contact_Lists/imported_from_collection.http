@@ -1,0 +1,171 @@
+#!/usr/bin/env dothttp
+
+// gets list of contact lists, including name and description
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("list of contact lists")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// gets detailed information about a contact list including number of contacts
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |list_id|yes|the list id|
+
+@name("contact list information")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list[name]|yes|a name for the contact list|
+// |contact_list[description]|no|a descriptor for the contact list|
+// 
+// JSON body example
+// ```json
+// {
+//     "contact_list": {
+// 		"name" : "Marketing List",
+// 		"description" : "List of contacts for marketing"
+//     }
+// }
+// ```
+// 
+// > Note that list names are not required to be unique.
+
+@name("create contact list")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "contact_list": {
+		"name" : "Test List",
+		"description" : "Description of test list"
+    }
+}')
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+// |contact_list[name]|yes|a name for the contact list|
+// |contact_list[description]|no|a descriptor for the contact list|
+
+@name("update a contact list")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "contact_list": {
+		"name" : "Test Update",
+		"description" : "Updated description"
+    }
+}')
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+
+@name("delete a contact list")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+
+@name("list all contacts in a contact list")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}/contacts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+// |phone_number|yes|the phone number of the contact to check, be sure to include the country code in your phone number use E.164 formatted numbers|
+
+@name("check if a contact exists within the list")
+HEAD "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}/contains"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "phone_number"= "{{phone_number}}"
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+// |contact[number]|yes|number for contact in e.164|
+// |contact[first_name]|no|contact's first name|
+// |contact[last_name]|no|contact's last name|
+// |contact[email]|no|contact's email|
+// |contact[street]|no|includes street number|
+// |contact[city]|no|contact's city|
+// |contact[state]|no|contact's state|
+// |contact[country]|no|contate's country|
+// |contact[postal_code]|no|contact's postal code|
+
+@name("add contact to a contact list")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}/add_contact"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "contact": {
+    	"number" : "+13214005002",
+		"first_name" : "Test",
+		"last_name" : "Person",
+		"email" : "test@foo.com",
+		"street" : "123 Test St",
+		"city" : "Test City",
+		"state" : "AZ",
+		"country" : "US",
+		"postal_code" : "85001"
+    }
+}')
+
+
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+// |contacts_list|yes|array of contact numbers in e.164 format
+
+@name("delete contact from a contact list")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}/remove_contacts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"contacts_list" : ["+13214005002"]
+}')
+
+
+// removes all of the contacts in a give contact list but retains the contact list
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account|yes|the account id|
+// |contact_list_id|yes|the contact list id|
+
+@name("delete all contacts from a contact list")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/lists/{{contact_list_id}}/remove_all_contacts"
+
+
+

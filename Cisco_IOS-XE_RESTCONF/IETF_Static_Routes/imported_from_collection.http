@@ -1,0 +1,40 @@
+#!/usr/bin/env dothttp
+
+@name("Get IETF Static Routes")
+GET "https://{{host}}/restconf/data/ietf-routing:routing/routing-instance=default/routing-protocols/routing-protocol=static,1"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json, application/yang-data.errors+json"
+"Content-Type": "application/yang-data+json"
+
+
+@name("Add IETF Static Routes")
+POST "https://{{host}}/restconf/data/ietf-routing:routing/routing-instance=default/routing-protocols/routing-protocol=static,1/static-routes/ipv4"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json, application/yang-data.errors+json"
+"Content-Type": "application/yang-data+json"
+data('{
+  "route": [
+    {
+      "destination-prefix": "192.0.2.0/24",
+      "next-hop": {
+        "outgoing-interface": "GigabitEthernet1"
+      }
+    },
+    {
+      "destination-prefix": "203.0.113.0/24",
+      "next-hop": {
+        "next-hop-address": "10.10.20.254"
+      }
+    }
+  ]
+}')
+
+
+@name("Delete IETF Static Routes")
+DELETE "https://{{host}}/restconf/data/ietf-routing:routing/routing-instance=default/routing-protocols/routing-protocol=static,1/static-routes/ipv4/route=192.0.2.0%2F24"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/yang-data+json, application/yang-data.errors+json"
+"Content-Type": "application/yang-data+json"
+
+
+

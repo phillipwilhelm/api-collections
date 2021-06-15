@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// Endpoint para lançamento de um ajuste do Tipo "Falta com desconto" e "Suspensão" em um dia de Falta
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome					| Tipo			| Obrigatório	| Descrição					|
+// | ---------------------	| -------------	|------------	| --------- 				|
+// | status_id         	| Integer       | Sim			| Motivo do ajuste  **obter através do endpoint 'Motivo dos ajustes'**   |
+// | date					| String (60) 	| Sim			| Dia do lançamento			|
+// | motive				| String (60)	| Sim			| Descrição do ajuste		|
+// 
+// OBS: **status_id deve ser do tipo "Falta com desconto" ou "Suspensão" **
+
+@name("Justificar falta")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/justify_missing_day"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+data('{
+    "proposal": {
+      "status_id": 34,
+      "date": "2020-09-26",
+      "motive": "teste"
+    }
+}')
+
+
+// Lista os motivos de ajustes
+// 
+// ## Atributos disponíveis
+// 
+// | Nome              	| Tipo      	| Descrição                                                 	|
+// | ---------------------	| -------------	| -------------------------------------------------------------	|
+// | id                	| Integer   	| Identificador sequencial gerado automaticamente pelo sistema	|
+// | observation          	| String (15)	| Observação 													|
+// | status_type           | Object    	| Tipo do motivo (id, name)   											|
+
+@name("Motivo dos ajustes")
+GET "https://{{server_url}}/external_api/v1/time_cards/proposals/status"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+? "attributes"= "id,observation,status_type"
+
+
+

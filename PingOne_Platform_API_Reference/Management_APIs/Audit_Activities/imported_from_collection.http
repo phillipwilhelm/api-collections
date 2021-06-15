@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// You can get all audit activity events for a selected environment. The `GET /environments/{environmentId}/activities` request accepts SCIM filtering expressions to fine-tune the response.
+// 
+// The following sample shows the `GET /environments/{environmentId}/activities?filter=recordedat gt "2018-08-20T00:00:00Z" AND recordedat lt "2018-08-22T23:59:00Z"` operation to return all audit activity events for the specified environment. The filtering expression designates a time period between 08/20/2018 and 08/22/2018.
+
+@name("GET User Activities")
+GET "https://{{apiPath}}/environments/{{envID}}/activities"
+"Authorization": "Bearer {{jwtToken}}"
+? 'filter'= 'recordedat gt "2018-08-20T00:00:00Z" AND recordedat lt "2018-08-22T23:59:00Z'
+
+
+// You can use a `POST` request to get filtered audit activity events for a selected environment while removing sensitive or personal filtering information from the request URL. The following sample shows the `POST /environments/{environmentId}/activities` request, which specifies a SCIM filtering expression in the request body.
+
+@name("GET User Activities")
+POST "https://{{apiPath}}/environments/{{envID}}/activities"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "filter": "recordedat gt \"2019-01-01T22:54:12.988Z\" AND recordedat lt \"2019-01-31T22:54:12.988Z\" AND actors.user.name eq \"Bill\""
+}')
+
+
+// You can get data for one audit activity by specifying the audit activity ID. The `GET /environments/{environmentId}/activities/{activityId}` request returns information associated with the specified audit activity. 
+
+@name("GET One User Activity")
+GET "https://{{apiPath}}/environments/{{envID}}/activities/{{activityID}}"
+"Authorization": "Bearer {{jwtToken}}"
+? 'filter'= 'recordedat gt "2018-08-20T00:00:00Z" AND recordedat lt "2018-08-22T23:59:00Z'
+
+
+

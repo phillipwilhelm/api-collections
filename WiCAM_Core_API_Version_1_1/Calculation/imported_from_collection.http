@@ -1,0 +1,122 @@
+#!/usr/bin/env dothttp
+
+// A calculation job has 2 tasks.
+// 
+// 1. Store the global settings for the calculation which are equal for all files.
+// 2. Collect all files of one calculation
+// 
+// ##### Request Body
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **NestingOption**         | **integer**               | Defines how the parts should be nested                        |
+// | **Machine**               | **integer**               | Defines the machine for the time calculation                  |
+// | **Plates**                | **integer array**         | Defines the sheetmetal formats, for the nesting               |
+// | _NestingStrategy_         | _optional integer_        | _See Ressources -> NestingStrategy_                           |
+// | _PowerNesting_            | _optional integer_        | _See Ressources -> PowerNesting_                              |
+// 
+// ##### Response Body
+// 
+// | Property                  | Type                      | Description                                                       |
+// | --------------------------|--------------------------:|:------------------------------------------------------------------|
+// | **id**                    | **integer**               | Unique idetifier for this job (later called **CalculationJobID**) |
+
+@name("Create Calculation Job")
+POST "https://{{BaseUrl}}/calculationjob"
+"Content-Type": "application/json"
+data('{
+    "NestingOption" : 1,                        
+    "Machine" : 3,                            
+    "Plates" : [4]
+}')
+
+
+// The calculation job file is used for mapping a file to a job, including a set of calculation settings.
+// It's also possible to add the same file (_FileID_) multiple times to the same calculation job.
+// 
+// ##### Request Body
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **calculationJob**        | **integer**               | **CalculationJobID** to which the file should be added        |
+// | **file**                  | **integer**               | **FielID** which should be added to the job                   |
+// | **amount**                | **integer**               | How many times should this part be placed on the plate        |
+// | **material**              | **integer**               | **MaterialID** to define the plate material                   |
+// | **thickness**             | **integer**               | **ThicknessID** to define the plate thickness                 |
+// | **rotation**              | **integer**               | Defines how the geometry is alowed to rotate during nesting   |
+// | **description**           | **string**                | Text which is returned in the result                          |
+// | **deburring**             | **boolean**               | Boolean which is returned in the result ( no impact on the nesting )               |
+// | **grinding**              | **boolean**               | Boolean which is returned in the result ( no impact on the nesting )               |
+// 
+// ##### Response Body
+// 
+// | Property                  | Type                      | Description                                                       |
+// | --------------------------|--------------------------:|:------------------------------------------------------------------|
+// | **id**                    | **integer**               | Unique idetifier for this job file ( later called **CalculationJobFileID** ) |
+
+@name("Add Files to a Calculation Job")
+POST "https://{{BaseUrl}}/calculationjobfile"
+"Content-Type": "application/json"
+data('{
+    "calculationJob" : {{CalculationJobID}}, 
+    "file" : {{FileID}}, 
+    "amount" : 10, 
+    "material" : 5,
+    "thickness" : 2,
+    "rotation" : 1,
+    "description" : "Example file description",
+    "deburring" : false,
+    "grinding" : false
+}')
+
+
+// When all files has been added to the CalculationJob, the nesting can be started by a `POST-Request` to this endpoint. 
+// 
+// #### Important
+// * Invalid files will not be calculated
+// * 3D files have to be **unfoled first**, they will not be unfolded automaticaly. 
+// * If the nesting takes more then 15 minutes, the process will be killed  _(default behavior)_
+
+@name("Start Calculation Job")
+POST "https://{{BaseUrl}}/calculation/{{CalculationJobID}}"
+
+
+// As soon as the calculation has been started the _CalculationJobFileResult_ can be requested.
+// 
+// ##### While Processing
+// While the nesting is running, this endpoint of the API returns an `HTTP-Statuscode 206 Partial-Content`, retry after a short time.
+// 
+// ##### Process Finished
+// As soon as the nesting finished, the `HTTP-Statuscode` turns into a `200 OK`, and the _CalculationJobFileResult_ is contained in the `Response-Body`
+// 
+// ##### Response Fields
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **fileID**                | **integer**               | **FileID** of the original file                               |
+// | **material**              | **string**                | Material returned from the nesting                            |
+// | **thickness**             | **double**                | Material thickness in **millimeters**                         |
+// | **amount**                | **integer**               | Original amount from the _CalculationJobFile_                 |
+// | **length**                | **double**                | X Dimension of the geometry                                   |
+// | **width**                 | **double**                | Y Dimension of the geometry                                   |
+// | **nettoArea**             | **double**                | Pure part area without waste                                  |
+// | **area**                  | **double**                | Part area including waste                                     |
+// | **time**                  | **double**                | Laser time in industrial minutes                              |
+// | **cuts**                  | **int**                   | How manz times the laser has to pierce into the plate         |
+// | **bends**                 | **int**                   | Amount of bendlines                                           |
+// | **bendTime**              | **double**                | Bending time in industrial minutes                            |
+// | **nettoWeight**           | **double**                | Pure part weight without waste                                |
+// | **weight**                | **double**                | Part weight including waste                                   |
+// | **cutLength**             | **double**                | Laser cutting length                                          |
+// | **description**           | **string**                | Original description from the _CalculationJobFile_            |
+// | **deburring**             | **double**                | Original deburring from the _CalculationJobFile_              |
+// | **grinding**              | **double**                | Original grinding from the _CalculationJobFile_               |
+// | **price**                 | **double**                | End price of a single part in €                               |
+// | **priceTotal**            | **double**                | Total price in €                                              |
+// | **error**                 | **integer array**         | Array containing all ErrorIDs, that occured for this _CalculationJobFile_            |
+
+@name("Get Calculation Result")
+GET "https://{{BaseUrl}}/calculationjobfile/{{CalculationJobFileID}}"
+
+
+

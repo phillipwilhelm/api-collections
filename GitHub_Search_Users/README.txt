@@ -1,0 +1,1 @@
+This is a simple collection for searching for GitHub users.

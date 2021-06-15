@@ -1,0 +1,231 @@
+#!/usr/bin/env dothttp
+
+// Allows the retrieval of a stored knowledge base article.  Please note that each call to this resource is logged in the Synthetix metrics as a hit or click on that article.
+
+@name("article")
+POST "https://{{HOST}}/{{BASE}}/external/article"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+data({
+    "userid": [
+        "123456"
+    ],
+    "label": [
+        "qed00001"
+    ],
+    "comments": [
+        "true"
+    ],
+    "index": [
+        "8"
+    ],
+    "origin_url": [
+        "http://www.synthetix.com"
+    ],
+    "channel": [
+        "14"
+    ],
+    "revision_history": [
+        "false"
+    ],
+    "origin": [
+        "qed000999"
+    ]
+})
+
+
+// Alter the current session, for example, switch the knowledge base view.
+// # test
+
+@name("session")
+PATCH "https://{{HOST}}/{{BASE}}/external/session"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+data({
+    "view": [
+        "test"
+    ]
+})
+
+
+// Initate an external session. Any contents sent in the body is optional and will be declared as varaibles. The payload that is returned is the Bearer token used for authentication.
+
+@name("session")
+POST "https://{{HOST}}/{{BASE}}/external/session"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+"Content-Type": "application/json"
+data('{"firstname": "Luke"}')
+
+
+// Can be used to check that a session is still valid at the start of a new session. Returns information about the validity of the current token. A new token can be generated should the session be found to be invalid or expired.
+
+@name("session")
+GET "https://{{HOST}}/{{BASE}}/external/session"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+
+
+// Can be used to destroy an existing session. Once this is called the session can no longer be used.
+
+@name("session")
+DELETE "https://{{HOST}}/{{BASE}}/external/session"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+
+
+
+// Allows access to the most popular articles within the knowledge base over a given period.  Restricted automatically to those articles within the application's allowed views.  If called from an external application this will not return views marked as private.
+
+@name("all_faqs")
+GET "https://{{HOST}}/{{BASE}}/external/all_faqs"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+? "limitdate"= "365"
+? "category"= "My Account"
+? "subcategory"= "Logging in"
+? "limitno"= "99"
+? "view"= "public"
+? "pop"= "true"
+? "order_by"= "last edited"
+? "direction"= "DESC"
+
+
+// Runs the Synthetix search on the customer's inputted string.  Returns a list of article lables and titles in order of relevance.
+
+@name("search")
+POST "https://{{HOST}}/{{BASE}}/external/search"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+data({
+    "userid": [
+        "123456"
+    ],
+    "query": [
+        "box look up down off on he she and dinosaur arent not"
+    ],
+    "channel": [
+        "14"
+    ],
+    "highlight": [
+        "true"
+    ],
+    "autosuggest": [
+        "false"
+    ],
+    "origin_url": [
+        ""
+    ],
+    "lc": [
+        ""
+    ]
+})
+
+
+// Returns a map of the category and subcategory structure of your knowledge base, including category names and IDs. Restricted automatically to those categories associated with the application's allowed views.
+
+@name("categories")
+POST "https://{{HOST}}/{{BASE}}/external/categories"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "hidden": [
+        "true"
+    ]
+})
+
+
+// Checks whether any triggers exist on the requested page.  Multiple trigger names and / or URL can be checked in a single call.  If any are set up that match the given criteria, returns information about those triggers, including realtime availability, skillsets, trigger styles.
+
+@name("trigger")
+GET "https://{{HOST}}/{{BASE}}/external/trigger"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+? "url"= "https://penfield.syn-finity.com"
+
+
+// Allows either a customer or an internal user to report a search as having resulted in no (or no relevant) results.  Alternatively allows either a customer or an internal user to report an issue with an existing article, for example broken links or missing or incorrect information
+
+@name("report")
+POST "https://{{HOST}}/{{BASE}}/external/report.php"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+data({
+    "userID": [
+        "123456"
+    ],
+    "article": [
+        "d11"
+    ],
+    "feedback": [
+        "testing api"
+    ],
+    "type": [
+        "Other"
+    ],
+    "search": [
+        ""
+    ]
+})
+
+
+// Checks the views available to the application, and also returns the active current view, in textual and ID form.
+
+@name("views")
+GET "https://{{HOST}}/{{BASE}}/external/views"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+
+
+// Allows an interaction to be added to the list of session breadcrumbs.  An interaction type  must be included, which will act as the key, together with the value.  If successfully registered against the session, returns 'true'
+
+@name("breadcrumb")
+POST "https://{{HOST}}/{{BASE}}/external/breadcrumb"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+files(
+	("type", "ArticleView"),
+	("value", "QED0001")
+)
+
+
+// Request details of all interactions to date for the given session.
+
+@name("breadcrumb")
+GET "https://{{HOST}}/{{BASE}}/external/breadcrumb"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+
+
+// Use this resource to log feedback against a particular article.  Each feedback question / answer combination has a unique ID which should be passed in along with the label and any free text comments.  This resource will log a single item of feedback.
+
+@name("article_feedback")
+POST "ttps://{{HOST}}/{{BASE}}/external/article_feedback"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+files(
+	("feedback", "456"),
+	("text", "Great answer"),
+	("label", "qed00009")
+)
+
+
+// Ends an existing chat from the customer (external) side. Requires the chat ID to be passed in and a reason (see the helper/livechat/reasons for the applicable list of reason IDs) for the chat to be ended.
+
+@name("end")
+POST "https://{{HOST}}/{{BASE}}/external/end"
+"APPLICATIONKEY": "{{APPLICATIONKEY}}"
+"CONSUMERKEY": "{{CONSUMERKEY}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "reason": [
+        "4"
+    ],
+    "uniQref": [
+        "8i43mjfndfi3"
+    ]
+})
+
+
+

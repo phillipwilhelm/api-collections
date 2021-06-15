@@ -1,0 +1,327 @@
+#!/usr/bin/env dothttp
+
+// #### Search branches in ERP
+// *(sapBusinessOne=247/OBPL, totvsProtheus=SM0)*
+// 
+// ###### ATENTION: for TOTVS Protheus use /igt_branches (conflict with TOTVS standard API)
+// 
+// The search of branches allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The branches service will consider as valid branch:
+// - SAP Business One: [1] Enabled: OBPL.Disabled=N
+// - TOTVS Protheus: [1] 
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Branches")
+GET "https://{{endpoint}}/branches"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+// #### Search warehouses in ERP
+// *(sapBusinessOne=64/OWHS, totvsProtheus=NNR)*
+// 
+// The search of warehouses allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search is performed as a list.
+// 
+// The warehouses service will consider as valid warehouse:
+// - SAP Business One: [1] Not blocked: OWHS.Locked NOT Y
+// - TOTVS Protheus: 
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Warehouses")
+GET "https://{{endpoint}}/warehouses"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "01"
+
+
+// #### Search bin locations in ERP
+// *(sapBusinessOne=10000206/OBIN, totvsProtheus=SBE)*
+// 
+// The search of bin locations allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The bin locations service will consider as valid bin location:
+// - SAP Business One: [1] 
+// - TOTVS Protheus: [1] 
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Bin Locations")
+GET "https://{{endpoint}}/binLocations"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+// #### Search usages in ERP
+// *(sapBusinessOne=260/OUSG, totvsProtheus=SF4)*
+// 
+// The search of usages allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The usages service will consider as valid usage:
+// - SAP Business One: [1] 
+// - TOTVS Protheus: [1] 
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Usages")
+GET "https://{{endpoint}}/usages"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "9"
+
+
+// #### Search carriers in ERP
+// #*(sapBusinessOne=2/OCRD, totvsProtheus=SA4)*
+// 
+// The search of carriers allows you to filter the ERP by:
+// - List Search: by taxType (C = company, P = person) {optional}
+// - Unitary Search: by erpKey or taxNumber (with or without punctuation)
+// 
+// If no fields for unitary search (erpKey or taxNumber) are informed in the request, the search returns as a list (it's possible to filter by taxType).
+// 
+// The carriers service will consider as valid objects:
+// - SAP Business One: Valid and not canceled (OCRD.validFor = Y AND OCRD.Canceled = N) + OCRD.GroupCode=GP CarrierGroup (if definied)
+// - TOTVS Protheus: 
+// 
+// Comments:
+// - taxType: SAP Business One (according to CRD7.TaxId0 or CRD7.TaxId4), TOTVS Protheus (A1_PESSOA + A1_TPESSOA = 'EP')
+// - erpKey: SAP Business One (OCRD.CardCode), TOTVS Protheus (A4_COD)
+// - taxNumber: SAP Business One (CRD7.TaxId0 or CRD7.TaxId4), TOTVS Protheus (A4_CGC)
+// 
+// The response will inform:
+// - The number of returned objects in the “count” field
+// 
+// For carriers list the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - “pageSize” = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - “pageNum” = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - “pageTotal” = total pages, reported in the response
+// - “hasNext” = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field treatment (UDF).
+
+@name("Carriers")
+GET "https://{{endpoint}}/carriers"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "taxType"= "C"
+? "erpKey"= "ASV1000"
+? "taxNumber"= "59.546.515/0001-34"
+? "pageNum"= "2"
+
+
+// #### Search Cost Centres in ERP
+// *(sapBusinessOne=61/OPRC, totvsProtheus=CTT)*
+// 
+// The search Cost Centres allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The Cost Centres service will consider as valid cost center:
+// - SAP Business One: [1] OPRC.Active=Y
+// - TOTVS Protheus: [1] 
+// 
+// Comments:
+// - `type`:SAP Business One (OCCT.CctCode), TOTVS Protheus (R=revenue, E=expense)
+// - `dimension`: SAP Business One (ODIM.DimCode), TOTVS Protheus (1)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Cost Centres")
+GET "https://{{endpoint}}/costCentres"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+// #### Search Financial Projects in ERP
+// *(sapBusinessOne=63/OPRJ, totvsProtheus=CTD)*
+// 
+// The search Financial Projects allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The projects service will consider as valid financial projects:
+// - SAP Business One: [1] OPRJ.Active=Y
+// - TOTVS Protheus: 
+// 
+// Comments:
+// - `type`: TOTVS Protheus (R=revenue, E=expense)
+// - `dimension`: TOTVS Protheus (2)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("FinancialProjects")
+GET "https://{{endpoint}}/financialProjects"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "FX"
+
+
+// #### Search payment conditions in ERP
+// *(sapBusinessOne=40/OCTG, totvsProtheus=SE4)*
+// 
+// The search of payment conditions allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The payment conditions service will consider as valid payment conditions:
+// - SAP Business One: 
+// - TOTVS Protheus:  E4_MSQLBL not 1
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Payment Conditions")
+GET "https://{{endpoint}}/payConditions"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+// #### Search payment methods in ERP
+// *(sapBusinessOne=147/OPYM, totvsProtheus=SX5)*
+// 
+// The search of payment methods allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The payment methods service will consider as valid payment methods:
+// - SAP Business One: [1] OPYM.Active=Y
+// - TOTVS Protheus: [1] X5_TABELA=24
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Payment Methods")
+GET "https://{{endpoint}}/payMethods"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "Transf Bancária"
+
+
+// #### Search credit cards in ERP
+// *(sapBusinessOne=36/OCRC, totvsProtheus=SAE)*
+// 
+// The search of credit cards allows you to filter the ERP by:
+// - List Search
+// - Unitary Search: by `erpKey`
+// 
+// If no field for unitary query (`erpKey`) is informed in the request, the search returns as a list.
+// 
+// The credit cards service will consider as valid credit cards:
+// - SAP Business One: [1] 
+// - TOTVS Protheus: [1] AE_TIPO=CC
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service does not have incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Credit Cards")
+GET "https://{{endpoint}}/creditCards"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "1"
+
+
+

@@ -1,0 +1,271 @@
+#!/usr/bin/env dothttp
+
+// Returns equity quote data. Quotes are returned depending on end client's quote permission level - real time or delayed. If real time, then client must have signed all necessary agreements.
+
+@name("Equity")
+GET "https://{{url}}/api/quotes/equity"
+? "symbols"= "IBM"
+
+
+
+// Search for quotes using specific criteria.
+
+@name("Search")
+GET "https://{{url}}/api/quotes/search"
+? "criteria"= "Apple"
+? "limit"= "3"
+? "loadQuotes"= "false"
+
+
+// Fetches option quotes as per request. All option tickers comfort to OSI symbol format as per specifications below. The request is made in the same fashion as equity. The results are the same as for equity quote. Symbols would look like: `F     130927C00014500`
+// 
+// |Root|Year|Month|Day|P/C|Strike whole|Decimal|
+// |----|----|-----|---|---|------------|-------|
+// |6 bytes|2 bytes|2 bytes|2 bytes|1 byte|5 bytes|3 bytes|
+// |F|13|09|27|C|00014|500|
+// 
+// Response sample:
+// ```json
+// [
+//   {
+//     "indicator": 0,
+//     "symbol": "AMZN  200313C01000000",
+//     "country": "USA",
+//     "paused": false,
+//     "estimatedCashAmount": 0,
+//     "vwap": 0,
+//     "precision": 2,
+//     "low52week": 0,
+//     "delayed": false,
+//     "calendarYearHigh": 0,
+//     "dividendYield": 0,
+//     "put": false,
+//     "navPrice": 0,
+//     "priceEarningRatio": 0,
+//     "dayHigh": 0,
+//     "askSize": 8,
+//     "mutualFund": false,
+//     "marketCap": 0,
+//     "halted": false,
+//     "nav": 0,
+//     "minBidSize": 0,
+//     "navChange": 0,
+//     "subMarket": 0,
+//     "dividendAmount": 0,
+//     "inTheMoney": false,
+//     "atTheMoney": false,
+//     "dividendRate": 0,
+//     "dayLow": 0,
+//     "crypto": false,
+//     "askRegion": {},
+//     "volume": 0,
+//     "tradeTime": "03/03/2020 15:48:03 EST",
+//     "putOrCall": "C",
+//     "nbbo": false,
+//     "symbolChange": false,
+//     "navYesterdayPrice": 0,
+//     "vwap1": 0,
+//     "trailing12MonthsEps": 0,
+//     "exchange": "OPTIONS",
+//     "tradePrice": 917.5,
+//     "minAskSize": 0,
+//     "strikePrice": 1000,
+//     "option": true,
+//     "high52week": 0,
+//     "bidTick": 0,
+//     "tradeRegion": {
+//       "code": "XNYS",
+//       "description": "ARCA"
+//     },
+//     "jumbo": false,
+//     "openInterest": 2,
+//     "mic": "11o",
+//     "notPermissioned": false,
+//     "increment": 0,
+//     "greeks": {
+//       "delta": 1,
+//       "rho": 0.1722709795355971,
+//       "notFound": false,
+//       "theta": -1.1288283699757686,
+//       "gamma": 3.899333370629582E-70,
+//       "vega": 6.558718583856576E-68
+//     },
+//     "bidYield": 0,
+//     "rootSymbol": "AMZN",
+//     "openingPrice": 0,
+//     "yesterdayVolume": 0,
+//     "fx": false,
+//     "underlyingSymbol": "AMZN",
+//     "marketCapClassification": "Nano",
+//     "identType": "ExchangeSymbol",
+//     "changePercent": 0,
+//     "currency": "USD",
+//     "contractSize": 100,
+//     "tradeSize": 0,
+//     "sharesOutstanding": 0,
+//     "beta": 0,
+//     "expirationDate": "03/13/2020 00:00:00 EDT",
+//     "yesterdayClose": 917.5,
+//     "calendarYearLow": 0,
+//     "imbalanceVolume": 0,
+//     "mini": false,
+//     "corpAct": false,
+//     "bidSize": 16,
+//     "symbolMarket": "O",
+//     "change": 0,
+//     "updateTime": "03/06/2020 15:20:26 EST",
+//     "marketCentre": "n",
+//     "bond": false,
+//     "marketDescription": "O",
+//     "call": true,
+//     "averageVolume30": 0,
+//     "ask": 879.35,
+//     "askYield": 0,
+//     "totalCashAmount": 0,
+//     "notFound": false,
+//     "bidRegion": {},
+//     "bid": 874.75,
+//     "dividentSoon": false,
+//     "lastPrice": 917.5,
+//     "intradayValue": 0
+//   }]
+// ```
+
+@name("Option")
+GET "https://{{url}}/api/quotes/option"
+
+
+// Returns greeks for given symbols:
+// 
+// ```json
+// [{
+// 	"symbol":"AMZN  200313C01000000",
+// 	"delta":1.0,
+// 	"gamma":8.497305608090472E-70,
+// 	"vega":1.4208919186580135E-67,
+// 	"theta":-1.12884173957371,
+// 	"rho":0.17198967354690198
+// }]
+// ```
+
+@name("Option Greeks")
+GET "https://{{url}}/api/quotes/option"
+
+
+// Returns indicator for option pricing type. Possible values are `NotApplicable`, `AllPrices`, `Pennies`, `Nickels`, `Dimes`. Passing price will check against pricing rules and either return an error `ERR_NICKELS_ONLY`|`ERR_DIMES_ONLY` or a pricing type as specified. Response example:
+// 
+// ```json
+// {
+// 	"success":true,
+// 	"payload":"Pennies"
+// }
+// ```
+
+@name("Option pricing type")
+GET "https://{{url}}/api/quotes/option/pricing/type"
+? "underlying"= "MSFT"
+? "symbol"= "F 130927C00014500"
+? "expectedPx"= "1.23"
+
+
+@name("Bonds")
+GET "https://{{url}}/api/quotes/bonds"
+
+
+
+// Returns an array of historical chart data values for the given ticker.
+
+@name("Historical")
+GET "https://{{url}}/api/quotes/equity/historical"
+? "symbol"= "AAPL"
+? "start"= "01/01/2017"
+? "end"= "06/01/2017"
+
+
+
+// Returns an array of intraday chart data values for the given ticker. Notes:
+// * volumes are normally adjusted to indicate change. Use `rawVolumes` to get absolute volumes at each data point.
+// * intraday data is retained for 2 months. Specify `from` and `to` in timestamp format to indicate desired dates.
+// 
+// Timestamp format: `yyyy-MM-dd HH:mm:ss`
+
+@name("Intraday chart data")
+GET "https://{{url}}/api/quotes/equity/intraday"
+? "symbol"= "IBM"
+? "rowVolumes"= "false"
+
+
+// Returns an array of minute by minute tick values for the given stock with specified date range.
+
+@name("Equity Ticks")
+GET "https://{{url}}/api/quotes/equity/ticks"
+? "symbol"= "GOOG"
+? "startTime"= "11/27/2016"
+? "endTime"= "11/28/2016"
+
+
+
+// Check whether given stock can be shorted. Returns information such as borrow rate, how many shares are available or been borrowed, indicator whether security was borrowed, or whether it can be borrowed.
+
+@name("Shortability")
+GET "https://{{url}}/api/quotes/equity/shortability/{symbol}"
+
+
+// Load a list of top stocks by category. 
+// 
+// ### Path Parameters
+// 
+// | Param | |
+// |-------|---|
+// | LP | Largest Price by % |
+// | MA | Most Active |
+// | DT | Most Active by $ Traded |
+// | MALP | Most Active by Price % |
+// 
+// ### Market Query Params
+// | Param | |
+// |-------|---|
+// | BIG3 | NYSE/Nasdaq/AmEx |
+// | NASDAQ | Nasdaq |
+// | NYSE | NYSE |
+// | AMEX | AmEx |
+// | OTCk | OTC BB |
+// | OTCi | OTC issues |
+// 
+// ### Order Query Params
+// | Param | |
+// |-------|---|
+// | H | Winners |
+// | L | Losers |
+
+@name("Top Stocks")
+GET "https://{{url}}/api/quotes/top10/{category}"
+"Authorization": "{{auth}}"
+? "market"= "BIG3"
+? "order"= "H"
+? "count"= "10"
+
+
+// Returns an array of expiration dates available for given symbol.
+
+@name("Option chain (dates)")
+GET "https://{{url}}/api/quotes/option/chain/dates/{symbol}"
+basicauth("", "")
+? "symbols"= "AAPL"
+
+
+// Returns an array of quotes for the option chain for given symbol and date. The date's recommended format is YYYY-MM-DD.
+
+@name("Option chain")
+GET "https://{{url}}/api/quotes/option/chain/{symbol}/{date}"
+? "symbols"= "AAPL"
+
+
+// Returns an array of quotes for the option chain for given symbol and date. The date's recommended format is YYYY-MM-DD.
+
+@name("Option chain (greeks)")
+GET "https://{{url}}/api/quotes/option/greeks/{symbol}/{date}"
+? "symbols"= "AAPL"
+
+
+

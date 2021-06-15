@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// Returns all records in the audit log, optionally for a certain date range.
+// This contains information about events like space exports, group membership
+// changes, app installations, etc. For more information, see
+// [Audit log](https://confluence.atlassian.com/confcloud/audit-log-802164269.html)
+// in the Confluence administrator's guide.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// 'Confluence Administrator' global permission.
+
+@name("Get audit records")
+GET "https://{{baseUrl}}/api/audit"
+? "startDate"= "<string>"
+? "endDate"= "<string>"
+? "searchString"= "<string>"
+? "start"= "0"
+? "limit"= "1000"
+
+
+// Creates a record in the audit log.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// 'Confluence Administrator' global permission.
+
+@name("Create audit record")
+POST "https://{{baseUrl}}/api/audit"
+"Content-Type": "application/json"
+data('{
+    "remoteAddress": "<string>",
+    "author": {
+        "type": "user",
+        "displayName": "<string>",
+        "operations": "<object>",
+        "username": "<string>",
+        "userKey": "<string>"
+    },
+    "creationDate": "<long>",
+    "summary": "<string>",
+    "description": "<string>",
+    "category": "<string>",
+    "sysAdmin": false,
+    "affectedObject": {
+        "name": "amet dolore",
+        "objectType": "labore tempor veniam officia"
+    },
+    "changedValues": [
+        {
+            "name": "voluptate sit sed sint ",
+            "oldValue": "proident nisi",
+            "newValue": "dolore aute cupidatat enim"
+        },
+        {
+            "name": "in eu",
+            "oldValue": "enim laborum tempor Lorem",
+            "newValue": "ipsum ex velit"
+        }
+    ],
+    "associatedObjects": [
+        {
+            "name": "qui",
+            "objectType": "ipsum"
+        },
+        {
+            "name": "nostrud consectetur",
+            "objectType": "sit dolore enim Ut"
+        }
+    ]
+}')
+
+
+// Exports audit records as a CSV file or ZIP file.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// 'Confluence Administrator' global permission.
+
+@name("Export audit records")
+GET "https://{{baseUrl}}/api/audit/export"
+? "startDate"= "<string>"
+? "endDate"= "<string>"
+? "searchString"= "<string>"
+? "format"= "csv"
+
+
+// Returns records from the audit log, for a time period back from the current
+// date. For example, you can use this method to get the last 3 months of records.
+// 
+// This contains information about events like space exports, group membership
+// changes, app installations, etc. For more information, see
+// [Audit log](https://confluence.atlassian.com/confcloud/audit-log-802164269.html)
+// in the Confluence administrator's guide.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// 'Confluence Administrator' global permission.
+
+@name("Get audit records for time period")
+GET "https://{{baseUrl}}/api/audit/since"
+? "number"= "3"
+? "units"= "MONTHS"
+? "searchString"= "<string>"
+? "start"= "0"
+? "limit"= "1000"
+
+
+

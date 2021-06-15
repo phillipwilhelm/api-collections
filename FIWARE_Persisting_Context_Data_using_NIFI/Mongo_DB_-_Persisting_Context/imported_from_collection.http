@@ -1,0 +1,68 @@
+#!/usr/bin/env dothttp
+
+// Once Draco is running, you can check the status by making an HTTP request to the exposed draco port to `/nifi-api/system-diagnostics`. If the response is blank, this is usually because Draco is not running or is listening on another port.
+
+@name("Draco - Check System Health")
+GET "http://{{draco}}/nifi-api/system-diagnostics"
+
+
+// Once a dynamic context system is up and running, we need to inform **Draco** of changes in context.
+// 
+// This is done by making a POST request to the `/v2/subscription` endpoint of the Orion Context Broker.
+// 
+// * The `fiware-service` and `fiware-servicepath` headers are used to filter the subscription to only listen to measurements from the attached IoT Sensors
+// * The `idPattern` in the request body ensures that Draco will be informed of all context data changes.
+// * The notification `url` must match the configured `NIFI_WEB_HTTP_PORT` and the URL the sync is listening on (usually  `/v2/notify`)
+// * The `throttling` value defines the rate that changes are sampled.
+// 
+// As you can see, the database used to persist context data has no impact on the details of the subscription. It is the same for each database.
+
+@name("Orion - Subscribe to Context Changes")
+POST "http://{{orion}}/v2/subscriptions/"
+"Content-Type": "application/json"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+data('{
+  "description": "Notify Draco of all context changes",
+  "subject": {
+    "entities": [
+      {
+        "idPattern": ".*"
+      }
+    ]
+  },
+  "notification": {
+    "http": {
+      "url": "http://draco:5050/v2/notify"
+    }
+  },
+  "throttling": 5
+}')
+
+
+// If a subscription has been created, you can check to see if it is firing by making a GET 
+// request to the `/v2/subscriptions` endpoint.
+// 
+// Within the `notification` section of the response, you can see several additional `attributes` which describe the health of the subscription
+// 
+// If the criteria of the subscription have been met, `timesSent` should be greater than `0`.
+// A zero value would indicate that the `subject` of the subscription is incorrect or the subscription 
+// has created with the wrong `fiware-service-path` or `fiware-service` header
+// 
+// The `lastNotification` should be a recent timestamp - if this is not the case, then the devices
+// are not regularly sending data. Remember to unlock the **Smart Door** and switch on the **Smart Lamp**
+// 
+// The `lastSuccess` should match the `lastNotification` date - if this is not the case 
+// then **Draco** is not receiving the subscription properly. Check that the host name
+// and port are correct. 
+// 
+// Finally, check that the `status` of the subscription is `active` - an expired subscription
+// will not fire.
+
+@name("Orion - Check Subscription is working")
+GET "http://{{orion}}/v2/subscriptions/"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+

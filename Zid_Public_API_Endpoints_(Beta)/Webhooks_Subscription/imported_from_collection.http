@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// ## Supported webhooks events:
+// |  Event           | Source |
+// | ------------- |-------------|
+// | order.create | Order |
+// | order.status.update | Order |
+// | product.create | Product |
+// | product.update | Product|
+// | product.publish | Product |
+// | Product.delete | Product |
+// 
+
+@name("Create a Webhook")
+POST "https://{{api_url}}/managers/webhooks"
+"Accept": "{{Accept}}"
+"Accept-Language": "{{Accept-Language}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Authorization": "{{Authorization}}"
+"User-Agent": "{{User-Agent}}"
+files(
+	("event", "order.create"),
+	("target_url", "https://webhook.site/4454b8d5-ddcd-47a7-a8dc-16ee62f5ef1e"),
+	("original_id", "1"),
+	("subscriber", "Mock"),
+	("conditions", "")
+)
+
+
+@name("List of Webhooks")
+GET "https://{{api_url}}/managers/webhooks"
+"Accept": "{{Accept}}"
+"Accept-Language": "{{Accept-Language}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Authorization": "{{Authorization}}"
+"User-Agent": "{{User-Agent}}"
+
+
+// * Send both the original Id and the subscriber params to delete a signal webhook.
+// * Send only the subscriber param to delete all its webhooks.
+
+@name("Delete a Webhook By Original Id")
+DELETE "https://{{api_url}}/managers/webhooks"
+"Accept": "{{Accept}}"
+"Accept-Language": "{{Accept-Language}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Authorization": "{{Authorization}}"
+"User-Agent": "{{User-Agent}}"
+? "original_id"= "1"
+? "subscriber"= "Mock"
+
+
+
+// Send only the subscriber param to delete all its webhooks.
+
+@name("Delete Webhooks By Subscriber")
+DELETE "https://{{api_url}}/managers/webhooks/subscriber"
+"Accept": "{{Accept}}"
+"Accept-Language": "{{Accept-Language}}"
+"X-MANAGER-TOKEN": "{{X-MANAGER-TOKEN}}"
+"Authorization": "{{Authorization}}"
+"User-Agent": "{{User-Agent}}"
+? "subscriber"= "Mock"
+
+
+
+

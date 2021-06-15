@@ -1,0 +1,139 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the devices associated to a multicast group. 
+// 
+// The response will provide an object that containsssssss the devices in the choosed multicast group.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key     | Value       | Description               | 
+// | ------- | ----------- | ------------------------- |
+// | mgid    | {{mgid}}    | Multicast Group id uniquely identify a multicast group
+// | did     | {{did}}     | Device id that uniquely identify a device
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+// 
+// Details:
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Multicast Group Device List")
+GET "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}/devices"
+"Authorization": "Bearer {{token}}"
+
+
+// This API adds a new device in the multicast group, we can pass also an array odf `deviceId`.
+// 
+// The reponse will contain the created object with the device details.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "MulticastGroupId": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "description": "Identifies the user on which add the gateway"
+//     },
+//     "ids": {
+//       "type": "array",
+//       "minItems": 1,
+//       "items": {
+//         "type": "integer"
+//       },
+//       "description": "Array of device id"
+//     }
+//   },
+//   "required": [
+//     "MulticastGroupId",
+//     "ids"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                              | Type        | Required     | Nullable | Defined by    |
+// | ------------------------------------- | ----------- | ------------ | -------- | ------------- |
+// | [MulticastGroupId](#multicastgroupid) | `integer`   | **Required** | No       | (this schema) |
+// | [ids](#ids)                           | `integer[]` | **Required** | No       | (this schema) |
+// 
+// ## MulticastGroupId
+// 
+// Identifies the user on which add the gateway
+// 
+// `MulticastGroupId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### MulticastGroupId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## ids
+// 
+// Array of device id
+// 
+// `ids`
+// 
+// - is **required**
+// - type: `integer[]`
+// - at least `1` items in the array
+// - defined in this schema
+// 
+// ### ids Type
+// 
+// Array type: `integer[]`
+// 
+// All items must be of the type: `integer`
+
+@name("Add Device In Multicast Grop")
+POST "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}/device"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"ids": "[{{did}}]"
+}')
+
+
+// This API removes a single device in an owned multicast group.
+// 
+// The device to delete is passed in the URL using the DeviceId as `{{did}}` and the multicast group is identified by `{{mgid}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The device is not delete, only the relationship with multicast group is deleted
+//    * The device associated to the multicast group is identified in the url by `{{did}}`
+//    * The multicast group is identified in the url by `{{mgid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Remove Device In Multicast Group")
+DELETE "{{protocol}}://{{host}}/api/v2/multicast-group/{{mgid}}/device/{{did}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"MulticastGroupId": {{mgid}},
+	"ids": "[{{did}}]"
+}')
+
+
+

@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// From the homepage of the GUI, a new application can be created by clicking the **Register** button.
+// 
+// ![](https://fiware.github.io/tutorials.Roles-Permissions/img/create-app.png)
+// 
+// To create a new application via the REST API, send a POST request to the `/v1/application` endpoint containing details of the application
+// such as `name` and `description`, along with OAuth information fields such as  the `url`  of the webservice to be protected,
+// and `redirect_uri` (where a user will be challenged for their credentials). The `grant_types` are chosen from the available list of
+// OAuth2 grant flows.
+// The headers include the  `X-Auth-token` from a previously logged in user will automatically be granted a provider role over the application.
+// 
+// In the example below, Alice (who holds `X-Auth-token=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`) is creating a new application which accepts three different grant types
+// 
+// The response includes a Client Id and Secret which can be used to secure the application
+
+@name("Create an Application")
+POST "http://{{keyrock}}/v1/applications"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "application": {
+    "name": "Tutorial Application",
+    "description": "FIWARE Application protected by OAuth2 and Keyrock",
+    "redirect_uri": "http://context-provider/login",
+    "url": "http://context-provider",
+    "grant_type": [
+      "authorization_code",
+      "implicit",
+      "password"
+    ],
+    "token_types": ["permanent"]
+  }
+}')
+
+
+// Making a GET request to a resource under the `/v1/applications/{{application-id}}` endpoint will return the application listed under that id.
+// 
+// The `X-Auth-token` must be supplied in the headers.
+
+@name("Read Application details")
+GET "http://{{keyrock}}/v1/applications/{{application-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+// Users will only be permitted to return  applications they are associated with. 
+// Listing applications can be done by making a GET request to the  `/v1/applications`
+// endpoint and supplying the  `X-Auth-token` Header
+
+@name("List Applications")
+GET "http://{{keyrock}}/v1/applications"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+// Within the GUI, users can be updated by selecting an application and clicking on `edit`.
+// This can also be done from the command line by making PATCH request to  `/v1/applications/<applications-id>` endpoint
+// when the applications id is known. The `X-Auth-token` header must also be set, since a User can only edit
+// applications he is associated with.
+// 
+// The response lists only the fields which have been updated
+
+@name("Update an Application")
+PATCH "http://{{keyrock}}/v1/applications/{{application-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+data('{
+  "application": {
+    "name": "new name",
+    "description": "new description",
+    "redirect_uri": "new redirect uri",
+    "grant_type": [
+      "authorization_code",
+      "password"
+    ]
+  }
+}')
+
+
+// Within the GUI, users can delete an application by selecting an application and clicking on `edit`,
+// then scrolling to the bottom of the page and selecting **Remove Application**. This can also be
+// done from the command line by sending a DELETE request to the `/v1/applications/<applications-id>`
+// endpoint. The `X-Auth-token` header must also be set.
+
+@name("Delete an Application")
+DELETE "http://{{keyrock}}/v1/applications/{{application-id}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-token": "{{X-Auth-token}}"
+
+
+
+

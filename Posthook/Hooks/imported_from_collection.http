@@ -1,0 +1,69 @@
+#!/usr/bin/env dothttp
+
+// Create a new hook to schedule a time for Posthook to make a request to your application.
+// 
+// 
+// ### Arguments
+// Parameter | Description
+// --------- | -----------
+// path _string_  **required** | The path Posthook will make a POST request to to fulfill the hook
+// postAt _timestamp_ **required** | The time Posthook will attempt to make a request to your application in [RFC 3339](https://tools.ietf.org/html/rfc3339) format
+// data _object_ | optional JSON object you want to be included in the request back to your application
+// 
+// > Even though an offset from UTC is accepted in the `postAt` parameter, it refers to a specific point in time and gets stored as UTC. It is up to the developer to ensure that this is either converted to UTC or has the correct offset.
+// 
+// ### Errors
+// 
+// Status Code | Description
+// --------- | -----------
+// 400 | Bad Request. See response body for details.
+// 401 | Unauthorized. Verify the API Key is valid.
+// 413 | Request entity too large. Request body must be smaller than 64 KB.
+// 429 | Hooks quota exceeded.
+// 500 | Internal Server Error. Contact support@posthook.io.
+
+@name("Schedule a Hook")
+POST "https://{{apiBaseURL}}/hooks"
+"Content-Type": "application/json"
+"X-API-Key": "{{apiKey}}"
+data('{
+	"path": "/webhooks/ph/event_reminder",
+	"postAt": "2018-06-15T21:00:00.000Z",
+	"data": {
+	  "eventID": 25
+	}
+}')
+
+
+// Get Hooks that have already been scheduled.
+
+@name("Get Hooks")
+GET "https://{{apiBaseURL}}/hooks"
+"X-API-Key": "{{apiKey}}"
+? "limit"= "100"
+? "status"= "pending"
+? "sortBy"= "postAt"
+? "sortOrder"= "ASC"
+? "postAtBefore"= "2018-08-01T00:00:00Z"
+? "postAtAfter"= "2018-07-01T00:00:00Z"
+? "createdAtBefore"= "2018-08-01T00:00:00Z"
+? "createdAtAfter"= "2018-03-01T00:00:00Z"
+
+
+// Get a specific Hook.
+
+@name("Get a Hook")
+GET "https://{{apiBaseURL}}/hooks/bbc8b97b-dda7-47f4-bff5-bc729b310ea1"
+"Content-Type": "application/json"
+"X-API-Key": "{{apiKey}}"
+
+
+// Delete a Hook. This will stop Posthook from making the request back to your application for this Hook.
+
+@name("Delete a Hook")
+DELETE "https://{{apiBaseURL}}/hooks/acee432b-86a8-4511-ba64-a9b6969dd12a"
+"X-API-Key": "{{apiKey}}"
+
+
+
+

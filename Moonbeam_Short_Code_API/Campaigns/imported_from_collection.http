@@ -1,0 +1,134 @@
+#!/usr/bin/env dothttp
+
+// This method allows the developer to send either an SMS or MMS (or both together) message campaign to <b>ALL</b> opted-in subscribers within your store.  By default, all calls to this method will go out on the communication short code that the subscriber is assigned to by cloudwi.re for the requested store. If the subscriber is not opted-in the message will be blocked and an update on each blocked message will be sent to the notification URL.
+// 
+// Unlike the Send Batch Campaign method to a segmented list, this method requires that the same message and media URL that you pass to the SMS API go out to every subscriber.  It cannot be customized for each individual subscriber.
+// 
+// The cloudwi.re SMS API will receive the data with a 200 if successful and begin queuing up all opted-in subscribers in the store to deliver the campaign.  
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>Only opted-in numbers will receive the campaign</li>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Campaign Delivery Status in the Campaigns folder.</li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>cloudwi.re Supports .JPG, .GIF and .PNG files.  Read the Supported Media guide for more information.</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// </ul>
+
+@name("Send Campaign to Store")
+POST "https://moonbeamapi.cloudwi.re/message/campaign/all"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("name", "Your Campaign Name."),
+	("message", "The message"),
+	("mediaUrl", "The MMS URL"),
+	("sendAll", "true")
+)
+
+
+// This method allows the developer to send either an SMS or MMS via a windows formatted CSV or a text file of mobile numbers.  It exists for developers building user interfaces for their end users.  By default, all calls to this method will go out on the communication short code that the subscriber is assigned to by cloudwi.re for the requested store. If the subscriber is not opted-in the message will be blocked and an update on each blocked message will be sent to the notification URL.  It is capped at 5,000 (5k) messages to a request.
+// 
+// <b>The API will begin processing the campaign as soon as the connection is open.  Please extend your time out settings when utilizing this method when approaching 5k numbers in a batch to be more than safe!  We cannot make a recommendation based on the many factors that go into the connection.  But you should be in the minutes when making this determination.</b>
+// 
+// Unlike the Send Campaign with an array, this method requires that the same static message and media URL that you pass to the SMS API go out to every subscriber.  It cannot be customized for each individual subscriber.  
+// 
+// The file is simply a list of mobile numbers that should receive the campaign.  Please be advised that cloudwi.re accepts windows formatted CSVs only or a .txt file.  Each number should be in its own row and all numbers should reside in the first column.  Make sure you format the numbers correctly as we ask in every other method....I.E., No + sign Example:
+// (19995552222)
+// 
+// The cloudwi.re SMS API will receive the data with a 200 if successful and begin queuing up all opted-in subscribers in the store to receive the campaign.  The API will then begin sending the campaign at the maximum available throttle.
+// 
+// <b>Considerations</b>
+// <ul>
+// <li><b>Did you scrub for duplicate mobile numbers?  It's a really good idea before you hit send because the SMS API does not!</b></li>
+// <li>The subscriber must be opted-in or the message will be blocked.</li>
+// <li>Extend your time outs to allow the API to consume the campaign.</li>
+// <li>You may send a maximum of 5,000 (5k) messages per request.</li>
+// <li>Messages are limited to 1600 characters, but we advise 160. </li>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Campaign Delivery Status in the Campaigns folder.</li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>cloudwi.re Supports .JPG, .GIF and .PNG files.  Read the Supported Media guide for more information.</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// </ul>
+
+@name("Send Batch File Campaign")
+POST "https://moonbeamapi.cloudwi.re/message/import/campaign"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("name", "Your Campaign Name"),
+	("message", "The message"),
+	("mediaUrl", "Your MMS URL"),
+	("file", "None")
+)
+
+
+// This method allows the developer to send either an SMS or MMS (or both together) message campaign to a group of selected subscribers within your store.  With this method you will pass cloudwi.re a mobileList, which is a collection of numbers, messages and media URLs  that are formatted in JSON and converted to a string.  It is capped at 5,000 (5k) messages to a request.
+// 
+// <b>The API will begin processing the campaign as soon as the connection is open.  Please extend your time out settings when utilizing this method when approaching 5k numbers in a batch to be more than safe!  We cannot make a recommendation based on the many factors that go into the connection.  But you should be in the minutes when making this determination.</b>
+// 
+// Unique to this method, you can send a dynamic message and media URL for each subscriber you are sending the campaign too.  Within the list passed,  a 'number' is required.  A 'message' or 'mediaUrl' is required as well.  You may also pass us both.  Each can have a custom value.
+// 
+// The cloudwi.re SMS API will receive the data with a 200 if successful and begin queuing up the campaign and checking the opt-in status of each subscriber you wish to campaign too.  The API will then begin sending the campaign at the maximum available throttle.  You can use two other methods in this resource to look up delivery data.
+// 
+// Any subscribers who are not in an opted-in state will be reported to the notification URL and dropped from the campaign.  Invalid parameters inside of the mobileList parameter string will not echo back and are sent to the notification URL as subscriber not opted-in errors.
+// 
+// <b>Considerations</b>
+// <ul>
+// <li><b>Did you scrub for duplicate mobile numbers?  It's a really good idea before you hit send because the SMS API does not!</b></li>
+// <li>The subscriber must be opted-in or the message will be blocked.</li>
+// <li>Extend your time outs to allow the API to consume the campaign.</li>
+// <li>You may send a maximum of 5,000 (5k) messages per request.</li>
+// <li>Messages are limited to 1600 characters, but we advise 160. </li>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Campaign Delivery Status in the Campaigns folder.</li>
+// <li>Media URLs must begin with HTTP:// or HTTPS://</li>
+// <li>cloudwi.re Supports .JPG, .GIF and .PNG files.  Read the Supported Media guide for more information.</li>
+// <li>MMS is limited to 5mb for pictures and 455kb for audio/video.  Refer to the supported media guide for more info on supported URL types for MMS.</li>
+// <li>MMS to carriers who do not support it will be sent as a URL.</li>
+// <li>You may set up responderContent or a mediaUrl or both together.  One or the other is required though.</li>
+// <li>Use '\n' for line breaks but make sure you test.</li>
+// <li>Be weary of special characters...make sure you test.</li>
+// </ul>
+
+@name("Send Batch Campaign")
+POST "https://moonbeamapi.cloudwi.re/message/send/campaign"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("mobileList", "[{"number":"19994443333","message":"Hey Matt, I love college football!","mediaUrl":"http://i57.tinypic.com/muk4g4.png"}, {"number":"19993335555","message":"Hey Craig, I love college football!","mediaUrl":"http://i57.tinypic.com/muk4g4.png"}]")
+)
+
+
+@name("Send Dynamic File Campaign")
+POST "https://moonbeamapi.cloudwi.re/message/dynamic/campaign"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("name", "Craig"),
+	("file", "None")
+)
+
+
+// This method allows the developer to page through campaign delivery statistics by campaign transaction ID.  Only delivery statistics of messages that passed opt-in status checks will be provided in this payload.  This includes any delivery errors.  Any message to a subscriber that was not opted-in will hit your notification URL.
+// 
+// A maximum of 100 records are returned per page.
+
+@name("Campaign Delivery Status")
+GET "https://moonbeamapi.cloudwi.re/message/campaign/status/{{transactionId}}/1"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "57fefdefd16a10e24608ad9a"),
+	("mobileId", "14155964193"),
+	("message", "Hi there!  Ok I'm here.")
+)
+
+
+

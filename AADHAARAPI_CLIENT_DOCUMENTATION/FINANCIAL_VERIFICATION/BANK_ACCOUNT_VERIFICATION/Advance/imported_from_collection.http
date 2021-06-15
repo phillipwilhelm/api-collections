@@ -1,0 +1,97 @@
+#!/usr/bin/env dothttp
+
+// This API can be used to verify any Indian bank’s account number
+// 
+// ## REQUEST JSON
+// 
+// ### Body Params
+// 
+// * Account (required) - Bank Account Number which needs to be verified
+// * IFSC (required) - IFSC Code of corresponding bank
+// * Advance - If advance bank account verification Required (Y)
+// 
+// ## OUTPUT
+// 
+// <h4>Missing account number</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid parameter: Account Number is either missing or Invalid"
+// }
+// ```
+// 
+// <h4>Missing/invalid IFSC</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid parameter: IFSC is either missing or Invalid"
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//    "id":"f44791a7-6179-4a6d-9d00-32cfdd690af6",
+//    "transaction_status":1,
+//    "response_code":"TXN",
+//    "response_message":"Account details successfully verified.",
+//    "data":{
+//         "BeneName":"Mr  XXXX XXXX",
+//         "BankRef":"9127130XXXXX",
+//         "Remark":"Transaction Successful",,
+//         "Amount": "1.06",
+//         "Status":"VERIFIED"
+//    },
+//    "request_timestamp":"2019-05-07 13:13:37:148 +05:30",
+//    "response_timestamp":"2019-05-07 13:13:41:702 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "36c42025-c506-4698-a158-c81704b8e8a8",
+//     "transaction_status": 2,
+//     "response_code": "IAN",
+//     "response_message": "Account details could not be verified.",
+//     "data": {
+//         "Remark": "Invalid Account Number",
+//         "Status": "NOT VERIFIED"
+//     },
+//     "request_timestamp": "2019-10-13 18:52:09:123 +05:30",
+//     "response_timestamp": "2019-10-13 18:52:14:827 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+
+@name("Verification API")
+POST "https://{{aadhaar_url}}/verify-bank"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+    "Account": "<<Account Number Here>>",
+    "IFSC": "<<Bank\'s IFSC code>>",
+    "Advance": "Y"
+}')
+
+
+

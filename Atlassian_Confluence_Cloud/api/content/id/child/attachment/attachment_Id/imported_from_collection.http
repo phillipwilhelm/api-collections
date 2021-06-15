@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+// Updates the attachment properties, i.e. the non-binary data of an attachment
+// like the filename, media-type, comment, and parent container.
+// 
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to update the content.
+
+@name("Update attachment properties")
+PUT "https://{{baseUrl}}/api/content/:id/child/attachment/:attachmentId"
+"Content-Type": "application/json"
+data('{
+    "version": {
+        "number": "<integer>"
+    },
+    "id": "<string>",
+    "type": "<string>",
+    "title": "<string>",
+    "metadata": {
+        "mediaType": "<string>",
+        "comment": "<string>"
+    },
+    "container": {
+        "id": "<string>",
+        "type": "<string>"
+    }
+}')
+
+
+// Updates the binary data of an attachment, given the attachment ID, and
+// optionally the comment and the minor edit field.
+// 
+// This method is essentially the same as [Create or update attachments](#api-content-id-child-attachment-put),
+// except that it matches the attachment ID rather than the name.
+// 
+// Note, you must set a `X-Atlassian-Token: nocheck` header on the request
+// for this method, otherwise it will be blocked. This protects against XSRF
+// attacks, which is necessary as this method accepts multipart/form-data.
+// 
+// The media type 'multipart/form-data' is defined in [RFC 1867](https://www.ietf.org/rfc/rfc1867.txt).
+// Most client libraries have classes that make it easier to implement
+// multipart posts, like the [MultiPartEntity](http://hc.apache.org/httpcomponents-client-ga/httpmime/apidocs/org/apache/http/entity/mime/MultipartEntity.html)
+// Java class provided by Apache HTTP Components.
+// 
+// Example: This curl command updates an attachment (id='att456') that is attached
+// to a piece of content (id='123') with a comment and `minorEdits`=true.
+// 
+// ``` bash
+// curl -D- \
+//   -u admin:admin \
+//   -X POST \
+//   -H "X-Atlassian-Token: nocheck" \
+//   -F "file=@example.txt" \
+//   -F "minorEdit=true" \
+//   -F "comment=Example attachment comment" \
+//   http://myhost/rest/api/content/123/child/attachment/att456/data
+// ```
+// **[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:
+// Permission to update the content.
+
+@name("Update attachment data")
+POST "https://{{baseUrl}}/api/content/:id/child/attachment/:attachmentId/data"
+"Content-Type": "multipart/form-data"
+files(
+	("file", "<binary>"),
+	("minorEdit", "<binary>"),
+	("comment", "<binary>")
+)
+
+
+

@@ -1,0 +1,99 @@
+#!/usr/bin/env dothttp
+
+// You can use `POST /environments/{environmentId}/subscriptions/` to create a new subscriptions resource in the specified environment.
+// 
+// ::: info
+// **Note:** The service supports a maximum of 50 subscriptions. Attempts to create more than 50 subscriptions result in a 403 Forbidden error.
+// :::
+// 
+
+@name("CREATE Subscriptions")
+POST "https://{{apiPath}}/environments/{{envID}}/subscriptions"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name":"SubscriptionName",
+  "filterOptions":{
+    "includedActionTypes":[
+      "USER.CREATED",
+      "USER.MODIFIED"
+    ],
+    "includedPopulations":[
+      {"id": "{{popID}}"}
+    ],
+    "includedApplications":[
+      {"id": "{{appID}}"}
+    ]
+  },
+   "httpEndpoint":{
+    "url":"https://subscriptionendpoint.com",
+    "headers":{
+      "some-header":"some-value"
+    }
+  },
+  "format":"ACTIVITY",
+  "verifyTlsCertificates":false,
+  "enabled":true
+}')
+
+
+// The following sample shows the `GET /environments/{environmentId}/subscriptions` operation to return the complete list of subscriptions resources associated with the specified environment.
+
+@name("READ All Subscriptions")
+GET "https://{{apiPath}}/environments/{{envID}}/subscriptions"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can use `GET /environments/{environmentId}/subscriptions/{subscriptionId}` to view a subscriptions in the specified environment. The following sample shows the operation to get information about a single subscriptions.  
+// 
+
+@name("READ One Subscription")
+GET "https://{{apiPath}}/environments/{{envID}}/subscriptions/{{subscriptionID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can use `PUT /environments/{environmentId}/subscriptions/{subscriptionId}` to update the attribute values for a subscription resource in the specified environment.
+// 
+
+@name("UPDATE Subscription")
+PUT "https://{{apiPath}}/environments/{{envID}}/subscriptions/{{subscriptionID}}"
+"content-type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name":"UpdatedSubscription",
+  "filterOptions":{
+    "includedActionTypes":[
+      "USER.CREATED",
+      "USER.MODIFIED"
+    ],
+    "includedPopulations":[
+      {"id": "{popID}"}
+    ],
+    "includedApplications":[
+      {"id": "{appID}"}
+    ]
+  },
+   "httpEndpoint":{
+    "url":"https://subscriptionendpoint.com",
+    "headers":{
+      "some-header":"some-value"
+    }
+  },
+  "format":"ACTIVITY",
+  "enabled": true,
+  "verifyTlsCertificates":true
+}')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/subscriptions/{subscriptionId}` operation to delete the subscriptions resource from the specified environment.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Subscription")
+DELETE "https://{{apiPath}}/environments/{{envID}}/subscriptions/{{subscriptionID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

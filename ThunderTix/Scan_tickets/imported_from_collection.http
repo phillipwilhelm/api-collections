@@ -1,0 +1,249 @@
+#!/usr/bin/env dothttp
+
+// Look for the given barcode in the given performance, then mark it as scanned.
+// 
+// #### Response
+// 
+// The response has the following attributes:
+// 
+// | Attribute                      | Value                                |
+// |--------------------------------|--------------------------------------|
+// | id                             | Performance ID.                      |
+// | time                           | Date and time when the performance will take place. |
+// | name                           | Performance Name / Event Name.       |
+// | hide_date                      | TRUE when the date is hidden to the public, it can be set at {{thundertix_url}}/visibility/EVENT_ID |
+// | message                        | Message shown to the user. On a success scan, it contains the ticket type's name and the customer's name. |
+// | barcode                        | Barcode object, shown on a successful scan only. |
+// | note                           | Last note added to the order where the ticket belongs to. |
+// | scanned_tickets_at_performance | Counter of scanned barcodes.         |
+// 
+// 
+// #### Successful Response:
+// 
+// ```
+// {
+//     "id": 1799209,
+//     "time": "2020-05-22T16:00:00.000-05:00",
+//     "name": "Daily for a Year",
+//     "hide_date": false,
+//     "message": "<br /><br />Genral admission<br /> <br /> John Smith",
+//     "barcode": {
+//         "barcode": {
+//             "id": 48575377,
+//             "ticket_id": 28120201,
+//             "barcode": "NZC28120201",
+//             "scanned": false,
+//             "updated_at": "2020-05-20T16:42:04.000-05:00",
+//             "login": null,
+//             "thermal_image_file_name": null,
+//             "performance_id": 1799209,
+//             "ticket_name": "Genral Admission",
+//             "account_id": 3457,
+//             "customer_first_name": "John",
+//             "customer_last_name": "Smith",
+//             "order_id": 16634971,
+//             "seat_name": null
+//         }
+//     },
+//     "note": "",
+//     "scanned_tickets_at_performance": "1 / 6 Scanned, 5 Remain"
+// }
+// ```
+// 
+// #### Failing Responses:
+// When the barcode was already scanned.
+// 
+// ```
+// {
+//     "id": 1799209,
+//     "time": "2020-05-22T16:00:00.000-05:00",
+//     "name": "Daily for a Year",
+//     "hide_date": false,
+//     "message": "ALREADY SCANNED at <br />05/20/20 4:42pm CDT <br />by  TestAccount TestAccount <br /><br />Smith",
+//     "barcode": null,
+//     "note": "",
+//     "scanned_tickets_at_performance": "1 / 6 Scanned, 5 Remain"
+// }
+// ```
+// 
+// When the barcode is either invalid or does not belong to the given performance or performances.
+// 
+// ```
+// {
+//     "id": 1799209,
+//     "time": "2020-05-22T16:00:00.000-05:00",
+//     "name": "Daily for a Year",
+//     "hide_date": false,
+//     "message": "<h1>INVALID TICKET</h1>",
+//     "barcode": null,
+//     "note": "",
+//     "scanned_tickets_at_performance": "1 / 6 Scanned, 5 Remain"
+// }
+// ```
+
+@name("Read ticket")
+POST "https://{{thundertix_url}}/barcode/reader.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("performance_id", "{{performance_id}}"),
+	("bar[code]", "HSC1584797")
+)
+
+
+// #### Requirement
+// 
+// After do "GET Selected Performances", and let the user pick up the performances he/she want to scan, pass those performance IDs to this endpoint in an array called **iOS_session**, in this example, we are including 2 performances: {{performance_id_1}} and {{performance_id_2}}. If the barcode is found, then mark it as scanned.
+// 
+// #### Response
+// 
+// The response has the following attributes:
+// 
+// | Attribute                      | Value                                |
+// |--------------------------------|--------------------------------------|
+// | message                        | Message shown to the user. On a success scan, it contains the ticket type's name and the customer's name. |
+// | barcode                        | Barcode object, shown on a successful scan only. |
+// | note                           | Last note added to the order where the ticket belongs to. |
+// 
+// #### Successful Response
+// 
+// ```
+// {
+//     "message": "<br /><br />Genral admission<br /> <br /> John Smith",
+//     "barcode": {
+//         "barcode": {
+//             "id": 48575371,
+//             "ticket_id": 28120201,
+//             "barcode": "VSX28120201",
+//             "scanned": false,
+//             "updated_at": "2020-05-20T16:42:04.000-05:00",
+//             "login": null,
+//             "thermal_image_file_name": null,
+//             "performance_id": 1799209,
+//             "ticket_name": "Genral Admission",
+//             "account_id": 3457,
+//             "customer_first_name": "John",
+//             "customer_last_name": "Smith",
+//             "order_id": 16634971,
+//             "seat_name": null
+//         }
+//     },
+//     "note": ""
+// }
+// ```
+// 
+// #### Failing Response
+// 
+// When the barcode was already scanned.
+// 
+// ```
+// {
+//     "message": "ALREADY SCANNED at <br />05/20/20 8:08pm CDT <br />by  TestAccount TestAccount <br /><br />Smith",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+// 
+// When the barcode is invalid.
+// 
+// ```
+// {
+//     "message": "<h1>INVALID TICKET</h1>",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+
+@name("Read All Selected Performances")
+POST "https://{{thundertix_url}}/barcode/read_all/{{venue_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+files(
+	("iOS_session[]", "{{performance_id_1}}"),
+	("iOS_session[]", "{{performance_id_2}}"),
+	("bar[code]", "VSX28120201")
+)
+
+
+// Look for the given barcode in all performances that took place today, all day long, then mark it as scanned.
+// 
+// #### Response
+// 
+// The response has the following attributes:
+// 
+// | Attribute                      | Value                                |
+// |--------------------------------|--------------------------------------|
+// | message                        | Message shown to the user. On a success scan, it contains the ticket type's name and the customer's name. |
+// | barcode                        | Barcode object, shown on a successful scan only. |
+// | note                           | Last note added to the order where the ticket belongs to. |
+// 
+// #### Successul Response
+// 
+// ```
+// {
+//     "message": "<br /><br />Genral admission<br /> <br /> Michael Smith",
+//     "barcode": {
+//         "barcode": {
+//             "id": 48575389,
+//             "ticket_id": 28120203,
+//             "barcode": "EDH28120203",
+//             "scanned": false,
+//             "updated_at": "2020-05-20T21:07:54.000-05:00",
+//             "login": null,
+//             "thermal_image_file_name": null,
+//             "performance_id": 1799941,
+//             "ticket_name": "Genral Admission",
+//             "account_id": 3457,
+//             "customer_first_name": "Michael",
+//             "customer_last_name": "Smith",
+//             "order_id": 16634973,
+//             "seat_name": null
+//         }
+//     },
+//     "note": ""
+// }
+// ```
+// 
+// #### Failing Responses
+// 
+// When the barcode was already scanned.
+// 
+// ```
+// {
+//     "message": "ALREADY SCANNED at <br />05/20/20 9:08pm CDT <br />by  TestAccount TestAccount <br /><br />Smith",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+// 
+// When it is a valid barcode but it belongs to a performance that does not take place today.
+// 
+// ```
+// {
+//     "message": "Invalid: the event is not today or this is not your ticket",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+// 
+// When it is an invalid barcode.
+// 
+// ```
+// {
+//     "message": "<h1>INVALID TICKET</h1>",
+//     "barcode": null,
+//     "note": ""
+// }
+// ```
+
+@name("Read All For Today")
+POST "https://{{thundertix_url}}/barcode/read_all/{{venue_id}}.json"
+basicauth("{{login}}", "{{password}}")
+"Authorization": "Basic dGVzdF9hY2NvdW50QHRodW5kZXJ0aXguY29tOk15UGFzc3dvcmQx"
+? "clear_performances"= "true"
+files(
+	("bar[code]", "WVC1579225")
+)
+
+
+

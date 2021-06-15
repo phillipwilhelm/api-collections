@@ -1,0 +1,308 @@
+#!/usr/bin/env dothttp
+
+// Obtain a list of relationships for the specified account or get get list of relationships for all known accounts by omitting account number.
+// 
+// # ACH relationship entry
+// ```json
+// [
+//     {
+//         "relationshipType": "ACH"
+//         "entryId": 1,
+//         "nickname": "Test",
+//         "bankAccount": "******4321",
+//         "bankRoutingNumber": "****1234",
+//         "bankAccountType": "CHECKING",
+//         "creationTime": "06/06/2018 10:23:16 EDT",
+//         "account": "1XX000050",
+//         "status": "APPROVED|PENDING|REJECTED|CANCELED|UNKNOWN",
+//         "id": "{external id}"
+//     }
+// ]
+// ```
+// 
+// # WIRE information entry
+// ```json
+// [
+//     {
+//         "relationshipType": "WIRE"
+//         "entryId": 2,
+//         "nickname": "Test",
+//         "creationTime": "06/06/2018 10:23:16 EDT",
+//         "status": "APPROVED|PENDING|REJECTED|CANCELED|UNKNOWN",
+//         "note": "Optional note",
+//         "international": false,
+//         "account": "ABC123456",
+//         "beneficiary": {
+//             "thirdParty": false, // true|false|null
+//             "name": "John Smith",
+//             "account": "XX123",
+//             "address": {
+//                 "streetAddress": ["123 Main St", "2nd floor"],
+//                 "city": "Capital City",
+//                 "stateProvince": "NJ",
+//                 "postalCode": "ABC 123",
+//                 "country": "USA"
+//             },
+//             "recipientBank": {
+//                 "identifier": {
+//                     "type": "ABA|BIC",
+//                     "id": "123654"
+//                 },
+//                 "country": "USA",
+//                 "postalCode": "ABC 123",
+//                 "stateProvince": "NJ",
+//                 "city": "Capital City",
+//                 "name": "Main Street Bank",
+//                 "additionalInformation": "optional note"
+//             }
+//         }
+//     }
+// ]
+// ```
+
+@name("List")
+GET "https://{{url}}/api/transfer/relationship/list/{account}"
+
+
+// Returns list of payment methods available within given country:
+// 
+// ```json
+// [
+//   {
+//     "methodId": "NB",
+//     "name": "Net Banking India",
+//     "logo": "https://pay.dlocal.com/views/2.0/images/payments/NB.png"
+//   },
+//   {
+//     "methodId": "UI",
+//     "name": "UPI",
+//     "logo": "https://pay.dlocal.com/views/2.0/images/payments/UI.png"
+//   }
+// ]
+// ```
+
+@name("Payment methods")
+GET "https://{{url}}/api/transfer/bank/paymentMethods"
+? "country"= "IND"
+
+
+// Return list of bank codes available within given country:
+// ```json
+// [
+//   {
+//     "bankName": "Abhyudaya Coop Bank",
+//     "bankCode": "001",
+//     "countryCode": "IND"
+//   }
+// ]
+// ```
+
+@name("Bank Codes")
+GET "https://{{url}}/api/transfer/bank/bankCodes"
+? "country"= "IND|MEX"
+
+
+// Return list of bank codes available within given country:
+// ```json
+// [
+//   {
+//     "bankName": "Abhyudaya Coop Bank",
+//     "bankCode": "001",
+//     "countryCode": "IND"
+//   }
+// ]
+// ```
+
+@name("Bank Codes (via address)")
+POST "https://{{url}}/api/transfer/bank/bankCodes"
+json({
+    "country": "IND",
+    "city": "Mumbai",
+    "streetAddress": [
+        "716 /a, Poonam Chem, Dr.annie Besant Road, Opp.atre Mall, Worli"
+    ],
+    "postalCode": "400018",
+    "stateProvince": "Maharashtra"
+})
+
+
+// Returns list of payment methods available within given country:
+// 
+// ```json
+// [
+//   {
+//     "methodId": "NB",
+//     "name": "Net Banking India",
+//     "logo": "https://pay.dlocal.com/views/2.0/images/payments/NB.png"
+//   }
+// ]
+// ```
+
+@name("Payment methods (via address)")
+POST "https://{{url}}/api/transfer/bank/paymentMethods"
+json({
+    "country": "IND",
+    "city": "Mumbai",
+    "streetAddress": [
+        "716 /a, Poonam Chem, Dr.annie Besant Road, Opp.atre Mall, Worli"
+    ],
+    "postalCode": "400018",
+    "stateProvince": "Maharashtra"
+})
+
+
+// Creates new ACH relationship. Micro-deposits will be issued to the bank account which should then be verified via the `approve` endpoint. If you wish to use the IAV method instead please view the Instant Account Verification endpoints.
+
+@name("Create")
+POST "https://{{url}}/api/transfer/relationship/create"
+"Content-Type": "application/json"
+data('{
+  "account": "5VA0XXXX",
+  "bankRoutingNumber": "010101010",
+  "bankAccount": "111111",
+  "bankAccountOwnerName": "John Doe",
+  "bankAccountType": "CHECKING",    // CHECKING or SAVINGS
+  "nickname": "Test"
+ }')
+
+
+// Stores information regarding destination bank for cash wire purposes. Response would echo back the request with `APPROVED` status or produce an error.
+
+@name("Wire information")
+POST "https://{{url}}/api/transfer/relationship/wire/create"
+"Content-Type": "application/json"
+data('{
+  "nickname": "Test", // if omitted, will be constructed from beneficiary\'s name & account
+  "note": "Optional note",
+  "international": false, // true|false
+  "userAccount": {
+    "accountNumber": "ABC123456", // either this
+    "accountId": 123456           // or this
+  },
+  "beneficiary": {
+    "thirdParty": false, // true|false|null
+    "name": "John Smith",
+    "account": "XX123",
+    "address": {
+      "streetAddress": ["123 Main St", "2nd floor"],
+      "city": "Capital City",
+      "stateProvince": "NJ",
+      "postalCode": "ABC 123",
+      "country": "USA"
+    }
+  },
+  "recipientBank": {
+    "identifier": {
+      "type": "ABA|BIC",
+      "id": "123654"
+    },
+    "country": "USA",
+    "postalCode": "ABC 123",
+    "stateProvince": "NJ",
+    "city": "Capital City",
+    "name": "Main Street Bank",
+    "additionalInformation": "optional note"
+  }
+ }')
+
+
+// Stores information regarding a bank. Response would echo back the request with `APPROVED` status or produce an error. 
+// 
+// *NOTE:* international banks only, domestic relationships should utilize ACH.
+// 
+// *NOTE:* third party banks are not supported
+// 
+// 
+// *India:* fields `bankCode`, `bankName` and `bankAddress` can be omitted when `bankBranch` comforms to IFSC standard. Orbis will extract brank information from IFSC bank branch. Bank branch must match IFSC format.
+// 
+// 
+// *Mexico:* field `bankCode` can be omitted when `bankAccount` is CLABE format. `bankBranch` is not needed. `bankAddress` must be provided. `bankName` can be extracted from CLABE database. Field `primaryIdentityId` must comform to CURP format.
+
+@name("Banking relationship")
+POST "https://{{url}}/api/transfer/relationship/bank/create"
+"Content-Type": "application/json"
+data('{
+  "nickname": "Test",
+  "note": "Optional note",
+  "international": true,
+  "thirdParty": false,
+  "userAccount": {
+    "accountNumber": "ABC123456", // either this
+    "accountId": 123456           // or this
+  },
+  "primaryIdentityId": "",
+  "secondaryIdentityId": "{optiona}",
+  "beneficiaryAddress": { // when omitted, account\'s address on file will be used
+      "streetAddress": ["line_1", "line_n"],
+      "city": "Central City",
+      "stateProvince": "CC",
+      "postalCode": "CCT 000",
+      "country": "CCC"
+  },
+  "bankName": "Main Street Bank",
+  "bankCode": "001",
+  "bankAccount": "12346",
+  "bankBranch": "789456",
+  "paymentMethodId": "NB",
+  "bankAddress": {
+      "streetAddress": ["line_1", "line_n"],
+      "city": "Central City",
+      "stateProvince": "CC",
+      "postalCode": "CCT 000",
+      "country": "CCC"
+  }
+ }')
+
+
+// Approve a pending relationship with micro deposits.
+
+@name("Approve")
+POST "https://{{url}}/api/transfer/relationship/approve"
+"Content-Type": "application/json"
+data('{
+  "account": "5VA0XXXX",
+  "entryId": 1,    // Relationship ID 
+  "amount1": 0.35,
+  "amount2": 0.28
+ }')
+
+
+// Cancel the relationship.
+
+@name("Cancel")
+POST "https://{{url}}/api/transfer/relationship/cancel/{entryId}"
+"Authorization": "{{auth}}"
+"Content-Type": "application/json"
+data('{
+  "account": "2QCXXXX",
+  "reason": "USER CANCELED"
+ }')
+
+
+// Change the nickname of a relationship.
+
+@name("Rename")
+POST "https://{{url}}/api/transfer/relationship/rename/{entryId}"
+"Content-Type": "application/json"
+data('{
+  "nickname": "Citi Checking 2"
+}')
+
+
+@name("Advisor Policy Update")
+POST "https://{{url}}/api/transfer/relationship/policy"
+"Content-Type": "application/json"
+data('{
+    "entryId": 123,
+    "account": {
+        "accountNumber": "{optional}",
+        "accountId": 0
+    },
+    "policy": "AllowWithdrawal|Disallow",
+    "remoteDevice": "",
+    "remoteAddr": "",
+    "esigned": true
+}')
+
+
+

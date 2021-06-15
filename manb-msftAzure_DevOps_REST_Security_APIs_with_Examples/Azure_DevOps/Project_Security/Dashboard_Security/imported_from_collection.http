@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+@name("List all projects")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/descriptors/{{storageKey}}"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("List Project Dashboards")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/dashboard/dashboards"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.2"
+
+
+// You can get the descriptor from the create call/call the Groups list with the project scope set to get the group https://docs.microsoft.com/en-us/rest/api/azure/devops/graph/groups/list?view=azure-devops-rest-5.1
+
+@name("Get all teams under a Project (optional)")
+GET "https://dev.azure.com/{{organization}}/_apis/projects/{{projectID}}/teams"
+basicauth("Basic", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+@name("List Team Dashboards")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/{{teamID}}/_apis/dashboard/dashboards"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.2"
+
+
+// token format
+// 
+// "token": "$/PROJECT_ID/TEAM_ID/DASHBOARD_ID"
+
+@name("Edit Team Dashboards Membership")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{dashboardSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "$/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/4c80ca4f-3a3a-4e48-81d1-63f0627465d9/02302e51-9b65-4d89-bc92-6007835a04c7",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\\user@company.com",
+            "allow": 0,
+            "deny": 8,
+            "extendedInfo": {}
+        }
+    ]
+})
+
+
+// token format
+// 
+// "token": "$/PROJECT_ID/00000000-0000-0000-0000-000000000000/DASHBOARD_ID"
+// 
+// (since TEAM_ID is Null in this case)
+
+@name("Edit Project Dashboards Membership")
+POST "https://dev.azure.com/{{organization}}/_apis/AccessControlEntries/{{dashboardSecurityNamespace}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0"
+json({
+    "token": "$/4313b221-xxxx-4f6a-838d-aeff90b0xxxx/00000000-0000-0000-0000-000000000000/6acad0c3-02c7-47e5-ba1b-1bce6dfdf15a",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenant\\user@company.com",
+            "allow": 4,
+            "deny": 0,
+            "extendedInfo": {
+                "effectiveAllow": 0,
+                "effectiveDeny": 4,
+                "inheritedAllow": 0,
+                "inheritedDeny": 4
+            }
+        }
+    ]
+})
+
+
+

@@ -1,6 +1,7 @@
 #!/usr/bin/env dothttp
 
 // Lists summary information about each Salesforce version currently available, including the version, label, and a link to each version's root.
+
 @name("Versions")
 GET "https://{{_endpoint}}/services/data"
 "Content-Type": "application/json"
@@ -12,6 +13,7 @@ data('{
 
 
 // Lists available resources for the specified API version, including resource name and URI.
+
 @name("Resources by Version")
 GET "https://{{_endpoint}}/services/data/v{{version}}/"
 "Content-Type": "application/json"
@@ -19,17 +21,22 @@ GET "https://{{_endpoint}}/services/data/v{{version}}/"
 
 
 // Lists information about limits in your org. For each limit, this resource returns the maximum allocation and the remaining allocation based on usage. This resource is available in REST API version 29.0 and later for API users with the View Setup and Configuration permission
+
 @name("Limits")
 GET "https://{{_endpoint}}/services/data/v{{version}}/limits"
 
 
-// Lists the available objects and their metadata for your organization’s data. In addition, it provides the organization encoding, as well as the maximum batch size permitted in queries.// // You can use the If-Modified-Since header with this resource, with the date format EEE, dd MMM yyyy HH:mm:ss z. When using this header, if no available object’s metadata has changed since the provided date, a 304 Not Modified status code is returned with no response body.
+// Lists the available objects and their metadata for your organization’s data. In addition, it provides the organization encoding, as well as the maximum batch size permitted in queries.
+// 
+// You can use the If-Modified-Since header with this resource, with the date format EEE, dd MMM yyyy HH:mm:ss z. When using this header, if no available object’s metadata has changed since the provided date, a 304 Not Modified status code is returned with no response body.
+
 @name("Describe Global")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/"
 "Content-Type": "application/json"
 
 
 // Describes the individual metadata for the specified object. Can also be used to create a new record for a given object. For example, this can be used to retrieve the metadata for the Account object using the GET method, or create a new Account object using the POST method.
+
 @name("SObject Basic Information")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME"
 "Content-Type": "application/json"
@@ -44,36 +51,52 @@ data('{
 
 
 // Describes the individual metadata for the specified object. Can also be used to create a new record for a given object. For example, this can be used to retrieve the metadata for the Account object using the GET method, or create a new Account object using the POST method.
+
 @name("SObject Describe")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe"
 "Content-Type": "application/json"
 
 
-// Retrieves the list of individual records that have been deleted within the given timespan for the specified object. SObject Get Deleted is available in API version 29.0 and later.// // This resource is commonly used in data replication applications. Note the following considerations:// Deleted records are written to a delete log which this resource accesses. A background process that runs every two hours purges records that have been in an organization's delete log for more than two hours if the number of records is above a certain limit. Starting with the oldest records, the process purges delete log entries until the delete log is back below the limit. This is done to protect Salesforce from performance issues related to massive delete logs// Information on deleted records are returned only if the current session user has access to them.// Results are returned for no more than 15 days previous to the day the call is executed (or earlier if an administrator has purged the Recycle Bin).
+// Retrieves the list of individual records that have been deleted within the given timespan for the specified object. SObject Get Deleted is available in API version 29.0 and later.
+// 
+// This resource is commonly used in data replication applications. Note the following considerations:
+// Deleted records are written to a delete log which this resource accesses. A background process that runs every two hours purges records that have been in an organization's delete log for more than two hours if the number of records is above a certain limit. Starting with the oldest records, the process purges delete log entries until the delete log is back below the limit. This is done to protect Salesforce from performance issues related to massive delete logs
+// Information on deleted records are returned only if the current session user has access to them.
+// Results are returned for no more than 15 days previous to the day the call is executed (or earlier if an administrator has purged the Recycle Bin).
+
 @name("SObject Get Deleted")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/deleted/"
 "Content-Type": "application/json"
 
 
-// Retrieves the list of individual records that have been updated (added or changed) within the given timespan for the specified object. SObject Get Updated is available in API version 29.0 and later.// // This resource is commonly used in data replication applications. Note the following considerations:// Results are returned for no more than 30 days previous to the day the call is executed.// Your client application can replicate any objects to which it has sufficient permissions. For example, to replicate all data for your organization, your client application must be logged in with “View All Data” access rights to the specified object. Similarly, the objects must be within your sharing rules.// There is a limit of 600,000 IDs returned from this resource. If more than 600,000 IDs would be returned, EXCEEDED_ID_LIMIT is returned. You can correct the error by choosing start and end dates that are closer together.
+// Retrieves the list of individual records that have been updated (added or changed) within the given timespan for the specified object. SObject Get Updated is available in API version 29.0 and later.
+// 
+// This resource is commonly used in data replication applications. Note the following considerations:
+// Results are returned for no more than 30 days previous to the day the call is executed.
+// Your client application can replicate any objects to which it has sufficient permissions. For example, to replicate all data for your organization, your client application must be logged in with “View All Data” access rights to the specified object. Similarly, the objects must be within your sharing rules.
+// There is a limit of 600,000 IDs returned from this resource. If more than 600,000 IDs would be returned, EXCEEDED_ID_LIMIT is returned. You can correct the error by choosing start and end dates that are closer together.
+
 @name("SObject Get Updated")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/updated/"
 "Content-Type": "application/json"
 
 
 // Retrieves information about alternate named layouts for a given object.
+
 @name("SObject Named Layouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe/namedLayouts/:LAYOUT_NAME"
 "Content-Type": "application/json"
 
 
 // Accesses records based on the specified object ID. Retrieves, updates, or deletes records. This resource can also be used to retrieve field values. Use the GET method to retrieve records or fields, the DELETE method to delete records, and the PATCH method to update records.
+
 @name("SObject Rows")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID"
 "Content-Type": "application/json"
 
 
 // Accesses records based on the specified object ID. Retrieves, updates, or deletes records. This resource can also be used to retrieve field values. Use the GET method to retrieve records or fields, the DELETE method to delete records, and the PATCH method to update records.
+
 @name("SObject Rows Update")
 PATCH "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID"
 "Content-Type": "application/json"
@@ -83,199 +106,262 @@ data('{
 
 
 // Accesses records based on the specified object ID. Retrieves, updates, or deletes records. This resource can also be used to retrieve field values. Use the GET method to retrieve records or fields, the DELETE method to delete records, and the PATCH method to update records.
+
 @name("SObject Rows Delete")
 DELETE "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID"
 "Content-Type": "application/json"
 
 
-// Creates new records or updates existing records (upserts records) based on the value of a specified external ID field.// // If the specified value doesn't exist, a new record is created.// If a record does exist with that value, the field values specified in the request body are updated.// If the value is not unique, the REST API returns a 300 response with the list of matching records.// // HEAD, GET, PATCH, DELETE, POST
+// Creates new records or updates existing records (upserts records) based on the value of a specified external ID field.
+// 
+// If the specified value doesn't exist, a new record is created.
+// If a record does exist with that value, the field values specified in the request body are updated.
+// If the value is not unique, the REST API returns a 300 response with the list of matching records.
+// 
+// HEAD, GET, PATCH, DELETE, POST
+
 @name("SObject Rows by External ID")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:FIELD_NAME/:FIELD_VALUE"
 "Content-Type": "application/json"
 
 
 // Retrieves the specified blob field from an individual record.
+
 @name("SObject Blob Retrieve")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID/:BLOB_FIELD"
 "Content-Type": "application/json"
 
 
-// Returns a list of approval layouts for a specified object. Specify a particular approval process name to limit the return value to one specific approval layout. This resource is available in REST API version 30.0 and later.// // approvalProcessName parameter is optional
+// Returns a list of approval layouts for a specified object. Specify a particular approval process name to limit the return value to one specific approval layout. This resource is available in REST API version 30.0 and later.
+// 
+// approvalProcessName parameter is optional
+
 @name("SObject ApprovalLayouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe/approvalLayouts/:APPROVAL_PROCESS_NAME"
 "Content-Type": "application/json"
 
 
 // Returns a list of compact layouts for a specific object. This resource is available in REST API version 29.0 and later.
+
 @name("SObject CompactLayouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe/describe/compactLayouts"
 "Content-Type": "application/json"
 
 
 // Returns a list of layouts and descriptions. The list of fields and the layout name are returned.
+
 @name("Describe Global Layouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/Global/describe/layouts/"
 "Content-Type": "application/json"
 
 
 // Returns a list of layouts and descriptions. The list of fields and the layout name are returned.
+
 @name("Describe SObject Layouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe/layouts/"
 "Content-Type": "application/json"
 
 
 // Returns a list of layouts and descriptions. The list of fields and the layout name are returned.
+
 @name("Describe SObject Layouts Per Record Type")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/describe/layouts/:RECORD_TYPE_ID"
 "Content-Type": "application/json"
 
 
-// PlatformAction is a virtual read-only object. It enables you to query for actions displayed in the UI, given a user, a context, device format, and a record ID. Examples include standard and custom buttons, quick actions, and productivity actions.// Returns the description of the PlatformAction.
+// PlatformAction is a virtual read-only object. It enables you to query for actions displayed in the UI, given a user, a context, device format, and a record ID. Examples include standard and custom buttons, quick actions, and productivity actions.
+// Returns the description of the PlatformAction.
+
 @name("SObject PlatformAction")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/PlatformAction"
 "Content-Type": "application/json"
 
 
-// Returns a list of actions and their details. This resource is available in REST API version 28.0 and later. When working with actions, also refer to Quick Actions.// // To return a specific object’s actions as well as global actions, use: /vXX.X/sobjects/object/quickActions/// To return a specific action, use /vXX.X/sobjects/object/quickActions/{action name}// To return a specific action’s descriptive detail, use /vXX.X/sobjects/object/quickActions/{action name}/describe/// To return a specific action’s default values, including default field values, use services/data/vXX.X/sobjects/object/quickActions/{action name}/defaultValues/// In API version 28.0, to evaluate the default values for an action, use vXX.X/sobjects/object/quickActions/{action name}/defaultValues/{parent id}// In API version 29.0 and greater, to evaluate the default values for an action, use vXX.X/sobjects/object/quickActions/{action name}/defaultValues/{context id}// This returns the default values specific to the {context id} object.
+// Returns a list of actions and their details. This resource is available in REST API version 28.0 and later. When working with actions, also refer to Quick Actions.
+// 
+// To return a specific object’s actions as well as global actions, use: /vXX.X/sobjects/object/quickActions/
+// To return a specific action, use /vXX.X/sobjects/object/quickActions/{action name}
+// To return a specific action’s descriptive detail, use /vXX.X/sobjects/object/quickActions/{action name}/describe/
+// To return a specific action’s default values, including default field values, use services/data/vXX.X/sobjects/object/quickActions/{action name}/defaultValues/
+// In API version 28.0, to evaluate the default values for an action, use vXX.X/sobjects/object/quickActions/{action name}/defaultValues/{parent id}
+// In API version 29.0 and greater, to evaluate the default values for an action, use vXX.X/sobjects/object/quickActions/{action name}/defaultValues/{context id}
+// This returns the default values specific to the {context id} object.
+
 @name("SObject Quick Actions")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/quickActions/"
 "Content-Type": "application/json"
 
 
-// Retrieves the specified image data from a specific rich text area field in a given record.// contentReferenceId	The reference ID that uniquely identifies an image within a rich text area field.// You can obtain the reference by retrieving information for the object. The description will show the contents of the rich text area field
+// Retrieves the specified image data from a specific rich text area field in a given record.
+// contentReferenceId	The reference ID that uniquely identifies an image within a rich text area field.
+// You can obtain the reference by retrieving information for the object. The description will show the contents of the rich text area field
+
 @name("SObject Rich Text Image Retrieve")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID/richTextImageFields/:FIELD_NAME/:CONTENT_REFERENCE_ID"
 "Content-Type": "application/json"
 
 
-// Accesses records by traversing object relationships via friendly URLs. You can retrieve, update, or delete the record associated with the traversed relationship field. If there are multiple related records, you can retrieve the complete set of associated records. This resource is available in REST API version 36.0 and later.// // GET, PATCH, DELETE
+// Accesses records by traversing object relationships via friendly URLs. You can retrieve, update, or delete the record associated with the traversed relationship field. If there are multiple related records, you can retrieve the complete set of associated records. This resource is available in REST API version 36.0 and later.
+// 
+// GET, PATCH, DELETE
+
 @name("SObject Relationships")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/:RECORD_ID/:RELATIONSHIP_FIELD_NAME"
 "Content-Type": "application/json"
 
 
 // Returns a list of suggested Salesforce Knowledge articles for a case, work order, or work order line item.
+
 @name("SObject Suggested Articles")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/suggestedArticles"
 "Content-Type": "application/json"
 
 
 // Set, reset, or get information about a user password. This resource is available in REST API version 24.0 and later.
+
 @name("SObject User Password")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/User/:USER_ID/password"
 "Content-Type": "application/json"
 
 
 // Set, reset, or get information about a user password. This resource is available in REST API version 24.0 and later.
+
 @name("SObject Self Service User Password")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/SelfServiceUser/:USER_ID/password"
 "Content-Type": "application/json"
 
 
 // Set, reset, or get information about a user password. This resource is available in REST API version 24.0 and later.
+
 @name("Platform Event Schema by Event Name")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:EVENT_NAME/eventSchema"
 "Content-Type": "application/json"
 
 
 // Set, reset, or get information about a user password. This resource is available in REST API version 24.0 and later.
+
 @name("Platform Event Schema by Schema ID")
 GET "https://{{_endpoint}}/services/data/v{{version}}/event/eventSchema/:SCHEMA_ID"
 "Content-Type": "application/json"
 
 
 // Returns a list of items in either the Salesforce app drop-down menu or the Salesforce for Android, iOS, and mobile web navigation menu.
+
 @name("AppMenu")
 GET "https://{{_endpoint}}/services/data/v{{version}}/appMenu/"
 "Content-Type": "application/json"
 
 
 // Returns a list of compact layouts for multiple objects. This resource is available in REST API version 31.0 and later.
+
 @name("Compact Layouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/compactLayouts"
 "Content-Type": "application/json"
 ? "q"= "Account,Contact"
 
 
-// Your users can store consent preferences in different locations and possibly inconsistently. You can locate your customers’ preferences for consent across multiple records when using API version 44.0 and later. Tracking consent preferences helps you and your users respect the most restrictive requests.// Consent API aggregates consent settings across the Contact, Contact Point Type Consent, Data Use Purpose, Individual, Lead, Person Account, and User objects when the records have a lookup relationship. The Consent API can't locate records in which the email address field is protected by Platform Encryption.// // The API returns consent details based on a single action, like email or track, or—starting with API version 45.0—the multiaction endpoint allows you to request multiple actions in a single API call.
+// Your users can store consent preferences in different locations and possibly inconsistently. You can locate your customers’ preferences for consent across multiple records when using API version 44.0 and later. Tracking consent preferences helps you and your users respect the most restrictive requests.
+// Consent API aggregates consent settings across the Contact, Contact Point Type Consent, Data Use Purpose, Individual, Lead, Person Account, and User objects when the records have a lookup relationship. The Consent API can't locate records in which the email address field is protected by Platform Encryption.
+// 
+// The API returns consent details based on a single action, like email or track, or—starting with API version 45.0—the multiaction endpoint allows you to request multiple actions in a single API call.
+
 @name("Consent")
 GET "https://{{_endpoint}}/services/data/v{{version}}/consent/action/action"
 "Content-Type": "application/json"
 
 
-// Retrieves the values for your Embedded Service deployment configuration, including the branding colors, font, and site URL.// // You must be logged in to the account that owns the EmbeddedServiceConfigDeveloperName you are querying.
+// Retrieves the values for your Embedded Service deployment configuration, including the branding colors, font, and site URL.
+// 
+// You must be logged in to the account that owns the EmbeddedServiceConfigDeveloperName you are querying.
+
 @name("Embedded Service Configuration Describe")
 GET "https://{{_endpoint}}/services/data/v{{version}}/support/embeddedservice/configuration/:EMBEDDED_SERVICE_CONFIG_DEVELOPERNAME"
 "Content-Type": "application/json"
 
 
-// Returns the list of actions that can be statically invoked. You can also get basic information for each type of action.// This resource is available in REST API version 32.0 and later.
+// Returns the list of actions that can be statically invoked. You can also get basic information for each type of action.
+// This resource is available in REST API version 32.0 and later.
+
 @name("Standard Invocable Actions")
 GET "https://{{_endpoint}}/services/data/v{{version}}/actions/standard"
 "Content-Type": "application/json"
 
 
-// Returns the list of all custom actions. You can also get basic information for each type of action.// This resource is available in REST API version 32.0 and later.
+// Returns the list of all custom actions. You can also get basic information for each type of action.
+// This resource is available in REST API version 32.0 and later.
+
 @name("Custom Invocable Actions")
 GET "https://{{_endpoint}}/services/data/v{{version}}/actions/custom"
 "Content-Type": "application/json"
 
 
 // Returns detailed information about a list view, including the ID, the columns, and the SOQL query.
+
 @name("List View Describe")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/listviews/:QUERY_LOCATOR/describe"
 "Content-Type": "application/json"
 
 
 // Returns detailed information about a list view, including the ID, the columns, and the SOQL query.
+
 @name("List View Results")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/listviews/:LIST_VIEW_ID/results"
 "Content-Type": "application/json"
 
 
 // Returns the list of list views for the specified sObject, including the ID and other basic information about each list view. You can also get basic information for a specific list view by ID.
+
 @name("List Views")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/listviews/"
 "Content-Type": "application/json"
 
 
 // Returns the list of list views for the specified sObject, including the ID and other basic information about each list view. You can also get basic information for a specific list view by ID.
+
 @name("Data Category Groups")
 GET "https://{{_endpoint}}/services/data/v{{version}}/support/dataCategoryGroups"
 "Content-Type": "application/json"
 
 
 // Get data category details and the child categories by a given category.
+
 @name("Data Category Detail")
 GET "https://{{_endpoint}}/services/data/v{{version}}/support/dataCategoryGroups/:GROUP/dataCategories/:CATEGORY"
 "Content-Type": "application/json"
 
 
 // Get a page of online articles for the given language and category through either search or query.
+
 @name("Articles List")
 GET "https://{{_endpoint}}/services/data/v{{version}}/support/knowledgeArticles"
 "Content-Type": "application/json"
 
 
 // Get all online article fields, accessible to the user.
+
 @name("Articles Details")
 GET "https://{{_endpoint}}/services/data/v{{version}}/support/knowledgeArticles/:ARTICLE_ID"
 "Content-Type": "application/json"
 
 
 // Executes a simple RESTful search using parameters instead of a SOSL clause. Indicate parameters in a URL in the GET method. Or, use POST for more complex JSON searches.
+
 @name("Parameterized Search")
 GET "https://{{_endpoint}}/services/data/v{{version}}/parameterizedSearch/"
 "Content-Type": "application/json"
 
 
-// Returns a list of all approval processes. Can also be used to submit a particular record if that entity supports an approval process and one has already been defined. Records can be approved and rejected if the current user is an assigned approver. When using a POST request to do bulk approvals, the requests that succeed are committed and the requests that don’t succeed send back an error.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_approvals.htm
+// Returns a list of all approval processes. Can also be used to submit a particular record if that entity supports an approval process and one has already been defined. Records can be approved and rejected if the current user is an assigned approver. When using a POST request to do bulk approvals, the requests that succeed are committed and the requests that don’t succeed send back an error.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_approvals.htm
+
 @name("Process Approvals")
 GET "https://{{_endpoint}}/services/data/v{{version}}/process/approvals"
 "Content-Type": "application/json"
 
 
-// Returns a list of all approval processes. Can also be used to submit a particular record if that entity supports an approval process and one has already been defined. Records can be approved and rejected if the current user is an assigned approver. When using a POST request to do bulk approvals, the requests that succeed are committed and the requests that don’t succeed send back an error.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_approvals.htm
+// Returns a list of all approval processes. Can also be used to submit a particular record if that entity supports an approval process and one has already been defined. Records can be approved and rejected if the current user is an assigned approver. When using a POST request to do bulk approvals, the requests that succeed are committed and the requests that don’t succeed send back an error.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_approvals.htm
+
 @name("Process Approvals Submit")
 POST "https://{{_endpoint}}/services/data/v{{version}}/process/approvals"
 "Content-Type": "application/json"
@@ -290,129 +376,209 @@ data('{
 }')
 
 
-// Returns a list of all active workflow rules. If a rule has actions, the actions will be listed under the rule. Can also be used to trigger all workflow rules that are associated with a specified record. The actions for a rule are only fired if the rule’s criteria is met. When using a POST request, if anything fails, the whole transaction is rolled back.// // Cross-object workflow rules cannot be invoked using the REST API.// // To get a list of the workflow rules or to trigger one or more workflow rules, the URI is: /vXX.X/process/rules/// To get the rules for a particular object: /vXX.X/process/rules/SObjectName// To get the metadata for a particular rule: /vXX.X/process/rules/SObjectName/workflowRuleId// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_rules.htm
+// Returns a list of all active workflow rules. If a rule has actions, the actions will be listed under the rule. Can also be used to trigger all workflow rules that are associated with a specified record. The actions for a rule are only fired if the rule’s criteria is met. When using a POST request, if anything fails, the whole transaction is rolled back.
+// 
+// Cross-object workflow rules cannot be invoked using the REST API.
+// 
+// To get a list of the workflow rules or to trigger one or more workflow rules, the URI is: /vXX.X/process/rules/
+// To get the rules for a particular object: /vXX.X/process/rules/SObjectName
+// To get the metadata for a particular rule: /vXX.X/process/rules/SObjectName/workflowRuleId
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_process_rules.htm
+
 @name("Process Rules")
 GET "https://{{_endpoint}}/services/data/v{{version}}/process/rules"
 "Content-Type": "application/json"
 
 
-// Work with revenue and quantity schedules for opportunity products. Establish or reestablish a product schedule with multiple installments for an opportunity product. Delete all installments in a schedule.// This resource is available in REST API version 43.0 and later.// // In API version 46.0 and later, established and re-established schedules support custom fields, validation rules, and Apex triggers. Deleting all schedules now also fires delete triggers.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_opportunitylineitemschedules.htm
+// Work with revenue and quantity schedules for opportunity products. Establish or reestablish a product schedule with multiple installments for an opportunity product. Delete all installments in a schedule.
+// This resource is available in REST API version 43.0 and later.
+// 
+// In API version 46.0 and later, established and re-established schedules support custom fields, validation rules, and Apex triggers. Deleting all schedules now also fires delete triggers.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_opportunitylineitemschedules.htm
+
 @name("Product Schedules")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/OpportunityLineItem/:OPPORTUNITY_LINE_ITEM_ID/OpportunityLineItemSchedules"
 "Content-Type": "application/json"
 
 
-// Executes the specified SOQL query.// // If the query results are too large, the response contains the first batch of results and a query identifier in the nextRecordsUrl field of the response. The identifier can be used in an additional request to retrieve the next batch.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm
+// Executes the specified SOQL query.
+// 
+// If the query results are too large, the response contains the first batch of results and a query identifier in the nextRecordsUrl field of the response. The identifier can be used in an additional request to retrieve the next batch.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_query.htm
+
 @name("Query")
 GET "https://{{_endpoint}}/services/data/v{{version}}/query/"
 "Content-Type": "application/json"
 ? "q"= "SELECT+FIELDS(ALL)+from+Contact+LIMIT+200"
 
 
-// Executes the specified SOQL query. Unlike the Query resource, QueryAll will return records that have been deleted because of a merge or delete. QueryAll will also return information about archived Task and Event records. QueryAll is available in API version 29.0 and later.// // If the query results are too large, the response contains the first batch of results and a query identifier in the nextRecordsUrl field of the response. The identifier can be used in an additional request to retrieve the next batch. Note that even though nextRecordsUrl has query in the URL, it will still provide remaining results from the initial QueryAll request. The remaining results will include deleted records that matched the initial query.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_queryall.htm
+// Executes the specified SOQL query. Unlike the Query resource, QueryAll will return records that have been deleted because of a merge or delete. QueryAll will also return information about archived Task and Event records. QueryAll is available in API version 29.0 and later.
+// 
+// If the query results are too large, the response contains the first batch of results and a query identifier in the nextRecordsUrl field of the response. The identifier can be used in an additional request to retrieve the next batch. Note that even though nextRecordsUrl has query in the URL, it will still provide remaining results from the initial QueryAll request. The remaining results will include deleted records that matched the initial query.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_queryall.htm
+
 @name("QueryAll")
 GET "https://{{_endpoint}}/services/data/v{{version}}/queryAll/"
 "Content-Type": "application/json"
 ? "q"= "SELECT+name+from+Account"
 
 
-// Returns a list of global actions and object-specific actions. This resource is available in REST API version 28.0 and later. When working with actions, also refer to SObject Quick Actions.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_quickactions.htm
+// Returns a list of global actions and object-specific actions. This resource is available in REST API version 28.0 and later. When working with actions, also refer to SObject Quick Actions.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_quickactions.htm
+
 @name("Quick Actions")
 GET "https://{{_endpoint}}/services/data/v{{version}}/quickActions"
 "Content-Type": "application/json"
 
 
-// Returns the list of recently used list views for the given sObject type.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_recentlistviews.htm
+// Returns the list of recently used list views for the given sObject type.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_recentlistviews.htm
+
 @name("Recent List Views")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/listviews/recent"
 "Content-Type": "application/json"
 
 
-// Gets the most recently accessed items that were viewed or referenced by the current user. Salesforce stores information about record views in the interface and uses it to generate a list of recently viewed and referenced records, such as in the sidebar and for the auto-complete options in search.// // This resource only accesses most recently used item information. If you want to modify the list of recently viewed items, you’ll need to update recently viewed information directly by using a SOQL Query with a FOR VIEW or FOR REFERENCE clause.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_recent_items.htm
+// Gets the most recently accessed items that were viewed or referenced by the current user. Salesforce stores information about record views in the interface and uses it to generate a list of recently viewed and referenced records, such as in the sidebar and for the auto-complete options in search.
+// 
+// This resource only accesses most recently used item information. If you want to modify the list of recently viewed items, you’ll need to update recently viewed information directly by using a SOQL Query with a FOR VIEW or FOR REFERENCE clause.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_recent_items.htm
+
 @name("Recently Viewed Items")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/:SOBJECT_API_NAME/listviews/recent"
 "Content-Type": "application/json"
 
 
-// Lists information about object record counts in your organization.// This resource is available in REST API version 40.0 and later for API users with the “View Setup and Configuration” permission. The returned record count is approximate, and does not include the following types of records:// // Deleted records in the recycle bin.// Archived records.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_record_count.htm
+// Lists information about object record counts in your organization.
+// This resource is available in REST API version 40.0 and later for API users with the “View Setup and Configuration” permission. The returned record count is approximate, and does not include the following types of records:
+// 
+// Deleted records in the recycle bin.
+// Archived records.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_record_count.htm
+
 @name("Record Count")
 GET "https://{{_endpoint}}/services/data/v{{version}}/limits/recordCount"
 "Content-Type": "application/json"
 
 
-// Gets the current user’s most relevant items. Relevant items include records for objects in the user’s global search scope and also most recently used (MRU) objects.// Relevant items include up to 50 of the most recently viewed or updated records for each object in the user’s global search scope.// Note// The user’s global search scope includes the objects the user interacted with most in the last 30 days, including objects the user pinned from the search results page in the Salesforce Classic.// // Then, the resource finds more recent records for each most recently used (MRU) object until the maximum number of records, which is 2,000, is returned.// This resource only accesses the relevant item information. Modifying the list of relevant items is not currently supported// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_relevant_items.htm
+// Gets the current user’s most relevant items. Relevant items include records for objects in the user’s global search scope and also most recently used (MRU) objects.
+// Relevant items include up to 50 of the most recently viewed or updated records for each object in the user’s global search scope.
+// Note
+// The user’s global search scope includes the objects the user interacted with most in the last 30 days, including objects the user pinned from the search results page in the Salesforce Classic.
+// 
+// Then, the resource finds more recent records for each most recently used (MRU) object until the maximum number of records, which is 2,000, is returned.
+// This resource only accesses the relevant item information. Modifying the list of relevant items is not currently supported
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_relevant_items.htm
+
 @name("Relevant Items")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/relevantItems"
 "Content-Type": "application/json"
 
 
-// Returns the existing Knowledge language settings, including the default knowledge language and a list of supported Knowledge language information.// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_knowledge_retrieve_language.htm
+// Returns the existing Knowledge language settings, including the default knowledge language and a list of supported Knowledge language information.
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_knowledge_retrieve_language.htm
+
 @name("Retrieve Knowledge Language Settings")
 GET "https://{{_endpoint}}/services/data/v{{version}}/knowledgeManagement/settings"
 "Content-Type": "application/json"
 
 
-// Executes the specified SOSL search. The search string must be URL-encoded.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search.htm
+// Executes the specified SOSL search. The search string must be URL-encoded.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search.htm
+
 @name("Search")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search"
 "Content-Type": "application/json"
 
 
-// Returns an ordered list of objects in the default global search scope of a logged-in user. Global search keeps track of which objects the user interacts with and how often and arranges the search results accordingly. Objects used most frequently appear at the top of the list.// The returned list reflects the object order in the user’s default search scope, including any pinned objects on the user’s search results page. This call is useful if you want to implement a custom search results page using the optimized global search scope. The search string must be URL-encoded.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_scope_order.htm
+// Returns an ordered list of objects in the default global search scope of a logged-in user. Global search keeps track of which objects the user interacts with and how often and arranges the search results accordingly. Objects used most frequently appear at the top of the list.
+// The returned list reflects the object order in the user’s default search scope, including any pinned objects on the user’s search results page. This call is useful if you want to implement a custom search results page using the optimized global search scope. The search string must be URL-encoded.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_scope_order.htm
+
 @name("Search Scope and Order")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search/scopeOrder"
 "Content-Type": "application/json"
 
 
-// Returns search result layout information for the objects in the query string. For each object, this call returns the list of fields displayed on the search results page as columns, the number of rows displayed on the first page, and the label used on the search results page.// This call supports bulk fetch for up to 100 objects in a query.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_layouts.htm
+// Returns search result layout information for the objects in the query string. For each object, this call returns the list of fields displayed on the search results page as columns, the number of rows displayed on the first page, and the label used on the search results page.
+// This call supports bulk fetch for up to 100 objects in a query.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_layouts.htm
+
 @name("Search Result Layouts")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search/layout/"
 "Content-Type": "application/json"
 
 
-// Return details about users who switched between Salesforce Classic and Lightning Experience.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_togglemetrics.htm
+// Return details about users who switched between Salesforce Classic and Lightning Experience.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_togglemetrics.htm
+
 @name("Lightning Toggle Metrics")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningToggleMetrics"
 "Content-Type": "application/json"
 
 
-// Return the total number of Lightning Experience and Salesforce Mobile users.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebyapptypemetrics.htm
+// Return the total number of Lightning Experience and Salesforce Mobile users.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebyapptypemetrics.htm
+
 @name("Lightning Usage by App Type")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningUsageByAppTypeMetrics"
 "Content-Type": "application/json"
 
 
-// Return Lightning Experience usage results grouped by browser instance.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebybrowsermetrics.htm
+// Return Lightning Experience usage results grouped by browser instance.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebybrowsermetrics.htm
+
 @name("Lightning Usage by Browser")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningUsageByBrowserMetrics"
 "Content-Type": "application/json"
 
 
-// Represents standard pages users viewed most frequently in Lightning Experience.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebypagemetrics.htm
+// Represents standard pages users viewed most frequently in Lightning Experience.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebypagemetrics.htm
+
 @name("Lightning Usage by Page")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningUsageByBrowserMetrics"
 "Content-Type": "application/json"
 
 
-// Return details about the custom pages viewed most frequently in Lightning Experience.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebyflexipagemetrics.htm
+// Return details about the custom pages viewed most frequently in Lightning Experience.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_usagebyflexipagemetrics.htm
+
 @name("Lightning Usage by FlexiPage")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningUsageByFlexiPageMetrics"
 "Content-Type": "application/json"
 
 
-// Return frequency metrics about the standard pages within which users switched from Lightning Experience to Salesforce Classic.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_exitbypagemetrics.htm
+// Return frequency metrics about the standard pages within which users switched from Lightning Experience to Salesforce Classic.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_exitbypagemetrics.htm
+
 @name("Lightning Exit by Page Metrics")
 GET "https://{{_endpoint}}/services/data/v{{version}}/sobjects/LightningExitByPageMetrics"
 "Content-Type": "application/json"
 
 
-// Return frequency metrics about the standard pages within which users switched from Lightning Experience to Salesforce Classic.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_exitbypagemetrics.htm
+// Return frequency metrics about the standard pages within which users switched from Lightning Experience to Salesforce Classic.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_lightning_exitbypagemetrics.htm
+
 @name("Scheduling")
 GET "https://{{_endpoint}}/services/data/v{{version}}/scheduling"
 "Content-Type": "application/json"
 
 
-// Returns a list of available appointment time slots for a resource based on given work type group and territories.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/requests_ls_getappointmentslots.htm
+// Returns a list of available appointment time slots for a resource based on given work type group and territories.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/requests_ls_getappointmentslots.htm
+
 @name("Get Appointment Slots")
 POST "https://{{_endpoint}}/services/data/v{{version}}/scheduling/getAppointmentSlots"
 "Content-Type": "application/json"
@@ -429,7 +595,10 @@ data('{
 }')
 
 
-// Returns a list of available service resources (appointment candidates) based on work type group and service territories.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/requests_ls_getappointmentcandidates.htm
+// Returns a list of available service resources (appointment candidates) based on work type group and service territories.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/requests_ls_getappointmentcandidates.htm
+
 @name("Get Appointment Candidates")
 POST "https://{{_endpoint}}/services/data/v{{version}}/scheduling/getAppointmentCandidates"
 "Content-Type": "application/json"
@@ -446,35 +615,52 @@ data('{
 }')
 
 
-// Returns a list of suggested records whose names match the user’s search string. The suggestions resource provides autocomplete results and instant results for users to navigate directly to likely relevant records, before performing a full search.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_records.htm
+// Returns a list of suggested records whose names match the user’s search string. The suggestions resource provides autocomplete results and instant results for users to navigate directly to likely relevant records, before performing a full search.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_records.htm
+
 @name("Search for Records Suggested by Autocomplete and Instant Results")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search/suggestions"
 "Content-Type": "application/json"
 
 
 
-// Returns a list of Salesforce Knowledge article titles that match the user’s search query string. Provides a shortcut to navigate directly to likely relevant articles before the user performs a search.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_title_matches.htm
+// Returns a list of Salesforce Knowledge article titles that match the user’s search query string. Provides a shortcut to navigate directly to likely relevant articles before the user performs a search.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_title_matches.htm
+
 @name("Search Suggested Article Title Matches")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search/suggestions"
 "Content-Type": "application/json"
 
 
 
-// Returns a list of suggested searches based on the user’s query string text matching searches that other users have performed in Salesforce Knowledge. Provides a way to improve search effectiveness, before the user performs a search.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_queries.htm
+// Returns a list of suggested searches based on the user’s query string text matching searches that other users have performed in Salesforce Knowledge. Provides a way to improve search effectiveness, before the user performs a search.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_search_suggest_queries.htm
+
 @name("Search Suggested Queries")
 GET "https://{{_endpoint}}/services/data/v{{version}}/search/suggestSearchQueries"
 "Content-Type": "application/json"
 
 
 
-// f a survey field can be translated or is already translated into a particular language, you can add or change the translated value of the survey field.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/request_survey_translate_add_change.htm
+// f a survey field can be translated or is already translated into a particular language, you can add or change the translated value of the survey field.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/request_survey_translate_add_change.htm
+
 @name("Tabs")
 GET "https://{{_endpoint}}/services/data/v{{version}}/tabs"
 "Content-Type": "application/json"
 
 
 
-// Gets the list of icons and colors used by themes in the Salesforce application. Theme information is provided for objects in your organization that use icons and colors in the Salesforce UI.// // The If-Modified-Since header can be used with this resource, with a date format of EEE, dd MMM yyyy HH:mm:ss z. When this header is used, if the object metadata has not changed since the provided date, a 304 Not Modified status code is returned, with no response body.// // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_themes.htm
+// Gets the list of icons and colors used by themes in the Salesforce application. Theme information is provided for objects in your organization that use icons and colors in the Salesforce UI.
+// 
+// The If-Modified-Since header can be used with this resource, with a date format of EEE, dd MMM yyyy HH:mm:ss z. When this header is used, if the object metadata has not changed since the provided date, a 304 Not Modified status code is returned, with no response body.
+// 
+// https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_themes.htm
+
 @name("Themes")
 GET "https://{{_endpoint}}/services/data/v{{version}}/theme"
 "Content-Type": "application/json"

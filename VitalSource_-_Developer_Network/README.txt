@@ -1,0 +1,1 @@
+VitalSource Postman collection. All endpoints in this collection require a VitalSource API key. If your organization has no pre-existing relationship with VitalSource please visit us at https://get.vitalsource.com

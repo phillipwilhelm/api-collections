@@ -1,0 +1,128 @@
+#!/usr/bin/env dothttp
+
+// Use this API Call to get the information about the hosted images on Crosswork.
+
+@name("Available Images")
+GET "https://{{crosswork_ip}}/crosswork/imagesvc/v1/images"
+"Content-Type": "application/vnd.yang.data+json"
+
+
+// Use this API Call to get the information about the available configuration files on Crosswork.
+
+@name("Available configuration Files")
+GET "https://{{crosswork_ip}}/crosswork/configsvc/v1/configs/"
+"Content-Type": "application/vnd.yang.data+json"
+
+
+// Use this API Call to get detailed information about the specific configuration file on Crosswork.
+
+@name("Details of specific Configuration File")
+GET "https://{{crosswork_ip}}/crosswork/configsvc/v1/configs/files/6910573f-799e-4a6a-b657-6a84143485b2"
+"Content-Type": "application/vnd.yang.data+json"
+
+
+// Use this API Call to Add a device on Crosswork for ZTP.
+
+@name("Add a Device")
+POST "https://{{crosswork_ip}}/crosswork/ztp/v1/devices"
+"Content-Type": "application/json"
+data('{
+    "nodes": [
+        {
+            "hostName": "RouterSanFran",
+            "serialNumber": "12345",
+            "credentialProfile": "demo",
+            "ipAddress": {},
+            "profileName": "RouterSanFran Profile",
+            "status": "Unprovisioned"
+        }
+        
+    ]
+}
+        ')
+
+
+// Use this API to upload a configuration file on Crosswork System.
+
+@name("Upload Configuration File")
+POST "https://{{crosswork_ip}}/crosswork/configsvc/v1/configs/upload"
+"Authorization": ""
+"X-Real-IP": "<string>"
+"Content-Type": "multipart/form-data"
+? "confname"= "RouterSanFran"
+? "osname"= "IOS-XR"
+? "version"= "6.6.3"
+? "devicefamily"= "CISCO NCS5500"
+? "type"= "custom"
+? "user"= "<string>"
+files(
+	("configFile", "None")
+)
+
+
+// Use this API to get the ZTP Device information from Crosswork
+
+@name("Get Devices")
+POST "https://{{crosswork_ip}}/crosswork/ztp/v1/devices/query"
+"Content-Type": "application/json"
+data('{
+    "filter": {
+    }
+}
+ ')
+
+
+// Use this API call to add a profile(ZTP related) on Crosswork system.
+
+@name("Add Profiles")
+POST "https://{{crosswork_ip}}/crosswork/ztp/v1/profiles"
+"Content-Type": "application/json"
+data('{
+    "profiles": [
+        {
+            "profileName": "RouterSanFran_Profile",
+            "profileDescription": "Demo Profile",
+            "osPlatform": "IOS-XR",
+            "deviceFamily": "CISCO NCS5500",
+            "version": "6.6.3",
+            "config": "284cfaeb-583f-41f4-8e0b-d79bbcabd5d0",
+            "lastUpdated": "1591364924580",
+            "configName": "RouterSanFran"
+        }
+    ]
+}
+            
+')
+
+
+// Use this API Call to get the available ZTP related profile information on Crosswork System.
+
+@name("Get Profiles")
+POST "https://{{crosswork_ip}}/crosswork/ztp/v1/profiles/query"
+"Content-Type": "application/json"
+data('{
+    "filter": {
+    }
+}
+')
+
+
+// Use this API Call to Update the device status on Crosswork for ZTP.
+
+@name("Update a Device")
+PATCH "https://{{crosswork_ip}}/crosswork/ztp/v1/deviceinfo/status"
+"Content-Type": "application/json"
+"Accept": "application/json"
+json({
+    "hostName": "ztp-device-13",
+    "serialNumber": "FOC2249R0K4",
+    "status": "Provisioned",
+    "ipAddress": {
+        "inetAddressFamily": "IPV4",
+        "ipaddrs": "30.30.30.14",
+        "mask": 24
+    }
+})
+
+
+

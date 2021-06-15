@@ -1,0 +1,34 @@
+#!/usr/bin/env dothttp
+
+// To invoke the `open` command, the `open` attribute must be updated in the context.
+
+@name("Open a Door")
+PATCH "http://{{orion}}/v2/entities/urn:ngsi-ld:Door:001/attrs"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+  "open": {
+      "type" : "command",
+      "value" : ""
+  }
+}')
+
+
+// The result of the invocation of **Smart Door** commands can be read by querying the entity within the Orion Context Broker. 
+// 
+// The `TimeInstant` shows last the time any command associated with the entity has been invoked. 
+// 
+// * The result of `open` command can be see in the value of the `open_info` attribute
+// * The result of `close` command can be see in the value of the `close_info` attribute
+// * The result of `lock` command can be see in the value of the `lock_info` attribute
+// * The result of `unlock` command can be see in the value of the `unlock_info` attribute
+
+@name("Door Status")
+GET "http://{{orion}}/v2/entities/urn:ngsi-ld:Door:001"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+? "options"= "keyValues"
+
+
+

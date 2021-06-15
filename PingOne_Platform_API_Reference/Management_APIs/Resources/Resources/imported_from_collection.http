@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/resources` endpoint returns a list of all resource entities associated with the specified environment resource.
+
+@name("READ All Resources")
+GET "https://{{apiPath}}/environments/{{envID}}/resources"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single resource entity, the `GET /environments/{environmentId}/resources/{resourceId}` operation returns data for the resource entity with the specified ID.
+
+@name("READ One Resource")
+GET "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/resources` operation adds a new resource entity to the specified environment resource.
+// 
+// 
+// The request body must specify a value for the resource entity's `name` property, and the `name` value must be unique within the specified environment resource. If a value for the `accessTokenValiditySeconds` property is not specified, the new resource uses the default value of 3600 seconds. If a value for the `audience` property is not specified, the value defaults to the name of the resource.
+// 
+// ::: info
+// **Note:** For new custom resources, the `sub` claim is created separately and its value is set to `${user.id}`.
+// :::
+
+@name("CREATE Resource")
+POST "https://{{apiPath}}/environments/{{envID}}/resources"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "CustomResource1",
+  "description": "This is my custom resource",
+  "audience": "https://api.custom.com",
+  "accessTokenValiditySeconds": 7200
+}')
+
+
+// The `PUT /environments/{environmentId}/resources/{resourceId}` operation updates the property values of the identified resource entity.
+// 
+// 
+// The request body specifies updated property values for the resource `name` and `audience`. Any property values not specified in the request body are cleared. The response returns a `200 OK` message, and it shows the updated property data for the modified resource entity.
+// 
+// In this example, the `description` property value was cleared. The `accessTokenValiditySeconds` property value was cleared and reset to the default value of 3600. The `name` and `audience` properties were modified to the values specified in the request body.
+// 
+
+@name("UPDATE Resource")
+PUT "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "CustomResource_EU",
+  "audience": "https://api.custom.eu"
+}')
+
+
+// The following sample shows the `DELETE /environments/{environmentId}/resources/{resourceId}` operation to delete the resource entity specified by its ID in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+
+@name("DELETE Resource")
+DELETE "https://{{apiPath}}/environments/{{envID}}/resources/{{resourceID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

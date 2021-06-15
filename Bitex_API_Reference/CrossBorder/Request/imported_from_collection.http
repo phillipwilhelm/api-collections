@@ -1,0 +1,98 @@
+#!/usr/bin/env dothttp
+
+// Start by creating a new request. You would usually follow by adding outputs to it.
+// 
+// `port_code` is the place you're sending from. To know all the available ports (origin and destination) you can reffer to [ our port guide](https://api.bitex.la/docs/concierge/ports/)
+// 
+// `external_id` is optional, it should be this Request's id in your system. You should still store Bitex's Request id in your database.
+// 
+// `payment_authorization_code` is optional. Requests can be funded from your Bitex balance, but if you choose to make a specific payment to fund this request, you should fill in the `payment_authorization_code` with the payment clearing information so that we can identify it.
+
+@name("Create a Concierge Request")
+POST "https://{{domain}}/api/concierge_requests"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+    "data": {
+        "type": "concierge_requests",
+        "attributes": {
+            "port_code": "cl_clp",
+            "external_id": "ABC123",
+            "payment_authorization_code": "ABC1234DEF5678"
+        },
+        "relationships": {
+            "user": {
+                "data": {
+                    "id": 1,
+                    "type": "users"
+                }
+            }
+        }
+    }
+}')
+
+
+// You can set the `external_id` and `payment_authorization_code` when updating a request.
+// 
+// Keep in mind once set, these values cannot be changed.
+
+@name("Update a Concierge Request")
+PATCH "https://{{domain}}/api/concierge_requests/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+    "data": {
+        "type": "concierge_requests",
+        "id": "<your_request_id>",
+        "attributes": {
+            "external_id": "ABC123",
+            "payment_authorization_code": "ABC1234DEF5678"
+        }
+    }
+}')
+
+
+// Here you can look for a specific [concierge request](https://api.bitex.la/docs/concierge/request/)
+
+@name("Show a Concierge Request")
+GET "https://{{domain}}/api/concierge_requests/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// You are able to see the [concierge requests](https://api.bitex.la/docs/concierge/request/) you created
+
+@name("List Concierge Requests")
+GET "https://{{domain}}/api/concierge_requests"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "filter[state]"= "{state}"
+? "filter[user]"= "{user_id}"
+? "filter[ongoing]"= "{true/false}"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+
+
+// Learn about [quotes](https://api.bitex.la/docs/concierge/get_quote/)
+
+@name("Get a quote for the Request")
+POST "https://{{domain}}/api/concierge_requests/:id/request_quote"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+@name("Accept the quote")
+POST "https://{{domain}}/api/concierge_requests/:id/accept_quote"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

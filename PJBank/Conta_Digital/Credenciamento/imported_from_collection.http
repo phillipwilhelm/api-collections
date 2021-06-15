@@ -1,0 +1,272 @@
+#!/usr/bin/env dothttp
+
+@name("Credenciar uma nova Conta Digital")
+POST "https://api.pjbank.com.br/contadigital"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "nome_empresa": [
+        "Exemplo Conta Digital"
+    ],
+    "cnpj": [
+        "91356559000104"
+    ],
+    "cep": [
+        "13032525"
+    ],
+    "endereco": [
+        "Rua Joaquim Vilac"
+    ],
+    "numero": [
+        "509"
+    ],
+    "bairro": [
+        "Vila Teixeira"
+    ],
+    "complemento": [
+        ""
+    ],
+    "cidade": [
+        "Campinas"
+    ],
+    "estado": [
+        "SP"
+    ],
+    "ddd": [
+        "19"
+    ],
+    "telefone": [
+        "987652345"
+    ],
+    "email": [
+        "api@pjbank.com.br"
+    ],
+    "webhook": [
+        "http://example.com.br"
+    ],
+    "agencia": [
+        "9999"
+    ]
+})
+
+
+// Você deverá especificar no parâmetro `tipo` as seguintes opções
+// 
+// * `contratosocial`;
+// * `ata` (para condomínios);
+
+@name("Inserir um documento a Conta Digital")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/documentos"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+files(
+	("arquivos", "None"),
+	("tipo", "contratosocial")
+)
+
+
+// * O cliente receberá um e-mail com instruções para baixar o app e completar o cadastro.
+
+@name("Convidar uma pessoa física para administrar a Conta Digital")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/administradores"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+data({
+    "email": [
+        "api@pjbank.com.br"
+    ]
+})
+
+
+// Enviaremos um Webhook para o seu sistema sempre que algo acontecer na sua Conta digital. 
+// 
+// ### Credenciamento
+// 
+// 
+// #### Sempre que uma conta for aprovada
+// 
+// * Enviaremos uma requisição `PUT` caso o status da conta seja alterado para aprovado diretamente para sua URL;
+// 
+// ```json
+// {
+//   "operacao" : "PUT",
+//   "tipo" : "conta_digital",
+//   "credencial" : "d10e14d8b8c239e263cb3631308a6Bd259aa03ec",
+//   "identificador" : "1996937",
+//   "codigo" : "123456",
+//   "nome": "Empresa do Sandbox",
+//   "cnpj": "83484947000142",
+//   "email": "api@pjbank.com.br",
+//   "telefone": "19991919191",
+//   "endereco_cep": "06454000",
+//   "endereco_logradouro": "Alameda Rio Negro",
+//   "endereco_numero": "585",
+//   "endereco_bairro": "Alphaville Centro Industrial e Empresarial",
+//   "endereco_complemento": "",
+//   "endereco_cidade": "Barueri",
+//   "endereco_estado": "SP",
+//   "status": "ativo",
+//   "data_criacao" : "09/25/2020 15:32:10", 
+//   "data_aprovacao" : "09/27/2020 10:32:10", 
+//   "data_bloqueio" : "09/25/2020 15:32:10",
+//   "banco": "301",
+//   "agencia": "0001",
+//   "conta": "9999999999-9"
+// }
+// ```
+// 
+// ### Transações
+// 
+// 
+// #### Sempre que uma nova transação for criada
+// 
+// * Enviaremos uma requisição diretamente para a sua URL:
+//  * `POST` caso uma nova transação seja criada;
+//  * `PUT` caso o status da transação seja atualizado.  
+// 
+// ```json
+// {
+//   "operacao" : "POST",
+//   "tipo" : "transacao",
+//   "id_operacao" : 1000000003238,
+//   "nome_favorecido" : "Favorecido Exemplo",
+//   "cnpj_favorecido" : "teste",
+//   "valor" : "10.50",
+//   "data_pagamento" : "09/1/2020", 
+//   "identificador" : "123123", 
+//   "historico" : "Teste",
+//   "mensagem" : "Teste",
+//   "mensagem_codigo" : 0,
+//   "status_pagamento" : "pendente_autorizacao",
+//   "credencial" : "eb2af021c5e2448c343965a7a80d7d090eb64164",
+//   "chave" : "xxxxxxxxxxxx",
+//   "documento" : [
+//     {
+//       "url" : "https://example.com.br/234234",
+//       "tipo" : "notafiscal",
+//       "nome": "NotaExemplo.pdf",
+//       "formato": "application/pdf",
+//     }
+//   ]
+// }
+// ```
+// 
+// 
+// 
+// 
+// #### Sempre que uma transação for cancelada
+// 
+// * Sempre que uma determinada transação seja cancelada, enviaremos uma requisição utilizando o método `DELETE` para sua URL.
+// 
+// ```json
+// {
+//   "operacao" : "DELETE",
+//   "tipo" : "transacao",
+//   "id_operacao" : 1000000003238,
+//   "identificador" : 123123,
+//   "credencial" : "eb2af021c5e2448c343965a7a80d7d090eb64164",
+//   "chave" : "xxxxxxxxxxxx"
+// }
+// ```
+// 
+// 
+// 
+// 
+// #### Sempre que um documento for vinculado a uma transação 
+// 
+// ```json
+// {
+//   "operacao" : "PUT",
+//   "tipo" : "transacao_documento",
+//   "id_operacao" : 1000000003238,
+//   "identificador" : 123123, 
+//   "mensagem" : "Teste",
+//   "mensagem_codigo" : 0,
+//   "credencial" : "eb2af021c5e2448c343965a7a80d7d090eb64164",
+//   "chave" : "xxxxxxxxxxxx",
+//   "documento" : [
+//     {
+//       "url" : "https://example.com.br/234234",
+//       "tipo" : "notafiscal",
+//       "nome": "NotaExemplo.pdf",
+//       "formato": "application/pdf",
+//     }
+//   ]
+// }
+// ```
+// 
+// 
+// 
+// 
+// #### Sempre que um documento for desvinculado de uma transação 
+// 
+// ```json
+// {
+//   "operacao" : "DELETE",
+//   "tipo" : "transacao_documento",
+//   "id_operacao" : 1000000003238,
+//   "identificador" : 123123, 
+//   "credencial" : "eb2af021c5e2448c343965a7a80d7d090eb64164",
+//   "chave" : "xxxxxxxxxxxx",
+//   "documento" : [
+//     {
+//       "url" : "https://example.com.br/234234",
+//       "tipo" : "notafiscal",
+//       "nome": "NotaExemplo.pdf",
+//       "formato": "application/pdf",
+//     }
+//   ]
+// }
+// ```
+// 
+// 
+// 
+// 
+// #### Sempre que uma transferência entre Conta ou Subconta ocorrer
+// 
+// ```json
+// {
+//   "operacao" : "POST",
+//   "tipo" : "transferencia",
+//   "id_operacao" : 1000000003238,
+//   "valor" : 10.50,
+//   "data_pagamento" : "09/1/2017", 
+//   "identificador" : 123123, 
+//   "historico" : "Teste",
+//   "credencial" : "eb2af021c5e2448c343965a7a80d7d090eb64164",
+//   "chave" : "xxxxxxxxxxxx",
+//   "status_pagamento" : "pendente_autorizacao",
+//   "subconta_origem" : "f31cb9c07fbc3bf6f7f4291ac3f1793c6f7f798d", // "subconta_destino" : "f31cb9c07fbc3bf6f7f4291ac3f1793c6f7f798d"
+// }
+// ```
+
+@name("Cadastrar ou alterar uma URL de Webhook")
+PUT "https://api.pjbank.com.br/contadigital/{{credencial-conta}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "webhook": [
+        "http://example.com"
+    ]
+})
+
+
+// Hoje, as opções de inserção de crédito na Conta Digital é feita via boleto bancário ou cartão de crédito. Além disso, já está disponível a opção de enviar e receber uma TED diretamente na sua Conta Digital PJBank. Neste endpoint, você poderá inserir um valor na sua Conta Digital através do pagamento de um boleto bancário de depósito.
+
+@name("Adicionar saldo na Conta Digital")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "valor": [
+        "900.00"
+    ]
+})
+
+
+// O administrador poderá ser removido através deste endpoint. Tanto a inclusão quanto a exclusão estão sujeitas a aprovação.
+
+@name("Remover um administrador da Conta Digital")
+DELETE "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/administradores/{{email}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+
+
+
+

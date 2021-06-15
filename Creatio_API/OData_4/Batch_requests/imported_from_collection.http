@@ -1,0 +1,195 @@
+#!/usr/bin/env dothttp
+
+// Batch request with the same type of returned content (uses the [$batch](http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingtheBatchEndpointforaServic) parameter).
+
+@name("$batch parameter (Content-Type: application/json)")
+POST "https://{{BaseURI}}/0/odata/$batch"
+"Content-Type": "application/json; odata=verbose; IEEE754Compatible=true"
+"Accept": "application/json"
+"BPMCSRF": "{{BPMCSRF}}"
+"ForceUseSession": "true"
+json({
+    "requests": [
+        {
+            "method": "POST",
+            "url": "{{CollectionName5}}",
+            "id": "t3",
+            "body": {
+                "{{FieldName1}}": "{{FieldName1Value4}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        },
+        {
+            "method": "POST",
+            "atomicityGroup": "g1",
+            "url": "{{CollectionName5}}",
+            "id": "t3",
+            "body": {
+                "{{FieldName6}}": "{{FieldName6Value1}}",
+                "{{FieldName1}}": "{{FieldName1Value5}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        },
+        {
+            "method": "PATCH",
+            "atomicityGroup": "g1",
+            "url": "{{CollectionName5}}/{{ObjectId4}}",
+            "id": "t2",
+            "body": {
+                "{{FieldName1}}": "{{FieldName1Value6}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        }
+    ]
+})
+
+
+// Batch request with the same type of returned content without interrupting the execution of requests when the request is unsuccessful (uses the [$batch](http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingtheBatchEndpointforaServic) parameter).
+
+@name("$batch parameter (Content-Type: application/json and Prefer: continue-on-error)")
+POST "https://{{BaseURI}}/0/odata/$batch"
+"Content-Type": "application/json;odata=verbose;IEEE754Compatible=true"
+"Accept": "application/json"
+"BPMCSRF": "{{BPMCSRF}}"
+"Prefer": "continue-on-error"
+"ForceUseSession": "true"
+json({
+    "requests": [
+        {
+            "method": "POST",
+            "url": "{{CollectionName5}}",
+            "id": "t3",
+            "body": {
+                "{{FieldName1}}": "{{FieldName1Value4}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        },
+        {
+            "method": "PATCH",
+            "atomicityGroup": "g1",
+            "url": "{{CollectionName5}}/{{ObjectId5}}",
+            "id": "t2",
+            "body": {
+                "{{FieldName1}}": "{{FieldName1Value7}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        },
+        {
+            "method": "POST",
+            "atomicityGroup": "g1",
+            "url": "{{CollectionName5}}",
+            "id": "t3",
+            "body": {
+                "{{FieldName6}}": "{{FieldName6Value2}}",
+                "{{FieldName1}}": "{{FieldName1Value8}}"
+            },
+            "headers": {
+                "Content-Type": "application/json;odata=verbose",
+                "Accept": "application/json;odata=verbose",
+                "Prefer": "continue-on-error"
+            }
+        }
+    ]
+})
+
+
+// Batch request with different types of returned content (uses the [$batch](http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingtheBatchEndpointforaServic) parameter).
+
+@name("$batch parameter (Content-Type: multipart/mixed)")
+POST "https://{{BaseURI}}/0/odata/$batch"
+"Content-Type": "multipart/mixed; boundary=batch_a685-9724-d873; IEEE754Compatible=true"
+"BPMCSRF": "{{BPMCSRF}}"
+"ForceUseSession": "true"
+data('--batch_a685-9724-d873
+Content-Type: multipart/mixed; boundary=changeset_06da-d998-8e7e
+
+--changeset_06da-d998-8e7e
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+POST {{CollectionName5}} HTTP/1.1
+Content-ID: 1
+Accept: application/atomsvc+xml;q=0.8, application/json;odata=verbose;q=0.5, */*;q=0.1
+Content-Type: application/json;odata=verbose
+
+{"{{FieldName1}}": "{{FieldName1Value9}}"}
+
+--changeset_06da-d998-8e7e
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+PATCH {{CollectionName5}}/{{ObjectId5}} HTTP/1.1
+Content-ID: 2
+Accept: application/atomsvc+xml;q=0.8, application/json;odata=verbose;q=0.5, */*;q=0.1
+Content-Type: application/json;odata=verbose
+
+{"{{FieldName1}}": "{{FieldName1Value10}}"}
+
+--changeset_06da-d998-8e7e
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+DELETE {{CollectionName5}}/{{ObjectId5}} HTTP/1.1
+Content-ID: 3
+Accept: application/atomsvc+xml;q=0.8, application/json;odata=verbose;q=0.5, */*;q=0.1
+Content-Type: application/json;odata=verbose')
+
+
+// Batch request with different types of returned content and different user changesets (uses the [$batch](http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#sec_AddressingtheBatchEndpointforaServic) parameter).
+
+@name("$batch parameter (Content-Type: multipart/mixed and different changesets)")
+POST "https://{{BaseURI}}/0/odata/$batch"
+"Content-Type": "multipart/mixed; boundary=batch_a685-9724-d873; IEEE754Compatible=true"
+"BPMCSRF": "{{BPMCSRF}}"
+"Accept": "application/json"
+"ForceUseSession": "true"
+data('--batch_a685-9724-d873
+Content-Type: multipart/mixed; boundary=changeset_06da-d998-8e7e
+
+--changeset_06da-d998-8e7e
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+POST {{CollectionName5}} HTTP/1.1
+Content-ID: 1
+Accept: application/atomsvc+xml;q=0.8, application/json;odata=verbose;q=0.5, */*;q=0.1
+Content-Type: application/json;odata=verbose
+
+{"{{FieldName6}}": "{{FieldName6Value3}}", "{{FieldName1}}": "{{FieldName1Value11}}"}
+
+--batch_a685-9724-d873
+Content-Type: multipart/mixed; boundary=changeset_06da-d998-8e71
+
+--changeset_06da-d998-8e71
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+POST {{CollectionName5}} HTTP/1.1
+Content-ID: 2
+Accept: application/atomsvc+xml;q=0.8, application/json;odata=verbose;q=0.5, */*;q=0.1
+Content-Type: application/json;odata=verbose
+
+{"{{FieldName6}}": "{{FieldName6Value4}}", "{{FieldName1}}": "{{FieldName1Value12}}"}')
+
+
+

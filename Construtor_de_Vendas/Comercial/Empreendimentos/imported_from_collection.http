@@ -1,0 +1,146 @@
+#!/usr/bin/env dothttp
+
+// Empreendimento é um conjunto de unidades (imóveis) para venda ou aluguel.
+// 
+// Essa integração coleta informações de requisições realizadas por sistemas legados e verifica se o dado inserido no campo nome existe ou não no Construtor de Vendas. Se já existir um empreendimento cadastrado com o mesmo nome, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// > Somente será aceito um cadastro por nome. O campo estado deve ser a sigla em letras maiúsculas.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idempreendimento_int
+// * idempreesa_int
+// * nome
+// * sigla
+// * matricula
+// * nome_empresa
+// * estado
+// * cidade
+// * tipo
+// * ativo_painel 
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Empreendimentos")
+POST "http://desenvolvimento.construtordevendas.com.br/api/cvio/empreendimento"
+"email": "qualidade@alfamaweb.com.br"
+"senha": "edb1cc9cb9e84a5fdae2d4a428dbd4eba7273643cf44915e8e68470b85d23f823db99c8783b661f7dbfe85a967530d9e59b54a3fef03c9bd8f3483b75ca69f1c"
+files(
+	(""idempreendimento_int"", " "99","),
+	(""nome"", " "Residencial Tapajós","),
+	(""disponivel"", " "Ativo","),
+	(""matricula"", " "RT0099","),
+	(""cidade"", " "Aracaju","),
+	(""estado"", " "SE","),
+	(""endereco"", " "AV. Boulevard, 358","),
+	(""periodo_venda_inicio"", " "2019-01-06 00:00:00","),
+	(""area_construida"", " "1500,45","),
+	(""area_privativa"", " "1500,00","),
+	(""idempresa_int"", " "9","),
+	(""nome_empresa"", " "Realizacoes.com","),
+	(""razao_social_empresa"", " "Realizacoes.com Ltda.","),
+	(""cnpj_empresa"", " "65.113.119/0001-16","),
+	(""endereco_empresa"", " "Av. Beira mar","),
+	(""codigointerno"", " "RT0099","),
+	(""ativo_painel"", " "S","),
+	(""regiao"", " """)
+)
+
+
+// Essa integração dispõe id e nome de todos os empreendimentos ativos no Construtor de Vendas, não somente isso, mas também se colocar um id após a última "/" (barra), serão disponibilizadas as informações de todos os blocos, etapas e unidades do empreendimento selecionado.
+// >Ex.: http://desenvolvimento.construtordevendas.com.br/api/cvio/empreendimento/3
+
+@name("Empreendimento")
+GET "https://desenvolvimento.construtordevendas.com.br/api/cvio/empreendimento/3"
+"email": "brunal@alfamaweb.com.br"
+"token": "d090ef6a7e98d0cf2206d98ae296987907cf1d3a"
+
+
+// Etapa é um conjunto de blocos pertencentes a um empreendimento. 
+// 
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados da etapa que se deseja inserir no Construtor de Vendas, logo após irá verificar se o dado inserido no campo idetapa_int existe ou não no Construtor de Vendas. Se já existir uma etapa cadastrada com o mesmo idetapa_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// 
+// > Para que a etapa seja inserida no Contrutor de Vendas, o identificador do empreendimento deve existir no sistema. Somente será aceito um cadastro por nome.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idetapa_int
+// * idempreendimento_int
+// * nome
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Etapas")
+POST "https://desenvolvimento.construtordevendas.com.br/api/cvio/etapa"
+"email": "qualidade@alfamaweb.com.br"
+"senha": "edb1cc9cb9e84a5fdae2d4a428dbd4eba7273643cf44915e8e68470b85d23f823db99c8783b661f7dbfe85a967530d9e59b54a3fef03c9bd8f3483b75ca69f1c"
+files(
+	("idetapa_int", "112387"),
+	("idempreendimento_int", "10399"),
+	("nome", "Etapa Única"),
+	("disponivel", "Ativo"),
+	("data_cad", "2019-01-15 08:58:38"),
+	("cod_interno", "11238")
+)
+
+
+// Bloco é um conjunto de unidades de um empreendimento. 
+// 
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados do bloco que se deseja inserir no Construtor de Vendas, logo após irá verificar se o dado inserido no campo idbloco_int existe ou não no Construtor de Vendas. Se já existir um bloco cadastrado com o mesmo idbloco_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// 
+// > Para que essas informações sejam inseridas no Construtor de Vendas, os identificadores da etapa e do empreendimento devem existir no sistema.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idbloco_int
+// * idetapa_int
+// * idempreendimento_int
+// * nome
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Blocos")
+POST "https://desenvolvimento.construtordevendas.com.br/api/cvio/bloco"
+"email": "cvio@construtordevendas.com.br"
+"senha": "cad6d95f1c0d2ab29bd4da9f72f78db85f099164d35c9faf19a371a8182078d2d5ae1347bab1ec53e03e243a3a94f0bc9d4678e24373a0a0a87bc083e221ea0f"
+files(
+	("idbloco_int", "154"),
+	("idetapa_int", "125"),
+	("idempreendimento_int", "2"),
+	("nome", "Bloco A"),
+	("disponivel", "Ativo"),
+	("data_cad", "2018-06-01 15:45:00"),
+	("remover", "45"),
+	("codigointerno", "87F1A")
+)
+
+
+// Unidades são imóveis que compõem um bloco.
+// 
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados da unidade que se deseja inserir no Construtor de Vendas, logo após irá verificar se o dado inserido no campo idunidade_int existe ou não no Construtor de Vendas. Se já existir uma unidade cadastrada com o mesmo idunidade_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// > Para que essas informações sejam inseridas no Construtor de Vendas, os identificadores do bloco, da etapa e do empreendimento devem existir no sistema.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idunidade_int
+// * idbloco_int
+// * idetapa_int
+// * idempreendimento_int
+// * nome
+// * area_privativa
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Unidades")
+POST "https://desenvolvimento.construtordevendas.com.br/api/cvio/unidade"
+"email": "jeniffers@alfamaweb.com.br"
+"token": "313da7b171cd74daf3a27a7d6e4b22db"
+files(
+	("idunidade_int", "232"),
+	("idbloco_int", "154"),
+	("idetapa_int", "2"),
+	("idempreendimento_int", "2"),
+	("nome", "Un102"),
+	("disponivel", "Ativo"),
+	("area_privativa", "1620"),
+	("situacao", "Vendida"),
+	("codigointerno", "54WS4")
+)
+
+
+

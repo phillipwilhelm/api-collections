@@ -1,0 +1,349 @@
+#!/usr/bin/env dothttp
+
+// Use this API Call to check the status of change automation on Crosswork.
+
+@name("NCA service status")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/servicestatus"
+"Authorization": "{{token}}"
+"Content-Type": "application/json; charset=UTF-8"
+
+
+// Use this API Call to get the detailed information about the available playbooks on Crosswork.
+
+@name("Detailed Info about ALL Playbooks")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mops"
+"Authorization": "{{token}}"
+"Content-Type": "application/json; charset=UTF-8"
+? "limit"= "1000"
+? "filter.name"= "mop_name"
+? "filter.value"= "interface"
+
+
+// Use this API Call to get the information about the specific playbook specs on Crosswork.
+
+@name("Specific Playbooks specs")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mops/router_op_interface/specs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json; charset=UTF-8"
+
+
+// Use this API Call to get the detailed information about a specific playbook on Crosswork. This API Call is an example of requesting information about Interface State Change playbook.
+
+@name("Interface State Change Playbooks Details")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mops/router_op_interface"
+"Content-Type": "application/json; charset=UTF-8"
+"Authorization": "{{token}}"
+
+
+// Use this API Call to get the detailed information about a specific playbook on Crosswork. This API Call is an example of requesting information about SMU playbook.
+
+@name("SMU Playbook Details")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mops/router_op_smu_upgrade"
+"Content-Type": "application/json; charset=UTF-8"
+"Authorization": "{{token}}"
+
+
+// Use this API Call to get the detailed information about the jobs on the Change Automation application of Crosswork.
+
+@name("All Jobs Info on Change Automation")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json; charset=UTF-8"
+? "limit"= "1000"
+
+
+// Use this API Call to get the detailed information about the events that have occured during the execution of a playbook on Change Automation App on Crosswork.
+
+@name("Information about the Events occured during the execution of a playbook")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs/events"
+"Authorization": "{{token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+? "limit"= "100"
+? "execution_id"= "{{exec_id}}"
+? "reverse"= "true"
+? "types"= "MOP_TASK"
+? "page"= "1"
+
+
+// Use this API Call to get the detailed information about the job on Change Automation App on Crosswork.
+
+@name("Details of the Specific Job")
+GET "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs/{{exec_id}}"
+"Authorization": "{{token}}"
+"Content-Type": "application/json; charset=UTF-8"
+
+
+// Use this API Call to add a prefix on your device.
+
+@name("Add a Prefix using Playbook")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "mop_id": "router_config_prefix_set_add",
+    "devices": {
+        "ids": [
+            "R8"
+        ]
+    },
+    "name": "sert",
+    "tags": [
+        "Postman"
+    ],
+    "execution_params": {
+        "provider": "Nso",
+        "prefix_set_name": "trap",
+        "prefix_set_list": [
+            "122.12.34.0/24"
+        ],
+        "prefix_set_action": "replace",
+        "mop_timeout": "1h"
+    },
+    "execution_policy": {
+        "execution_strategy": "STRATEGY_CONTINUOUS",
+        "on_failure": "ON_FAILURE_ABORT",
+        "collect_syslog": false
+    }
+}')
+
+
+// Use this API Call to delete a prefix on your device
+// .
+
+@name("Delete a Prefix using Playbooks")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "mop_id": "router_config_prefix_set_delete",
+    "devices": {
+        "ids": [
+            "R8"
+        ]
+    },
+    "name": "SitMan",
+    "tags": [
+        "Postman"
+    ],
+    "execution_params": {
+        "provider": "Nso",
+        "prefix_set_name": "testing",
+        "prefix_set_list": [],
+        "mop_timeout": "1h"
+    },
+    "execution_policy": {
+        "execution_strategy": "STRATEGY_CONTINUOUS",
+        "on_failure": "ON_FAILURE_ABORT",
+        "collect_syslog": false
+    }
+}')
+
+
+// Use this API Call to perform a SMU on your device.
+
+@name("SMU Upgrade")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"mop_id": "router_op_smu_upgrade",
+	"devices": {
+        "ids": [
+            "R7"
+        ]
+	},
+	"execution_params": {"cost_method": "overload","cost_protocol": "isis","provider": "Nso","cost_threshold_percent": 0.7,"cost_proc_id": "all","cost_vrf": "default","if_names": ["GigabitEthernet0/0/0/0", "GigabitEthernet0/0/0/3"],"packages": ["xrv9k-mgbl-3.0.0.9-r621.CSCva15023.x86_64.rpm"],"optimize": false,"region": "NODES","repository": {"dlm_credential_profile": "csm","type": "SCP","address": "192.168.123.103","source": "/mnt/robot_datafs/robot-nca/1/","destination": "harddisk:","vrf": ""},"collection_type": "telemetry","mop_timeout": "1h"},
+	"execution_policy": {"execution_strategy": "strategy_single_step", "pause_on_tasks": [10, 13], "on_failure": "on_failure_abort"},
+	"check_start_time": {{$timestamp}}
+}')
+
+
+// Use this API Call to abort a Job on Change Automation App on Crosswork.
+
+@name("Abort a Job")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs/abort"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"execution_ids": {{exec_id}}
+}')
+
+
+// Use this API Call to export a playbooks from Change Automation App on Crosswork to your desired location.
+// Note: Please use the response and use a python script to download the file.
+
+@name("Export a Playbook")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mops/export"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "mops": [
+    "router_op_interface"
+  ]
+}')
+
+
+// Use this API Call to Import a Customized Playbook on to Change Automation App on Crosswork System.
+
+@name("Import a Custom Playbook")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mops/import"
+"Authorization": "{{token}}"
+"Content-Type": "multipart/form-data"
+files(
+	("import", "None")
+)
+
+
+@name("Resume a Job")
+PATCH "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"execution_id": {{exec_id}},
+	"task_id": 2,
+	"op": "OP_RESUME",
+	"run_params": {}
+}')
+
+
+// Use this API Call to Rollback a job on Change Automation App on Crosswork.
+
+@name("Rollback a Job")
+PATCH "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"execution_id": {{exec_id}},
+	"task_id": 13,
+	"op": "OP_ROLLBACK",
+	"rollback_to_task": 10
+}')
+
+
+// Use this API Call to toggle the state on your XE devices.
+
+@name("Toggle Interface")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+	"mop_id": "router_op_interface",
+	"devices": {"ids": ["R7"]},
+	"name": "job172",
+	"tags": ["state-change"],
+	"execution_params": {"admin_state": "down","if_names": ["GigabitEthernet0/0/0/0"],"provider": "Nso","collection_type": "telemetry","mop_timeout": "1h"},
+    "execution_policy": {"execution_strategy": "STRATEGY_CONTINUOUS","on_failure": "ON_FAILURE_COMPLETE_ROLLBACK","collect_syslog": false}
+}')
+
+
+// Use this API Call to add a static route on your device.
+
+@name("Add a Static Route")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "mop_id": "router_config_static_route",
+    "devices": {
+        "ids": [
+            "R7"
+        ]
+    },
+    "name": "static5",
+    "tags": [
+        "Postman"
+    ],
+    "execution_params": {
+        "provider": "Nso",
+        "operation": "create",
+        "ip_addresses": [
+            {
+                "net": "94.1.1.0/24",
+                "address": "10.0.0.6",
+                "description": "static2",
+                "interface": "",
+                "vlan_id": "",
+                "metric": 0,
+                "route_name": ""
+            }
+        ],
+        "vrf": "",
+        "address_family": "ipv4"
+    },
+    "execution_policy": {
+        "execution_strategy": "STRATEGY_CONTINUOUS",
+        "on_failure": "ON_FAILURE_COMPLETE_ROLLBACK",
+        "collect_syslog": false
+    }
+}')
+
+
+// Use this API Call to toggle the state on your XE devices.
+
+@name("Toggle Interface on XE Devices")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "mop_id": "router_op_interface_xe",
+    "devices": {
+        "ids": [
+            "R1.virl.info",
+            "R6.virl.info"
+        ]
+    },
+    "name": "at12",
+    "tags": [
+        "Postman"
+    ],
+    "execution_params": {
+        "admin_state": "up",
+        "if_names": [
+            "GigabitEthernet2"
+        ],
+        "provider": "Nso",
+        "mop_timeout": "1h"
+    },
+    "execution_policy": {
+        "execution_strategy": "STRATEGY_CONTINUOUS",
+        "on_failure": "ON_FAILURE_ABORT",
+        "collect_syslog": false
+    }
+}')
+
+
+// Use this API Call to toggle the state on group of devices that are tagged with the same tag.
+
+@name("Toggle interface state using Tags")
+POST "https://{{crosswork_ip}}/crosswork/nca/v1/mopjobs"
+"Authorization": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "mop_id": "router_op_interface_xe",
+    "devices": { 
+    },
+    "check_start_time": 1579307509,
+    "exec_start_time": 1579307509,
+    "wae_threshold": "90",
+    "name": "at112",
+    "tags": [
+        "at"
+    ],
+    "device_group": "xerouters",
+    "execution_params": {
+        "admin_state": "up",
+        "if_names": [
+            "GigabitEthernet2"
+        ],
+        "provider": "Nso",
+        "mop_timeout": "1h"
+    },
+    "execution_policy": {
+        "execution_strategy": "STRATEGY_CONTINUOUS",
+        "on_failure": "ON_FAILURE_ABORT",
+        "collect_syslog": false
+    }
+}')
+
+
+

@@ -1,0 +1,72 @@
+#!/usr/bin/env dothttp
+
+// Existing group management. Accepts `Group` object as defined in listing and performs `action`:
+// * `create` - new group. `id` will be returned in the result
+// * `update` - updates group with new values. `id` field is required.
+// * `delete` - deletes the group with given `id`
+
+@name("/v1/groups/manage/{action}")
+POST "https://{{url}}/api/v1/groups/manage/{action}"
+"Content-Type": "application/json"
+data("{
+    id: 1234,
+    title: 'My group',
+    type: 'group type',
+    description: 'some kind of lengthy detail items',
+    accountIds: [1, 2, 3, 4]
+}")
+
+
+// List of groups available in this advisory:
+// 
+// ```javascript
+// [{
+// 	id: 1234,
+// 	title: 'My group',
+// 	type: 'type of group',
+// 	description: 'some kind of lengthy detail items',
+// 	accountIds: [1, 2, 3, 4]
+// }]
+// ```
+
+@name("/v1/groups/list")
+GET "https://{{url}}/api/v1/groups/list"
+
+
+// Account type breakdown. Currently supporting: `CASH`, `MARGIN`, `DAY_TRADER`, `IRA_ROTH`, `IRA_SEP`, `IRA_TRADITIONAL`, `IRA_ROLLOVER_ACCOUNT`. Example:
+// 
+// ```javascript
+// {
+// 	IRA_TRADITIONAL: 1,
+// 	CASH: 4
+// }
+// ```
+
+@name("/group/accounts/stats/{groupId}")
+GET "https://{{url}}/api/v2/advisory/group/accounts/stats/{groupsId}"
+
+
+@name("/group/portfolios/{groupId}")
+GET "https://{{url}}/api/v2/advisory/group/portfolios/{groupId}"
+? "loadQuotes"= "false"
+? "combined"= "false"
+? "loadIndustries"= "false"
+? "loadUpgrades"= "false"
+? "loadEarnings"= "false"
+? "loadCost"= "false"
+? "marketCapWeights"= "false"
+
+
+// Returns realtime group's balance. Comprised of all accounts belonging to said group.
+
+@name("/group/rtb/{groupId}")
+GET "https://{{url}}/api/v2/advisory/group/rtb/{groupId}"
+
+
+// Get realtime balances for all accounts within the group
+
+@name("/group/rtbs/{groupId}")
+GET "https://{{url}}/api/v2/advisory/group/rtbs/{groupId}"
+
+
+

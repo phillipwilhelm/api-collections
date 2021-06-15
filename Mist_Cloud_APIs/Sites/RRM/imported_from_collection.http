@@ -1,0 +1,115 @@
+#!/usr/bin/env dothttp
+
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  status|string|unknown / updating / ready
+//  timestamp|long|time where the status was updated
+//  band_24|object|proposal on band 2.4G, key is ap_id, value is the proposal
+//  curr_channel|int|current channel
+//  curr_power|int|current tx power
+//  curr_bandwidth|int|current bandwidth
+//  channel|int|proposed channel
+//  power|int|proposed tx power
+//  bandwidth|int|proposed bandwidth
+//  band_24_metric|object|metric about 2.4G
+//  band_5_metric|object|metric about 5G
+//  noise|float|average noise in dBm
+//  cochannel_neighbors|float|average number of co-channel neighbors
+//  neighbors|float|average number of neighbors
+//  density|float|defined by how APs can hear from one and another, 0 - 1 (everyone can hear everyone)
+//  rftemplate|object|RF Template if used if it uses RFTemplate from Org
+
+@name("getSiteCurrentChannelPlanning")
+GET "https://{{host}}/api/v1/sites/:site_id/rrm/current"
+
+
+//  #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// band|string|24 / 5
+// 
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  channel|int|channel
+//  noise|float|noise floor
+//  non_wifi|float|non-wifi RF utilization
+//  wifi|float|WIFI RF utilization
+//  rssi|int|the avg RSSI heard from neighbor APs (that belongs to the same site)
+//  other_rssi|int|the avg RSSI heard from other APs (that does NOT belongs to the same site)
+//  max_other_ssid|string|SSID from other AP that we heard from with the max RSSI
+//  util_score|float|utilization score, 0-1, lower means less utilization (cleaner RF)
+//  insite_channel_weight|float|channel weight score, 0-1, lower means less utilization (cleaner RF)
+
+@name("getSiteCurrentRrmConsiderationsForAnApOnASpecificBand")
+GET "https://{{host}}/api/v1/sites/:site_id/rrm/current/devices/:device_id/band/:band"
+
+
+//  #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// bands|array|list of bands
+
+@name("optimizeSiteRrm")
+POST "https://{{host}}/api/v1/sites/:site_id/rrm/optimize"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "bands": [
+        "24",
+        "5"
+    ]
+})
+
+
+//  #### Request Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  bands|array|list of bands
+//  force|boolean|whether to reset those with radio disabled. default is false (i.e. if user intentionally disables a radio, honor it)
+
+@name("resetSiteAllApsToUseRrm")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/reset_radio_config"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "bands": [
+        "24",
+        "5"
+    ],
+    "force": false
+})
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// band|string|24 / 5, required
+// 
+//  #### Response Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  timestamp|string|timestamp of the event
+//  event|string|schedule-site-rrm / triggered-site-rrm / interference-ap-co-channel / rrm-radar
+//  band|string|for 2.4G or 5G
+//  ap_id|string|ap id
+//  channel|string|channel for the band from rrm
+//  bandwidth|string|channel width for the band 20/40/80
+//  power|string|tx power of the radio
+//  pre_channel|string|(previously) channel for the band, 0 means no previously available
+//  pre_bandwidth|string|(previously) channel width for the band 20/40/80, 0 means no previously available
+//  pre_power|string|(previously) tx power of the radio, 0 means no previously available
+//  next|string|the link to query next set of results. value is null if no next page exists.
+
+@name("getSiteRrmEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/rrm/events"
+
+
+@name("getSiteInterferenceEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/events/interference"
+
+
+

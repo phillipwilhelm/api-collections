@@ -1,0 +1,183 @@
+#!/usr/bin/env dothttp
+
+// Lists all products, default page size is 10 and max is 100.
+// 
+// The number of pages is calculated by the number of products, for every new 100 products you have 1 page.
+// 
+// ### Examples:
+// For 300 products => 3 pages
+// 
+// For 340 products => 4 pages
+// 
+// For 1000 products => 10 pages
+// 
+// For 1005 products => 11 pages
+
+@name("Get all products")
+GET "https://{{api_url}}/products/"
+"Authorization": "{{Authorization}}"
+"Accept-Language": "{{Accept-Language}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+? "page_size"= "5"
+? "page"= "1"
+
+
+// Retreives a single products.
+
+@name("Get product")
+GET "https://{{api_url}}/products/:product-id/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Accept-Language": "ar"
+
+
+// Creates a stand-alone product, to generate options (variants) refer to Add product variants endpoint.
+// 
+// | Feild name  | Description  | Required |
+// |---|---|---|
+// | name | An object with name values in different languages, only "ar" and "en" are supported, at least one value must be entered  | Yes  |
+// |  description |  An object with product HTML description values in different languages, only "ar" and "en" are supported, at least one value must be entered |  No |
+// |  price | The product price in decimal. doesn't accept more than 4 decimal places. | Yes |
+// |  sale_price | The product sale price in decimal. doesn't accept more than 4 decimal places. used to override the original price while keeping the price to show the discounted difference, *Must* be less than `price` | No |
+// |  cost | The product cost, used only for the merchant's reference, does not get shown to customers. | No |
+// |  keywords | An array of keywords, a single keyword must not exceed 64 characters. | No |
+// |  weight | An object defining the product weight, the object must contain a field `value` and if the unit is not added it will default to `kg`, unit accepts `Eg, Gg, Mg, Pg, Tg, Yg, Zg, ag, cg, dag, dg, fg, g, hg, kg, lb, long_ton, mg, ng, oz, pg, short_ton, stone, tonne, ug, yg, zg` as values but will be converted to kg and shown to customers as kg since zid doesn't currently allow changing the default weight unit. | No |
+// |  is_published | Indicates if a product is published and shown to the customers or not. | No |
+
+@name("Create product")
+POST "https://{{api_url}}/products/"
+"Authorization": "{{AUTHORIZATION_TOKEN}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+"User-Agent": "{{User-Agent}}"
+data('{
+    "name": {
+        "ar": "منتج تجريبي",
+        "en": "Test product"
+    },
+    "description": {
+    	"ar": "<h1>وصف تجريبي</h1>",
+        "en": "This is a test product"
+    },
+    "price": "20.5",
+    "sale_price": "20",
+    "cost": "0.5",
+    "quantity": "20",
+    "keywords": ["testables", "keyword Example"],
+    "weight":{
+    	"unit":"kg",
+    	"value":100
+    },
+    "is_published": true
+}')
+
+
+@name("Update Product")
+PATCH "https://{{api_url}}/products/:product-id/"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Accept-Language": "{{Accept-Language}}"
+"User-Agent": ""
+data('{
+	"id": "63e88761-ed29-40f7-9d75-c4729d22ff4e",
+	"sku": "skuExample",
+    "name": {
+    	"ar": "تويتر",
+    	"en": "twitter"
+    },
+    "description": {
+    	"ar": "jj",
+        "en": "This is a test product"
+	},
+    "price": "12.444",
+    "sale_price": null,
+    "cost": "10",
+    "is_draft": false,
+    "quantity": 1,
+    "is_infinite": false,
+    "weight": {
+	    	"unit":"kg",
+	    	"value":100
+	},
+    "keywords": ["apps", "social"],
+    "requires_shipping": true,
+    "is_published": true
+}')
+
+
+// This endpoint allows to update bulk update products using `id` or `sku` as an identifier, if `id` is present it will always be used to update the product, otherwise sku will be used.
+// 
+// only accepts a list of product objects.
+
+@name("Bulk update products")
+PATCH "https://{{api_url}}/products/"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+"Accept-Language": "{{Accept-Language}}"
+"User-Agent": ""
+data('[
+	{
+		"id": "a931ad5f-a0c8-4d45-8e14-ee1df387e316",
+		"sku": "Z.271.1597679488662714",
+        "name": {
+        	"ar": "تويتر",
+        	"en": "twitter"
+        },
+        "description": {
+	    	"ar": "jj",
+	        "en": "This is a test product"
+		},
+        "price": "12.444",
+        "sale_price": null,
+        "cost": "10",
+        "is_draft": false,
+        "quantity": 1,
+        "is_infinite": false,
+        "weight": {
+		    	"unit":"kg",
+		    	"value":100
+    	},
+        "keywords": ["apps", "social"],
+        "requires_shipping": true,
+        "is_published": true
+	},
+	{
+		"sku": "skuExample2",
+	    "price": "33.222"
+	}
+]')
+
+
+@name("Delete product")
+DELETE "https://{{api_url}}/products/:product-id/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Accept-Language": "ar"
+"Access-Token": "{{X-MANAGER-TOKEN}}"
+
+
+// Register an email as waiting for a product to be notified whenever the product is in back stock.
+
+@name("Add Availability Notification")
+POST "https://{{api_url}}/products/:product_id/notifications/"
+"Authorization": "{{Authorization}}"
+"STORE-ID": "{{STORE_ID}}"
+"ROLE": "Manager"
+"Content-Type": "application/json"
+files(
+	("email", "test@test.com"),
+	("language", "ar")
+)
+
+
+

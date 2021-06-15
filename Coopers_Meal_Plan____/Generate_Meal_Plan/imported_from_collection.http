@@ -1,12 +1,56 @@
 #!/usr/bin/env dothttp
 
-// Get a list of approved food items for Cooper// // *Test Script:*// // ```// tests["Status code is 200"] = (responseCode.code === 200);// // if (responseCode.code === 200) {//     // Store the array of available food items for the dog in the environment//     postman.setEnvironmentVariable("items", responseBody);//     // Set an ID for this execution//     postman.setEnvironmentVariable("run_id", _.random(0,100000));//     // As defined in the workflow, set the next request to be executed to Create Day Log//     postman.setNextRequest("Create Day Log");// }// else {//     // Stop execution//     postman.setNextRequest(null);// }// ```
+// Get a list of approved food items for Cooper
+// 
+// *Test Script:*
+// 
+// ```
+// tests["Status code is 200"] = (responseCode.code === 200);
+// 
+// if (responseCode.code === 200) {
+//     // Store the array of available food items for the dog in the environment
+//     postman.setEnvironmentVariable("items", responseBody);
+//     // Set an ID for this execution
+//     postman.setEnvironmentVariable("run_id", _.random(0,100000));
+//     // As defined in the workflow, set the next request to be executed to Create Day Log
+//     postman.setNextRequest("Create Day Log");
+// }
+// else {
+//     // Stop execution
+//     postman.setNextRequest(null);
+// }
+// ```
+
 @name("Get Food")
 GET "https://{{url}}/allowed_food"
 
 
 
-// Entry for Day d in the Food Log// // *Pre-request Script:*// ```// // Counter for the day loop// var d = environment.d ? _.parseInt(environment.d) + 1 : 1;// // // This value will be use in the URL// postman.setEnvironmentVariable("d", d);// ```// // *Test Script:*// ```// tests["Status code is 200"] = (responseCode.code === 200);// // if (responseCode.code === 200) {//     // Now that we've created the Day log, move to Add Meal to Day//     postman.setNextRequest("Add Meal to Day");// }// else {//     // Stop execution//     postman.setNextRequest(null);// }// ```
+// Entry for Day d in the Food Log
+// 
+// *Pre-request Script:*
+// ```
+// // Counter for the day loop
+// var d = environment.d ? _.parseInt(environment.d) + 1 : 1;
+// 
+// // This value will be use in the URL
+// postman.setEnvironmentVariable("d", d);
+// ```
+// 
+// *Test Script:*
+// ```
+// tests["Status code is 200"] = (responseCode.code === 200);
+// 
+// if (responseCode.code === 200) {
+//     // Now that we've created the Day log, move to Add Meal to Day
+//     postman.setNextRequest("Add Meal to Day");
+// }
+// else {
+//     // Stop execution
+//     postman.setNextRequest(null);
+// }
+// ```
+
 @name("Create Day Log")
 POST "https://{{url}}/day"
 files(
@@ -15,7 +59,59 @@ files(
 )
 
 
-// Pick one of the food items and assign to Meal m without repetition// // *Pre-request Script:*// ```// var m = environment.m ? _.parseInt(environment.m) : 1, // which meal of the day, defaulting to 1//     // Remaining food items, which haven't already been fed to the dog today//     todayItems = environment.todayItems ? JSON.parse(environment.todayItems) : JSON.parse(environment.items),//     // Randomly choose one of the remaining food items//     foodItem = _.sample(todayItems);// // // Remove the selected foodItem from contention for the rest of the day// _.pull(todayItems, foodItem);// postman.setEnvironmentVariable("m", m);// postman.setEnvironmentVariable("foodItem", foodItem);// postman.setEnvironmentVariable("todayItems", JSON.stringify(todayItems));// ```// // *Test Script:*// ```// tests["Status code is 200"] = (responseCode.code === 200);// // if (responseCode.code === 200) {//     // Increment meal counter by 1//     var m = _.parseInt(environment.m) + 1,//         d = _.parseInt(environment.d);//     //     // If last meal of the day//     if (m === 4) {//         postman.setEnvironmentVariable("m", 1);//         postman.setEnvironmentVariable("todayItems", "");//         // If not last day of the week, return to Create Day Log to set meals for the next day//         // otherwise end the workflow, by not setting the Next Request//         if (d < 7) {//             postman.setNextRequest("Create Day Log");//         }//         else {//             postman.setEnvironmentVariable("d", 0);//             // Terminate execution//             postman.setNextRequest(null);//         }//     }//     // otherwise loop for the subsequent meal//     else {//         postman.setEnvironmentVariable("m", m);//         postman.setNextRequest("Add Meal to Day");//     }// }// else {//     // Stop execution//     postman.setNextRequest(null);// }// ```
+// Pick one of the food items and assign to Meal m without repetition
+// 
+// *Pre-request Script:*
+// ```
+// var m = environment.m ? _.parseInt(environment.m) : 1, // which meal of the day, defaulting to 1
+//     // Remaining food items, which haven't already been fed to the dog today
+//     todayItems = environment.todayItems ? JSON.parse(environment.todayItems) : JSON.parse(environment.items),
+//     // Randomly choose one of the remaining food items
+//     foodItem = _.sample(todayItems);
+// 
+// // Remove the selected foodItem from contention for the rest of the day
+// _.pull(todayItems, foodItem);
+// postman.setEnvironmentVariable("m", m);
+// postman.setEnvironmentVariable("foodItem", foodItem);
+// postman.setEnvironmentVariable("todayItems", JSON.stringify(todayItems));
+// ```
+// 
+// *Test Script:*
+// ```
+// tests["Status code is 200"] = (responseCode.code === 200);
+// 
+// if (responseCode.code === 200) {
+//     // Increment meal counter by 1
+//     var m = _.parseInt(environment.m) + 1,
+//         d = _.parseInt(environment.d);
+//     
+//     // If last meal of the day
+//     if (m === 4) {
+//         postman.setEnvironmentVariable("m", 1);
+//         postman.setEnvironmentVariable("todayItems", "");
+//         // If not last day of the week, return to Create Day Log to set meals for the next day
+//         // otherwise end the workflow, by not setting the Next Request
+//         if (d < 7) {
+//             postman.setNextRequest("Create Day Log");
+//         }
+//         else {
+//             postman.setEnvironmentVariable("d", 0);
+//             // Terminate execution
+//             postman.setNextRequest(null);
+//         }
+//     }
+//     // otherwise loop for the subsequent meal
+//     else {
+//         postman.setEnvironmentVariable("m", m);
+//         postman.setNextRequest("Add Meal to Day");
+//     }
+// }
+// else {
+//     // Stop execution
+//     postman.setNextRequest(null);
+// }
+// ```
+
 @name("Add Meal to Day")
 POST "https://{{url}}/meal"
 files(

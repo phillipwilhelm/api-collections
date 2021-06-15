@@ -1,16 +1,23 @@
 #!/usr/bin/env dothttp
 
-// Using Indian Rail API to check the PNR status of the train. // This request uses an API KEY which can be [generated](https://indianrailapi.com/dashboard/api-key) and a PNR number.// Both API key and PNR no are set as environment variables. Chart prepared or not is being checked from the generated response using test scripts. Test scipts are also used to check the booking status of all the passengers travelling with this PNR.
+// Using Indian Rail API to check the PNR status of the train. 
+// This request uses an API KEY which can be [generated](https://indianrailapi.com/dashboard/api-key) and a PNR number.
+// Both API key and PNR no are set as environment variables. Chart prepared or not is being checked from the generated response using test scripts. Test scipts are also used to check the booking status of all the passengers travelling with this PNR.
+
 @name("PNR Check")
 GET "http://indianrailapi.com/api/v2/PNRCheck/apikey/{{trainapikey}}/PNRNumber/{{pnrno}}/Route/1/"
 
 
 // Using Indian Rail API to check the live running status of a train. This request uses an API KEY which can be [generated](https://indianrailapi.com/dashboard/api-key), Train no and Date of the journey. Train no and Date of journey are extracted from response of the previous request and are saved as environment variables. Tests scripts uses the response of the request to generate live running status of the train.
+
 @name("Live Running Status of the Train")
 GET "https://indianrailapi.com/api/v2/livetrainstatus/apikey/{{trainapikey}}/trainnumber/{{train_no}}/date/{{date_of_journey}}/"
 
 
-// Using Slack's incoming Webhook URL to run this POST request to send the booking status and the train status to the Slack.// It uses a Pre-request Script which helps to form the content of the body that needs to be send to the Slack. // Read more about the [Slack's incoming Webhook](https://api.slack.com/incoming-webhooks).
+// Using Slack's incoming Webhook URL to run this POST request to send the booking status and the train status to the Slack.
+// It uses a Pre-request Script which helps to form the content of the body that needs to be send to the Slack. 
+// Read more about the [Slack's incoming Webhook](https://api.slack.com/incoming-webhooks).
+
 @name("Sending response to Slack")
 POST "https://hooks.slack.com/services/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"
 "Content-Type": "application/json"
@@ -33,6 +40,7 @@ data('{
 
 
 // Using Slack's incoming Webhook URL to run this POST request. This request runs when an inavlid PNR has been recevied by the collection and send an informative message to the user that the PNR is invalid.
+
 @name("PNR validation")
 POST "https://{{incoming_webhook}}/"
 "Content-Type": "application/json"

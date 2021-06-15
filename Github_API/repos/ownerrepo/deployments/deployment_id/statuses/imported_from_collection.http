@@ -1,0 +1,35 @@
+#!/usr/bin/env dothttp
+
+// Users with pull access can view deployment statuses for a deployment:
+
+@name("List deployment statuses")
+GET "https://{{baseUrl}}/repos/:owner/:repo/deployments/:deployment_id/statuses"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Users with `push` access can create deployment statuses for a given deployment.
+// 
+// GitHub Apps require `read & write` access to "Deployments" and `read-only` access to "Repo contents" (for private repos). OAuth Apps require the `repo_deployment` scope.
+
+@name("Create a deployment status")
+POST "https://{{baseUrl}}/repos/:owner/:repo/deployments/:deployment_id/statuses"
+"Content-Type": "application/json"
+data('{
+    "state": "<string>",
+    "target_url": "",
+    "log_url": "",
+    "description": "",
+    "environment": "<string>",
+    "environment_url": "",
+    "auto_inactive": "<boolean>"
+}')
+
+
+// Users with pull access can view a deployment status for a deployment:
+
+@name("Get a deployment status")
+GET "https://{{baseUrl}}/repos/:owner/:repo/deployments/:deployment_id/statuses/:status_id"
+
+
+

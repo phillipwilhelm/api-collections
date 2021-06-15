@@ -1,0 +1,67 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of all segments and details on their configuration. Segments can be applied on contact lists when you send your campaigns. Segmentation is done based on additional data saved for contacts via /contactmetadata and/or based on contact activity (or lack thereof).
+// 
+
+@name("Retrieve All Segmentation Formulas")
+GET "https://api.mailjet.com/v3/REST/contactfilter"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "ShowDeleted"= "false"
+? "Status"= "unused"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve configuration details for a specific segment. Segments can be applied on contact lists when you send your campaigns. Segmentation is done based on additional data saved for contacts via /contactmetadata and/or based on contact activity (or lack thereof).
+// 
+
+@name("Retrieve a Single Segmentation Formula")
+GET "https://api.mailjet.com/v3/REST/contactfilter/{{contactfilter_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new segmentation formula to be applied on contact lists when you send your campaigns. Segmentation can be done based on additional data saved for contacts via /contactmetadata and/or based on contact activity (or lack thereof).
+// 
+
+@name("Create a Segmentation Formula")
+POST "https://api.mailjet.com/v3/REST/contactfilter"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Description": "Users that have not clicked on an email link in the last 7 days, and are under 30 years old",
+    "Expression": "((not hasclickedsince(7))) AND (age<=30)",
+    "Name": "Inactive customers 30 or under"
+}')
+
+
+// Update an existing segment. Segments can be applied on contact lists when you send your campaigns. Segmentation is done based on additional data saved for contacts via /contactmetadata and/or based on contact activity (or lack thereof).
+// 
+// Only segments with deleted status can be updated via the API. Deleted segments can be updated to unused.
+// 
+
+@name("Update a Segmentation Formula")
+PUT "https://api.mailjet.com/v3/REST/contactfilter/{{contactfilter_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Description": "Users that have not clicked on an email link in the last 7 days, and are over 30 years old",
+    "Expression": "((not hasclickedsince(7))) AND (age>=30)",
+    "Name": "Inactive customers 30 or over",
+    "Status": "deleted"
+}')
+
+
+// Delete an existing segment. Segments can be applied on contact lists when you send your campaigns. Segmentation is done based on additional data saved for contacts via /contactmetadata and/or based on contact activity (or lack thereof).
+// 
+// The deletion is a soft one and a deleted segment can later be reinstated by changing its Status via a PUT request.
+// 
+
+@name("Delete a Segmentation Formula")
+DELETE "https://api.mailjet.com/v3/REST/contactfilter/{{contactfilter_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+

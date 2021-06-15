@@ -1,0 +1,144 @@
+#!/usr/bin/env dothttp
+
+// The pulls an API from Postman based upon name, then finds the underlying version, and OpenAPI schema--then loads that OpenAPI into the environment so it can be augmented with integration extensions that will define the backend integration between AWS DynamoDB and AWS API Gateway. Keeping the OpenAPI in the environment to minimize round trips to the Postman API.
+
+@name("1. Pull API (Postman)")
+GET "https://api.getpostman.com/apis/"
+"x-api-key": "{{postman_api_key}}"
+? "workspace_name"= "APIs - Products"
+? "api_name"= "Products"
+? "api_version"= "V1"
+
+
+// This creates a new table in DynamoDB for using as the backend of this API. While a simple step, it is one that might need to be inter changeable with other database backends, so I'm keeping exposed as its own step.
+
+@name("2. Create Table (AWS DynamoDB)")
+POST "https://{{aws_dynamodb_base_url}}/"
+"X-Amz-Target": "DynamoDB_20120810.CreateTable"
+"Content-Type": "application/x-amz-json-1.0"
+? "Action"= "CreateTable"
+data('{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "id",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "{{aws_dynamodb_table_name}}",
+    "KeySchema": [
+                {
+                    "AttributeName": "id",
+                    "KeyType": "HASH"
+                }
+    ],
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+    },
+    "Tags": [ 
+      { 
+         "Key": "Owner",
+         "Value": "Postman"
+      }
+   ]
+}')
+
+
+// This actually takes the OpenAPI for the API in Postman and builds an OpenAPI version of it for deploying to AWS API Gateway, complete with all of the integration bindings needed to connect teh API with the backend AWS DynamoDB database. I am keeping it as its own step because of possibly adding in Lambda and other integrations might warrant for a separate set of bindings to be sent over.
+
+@name("3. Prepare API For Publishing")
+GET "https://{{postman_base_url}}/apis/"
+"x-api-key": "{{postman_api_key}}"
+"Content-Type": "application/json"
+? "workspace_name"= "APIs - Products"
+? "api_name"= "Products"
+? "api_version"= "V1"
+
+
+// This takes the OpenAPI stored in the environment, complete with integration bindings, and then publishes to AWS API Gateway using the API. Which publishes all paths and models defined in the OpenAPI, and wires up the integration with DynamoDB using the integration extension published as part of the OpenAPI definition.
+
+@name("4. Publish OpenAPI ( (AWS API Gateway))")
+POST "https://{{aws_api_gateway_base_url}}/restapis"
+? "failonwarnings"= "false"
+? "mode"= "import"
+? "failonwarning"= "false"
+? "basepath"= "ignore"
+data('{{openapi_build}}')
+
+
+// This actually takes the OpenAPI definition that was generated from the Postman API and deploys it to AWS API Gateway. This is the final step of the process, which will make the API accessible via URL. It will still need to be made available via a usage plan, and have key generated and associated, but should produce a usable API.
+
+@name("5. Deploy to Stage (AWS API Gateway)")
+POST "https://{{aws_api_gateway_base_url}}/restapis/:api_id/deployments"
+data('{
+  "stageName" : "development",
+  "stageDescription" : "Deploying a development copy of the API.",
+  "description" : "Automating the deployment from Postman."
+}')
+
+
+// Adds a usage plan, and sets the envioronment with the id for the usage plan so it can be associated with the key and other aspects of operations.
+
+@name("6. Usage Plan (AWS API Gateway)")
+POST "https://{{aws_api_gateway_base_url}}/usageplans/"
+data('{
+  "name": "{{postman_api_name}}",
+  "description": "The primary usage plan for the {{postman_api_name}} API.",
+  "quota": {
+    "period": "DAY",
+    "offset": 0,
+    "limit": 500
+  },
+  "apiStages": [ {
+    "stage": "{{aws_api_gateway_stage_name}}",
+    "apiId": "{{aws_api_gateway_api_id}}"
+  }],  
+  "throttle": {
+    "rateLimit": 100,
+    "burstLimit": 200
+  }
+}')
+
+
+// Adds a key, and sets the envioronment with the id. Establishing a single unique key for accessing the API(s) being deployed.
+
+@name("7. API Key (AWS API Gateway)")
+POST "https://{{aws_api_gateway_base_url}}/apikeys/"
+data('{
+  "name" : "{{postman_api_name}}",
+  "description" : "This is a description of my key",
+  "enabled" : "true"
+}')
+
+
+// Now that we have a key and a usage plan we actually have to associate them so that they know about each other.
+
+@name("8. Add Key to Plan (AWS API Gateway)")
+POST "https://{{aws_api_gateway_base_url}}/usageplans/:usage_plan_id/keys"
+data('{
+  "keyId" : "{{aws_api_gateway_key}}",
+  "keyType" : "API_KEY"
+}')
+
+
+// This actually makes a call to the API, pulling any records that are available.
+
+@name("9. Make GET Request to API")
+GET "https://{{aws_api_gateway_invoke_url}}/{{aws_dynamodb_table_name}}"
+"x-api-key": "{{aws_api_gateway_key}}"
+
+
+// This actually adds an entry to the API we have deployed, adding a record to the backend database.
+
+@name("10. Add entry to API.")
+POST "https://{{aws_api_gateway_invoke_url}}/{{aws_dynamodb_table_name}}"
+"x-api-key": "{{aws_api_gateway_key}}"
+"Content-Type": "application/json"
+data('{
+  "identifier": "product-five",
+  "name": "Product Two",
+  "description": "This is the description for product one."
+}')
+
+
+

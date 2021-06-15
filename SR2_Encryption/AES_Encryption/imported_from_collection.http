@@ -1,0 +1,171 @@
+#!/usr/bin/env dothttp
+
+// Creates a key for the specified license with the specified options.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - KeyId: if successful, the UUID string of the key which can be used for encryption functions.
+
+@name("/aes/createkey")
+POST "https://yourendpoint.sr2solutions.com/aes/createkey"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"Content-Type": "application/json"
+data('{
+	"AdditionalAuth": "a string used for additional authentication. Once set, this cannot be changed and cannot be recovered."
+}')
+
+
+// Decrypts data from a Base64 string.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - Plaintext: if successful, an unencrypted object in Base64 format.
+
+@name("/aes/encrypt")
+POST "https://yourendpoint.sr2solutions.com/aes/encrypt"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"KeyId": "The Key ID of the key returned from /aes/createkey",
+	"Plaintext": "A Buffer object with the encryption key to use in Base64 format"
+}')
+
+
+// Decrypts data from a Base64 string.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - Plaintext: if successful, an unencrypted object in Base64 format.
+
+@name("/aes/decrypt")
+POST "https://yourendpoint.sr2solutions.com/aes/decrypt"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"CipherText": "The Base64 string that was return by /aes/encrypt/"
+}')
+
+
+// Lists all keys in the current license including creation date, active status, and Additional Auth Status.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - Keys: if successful, a collection of all encryption keys available in your account.
+
+@name("/aes/listkeys")
+POST "https://yourendpoint.sr2solutions.com/aes/listkeys"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"Content-Type": "application/json"
+data('{
+}')
+
+
+// Deactivates a key and sets Active to false. When this is done, a key can no longer be used for encryption. But decryption is allowed.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+
+@name("/aes/deactivatekey")
+POST "https://yourendpoint.sr2solutions.com/aes/deactivatekey"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"KeyId": "The Key ID of the key returned from /aes/createkey"
+}')
+
+
+// Deletes a key from storage. When this is done, a key can no longer be used for encryption or decryption.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+
+@name("/aes/deletekey")
+POST "https://yourendpoint.sr2solutions.com/aes/deletekey"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"KeyId": "The Key ID of the key returned from /aes/createkey"
+}')
+
+
+// Safely decrypts data and then reencrypts it with a new key.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - Plaintext: if successful, an unencrypted object in Base64 format.
+
+@name("/aes/reencrypt")
+POST "https://yourendpoint.sr2solutions.com/aes/reencrypt"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"CipherText": "The Base64 string that was return by /aes/encrypt/",
+	"DestinationKeyId": "The Key ID of the new EncryptionKey to use",
+	"DestinationAdditionalAuth": "(optional) additional auth string (base64) for using the new key."
+}')
+
+
+// Generates Key Data suitable for encrypted data locally with AES 256.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - CipherText: if successful, an encrypted AES 256 key.
+// - Plaintext: if successful, an unencrypted AES 256 key.
+
+@name("/aes/generateKeyData")
+POST "https://yourendpoint.sr2solutions.com/aes/generatekeydata"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"KeyId": "The Key ID of the key returned from /aes/createkey. This key will be used to encrypt the key being generated."
+}')
+
+
+// Generates Key Data suitable for encrypted data locally with AES 256 without including the plaintext version of the key data.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - CipherText: if successful, an encrypted AES 256 key.
+
+@name("/aes/generateKeyDataWithoutPlaintext")
+POST "https://yourendpoint.sr2solutions.com/aes/generatekeydatawithoutplaintext"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"x-additionalauth": "additionalauthenticationdatainbase64format"
+"Content-Type": "application/json"
+data('{
+	"KeyId": "The Key ID of the key returned from /aes/createkey. This key will be used to encrypt the key being generated."
+}')
+
+
+// Generates random data of a specified length.
+// 
+// Returns a json/application object with the following values:
+// - status: "success" or "failure".
+// - RandomData: if successful, the random data in base64 format
+
+@name("/aes/generateRandomData")
+POST "https://yourendpoint.sr2solutions.com/aes/generaterandomdata"
+"x-licenseid": "6fdad058-eff1-488c-82b0-b3fd5a5bc737"
+"x-licensesecret": "somebase64secret"
+"Content-Type": "application/json"
+data('{
+	"DataLength": "The length of the random data to be generated."
+}')
+
+
+

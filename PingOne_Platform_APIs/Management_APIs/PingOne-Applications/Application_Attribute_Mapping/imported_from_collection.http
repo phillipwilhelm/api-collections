@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+// **Only applicable to OIDC and SAML Apps**
+// 
+// #### Attribute Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// name | Y | Y | String; must be unique w/in App, should be a valid @ObjectName | For OIDC Apps, cannot start with `p1.` **or** be one of the reserved names: `acr`, `amr`, `at_hash`, `aud`, `auth_time`, `azp`, `client_id`, `env`, `exp`, `iat`, `iss`, `jti`, `nonce`, `org`, `scope`, `sid`, `sub`<br><br>For SAML Apps, cannot be `saml_subject`
+// value | Y | Y | String | Either a static value or an expression for mapping the attribute path: `${<source>.<attribute_path>}`.<br><br>Only source supported currently is `user`, e.g. `${user.name.given}`, `${user.id}`
+// required | Y | N | Boolean; default `false` |
+
+@name("CREATE Attribute")
+POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/attributes"
+"Content-Type": "application/json"
+data('{
+    "name": "Attr_{{$timestamp}}",
+    "value": "Expression: ${user.id}, ${user.name.given} or any custom text",
+    "#required": true
+}')
+
+
+@name("READ All Attributes")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/attributes"
+"Content-Type": "application/json"
+
+
+@name("READ One Attribute")
+GET "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/attributes/{{samlAttrID}}"
+"Content-Type": "application/json"
+
+
+// See CREATE request for data model.
+
+@name("UPDATE Attribute")
+PUT "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/attributes/{{samlAttrID}}"
+"Content-Type": "application/json"
+data('{
+    "name": "puttedAttr_{{$timestamp}}",
+    "value": "Value has been UPDATED",
+    "required": true
+}')
+
+
+@name("DELETE Attribute")
+DELETE "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/attributes/{{samlAttrID}}"
+
+
+
+

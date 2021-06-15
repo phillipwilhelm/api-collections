@@ -1,0 +1,59 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgWebhooks")
+GET "https://{{host}}/api/v1/orgs/:org_id/webhooks"
+
+
+@name("getOrgWebhookDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/webhooks/:webhook_id"
+
+
+//  #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|name of the webhook
+//  enabled|boolean|whether webhook is enabled
+//  topics|list|list of subscribed topics: device-events/alarms/audits/client-sessions
+//  type|string|http-post (default) / splunk / google-pubsub / aws-sns
+//  url|string|url
+//  headers|object|custom headers: the headers name and value must be string, total bytes of headers name and value must be less than 1000
+//  secret|string|optional, when type=http-post, if provided, X-Mist-Signature in HTTP header will be the signature of HMAC_SHA1(secret, body)
+//  verify_cert|boolean|when url uses HTTPS, whether to verify the certificate, default is false
+// 
+// * If headers format is invalid, “X-Mist-Error”: “headers format invalid” will be sent.
+// * If total bytes of headers exceed 1000, “X-Mist-Error”: “headers too big” will be sent.
+// * If any header value is not string, “X-Mist-Error”: “header[%s] not a string” will be sent.
+
+@name("createOrgWebhook")
+POST "https://{{host}}/api/v1/orgs/:org_id/webhooks"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "analytic",
+    "type": "http-post",
+    "url": "https://username:password@hooks.abc.com/uri/...",
+    "secret": "secret",
+    "headers": {
+        "x-custom-1": "your_custom_header_value1",
+        "x-custom-2": "your_custom_header_value2"
+    }
+})
+
+
+@name("updateOrgWebhook")
+PUT "https://{{host}}/api/v1/orgs/:org_id/webhooks/:webhook_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "analytic"
+})
+
+
+@name("deleteOrgWebhook")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/webhooks/:webhook_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

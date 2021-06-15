@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// This endpoint lets you request detailed booking information for a given period of time, optionally filtered by bookable item and status.
+// 
+// Parameters:
+// * `fromDate`: inclusive request range start date 
+// * `toDate`: inclusive request range end date
+// * `itemId`: (optional) filter by specified item identifier
+// * `status`: (optional, default = all) filter by specified booking status
+// 	* **all** – no filtering
+// 	* **booked** – events that are fully booked
+// 	* **partiallyBooked** – event that are not fully booked but not free
+// 	* **free** – events that have no bookings yet
+// 	
+// **To filter results you can enable disabled query parameters in `Params` Postman tab**
+// 
+// > Please refer to example request and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn of the possible response fields
+// 
+// **You can override or set desired date range/bookable item in the `Pre-request Script` tab**
+
+@name("For date range")
+GET "https://{{domain}}/api/v3/bookings/{{startDate}}/{{endDate}}"
+? "itemId"= "{{bookableItem}}"
+? "status"= "booked"
+
+
+// Get a single booking details entity by its identifier
+// 
+// **You can override or set desired booking identifier in the `Pre-request Script` tab**
+
+@name("Get by identifier")
+GET "https://{{domain}}/api/v3/bookings/{{eventIdentifier}}"
+
+
+// Using `event identifier` and `member identifier` from `Bookings` -> `For date range` endpoint, you can cancel a specific member reservation without affecting other bookings.
+// 
+// **For Postman you should set corresponding `eventIdentifier` and `memberIdentifier` variables in the pre-request script or manually to use this endpoint**
+// 
+// Immediately after cancellation the slot will be available for booking again, if applicable
+// 
+// > Both owner of the account and cancelled member will receive emails and/or SMS (subscription required)
+
+@name("Cancel member")
+DELETE "https://{{domain}}/api/v3/bookings/{{eventIdentifier}}/members/{{memberIdentifier}}"
+
+
+
+// Using `event identifier`  from `Bookings` -> `For date range` endpoint, you can cancel all member reservations for the specified event occurrence.
+// 
+// **You can set `eventIdentifier` variable  of the desired event in the pre-request script**
+// 
+// Immediately after cancellation the slot(s) will be available for booking again, if applicable
+// 
+// > Both owner of the account and cancelled member will receive emails and/or SMS (subscription required)
+
+@name("Cancel all members")
+DELETE "https://{{domain}}/api/v3/bookings/{{eventIdentifier}}/members"
+
+
+
+// Blocks this specific event from being returned in search results and being booked. 
+// > Blocking an event doesn’t affect existing bookings, you can cancel them by separate request if you need to do so.
+
+@name("Block by identifier")
+PUT "https://{{domain}}/api/v3/bookings/{{eventIdentifier}}/block"
+
+
+
+// Removes block from the specific event identifier
+// 
+// **Un-blocked event will immediately appear in search results and is available to be booked (if applicable)**
+
+@name("Un-block by identifier")
+DELETE "https://{{domain}}/api/v3/bookings/{{eventIdentifier}}/block"
+
+
+
+

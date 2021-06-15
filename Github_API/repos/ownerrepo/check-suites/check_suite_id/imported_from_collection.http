@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// **Note:** The Checks API only looks for pushes in the repository where the check suite or check run were created. Pushes to a branch in a forked repository are not detected and return an empty `pull_requests` array and a `null` value for `head_branch`.
+// 
+// Gets a single check suite using its `id`. GitHub Apps must have the `checks:read` permission on a private repository or pull access to a public repository to get check suites. OAuth Apps and authenticated users must have the `repo` scope to get check suites in a private repository.
+
+@name("Get a check suite")
+GET "https://{{baseUrl}}/repos/:owner/:repo/check-suites/:check_suite_id"
+
+
+// **Note:** The Checks API only looks for pushes in the repository where the check suite or check run were created. Pushes to a branch in a forked repository are not detected and return an empty `pull_requests` array.
+// 
+// Lists check runs for a check suite using its `id`. GitHub Apps must have the `checks:read` permission on a private repository or pull access to a public repository to get check runs. OAuth Apps and authenticated users must have the `repo` scope to get check runs in a private repository.
+
+@name("List check runs in a check suite")
+GET "https://{{baseUrl}}/repos/:owner/:repo/check-suites/:check_suite_id/check-runs"
+? "check_name"= "<string>"
+? "status"= "<string>"
+? "filter"= "latest"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Triggers GitHub to rerequest an existing check suite, without pushing new code to a repository. This endpoint will trigger the [`check_suite` webhook](https://docs.github.com/webhooks/event-payloads/#check_suite) event with the action `rerequested`. When a check suite is `rerequested`, its `status` is reset to `queued` and the `conclusion` is cleared.
+// 
+// To rerequest a check suite, your GitHub App must have the `checks:read` permission on a private repository or pull access to a public repository.
+
+@name("Rerequest a check suite")
+POST "https://{{baseUrl}}/repos/:owner/:repo/check-suites/:check_suite_id/rerequest"
+
+
+

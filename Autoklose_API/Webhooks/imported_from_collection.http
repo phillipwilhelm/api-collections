@@ -1,0 +1,74 @@
+#!/usr/bin/env dothttp
+
+// Provide the list of all webhooks.
+
+@name("List webhooks")
+GET "https://{{url}}/api/webhooks"
+
+
+// Provide information about a single webhook by using its id.
+
+@name("Get webhook")
+GET "https://{{url}}/api/webhooks/{{webhook}}"
+
+
+// A method used to create a webhook by providing data in the body section.
+// 
+// Required parameters are subscription and url, and an optional parameter is rules.
+// Parameters:
+// * subscriptions - array
+//       * [“email.open”] - triggers webhook for open emails
+//       * [“email.click”] - triggers webhook for clicked links inside email body
+//       * [“email.reply”] - triggers webhook for reply emails, after the reply the open tracking is stopped by default
+//       * [“email.send”] - triggers webhook for send emails
+//       * [“email.bounce”] - triggers webhook for bounced emails
+//       * [“email.open”, “email.click”, “email.reply” , "email.send" ,  "email.bounce" ] - a combination of subscriptions is also allowed
+// * url - string
+//       * "https://example.net/", - The link where your application will receive a POST request with webhook data from Autoklose, the url must start with https:// and be publicly available at the moment of creation
+// * is_active - boolean
+//       * true - default
+//       * false
+// * rules - array (optional)
+//       * emails - array
+//           * campaign - int
+//                 * 1 - provide a campaign id, for tracking a specific campaign
+//           * is_first - boolean
+//                 * true - for subscribing only to first open, click and reply action on the single sent email level
+//                 * false - receive all events, default
+
+@name("Add a webhook")
+POST "https://{{url}}/api/webhooks"
+json({
+    "subscriptions": [
+        "email.open"
+    ],
+    "url": "https://example.com",
+    "rules": {
+        "email": {
+            "campaign": 1665,
+            "is_first": true
+        }
+    }
+})
+
+
+// A method that allows you to change the status of a webhook by using its id.
+// 
+// Changing the data in the body section you can change status for a webhook to active or inactive.
+// Parameters:
+// * is_active - boolean
+
+@name("Update a webhook")
+PATCH "https://{{url}}/api/webhooks/{{webhook}}"
+json({
+    "is_active": false
+})
+
+
+// A method used to remove webhook by using its id.
+
+@name("Delete a webhook")
+DELETE "https://{{url}}/api/webhooks/{{webhook}}"
+
+
+

@@ -1,0 +1,117 @@
+#!/usr/bin/env dothttp
+
+@name("List all environments")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/environments"
+basicauth("Basic", "{{OPAT}}")
+? "expands"= "0"
+? "api-version"= "5.0-preview.1"
+
+
+@name("List environments by ID")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/environments/{{envID}}"
+basicauth("Basic", "{{OPAT}}")
+? "expands"= "0"
+? "api-version"= "5.0-preview.1"
+
+
+@name("Create an environment")
+POST "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/environments"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json({
+    "description": "",
+    "name": "Sample None Env from API"
+})
+
+
+@name("List Role Definitions")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.environmentreferencerole/roledefinitions"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+
+
+@name("List all users")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+@name("Get Environment Permissions at root")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalenvironmentreferencerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+
+
+@name("Edit Environment Permissions at root")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalenvironmentreferencerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    {
+        "userId": "94ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Reader"
+    }
+])
+
+
+@name("Remove Environment Permissions at root")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalenvironmentreferencerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Edit Environment Permissions given environment ID")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.environmentreferencerole/roleassignments/resources/{{projectID}}_{{envID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    {
+        "userId": "94ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Reader"
+    }
+])
+
+
+@name("Remove Environment Permissions given environment ID")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.environmentreferencerole/roleassignments/resources/{{projectID}}_{{envID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Get Environment Permissions given environment ID")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.environmentreferencerole/roleassignments/resources/{{projectID}}_{{envID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+
+
+@name("Delete an environment")
+DELETE "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/environments/{{envID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json({
+    "description": "",
+    "name": "Sample None Env from API"
+})
+
+
+

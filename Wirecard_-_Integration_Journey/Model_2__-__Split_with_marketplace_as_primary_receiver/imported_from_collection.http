@@ -1,0 +1,310 @@
+#!/usr/bin/env dothttp
+
+@name("Create order (APP authentication)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    },
+    "receivers": [
+        {
+            "moipAccount": {
+                "id": "{{cmerchant_id}}"
+            },
+            "type": "SECONDARY",
+            "amount": {
+                "percentual": 50
+            }
+        }
+    ]
+}')
+
+
+@name("Create credit card payment (APP authentication)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "installmentCount": 1,
+  "statementDescriptor": "MyStore",
+  "fundingInstrument": {
+    "method": "CREDIT_CARD",
+    "creditCard": {
+      "expirationMonth": "02",
+      "expirationYear": "20",
+      "number": "5555666677778884",
+      "cvc": "123",
+      "holder": {
+        "fullname": "Jose Portador da Silva",
+        "birthdate": "1988-12-30",
+        "taxDocument": {
+          "type": "CPF",
+          "number": "33333333333"
+        },
+        "phone": {
+          "countryCode": "55",
+          "areaCode": "11",
+          "number": "66778899"
+        }
+      }
+    }
+  }
+}')
+
+
+@name("Create credit card refund (APP authentication)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+
+
+
+@name("Create 2nd order (APP authentication)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    },
+    "receivers": [
+        {
+            "moipAccount": {
+                "id": "{{cmerchant_id}}"
+            },
+            "type": "SECONDARY",
+            "amount": {
+                "percentual": 50
+            }
+        }
+    ]
+}')
+
+
+@name("Create boleto payment (APP authentication)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{  
+    "fundingInstrument": {
+        "method": "BOLETO",
+        "boleto": {
+            "expirationDate": "2020-09-30",
+            "instructionLines": {
+                "first": "TESTETETSTTTST",
+                "second": "tfcsddlksjsd",
+                "third": "lkshglashiuahgha"
+            },
+            "logoUri": "http://"
+        }
+    }
+}')
+
+
+// The purpose of this endpoint is to simulate boleto authorization in Sandbox.
+// This function is not available in production environment.
+
+@name("Authorized boleto (APP authentication)")
+POST "https://{{url}}/simulador/authorize"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+? "payment_id"= "{{payment_id}}"
+? "amount"= "2000"
+data('{}')
+
+
+@name("Create bank account refund (APP authentication)")
+POST "https://{{url}}/v2/orders/{{payment_id}}/refunds"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+  "amount": 1000,
+  "refundingInstrument": {
+  	"method": "BANK_ACCOUNT",
+    "bankAccount": {
+      "bankNumber": "237",
+      "agencyNumber": "12345",
+      "agencyCheckNumber": "0",
+      "accountNumber": "12345678",
+      "accountCheckNumber": "7",
+      "type": "CHECKING",
+      "holder": {
+        "taxDocument": {
+          "type": "CPF",
+          "number": "22222222222"
+        },
+        "fullname": "Demo Moip"
+      }
+    }
+  }
+}')
+
+
+@name("Create 3rd order (APP authentication)")
+POST "https://{{url}}/v2/orders/"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+data('{
+    "ownId": "{{$timestamp}}",
+    "amount": {
+        "currency": "BRL"
+    },
+    "items": [
+        {
+            "product": "Bicicleta Specialized Tarmac 26 Shimano Alivio",
+            "quantity": 1,
+            "detail": "uma linda bicicleta",
+            "price": 2000
+        }
+    ],
+    "customer": {
+        "ownId": "{{$timestamp}}",
+        "fullname": "Jose Silva",
+        "email": "{{$timestamp}}@email.com",
+        "birthDate": "1988-12-30",
+        "taxDocument": {
+            "type": "CPF",
+            "number": "22222222222"
+        },
+        "phone": {
+            "countryCode": "55",
+            "areaCode": "11",
+            "number": "66778899"
+        },
+        "shippingAddress":   {
+                "street": "Avenida Faria Lima",
+                "streetNumber": 2927,
+                "complement": 8,
+                "district": "Itaim",
+                "city": "Sao Paulo",
+                "state": "SP",
+                "country": "BRA",
+                "zipCode": "01234000"
+            }
+    },
+    "receivers": [
+        {
+            "moipAccount": {
+                "id": "{{cmerchant_id}}"
+            },
+            "type": "SECONDARY",
+            "amount": {
+                "percentual": 50
+            }
+        }
+    ]
+}')
+
+
+// If you want to create a `wallet` payment, besides having the payor `moipAccount.id` you must also validate that the person paying is really the Wirecard Account owner.
+// 
+// To do so, you must request them to include the 2FA token they can obtain in their Wirecard Account apps or, you can choose to send and SMS to the mobile number registered in the the payor Wirecard Account.
+// 
+// This request examplifies the second option.
+
+@name("Send SMS token to payor")
+POST "https://{{url}}/tfa/tokens/counters"
+"Content-Type": "application/json"
+"Authorization": "OAuth //ACCESS_TOKEN_FROM_PAYOR//"
+data('{
+	"type": "sms"
+}')
+
+
+// Once you have the 2FA-token you can finally create the payment by informing the `fundingInstrument.wallet` as shown in this example.
+// The 2FA token must be included in the headers as the parameter `customer-2fa` and the token type must be deblared in the parameter `customer-2fa-type` with the values `sms` or `token`.
+// 
+// | headers | description |
+// | ---  | --- | 
+// | customer-2fa | A 6-digit token |
+// | customer-2fa-type | Must be `HOTP` (for sms tokens) or `TOTP` for time-base tokens generated by Wirecard APP |
+
+@name("Create a wallet payment (APP authentication)")
+POST "https://{{url}}/v2/orders/{{order_id}}/payments"
+"Content-Type": "application/json"
+"Authorization": "OAuth {{app_accessToken}}"
+"customer-2fa": "347489"
+"customer-2fa-type": "HOTP"
+data('{
+  "fundingInstrument": {
+    "method": "WALLET",
+    "wallet": {
+      "moipAccount": {
+        "id": "MPA-PAYORMPA1313"
+      }
+    }
+  }
+}')
+
+
+

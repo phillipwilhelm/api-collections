@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to register a user. The request body requires the `username`, `email`, and `password` attributes needed to define a new user. This operation uses the `application/vnd.pingidentity.user.register+json` custom media type as the content type in the request header.
+// 
+// 
+// ::: info
+// **Note:** This action is also used with the `ACCOUNT_LINKING_REQUIRED` status to register the external identity as a new user. When used with account linking, a unique `username` and a valid `email` address must be provided. The `password` attribute is ignored. 
+// :::
+// 
+// 
+
+@name("Register User")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.register+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "username": "register-user_{{$timestamp}}",
+    "email": "do-not-send@pingidentity.com",
+    "password": "2Federate!"
+}')
+
+
+// If the user did not receive the verification email, the `POST /{environmentId}/flows/{flowId}` operation initiates an action to send the user a new account verification email. This operation uses the `application/vnd.pingidentity.user.sendVerificationCode+json` custom media type as the content type in the request header.
+
+@name("Send (Resend) Verification Code")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.sendVerificationCode+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "verificationCode": "xxxxxx"
+}')
+
+
+// In an authentication flow, users can be prompted to add data to their profile. For a progressive profiling flow, the `POST /{environmentId}/flows/{flowId}` operation uses the `application/vnd.pingidentity.user.update+json` custom media type as the content type in the request header.
+// 
+// ::: info
+// **Note:** The request body format is exactly the same as a `PATCH /environments/{environmentId}/users/{userId}` request. For more information, see [Partial update](#patch-update-user-patch).
+// :::
+
+@name("User Profile Update")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.update+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+  "email": "lindajones@ping.com",
+  "address": {
+    "postalCode": "78613"
+  }
+}')
+
+
+// In an authentication flow involving an external identity provider, users can be prompted to verify the account data returned by the provider. The `POST /{environmentId}/flows/{flowId}` operation uses the ` application/vnd.pingidentity.user.confirm+json` custom media type as the content type in the request header.
+// 
+// ::: info
+// **Note:** The request body format is exactly the same as a `PATCH /environments/{environmentId}/users/{userId}` request. However, any user attributes included in the request that were not returned from the external identity provider are ignored. For more information, see [Partial update](#patch-update-user-patch).
+// :::
+
+@name("Confirm Account Information")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.confirm+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+  "username": "lindajones"
+}')
+
+
+// The `POST /{environmentId}/flows/{flowId}` operation initiates an action to verify the user account to continue the authentication flow. The user must click the link in the verification email to verify the account. The request body requires the `verificationCode` attribute identifying the verification code to check. This operation uses the `application/vnd.pingidentity.user.verify+json` custom media type as the content type in the request header.
+
+@name("Verify User")
+POST "https://auth.pingone.com/{{envID}}/flows/{{flowID}}"
+"Content-Type": "application/vnd.pingidentity.user.verify+json"
+"Cookie": "ST={{sessionToken}}"
+data('{
+    "verificationCode": "xxxxxx"
+}')
+
+
+

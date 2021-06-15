@@ -1,0 +1,221 @@
+#!/usr/bin/env dothttp
+
+// Se envía a autorización el monto de la transacción y si es aprobada, inmediatamente se realiza la captura.
+// 
+// Franquisias disponibles para `AUTHORIZATION_AND_CAPTURE`:
+// - `VISA`
+// - `MASTERCARD`
+// 
+// > Es necesario envíar el parámetro `transaction.creditCard.securityCode` en la petición.
+
+@name("AUTHORIZATION AND CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_PANAMA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTHORIZATION AND CAPTURE OF PAY TEST WITH CREDITCARD IN PANAMA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "USD"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Ciudad de Panamá",
+					"state": "Panamá",
+					"country": "PA",
+					"postalCode": "64000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Ciudad de Panamá",
+				"state": "Panamá",
+				"country": "PA",
+				"postalCode": "64000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Ciudad de Panamá",
+				"state": "Panamá",
+				"country": "PA",
+				"postalCode": "64000",
+				"phone": "10000000"
+			}
+		},
+		"creditCardTokenId": "CREDIT_CARD_TOKEN_ID",
+		"creditCard": {
+			"securityCode": "123"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION_AND_CAPTURE",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "PA",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+// Se verifica junto con el banco si la compra puede ser ralizada. Se confirma si la tarjeta está activa y posee fondos.
+// 
+// Franquisias disponibles para `AUTHORIZATION`:
+// - `VISA`
+// - `MASTERCARD`
+// 
+// > Es necesario envíar el parámetro `transaction.creditCard.securityCode` en la petición.
+
+@name("AUTHORIZATION")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"accountId": "{{ACCOUNT_ID_PANAMA}}",
+			"referenceCode": "{{$guid}}",
+			"description": "AUTHORIZATION OF PAY TEST WITH CREDITCARD IN PANAMA",
+			"language": "{{LANGUAGE}}",
+			"signature": "SIGNATURE",
+			"notifyUrl": "{{NOTIFY_URL}}",
+			"additionalValues": {
+				"TX_VALUE": {
+					"value": 100,
+					"currency": "USD"
+				}
+			},
+			"buyer": {
+				"merchantBuyerId": "1",
+				"fullName": "BUYER",
+				"emailAddress": "buyer@test.com",
+				"contactPhone": "10000000",
+				"dniNumber": "100000000",
+				"shippingAddress": {
+					"street1": "STREET1",
+					"street2": "STREET2",
+					"city": "Ciudad de Panamá",
+					"state": "Panamá",
+					"country": "PA",
+					"postalCode": "64000",
+					"phone": "10000000"
+				}
+			},
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Ciudad de Panamá",
+				"state": "Panamá",
+				"country": "PA",
+				"postalCode": "64000",
+				"phone": "10000000"
+			}
+		},
+		"payer": {
+			"merchantPayerId": "1",
+			"fullName": "PAYER",
+			"emailAddress": "payer@test.com",
+			"contactPhone": "10000000",
+			"dniNumber": "100000000",
+			"shippingAddress": {
+				"street1": "STREET1",
+				"street2": "STREET2",
+				"city": "Ciudad de Panamá",
+				"state": "Panamá",
+				"country": "PA",
+				"postalCode": "64000",
+				"phone": "10000000"
+			}
+		},
+		"creditCardTokenId": "CREDIT_CARD_TOKEN_ID",
+		"creditCard": {
+			"securityCode": "123"
+		},
+		"extraParameters": {
+			"INSTALLMENTS_NUMBER": 1
+		},
+		"type": "AUTHORIZATION",
+		"paymentMethod": "{{PAYMENT_METHOD}}",
+		"paymentCountry": "PA",
+		"deviceSessionId": "{{$guid}}",
+		"ipAddress": "127.0.0.1",
+		"cookie": "{{$guid}}",
+		"userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:18.0) Gecko/20100101 Firefox/18.0"
+	}
+}')
+
+
+// La compra es confirmada y cobrada en la tarjeta de crédito. Solamente después de realizar la captura el pagador prodrá ver reflejada la compra en su extracto
+// 
+// Franquisias disponibles para `CAPTURE`:
+// - `VISA`
+// - `MASTERCARD`
+// 
+// > Es necesario envíar el parámetro `transaction.creditCard.securityCode` en la petición.
+
+@name("CAPTURE")
+POST "https://{{PAYMENTS_API}}/"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"test": {{TEST}},
+	"language": "{{LANGUAGE}}",
+	"command": "SUBMIT_TRANSACTION",
+	"merchant": {
+		"apiKey": "{{API_KEY}}",
+		"apiLogin": "{{API_LOGIN}}"
+	},
+	"transaction": {
+		"order": {
+			"id": 000000
+		},
+		"type": "CAPTURE",
+		"parentTransactionId": "PARENT_TRANSACTION_ID"
+	}
+}')
+
+
+

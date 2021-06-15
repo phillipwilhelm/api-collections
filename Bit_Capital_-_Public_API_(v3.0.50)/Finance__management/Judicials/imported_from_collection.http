@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+// > This action can only be executed by `mediator` or by superior court order
+// 
+// > The superior court order **must be executed by qualified person by an information security manager (master) appointed by a court agreed with the Central Bank**
+// 
+// > The balance to be blocked must come from an asset backed by Brazilian Real.
+// 
+// > all fields are required
+// 
+// 
+// <br />
+// Necessary SCOPE to perform `authorization:write`
+// 
+// 
+// 
+// **GHERKIN**
+// ```
+// GIVEN actor has judicial block order
+// GIVEN actor is logged as "mediator" or is qualified person by BACEN
+// GIVEN there is a transitory wallet identified as "judicial_transaction" in the Financial Institution mediator
+// GIVEN the wallet thar contains the balance to block has all backed assets identified as "brl:true"
+// WHEN the actor executes the action
+// THEN the response should be 200
+// AND should response "authorized:true"
+// AND should response a "transactionId" uuid identification
+// AND should response a reason 
+// ```
+// 
+// 
+// 
+// <br />
+// 
+// To identify if an asset is backed by Brazilian Real, the asset must have the field `brl:true` at the endpoint `GET {{API_BASE_URL}}/wallets/{{walletID}}`
+// 
+// <br />
+// 
+// #### `legalNature` codes
+// 
+// | Legal Nature| pt-br | en |
+// | --- | --- | --- |
+// | `01` | ordem de natureza cível | civil order |
+// | `02` | ordem de natureza criminal  | criminal order |
+// | `03` | ordem de natureza trabalhista | labor order |
+// | `04` | ordem de natureza fiscal | tax order |
+// | `05` | ordem de natureza alimenticia | food order |
+// 
+// 
+// 
+// If the total amount required for blocking is greater than the available balance of some of all assets backed by Brazilian Real, a message response will be displayed stating that the total balance of the block has been partially executed.
+
+@name("Blocking partial or total balance")
+POST "https://{{API_BASE_URL}}/transactions/authorize"
+"Content-Type": "application/json"
+"X-Request-Signature": "{{X_REQUEST_SIGNATURE}}"
+"X-Request-Timestamp": "{{X_REQUEST_TIMESTAMP}}"
+"": ""
+data('{
+    "type": "judicial",
+    "event": "authorization",
+    "asset": "BRLP,BRLC", // one or more assets that contains the balance to be blocked. All assets must be "brl:true".
+    "amount": "160000", // THE AMOUNT TO BLOCK. FIELD 1 of 2
+    "walletId": "63d91641-5b77-47e3-bb35-219bfe27d644", // source of walletId to block the amount
+    "additionalData": {
+        "judicialOptions": {
+            "courtNumber": "123456789", // Vara ou Juízo (Obrigatório) - Código da vara ou juízo no Bacen Jud - N(005)
+            "legalNature": "01", // must be filled as described at this page
+            "orderProtocol": "123456789", // order protocol
+            "defendantTaxId": "44455511122", // taxId of defendant
+            "courtOrderDate": "2021-10-10", // judicial process date of execution
+            "judicialProcessNumber": "12345", // judicial process number
+            "totalBlockValueRequested": "160000" // THE AMOUNT TO BLOCK. FIELD 2 of 2
+        }
+    },
+    "transitoryAccountType": "judicial_transaction"
+}')
+
+
+

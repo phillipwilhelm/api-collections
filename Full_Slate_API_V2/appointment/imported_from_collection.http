@@ -1,0 +1,240 @@
+#!/usr/bin/env dothttp
+
+// # Display a list of appointments in materialized format.
+// 
+// ## What is Materialized appointments? 
+// 
+// If an appointment is a recurring event, we will break it into multiple instances.
+
+@name("materialized index")
+GET "https://test1.fullslate.com/api/v2/appointments"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "from"= "2019-08-14"
+? "to"= "2019-10-30"
+? "changed_since"= "2018-03-01"
+? "include_deleted"= "true"
+? "employees"= "11,12"
+? "service"= "164"
+? "client_id"= "43"
+? "status"= "STATUS_BOOKED"
+? "confirmed"= "false"
+
+
+// # Display a list of appointments in pre-materialized format.
+// 
+// ## What is Pre-Materialized appointment?
+// 
+// If an appointment is a recurring event, we will display it as a single instance.
+
+@name("pre_materialized index")
+GET "https://test1.fullslate.com/api/v2/pre_materialized_appointments"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "from"= "2019-12-14"
+? "to"= "2019-12-30"
+? "include_deleted"= "true"
+? "employees"= "11,12"
+? "service"= "164"
+? "client_id"= "43"
+? "status"= "STATUS_BOOKED"
+? "confirmed"= "false"
+
+
+// # Show a particular appointment in materialized format
+// 
+// ## What is Materialized appointments?
+// 
+// If an appointment is a recurring event, we will break it into multiple instances.
+
+@name("materialized show")
+GET "https://test1.fullslate.com/api/v2/appointments/1201046"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// # Show a particular appointment in pre-materialized format.
+// 
+// ## What is Pre-Materialized appointment?
+// 
+// If an appointment is a recurring event, we will display it as a single instance.
+
+@name("pre_materialized show")
+GET "https://test1.fullslate.com/api/v2/pre_materialized_appointments/1201046"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// # Create a recurring appointment
+
+@name("create recurring")
+POST "https://test1.fullslate.com/api/v2/appointments"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "at": "2019-09-25T08:45:00-07:00",
+  "services": [2],
+  "recurrence_mode": "RECURS_WEEKLY",
+  "recurrence_interval": 1,
+  "client_with_creation": {
+      "first_name": "test",
+      "last_name": "last name",
+      "phone_number": { "number": "9876543210", "contact_type": "HOME" },
+      "email": "aabbcc11@email.co",
+      "birthday": "1990-12-31",
+      "no_automatic_email": true,
+      "no_sms": true,
+      "mass_email_opt_in": true,
+      "sms_reminder_consent": true,
+      "address": {
+        "street1": "123, appt create 1",
+        "street2": "appt create",
+        "city": "ACre",
+        "state": "ACre",
+        "postal_code": "11223"
+      },
+      "time_zone": "Mountain Time (US & Canada)"
+  },
+  "status": "STATUS_BOOKED",
+  "promo_code": "123",
+  "notes": "lala",
+  "custom_fields": [
+      { "label": "test1", "value": 1 },
+      { "label": "test2", "value": "aabb " },
+      { "label": "test3", "value": true },
+      { "label": "test4", "value": { "test4a": "test something" } }
+  ],
+  "client_preferred_employee": false,
+  "send_client_confirmation_email": true,
+  "send_employee_notification_email": true,
+  "user_type": "CLIENT"
+}')
+
+
+// # Create a non-recur appointment
+
+@name("create non recur")
+POST "https://test1.fullslate.com/api/v2/appointments"
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1ODQ1MjE3NTgsImV4cCI6MTU4NDUyNTM1OCwidXNlcl9pZCI6NTc0MjJ9.rklnENMznfmaVlxPlpMzqI_KmFbMbSEtgiJ1oRFinTY"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "at": "2020-04-01T09:00:00-07:00",
+  "services": [2],
+  "client_with_creation": {
+  	"first_name": "first name",
+  	"last_name": "last name",
+  	"phone_number": {"number":"1234567890", "contact_type": "WORK"},
+	"email":"ssss@ccc.com",
+	"birthday": "1980-09-12",
+	"no_automatic_email": false,
+	"no_sms": false,
+	"mass_email_opt_in": true,
+	"sms_reminder_consent": true,
+	"address": { 
+		"street1": "street one ", 
+		"street2": "some street two", 
+		"city": "some city", 
+		"state": "some state", 
+		"postal_code": "90120"
+	},
+	"time_zone": "Mountain Time (US & Canada)"
+  },
+  "notes": "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+}')
+
+
+// # Delete a recurring appointment
+
+@name("delete recurring")
+DELETE "https://test1.fullslate.com/api/v2/appointments/1201063"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"at": "2017-09-26T13:00:00-07:00",
+	"delete_future_occurences": true,
+	"send_client_cancel_email": true,
+	"send_employee_notification_email": true
+}')
+
+
+// # Delete a non-recurring appointment
+
+@name("delete non recur")
+DELETE "https://test1.fullslate.com/api/v2/appointments/1201044"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"send_client_cancel_email": true,
+	"send_employee_notification_email": true
+}')
+
+
+// # Update a recurring appointment
+
+@name("update recurring")
+PATCH "https://test1.fullslate.com/api/v2/appointments/1201094"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "edit_at": "2017-12-07T09:00:00-06:00",
+  "at": "2017-12-07T10:00:00-06:00",
+  "update_recurrence_flag": "SINGLE_OCCURRENCE",
+  "employee": 12,
+  "services": [2],
+  "client_with_creation": {
+        "first_name": "Lisa X",
+        "last_name": "Jane Y",
+        "email": "clientz@email.com",
+        "time_zone": "Abu Dhabi",
+        "phone_number": { "number": "1234567890", "contact_type": "HOME" }
+    },
+  "notes": "somefdsf fdsf notes lalallaa",
+  "confirmed": false,
+  "custom_fields": [
+    {"label": "What\'s your favorite thing?", "value": "ice cream chocolate cake"},
+    {"label": "Promotion code", "value": "ice cream cake"}
+  ],
+  "status": "STATUS_BOOKED",
+  "send_client_confirmation_email": true,
+  "send_employee_notification_email": true
+}')
+
+
+// # Update a non-recur appointment
+
+@name("update non recur")
+PATCH "https://test1.fullslate.com/api/v2/appointments/1201044"
+"Authorization": "Bearer t1bmlYSGIo33AzI1kzAmNABk3V04xiPS0ueLxnpCrW5LnjH3py"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "at": "2017-09-27T09:30:00-07:00",
+  "employee": 12,
+  "services": [5],
+  "client_with_creation": {
+        "first_name": "Mma",
+        "last_name": "Jane",
+        "email": "client@email.com"
+    },
+  "notes": "somefdsf fdsf notes lalallaa",
+  "confirmed": false,
+  "custom_fields": [
+    {"label": "What\'s your favorite thing?", "value": "ice cream chocolate cake"},
+    {"label": "Promotion code", "value": "ice cream cake"}
+  ],
+  "status": "STATUS_BOOKED",
+  "send_client_confirmation_email": true,
+  "send_employee_notification_email": true
+}')
+
+
+

@@ -1,0 +1,592 @@
+#!/usr/bin/env dothttp
+
+// ##### Thông tin tham số Request Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Required</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Dữ liệu test mẫu</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>customer_limit</code></td>
+//         <td>Integer</td>
+//         <td>No</td>
+//         <td>Tham số giới hạn số lượng record trong kết quả truy vấn</td>
+//         <td><ul><li>Nếu không tồn tại tham số này trong request body thì hiển thị tối đa là 100 record trong kết quả truy vấn</li><li>50</li><li>160</li></td>
+//     </tr>
+//     <tr>
+//         <td><code>keyword</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Trường hợp khi keyword cần tìm là barcode khách hàng</td>
+//         <td>M1691350B</td>
+//     </tr>
+//     <tr>
+//         <td><code>keyword</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Trường hợp khi keyword cần tìm là họ tên của khách hàng</td>
+//         <td>Thư</td>
+//     </tr>
+//     <tr>
+//         <td><code>keyword</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Trường hợp khi keyword cần tìm là số điện thoại của khách hàng</td>
+//         <td><ul><li>84938557802</li><li>0938557802</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>keyword</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Trường hợp khi keyword cần tìm là email của khách hàng</td>
+//         <td>abc@gmail.com</td>
+//     </tr>
+// </table>
+// 
+// ##### Thông tin tham số Response Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Chi tiết</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>success</code></td>
+//         <td>Boolean</td>
+//         <td>Biểu diễn trạng thái request</td>
+//         <td><ul><li>true: Xử lý request thành công</li><li>false: Xử lý request thất bại</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>message</code></td>
+//         <td>String</td>
+//         <td>Mô tả rõ ràng thông báo lỗi nếu request xử lý thất bại</td>
+//         <td><ul><li>"Authorization Not In Header" : Header của request không có field Authorization</li><li>"Authorization Not Invalidate" : Header của request có chứa field Authorization nhưng giá trị không hợp lệ</li><li>"An unknown error occurred (4013)" : Ví dụ về một số mẫu thông báo lỗi khác</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>session_key</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về session key để server-side của Haraworks sử dụng giải mã các dữ liệu đã mã hóa nếu request được xử lý thành công</td>
+//         <td><i>Session key được mã hóa bằng thuật toán RSA với Public Key do Haraworks cung cấp trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>results</code></td>
+//         <td>Array of objects</td>
+//         <td>Chứa danh sách thông tin khách hàng tương ứng với kết quả tìm kiếm được</td>
+//         <td><ul><li>Là một array bao gồm nhiều object hoặc là một empty array</li><li>Mỗi object biểu diễn thông tin của một khách hàng và bao gồm các field được mô tả chi tiết như bên dưới</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin ID của khách hàng</td>
+//         <td><i>Thông tin mã thành viên được mã hóa bằng thuật toán AES trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>barcode</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin barcode của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>name</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin họ tên của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>gender</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về giới tính của khách hàng</td>
+//         <td><ul><li>"M": giá trị biểu diễn giới tính nam</li><li>"F": giá trị biểu diễn giới tính là nữ</li><li>"unknown": giới tính không xác định</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>phone</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin số điện thoại của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>email</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về email của khách hàng</td>
+//         <td><i>Thông tin email được mã hóa bằng thuật toán AES trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>reward_points</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về thứ hạng thành viên</td>
+//         <td><ul>
+// <li>"Mới"</li>
+// <li>"Đồng"</li>
+// <li>"Bạc"</li>
+// <li>"Vàng"</li>
+// <li>"Kim Cương"</li>
+// <li>"unknown" : không có thông tin về thứ hạng của thành viên</li>
+// </ul></td>
+//     </tr>
+// </table>
+
+@name("TÌM KIẾM KHÁCH HÀNG")
+POST "https://partner.thecoffeehouse.com/hrw/search_customer"
+"Accept": "*/*"
+"Content-Type": "application/json"
+"Authorization": "123456"
+json({
+    "keyword": "0939557803"
+})
+
+
+// ##### Thông tin tham số Request Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Required</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Dữ liệu test mẫu</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>barcode</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Barcode khách hàng</td>
+//         <td>M1691350B</td>
+//     </tr>
+// </table>
+// 
+// ##### Thông tin tham số Response Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Chi tiết</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>success</code></td>
+//         <td>Boolean</td>
+//         <td>Biểu diễn trạng thái request</td>
+//         <td><ul><li>true: Xử lý request thành công</li><li>false: Xử lý request thất bại</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>message</code></td>
+//         <td>String</td>
+//         <td>Mô tả rõ ràng thông báo lỗi nếu request xử lý thất bại</td>
+//         <td><ul><li>"Authorization Not In Header" : Header của request không có field Authorization</li><li>"Authorization Not Invalidate" : Header của request có chứa field Authorization nhưng giá trị không hợp lệ</li><li>"An unknown error occurred (4013)" : Ví dụ về một số mẫu thông báo lỗi khác</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>session_key</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về session key để server-side của Haraworks sử dụng giải mã các dữ liệu đã mã hóa nếu request được xử lý thành công</td>
+//         <td><i>Session key được mã hóa bằng thuật toán RSA với Public Key do Haraworks cung cấp trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>results</code></td>
+//         <td>Object</td>
+//         <td>Chứa thông tin khách hàng tương ứng với barcode tìm kiếm được</td>
+//         <td><ul><li>"{}" : Là empty object nếu không tìm được thông tin nào của khách hàng tương ứng với input barcode</li><li>Nếu tồn tại thông tin khách hàng tương ứng với input barcode thì results là một object có các field thông tin được mô tả chi tiết như bên dưới</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin ID của khách hàng</td>
+//         <td><i>Thông tin mã khách hàng được mã hóa bằng thuật toán AES trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.barcode</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin barcode của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.name</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin họ tên của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.gender</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về giới tính của khách hàng</td>
+//         <td><ul><li>"M": giá trị biểu diễn giới tính nam</li><li>"F": giá trị biểu diễn giới tính là nữ</li><li>"unknown": giới tính không xác định</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.phone</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin số điện thoại của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.email</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về email của khách hàng</td>
+//         <td><i>Thông tin email được mã hóa bằng thuật toán AES trước khi gửi đi</i></td>
+//     </tr>
+//     <tr>
+//         <td><code>results.reward_points</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về thứ hạng thành viên</td>
+//         <td><ul>
+// <li>"Mới"</li>
+// <li>"Đồng"</li>
+// <li>"Bạc"</li>
+// <li>"Vàng"</li>
+// <li>"Kim Cương"</li>
+// <li>"unknown" : không có thông tin về thứ hạng của thành viên</li>
+// </ul></td>
+//     </tr>
+// </table>
+
+@name("THÔNG TIN KHÁCH HÀNG")
+POST "https://partner.thecoffeehouse.com/hrw/customer_info"
+"Accept": "*/*"
+"Content-Type": "application/json"
+"Authorization": "123456"
+json({
+    "barcode": "M16913501"
+})
+
+
+// ##### Thông tin tham số Request Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Required</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Dữ liệu test mẫu</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>product_id</code></td>
+//         <td>String</td>
+//         <td>No</td>
+//         <td>Thông tin ID của món</td>
+//         <td>10010004</td>
+//     </tr>
+//     <tr>
+//         <td><code>product_name</code></td>
+//         <td>String</td>
+//         <td>No</td>
+//         <td>Thông tin tên của món</td>
+//         <td>trà đào cam sả</td>
+//     </tr>
+// </table>
+// 
+// ##### Thông tin tham số Response Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Chi tiết</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>success</code></td>
+//         <td>Boolean</td>
+//         <td>Biểu diễn trạng thái request</td>
+//         <td><ul><li>true: Xử lý request thành công</li><li>false: Xử lý request thất bại</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>message</code></td>
+//         <td>String</td>
+//         <td>Mô tả rõ ràng thông báo lỗi nếu request xử lý thất bại</td>
+//         <td><ul><li>"Authorization Not In Header" : Header của request không có field Authorization</li><li>"Authorization Not Invalidate" : Header của request có chứa field Authorization nhưng giá trị không hợp lệ</li><li>"An unknown error occurred (4013)" : Ví dụ về một số mẫu thông báo lỗi khác</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>results</code></td>
+//         <td>Array of objects</td>
+//         <td>Chứa danh sách thông tin các món tương ứng với kết quả tìm kiếm được</td>
+//         <td><ul><li>Là một array bao gồm nhiều object hoặc là một empty array</li><li>Mỗi object biểu diễn thông tin của một món và bao gồm các field được mô tả chi tiết như bên dưới</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>product_id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin ID của món</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>product_name</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin tên của món</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>price</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin giá của món</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>status</code></td>
+//         <td>Boolean</td>
+//         <td>Chứa thông tin trạng thái của món</td>
+//         <td><ul><li>true</li><li>false</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>categories</code></td>
+//         <td>Array of objects</td>
+//         <td>Chứa thông tin về các danh mục bao gồm ID danh mục và tên danh mục</td>
+//         <td><ul><li>Là một array bao gồm nhiều object hoặc là một empty array</li><li>Mỗi object biểu diễn thông tin của một danh mục và bao gồm các field được mô tả chi tiết như bên dưới</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>cate_id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin về ID của danh mục</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>cate_name</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin về tên danh mục</td>
+//         <td></td>
+//     </tr>
+// </table>
+
+@name("THÔNG TIN MÓN")
+POST "https://partner.thecoffeehouse.com/hrw/menu_list"
+"Accept": "*/*"
+"Content-Type": "application/json"
+"Authorization": "123456"
+json({
+    "product_id": 10010004,
+    "product_name": "trà đào cam sả"
+})
+
+
+// ##### Thông tin tham số Request Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Required</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Dữ liệu test mẫu</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>billcode</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin mã bill</td>
+//         <td>TA1210800152020</td>
+//     </tr>
+// </table>
+// 
+// ##### Thông tin tham số Response Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Chi tiết</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>success</code></td>
+//         <td>Boolean</td>
+//         <td>Biểu diễn trạng thái request</td>
+//         <td><ul><li>true: Xử lý request thành công</li><li>false: Xử lý request thất bại</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>message</code></td>
+//         <td>String</td>
+//         <td>Mô tả rõ ràng thông báo lỗi nếu request xử lý thất bại</td>
+//         <td><ul><li>"Authorization Not In Header" : Header của request không có field Authorization</li><li>"Authorization Not Invalidate" : Header của request có chứa field Authorization nhưng giá trị không hợp lệ</li><li>"An unknown error occurred (4013)" : Ví dụ về một số mẫu thông báo lỗi khác</li></ul></td>
+//     </tr>
+//     <tr>
+//         <td><code>results</code></td>
+//         <td>Object</td>
+//         <td>Chứa thông tin của bill tương ứng với mã bill tìm kiếm được</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin ID của bill</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>code</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin mã bill</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>store_id</code></td>
+//         <td>Object</td>
+//         <td>Chứa các field thông tin biểu diễn việc định danh cho cửa hàng được mô tả chi tiết bên dưới</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>store_id.id</code></td>
+//         <td>Integer</td>
+//         <td>Chứa thông tin ID của cửa hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>store_id.oracle_location_id</code></td>
+//         <td>String</td>
+//         <td>Chứa thông tin mã khách hàng</td>
+//         <td></td>
+//     </tr>
+// </table>
+
+@name("TÌM KIẾM MÃ BILL")
+POST "https://partner.thecoffeehouse.com/hrw/bill_search"
+"Accept": "*/*"
+"Content-Type": "application/json"
+"Authorization": "123456"
+json({
+    "billcode": "TA1210800152020"
+})
+
+
+// ##### Thông tin tham số Request Body
+// 
+// <table>
+//     <tr>
+//         <th><b>Parameter</b></th>
+//         <th><b>Data type</b></th>
+//         <th><b>Required</b></th>
+//         <th><b>Mô tả</b></th>
+//         <th><b>Dữ liệu test mẫu</b></th>
+//     </tr>
+//     <tr>
+//         <td><code>session_key</code></td>
+//         <td>String</td>
+//         <td><ul><li>Yes</li><li><i>Session key được mã hóa bằng thuật toán RSA với Public Key do Haraworks cung cấp trước khi gửi đi</i></li></ul></td>
+//         <td>Chứa thông tin về session key để server-side của Haraworks sử dụng giải mã các dữ liệu đã mã hóa khi The Coffee House gửi request truyền thông tin qua Webhook của Haraworks</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>customer_info</code></td>
+//         <td>Object</td>
+//         <td>Yes</td>
+//         <td>Chứa các field thông tin của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>customer_info.id</code></td>
+//         <td>Integer</td>
+//         <td><ul><li>Yes</li><li><i>Thông tin mã khách hàng được mã hóa bằng thuật toán AES trước khi gửi đi</i></li></ul></td>
+//         <td>Chứa thông tin ID của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>customer_info.name</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin họ tên của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>customer_info.phone</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin số điện thoại của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>customer_info.email</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về email của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>rating_level</code></td>
+//         <td>Integer</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin số sao đánh giá</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>content</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin nội dung đánh giá của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>location_code</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin location code của khách hàng</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>required_id</code></td>
+//         <td>Integer</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về ID loại yêu cầu</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>required_name</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin tên loại yêu cầu</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>product_id</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về ID món</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>product_name</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về tên món</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>category_id</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về ID danh mục</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>category_name</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về tên danh mục</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>bill_id</code></td>
+//         <td>String</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin ID của bill</td>
+//         <td></td>
+//     </tr>
+//     <tr>
+//         <td><code>rated_at</code></td>
+//         <td>W3C Datetime</td>
+//         <td>Yes</td>
+//         <td>Chứa thông tin về thời điểm khách hàng rating</td>
+//         <td>2020-04-19T11:23:53+07:00</td>
+//     </tr>
+// </table>
+
+@name("THÔNG TIN TICKET")
+POST "https://haraworks.vn/webhook"
+"Accept": "*/*"
+"Content-Type": "application/json"
+"Authorization": "123456"
+
+
+
+

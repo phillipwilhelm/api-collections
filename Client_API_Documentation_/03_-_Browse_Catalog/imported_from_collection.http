@@ -1,0 +1,139 @@
+#!/usr/bin/env dothttp
+
+// # StorefrontPage API
+// 
+// Retrieve the thumbnails of all possible storefront pages and for the requested page, the configured buckets on the page, all possible products, and the product thumbnails for the possible products. Once the possible metadata is retrieved, the targeted data (based on subscriber and geo details should be retrieved from the subscriber service via RetrieveStorefrontPageContext and then the two should be merged for the actual data to display to the consumer.
+// An additional request to RetrieveStorefrontPageContext will return the page's context specific data for a given subscriber/geo/device/etc
+// 
+// NOTE: The response for this method is cached by the CDN. Any system/configuration updates will take up to 30 minutes before they are consistently reflected in any requests based on how quickly the cache clear request propagates across the CDN.
+// 
+// # Security
+// 
+// * This method does not allow sessions.
+// * This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 939 | StorefrontPageNotFound | Fault indicating that the requested storefront page could not be found |
+// | 914 | PlaylistNotFound | Fault indicating that an invalid playlist was referenced |
+// | 9023 | SearchFilterNotFound | Fault indicating that the requested search filter is not found |
+// 
+// ExternalReference/OTTPage
+// 
+// # Request
+// 
+
+@name("Metadata - StorefrontPage")
+GET "https://{{CD_CORE_METADATA_DOMAIN}}/StorefrontPage/SystemId/{{CD_SYSTEM_ID}}/Language/{{CD_LANGUAGE}}/DistributionChannel/{{CD_DIST_CHANNEL_APP}}/ExternalReference/{{STOREFRONT_PAGE_EXT_REF_APP}}"
+
+
+
+// # RetrieveStorefrontPageContext API
+// 
+// Retrieve a storefront's feature page context personalized for the subscriber (known or anonymous) based on geo rules, household filtering, storefront filtering, etc
+// 
+// The product ids returned in the "NonQualifiedProductIds" list should be excluded from the product ids returned by the StorefronPage metadata call.
+// 
+// # Security
+// 
+// * Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// * This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 1182 | SubscriberListTypeNotFound | Requested subscriber list type not found |
+// | 914 | PlaylistNotFound | Fault indicating that an invalid playlist was referenced |
+// | 1223 | HierarchyNodeNotFound | Hierarchy node not found |
+// 
+// # Request
+// 
+// "ExternalReference" : "OTTPage"
+
+@name("RetrieveStorefrontPageContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveStorefrontPageContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-DistributionChannel": "{{CD_DIST_CHANNEL_APP}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"Content-Type": "application/json"
+data('{
+    "ExternalReference" : "{{STOREFRONT_PAGE_EXT_REF_APP}}",
+    "ReturnAvailablePages" : true
+}
+')
+
+
+// # Product API
+//   
+// Retrieve the full metadata set for a product
+// An additional request to RetrieveProductContext will return the product's context specific data for a given subscriber/geo/device/etc
+// 
+// NOTE: The response for this method is cached by the CDN. Any system/configuration updates will take up to 30 minutes before they are consistently reflected in any requests based on how quickly the cache clear request propagates across the CDN.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS.
+// + This method does not allow sessions.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+
+@name("Metadata - Product")
+GET "https://{{CD_CORE_METADATA_DOMAIN}}/Product/SystemId/{{CD_SYSTEM_ID}}/Language/en-GB/ProductExternalReferenceType/Product Reference/ProductExternalReference/XYZ_TV_Access_Annual"
+"Accept-Encoding": "gzip,deflate"
+
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// The single product form of RetrieveProductContext together with the "IncludeOrderablePricingPlans" property provides the list orderable pricing plans for the subscriber's context.
+// 
+// RetrieveProductContext should be called individually for each of the products that remain after the StorefrontPage metadata and RetrieveStorefrontPageContext calls  are made, taking into account the NonQualifiedProductIds list returned by RetrieveStorefrontPageContext.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReference": "XYZ_TV_Access_Annual",
+    "IncludeEntitlementContext": true,
+    "IncludeOrderablePricingPlans": true
+}')
+
+
+

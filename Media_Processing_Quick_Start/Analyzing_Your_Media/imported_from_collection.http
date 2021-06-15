@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+// **POST /media/analyze**
+// 
+// Start analyzing to learn about your media.  
+// 
+// The `input` location of your media file is required.  
+// 
+// This is an asynchronous operation so you will receive a 
+// `job_id` to use in calling 
+// [GET /media/analyze](#operation/GetAnalyzeResults)
+// to retrieve the job status and results.
+// 
+// There are additional optional parameters that can be provided to
+// identify the type of content and additional loudness or validation
+// requirements. See the samples for examples of what requests and
+// responses look like.
+// 
+
+@name("Analyze Your Media")
+POST "https://{{dolby-api-endpoint}}/media/analyze"
+"Content-Type": "application/json"
+data('{
+    "input": "{{dlb-input-url}}",
+    "output": "{{dlb-output-analyze-url}}",
+    "content": {
+        "type": "podcast"
+    }
+}')
+
+
+// Please see the following documentation for more details: [https://dolby.io/developers/media-processing/api-reference/analyze#operation/GetAnalyzeResults](https://dolby.io/developers/media-processing/api-reference/analyze#operation/GetAnalyzeResults)
+// 
+
+@name("Get Analyze Job Status")
+GET "https://{{dolby-api-endpoint}}/media/analyze"
+? "job_id"= "{{dolby-job-id}}"
+
+
+@name("Get Analyze Results")
+GET "https://{{dolby-api-endpoint}}/media/output"
+? "url"= "{{dlb-output-analyze-url}}"
+
+
+

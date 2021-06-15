@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+// Get all available services for usage on plans
+
+@name("/services")
+GET "https://{{API_BASE_URL}}/services"
+
+
+// Get actual fee of one service that is been applied to a certain user.
+
+@name("/billing/users/:userId/type/:serviceType/fee")
+GET "https://{{API_BASE_URL}}/billing/users/:userId/type/:serviceType/fee"
+
+
+// Obtain list of plans
+
+@name("/plans")
+GET "https://{{API_BASE_URL}}/plans"
+
+
+// Obtain details of a specific plan
+
+@name("/plans/:id")
+GET "https://{{API_BASE_URL}}/plans/:id"
+
+
+// Removing a service from the plan.
+
+@name("/plans/:id/services/:serviceType")
+DELETE "https://{{API_BASE_URL}}/plans/:id/services/:serviceType"
+"Content-Type": "application/json"
+
+
+// List of invoices of a specific user.
+
+@name("/invoices")
+GET "https://{{API_BASE_URL}}/invoices"
+? "userId"= "{{USER_ID}}"
+
+
+// List of invoices can be retrieved from [GET /invoices?userId=X]
+
+@name("/invoices/:id")
+GET "https://{{API_BASE_URL}}/invoices/:id"
+
+
+// Creating a plan
+// 
+// ## Body Payload
+// - name: Display name for the plan
+// - items: list of services to be charged
+// - billingSettings: configurations for the plan
+// 	- invoiceClosing: periocity can be *monthly*, *weekly* or *daily* basis
+// - domain
+// - validFrom: Date it will start be avaliable
+// - default: Default plan use to be subscribed on consumer creation
+
+@name("/plans")
+POST "https://{{API_BASE_URL}}/plans"
+"Content-Type": "application/json"
+data('{
+    "name": "Plano Assinatura 02",
+    "items": [
+    	{
+    		"serviceId": "d5f5d02b-e2da-4a52-b6fd-243cc6b45a38",
+            "name": "Assinatura",
+            "price": 100,
+            "entryClazz": "service_charge",
+            "billingTrigger": "invoice_closing",
+            "freeUntil": 100
+        }
+    ],
+    "billingSettings": {
+        "invoiceClosing": {
+            "periodicity": "monthly",
+            "dayOfMonth": 5
+        },
+        "periodCalculation": {
+            "periodicity": "daily"
+        },
+        "settlementTrigger": "invoiceClosing"
+    },
+    "domain": "{{DOMAIN_ID}}",
+    "validFrom": "2019-12-31",
+    "default": false
+}')
+
+
+// Editing or adding plan (services) items
+
+@name("/plans/:id/items")
+POST "https://{{API_BASE_URL}}/plans/:id/items"
+"Content-Type": "application/json"
+data('[
+    {
+        "serviceId": "d5f5d02b-e2da-4a52-b6fd-243cc6b45a38",
+        "name": "Assinatura",
+        "price": 110,
+        "entryClazz": "service_charge",
+        "billingTrigger": "invoice_closing",
+        "freeUntil": 110
+    }
+]')
+
+
+// Subscribe user to a plan
+
+@name("/plans/:id/subscribe")
+POST "https://{{API_BASE_URL}}/plans/:id/subscribe"
+"Content-Type": "application/json"
+data('{
+	"subscriber": "{{USER_ID}}",
+	"prepaid": false
+}')
+
+
+// Close an opened invoice. It will generate a new invoice.
+
+@name("/invoices/:id/close")
+POST "https://{{API_BASE_URL}}/invoices/:id/close"
+"Content-Type": "application/json"
+data('{
+	"force": true
+}')
+
+
+

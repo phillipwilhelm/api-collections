@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+// This endpoint allows you to create new users in Skore. 
+// 
+// On the body parameters a few details:
+// - `email`: it should be unique or the request will throw an error
+// - `role`: it should be `student`, `export` or `admin`
+// - `username`: it's optional, but if passed, it should be unique, and the user will be able to login with either the email or the username
+// - (OPTIONAL) `language`: should be the ISO code of the language, such as `en-US`, `pt-BR`, `es`, etc (for languages not supported on the platform, the fallback is `en-US`
+// - (OPTIONAL) `team_ids`: in case you'd like to add the newly created user to specific teams in Skore, you can pass an array of team ids to have them added directly to the user.
+// - (OPTIONAL) If you have some metadata for your user, to use inside Skore, you could pass it as a JSON object or string
+// e.g. 
+// `"metadata": {"field1": "abc", "field2": "def"}`
+
+@name("Create user")
+POST "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+data('{
+    "email": "user+{{$timestamp}}@email.com",
+    "name": "Name",
+    "password": "secret123",
+    "role": "student",
+    "username": ""
+}')
+
+
+// List all users of a company
+
+@name("List users v2")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v2/users"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+? "username__eq"= "roma"
+? "email__eq"= "roma@skore.io"
+? "limit"= "2"
+? "continuation"= "DnF1ZXJ5VGhlbkZldGNoBQAAAAAEuzRAFktfc1Bwb21JUjUyVGZveUZwSEg5b0EAAAAABUFncxZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZnAAAAAAVBZ3QWR0xxeGV0R1FUNXU0NmVsQW5KRlM2ZwAAAAAEuzRBFktfc1Bwb21JUjUyVGZveUZwSEg5b0EAAAAABUFndRZHTHF4ZXRHUVQ1dTQ2ZWxBbkpGUzZn"
+
+
+// .
+
+@name("User details")
+GET "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+
+
+// Update user attributes. This route is also used to enable or disable a user's access through the active flag. 
+// Role statuses: 'student', 'admin' and 'expert. 
+// The `team_ids`, if not `null` will be dropped and re-created. 
+// If the `team_ids` parameter is not present, the user will have his teams unchanged.
+
+@name("Update user")
+PATCH "https://{{KNOWLEDGE_BASE_URL}}/workspace/v1/users/{{USER_ID}}"
+"Content-Type": "application/json"
+"Authorization": "{{TOKEN}}"
+data('{
+	"username": "user+160640773"
+}
+')
+
+
+

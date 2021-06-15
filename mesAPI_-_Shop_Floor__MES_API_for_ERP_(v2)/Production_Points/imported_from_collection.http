@@ -1,0 +1,210 @@
+#!/usr/bin/env dothttp
+
+// #### Send production point to ERP
+// *(totvsProtheus=SD3)*
+// 
+// The production appointment will use automatic routines and tables in TOTVS Protheus according to the data received in the Body Request and according to the registration of operation routes:
+// - If there is no operation guide or resource and time data have not been sent: MATA250 and table SD3
+// - If there is an operation guide and resource and time data have been sent: MATA681 and table SH6
+// 
+// Comments:
+// - erpKey: D3_NUMSEQ
+// - erpId: SD3 slot or SH6 slot
+// - extId: recorded only in the Monit table, and used to validate previous notes
+// 
+// Mandatory information in the Body Request (for Simple Pointing): extId, branch, productionOrder, productKey, quantity and createdAt.
+// 
+// Mandatory information in the Body Request (for Appointment Mod2): extId, branch, productionOrder, productKey, routeSequence, productionResource, quantity, createdAt, startedAt and finishedAt.
+// 
+// Optional information in the Body Request: tool, operator and duration.
+// 
+// Comments:
+// - Appointment can be T = Total or P = Partial, depending on whether the amount indicated is greater than the OP balance (OP balance = C2_QUANT - C2_QUJE)
+// - The Movement Type used in Simple Production (MATA250) will be obtained from the MV_TMPAD parameter
+// 
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// extId | number | ext erpId
+// branch | number | Branch
+// productionOrder | string | Production productionOrder
+// productKey | string | Product erpKey
+// routeSequence | number | Route routeSequence
+// productionResource | string | Production resource
+// tool | string | Tools
+// operator | string | operator
+// quantity | number | quantity
+// weight | number | Weight
+// createdAt | string | Creation date
+// startedAt | string | Start date
+// fineshedAt | string | End date
+// duration | number | duration
+// 
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | Package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | code
+// success | booleano | Success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp erpKey
+// values.erpId | string | Id erpKey
+// values.erpProcess | string |  Process erp
+
+@name("Production Points")
+PUT "https://{{endpoint}}/productionPoints"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "extId": 29,
+    "branch": 1,
+    "productionOrder": "00002101001",
+    "productKey": "900.000.003",
+    "routeSequence": 1,
+    "productionResource": "000001",
+    "operator": "Rafael",
+    "quantity": 10,
+    "createdAt": "2020-05-17T07:00:00",
+    "startedAt": "2020-05-17T08:00:00",
+    "fineshedAt": "2020-05-17T09:00:00",
+    "duration": 60
+})
+
+
+// #### Send stop points to ERP
+// *(totvsProtheus=SH6)*
+// 
+// The stop appointment will use automatic routines and tables in TOTVS Protheus: MATA682 and table SH6.
+// 
+// Comments:
+// - erpKey: D3_NUMSEQ
+// - erpId: SH6 housing
+// - extId: recorded only in the Monit table, and used to validate previous notes
+// 
+// Mandatory information in the Body Request: extId, branch, productionResource, stopReason, createdAt, startedAt and finishedAt.
+// 
+// Optional information in the Body Request: tool and operator.
+// 
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// extId | number | Ext erpId
+// branch | number | branch
+// productionResource | string | Production Resource
+// stopReason | string | Stop reason
+// createdAt | string | Creation date
+// startedAt | string | start date
+// finishedAt | string | end date
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | Package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | code
+// success | booleano | Success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp erpKey
+// values.erpId | string | Id erpKey
+// values.erpProcess | string |  Process erp
+
+@name("Stop Points")
+PUT "https://{{endpoint}}/stopPoints"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "extId": 11,
+    "branch": 1,
+    "productionResource": "000001",
+    "stopReason": "FM",
+    "createdAt": "2020-05-16T23:52:00",
+    "startedAt": "2020-05-16T07:00:00",
+    "finishedAt": "2020-05-16T07:15:00"
+})
+
+
+// #### Search waste point to ERP
+// *(totvsProtheus=SBC)*
+// 
+// The refuse appointment will use automatic routines and tables in TOTVS Protheus: MATA682 and table SH6.
+// 
+// Comments:
+// - erpKey: BC_NUMSEQ
+// - erpId: SBC's headquarters
+// - extId: recorded only in the Monit table, and used to validate previous notes
+// 
+// Mandatory information in the Body Request: extId, branch, productionOrder, productKey, wasteReason, quantity and createdAt.
+// 
+// Optional information in the Body Request: routeSequence, resource, operator and batchNumber.
+// 
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// extId | number | ext Id
+// branch | number |  branch
+// productionOrder | string | Prodction Order
+// productKey | string | Product key
+// wasteReason |string | Waste Reason
+// quantity | number | Quantity
+// createdAt | string | Creation date
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | Package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | code
+// success | booleano | Success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp erpKey
+// values.erpId | string | Id erpKey
+// values.erpProcess | string |  Process erp
+
+@name("Waste Points")
+PUT "https://{{endpoint}}/wastePoints"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "extId": 23,
+    "branch": 1,
+    "productionOrder": "00002001001",
+    "productKey": "0330",
+    "wasteReason": "FM",
+    "quantity": 1,
+    "createdAt": "2019-08-08T15:00:00"
+})
+
+
+

@@ -1,0 +1,30 @@
+#!/usr/bin/env dothttp
+
+// Since there is no possibility to know if a 3D file contains an assembly or only a single part, both cases start with the same behavior. The process of unfolding / splitting has to be started manually by posting the FileID to this endpoint.
+
+@name("Start Unfolding / Split Assembly")
+POST "https://{{BaseUrl}}/unfolding"
+"Content-Type": "application/json"
+data('{
+	"FileID" : {{FileID}}
+}')
+
+
+// ##### While Processing
+// While the 3D file is processed on the servers, this endpoint of the API returns an `HTTP-Statuscode 206 Partial-Content`, retry after a short time.
+// 
+// ##### Process Finished - Single part
+// As soon as the process finished, the `HTTP-Statuscode` turns into a `200 OK`. In case the file contained only a single 3D modle the response body will be empty. For later processes like a calculation the API will automatically use the unfolding.
+// 
+// _Preview generation / validaiton / analysis of the 2D geometry are startet automaticaly._
+// 
+// ##### Process Finished - Assembly
+// As soon as the process finished, the `HTTP-Statuscode` turns into a `200 OK`. In case the file contained an assembly, the response body will contain an integer array of `FileID`s of all single parts in the assembly. They were uploaded as new files to the API and an unfolding process has automatically been started.
+// 
+// **For each of these new FileIDs the Unfolding Status has to be requested again**
+
+@name("Unfolding / Splitting Status")
+GET "https://{{BaseUrl}}/unfolding/status/{{FileID}}"
+
+
+

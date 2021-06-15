@@ -1,0 +1,1 @@
+1. Some API Require Bearer token Authorization. If required pass header "Authorization" with value "Bearer 'access_token_from_login'"

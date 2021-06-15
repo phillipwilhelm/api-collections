@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+// To add text fields on the document for members of the procedure, here are the details of parameters:
+// 
+// 
+// | Param                             | Description                                                                                                                                                                                                                                                                        |
+// | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+// | `type` (required for text fields) | There are 2 types of fields: `signature` (default value) or `text` which will be used for text fields.                                                                                                                                                                             |
+// | `contentRequired`                 | `true` (default value) allows you to make it mandatory to enter the field or `false` if it’s optional.                                                                                                                                                                             |
+// | `content`                         | `null` if the text field needs to be empty or the placeholder could be added by a string (e.g. `"Here is the sample text."`).                                                                                                                                                      |
+// | `file` (required)                 | ID of the file where the be attached to this file object.                                                                                                                                                                                                                          |
+// | `member` (required)               | ID of the member will be attached to this file object. `null` is also allow if the creator of the procedure has to fill in it.                                                                                                                                                     |
+// | `position` (required)             | Defines the coordinates of the signature image. You can go to How to calculate the coordinates of signature image? if you want to understand how to calculate the position. If you want to define the position manually, you can use our free tool on: https://placeit.yousign.fr. |
+// | `page` (required)                 | Defines the number of the page where will be located the field.                                                                                                                                                                                                                    |
+// | `fontFamily`                      | Only the default value (`raleway`) is currently used.                                                                                                                                                                                                                              |
+// | `fontSize`                        | Only the default value (`12`) is currently used.                                                                                                                                                                                                                                   |
+// | `fontColor`                       | Black (`"0,0,0"`) is the default color of text fields. You can edit this RGB value only through our API.                                                                                                                                                                           |
+// 
+
+@name("/file_objects")
+POST "https://staging-api.yousign.com/file_objects"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "type": "text",
+    "contentRequired": true,
+    "content": "Here is the sample text.",
+    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "member": "/members/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+    "position": "173,642,522,676",
+    "page": 2
+}')
+
+
+@name("/file_objects")
+GET "https://{{host}}/"
+
+
+// In full API mode, how do I fill in a text field? 
+// 
+// You just have to pass the value of the associated file object at the step of authentication using "textFieldValues".
+
+@name("/authentications/sms/{id}")
+PUT "https://{{base-api-url}}/authentications/sms/{id}"
+"Content-Type": "application/json"
+data('{
+    "signImage": "iVBORw0KGgoAAAANSUhEUgAAAyIAAACSCAQAAAATZrY9A...",
+    "code": "696230",
+    "textFieldValues": {
+        "/file_objects/7ae12831-4cc3-4fe2-acda-d3970e4ac05c": "My value right here!"
+    }
+}')
+
+
+

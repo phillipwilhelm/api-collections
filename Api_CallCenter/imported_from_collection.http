@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+// Para poder usar todos los métodos siguientes, se debe obtener el token de acceso, para esto debes iniciar sesión con tu usuario y contraseña generado al momento de solicitar el acceso a la API
+
+@name("Login")
+POST "http://localhost/callcenterapi/public/api/login"
+files(
+	("email", "test@testing.com"),
+	("password", "testing")
+)
+
+
+// Con este método se puede crear campaña en el sistema, se debe tener en cuenta que solo este método creara el registro de campaña, pero no estará disponible hasta no tener contactos cargados y haber cambiado el estado de I (Inactivo) a A (Activo)
+// 
+// Se debe tener en cuenta que para usar este método, se debe enviar el token, que previamente se obtuvo en el método de Login
+// 
+// La respuesta de este método, es un JSON con todos los datos enviados, de estos datos es importante conocer el id de la campaña recién creada, pues mas adelante será necesaria
+
+@name("Crear Campaña")
+POST "http://localhost/callcenterapi/public/api/campaign"
+files(
+	("name", "'Nombre'"),
+	("datetime_init", "2020-07-02"),
+	("datetime_end", "2020-07-03"),
+	("daytime_init", "09:00:00"),
+	("daytime_end", "18:00:00"),
+	("retries", "2"),
+	("trunk", "null"),
+	("context", "'from-internal'"),
+	("queue", "1000"),
+	("max_canales", "0"),
+	("num_completadas", "0"),
+	("promedio", "0"),
+	("desviacion", "0"),
+	("script", "'HTML'"),
+	("status", "I"),
+	("id_url", "0")
+)
+
+
+// Con este metodo se podrá cargar los contactos a la campaña
+// para este metodo es necesario conocer el id de la campaña a la que se le quiere agregar los contactos, la lista de contactos se debe cargar en formato JSON
+
+@name("Carga de Contactos")
+POST "http://localhost/callcenterapi/public/api/callsCampaign"
+data('{
+"id_campaign":"36",
+    "clients":[ //Lista de clientes
+        {
+            "phone":"987654321", //Telefono del contacto
+            "names":"Nombre del cliente,Campo 1,Campo 2" //Campos adicionales, Empieza con el Nombre del cliente, si dispone de campos adicionales, deben ir separados por comas
+        },
+        {
+            "phone":"912345678",
+            "names":"Nombre del cliente 2,Campo 1-2,Campo 2-2"
+        }
+    ]
+}')
+
+
+// Este metodo permite Activar la campaña, una vez la campaña esté activa los agentes podrán realizar llamadas, para hacer uso de este metodo se debe conocer el id de la campaña
+
+@name("Activar Campaña")
+PUT "http://localhost/callcenterapi/public/api/campaign/{id}"
+
+
+
+// Con este metodo se podra conseguir el reporte de llamadas para una campaña especifica, se necesit conocer el id de la campaña a consultar
+
+@name("Reporte de llamadas")
+GET "http://localhost/callcenterapi/public/api/callsCampaign/{id}"
+
+
+// Este metodo retorna todas las campañas registradas en el sistema hasta la fecha
+
+@name("Reporte de Campañas")
+GET "http://localhost/callcenterapi/public/api/campaigns"
+
+
+

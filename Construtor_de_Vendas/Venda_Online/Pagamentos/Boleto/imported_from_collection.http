@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+@name("Obter Token")
+POST "https://oauth.itau.com.br/identity/connect/token"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Basic headerValue"
+data({
+    "scope": [
+        "readonly"
+    ],
+    "grant_type": [
+        "client_credentials"
+    ],
+    "client_id": [
+        "{{boleto_client_id}}"
+    ],
+    "client_secret": [
+        "{{boleto_client_secret}}"
+    ]
+})
+
+
+@name("Obter cod barras")
+POST "https://gerador-boletos.itau.com.br/router-gateway-app/public/codigo_barras/registro"
+"Content-Type": "application/json"
+"accept": "application/vnd.itau"
+"access_token": "{{boleto_token}}"
+"identificador": "13031257000152"
+"itau-chave": "{{boleto_itau_chave}}"
+json({
+    "tipo_ambiente": 1,
+    "tipo_registro": 1,
+    "tipo_cobranca": 1,
+    "tipo_produto": "00006",
+    "subproduto": "00008",
+    "beneficiario": {
+        "cpf_cnpj_beneficiario": "13031257000152",
+        "agencia_beneficiario": "0297",
+        "conta_beneficiario": "0000880",
+        "digito_verificador_conta_beneficiario": "7"
+    },
+    "titulo_aceite": "N",
+    "pagador": {
+        "cpf_cnpj_pagador": "01156983533",
+        "nome_pagador": "Thalles Daniel Sá Costa",
+        "logradouro_pagador": "Rua 1",
+        "cidade_pagador": "Aracaju",
+        "uf_pagador": "SE",
+        "cep_pagador": "49031190"
+    },
+    "tipo_carteira_titulo": "109",
+    "moeda": {
+        "codigo_moeda_cnab": "09"
+    },
+    "nosso_numero": "10102050",
+    "digito_verificador_nosso_numero": "7",
+    "data_vencimento": "2020-09-24",
+    "valor_cobrado": "00000000000015000",
+    "especie": "01",
+    "data_emissao": "2020-09-23",
+    "tipo_pagamento": 1,
+    "indicador_pagamento_parcial": "false",
+    "juros": {
+        "tipo_juros": 5
+    },
+    "multa": {
+        "tipo_multa": 3
+    },
+    "grupo_desconto": [
+        {
+            "tipo_desconto": 0
+        }
+    ],
+    "recebimento_divergente": {
+        "tipo_autorizacao_recebimento": "3"
+    }
+})
+
+
+

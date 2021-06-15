@@ -1,0 +1,1 @@
+Welcome to the Wealth Wizards API Documentation. Our offering is made up of three stages; fact finding, solution mapping and advice presentation. Here are the APIs you need in order to integrate with our platform.

@@ -1,0 +1,181 @@
+#!/usr/bin/env dothttp
+
+// | parameters | required | comments                                             |
+// |------------|----------|------------------------------------------------------|
+// | page       | no       | the page of the records                              |
+// | per_page   | no       | how many records per page, default 10, maximum 100 |
+
+@name("list price settings")
+GET "https://{{host}}/{{base_path}}/price_settings"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// | parameters | required | comments                                             |
+// |------------|----------|------------------------------------------------------|
+// | price_setting_id | yes      | the price setting id                                       |
+
+@name("price setting information")
+GET "https://{{host}}/{{base_path}}/price_settings/{{price_setting_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// | parameters        | required | comments                                                                                                                               |
+// |-------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
+// | price_setting_id       | yes      | the price setting id                                                                                                                        |
+// | price_setting          | yes      | the price setting object containing the following                                                                                           |
+// | name              | yes      | the name used for the price setting                                                                                                               |
+// | description       | no       | the description for the price setting                                                                                                       |
+// | billing_style          | yes       | the billing style: options are 'usage' for manual billing and 'usage_plus_stripe' for linking to Stripe (note that Stripe does not support fractional cents)            |
+// | signup_pages           | no        | a comma separated list containing the signup page ids to be associated with this price setting |
+// 
+// 
+// | cost_call_markup           | no       | a hash containing the settings for marking up phone calls as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable call markups, required if cost_call_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'mmp' for Markup Minutes by a Percentage, 'cpc' for fixed Cost Per Call, 'fcm' for Fixed Cost per Minute |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'mmp', for example '1' means 1 percent |
+// | cost_per_call     | no       | the cost per call in cents, required if price_type is 'cpc' |
+// | cost_per_call_length    | no       | the cost per minute in cents, required if price_type is 'fcm' |
+// 
+// 
+// | cost_number_markup           | no       | a hash containing the settings for marking up phone numbers as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable phone number markups, required if cost_number_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'fcn' for Fixed Cost per Number, 'nmp' for Number Markup by a Percentage |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'nmp', for example '1' means 1 percent |
+// | cost_per_call_in_cents     | no       | the markup added per number, in cents, required if price_type is 'fcn' |
+// 
+// 
+// | cost_sms_markup           | no       | a hash containing the settings for marking up SMS (texts) as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable SMS markups, required if cost_sms_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'cpt' for fixed Cost Per Text, 'tmp' for Text Markup by a Percentage |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'tmp', for example '1' means 1 percent |
+// | cost_per_call_in_cents     | no       | the markup added per text, in cents, required if price_type is 'cpt' |
+// 
+// 
+// | cost_user_license_markup           | no       | a hash containing the settings for marking up user licenses as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable user license markups, required if cost_user_license_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'lmp' for License Markup by a Percentage |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'lmp', for example '1' means 1 percent |
+// | cost_per_call_in_cents     | no       | reserved for future use |
+// 
+// 
+// | cost_transcription_markup           | no       | a hash containing the settings for marking up transcriptions as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable transcription markups, required if cost_transcription_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'fcm' for Fixed Cost Markup per transcription, 'mmp' for Markup Minutes by a Percentage |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'mmp', for example '1' means 1 percent |
+// | fixed_price     | no       | the markup added per transcription, in cents, required if price_type is 'fcm' |
+// 
+// 
+// | cost_spam_markup           | no       | a hash containing the settings for marking up spam lookups as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable spam lookup markups, required if cost_spam_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'fpl' for Fixed markup Per Lookup, 'ppl' for markup by a Percentage Per Lookup |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'ppl', for example '1' means 1 percent |
+// | fixed_price     | no       | the markup added per spam lookup, in cents, required if price_type is 'fpl' |
+// 
+// 
+// | cost_lookup_markup           | no       | a hash containing the settings for marking up enhanced caller id lookups as listed below |
+// | charges_enabled   | yes      | boolean (1 or 0) to enable enhanced caller id lookup markups, required if cost_lookup_markup hash exists |
+// | price_type        | no       | the type of markup, required when charges_enabled is '1', options are 'fpl' for Fixed markup Per Lookup, 'ppl' for markup by a Percentage Per Lookup |
+// | markup_percentage | no       | the markup percentage, required if price_type is 'ppl', for example '1' means 1 percent |
+// | fixed_price     | no       | the markup added per enhanced caller id lookup, in cents, required if price_type is 'fpl' |
+// 
+// 
+// Example: {"reminder_id": "REM4650CE7F780774E4A95600B700412079", "reminder":{"what_id":"9999999999","what_type":"Call","name":"New Reminder from API","description":"Reminder description","start_at":"2020-03-18 12:00:00","contacts":"18751.14156538055","timezone":"America/New_York","alerts":{"how":"call","who":"USR043E46722529BCB5FE8EACF50AF00F71","message":"Reminder to call back customer."},"custom_repeats_by":{"start_date":"2020-03-18 12:00:00","repeat_period":"day","repeat_every":"1","end_type":"occurrences","occurrences":"1"}}}
+
+@name("create price setting")
+POST "https://{{host}}/{{base_path}}/price_settings"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"price_setting": {
+		"name": "blah blah",
+		"description": "",
+		"billing_style": "usage",
+		"stripe_plan": "",
+		"cost_call_markup": {
+			"charges_enabled": "0",
+			"price_type": "mmp",
+			"markup_percentage": "",
+			"cost_per_call": "0.00",
+			"cost_per_call_length": "0",
+			"fixed_price": "0.00"
+		},
+		"cost_number_markup": {
+			"charges_enabled": "1",
+			"price_type": "cpn",
+			"markup_percentage": "",
+			"cost_per_call_in_cents": "25.0"
+		},
+		"cost_sms_markup": {
+			"charges_enabled": "0",
+			"price_type": "tmp",
+			"markup_percentage": "",
+			"cost_per_call_in_cents": ""
+		},
+		"cost_user_license_markup": {
+			"charges_enabled": "0",
+			"price_type": "lmp",
+			"markup_percentage": "",
+			"cost_per_call_in_cents": ""
+		},
+		"cost_transcription_markup": {
+			"charges_enabled": "0",
+			"price_type": "mmp",
+			"markup_percentage": "",
+			"fixed_price": ""
+		},
+		"cost_spam_markup": {
+			"charges_enabled": "0",
+			"price_type": "ppl",
+			"markup_percentage": "",
+			"fixed_price": ""
+		},
+		"cost_lookup_markup": {
+			"charges_enabled": "0",
+			"price_type": "ppl",
+			"markup_percentage": "",
+			"fixed_price": ""
+		},
+		"signup_pages": ""
+	}
+}')
+
+
+// | parameters        | required | comments                                                                                                                               |
+// |-------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
+// | price_setting_id       | yes      | the price setting id                                                                                                                        |
+// | price_setting          | yes      | the price setting object, which varies by type   |
+// 
+// 
+// Example: { "price_setting":
+//     {
+//       "start_date": "2020-03-26",
+//       "type": "CostCallMarkup",
+//       "price_type": "mmp",
+//       "markup_percentage": 1.0,
+//       "cost_per_call_in_cents": null,
+//       "local_cost_per_number_in_cents": null,
+//       "tollfree_cost_per_number_in_cents": null,
+//       "cost_per_text_in_cents": null,
+//       "accounts": []
+//     }
+// }
+
+@name("update price setting")
+PATCH "https://{{host}}/{{base_path}}/price_settings/{{price_setting_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// | parameters        | required | comments                                                                                                                               |
+// |-------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
+// | price_setting_id       | yes      | the price setting id                                                                                                                        |
+
+@name("remove price setting")
+DELETE "https://{{host}}/{{base_path}}/price_settings/{{price_setting_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+

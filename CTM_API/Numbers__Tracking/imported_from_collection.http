@@ -1,0 +1,178 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |number|no|a phone number to filter the list by|
+// |name|no|a phone number name to filter the list by|
+
+@name("list of tracking numbers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers"
+"Content-Type": "application/json"
+"Authorization": "{{Basic Auth}}"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+
+@name("tracking number details")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+
+@name("dial route details for tracking number")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/dial_routes"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// |name|no|the name or label of the tracking number|
+
+@name("update tracking number details")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/update_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "name": "testing123"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// |status|yes|one of `active`, `paused`, or `stopped`|
+
+@name("update tracking number status")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/status_update"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "status": "stopped"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |receiving_number_id|yes|the RPN receiving number ID|
+// |tracking_number_id|yes|the TPN tracking number ID|
+
+@name("add receiving number to tracking number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/receiving_numbers/{{receiving_number_id}}/add"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// 
+// This endpoint can only be used to enable SMS on a number that is SMS capable. Possible return values are 200 success, 404 notfound, 200 alreadyenabled, and 406 failure.
+
+@name("enable SMS")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/enable_sms"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "name": "testing123"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// 
+// This endpoint can only be used to disable SMS on a number that is SMS capable. Possible return values are 200 success, 404 notfound, 200 alreadydisabled, and 406 failure.
+
+@name("disable SMS")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/disable_sms"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "name": "testing123"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |receiving_number_id|yes|the RPN receiving number ID|
+// |tracking_number_id|yes|the TPN tracking number ID|
+
+@name("remove receiving number from tracking number")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/receiving_numbers/{{receiving_number_id}}/rem"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// ### Route Tracking Number to a Voice Menu
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |tracking_number_id|yes|the TPN tracking number ID|
+// |dial_route|yes|`voice_menu`|
+// |voice_menu_id|yes|the VOM id of the voice menu|
+// 
+// #### Request Body to route to voice mail
+// ```json
+// {
+//   "virtual_phone_number": {
+//     "dial_route": "voice_menu",
+//     "voice_menu_id": "VOM..."
+//   }
+// }
+// ```
+// 
+// #### Request Body to route to agent
+// ```json
+// {
+//   "virtual_phone_number": {
+//     "dial_route": "call_agent",
+//     "user_id": "USR043E46722529BCB5FE87E1200DC64BF9",
+//     "user_default_action_label": "voicemail",
+//     "user_no_answer_seconds": 25
+//   }
+// }
+// ```
+
+@name("update tracking numbers routes")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}/dial_routes"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "virtual_phone_number": {
+    "dial_route": "voice_menu",
+    "voice_menu_id": "VOM93F974B7707B24676C5C3433D23BA1162011FDE49286CD32"
+  }
+}')
+
+
+@name("release (delete) a tracking number")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/numbers/{{tracking_number_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+

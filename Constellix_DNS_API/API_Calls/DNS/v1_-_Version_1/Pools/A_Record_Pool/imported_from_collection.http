@@ -1,0 +1,120 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of all pools type A.
+
+@name("Get Pools")
+GET "https://api.dns.constellix.com/v1/pools/A"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+? "offset"= "0"
+? "max"= "10"
+? "sort"= "name"
+? "order"= "asc"
+
+
+// Creates one or more new pools.
+
+@name("Create a Pool")
+POST "https://api.dns.constellix.com/v1/pools/A"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+data('[
+    {
+        "name": "APoolSample1",
+        "numReturn": 1,
+        "minAvailableFailover": 1,
+        "values": [
+            {
+                "value": "8.1.1.1",
+                "weight": 10,
+                "checkId": 35100,
+                "policy": "followsonar"
+            },
+            {
+                "value": "8.1.1.2",
+                "weight": 20,
+                "checkId": null,
+                "policy": "followsonar"
+            }
+        ],
+        "itoEnabled": true,
+        "poolIto": {
+            "poolFrequency": 30,
+            "maximumNumberOfBestResults": 1,
+            "deviationAllowance": 10,
+            "monitoringRegion": "WORLD"
+        }
+    }
+]
+')
+
+
+// Returns a specific type A pool.
+
+@name("Get an Existing Pool")
+GET "https://api.dns.constellix.com/v1/pools/A/843"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+files(
+	("id", "{{id1}}")
+)
+
+
+// Update an existing pool type A.
+
+@name("Update an Existing Pool")
+PUT "https://api.dns.constellix.com/v1/pools/A/843"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+data('
+    {
+        "name": "APoolSample1",
+      "numReturn": 1,
+      "minAvailableFailover": 1,
+        "values": [
+            {
+                "value": "8.1.1.1",
+                "weight": 10,
+                "checkId": 35100,
+                "policy": "followsonar"
+            }
+        ],
+        "itoEnabled": false
+    }
+')
+
+
+// Update an existing pool type A.
+
+@name("Update an Existing Pool Copy")
+PUT "https://api.dns.constellix.com/v1/pools/A/843"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+data('
+    {
+        "name": "APoolSample1",
+      "numReturn": 1,
+      "minAvailableFailover": 1,
+        "values": [
+            {
+                "value": "8.1.1.1",
+                "weight": 10,
+                "checkId": 35100,
+                "policy": "followsonar"
+            }
+        ],
+        "itoEnabled": false
+    }
+')
+
+
+// Deletes a pool type A.
+
+@name("Delete an Existing Pool")
+DELETE "https://api.dns.constellix.com/v1/pools/A/843"
+"Content-Type": "application/json"
+"x-cns-security-token": "{{x-cns-security-token}}"
+
+
+
+

@@ -1,0 +1,111 @@
+#!/usr/bin/env dothttp
+
+// Create a new Job.
+// 
+// ### Parameters
+// ---
+// #### id
+// An ID that means something to you.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|254|
+// 
+// ---
+// #### body
+// The text which will be printed on paper.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|30000|
+// 
+// ---
+// #### status_url
+// The fully-qualified url at which you would like to receive updates about the status of this Job.
+// 
+// |Type|Required|Default|Min chars|Max chars|
+// |:---:|:---:|:---:|:---:|:---:|
+// |String|true|n/a|1|254|
+// 
+// ---
+// #### status_url_method
+// The HTTP verb with which we will use to send updates about the status of this Job to the status_url.
+// 
+// |Type|Required|Default|One of|
+// |:---:|:---:|:---:|:---:|
+// |String|false|POST|'POST', 'PUT'|
+// 
+// ---
+// #### expire_seconds
+// The number of seconds, after which, a Job that has not been printed, will be marked as expired.
+// 
+// |Type|Required|Default|In range|
+// |:---:|:---:|:---:|:---:|
+// |Integer|false|300|60..1800|
+// 
+// ---
+// #### double_print
+// Print two copies of the same Job at once, one after the other.
+// 
+// |Type|Required|Default|
+// |:---:|:---:|:---:|
+// |Boolean|false|false|
+
+@name("Job")
+POST "https://{{BASE_URL}}/v4/account/{{SID}}/printers/{{PRINTER_ID}}/jobs"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+data('{
+    "id": "a2f68817-baba-40e8-90ac-12bb797f3406",
+    "body": "One large pepperoni pizza",
+    "status_url": "{{STATUS_URL}}",
+    "status_url_method": "POST",
+    "expire_seconds": 300,
+    "double_print": false
+}')
+
+
+// Returns a list of printers.
+
+@name("Printers")
+GET "https://{{BASE_URL}}/v4/account/{{SID}}/printers"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+@name("Job")
+GET "https://api.eatabit.io/v4/account/{{SID}}/printers/{{PRINTER_ID}}/jobs/{{JOB_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Returns an Account.
+
+@name("Account")
+GET "https://api.eatabit.io/v4/account/{{SID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Just a convenience endpoint if you want to test authentcation headers.
+
+@name("Auth")
+GET "https://api.eatabit.dev/v4/auth"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+// Returns a Printer.
+
+@name("Printer")
+GET "https://api.eatabit.io/v4/account/{{SID}}/printers/{{PRINTER_ID}}"
+basicauth("{{SID}}", "{{TOKEN}}")
+"Content-Type": "application/json"
+
+
+
+

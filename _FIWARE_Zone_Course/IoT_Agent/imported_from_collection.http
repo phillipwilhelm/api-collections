@@ -1,0 +1,156 @@
+#!/usr/bin/env dothttp
+
+@name("IoTAs / register UL device")
+POST "https://{{host_iota}}/iot/devices"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{    "devices": [         {             "device_id": "id_sen1",             "entity_name": "sen1",             "entity_type": "sensor",             "attributes": [                   { "object_id": "t", "name": "temperature", "type": "float" },                  { "object_id": "h", "name": "humidity", "type": "float" }            ],            "lazy":[                  { "object_id": "l", "name": "luminosity", "type": "percentage" }            ],            "commands": [                  { "object_id": "u", "name": "turn", "type": "string" }            ],            "static_attributes": [                  { "name": "serialID", "type": "string", "value": "02598347" }            ],      "protocol": "IoTA-UL",      "transport": "HTTP"        }    ]}')
+
+
+@name("IoTAs / register Json device")
+POST "https://{{host_iota}}/iot/devices"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{  "devices": [    {      "device_id": "id_sen2",      "entity_name": "sen2",      "entity_type": "sensor",      "attributes": [        {           "object_id": "t",           "name": "temperature",           "type": "float"         	        },        {           "object_id": "h",           "name": "humidity",           "type": "float"        	        }      ],      "protocol": "IoTA-JSON",      "transport": "HTTP"    }  ]}')
+
+
+@name("IoTAs / delete configuration")
+DELETE "https://{{host_iota}}/iot/services"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+? "apikey"= "AAFF9977"
+? "resource"= "/iot/json"
+
+
+
+@name("IoTAs / about")
+GET "https://{{host_iota}}/iot/devices/Sensor123CMD"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+? "protocol"= "IoTA-UL"
+
+
+@name("IoTAs / registered devices")
+GET "https://{{host_iota}}/iot/devices"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("IoTAs / provisioned configurations")
+GET "https://{{host_iota}}/iot/services"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+
+
+@name("IoTAs / registered device")
+GET "https://{{host_iota}}/iot/devices/id_sen1"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+? "protocol"= "IoTA-UL"
+
+
+@name("IoTAs / provision configuration")
+POST "https://{{host_iota}}/iot/services"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{    "services": [        {            "attributes": [],            "static_attributes": [],            "apikey": "AAFF9977",            "protocol": [                "IoTA-JSON"            ],            "entity_type": "lamp"        }      ]}')
+
+
+@name("IoTAs / deregister UL device")
+DELETE "https://{{host_iota}}/iot/devices/id_sen1"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+? "protocol"= "IoTA-UL"
+
+
+
+@name("IoTAs / post UL data")
+POST "http://{{host_iota}}/iot/d"
+"Accept": "application/json"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"x-auth-token": "{{token}}"
+"Content-Type": "text/plain"
+? "k"= "{{UL_apikey}}"
+? "i"= "{{device_ID}}"
+? "getCmd"= "0"
+data('h|98#t|99')
+
+
+@name("IoTAs / post UL data and get command")
+POST "http://{{host_iota}}/iot/d"
+"Accept": "application/json"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"x-auth-token": "{{token}}"
+"Content-Type": "text/plain"
+? "k"= "{{UL_apikey}}"
+? "i"= "{{device_ID}}"
+? "getCmd"= "1"
+data('hr|98#temp|99')
+
+
+@name("IoTAs / post Json data")
+POST "http://{{host_iota}}/iot/json"
+"Accept": "application/json"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"x-auth-token": "{{token}}"
+"Content-Type": "application/json"
+? "k"= "{{JSON_apikey}}"
+? "i"= "{{device_ID}}"
+? "getCmd"= "0"
+data('{
+	"l": 4, 
+	"t": 31.5
+}')
+
+
+@name("IoTAs / modify device registration")
+PUT "https://{{host_iota}}/iot/devices/{{device_ID}}"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+? "protocol"= "IoTA-UL"
+data('{ 
+    "attributes": [ 
+          { "object_id": "t", "name": "temperature", "type": "float" },
+          { "object_id": "h", "name": "humidity", "type": "float" },
+          { "object_id": "p", "name": "pressure", "type": "float" }
+    ],
+    "lazy":[
+          { "object_id": "l", "name": "luminosity", "type": "percentage" }
+    ],
+    "commands": [
+          { "object_id": "t", "name": "turn", "type": "command" }
+    ],
+    "static_attributes": [
+          { "name": "serialID", "type": "02598347" }
+    ]
+}')
+
+
+@name("IoTAs / Push data to device")
+PUT "https://{{host}}/v1/contextEntities/type/{{device_type}}/id/{{device_ID}}/attributes/turn"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{"value":{"123":"asdasdasd8882888"},"type":"command"}')
+
+
+

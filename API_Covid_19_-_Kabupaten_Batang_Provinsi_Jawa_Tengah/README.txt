@@ -1,0 +1,1 @@
+Api untuk Menyediakan Data Jumlah Agregat Serta Pasien ODP/PDP/Positif Covid19 di Kabupaten Batang, Provinsi Jawa Tengah

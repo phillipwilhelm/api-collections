@@ -1,0 +1,1 @@
+This is a collection of all the NASA APIs available for easy use. Some require a key, but others are open access.

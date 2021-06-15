@@ -1,0 +1,201 @@
+#!/usr/bin/env dothttp
+
+// ## Login Api
+// 
+// Test Admin
+
+@name("LOGIN")
+POST "https://api.greenpanier-server.com/admin/api/v1/users/login"
+"Content-Type": "application/json"
+data('{
+   "email": "mithun.das@jumacro.com",
+   "password": "Spidder123$"
+    
+}')
+
+
+// ## Profile Api
+// 
+// The profile loads with most of the user data, along with the usual profile data it also loads with **addresses: [Object]**, **orders[]** etc.
+
+@name("PROFILE")
+GET "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/profile"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4NTY3MzQ3ZjFmMTk5YzZjNDM0YiIsImlhdCI6MTU1ODk1MjIzMywiZXhwIjoxNTU5NTU3MDMzfQ.WTIi6fvR9bnekPDeskcKMNQimesgwI6HQHGbu2q1IeQ"
+
+
+// ## Upload Profile Api
+// 
+// Pass **image** to this Api, validate for image file.... 
+// N.B. The api is using **form-data**
+// 
+// 
+// ### On success
+// 
+// ```json
+// {
+//     "imageUrl": "https://storage.googleapis.com/greenpanier-bucket/1553566881705-cute1.png"
+// }
+// ```
+// ### On error
+// 
+// ```json
+// {
+// 	"error": "NOFILE" (file not uploaded)
+// }
+// {
+// 	"error": BADFILE" (Unsupported file extension)
+// }
+// ```
+
+@name("UPLOAD PROFILE IMAGE")
+POST "https://api.greenpanier-server.com/admin/api/v1/users/profile/upload"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4N2VlYmZiMzFkMWI4ZTQ2NDg0MSIsImlhdCI6MTU5MzcwNzEwNCwiZXhwIjoxNTk0MzExOTA0fQ.Rgv_mwO7KL3-aw2ndHXKi_pBf_TWVcL6Nzzk0Jxik_4"
+files(
+	("image", "None")
+)
+
+
+// ## Edit profile Api
+// 
+// Do not pass same **firstnane, lastname, email, password, phone** to this Api, validate them in frontend.
+// For this api you can either pass all the above 5 if user want to change them, or you can pass only that the user edits. So if user updates **email** pass ```{ "email": "update@email.com" }``` or user wants to update **firstnane, lastname, email, password** pass ```{ "firstname": "UpdatedFirstname", "lastname": "UpdatedLastname", "email": "update@email.com", "password": "NewPassword" }```..... like this.
+// 
+// ### On success
+// 
+// ```json
+// {
+// 	"success": 1
+// }
+// ```
+// ### On error
+// 
+// ```json
+// {
+// 	"error": "PHONEEXISTS"
+// }
+// {
+// 	"error": EMAILEXISTS"
+// }
+// ```
+
+@name("EDIT PROFILE")
+POST "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/profile"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4YjFlYTc3MzcyMWQyOWRiN2Q3ZiIsImlhdCI6MTU1Nzc2MzAyNCwiZXhwIjoxNTU4MzY3ODI0fQ.u92Rp2F0B0VEPHRsMy_FjQZf_YH_0zA908WCt7CGKvA"
+"Content-Type": "application/json"
+data('{
+	"lastname": "Dasa",
+	"password": "123456"
+}')
+
+
+// ## Password Token Api
+// 
+// ![](https://lh3.googleusercontent.com/X-nMrv_34C3HlrPLfXDy5uoEkKcpmVzHQIU9auFn0dzLzPyoi0FFkkpxao_iHePGJ_GMZK3nn82PSxL168S90-GKBsWo_UOugVi6u8uDmRNQCpMkkbj79kXmQY8QPbWhBx3luXNPZ95TtHkH54v8EKnjBc9cT-3rmHDUIbAo__3ppR9FKxOqJrZ5o1-aqZrRqQ5SxdsCr1L0VmpydtfcXxKyiAytRkmxrIRsq8t-RTeidEPkg2tJZCaZfIsml6RX6bLZnL8HXo0m3GV1tRs6GUQT5kJ383uE_scNZ67S2BsWJS_p_dvUupePwJLWvJEJ7VXLdFSBFPvemur51aqaVEguNKrDWA5BtjZHJuHrLAH0a1MrdmgqQFtxdf8KDKVmjCq5EXYliIQSRYTBhOQ7_mnBR-ruGX4OWAOFGIJmShqcVYu4sG2GG23fsKshS2O9aJtMFUPa_8dKNrMDs5IMR3J2AuFVrlAqArANhDIOoX5lIhpf3e5fjbnnjcpi9vO8Wej2YQlbbSDSQnDUCniHc7cO0ONgmRkShDP21M5gtqwuLZs_gctG1wNS4L2NuzmOyY2ixzcVkwocITSun9X8UCmuNA4gQ9eWDmTJIhvzrArv0T-sacbgA8AlapIMbqE0ETwSIEo5jrSQYDSIOkHTO6gxqJ2szikfCbMeowq7A2hm49k9VxD6P4_72bNde-9siauVf_tzozaO5rCTR7grlEIe=w1280-h497-no)
+// 
+// The API deals with 1st and 2nd screen. The Api sends token to user email for confirmation.
+// On success, user should be taken to **Input code and new password** page
+// 
+// Pass **email**
+// 
+// ### Expected errors
+// 
+// ```json
+// {
+// 	"error": "NOTFOUND"
+// }
+// ```
+// ### Success
+// ```json
+// {
+//     "success": 1
+// }
+// ```
+
+@name("PASSWORD TOKEN")
+POST "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/set-reset-token"
+"Content-Type": "application/json"
+data('{
+   "email": "mithun.das@jumacro.com"
+    
+}')
+
+
+// ## Reset Password Api
+// 
+// 
+// ![](https://lh3.googleusercontent.com/X-nMrv_34C3HlrPLfXDy5uoEkKcpmVzHQIU9auFn0dzLzPyoi0FFkkpxao_iHePGJ_GMZK3nn82PSxL168S90-GKBsWo_UOugVi6u8uDmRNQCpMkkbj79kXmQY8QPbWhBx3luXNPZ95TtHkH54v8EKnjBc9cT-3rmHDUIbAo__3ppR9FKxOqJrZ5o1-aqZrRqQ5SxdsCr1L0VmpydtfcXxKyiAytRkmxrIRsq8t-RTeidEPkg2tJZCaZfIsml6RX6bLZnL8HXo0m3GV1tRs6GUQT5kJ383uE_scNZ67S2BsWJS_p_dvUupePwJLWvJEJ7VXLdFSBFPvemur51aqaVEguNKrDWA5BtjZHJuHrLAH0a1MrdmgqQFtxdf8KDKVmjCq5EXYliIQSRYTBhOQ7_mnBR-ruGX4OWAOFGIJmShqcVYu4sG2GG23fsKshS2O9aJtMFUPa_8dKNrMDs5IMR3J2AuFVrlAqArANhDIOoX5lIhpf3e5fjbnnjcpi9vO8Wej2YQlbbSDSQnDUCniHc7cO0ONgmRkShDP21M5gtqwuLZs_gctG1wNS4L2NuzmOyY2ixzcVkwocITSun9X8UCmuNA4gQ9eWDmTJIhvzrArv0T-sacbgA8AlapIMbqE0ETwSIEo5jrSQYDSIOkHTO6gxqJ2szikfCbMeowq7A2hm49k9VxD6P4_72bNde-9siauVf_tzozaO5rCTR7grlEIe=w1280-h497-no)
+// 
+// Pass **code** and **password** as **Strings**
+// Note: The API deals with 3rd and 4th screen. The 3rd screen shall have 3 input box, **code**, **new password**, **confirm password** -> to api pass only **code** and **password**
+// 
+// ### Expected errors
+// 
+// ```json
+// {
+// 	"error": "NOTFOUND"
+// }
+// ```
+// ### Success
+// ```json
+// {
+//     "success": 1
+// }
+// ```
+
+@name("RESET PASSWORD")
+POST "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/reset-password"
+"Content-Type": "application/json"
+data('{
+   "code": "6259",
+   "password": "123456789"
+    
+}')
+
+
+// ## Login Api
+// 
+// Test Admin
+
+@name("CREATE")
+POST "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/admins"
+"Content-Type": "application/json"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4NTY3MzQ3ZjFmMTk5YzZjNDM0YiIsImlhdCI6MTU1Nzc1OTk0NywiZXhwIjoxNTU4MzY0NzQ3fQ.HKTilltsNw-f4MHrWOLHsuVxoksjQ-LwMwI7akrBENA"
+data('{
+    "firstname": "Admin2",
+    "lastname": "MD",
+    "phone": "+448989898989",
+    "email": "admin2md@test.com",
+    "password": "123456"
+    
+}')
+
+
+// ## Login Api
+// 
+// Test Admin
+
+@name("READ")
+GET "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/admins"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4NTY3MzQ3ZjFmMTk5YzZjNDM0YiIsImlhdCI6MTU1ODk1MjIzMywiZXhwIjoxNTU5NTU3MDMzfQ.WTIi6fvR9bnekPDeskcKMNQimesgwI6HQHGbu2q1IeQ"
+? "start"= "0"
+? "limit"= "1"
+
+
+// ## Login Api
+// 
+// Test Admin
+
+@name("UPDATE")
+PUT "http://ec2-54-154-59-231.eu-west-1.compute.amazonaws.com/admin/api/v1/users/5cd987eebfb31d1b8e464841"
+"Content-Type": "application/json"
+"Authorization": "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjZDk4NTY3MzQ3ZjFmMTk5YzZjNDM0YiIsImlhdCI6MTU1Nzc1OTk0NywiZXhwIjoxNTU4MzY0NzQ3fQ.HKTilltsNw-f4MHrWOLHsuVxoksjQ-LwMwI7akrBENA"
+data('{
+    "firstname": "Admin",
+    "lastname": "MDE",
+    "phone": "+908989898989",
+    "password": "123456"
+    
+}')
+
+
+

@@ -1,0 +1,296 @@
+#!/usr/bin/env dothttp
+
+// The Auth Token is generated using the username, password, clientid, and user pool id of the association or user whose Image will be retrieved.
+// 
+// An example is provided here.
+
+@name("Step 1 Generate Auth Tokens Refer to Documentation")
+POST "https://rest.membersuite.com/platform/v1/authtoken"
+? "username"= "mstest0112@yopmail.com"
+? "password"= "Password1!"
+? "clientID"= "27s9qr18pnu6icct9akfiv1m9p"
+? "userPool"= "us-east-1_UMZLaTMtH"
+data({
+    "username": [
+        "{{usernamegoeshere}"
+    ],
+    "password": [
+        "{{passwordgoeshere}!"
+    ],
+    "clientID": [
+        "{{clientId}"
+    ],
+    "userPool": [
+        "{{userpool}"
+    ]
+})
+
+
+// After the JWT security token is obtained. The Graphql call will be used retrieve the image id data. This is a crucial step in retrieving the image.
+
+@name("Step 2: Use GraphQL to Populate image Id")
+POST "https://rest.membersuite.com/graphql/v2"
+json({
+    "operationName": "GetProfileIndividual",
+    "variables": {
+        "id": "34f610d4-0006-c106-d848-98853bb727b7"
+    },
+    "query": "query GetProfileIndividual($id: String!) {
+  individual(id: $id) {
+    addresses {
+      incorrectSince
+      isPreferred
+      isSeasonal
+      lastUpdated
+      region
+      type
+      type_Name
+      address {
+        city
+        company
+        country
+        county
+        geocodeLat
+        geocodeLong
+        lastGeocodeDate
+        line1
+        line2
+        postalCode
+        state
+        __typename
+      }
+      __typename
+    }
+    seasonalAddressStart
+    seasonalAddressEnd
+    credits {
+      id: iD
+      amountUsed
+      exchangeRate
+      payment
+      paymentLineItemID
+      transactionID
+      type
+      amountAvailable
+      creditLineItems {
+        paymentLineItemID
+        total
+        totalInBaseCurrency
+        __typename
+      }
+      __typename
+    }
+    age
+    company
+    doNotEmail
+    doNotMail
+    doNotFax
+    optOuts
+    emailAddress
+    firstName
+    id: iD
+    localID
+    image
+    lastName
+    middleName
+    name
+    nickname
+    notes
+    phoneNumbers {
+      isPreferred
+      phoneNumber
+      type
+      type_Name
+      __typename
+    }
+    memberships {
+      owner
+      id: iD
+      name
+      localID
+      productId: product_ID
+      type
+      type_Name
+      typeId: type
+      billTo
+      joinDate
+      expirationDate
+      renewalDate
+      terminationDate
+      status_Name
+      isInherited
+      referredBy
+      owner
+      approved
+      savedPaymentMethod
+      automaticallyPayForRenewal
+      displayMembershipCardDownload
+      flowDownDepth
+      savedElectronicCheck {
+        name
+        check {
+          bankAccountType
+          bankAccountNumber
+          nameOnAccount
+          routingNumber
+          billingAddress {
+            city
+            state
+            country
+            postalCode
+            line1
+            line2
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      product {
+        name
+        __typename
+      }
+      savedCreditCard {
+        card {
+          cardNumber
+          nameOnCard
+          cardExpirationDate
+          accountNumber
+          name
+          billingAddress {
+            city
+            state
+            country
+            postalCode
+            line1
+            line2
+            __typename
+          }
+          __typename
+        }
+        cardLastFiveDigits
+        cardType
+        __typename
+      }
+      demographics {
+        name
+        value
+        __typename
+      }
+      customFields {
+        fieldDefinition {
+          label
+          name
+          description
+          helpText
+          customFieldID
+          dataType
+          displayType
+          portalAccessibility
+          nullValueLabel
+          pickListEntries {
+            text
+            value
+            isActive
+            isDefault
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      lastOrder {
+        id: iD
+        lineItems {
+          type
+          product
+          __typename
+        }
+        __typename
+      }
+      chapters {
+        chapter
+        chapterName
+        expirationDate
+        __typename
+      }
+      sections {
+        section
+        sectionName
+        __typename
+      }
+      membershipDuesProduct {
+        name
+        code
+        termLength
+        gracePeriod
+        giveRenewalPricingDuringReinstatementPeriod
+        reinstatementPeriod
+        renewsWith
+        availability
+        __typename
+      }
+      membershipDirectoryOptOut
+      receivesMemberBenefits
+      membershipOrganization
+      membershipOrganizationDetails {
+        chapterMode
+        sectionMode
+        iD
+        name
+        __typename
+        days: numberOfDaysPriorToExpirationToPromptForRenewal
+        portalSectionModificationSetting
+      }
+      __typename
+    }
+    preferredAddressType
+    preferredPhoneNumberType
+    prefix
+    status
+    suffix
+    title
+    type
+    relationships {
+      iD
+      leftSide
+      rightSide
+      isPrimary
+      relationshipType {
+        iD
+        name
+        isActive
+        eligibleForPortalSignup
+        enablePortalManagement
+        leftSideName
+        rightSideName
+        leftSideType
+        rightSideType
+        __typename
+      }
+      __typename
+    }
+    gifts {
+      name
+      total
+      __typename
+    }
+    __typename
+  }
+}
+"
+})
+
+
+// After the image id is acquired and the association id. One can place the corresponding ids as part of the Get Call below. This will then retrieve the image saved by the user.
+
+@name("Step 3: Call Images site with image id and security token")
+GET "https://images.membersuite.com/{associationIdGoesHere}/{TenantIdGoesHere}/{ImageIdGoesHere}"
+? "random"= "0.047035770802423826"
+
+
+@name("PROCESS")
+GET "https://{{host}}/"
+
+
+

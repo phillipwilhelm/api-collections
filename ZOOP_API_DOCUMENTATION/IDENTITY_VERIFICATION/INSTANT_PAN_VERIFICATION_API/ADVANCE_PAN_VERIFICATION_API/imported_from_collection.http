@@ -1,0 +1,403 @@
+#!/usr/bin/env dothttp
+
+// 
+// 
+// ### BODY PARAMS
+// 
+// * pan (required) - Pan number of the customer which needs to be verified
+// 
+// ## OUTPUT
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invalid Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not whitelisted :(IP address)".
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// <h4>Missing PAN input</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Missing parameter: pan"
+// }
+// ```
+// 
+// <h4>Invalid PAN format</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid Pan Number(s) :- <<List of invalid PAN numbers>>"
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 1,
+//     "data": [
+//         {
+//             "pan_number": "<pan_number_here>",
+//             "pan_status": "VALID",
+//             "last_name": "<last_name_here>",
+//             "first_name": "<first_name_here>",
+//             "middle_name": "<middle_name_here>",
+//             "pan_holder_title": "<Shri/MR/MRS etc>",
+//             "pan_last_updated": "<DD/MM/YYYY>"
+//             "name_on_card": "<<pan_card_name>>",
+//             "aadhaar_seeding_status": "<<Y or R>>"
+//         }
+//     ],
+//     "pan_count": 1,
+//     "pan_success_count": 1,
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 1,
+//     "data": [
+//         {
+//             "pan_number": "<pan_number_here>",
+//             "pan_status": "INVALID"
+//         }
+//     ],
+//     "pan_count": 1,
+//     "pan_success_count": 1,
+//     "transaction_status": 1,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "pan_count": 1,
+//     "pan_success_count": 0,
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API (Single PAN)")
+POST "https://{{base_url}}/pan"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+	"pan":"{{single pan number here}}"
+}')
+
+
+// This API can be used to verify multiple PAN cards.
+// 
+// ### BODY PARAMS
+// 
+// * pan (required) - Array of PAN of customers which needs to be verified (Upto 5 allowed)
+// 
+// ## OUTPUT
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invaild Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not whitelisted :(IP address)".
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Missing PAN input</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Missing parameter: pan"
+// }
+// ```
+// 
+// <h4>Number of PAN's greater than 5 </h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Number of pan numbers can not exceed 5."
+// }
+// ```
+// 
+// <h4>Invalid PAN format</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid Pan Number(s) :- <<List of invalid PAN numbers>>"
+// }
+// ```
+// 
+// <h4>Transaction invalid (valid/invalid record)</h4> 
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 1,
+//     "data": [
+//         {
+//             "pan_number": "<pan_number_here>",
+//             "pan_status": "VALID",
+//             "last_name": "<last_name_here>",
+//             "first_name": "<first_name_here>",
+//             "middle_name": "<middle_name_here>",
+//             "pan_holder_title": "<Shri/MR/MRS etc>",
+//             "pan_last_updated": "<DD/MM/YYYY>"
+//             "name_on_card": "<<pan_card_name>>",
+//             "aadhaar_seeding_status": "<<Y or R>>"
+//         }, 
+//         {
+//             "pan_number": "<pan_number_here>",
+//             "pan_status": "INVALID"
+//         }, 
+//         ....upto 5 results
+//     ],
+//     "pan_count": n,
+//     "pan_success_count": m,
+//     "transaction_status": 3,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "pan_count": 1,
+//     "pan_success_count": 0,
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API  (Multiple PAN)")
+POST "https://{{base_url}}/pan"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+	"pan": ["<pan1>", "<pan2>" , "<..upto 5>"]
+}')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "<<transaction ID>>",
+//     "env": 1,
+//     "mode": <<pdf or xml>>,
+//     "transaction_status": <<transaction status>>,
+//     "internal_status": <<Internal code in case of failure>>,
+//     "transaction_attempts": <<number of attempts>>,
+//     "public_ip": <<ip of user>>,
+//     "request_medium": null,
+//     "response_url": "<<url at which response is sent>>",
+//     "response_to_agency": "<<if data was delivered to agency's Response URL or not>>",
+//     "face_match": "<<if face match was available or not>>",
+//     "facematch_score": <<face match score if face match was available>>,
+//     "face_match_remark": null,
+//     "face_match_txn": <<face match transaction>>,
+//     "request_consent": "<<if consent was present or not>>",
+//     "request_timestamp": "2019-03-22 18:00:04:179 +05:30",
+//     "response_timestamp": "2019-03-22 18:00:04:208 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction not found</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Transaction not found in your company records"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/pan/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

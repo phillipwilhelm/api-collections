@@ -1,0 +1,51 @@
+#!/usr/bin/env dothttp
+
+// Returns All available lists
+
+@name("List Of All Visits")
+GET "http://hospital.sqilab.com/api/visits"
+
+
+// Successfully returns data, except patient data returned is wrong
+
+@name("Add Visit - Successful Request")
+POST "http://hospital.sqilab.com/api/patient/12/visit"
+data('{"admitted": true,
+  "complaint_description": "",
+  "emergency": false,
+  "payment_method": "mpesa"
+  }')
+
+
+// False Positive, returns error yet it looks as if it is created
+
+@name("Create Vitals - Correct")
+POST "http://hospital.sqilab.com/api/patient/12/vital/add/2"
+data('{
+"blood_group": "B-",
+  "height": 150,
+  "height_unit": "cm",
+  "patient_bp": "120/90",
+  "pulse_rate": "66bpm",
+  "respiration": "60p,",
+  "status": 0,
+  "dehydration_check": "okey",
+  "temperature": 35,
+  "temperature_unit": "celcius",
+  "weight": 48,
+  "weight_unit": "kg"
+  }')
+
+
+// Works as would be expected
+
+@name("Add Visit - Wrong payment type")
+POST "http://hospital.sqilab.com/api/patient/12/visit"
+data('{"admitted": true,
+  "complaint_description": "",
+  "emergency": false,
+  "payment_method": "not known"
+  }')
+
+
+

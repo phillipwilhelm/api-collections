@@ -1,0 +1,22 @@
+#!/usr/bin/env dothttp
+
+// Fetches all notifications from GitHub repository configured via `github_repo`
+
+@name("Get Notifications")
+GET "https://{{github_api_url}}/repos/{{github_repo}}/notifications"
+basicauth("{{github_key_username}}", "{{github_key}}")
+"Accept": "application/vnd.github
+"
+? "page"= "{{github_notification_page}}"
+
+
+// Passes the issue list to the local script to be written as a CSV file.
+
+@name("Write to CSV")
+POST "http://localhost/xkdemoapp/writedata.php"
+files(
+	("notificationData", "{{notificationData}}")
+)
+
+
+

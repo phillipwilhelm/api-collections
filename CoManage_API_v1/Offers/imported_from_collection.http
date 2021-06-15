@@ -1,0 +1,176 @@
+#!/usr/bin/env dothttp
+
+// Get a list of paginated offers.
+
+@name("List offers")
+GET "https://{{api_url}}/offers"
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "limit"= "15"
+? "page"= "1"
+? "status"= "draft"
+? "sort"= "number_desc"
+
+
+// Retrieve an offer by its number.
+
+@name("Retrieve an offer")
+GET "https://{{api_url}}/offers/{{offer_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Create a new offer.
+
+@name("Create a new offer")
+POST "https://{{api_url}}/offers"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My offer title",
+	"contact": 831,
+	"pdf_template": 1,
+	"date": "2019-02-21",
+	"due_date": "2019-03-01",
+	"language": "nl",
+	"currency": "eur",
+	"vat_type": "collect"
+}')
+
+
+// Update an existing offer.
+
+@name("Update an offer")
+PATCH "https://{{api_url}}/offers/{{offer_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My updated offer title",
+	"contact": 825
+}')
+
+
+// Finalize an offer.
+
+@name("Finalize an offer")
+POST "https://{{api_url}}/offers/{{offer_number}}/finalize"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// Send an offer by email.
+
+@name("Send an offer by email")
+POST "https://{{api_url}}/offers/{{offer_number}}/send-email"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"language": "en",
+	"subject": "Check this offer, dude.",
+	"message": "My **custom** message",
+	"markdown": true,
+	"reply_to": "my-email@example.com",
+	"recipients": [
+		{
+			"name": "John Doe",
+			"email": "john.doe@gmail.com"
+		}
+	]
+}')
+
+
+// Send an offer by post.
+
+@name("Send an offer by post")
+POST "https://{{api_url}}/offers/{{offer_number}}/send-letter"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"options": {
+		"priority_post": false
+	},
+	"recipients": [
+		{
+			"address_name": "John Doe",
+			"address_line_1": "Doe St. 123",
+			"address_postal_code": "11111",
+			"address_city": "Doe City",
+			"address_state": "DO",
+			"address_country": "USA"
+		}
+	]
+}')
+
+
+// Mark a finalized offer as canceled.
+
+@name("Mark offer as canceled")
+POST "https://{{api_url}}/offers/{{offer_number}}/canceled"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Mark a finalized offer as approved by the recipient.
+
+@name("Mark offer as approved")
+POST "https://{{api_url}}/offers/{{offer_number}}/approved"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Mark a finalized offer as rejected by the recipient.
+
+@name("Mark offer as rejected")
+POST "https://{{api_url}}/offers/{{offer_number}}/rejected"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Mark a finalized offer as expired/lost.
+
+@name("Mark offer as expired")
+POST "https://{{api_url}}/offers/{{offer_number}}/expired"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Invoice an offer that got approved.
+
+@name("Invoice an offer")
+POST "https://{{api_url}}/offers/{{offer_number}}/invoice"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"invoice_date": "2019-03-01"
+}')
+
+
+// Trash an offer.
+
+@name("Trash an offer")
+POST "https://{{api_url}}/offers/{{offer_number}}/trash"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// Restore an offer from the trash.
+
+@name("Restore an offer")
+POST "https://{{api_url}}/offers/{{offer_number}}/restore"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// Delete an offer.
+
+@name("Delete an offer")
+DELETE "https://{{api_url}}/offers/{{offer_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+

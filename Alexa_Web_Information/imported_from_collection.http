@@ -1,0 +1,82 @@
+#!/usr/bin/env dothttp
+
+// The Scan operation returns one or more items and item attributes by accessing every item in a table or a secondary index. To have DynamoDB return fewer items, you can provide a FilterExpression operation.
+
+@name("Top Sites")
+GET "https://ats.us-west-1.amazonaws.com/api"
+"Accept": "application/json"
+? "ResponseGroup"= "Country"
+? "Action"= "TopSites"
+? "CountryCode"= "US"
+? "Output"= "json"
+? "Count"= "100"
+? "Start"= "1"
+
+
+// The UrlInfo action provides information about a website.
+
+@name("URL Info")
+GET "https://awis.api.alexa.com/api"
+"x-api-key": "{{api-key}}"
+? "Action"= "UrlInfo"
+? "Count"= "10"
+? "ResponseGroup"= "Rank"
+? "Start"= "1"
+? "Url"= "getpostman.com"
+? "Output"= "json"
+
+
+// The TrafficHistory action returns the daily Alexa Traffic Rank, Reach per Million Users, and Unique Pageviews per Million Users for each day going back 4 years. Sites with a rank in excess of 1,000,000 are not included.
+
+@name("Traffic History")
+GET "https://awis.api.alexa.com/api"
+"x-api-key": "{{api-key}}"
+? "Action"= "TrafficHistory"
+? "Range"= "31"
+? "ResponseGroup"= "History"
+? "Url"= "getpostman.com"
+? "Output"= "json"
+
+
+// The CategoryBrowse action and CategoryListings actions together provide a directory service enhanced with Alexa traffic data. For any given category, the CategoryBrowse action returns a list of sub-categories. Within a particular category you can use the CategoryListings action to get the listings within that category ordered by traffic.
+
+@name("Category Browse")
+GET "https://awis.api.alexa.com/api"
+"x-api-key": "{{api-key}}"
+? "Action"= "CategoryBrowse"
+? "Descriptions"= "True"
+? "Path"= "Top/Computers"
+? "ResponseGroup"= "Categories"
+? "Output"= "json"
+? "Count"= "100"
+? "Start"= "20"
+
+
+// The CategoryListings action is a directory service. For any given category, it returns a list of site listings contained within that category.
+
+@name("Category Listings")
+GET "https://awis.api.alexa.com/api"
+"x-api-key": "{{api-key}}"
+? "Action"= "CategoryListings"
+? "Count"= "20"
+? "Descriptions"= "True"
+? "ResponseGroup"= "Listings"
+? "Output"= "json"
+? "Start"= "40"
+? "Path"= "Top/Business/Consumer_Goods_and_Services/Electronics"
+? "Recursive"= "true"
+
+
+// The SitesLinkingIn action returns a list of web sites linking to a given website. Within each domain linking into the website, only a single link (the one with the highest page-level traffic) is returned.
+
+@name("Sites Linking In")
+GET "https://awis.api.alexa.com/api"
+"x-api-key": "{{api-key}}"
+? "Action"= "SitesLinkingIn"
+? "Count"= "5"
+? "ResponseGroup"= "SitesLinkingIn"
+? "Url"= "getpostman.com"
+? "Output"= "json"
+
+
+

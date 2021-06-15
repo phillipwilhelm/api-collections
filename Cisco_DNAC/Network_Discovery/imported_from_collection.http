@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+@name("Get global CLI credential")
+GET "https://{{dnac}}/dna/intent/api/v1/global-credential"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "credentialSubType"= "CLI"
+
+
+@name("Get global SNMPv2 read credential")
+GET "https://{{dnac}}/dna/intent/api/v1/global-credential"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "credentialSubType"= "SNMPV2_READ_COMMUNITY"
+
+
+@name("Get global SNMPv2 write credential")
+GET "https://{{dnac}}/dna/intent/api/v1/global-credential"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "credentialSubType"= "SNMPV2_WRITE_COMMUNITY"
+
+
+// Much slower than IP range, but more dynamic
+
+@name("Start CDP-based discovery")
+POST "https://{{dnac}}/dna/intent/api/v1/discovery"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "name": "using_cdp",
+    "discoveryType": "CDP",
+    "ipAddressList": "10.10.20.80",
+    "cdpLevel": 1,
+    "timeOut": 1,
+    "isAutoCdp": true,
+    "protocolOrder": "ssh",
+    "preferredMgmtIPMethod": "None",
+    "globalCredentialIdList": [
+        "e65085f1-3a4b-47b7-af15-62b7d6088f5c",
+        "a1c7c1a8-006a-4023-890e-3807af319563",
+        "ae7bd26c-eab5-4d57-a8dc-c68fb06b3149"
+    ]
+}')
+
+
+// Much faster than CDP, but less dynamic
+
+@name("Start IP-based discovery")
+POST "https://{{dnac}}/dna/intent/api/v1/discovery"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "name": "iprange_test",
+    "discoveryType": "Range",
+    "ipAddressList": "10.10.20.80-10.10.20.84",
+    "timeOut": 1,
+    "protocolOrder": "ssh,telnet",
+    "preferredMgmtIPMethod": "None",
+    "globalCredentialIdList": [
+        "e65085f1-3a4b-47b7-af15-62b7d6088f5c",
+        "a1c7c1a8-006a-4023-890e-3807af319563",
+        "ae7bd26c-eab5-4d57-a8dc-c68fb06b3149"
+    ]
+}')
+
+
+@name("Get discovery status/result")
+GET "https://{{dnac}}/dna/intent/api/v1/discovery/862"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+@name("Get discovered network devices")
+GET "https://{{dnac}}/dna/intent/api/v1/discovery/862/network-device"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+@name("Get network device details")
+GET "https://{{dnac}}/dna/intent/api/v1/network-device/47e0bd5c-e984-4324-ae2f-fd647c74cc65"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+

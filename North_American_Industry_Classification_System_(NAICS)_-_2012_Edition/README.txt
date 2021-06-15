@@ -1,0 +1,3 @@
+The North American Industry Classification System (NAICS) is used by the U.S. Federal Government to organize different types of businesses economic analysis purposes, and while there are different types of numbering systems out there that do this, a lot of local municipalities have also started adopting it for their own business classification purposes. The NAICS codes and descriptions are revised every five years, and while information is freely provided as PDFs or Excel spreadsheets and hosted by the U.S. Census Bureau, no machine-readable API exists for retrieving this data that can be easily used in applications. You can fork this collection and mock to use in a variety of workflows and integrations using Postman.
+
+URL: https://www.census.gov/naics/?48967

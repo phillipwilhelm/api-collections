@@ -1,0 +1,110 @@
+#!/usr/bin/env dothttp
+
+// To access the `furniture` attribute of a known **Building** entity, a `keyValues` request is made using the `attrs`
+// parameter.
+// 
+// ```javascript
+// const building = await ngsiLD.readEntity(
+//     req.params.storeId,
+//     {
+//         type: "Building",
+//         options: "keyValues",
+//         attrs: "furniture"
+//     },
+//     ngsiLD.setHeaders(req.session.access_token, LinkHeader)
+// );
+// ```
+// 
+// The response is a JSON Object which includes a `furniture` attribute which can be manipulated further.
+
+@name("Find Shelves within a known Store")
+GET "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:Building:store001/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"": ""
+? "options"= "keyValues"
+? "attrs"= "furniture"
+
+
+// To retrieve a series of **Shelf** entities, the `ngsiLD.listEntities()` function is called and filtered using the `id`
+// parameter. The `id` is just a comma separated list taken from the request above.
+// 
+// ```javascript
+// let productsList = await ngsiLD.listEntities(
+//     {
+//         type: "Shelf",
+//         options: "keyValues",
+//         attrs: "stocks,numberOfItems",
+//         id: building.furniture.join(",")
+//     },
+//     ngsiLD.setHeaders(req.session.access_token, LinkHeader)
+// );
+// ```
+// 
+// `listEntities()` is another function within the `lib/ngsi-ld.js` library file
+// 
+// ```javascript
+// function listEntities(opts, headers = {}) {
+//     return request({
+//         qs: opts,
+//         url: BASE_PATH + "/entities",
+//         method: "GET",
+//         headers,
+//         json: true
+//     });
+// }
+// ```
+// 
+// The response is a JSON Array of **Shelf** entities which includes as `stocks` attribute which can be manipulated
+// further. The code below extracts the ids for later use.
+// 
+// ```javascript
+// const stockedProducts = [];
+// 
+// productsList = _.groupBy(productsList, e => {
+//     return e.stocks;
+// });
+// _.forEach(productsList, (value, key) => {
+//     stockedProducts.push(key);
+// });
+// ```
+
+@name("Retrieve Stocked Products from Shelves")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+"": ""
+? "type"= "Shelf"
+? "options"= "keyValues"
+? "attrs"= "stocks,numberOfItems"
+? "id"= "urn:ngsi-ld:Shelf:unit001,urn:ngsi-ld:Shelf:unit002,urn:ngsi-ld:Shelf:unit003"
+
+
+// To retrieve a series of **Product** entities, the `ngsiLD.listEntities()` function is once again called and filtered
+// using the `id` parameter. The `id` is just a comma separated list taken from the request above.
+// 
+// ```javascript
+// let productsInStore = await ngsiLD.listEntities(
+//     {
+//         type: "Product",
+//         options: "keyValues",
+//         attrs: "name,price",
+//         id: stockedProducts.join(",")
+//     },
+//     headers
+// );
+// ```
+// 
+// The response is a JSON Array of **Product** entities which are then displayed on screen.
+
+@name("Retrieve Products from Shelves")
+GET "http://{{orion}}/ngsi-ld/v1/entities/"
+"Link": "<{{datamodels-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/json"
+"": ""
+? "type"= "Product"
+? "options"= "keyValues"
+? "attrs"= "name,price"
+? "id"= "urn:ngsi-ld:Product:001,urn:ngsi-ld:Product:003,urn:ngsi-ld:Product:004"
+
+
+

@@ -1,0 +1,119 @@
+#!/usr/bin/env dothttp
+
+// To create a webhook on a given instance, the user must have the following permissions on the instance:
+// - Admin
+// - Owner
+// - Developer
+//  
+// Body params:
+// 
+// | field name | required	| type |description |
+// |------------|----------|------|------------|
+// | `scopedResource` | yes | string | Scoped Resource refers to the service in which to listen in on webhooks. |
+// | `parentResourceZUID` | no | string | Refers to a specific parent resource's ZUID. |
+// | `resource` | yes | string | Refers to the ZUID or the name of a resource. |
+// | `eventAction` | yes | number | The action on the resource which will trigger the webhook. |
+// | `method` | yes | string | The HTTP request method that is made by the webhook. |
+// | `URL` | yes | string | Destination URL for the webhook to send payload to. |
+// | `contentType` | yes | string | The value used to set the HTTP header `Content-type` for the webhook request |
+// | `authorization` | no | string | The Bearer token value used to set the HTTP header `Auhorization`. 
+// | `body` | yes | JSON | The payload body being sent to the destination URL.|
+// 
+// 
+// Possible values for `scopedResource` are:
+// - an instance ZUID
+// - `accounts`
+// 
+// 
+// **`parentResourceZUID`** 
+// 
+// If `scopedResource` is an instance ZUID, possible values for `parentResourceZUID` are:
+// - content model ZUID
+//  
+// If `scopedResource` is `accounts`, possible values for `parentResourceZUID` are:
+// - instance ZUID
+// 
+// 
+// **`resource`**
+// 
+// If `scopedResource` is an instance ZUID, possible values for `resource` are:
+// - `models`
+// - `items`
+// - `publishings`
+// - `fields`
+// - `headtags`
+// - `views`
+// - `stylesheets`
+// - `scripts`
+// - `redirects`
+// - `langs`
+// - `leads`
+// or its corresponding ZUIDs 
+// 
+// 
+// If `scopedResource` is `accounts`, possible values for `resource` are:
+// - `instances`
+// - `users`
+// - `invites`
+// - `roles`
+// - `granulars`
+// - `domains`
+// or its corresponding ZUIDs
+// 
+// Possible Values for `eventAction`
+// - Create: 1 
+// - Update: 2
+// - Delete: 3
+// - Publish: 4
+// - Unpublish: 5
+// - UndoDelete: 6
+// 
+// 
+// Possible Values for `method`
+// - `POST` 
+// - `GET`
+// 
+// 
+// Possible Values for `contentType`
+// - `application/json` 
+// - `application/x-www-form-urlencoded`
+
+@name("Create Webhook")
+POST "{{protocol}}://{{accounts_api_url}}/{{accounts_api_version}}/webhooks"
+"Content-Type": "application/json"
+json({
+    "scopedResource": "8-aaeffee09b-7w6v22",
+    "parentResourceZUID": "6-45a908-qfw88c",
+    "resource": "items",
+    "eventAction": 1,
+    "method": "GET",
+    "URL": "https://us-central1-zesty-prod.cloudfunctions.net/mostRecentArticleAlert",
+    "contentType": "application/json",
+    "authorization": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImIxNmRlMWIyYWIwYzE2YWMwYWNmNjYyZWYwMWY3NTY3ZTU0NDI1MmEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzMjU1NTk0MDU1OS5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6IjMyNTU1OTQwNTU5LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA5MjcwMDAyMDExNDI3NjQwOTMzIiwiaGQiOiJ6ZXN0eS5pbyIsImVtYWlsIjoid2VpLWVuLndvbmdAemVzdHkuaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6ImNBMEJHdVNuejh5MkFOaUY3SDVzakEiLCJpYXQiOjE1OTIwMDg4MzcsImV4cCI6MTU5MjAxMjQzN30.qYMcMCSpgY21ZtdlTb-hULcw2Th6cZEKR_hUmDo8p5KeG0VyWtGL21KlcaNPmtqLefICaKAme0DREnQNs0cK6haDqduEV6JraKycYJwZKdmjeSvQIJRwZM5KpMEK58kd7-5u2Q7SWHjHnlfedWsf9cXmVo7c8nxjOLaABff4JW6LHNW91aPwCkd9Ar_gkCjb7hoR01Q1zyx1EinSnliJCOCrGRjy6Z6RzVQR3dSwUA4YqHmTNfM0L40usgNGIg-6xGeepStmoIU0akzX9OSAmaAYwbgfwlSasrSJGzdUS6d3Tl1bIfAUvOtDiBYzQRshsmiGQEJElxgMXlKoeA85GQ",
+    "body": null
+})
+
+
+@name("Retrieve Webhook")
+GET "{{protocol}}://{{accounts_api_url}}/{{accounts_api_version}}/webhooks/{{webhook_zuid}}"
+
+
+// Get multiple webhooks for a given instance. To retrieve webhooks, user must have the following permissions for the given instance:
+// - Admin
+// - Owner
+// - Developer
+
+@name("Retreive Webhooks for an Instance")
+GET "{{protocol}}://{{accounts_api_url}}/{{accounts_api_version}}/instances/{{instance_zuid}}/webhooks/"
+
+
+// Deletes a single webhook. To delete a webhook for a given instance, the user must have the following permissions on the instance:
+// - Admin
+// - Owner
+// - Developer
+
+@name("Delete Webhook")
+DELETE "{{protocol}}://{{accounts_api_url}}/{{accounts_api_version}}/webhooks/{{webhook_zuid}}"
+
+
+

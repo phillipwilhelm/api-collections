@@ -1,0 +1,81 @@
+#!/usr/bin/env dothttp
+
+// The v4/fulfillment API combines three existing APIs into one request so you can accomplish the workflow below in just one step:
+// Check a user license at GET v3/licenses - Read
+// Make a code at POST v3/codes- Create
+// Redeem the code into the user account at POST v3/redemptions - Redeem
+
+@name("v4/fulfillments - Create")
+POST "https://api.vitalsource.com/v4/fulfillments"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/json"
+json({
+    "fulfillment": {
+        "sku": "{{vst_vbid}}",
+        "term": "180",
+        "online_term": "180",
+        "ensure_days": "365",
+        "tag": "postman_created_code"
+    }
+})
+
+
+@name("v3/licenses  - Read")
+GET "https://api.vitalsource.com/v3/licenses"
+"X-VitalSource-API-Key": "{{CK-API-Key}}"
+"X-VitalSource-Access-Token": "{{DR_access_token}}"
+? "sku"= "sku"
+? "license_type"= "all"
+
+
+@name("v3/licenses/:param  - SKU")
+GET "https://api.vitalsource.com/v3/licenses.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+? "sku"= "{{vst_vbid}}"
+? "license_type"= "all"
+
+
+// Create one or more redemption codes for specific VitalSource books with this call. These codes will be redeemed by user-specific accounts. Your company must have distribution rights to the products requested, or you will receive errors. Please note below we have documented the five ways you can define the license type. License MUST be specified for both the installed and online versions of Bookshelf. Use the example feature in Postman to see the versions we have loaded with this endpoint (top right.)
+
+@name("v3/codes - Create")
+POST "https://api.vitalsource.com/v3/codes"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data('<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+ <codes sku="{{vst_vbid}}" license-type="numdays" num-days="180" online-license-type="numdays" online-num-days="180" num-codes="1" tag="postman_created_code"/>
+ ')
+
+
+@name("v4/codes/:code - Read")
+GET "https://api.vitalsource.com/v4/codes/{{vst_code}}"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+
+
+@name("v3/redemptions - Redeem Code")
+POST "https://api.vitalsource.com/v3/redemptions.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+data('<redemption>
+ <code>{{vst_code}}</code>
+</redemption>')
+
+
+@name("v3/redemptions/bulk - Redeem Codes (bulk)")
+POST "https://api.vitalsource.com/v3/redemptions/bulk.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+data('<redemptions callback="{{optional_callback_url}}"> 
+ <redemption access-token="{{vst_access_token}}" sku="{{vst_vbid}}"/>
+ <redemption access-token="{{vst_access_token}}" sku="{{vst_vbid2}}"/>
+</redemptions> ')
+
+
+@name("v4/codes/:code - Delete/Cancel/Refund")
+DELETE "https://api.vitalsource.com/v4/codes/{{vst_code}}"
+"X-VitalSource-API-Key": "{{CK-API-Key}}"
+
+
+
+

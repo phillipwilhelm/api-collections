@@ -1,0 +1,200 @@
+#!/usr/bin/env dothttp
+
+@name("getInstallerMaps")
+GET "https://{{host}}/api/v1/installer/orgs/:org_id/sites/:site_name/maps"
+
+
+// Create a MAP
+//  #### Body Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// name|string|The name of the map
+// type|string|"image / google, default is image"
+// ppm|float|"when type=image, pixels per meter"
+// width|int|"when type=image, width of the image map"
+// height|int|"when type=image, height of the image map"
+// url|string|"when type=image, the url"
+// thumbnail_url|string|"when type=image, the url for the thumbnail image / preview"
+// view|string|when type=google. roadmap / satellite / hybrid / terrain
+// origin_x|int|"the user-annotated x origin, pixels"
+// origin_y|int|"the user-annotated y origin, pixels"
+// orientation|int|"orientation of the map, 0 means up is north, 90 means up is west. default is 0"
+// latlng_tl|latlng|"when type=google, latitude / longitude of the top-left corner"
+// latlng_br|latlng|"when type=google, latitude / longitude of the bottom-right corner"
+// wayfinding|object|properties related to wayfinding
+// wayfinding_path|object|a JSON blob for wayfinding (using Dijkstra's algorithm)
+// wall\_path|object|a JSON blob for wall definition (same format as wayfinding_path)
+// sitesurvey\_path|list|a list of JSON blob for site survey path (same format as wayfinding_path)
+// locked|boolean|whether this map is considered locked down
+// flags|list|name/val pair objects for location engine to use
+
+@name("createInstallerMap")
+POST "https://{{host}}/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Mist Office",
+    "type": "image",
+    "ppm": 40.94,
+    "width": 1250,
+    "height": 1500,
+    "origin_x": 35,
+    "origin_y": 60,
+    "orientation": 30,
+    "locked": false,
+    "wayfinding_path": {
+        "coordinate": "actual",
+        "nodes": [
+            {
+                "name": "N1",
+                "position": {
+                    "x": 746,
+                    "y": 104
+                },
+                "edges": {
+                    "N2": "1"
+                }
+            },
+            {
+                "name": "N2",
+                "position": {
+                    "x": 740,
+                    "y": 318
+                },
+                "edges": {
+                    "N1": "1"
+                }
+            }
+        ]
+    },
+    "wall_path": {
+        "coordinate": "actual",
+        "nodes": [
+            {
+                "name": "N1",
+                "position": {
+                    "x": 746,
+                    "y": 104
+                },
+                "edges": {
+                    "N2": "1"
+                }
+            },
+            {
+                "name": "N2",
+                "position": {
+                    "x": 740,
+                    "y": 318
+                },
+                "edges": {
+                    "N1": "1"
+                }
+            }
+        ]
+    },
+    "sitesurvey_path": [
+        {
+            "coordinate": "actual",
+            "nodes": [
+                {
+                    "name": "W0",
+                    "position": {
+                        "x": 372,
+                        "y": 192
+                    },
+                    "edges": {
+                        "W1": 1
+                    }
+                },
+                {
+                    "name": "W1",
+                    "position": {
+                        "x": 485,
+                        "y": 205
+                    },
+                    "edges": {
+                        "W2": 1
+                    }
+                },
+                {
+                    "name": "W2",
+                    "position": {
+                        "x": 400,
+                        "y": 295
+                    },
+                    "edges": {
+                        "W0": 1
+                    }
+                }
+            ],
+            "name": "Default",
+            "id": "cbdb7f0b-3be0-4872-88f9-58790b509c23-j68kows8"
+        }
+    ],
+    "flags": {
+        "assetHoldTime": 5,
+        "storeTime": 10
+    },
+    "url": "https://url/to/image.png",
+    "thumbnail_url": "https://url/to/image.png"
+})
+
+
+@name("updateInstallerMap")
+PUT "https://{{host}}/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "Mist Office"
+})
+
+
+@name("deleteInstallerMap")
+DELETE "https://{{host}}/api/v1/installer/orgs/:org_id/sites/:site_name/maps/:map_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+// Add image map is a multipart POST which has an file (Image) and an optional json parameter
+// 
+// #### Request
+// 
+// ```
+// "json": a JSON string describing your upload
+// "file": a binary file
+// ```
+
+@name("addInstallerMapImage")
+POST "https://{{host}}/api/v1/orgs/:org_id/sites/:site_name/maps/import"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+// Import data from files is a multipart POST which has an file, an optional json, and an optional csv, to create floorplan, assign & place ap if name or mac matches
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// vendor_name|string|Required (ekahau, ibwave)
+// import_all_floorplan|boolean|optional (default: false)
+// import_height|boolean|optional (default: true)
+// import_orientation|boolean|optional (default: true)
+
+@name("importInstallerMap")
+POST "https://{{host}}/api/v1/installer/orgs/:org_id/sites/:site_name/maps/import"
+files(
+	("file", "None"),
+	("csv", "None"),
+	("json", "{
+    "vendor_name": "ekahau",
+    "import_all_floorplans": true,  
+    "import_height": true, 
+    "import_orientation": false 
+}")
+)
+
+
+

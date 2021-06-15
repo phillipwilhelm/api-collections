@@ -1,0 +1,101 @@
+#!/usr/bin/env dothttp
+
+// # CreateSession API
+// 
+// Create a new authenticated session.
+// 
+// Token Based Sessions will have two expiration dates embedded inside the token, one for authenticated and one that acts as an authenticated device. There will be business unit configuration for each timeout level with a default value of 30 minutes and 12 hours respectively. Upon session creation, a subscriber would then have 30 minutes to do anything that requires a fully secure session (account management, purchase, etc) and a half a day to surf around and binge on content. After each expires, when they access an API with the correspoinding security requirements they will receive a session expired fault and fall back to the login flow. 
+// Anonymous and Unauthenticated sessions are no longer supported with session tokens. There is no need for these session levels with update API security model so these session types are being deprecated. 
+// Session ids will now become a long encrypted string. Therefore, devices must be able to support a longer length session.
+// 
+// NOTE: This only applies for subscriber sessions, user sessions will retain the persistent, auto-renewing behavior
+// 
+// # Security
+// 
+// This method requires HTTPS. Any request without SSL will be rejected.
+// Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 117 | AccessDenied | The session does not have rights to the requested resource
+// | 806 | DeviceNotFound | Fault indicating that a device could not be found.
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// | 113 | LoginExists | The requested login already exists |
+// | 1145 | SecurityTokenValidationFailed | Fault indicating that an external security token could not be validated |
+// | 115 | PasswordStrengthViolation | The requested password failed the password complexity rules |
+// |116 | NonUniquePasswordViolation | The requested password failed to meet the password history rules |
+// | 126 | AlternateCountryNotFound | The alternate country provided in the request headers is not valid. |
+// | 812 | DuplicateDeviceNickname | Fault indicating that the device's nickname is already used by the subscriber on another device |
+// 
+// # Session Token
+// 
+// The session token is returned in the SessionId property.  This value must be passed to subsequent API calls requiring an authenticated session.
+// 
+// ![Diagram to follow](http://custom.sbx1.cdops.net/Util/Screenshots/XYZ/CreateSession.jpg) 
+// 
+// # Request
+
+@name("CreateSession (L & PW)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/CreateSession"
+"CD-SystemId": "{{CD_SYSTEM_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "Login": "{{LOGIN_1}}",
+    "Password": "{{PASSWORD_1}}"
+}')
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// The product list form of RPC enables mutliple products to be checked for entitlement in a single call. Entitled pricing plans are identified by the "EntitledPricingPlanId" property in the response.
+// 
+// The "IncludeOrderablePricingPlans" property in not currently supported in this form of the RPC call.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+// 
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReferences": [
+        "XYZ_Access_Monthly",
+        "XYZ_Access_Annual",
+        "XYZ_TV_Access_Monthly",
+        "XYZ_TV_Access_Annual",
+        "XYZ_TV_Pro_Monthly",
+        "XYZ_TV_Pro_Annual"
+    ],
+    "IncludeEntitlementContext": true
+}')
+
+
+

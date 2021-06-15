@@ -1,0 +1,179 @@
+#!/usr/bin/env dothttp
+
+@name("getAllReleasedOrders")
+GET "https://{{url}}/v3/orders/released"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+? "createdStartDate"= "2013-12-03"
+? "createdEndDate"= "2019-11-03"
+
+
+@name("getAllOrders")
+GET "https://{{url}}/v3/orders"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+? "createdStartDate"= "1"
+
+
+@name("getOrder")
+GET "https://{{url}}/v3/orders/4793302295726"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/xml"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+
+
+@name("ackOrder")
+POST "https://{{url}}/v3/orders/4793302295726/acknowledge"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+
+
+
+@name("cancelOrderLine")
+POST "https://{{url}}/v3/orders/2793302065989/cancel"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+data('{
+  "orderCancellation": {
+    "orderLines": {
+      "orderLine": [
+        {
+          "lineNumber": "1",
+          "orderLineStatuses": {
+            "orderLineStatus": [
+              {
+                "status": "Cancelled",
+                "cancellationReason": "CUSTOMER_REQUESTED_SELLER_TO_CANCEL",
+                "statusQuantity": {
+                  "unitOfMeasurement": "EA",
+                  "amount": "1"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+')
+
+
+@name("refundOrderLine")
+POST "https://{{url}}/v3/orders/2577453162650/refund"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Authorization": "Basic NzgyNGEzNWMtZmIxNS00YzE5LTg3ZjctNDVjOWE4ODQwM2VlOkFJQkFPdXBGeDh1ZEVCQ3pXWmhHd1ZJMzV5dFRJOW4xcEtFYzF3RndldmlfMnFBck1oNFZTWlJKNC1tR1FPaTllMFFMcktMN0RjZFpYcW50VWQtRGxjQQ=="
+"Content-Type": "application/json"
+data('{
+  "orderRefund": {
+    "purchaseOrderId": "2577453162650",
+    "orderLines": {
+      "orderLine": [
+        {
+          "lineNumber": "4",
+          "refunds": {
+            "refund": [
+              {
+                "refundComments": "test test",
+                "refundCharges": {
+                  "refundCharge": [
+                    {
+                      "refundReason": "Merchandise not received",
+                      "charge": {
+                        "chargeType": "PRODUCT",
+                        "chargeName": "Item Price",
+                        "chargeAmount": {
+                          "currency": "USD",
+                          "amount": -0.1
+                        },
+                        "tax": {
+                          "taxName": "Item Price Tax",
+                          "taxAmount": {
+                            "currency": "USD",
+                            "amount": -0.1
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}')
+
+
+@name("shippingOrderLine")
+POST "https://{{url}}/v3/orders/1577424042579/shipping"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"WM_CONSUMER.ID": "f84cf598-d06a-416b-92c5-8f756a0fd55d"
+"WM_CONSUMER.CHANNEL.TYPE": "e04f86cc-ea32-43de-bd4d-30a3f07cb7cf"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Authorization": "Basic NzgyNGEzNWMtZmIxNS00YzE5LTg3ZjctNDVjOWE4ODQwM2VlOkFJQkFPdXBGeDh1ZEVCQ3pXWmhHd1ZJMzV5dFRJOW4xcEtFYzF3RndldmlfMnFBck1oNFZTWlJKNC1tR1FPaTllMFFMcktMN0RjZFpYcW50VWQtRGxjQQ=="
+"Content-Type": "application/x-www-form-urlencoded"
+data('{
+  "orderShipment": {
+    "processMode":"PARTIAL_UPDATE",
+    "orderLines": {
+      "orderLine": [
+        {
+          "lineNumber": "1",
+          "orderLineStatuses": {
+            "orderLineStatus": [
+              {
+                "status": "Shipped",
+                "statusQuantity": {
+                  "unitOfMeasurement": "EACH",
+                  "amount": "3"
+                },
+                "trackingInfo": {
+                  "shipDateTime": 1575242221000,
+                  "carrierName": {
+                    "otherCarrier": null,
+                    "carrier": "UPS"
+                  },
+                  "methodCode": "Express",
+                  "trackingNumber": "12345",
+                  "trackingURL": "www.fedex.com"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}')
+
+
+

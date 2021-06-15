@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+// In this procedure, each time a member have finished to sign (or validate), each time the url `https://YOUR_WEBHOOK_URL.com` will be called by Yousign API.
+// 
+// * `method` will define the way that we will call you.
+// * You can add custom header at your convenience with `X-Custom-Header` for example.
+// * When you receive a webhook on a procedure event `procedure.*`, you will receive in the body of the request the procedure object.
+// * If you receive a webhook defined on a member event `member.*`, you will receive in the body the procedure object + the member object.
+
+@name("/procedures")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "How to use webhooks",
+    "description": "Description of my first procedure with webhooks",
+    "start" : true,
+    "members" : [
+        {
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@yousign.fr",
+            "phone": "+33612345678",
+            "fileObjects": [
+                {
+                    "position": "191,497,507,603",
+                    "page": 2,
+                    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            ]
+        }
+    ],
+    "config": {
+        "webhook": {
+            "member.finished": [
+                {
+                    "url": "https://YOUR_WEBHOOK_URL.com",
+                    "method": "GET",
+                    "headers": {
+                        "X-Custom-Header": "Yousign Webhook - Test value"
+                    }
+                }
+            ]
+        }
+    }
+}')
+
+
+

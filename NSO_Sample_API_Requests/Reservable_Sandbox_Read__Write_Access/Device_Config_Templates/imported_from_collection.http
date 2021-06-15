@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// sample CLI to do the same:
+// devices template Standard_DNS_Servers
+// ned-id cisco-ios-cli-6.42
+// confi
+// ip name-server name-server-list 8.8.8.8
+// exit
+// exit
+// exit
+// ned-id cisco-nx-cli-5.13 config
+// ip name-server servers 8.8.8.8
+
+@name("1. Create a DNS Server Configuration Template")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+xml"
+data('<devices xmlns="http://tail-f.com/ns/ncs">
+               <template>
+                 <name>SET-DNS-SERVER</name>
+                 <ned-id>
+                   <id xmlns:cisco-iosxr-cli-7.20="http://tail-f.com/ns/ned-id/cisco-iosxr-cli-7.20">cisco-iosxr-cli-7.20:cisco-iosxr-cli-7.20</id>
+                   <config>
+                     <domain xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                       <name-server>
+                         <address>208.67.222.222</address>
+                       </name-server>
+                       <name-server>
+                         <address>208.67.220.220</address>
+                       </name-server>
+                     </domain>
+                   </config>
+                 </ned-id>
+                 <ned-id>
+                   <id xmlns:cisco-asa-cli-6.8="http://tail-f.com/ns/ned-id/cisco-asa-cli-6.8">cisco-asa-cli-6.8:cisco-asa-cli-6.8</id>
+                   <config>
+                     <dns xmlns="http://cisco.com/ned/asa">
+                       <domain-lookup>
+                         <name>mgmt</name>
+                       </domain-lookup>
+                       <server-group>
+                         <name>DefaultDNS</name>
+                         <name-server>208.67.220.220</name-server>
+                         <name-server>208.67.222.222</name-server>
+                       </server-group>
+                     </dns>
+                   </config>
+                 </ned-id>
+                 <ned-id>
+                   <id xmlns:cisco-ios-cli-6.44="http://tail-f.com/ns/ned-id/cisco-ios-cli-6.44">cisco-ios-cli-6.44:cisco-ios-cli-6.44</id>
+                   <config>
+                     <ip xmlns="urn:ios">
+                       <name-server>
+                         <name-server-list>
+                           <address>208.67.222.222</address>
+                         </name-server-list>
+                         <name-server-list>
+                           <address>208.67.220.220</address>
+                         </name-server-list>
+                       </name-server>
+                     </ip>
+                   </config>
+                 </ned-id>
+                 <ned-id>
+                   <id xmlns:cisco-nx-cli-5.15="http://tail-f.com/ns/ned-id/cisco-nx-cli-5.15">cisco-nx-cli-5.15:cisco-nx-cli-5.15</id>
+                   <config>
+                     <ip xmlns="http://tail-f.com/ned/cisco-nx">
+                       <name-server>
+                         <servers>208.67.222.222</servers>
+                         <servers>208.67.220.220</servers>
+                       </name-server>
+                     </ip>
+                   </config>
+                 </ned-id>
+               </template>
+             </devices>')
+
+
+@name("2. Apply DNS Server Device Template")
+POST "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device={{SAMPLE_IOS_DEVICE}}/apply-template/"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+xml"
+data('<!--
+cli for same config
+conf
+devices device dist-rtr01 apply-template template-name SET-DNS-SERVER
+-->
+
+<input>
+	<template-name>SET-DNS-SERVER</template-name>
+</input>
+
+')
+
+
+

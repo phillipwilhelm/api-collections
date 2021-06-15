@@ -1,0 +1,116 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgDevices")
+GET "https://{{host}}/api/v1/orgs/:org_id/devices"
+
+
+// Supported Filters
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// hostname|string|partial / full hostname
+// site_id|string|site id
+// model|string|device model
+// mac|string|AP mac
+// version|string|version
+// ip|string|ip address
+
+@name("searchOrgDevices")
+GET "https://{{host}}/api/v1/orgs/:org_id/devices/search"
+? "ip"= "{{ip}}"
+
+
+// Supported Filters
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// hostname|string|partial / full hostname
+// site_id|string|site id
+// model|string|device model
+// mac|string|AP mac
+// version|string|version
+// ip|string|ip address
+
+@name("countOrgDevices")
+GET "https://{{host}}/api/v1/orgs/:org_id/devices/count"
+? "distinct"= "model"
+
+
+// #### Supported Filters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// org_id|string|org id
+// site_id|string|site id
+// ap|string|AP mac
+// apfw|string|AP Firmware
+// model|string|device model
+// text|string|event message
+// timestamp|string|event time
+// type|string|See Supported Events Type (E.g. CLIENT_DNS_OK)
+// 
+// #### Supported Events Type
+// 
+// **Name**
+// :-------------: |
+// AP\_CONFIG\_CHANGED\_BY\_RRM
+// AP\_CONFIG\_CHANGED\_BY\_USER
+// AP\_CONFIGURED
+// AP\_RECONFIGURED
+// AP\_RESTART\_BY\_USER
+// AP\_RESTARTED
+// AP\_RRM\_ACTION
+// CLIENT\_DNS\_OK
+// MARVIS\_DNS\_FAILURE
+
+@name("searchOrgDevicesEvents")
+GET "https://{{host}}/api/v1/orgs/:org_id/devices/events/search"
+? "ip"= "{{ip}}"
+
+
+// Supported Filters
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// hostname|string|partial / full hostname
+// site_id|string|site id
+// model|string|device model
+// mac|string|AP mac
+// version|string|version
+// ip|string|ip address
+
+@name("countOrgDevicesEvents")
+GET "https://{{host}}/api/v1/orgs/:org_id/devices/events/count"
+? "distinct"= "model"
+
+
+// It’s a common request we get from the customers. When a AP HW has problem and need a replacement, they would want to copy the existing attributes (Device Config) of this old AP to the new one. It can be done by providing the MAC of a device that’s currently in the inventory but not assigned. The Device replaced will become unclaimed.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// site_id|string|the site_id of the device to be replaced
+// mac|string|device mac
+// inventory_mac|string|mac of the inventory that will be replacing the old one. It has to be claimed and unassigned.
+// discard|list|attributes that you don’t want to copy
+
+@name("replaceOrgDevices")
+POST "https://{{host}}/api/v1/orgs/:org_id/inventory/replace"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "site_id": "4ac1dcf4-9d8b-7211-65c4-057819f0862b",
+    "mac": "5c5b35000101",
+    "inventory_mac": "5c5b35000301",
+    "discard": []
+})
+
+
+// This API renders some high-level device stats, pagination is assumed and returned in response header (as the response is an array)
+// 
+
+@name("getOrgDevicesStats")
+GET "https://{{host}}/api/v1/orgs/:org_id/stats/devices"
+
+
+

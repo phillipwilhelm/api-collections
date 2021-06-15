@@ -1,0 +1,1 @@
+Api para gerenciamento de utensílios compartilhados em condomínios.

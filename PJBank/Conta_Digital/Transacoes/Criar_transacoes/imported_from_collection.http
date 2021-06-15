@@ -1,0 +1,223 @@
+#!/usr/bin/env dothttp
+
+// * Você pode pagar uma despesa a partir do qrcode do beneficiário do Pix ou da cobrança registrada no Pix. Esse endpoint pode gerar despesas em lote, portanto todas as despesas devem ser enviadas dentro de um array `lote`. 
+// 
+// * Após a criação da despesa, será necessária a aprovação dos administradores da Conta Digital. Isto deve ser feito em seu celular, via APP do PJBank. Por segurança, a aprovação não pode ser feita via API.
+// 
+// * Você pode agendar o pagamento das despesas informando uma data em `data_pagamento`.
+// 
+// * Para pagar uma despesa via Pix usando qrcode, é obrigatório o envio do parâmetro `qrcode`, que deve ser preenchida com base no qrcode do beneficiário ou da cobrança a ser paga.
+
+@name("Pagar contas com Pix usando qrcode")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "lote[0][data_vencimento]": [
+        "10/30/2020"
+    ],
+    "lote[0][data_pagamento]": [
+        "10/30/2020"
+    ],
+    "lote[0][valor]": [
+        "230.95"
+    ],
+    "lote[0][qrcode]": [
+        "00020101021126950014BR.GOV.BCB.PIX2573spi.hom.cloud.pjbank.com.br/documentos/f2bc596c-5ad6-4b8b-9a01-6d11cfcf3d015204000053039865409999900.005802BR5910Fulano 6009SAOPAULO626005228rxZbFrWS4uaAW0Rz889AQ50300017BR.GOV.BCB.BRCODE01051.0.06304CF12"
+    ],
+    "lote[0][descricao]": [
+        "Pagamento exemplo"
+    ],
+    "lote[0][nome_favorecido]": [
+        "Empresa modelo"
+    ],
+    "lote[0][cnpj_favorecido]": [
+        "55972934000187"
+    ],
+    "lote[0][solicitante]": [
+        "Maria - maria@pjbank.com.br"
+    ]
+})
+
+
+// * Você pode pagar uma despesa a partir da chave do Pix do beneficiário. Esse endpoint pode gerar despesas em lote, portanto todas as despesas devem ser enviadas dentro de um array `lote`. 
+// 
+// * Após a criação da despesa, será necessária a aprovação dos administradores da Conta Digital. Isto deve ser feito em seu celular, via APP do PJBank. Por segurança, a aprovação não pode ser feita via API.
+// 
+// * Você pode agendar o pagamento das despesas informando uma data em `data_pagamento`.
+// 
+// * Para pagar uma despesa via Pix usando chave do beneficiário, é obrigatório o envio do parâmetro `pix_tipo_chave` e `pix_chave`, que devem ser preenchidos usando a chave do beneficiário cadastrado no Pix.
+
+@name("Pagar contas com Pix usando chave")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "lote[0][data_vencimento]": [
+        "10/30/2020"
+    ],
+    "lote[0][data_pagamento]": [
+        "10/30/2020"
+    ],
+    "lote[0][valor]": [
+        "230.95"
+    ],
+    "lote[0][pix_tipo_chave]": [
+        "email"
+    ],
+    "lote[0][pix_chave]": [
+        "fulano@empresa.com"
+    ],
+    "lote[0][descricao]": [
+        "Pagamento exemplo"
+    ],
+    "lote[0][nome_favorecido]": [
+        "Empresa modelo"
+    ],
+    "lote[0][cnpj_favorecido]": [
+        "55972934000187"
+    ],
+    "lote[0][solicitante]": [
+        "Maria - maria@pjbank.com.br"
+    ]
+})
+
+
+// * Você pode realizar uma transferência `DOC/TED` usando a Conta Digital. Esse endpoint pode gerar transferências em lote, portanto todas as novas transferências devem ser enviadas dentro de um array `lote`. 
+// * Após a transferência, será necessária a aprovação dos administradores da Conta Digital. Isto deve ser feito em seu celular, via APP do PJBank. Por segurança, a aprovação não pode ser feita via API.
+// * Você pode agendar a transferência informando uma data em `data_pagamento`.
+// * Para gerar uma transação do tipo `DOC/TED`, são obrigatórios os parâmetros a seguir: `cnpj_favorecido`, `banco_favorecido`, `agencia_favorecido` e `tipo_conta_favorecido`.
+
+@name("Transferência via DOC/TED")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "lote[0][data_vencimento]": [
+        "09/30/2020"
+    ],
+    "lote[0][data_pagamento]": [
+        "09/30/2020"
+    ],
+    "lote[0][valor]": [
+        "1.00"
+    ],
+    "lote[0][banco_favorecido]": [
+        "033"
+    ],
+    "lote[0][agencia_favorecido]": [
+        "1111"
+    ],
+    "lote[0][conta_favorecido]": [
+        "111111"
+    ],
+    "lote[0][cnpj_favorecido]": [
+        "45475754000136"
+    ],
+    "lote[0][nome_favorecido]": [
+        "Cliente Exemplo"
+    ],
+    "lote[0][identificador]": [
+        "123123"
+    ],
+    "lote[0][descricao]": [
+        "Pagamento de exemplo"
+    ],
+    "lote[0][solicitante]": [
+        "Maria - maria@pjbank.com.br"
+    ],
+    "lote[0][tipo_conta_favorecido]": [
+        "corrente"
+    ]
+})
+
+
+// * Você pode pagar uma despesa a partir de um boleto bancário ou outra conta que tenha código de barras. Esse endpoint pode gerar despesas em lote, portanto todas as despesas devem ser enviadas dentro de um array `lote`. 
+// 
+// * Após a criação da despesa, será necessária a aprovação dos administradores da Conta Digital. Isto deve ser feito em seu celular, via APP do PJBank. Por segurança, a aprovação não pode ser feita via API.
+// 
+// * Você pode agendar o pagamento das despesas informando uma data em `data_pagamento`.
+// 
+// * Para gerar uma despesa via boleto bancário, é obrigatório o envio do parâmetro `codigo_barras`, o qual a linha digitável deve ser preenchida utilizando apenas os números.
+
+@name("Pagar contas com código de barras")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "lote[0][data_vencimento]": [
+        "09/30/2020"
+    ],
+    "lote[0][data_pagamento]": [
+        "09/30/2020"
+    ],
+    "lote[0][valor]": [
+        "1.00"
+    ],
+    "lote[0][codigo_barras]": [
+        "03399699255873781001843279301014571980000001000"
+    ],
+    "lote[0][descricao]": [
+        "Pagamento exemplo"
+    ],
+    "lote[0][nome_favorecido]": [
+        "Empresa modelo"
+    ],
+    "lote[0][cnpj_favorecido]": [
+        "55972934000187"
+    ],
+    "lote[0][solicitante]": [
+        "Maria - maria@pjbank.com.br"
+    ]
+})
+
+
+// Nesta requisição, você pode realizar a transferência de um valor para uma Subconta, através da sua Conta Digital. Isto quer dizer que você poderá carregar um valor como saldo na Subconta. Para concluir a transação, você deve informar o destino e o valor.
+
+@name("Transferência entre Conta e Subconta")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "lote[0][subconta_destino]": [
+        "{{subconta}}"
+    ],
+    "lote[0][valor]": [
+        "10.00"
+    ],
+    "lote[0][data_pagamento]": [
+        "12/10/2020"
+    ]
+})
+
+
+// Nesta requisição, você pode realizar a transferência de um valor para a sua Conta Digital, através da Subconta. Para concluir a transação, você deve informar qual é a Subconta de origem e o valor.
+
+@name("Transferência entre Subconta e Conta")
+POST "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+data({
+    "lote[0][subconta_origem]": [
+        "{{subconta}}"
+    ],
+    "lote[0][data_pagamento]": [
+        "10/20/2020"
+    ],
+    "lote[0][data_vencimento]": [
+        "10/25/2020"
+    ],
+    "lote[0][valor]": [
+        "100.00"
+    ]
+})
+
+
+// Esta consulta tem por objetivo consultar o histórico completo de uma transação, o qual ficará disponível o status da operação, quantas autorizações foram realizadas e quem foram os aprovadores. Para consultar as informações,  você deve informar `id_transacao` indicado na requisição de consulta.
+
+@name("Exibir o histórico de aprovação de uma transação")
+GET "https://api.pjbank.com.br/contadigital/{{credencial-conta}}/transacoes/{{tid-transacao}}"
+"X-CHAVE-CONTA": "{{chave-conta}}"
+
+
+

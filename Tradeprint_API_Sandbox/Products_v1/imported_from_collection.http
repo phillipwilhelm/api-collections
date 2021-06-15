@@ -1,0 +1,124 @@
+#!/usr/bin/env dothttp
+
+// Request for product price lists. 
+// 
+// This call will initiate a process that will generate price lists asynchronously in a requested format and email in a ZIP file to an address of your choice.
+// 
+// The email attachment will contain the `package.zip` file which will include the price list files in either JSON or CSV format from the production data set.
+// 
+// To get a "delta" (any changes to pricing) you can specify the fromDate field with the query date. The call will generate a `package.zip` containing only the product price lists which have had any price changes since the specified date. The response message from the call will indicate whether any changes have been made or not and will ONLY send an email out if there have been any changes introduced.
+// 
+// Please note that the Sandbox environment pricelist contains limited range of products. The products IDs returned are different between the Sandbox and the Live environments.
+// 
+// ### Request Body Fields ###
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |email|string|yes|The target Email to which to send the generated price lists, e.g. customer@company.com|
+// |markup|number|no|The price markup expressed in percentage, e.g. `15` = 15%. Set it to 0 to disregard applying markup to the prices.|
+// |format|string|yes|The requested file format. This can be either `json` or `csv`.|
+// |productNames|string|no|Optional filter which accepts a string array and allows you to specify which price lists for which products to send. If nothing specified all available products will be returned, e.g. `["Flyers", "Comp slips"]`. These are solely for testing purposes.|
+// |fromDate|string|no|Optional date field in the `DD/MM/YYYY` formay which allows you to get a "delta" for your price list.|
+// 
+// **The product name example provided are solely for testing purposes.**
+
+@name("Request Price Lists for Multiple Products")
+POST "https://{{environmentUrl}}/v2/products"
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1OTAwNTAzMTAsImV4cCI6MTU5MDA4MjcxMH0.32hwlFliE-R1-IIzVED96J1aWlTcVoRUN5LxZooCgM8"
+"Content-Type": "application/json"
+data('{
+	"email": "pjfernandes@tradeprint.co.uk",
+	"productNames": [
+		"Triplex BC"
+	],
+	"markup": null,
+	"format": "json",
+	"fromDate": "{{fromDate}}"
+}')
+
+
+// Gets a signed S3 URL which you can use to download your product price list.
+
+@name("Request Price List for Single Product")
+POST "https://{{environmentUrl}}/v2/products/{{productName}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"format": "{{format}}",
+	"markup": {{markup}},
+	"fromDate": "{{fromDate}}"
+}')
+
+
+// This call will return all products' attributes from the customer's pricelist.
+
+@name("Get All Products Attributes")
+GET "https://{{environmentUrl}}/v2/products/attributes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+
+
+// This call will return specific product attributes from the customer's price list.
+
+@name("Get Attributes for Specific Product")
+GET "https://{{environmentUrl}}/v2/products/attributes/{{productName}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+
+
+// This call will return the specific product quantity values.
+
+@name("Request Product Quantities")
+POST "https://{{environmentUrl}}/v2/products/quantities"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{
+	"productId": "{{productId}}",
+	"serviceLevel": "{{serviceLevel}}",
+	"productionData": "{{productionData}}"
+}')
+
+
+// Get the expected delivery date for a product selection.
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`productId`|string|yes|Tradeprint Product ID.|
+// |`productionData`|object|yes|Relevant production attributes can be found within your pricelist and add a link to products endpoint.|
+// |`serviceLevel`|string|yes|Manufacturing speed (`Saver`, `Standard`, `Express`, `Same Day`).|
+// |`quantity`|number|yes|The quantity to be manufactured.|
+// |`artworkService`|string|yes|Supply the artwork service: `Just Print`, `File Check`, `File Assist` or `File Check with Proofing`.|
+// |`deliveryAddress`|object|no|Optional delivery address details for precise location-based expected delivery date calculation.|
+// 
+// ### Delivery Address ###
+// 
+// `deliveryAddress` object structure
+// 
+// |Field|Type|Required|Description|
+// |-----|----|--------|-----------|
+// |`postcode`|string|yes|The postcode to determine where the item is meant to be delivered too, e.g. `DD2 1TP`.|
+
+@name("Get Expected Delivery Date")
+POST "https://{{environmentUrl}}/v2/products/expectedDeliveryDate"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"productId": "{{productId}}",
+	"productionData": {
+		"Lamination": "None",
+	    "Paper Type": "400gsm Art Board Silk Finish",
+	    "Round Corners": "Yes",
+	    "Sets": "1",
+	    "Sides Printed": "Double Sided",
+	    "Spot Uv": "None"
+	},
+	"serviceLevel": "{{serviceLevel}}",
+	"quantity": {{quantity}},
+	"artworkService": "{{artowrkService}}",
+	"deliveryAddress": {
+		"postcode": "{{postcode}}"
+	}
+}')
+
+
+

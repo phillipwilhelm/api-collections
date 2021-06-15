@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// A standard operation supported by all resource endpoints. Provide the ID of the resource desired.
+
+@name("Get a claim by ID")
+GET "https://{{hostname}}/{{api_endpoint_path}}/Claim/{id}"
+"Authorization": "Bearer {{access_token}}"
+data({
+    "grant_type": [
+        "refresh_token"
+    ],
+    "refresh_token": [
+        "{{refresh_token}}"
+    ]
+})
+
+
+// A standard operation supported by all resource endpoints. Provide a query to find a bundle of resources.
+// 
+// Claim Search Parameters can be found at http://hl7.org/fhir/STU3/claim.html#search
+
+@name("Search for a Claim by query")
+GET "https://{{hostname}}/{{api_endpoint_path}}/Claim"
+"Authorization": "Bearer {{access_token}}"
+
+
+// The body of this operation should contain the complete JSON object for this resource.
+// 
+// POST operations to this endpoint shall NOT include an ID.
+// 
+// If a POST operation does not include a quantity for the resource, the units per procedure value for that CPT code in your CPT library will be pulled instead.
+
+@name("Create a new claim")
+POST "https://{{hostname}}/{{api_endpoint_path}}/Claim"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+
+
+
+@name("Create a new Case")
+POST "https://{{hostname}}/{{api_endpoint_path}}/Claim"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+data('{
+	"resourceType": "Claim",
+	"status": "draft",
+	"use": "proposed",
+	"type": {
+		"coding": [{
+			"system": "http://terminology.hl7.org/CodeSystem/claim-type",
+			"code": "institution"
+		}]
+	},
+	"patient": {
+		"reference": "Patient/701"
+	},
+	"created": "2020-12-29",
+	"priority": {
+		"coding": [{
+			"system": "http://terminology.hl7.org/CodeSystem/processpriority",
+			"code": "normal"
+		}]
+	},
+	"facility": {
+		"reference": "Location/ELKIP"
+	},
+	"careTeam": [{
+		"sequence": "1",
+		"role": {
+			"coding": [{
+				"system": "http://hl7.org/fhir/claimcareteamrole",
+				"code": "primary",
+				"display": "Primary Provider"
+			}]
+		},
+		"provider": {
+			"reference": "Practitioner/bilRS"
+		}
+	}]
+}')
+
+
+

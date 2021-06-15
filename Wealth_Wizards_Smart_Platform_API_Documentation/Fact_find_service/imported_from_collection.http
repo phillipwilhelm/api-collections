@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// Stores client information against a client record.
+
+@name("/v1/fact-find")
+POST "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{JWT_TOKEN}}"
+data('{
+  "source_of_business": "lv",
+  "personal__title": "mr",
+  "personal__first_name": "Bob",
+  "personal__last_name": "Bobbington",
+  "personal__dob": "1960-12-31",
+  "personal__postcode": "CV99 3XX",
+  "personal__ni_number": "1234567890",
+  "active_products": [
+    "rpp"  
+  ]
+}')
+
+
+// This endpoint enables us to query for fact finds using GraphQL. This currently integrates with our use of React Apollo on the front end.
+
+@name("/graphql")
+POST "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/graphql"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{JWT_TOKEN}}"
+data('{
+  "operationName": "find",
+  "variables": {
+    "query": "",
+    "offset": 0,
+    "limit": 25,
+    "active_products": "rpp"
+  },
+  "query": "query find($query: String!, $offset: Int, $limit: Int, $active_products: String!) {\n  find(query: $query, offset: $offset, limit: $limit, active_products: $active_products) {\n    total\n    factFinds {\n      personal__ni_number\n      first_name\n      last_name\n      postcode\n      _id\n      date_of_birth\n      updated_at\n      __typename\n    }\n    __typename\n  }\n}\n"
+}')
+
+
+// Get a fact find by its ID
+
+@name("/v1/fact-find/{{FACT_FIND_ID}}")
+GET "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find/{{FACT_FIND_ID}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Authorization": "Bearer {{JWT_TOKEN}}"
+data({
+    "source_of_business": [
+        "SoB Update"
+    ],
+    "personal__title": [
+        "Title Update"
+    ],
+    "personal__first_name": [
+        "Firstname Update"
+    ],
+    "personal__last_name": [
+        "Lastname Update"
+    ],
+    "personal__dob": [
+        "1990-06-11"
+    ],
+    "active_products": [
+        "nas",
+        "test"
+    ]
+})
+
+
+// Updates a fact find using its ID.
+
+@name("/v1/fact-find/{{FACT_FIND_ID}}")
+PUT "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find/{{FACT_FIND_ID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{JWT_TOKEN}}"
+data('{
+  "source_of_business": "lv",
+  "personal__title": "mr",
+  "personal__first_name": "Bob",
+  "personal__last_name": "Bobbington",
+  "personal__dob": "1960-12-31",
+  "personal__postcode": "CV99 3XX",
+  "personal__ni_number": "1234567890",
+  "active_products": [
+    "rpp",
+    "nas"
+  ],
+  "some_test_question": "some test answer"
+}')
+
+
+// Delete a fact find by its ID.
+
+@name("/v1/fact-find/{{FACT_FIND_ID}}")
+DELETE "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find/{{FACT_FIND_ID}}"
+"Authorization": "Bearer {{JWT_TOKEN}}"
+
+
+
+

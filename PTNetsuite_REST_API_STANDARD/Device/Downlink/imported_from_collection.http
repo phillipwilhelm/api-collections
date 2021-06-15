@@ -1,0 +1,385 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the downlinks added in queue and not already sent to the device owned by the current user identified by `{{did}}` in the url. 
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key       | Value         | Description               | 
+// | --------- | ------------- | ------------------------- |
+// | id        | {{id}}        | Uniquely id that identifies a downlink for the device
+// | payload   | {{payload}}   | Payload to send by a downlink message
+// | port      | {{port}}      | LoRaWAN frame port to use for the downlink 
+// | priority  | {{priority}}  | Priority used to define which message must be sent first
+// | confirmed | {{confirmed}} | Defines if the downlink may be confirmed  (True) or unconfirmed (False)
+// | window    | {{window}}    | Receive window that will be used to send the downlink
+// 
+// Supported filtering is described in the `Common` section.
+//  
+// Details:
+//    * The device choosed to get the downlink queue is identified by the `{{did}}` in the URL.
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Downlink Queue List")
+GET "{{protocol}}://{{host}}/api/v2/device/{{did}}/downlink-queue"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns all the downlinks added in queue and not already sent to the device for a device that is shared by another account with us identified by `{{did}}` in the url. 
+//  
+// Details:
+//    * The device choosed to get the downlink queue is identified by the `{{did}}` in the URL.
+//    * No body in the request
+//    * The possible responses are listed in the section on the right
+
+@name("Downlink Queue Shared By List")
+GET "{{protocol}}://{{host}}/api/v2/device/{{did}}/shared/by/downlink-queue"
+"Authorization": "Bearer {{token}}"
+
+
+// This API adds a new downlink in queue for a device.
+// 
+// The reponse will contain the created object with the created downlink.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//         "window": {
+//             "type": "string",
+//             "enum": [
+//                 "RX1",
+//                 "RX2",
+//                 "BOTH"
+//             ],
+//             "description": "Select the RX window to send the downlink"
+//         },
+//         "port": {
+//             "type": "integer",
+//             "minimum": 1,
+//             "maximum": 255,
+//             "description": "LoRaWAN port"
+//         },
+//         "confirmed": {
+//             "type": "boolean",
+//             "description": "Set if the downlink is a LoRaWAN confirmed or unconfirmed message"
+//         },
+//         "priority": {
+//             "type": "integer",
+//             "minumum": 0,
+//             "maximum": 214748364,
+//             "description": "Set the downlink priority message"
+//         },
+//         "payload": {
+//             "type": "string",
+//             "pattern": "(^([a-fA-F0-9][a-fA-F0-9]){1,242})$",
+//             "minLength": 2,
+//             "maxLength": 484,
+//             "description": "Is the message contents to send to the device"
+//         }
+//     },
+//     "required": [
+//         "port",
+//         "payload"
+//     ],
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                | Type      | Required     | Nullable | Defined by    |
+// | ----------------------- | --------- | ------------ | -------- | ------------- |
+// | [confirmed](#confirmed) | `boolean` | Optional     | No       | (this schema) |
+// | [payload](#payload)     | `string`  | **Required** | No       | (this schema) |
+// | [port](#port)           | `integer` | **Required** | No       | (this schema) |
+// | [priority](#priority)   | `integer` | Optional     | No       | (this schema) |
+// | [window](#window)       | `enum`    | Optional     | No       | (this schema) |
+// 
+// ## confirmed
+// 
+// Set if the downlink is a LoRaWAN confirmed or unconfirmed message
+// 
+// `confirmed`
+// 
+// - is optional
+// - type: `boolean`
+// - defined in this schema
+// 
+// ### confirmed Type
+// 
+// `boolean`
+// 
+// ## payload
+// 
+// Is the message contents to send to the device
+// 
+// `payload`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### payload Type
+// 
+// `string`
+// 
+// - minimum length: 2 characters
+// - maximum length: 484 characters All instances must conform to this regular expression (test examples
+//   [here](<https://regexr.com/?expression=(%5E(%5Ba-fA-F0-9%5D%5Ba-fA-F0-9%5D)%7B1%2C242%7D)%24>)):
+// 
+// ```regex
+// (^([a-fA-F0-9][a-fA-F0-9]){1,242})$
+// ```
+// 
+// ## port
+// 
+// LoRaWAN port
+// 
+// `port`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### port Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// - maximum value: `255`
+// 
+// ## priority
+// 
+// Set the downlink priority message
+// 
+// `priority`
+// 
+// - is optional
+// - type: `integer`
+// - defined in this schema
+// 
+// ### priority Type
+// 
+// `integer`
+// 
+// - maximum value: `214748364`
+// 
+// ## window
+// 
+// Select the RX window to send the downlink
+// 
+// `window`
+// 
+// - is optional
+// - type: `enum`
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#window-known-values).
+// 
+// ### window Known Values
+// 
+// | Value  | Description |
+// | ------ | ----------- |
+// | `RX1`  |             |
+// | `RX2`  |             |
+// | `BOTH` |             |
+
+@name("Downlink")
+POST "{{protocol}}://{{host}}/api/v2/device/{{did}}/downlink-queue"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"port": {{port}},
+	"payload": "{{payload}}"
+}')
+
+
+// This API adds a new downlink in queue for a device that is shared with us from another user.
+// 
+// The reponse will contain the created object with the created downlink.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * The Request contains a body that should have the parameters listed below in the `Properties` table
+//    * The possible responses are listed in the section on the right
+// 
+//  
+// # Schema
+// ```
+// {
+//   "type": "object",
+//   "properties": {
+//     "window": {
+//       "type": "string",
+//       "enum": [
+//         "RX1",
+//         "RX2",
+//         "BOTH"
+//       ],
+//       "description": "Select the RX window to send the downlink"
+//     },
+//     "port": {
+//       "type": "integer",
+//       "minimum": 1,
+//       "maximum": 255,
+//       "description": "LoRaWAN port"
+//     },
+//     "confirmed": {
+//       "type": "boolean",
+//       "description": "Set if the downlink is a LoRaWAN confirmed or unconfirmed message"
+//     },
+//     "payload": {
+//       "type": "string",
+//       "pattern": "(^([a-fA-F0-9][a-fA-F0-9]){1,242})$",
+//       "minLength": 2,
+//       "maxLength": 484,
+//       "description": "Is the message contents to send to the device"
+//     }
+//   },
+//   "required": [
+//     "port",
+//     "payload"
+//   ],
+//   "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property                | Type      | Required     | Nullable | Defined by    |
+// | ----------------------- | --------- | ------------ | -------- | ------------- |
+// | [confirmed](#confirmed) | `boolean` | Optional     | No       | (this schema) |
+// | [payload](#payload)     | `string`  | **Required** | No       | (this schema) |
+// | [port](#port)           | `integer` | **Required** | No       | (this schema) |
+// | [window](#window)       | `enum`    | Optional     | No       | (this schema) |
+// 
+// ## confirmed
+// 
+// Set if the downlink is a LoRaWAN confirmed or unconfirmed message
+// 
+// `confirmed`
+// 
+// - is optional
+// - type: `boolean`
+// - defined in this schema
+// 
+// ### confirmed Type
+// 
+// `boolean`
+// 
+// ## payload
+// 
+// Is the message contents to send to the device
+// 
+// `payload`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### payload Type
+// 
+// `string`
+// 
+// - minimum length: 2 characters
+// - maximum length: 484 characters All instances must conform to this regular expression (test examples
+//   [here](<https://regexr.com/?expression=(%5E(%5Ba-fA-F0-9%5D%5Ba-fA-F0-9%5D)%7B1%2C242%7D)%24>)):
+// 
+// ```regex
+// (^([a-fA-F0-9][a-fA-F0-9]){1,242})$
+// ```
+// 
+// ## port
+// 
+// LoRaWAN port
+// 
+// `port`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### port Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// - maximum value: `255`
+// 
+// ## window
+// 
+// Select the RX window to send the downlink
+// 
+// `window`
+// 
+// - is optional
+// - type: `enum`
+// - defined in this schema
+// 
+// The value of this property **must** be equal to one of the [known values below](#window-known-values).
+// 
+// ### window Known Values
+// 
+// | Value  | Description |
+// | ------ | ----------- |
+// | `RX1`  |             |
+// | `RX2`  |             |
+// | `BOTH` |             |
+
+@name("Downlink Shared By")
+POST "{{protocol}}://{{host}}/api/v2/device/{{did}}/shared/by/downlink-queue"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"port": {{port}},
+	"payload": "{{payload}}"
+}')
+
+
+// This API removes a single downlink message for a device owned by the current user.
+// 
+// The downlink message to delete is passed in the URL using the DownlinkQueueId as `{{dqid}}` and the device is identified by `{{did}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The device associated to the downlink message to delete is identified in the url by `{{did}}`
+//    * The downlink message to delete is identified in the url by `{{dqid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Downlink")
+DELETE "{{protocol}}://{{host}}/api/v2/device/{{did}}/downlink-queue/{{dqid}}"
+"Authorization": "Bearer {{token}}"
+
+
+// This API removes a single downlink message for a device owned by the another user.
+// 
+// The downlink message to delete is passed in the URL using the DownlinkQueueId as `{{dqid}}` and the device is identified by `{{did}}`.
+// 
+// Exaustive description is written in the following rows.
+//  
+// Details:
+//    * No body in the request
+//    * The device associated to the downlink message to delete is identified in the url by `{{did}}`
+//    * The downlink message to delete is identified in the url by `{{dqid}}`
+//    * The possible responses are listed in the section on the right
+
+@name("Downlink Shared By")
+DELETE "{{protocol}}://{{host}}/api/v2/device/{{did}}/shared/by/downlink-queue/{{dqid}}"
+"Authorization": "Bearer {{token}}"
+
+
+

@@ -1,0 +1,1107 @@
+#!/usr/bin/env dothttp
+
+// Get list of devices on the site.
+// 
+// #### Filter Options
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// name|string|optional, device name
+// type|string|ap, switch, gateway, all, default is ap
+
+@name("getSiteDevices")
+GET "https://{{host}}/api/v1/sites/:site_id/devices"
+
+
+@name("countSiteDevices")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/count"
+
+
+// #### Filter Options
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// hostname|string|partial / full hostname
+// site_id|string|site id
+// model|string|device model
+// mac|string|AP mac
+// version|string|version
+// ip|string|ip address
+// mxtunnel_status|string|MxTunnel status, up / down
+// mxedge_id|string|Mist Edge id, if AP is connecting to a Mist Edge
+// lldp_system_name|string|LLDP system name
+// lldp_system_desc|string|LLDP system description
+// lldp_port_id|string|LLDP port id
+// lldp_mgmt_addr|string|LLDP management ip address
+// sort|string|sort options, timestamp/mac/model/sku, -prefix represents DESC order, default is -timestamp
+// stats|boolean|whether to return device stats, default is false
+// 
+// 
+// **NOTE**: fuzzy logic can be used with ‘*’, supported filters: mac, hostname, device, os, model. E.g. /clients/search?device=Mac*&hostname=jerry
+
+@name("searchSiteDevices")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/search"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|name / label of the device
+//  notes|string|any notes about this AP
+//  map_id|string|map where the device belongs to
+//  x|float|x in pixel
+//  y|float|y in pixel
+//  orientation_overwrite|boolean|whether the user overwrite the orientation
+//  orientation|int|orientation, 0-359, in degrees, up is 0, right is 90.
+//  height|float|height, in meters, optional
+//  vars|object|a dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+// 
+//  #### Radio Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  radio_config|object|radio configs
+//  band_24|object|radio config for 2.4G
+//  band_5|object|radio config for 5G
+//  band\_24_usage|string|24 / 5 / auto, default is 24
+//  scanning_enabled|boolean|whether scanning radio is enabled
+//  disabled|boolean|whether to disable the radio
+//  channel|int|(primary) channel for the band, 0 means using the Site Setting
+//  power|int|tx power of the radio, 0 mean using the Site Setting
+//  ant\_gain_24|int|antenna gain for 2.4G - for models with external antenna only
+//  ant\_gain_5|int|antenna gain for 5G - for models with external antenna only
+//  bandwidth|int|channel width for the band, 20 / 40 / 80, 80 is only applicable for band_5, ignored if channel is 0
+//  channels|list|list of channels, null or empty array means auto
+//  antenna_mode|string|default / 1x1 / 2x2 / 3x3 / 1x4
+//  power_min|int|when power=0, min tx power to use, HW-specific values will be used if not set
+//  power_max|int|when power=0, max tx power to use, HW-specific values will be used if not set
+//  preamble|string|short / long / auto, default is short
+//  usage|string|for band_24 radio, 24 / 5 / rrm, default is 24
+// 
+//  #### IP Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  ip_config|object|ip config
+//  type|string|static / dhcp (default)
+//  ip|string|required if type==static
+//  netmask|string|required if type==static
+//  gateway|string|required if type==static
+//  dns|list|required if type==static
+//  dns_suffix|list|required if type==static
+//  vlan_id|int|management vlan id, default is 1 (untagged)
+// 
+//  #### BLE Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  ble_config|object|BLE config
+//  power_mode|string|default / custom
+//  power|int|required if power_mode==custom, 1-10, in dBm, default is currently 8
+//  beacon_enabled|boolean|whether Mist beacons is enabled, default is true
+//  beacon\_rate_mode|string|default / custom
+//  beacon\_rate|int|required if beacon\_rate_mode==custom, 1-10, in number-beacons-per-second
+//  beam_disabled|list|list of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+//  ibeacon\_enabled|boolean|can be enabled if beacon_enabled=true, whether to send iBeacon, default is false
+//  ibeacon_uuid|string|optional, if not specified, the same UUID as the beacon will be used
+//  ibeacon_major|int|Major number for iBeacon
+//  ibeacon_minor|int|Minor number for iBeacon
+//  ibeacon\_freq_msec|int|Frequency (msec) of data emmit for iBeacon
+//  ibeacon\_adv_power|int|advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+//  ibeacon_beams|string|default is ‘default’, list of beam numbers (1-8) used to transmit iBeacons. A value of ‘default’ will automatically use the default beams for the AP model. The beams are specified using a sequence string (ie: “1-8”, “2-5,8”)
+//  eddystone\_uid\_enabled|boolean|only if beacon_enabled=false, Whether Eddystone-UID beacon is enabled
+//  eddystone\_uid_namespace|string|Eddystone-UID namespace
+//  eddystone\_uid_instance|string|Eddystone-UID instance for the device
+//  eddystone\_uid\_freq_msec|int|Frequency (msec) of data emmit by Eddystone-UID beacon
+//  eddystone\_uid\_adv_power|int|advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+//  eddystone\_uid_beams|string|default is ‘default’, list of beam numbers (1-8) used to transmit Eddystone UID beacons. A value of ‘default’ will automatically use the default beams for the AP model. The beams are specified using a sequence string (ie: “1-8”, “2-5,8”)
+//  eddystone\_url\_enabled|boolean|only if beacon_enabled=false, Whether Eddystone-URL beacon is enabled
+//  eddystone\_url_url|string|URL pointed by Eddystone-URL beacon
+//  eddystone\_url\_freq_msec|int|Frequency (msec) of data emmit by Eddystone-UID beacon
+//  eddystone\_url\_adv_power|int|advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
+//  eddystone\_url_beams|string|default is ‘default’, list of beam numbers (1-8) used to transmit Eddystone URL beacons. A value of ‘default’ will automatically use the default beams for the AP model. The beams are specified using a sequence string (ie: “1-8”, “2-5,8”)
+// 
+//  #### USB Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  usb_config|object|USB config
+//  enabled|boolean|whether to enable any usb config
+//  type|string|usb config type, option: imagotag
+//  channel|int|channel selection, 0-10, not needed by default, required for manual channel override only
+//  host|string|required if type==imagotag
+//  port|int|port, default 0
+//  verify_cert|boolean|whether to turn on SSL verification
+//  cacert|string|ca certs
+// 
+//  #### Aeroscout Config
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// aeroscout|object|aeroscout config
+// enabled|boolean|whether to enable aeroscout config
+// host|string|required if enabled, aeroscout server host
+// locate_connected|boolean|whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
+// 
+//  #### LED Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// led|object|LED control
+// 
+//  #### Mesh Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  mesh|object|mesh-related
+//  enabled|boolean|whether mesh is enabled on this AP, default is false
+//  role|string|base / remote
+//  group|int|mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
+// 
+//  #### Ports Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  disable_eth1|boolean|whether to disable eth1 port, default is false
+//  disable_eth2|boolean|whether to disable eth2 port, default is false
+//  disable_eth3|boolean|whether to disable eth3 port, default is false
+//  disable_module|boolean|whether to disable module port, default is false
+// 
+//  #### Power Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  poe_passthrough|boolean|whether to enable power out through module port (for APH) or eth1 (for APL/BT11), default is false
+//  pwr_config|object|power related configs
+//  base|int|additional power to request during negotiating with PSE over PoE, in mW, default is 0
+// 
+//  #### Port Parameters
+//  By default, configuration of the switch is automated/abstracted. If you have scenarios that cannot be covered, you can customize it here.
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  switch_config|object|switching-related
+//  enabled|boolean|default is false
+//  eth0|object|	port config for eth0, available ports are eth0 / eth1 / eth2 / eth3 (eth2 and eth3 only for AP12) / module (only for AP41 and AP61) / wds (only when mesh is enabled)
+//  vlan_ids|list|list of VLAN ids this
+//  port_vlan_id|int|native VLAN id, optional
+// 
+//  #### IoT Parameters
+//  Configuration of IoT pins. By default, all the pins are disabled
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  iot_config|object|IoT port configuration
+// name|string|optional; descriptive pin name
+// enabled|boolean|whether to enable a pin, default is false
+// value|boolean|output pin signal level, default 0
+// pullup|string|the type of pull-up the pin uses (internal, external, none), default none
+// DO|object|Digital Output pin settings, value can be 0 / 1
+// DI1|object|Digital Input-1 pin settings
+// DI2|object|Digital Input-2 pin settings
+// A1|object|Analog Input pin settings
+// A2|object|Analog Input pin settings
+// A3|object|Analog Input pin settings
+// A4|object|Analog Input pin settings
+// output|boolean|whether the pin is configured as an output. DO and A1-A4 can be repurposed by changing
+
+@name("createSiteDevice_AP")
+POST "https://{{host}}/api/v1/sites/:site_id/devices"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "conference room",
+    "notes": "slightly off center",
+    "map_id": "63eda950-c6da-11e4-a628-60f81dd250cc",
+    "x": 53.5,
+    "y": 173.1,
+    "orientation_overwrite": true,
+    "orientation": 45,
+    "height": 3,
+    "radio_config": {
+        "band_24": {
+            "disabled": false,
+
+            "channel": 0,
+            "bandwidth": 20,
+            "power": 1,
+            "antenna_mode": "1x1",
+            "allow_rrm_disable": false
+        },
+        "band_5": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 40,
+            "power": 0,
+            "antenna_mode": "default"
+        },
+        "ant_gain_24": 4,       // for models with external antenna
+        "ant_gain_5": 5,        // for models with external antenna
+
+        // for some AP models (e.g. AP43), 2.4G radio can operation in 5G band
+        "band_24_usage": "5",  // 24 (default) / auto
+        // if band_24_usage == "5", by default, band_5 properties is used, if specific channel/bandwidth/power/...
+        // is desired, use the following
+        "band_5_on_24_radio": {
+            "disabled": false,
+            "channel": 0,
+            "bandwidth": 40,
+            "power": 0,
+            "antenna_mode": "default"
+        },
+
+        "scanning_enabled": true
+    },
+    "ip_config": {
+        "type": "static",
+        "ip": "10.2.1.1",
+        "netmask": "255.255.255.0",
+        "gateway": "10.2.1.254",
+
+        "type6": "static",
+        "ip6": "2607:f8b0:4005:808::2004",
+        "netmask6": "/32",
+        "gateway6": "2607:f8b0:4005:808::1",
+
+        "dns": [ "8.8.8.8", "4.4.4.4" ],
+        "dns_suffix": [ ".mist.local", ".mist.com" ],
+        "vlan_id": 1,
+        "mtu": 0
+    },
+    "ble_config": {
+        "power_mode": "custom",
+        "power": 10,
+        "beacon_enabled": true,
+        "beacon_rate_mode": "custom",
+        "beacon_rate": 3,
+        "beam_disabled": [ 1, 3, 6 ],
+
+        // ibeacon
+        "ibeacon_enabled": true,
+        "ibeacon_uuid": "f3f17139-704a-f03a-2786-0400279e37c3",
+        "ibeacon_major": 13,
+        "ibeacon_minor": 138,
+        "ibeacon_adv_power": -65,
+        "ibeacon_beams": "2-4,7",  // or \'default\' to auto-set
+
+        "eddystone_uid_enabled": false,
+        "eddystone_uid_namespace": "2818e3868dec25629ede",
+        "eddystone_uid_instance": "5c5b35000001",
+        "eddystone_uid_freq_msec": 200,
+        "eddystone_uid_adv_power": -65,
+        "eddystone_uid_beams": "2-4,7",  // or \'default\' to auto-set
+
+        "eddystone_url_enabled": false,
+        "eddystone_url_url": "https://www.abc.com",
+        "eddystone_url_freq_msec": 1000,
+        "eddystone_url_adv_power": -65,
+        "eddystone_url_beams": "2-4,7"  // or \'default\' to auto-set
+    },
+    "usb_config": {
+        "enabled": true,
+        "type": "imagotag",
+        "host": "1.1.1.1",
+        "channel": 3,
+        "port": 0,
+        "verify_cert": false,
+        "cacert": ""
+    },
+    "aeroscout": {
+        "enabled": true,
+        "host": "aero.pvt.net",
+        "locate_connected": true
+    },
+    "led": {
+        "enabled": true,
+        "brightness": 255
+    },
+    "mesh": {
+        "enabled": true,
+        "role": "base",
+        "group": 0
+    },
+
+    "port_config": {
+        // eth0 is not allowed here
+        // if spcified, this takes predecence over switch_config (deprecated)
+        "eth1,eth2": {
+            "forwarding": "all",  // all (vlans as eth0) / limited / wxtunnel / mxtunnel / site_mxedge 
+
+            // if forwrding == limited
+            "vlan_ids": [1, 10, 50],
+            "port_vlan_id": 1,
+
+            // if forwarding == wxtunnel, the port is bridged to the vlan of the session
+            "wxtunnel_id": "7dae216d-7c98-a51b-e068-dd7d477b7216",
+            "wxtunnel_remote_id": "wifiguest",
+
+            // if forwarding == mxtunnel, vlan_ids comes from mxtunnel
+            "mxtunnel_id": "08cd7499-5841-51c8-e663-fb16b6f3b45e",
+            // optional to specify the vlan id for a tunnel if forwarding is for wxtunnel, mxtunnel and site_mxedge.
+            // if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel
+            "vlan_id": 9,
+
+            // if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
+            "mxtunnel_name": "default",
+            "vlan_id": 9, // optional
+
+            // other common attributes
+
+            // whether to do port auth
+            "port_auth": "dot1x",  // none (default)
+            "enable_mac_auth": true,
+
+            // whether simply disabled
+            "disabled": false,
+
+            // site setting will be used unless overwriten here
+            "radius_config": {
+                // if per-device overwrite is desired. see site setting for schema
+            },
+            // or radsec can be used
+            "radsec": {
+                "enabled": true,
+
+                // either specific the list of radsec servers    
+                "server_name": "radsec.abc.com",
+                "servers": [
+                    {
+                        "host": "1.1.1.1",
+                        "port": 1812
+                    },
+                    {
+                        "host": "radsec",
+                        "port": 1812
+                    }
+                ],
+
+                // or forwarding = mxtunnel or site_mxedge, mxedge can be used as radsecproxy
+                "use_mxedge": true
+            },
+
+            // optional dynamic vlan
+            "dynamic_vlan": {
+                "enabled": true,
+                "type": "standard",
+                "vlans": {
+                    "1-10": null,
+                    "user": null
+                },
+                "default_vlan_id": 999
+            }            
+        }
+    },
+
+    // for people who want to fully control the vlans (advanced)
+    "switch_config": {
+        "enabled": true,
+        "eth0": {
+            "vlan_ids": [ 1, 3055 ],
+            "port_vlan_id": 1
+        }
+    },
+    "iot_config": {
+        "DO": {
+            "enabled": true,
+            "value": 1
+        },
+        // \'DI1\', \'DI2\' pins can only be configured as inputs with an external pull-up
+        "DI1": {
+            "name": "motion",
+            "enabled": true
+        },
+        "A1": {
+            "name": "pulled-up analog",
+            "enabled": true
+        }
+    },
+    "disable_eth1": false,
+    // disable_eth2 and disable_eth3 are applied for some specific models, e.g. AP12
+    "disable_eth2": false,
+    "disable_eth3": false,
+    "disable_module": false,
+    "poe_passthrough": false,
+    "pwr_config": {
+        "base": 2000
+    },
+
+    "vars": {
+        "RADIUS_SECRET": "11s64632d",
+        "RADIUS_IP1": "172.31.2.5"
+    },
+
+    "ntp_servers": [], // optional
+
+    "deviceprofile_id": "6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9", 
+
+    "image1_url": "https://url/to/image.png"
+}')
+
+
+// #### Switch-specific Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// role|string|access / aggregation, default is access
+// ip_config|object|ip config (for irb)
+// oob_ip_config|object|OOB management ip settings (i.e. for vme)
+// port_config|object|port configs
+// ntp_servers|list|list of NTP servers specific to this device. By default, those in Site Settings will be used
+// radius_config|object|per-switch radius_config overwrite, optional
+// managed|bool|default is false, for an adopted switch, we don’t overwrite their existing configs automatically
+// disable_auto_config|bool|default is false, for a claimed switch, we control the configs by default. This option (disables the behavior)configured Guest Authorization Expiration time period (in minutes), If not configured then default (1 day in minutes)
+// 
+// #### Switch IP Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ip_config|object|ip config
+// type|string|static / dhcp (default)
+// ip|string|required if type==static
+// netmask|string|required if type==static
+// gateway|string|required if type==static
+// dns|list|required if type==static
+// dns_suffix|list|if type==static
+// vlan_id|int|management vlan id, default is 1 (untagged)
+// 
+// #### OSPF Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// router_id|string|router-id used for OSPF/ BGP, required if ospf_config.enabled=true
+// ospf_config|object|OSPF config
+// enabled|boolean|whether to rung OSPF on this device
+// areas|object|OSPF areas to run on this device and the corresponding per-area-specific configs
+// no_summary|boolean|for a stub/nssa area, where to avoid forwarding type-3 LSA to this area
+// 
+// #### Extra Routes Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// extra_routes|object|key is the dest
+// via|string|next-hop
+
+@name("createSiteDevice_Switch")
+POST "https://{{host}}/api/v1/sites/:site_id/devices"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "corp-a135",
+    "role": "access",  // switch role
+    "notes": "slightly off center",
+
+    "ip_config": {
+        // the default l3 interface of the switch
+        "type": "static",
+        "ip": "10.2.1.10",
+        "netmask": "255.255.255.0",
+        "gateway": "10.2.1.254",
+
+        "dns": [ "8.8.8.8", "4.4.4.4" ],
+        "dns_suffix": [ ".mist.local", ".mist.com" ],
+        "network": "default"  // the mgmt IP interface for the switch
+    },
+    "oob_ip_config": {
+        // out-of-band (vme) IP config
+        // same payload as `ip_config` except dns / dns_suffix / gateway
+    },
+
+    // most of the time, it\'s better to use `port_usages` and `networks` in Site Setting to achieve better consistency
+    // and be able to re-use the same settings across switches
+    // entries defined here will "replace" those defined in Site Setting/Network Template
+    "networks": {
+        "guest": {
+            "vlan_id": 300,
+            "ospf_passive": true
+        }
+    },
+
+    "other_ip_configs": {
+        // optional, if it\'s required to have switch\'s L3 presense on a network/vlan 
+        "guest": {
+            "type": "static",
+            "ip": "10.3.3.1",
+            "netmask": "255.255.255.0"  // optional, `sunbet` from `network` definition will be used if defined  
+        }
+    },
+    "ntp_servers": [
+        "pool.ntp.org",
+        "time.google.com"
+    ],
+    // global dns settings. To keep compatibility, dns settings in ip_config and oob_ip_config
+    // will overwrite this setting
+    "dns_servers": [ "8.8.8.8", "4.4.4.4" ],
+    "dns_suffix": [ ".mist.local", ".mist.com" ],
+
+    "port_config": {
+        "ge-0/0/0": {
+            "usage": "uplink",
+
+            // if aggregated
+            "aggregated": true,
+            "ae_idx": 1,                    // optional. Users could force to use the designated AE name
+            "ae_disable_lacp": true,        // optional. To disable LCP support for the AE interface
+            "description": "to dist-sw-01", // optional
+
+            // for esilag
+            "esilag": true
+        },
+      "ge-0/0/1": {
+            "usage": "default",
+            // Enable dynamic usage for this port
+            "dynamic_usage": "dynamic"
+        },
+        "ge-0/0/8-16,ge-1/0/0-47": {
+            "usage": "ap"
+        },
+
+        "ge-0/0/2-3": {
+            "usage": "evpn_uplink"
+        },
+
+        "ge-0/0/4": {
+            "usage": "inet",
+            "port_network": "guest"
+
+            // optional
+            // speed, duplex, disable_autoneg, mtu, poe_disabled            
+        },
+
+        // this is assumed
+        "*": {
+            "usage": "default"
+        }
+    },
+
+    // static routes
+    "extra_routes": {
+        "it_mgmt": {   // use names from `networks`
+            "via": "10.2.1.1"
+        },
+        "172.16.3.0/24": {
+            "via": "10.2.1.1"
+        }
+    },
+
+    // used for ospf / bgp / ...
+    "router_id": "10.2.1.10",
+
+    // to enable OSPF on this device
+    "ospf_config": {
+        "enabled": true,
+        "areas": {
+            "0": {
+                "no_summary": false
+            }
+        }
+    },
+
+    // to enable VRRP on this device
+    "vrrp_config": {
+        "enabled": true,
+        "groups": {
+            "0": {
+                // optional
+                "priority": 200
+            }
+        }
+    },
+
+    "vrf_config": {
+        "enabled": true  // whether to enable VRF (when supported on the device)
+    },
+
+    // EVPN
+    // for a core
+    "evpn_config": {
+        "enabled": true,
+        "role": "core",
+
+        "evpn_id": 5,  // unique / generated
+        "downlinks": [ "c0a811000003", "c0a811000004", "c0a811000005" ],
+        "downlink_ips": [ "1", "2", "3"]
+    },
+    "port_config": {
+        "xe-0/0/0-3": {
+            "usage": "evpn_downlink"
+        }
+    },
+    // aggr1
+    "evpn_config": {
+        "enabled": true,
+        "role": "aggregation",        
+        "pod": 1,  // default is 1
+
+        "evpn_id": 3,  // unique / generated
+        "uplinks": [ "c0a811000005", "c0a811000006" ],
+        "downlinks": [ "c0a811000001", "c0a811000002" ],
+        "downlink_ips": [ "7", "8" ]
+    },
+    "port_config": {
+        "xe-0/0/0-1": {
+            "usage": "evpn_uplink"
+        },
+        "xe-0/0/4-5": {
+            "usage": "evpn_downlink"
+        }
+    },          
+
+    // optional, most of the times, `radius_config` comes from Site Settings; however, there are occasions where 
+    // we may want to try experimental radius servers
+    "radius_config": {
+        "auth_servers_timeout": 5,
+        "auth_servers_retries": 3,
+        "auth_servers": [
+            {
+                "host": "1.2.3.4",
+                "port": 1812,
+                "secret": "testing123"
+            },
+            {
+                "host": "radius.internal",
+                "port": 1812,
+                "secret": "testing123"
+            }
+        ],
+        "acct_servers": [
+            {
+                "host": "1.2.3.4",
+                "port": 1812,
+                "secret": "testing123"
+            }
+        ],
+        "acct_interim_interval": 0
+    },
+
+    // for an adopted switch, this can be enabled to make it fully-managed by mist
+    "managed": false,
+
+    // for a claimed switch, this can disable auto configuration
+    "disable_auto_config": false,
+
+    // additional CLI commands to append to the generated config
+    // NOTE: no check is done
+    "additional_config_cmds": [
+        "set snmp community public"
+    ],
+
+    "vars": {
+        "RADIUS_SECRET": "11s64632d",
+        "RADIUS_IP1": "172.31.2.5"
+    },
+    "deviceprofile_id": "6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9",
+    "image1_url": "https://url/to/image.png"
+}')
+
+
+@name("createSiteDevice_Gateway_DRAFT_")
+POST "https://{{host}}/api/v1/sites/:site_id/devices"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "corp-a135",
+    // gateways use/share `networks` that switches uses 
+    "networks": {
+        // see site setting
+    },
+    "port_config": {
+        "ge-0/0/0": {
+            "usage": "wan",
+            "ip_config": {
+                "type": "dhcp"
+            }
+        },
+        "ge-0/0/7": {
+            "usage": "wan", // secondary WAN
+            "ip_config": {
+                "type": "static"
+            }
+        },
+        "cl-0/0/1": {
+            "usage": "wan", // secondary WAN
+            "wan_config": {
+                // only used when all other links are down
+                "backup_only": true
+            },
+            "ip_config": {
+                "type": "pppoe"
+            }
+        },
+        "ge-0/0/1-5": {
+            "usage": "lan"
+        },
+        // in case of HA
+        "ge-0/0/0,ge-7/0/0": {
+            "usage": "wan",
+            "clustered": true,
+            "reth_idx": 3,
+            "ip_config": {}
+        }
+    },
+    "ip_configs": {
+        "corp": {
+            "type": "static",
+            "ip": "192.168.10.1"
+        }
+    },
+    "dhcpd_config": {
+        "enabled": true,
+        "corp": {
+            "type": "local", // default
+            "ip_start": "192.168.70.100",
+            "ip_end": "192.168.70.200",
+            "gateway": "192.168.70.1",
+            // optional, system one will be used
+            "dns_servers": [
+                "8.8.8.8",
+                "4.4.4.4"
+            ],
+            "dns_suffix": [
+                ".mist.local",
+                ".mist.com"
+            ],
+            // fixed binding
+            "fixed_bindings": {
+                "5684dae9ac8b": {
+                    "name": "John",
+                    "ip": "192.168.70.35"
+                }
+            },
+            // if using DHCP relay
+            "type": "relay",
+            "servers": [
+                "11.2.3.4"
+            ]
+        }
+    },
+    "extra_routes": {
+        "0.0.0.0/0": {
+            "via": "10.2.1.1"
+        }
+    },
+    "oob_ip_config": {
+        // fxp0 IP config
+        "type": "static",
+        "ip": "192.168.50.3",
+        "netmask": "255.255.255.0"
+    },
+    "ntp_servers": [
+        "pool.ntp.org",
+        "time.google.com"
+    ],
+    // for an adopted gateway/switches, this can be enabled to make it fully-managed by mist
+    "managed": false,
+    // additional CLI commands to append to the generated config
+    // NOTE: no check is done
+    "additional_config_cmds": [
+        "set snmp community public"
+    ],
+    "vars": {
+        "RADIUS_SECRET": "11s64632d",
+        "RADIUS_IP1": "172.31.2.5"
+    },
+    "deviceprofile_id": "6f4bf402-45f9-2a56-6c8b-7f83d3bc98e9",
+    "image1_url": "https://url/to/image.png"
+}')
+
+
+@name("updateSiteDevice")
+PUT "https://{{host}}/api/v1/sites/:site_id/devices/:device_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "conference room"
+})
+
+
+@name("deleteSiteDevice")
+DELETE "https://{{host}}/api/v1/sites/:site_id/devices/:device_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+//  #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  version|string|default is stable
+//  
+//   #### Body Response
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  timestamp|float|timestamp
+//  status|string|starting / inprogress / success / error / scheduled
+//  status_id|int|the internal status id
+
+@name("upgradeSiteDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/upgrade"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "version": "3.1.5"
+})
+
+
+//  #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  version|string|default is stable
+//  enable_p2p|boolean|whether to allow local 1P-to-AP FW upgrade
+//  device_ids|array|list of the AP ids to upgrade
+//  models|array|if device_ids not provided, list of hardware to upgrade
+//  
+//   #### Body Response
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  timestamp|float|timestamp
+//  status|string|starting / inprogress / success / error / scheduled
+//  status_id|int|the internal status id
+
+@name("multiUpgradeSiteDevices")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/upgrade"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "version": "3.1.5",
+    "enable_p2p": false,
+    "models": [
+        "AP41"
+    ]
+})
+
+
+@name("getSiteDeviceConfig")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/:device_id"
+
+
+@name("countSiteDeviceLastConfig")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/last_config/count"
+
+
+@name("searchSiteDeviceLastConfigs")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/last_config/search"
+
+
+@name("countSiteDeviceConfigHistory")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/config_history/count"
+
+
+@name("searchSiteDeviceConfigHistory")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/config_history/search"
+
+
+// model	string	AP model (as seen in the device stats)
+// version	string	firmware version
+// tag	string	annotation, stable / beta / alpha. Or it can be empty or nothing which is likely a dev build
+
+@name("getSiteAvailableDeviceVersions")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/versions"
+
+
+//  #### Query Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// country_code|string|country code for the site (for AP config generation), in two-character
+
+@name("getSiteDeviceRadioChannels")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/ap_channels"
+? "country_code"= "{{country_code}}"
+
+
+// For a brown-field switch deployment where we adopted the switch through Adoption Command, we do not wipe out / overwrite the existing config automatically. Instead, we generate CLI commands that we would have generated. The user can inspect, modify, and incorporate this into their existing config manually.
+// 
+// Once they feel comfortable about the config we generate, they can enable allow_mist_config where we will take full control of their config like a claimed switch
+
+@name("getSiteDeviceConfigCmd")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/:deivce_id/config_cmd"
+
+
+// Returns the current state of each enabled IoT pin configured as an output.
+// 
+
+@name("getSiteDeviceIotPort")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/iot"
+
+
+// To download the exported device information
+// 
+
+@name("exportSiteDeviceInformation")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/export"
+
+
+@name("countSiteDeviceEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/events/count"
+
+
+@name("searchSiteDeviceEvents")
+GET "https://{{host}}/api/v1/sites/:site_id/devices/events/search"
+
+
+@name("countSiteJunosPorts")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/switch_ports/count"
+
+
+// #### Filter Options
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// full_duplex|boolean|indicates full or half duplex
+// mac|string|device identifier
+// neighbor_mac|string|Chassis identifier of the chassis type listed
+// neighbor_port_desc|string|Description supplied by the system on the interface E.g. “GigabitEthernet2/0/39”
+// neighbor_system_name|string|Name supplied by the system on the interface E.g. neighbor system name E.g. “Kumar-Acc-SW.mist.local”
+// poe_disabled|boolean|is the POE configured not be disabled.
+// poe_mode|string|poe mode depending on class E.g. “802.3at”
+// poe_on|boolean|is the device attached to POE
+// port_id|string|interface name
+// port_mac|string|interface mac address
+// power_draw|float|Amount of power being used by the interface at the time the command is executed. Unit in watts.
+// tx_pkts|int|Output packets
+// rx_pkts|int|Input packets
+// tx_bytes|int|Output bytes
+// rx_bytes|int|Input bytes
+// tx_bps|int|Output rate
+// rx_bps|int|Input rate
+// tx_errors|int|Output errors
+// rx_errors|int|Input errors
+// tx_mcast_pkts|int|Multicast output packets
+// tx_bcast_pkts|int|Broadcast output packets
+// rx_mcast_pkts|int|Multicast input packets
+// rx_bcast_pkts|int|Broadcast input packets
+// speed|int|port speed
+// mac_limit|int|Limit on number of dynamically learned macs
+// mac_count|int|Number of mac addresses in the forwarding table
+// up|boolean|indicates if interface is up
+// stp_state|string|if up == true, forwarding / blocking / learning / listening / disabled
+// stp_role|string|if up == true, designated / backup / alternate / root / root-prevented
+// auth_state|string|if up == true && has Authenticator role, init / authenticated / authenticating / held
+
+@name("searchSiteJunosPorts")
+GET "https://{{host}}/api/v1/sites/:site_id/stats/ports/search"
+
+
+// Note: For each IoT pin referenced… 
+// 1. The pin must be enabled using the Device ‘iot_config’ API 
+// 2. The pin must support the output direction
+// 
+
+@name("setSiteDeviceIotPort")
+PUT "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/iot"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "DO": 0,
+    "A1": 1
+})
+
+
+@name("addSiteDeviceImage")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/:image_name"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+@name("deleteSiteDeviceImage")
+DELETE "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/:image_name"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+@name("startSiteLocateDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/locate"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+@name("stopSiteLocateDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/unlocate"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+@name("restartSiteDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/restart"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+
+@name("multiRestartSiteDevices")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/restart"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "device_ids": [
+        "00000000-0000-0000-1000-5c5b35584a6f",
+        "00000000-0000-0000-1000-5c5b350ea3b3"
+    ]
+})
+
+
+// Support / Upload device support files
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// info|string|optional choice: process, outbound-ssh, and full (default)
+
+@name("uploadSiteDeviceSupportFile")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/support"
+json({
+    "info": "process"
+})
+
+
+// To force all APs to reprovision itself again. 
+
+@name("reprovisionSiteAllAps")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/reprovision"
+
+
+// Zeroize all FIPS APs in the Site
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// password|string|FIPS zeroize password
+
+@name("zeroizeSiteFipsAllAps")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/zerioze"
+json({
+    "password": "NUKETHESITE"
+})
+
+
+// This API can be used to poll statistics from the Switch proactively once. After it is called, the statistics will be pushed back to the cloud within the statistics interval.
+
+@name("pollSiteSwitchStats")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/poll_stats"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// info|string|optional: `process`, `outbound-ssh`, `messages`, and `full` (default)
+// num_messages_files|int|optional: number of most recent messages files to upload, default is 1, max is 10
+// 
+// 
+// #### Info Param
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// process|string|Upload 1 file with output of show system processes extensive
+// outbound-ssh|string|Upload 1 file that concatenates all /var/log/outbound-ssh.log* files
+// messages|string|Upload 1 to 10 /var/log/messages* files
+// core-dumps|string|Upload all core dump files, if any
+// full|string|Upload 1 file with output of request support information, 1 file that concatenates all /var/log/outbound-ssh.log files, all core dump files, and the 3 most recent /var/log/messages files
+
+@name("uploadSiteDeviceSupportFiles")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/support"
+json({
+    "info": "process"
+})
+
+
+

@@ -1,0 +1,826 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation returns a list of clients.
+// 
+// [_For all application Types_](http://documentation.commvault.com/commvault/v11/article?p=48680.htm)
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_client.htm)
+
+@name("Client")
+GET "https://{{ServerUrl}}/Client"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation returns a client Id
+// 
+// <p>&nbsp;</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">clientName</p>
+// </td>
+// <td>
+// <p class="tabletext">Name of the client(URL Encoded)</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">agent</p>
+// </td>
+// <td>
+// <p class="tabletext">Name of the Agent(URL Encoded)</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">instanceName</p>
+// </td>
+// <td>
+// <p class="tabletext">Instance Name(URL Encoded)</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">backupset</p>
+// </td>
+// <td>
+// <p class="tabletext">Backupset Name(URL Encoded)</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">subclient</p>
+// </td>
+// <td>
+// <p class="tabletext">Subclient Name(URL Encoded)</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_For all Agent Names_](http://documentation.commvault.com/commvault/v11/article?p=45467.htm#o99081)
+
+@name("Client Id")
+GET "https://{{ServerUrl}}/GetId"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "clientname"= "{{clientName}}"
+
+
+// <h2>Description</h2>
+// This operation returns a list of clients with Distributed App Type Filter
+// 
+// <p>&nbsp;</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">clusterType</p>
+// </td>
+// <td>
+// <p class="tabletext">Cluster Types</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">2, Hadoop</li>
+// <li class="listbullet">5, WINFS</li>
+// <li class="listbullet">8, MongoDB</li>
+// <li class="listbullet">9, Cassandra</li>
+// <li class="listbullet">12, HACCluster</li>
+// <li class="listbullet">14, IndexStorePool</li>
+// <li class="listbullet">15, IndexServer</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Clients - DistributedApps")
+GET "https://{{ServerUrl}}/Client/DistributedApps"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "clusterType"= "WINFS"
+
+
+// <h2>Description</h2>
+// This operation returns the properties associated with a client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_client_properties.htm)
+
+@name("Client Properties")
+GET "https://{{ServerUrl}}/Client/{{clientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// Performs check readiness on the a given client.
+
+@name("Client Check Readiness")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/CheckReadiness"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "network"= "true"
+? "resourceCapacity"= "true"
+? "includeDisabledClients"= "true"
+? "NeedXmlResp"= "true"
+? "ApplicationReadinessOption"= "1"
+
+
+// <h2>Description</h2>
+// This operation restarts services on a client
+
+@name("Services Restart")
+POST "https://{{ServerUrl}}/Services/Action/Restart"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "action": 2,
+    "client": {
+        "clientName": "yashgdprnextgen"
+    },
+    "services": {
+        "allServices": true
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation browses the content within a client.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">path</p>
+// </td>
+// <td>
+// <p class="tabletext">Path to browse (in Url Encoded format)</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Client Browse")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/browseFS"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "path"= "C:"
+? "foldersOnly"= "false"
+
+
+
+// <h2>Description</h2>
+// This Request returns virtualization clients.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_client.htm)
+
+@name("Client - Virtualization Clients")
+GET "https://{{ServerUrl}}/Client"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "PseudoClientType"= "VSPseudo"
+
+
+
+// <h2>Description</h2>
+// This operation returns a list of additional settings at the client level.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_client_additional_settings.htm)
+
+@name("Client Additional Settings")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/AdditionalSettings"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns clients count.
+
+@name("Clients count")
+GET "https://{{ServerUrl}}/clients/count"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "type"= "fileserver,vm,laptop"
+
+
+// <h2>Description</h2>
+// This operation updates the properties associated with a client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_client_properties.htm)
+
+@name("Client Properties")
+POST "https://{{ServerUrl}}/Client/{{clientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "clientProperties": {
+    "client": {
+      "clientDescription": "client-level description modified with rest api POST client"
+    }
+  },
+  "association": {
+    "entity": [
+      {
+        "clientName": "{{clientName}}"
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation sets additional settings at the client level.
+
+@name("Client Additional Settings")
+POST "https://{{ServerUrl}}/Client/{{clientId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "clientProperties": {
+        "clientProps": {
+            "registryKeys": [
+                {
+                    "deleted": 0,
+                    "hidden": false,
+                    "relativepath": "CommServDB.GxGlobalParam",
+                    "keyName": "ThrottleJobsFeature",
+                    "isInheritedFromClientGroup": false,
+                    "comment": "a",
+                    "type": "INTEGER",
+                    "value": "1",
+                    "passwordVal": "",
+                    "enabled": 1,
+                    "sourceEntity": {
+                        "_type_": 0
+                    }
+                }
+            ]
+        }
+    }
+}
+')
+
+
+// <h2>Description</h2>
+// This operation updates software on the client.
+
+@name("Client Update Software")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "taskInfo": {
+    "task": {
+      "taskType": 1
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskType": 1,
+          "operationType": 4020
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "ignoreRunningJobs": true,
+              "rebootClient": false,
+              "clientAndClientGroups": [
+                {
+                  "clientSidePackage": true,
+                  "clientId": {{clientId}},
+                  "consumeLicense": true
+                }
+              ],
+              "clientId": [
+                {{clientId}}
+              ],
+              "installUpdatesJobType": {
+                "installUpdates": true
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation creates a Pseudo Client.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">clientType</p>
+// </td>
+// <td>
+// <p class="tabletext">Type of Pseudo Client.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">0, Windows</li>
+// <li class="listbullet">1, Unix</li>
+// <li class="listbullet">2, NAS</li>
+// <li class="listbullet">3, Oracle RAC</li>
+// <li class="listbullet">4, DB2 MultiNode</li>
+// <li class="listbullet">5,&nbsp;SRM NetWare Server</li>
+// <li class="listbullet">6,&nbsp;SRM Oracle Database</li>
+// <li class="listbullet">7,&nbsp;SRM NAS Filer</li>
+// <li class="listbullet">8,&nbsp;Exchange DAG</li>
+// <li class="listbullet">9,&nbsp;SAP Archive Link</li>
+// <li class="listbullet">10, Windows Cluster Client</li>
+// <li class="listbullet">11, Unix Cluster Client</li>
+// <li class="listbullet">12,&nbsp;Virtualization</li>
+// <li class="listbullet">13,&nbsp;OpenVMS</li>
+// <li class="listbullet">14,&nbsp;Reference Copy</li>
+// <li class="listbullet">15,&nbsp;Cloud Connector</li>
+// <li class="listbullet">16,&nbsp;SAP HANA</li>
+// <li class="listbullet">17,&nbsp;IBM i</li>
+// <li class="listbullet">18,&nbsp;Non NDMP Filer</li>
+// <li class="listbullet">19,&nbsp;Edge Drive</li>
+// <li class="listbullet">20,&nbsp;MSSQL AG</li>
+// <li class="listbullet">21,&nbsp;Remote Client</li>
+// <li class="listbullet">22,&nbsp;Mobile Device</li>
+// <li class="listbullet">23,&nbsp;Windows Tape Import</li>
+// <li class="listbullet">24,&nbsp;Unix Tape Import</li>
+// <li class="listbullet">25,&nbsp;Exchange Mailbox</li>
+// <li class="listbullet">26,&nbsp;Notes OnePass</li>
+// <li class="listbullet">27,&nbsp;SharePoint Farm</li>
+// <li class="listbullet">28,&nbsp;Distributed File System</li>
+// <li class="listbullet">29,&nbsp;Distributed Ida</li>
+// <li class="listbullet">30,&nbsp;User Centric client</li>
+// <li class="listbullet">31,&nbsp;Exchange client</li>
+// <li class="listbullet">32,&nbsp;Solr Backup client</li>
+// <li class="listbullet">33,&nbsp;Oracle Dataguard</li>
+// <li class="listbullet">35,&nbsp;DB Thin Client</li>
+// <li class="listbullet">36,&nbsp;Case Manager Client</li>
+// <li class="listbullet">37,&nbsp;Office 365 Client</li>
+// <li class="listbullet">38,&nbsp;Azure AD Client</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Create Pseudo Client")
+POST "https://{{ServerUrl}}/pseudoClient"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "registerClient": false,
+  "clientInfo": {
+    "clientType": 10,
+    "openVMSProperties": {
+      "cvdPort": 0
+    },
+    "ibmiInstallOptions": {}
+  },
+  "entity": {
+    "hostName": "test_clientHostName",
+    "clientName": "clientName"
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation creates a test client which could be deleted using Delete Client operation later.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_execute_qcommand.htm)
+
+@name("Create Test Client")
+POST "https://{{ServerUrl}}/ExecuteQCommand"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "command": [
+        "qoperation execute"
+    ],
+    "inputRequestXML": [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n<App_CreatePseudoClientRequest>\n\n  <clientInfo>\n    <clientType>WINDOWS</clientType>\n    <openVMSProperties>\n      <cvdPort>0</cvdPort>\n    </openVMSProperties>\n    <ibmiInstallOptions/>\n  </clientInfo>\n\n  <entity>\n    <clientName>dummyclient</clientName>\n    <hostName>dummyclient</hostName>\n  </entity>\n\n  <registerClient>false</registerClient>\n\n</App_CreatePseudoClientRequest>\n"
+    ]
+})
+
+
+// <h2>Description</h2>
+// Allows you to install a new Windows or Unix client with the required agent and packages needed. This is effecient when compared to the CreateTask API by allowing you to create a PseudoClient first, associate plan and content to it and push install the packages to it. Allowing administrators to do the required configuration without having to wait for the Installation of package to complete and show up in Command Center. 
+// 
+// </br>
+// <b>Minimum supported SP:  SP18</b> </br>
+// 
+// API does not support parameters in request URL
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>ClientInfo</td>
+// <td>
+// <ol start="1">
+// <li>clientType
+// 
+// <p class="tabletext">list of supported client types:</p>
+// 
+// <ul class="listbullet">
+// <li class="listbullet">0, Windows</li>
+// <li class="listbullet">1, Unix</li>
+// <li class="listbullet">2, NAS</li>
+// <li class="listbullet">3, Oracle RAC</li>
+// <li class="listbullet">4, DB2 MultiNode</li>
+// <li class="listbullet">5,&nbsp;SRM NetWare Server</li>
+// <li class="listbullet">6,&nbsp;SRM Oracle Database</li>
+// <li class="listbullet">7,&nbsp;SRM NAS Filer</li>
+// <li class="listbullet">8,&nbsp;Exchange DAG</li>
+// <li class="listbullet">9,&nbsp;SAP Archive Link</li>
+// <li class="listbullet">10, Windows Cluster Client</li>
+// <li class="listbullet">11, Unix Cluster Client</li>
+// <li class="listbullet">12,&nbsp;Virtualization</li>
+// <li class="listbullet">13,&nbsp;OpenVMS</li>
+// <li class="listbullet">14,&nbsp;Reference Copy</li>
+// <li class="listbullet">15,&nbsp;Cloud Connector</li>
+// <li class="listbullet">16,&nbsp;SAP HANA</li>
+// <li class="listbullet">17,&nbsp;IBM i</li>
+// <li class="listbullet">18,&nbsp;Non NDMP Filer</li>
+// <li class="listbullet">19,&nbsp;Edge Drive</li>
+// <li class="listbullet">20,&nbsp;MSSQL AG</li>
+// <li class="listbullet">21,&nbsp;Remote Client</li>
+// <li class="listbullet">22,&nbsp;Mobile Device</li>
+// <li class="listbullet">23,&nbsp;Windows Tape Import</li>
+// <li class="listbullet">24,&nbsp;Unix Tape Import</li>
+// <li class="listbullet">25,&nbsp;Exchange Mailbox</li>
+// <li class="listbullet">26,&nbsp;Notes OnePass</li>
+// <li class="listbullet">27,&nbsp;SharePoint Farm</li>
+// <li class="listbullet">28,&nbsp;Distributed File System</li>
+// <li class="listbullet">29,&nbsp;Distributed Ida</li>
+// <li class="listbullet">30,&nbsp;User Centric client</li>
+// <li class="listbullet">31,&nbsp;Exchange client</li>
+// <li class="listbullet">32,&nbsp;Solr Backup client</li>
+// <li class="listbullet">33,&nbsp;Oracle Dataguard</li>
+// <li class="listbullet">35,&nbsp;DB Thin Client</li>
+// <li class="listbullet">36,&nbsp;Case Manager Client</li>
+// <li class="listbullet">37,&nbsp;Office 365 Client</li>
+// <li class="listbullet">38,&nbsp;Azure AD Client</li>
+// <li class="listbullet">39,&nbsp;VIRTUAL MACHINE CLIENT</li>
+// <li class="listbullet">40,&nbsp;AZURE SQL CLIENT </li>
+// <li class="listbullet">41,&nbsp;AMAZON SQL CLIENT</li>
+// <li class="listbullet">42,&nbsp;DISTRIBUTED SYSTEM CLIENT</li>
+// </ul>
+// </li>
+// 
+// <li>PlanId
+// <p class="tabletext">If you want to associate a plan to the existing/new client</p>
+// 
+// </li>
+// 
+// <li>Subclient info
+// 
+// <p class="tabletext">If you want your custom content to be defined overriding the plan content. Should set the “UseLocalContent” attribute to true to honour the content passed in subclient info</p>
+// 
+// </li>
+// </ol>
+// 
+// </td>
+// </tr>
+// <tr>
+// <td>Packages</td>
+// <td>
+// Pass the list of packages that needs to be installed<br />
+// 
+// <ul class="listbullet">
+// <li class="listbullet">1, File System Core</li>
+// <li class="listbullet">2, Base Seed</li>
+// <li class="listbullet">20, CommServe</li>
+// <li class="listbullet">22, CommCell Explorer</li>
+// <li class="listbullet">23, Workflow Engine</li>
+// <li class="listbullet">24,&nbsp;Commserve Failover</li>
+// <li class="listbullet">51,&nbsp;MediaAgent</li>
+// <li class="listbullet">54,&nbsp;MediaAgent Core</li>
+// <li class="listbullet">55,&nbsp;Index Store</li>
+// <li class="listbullet">101,&nbsp;SharePoint iDataAgent</li>
+// <li class="listbullet">102, SharePoint Archiver</li>
+// <li class="listbullet">151, Exchange</li>
+// <li class="listbullet">152,&nbsp;iDA for Exchange Mailbox</li>
+// <li class="listbullet">153,&nbsp;iDA for Exchange Public Folder</li>
+// <li class="listbullet">171,&nbsp;ContentStore Mail Server</li>
+// <li class="listbullet">201,&nbsp;iDA for Domino Database</li>
+// <li class="listbullet">251,&nbsp;Content Indexing Engine</li>
+// <li class="listbullet">252,&nbsp;Web Server</li>
+// <li class="listbullet">257,&nbsp;Search Engine</li>
+// <li class="listbullet">263,&nbsp;Indexing Server</li>
+// <li class="listbullet">351,&nbsp;iDA for DB2</li>
+// <li class="listbullet">352,&nbsp;iDA for Oracle</li>
+// <li class="listbullet">353,&nbsp;iDA for MSSQL Server</li>
+// <li class="listbullet">354,&nbsp;SAP on Oracle</li>
+// <li class="listbullet">355,&nbsp;SAP on MaxDB</li>
+// <li class="listbullet">453,&nbsp;VSS Provider</li>
+// <li class="listbullet">554,&nbsp;1-Touch Recovery</li>
+// <li class="listbullet">701,&nbsp;Commcell Console</li>
+// <li class="listbullet">702,&nbsp;File System</li>
+// <li class="listbullet">1101,&nbsp;UNIX File System</li>
+// <li class="listbullet">703,&nbsp;iDA for Active Directory</li>
+// <li class="listbullet">710,&nbsp;Media Explorer</li>
+// <li class="listbullet">713,&nbsp;VirtualServer Agent</li>
+// <li class="listbullet">719,&nbsp;Test Automation</li>
+// <li class="listbullet">726,&nbsp;Command Center</li>
+// <li class="listbullet">727,&nbsp;Metrics Reporting</li>
+// <li class="listbullet">732,&nbsp;Cloud Services</li>
+// <li class="listbullet">734,&nbsp;Office 365</li>
+// <li class="listbullet">754,&nbsp;CommvaultSDKForPython</li>
+// <li class="listbullet">801,&nbsp;Commserve DB</li>
+// <li class="listbullet">808,&nbsp;Workflow Engine DB</li>
+// <li class="listbullet">809,&nbsp;Metrics Reporting DB</li>
+// <li class="listbullet">952,&nbsp;MongoDB</li>
+// 
+// </ul>
+// </li>
+// 
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>ClientAuthForJob</td>
+// <td>
+// Pass the authentication info of the client for the packages to the installed. This is optional for existing clients.<br />
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>Entities</td>
+// <td>
+// Pass the list of client entities for which the packages has to be installed.<br />
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+
+@name("Install Client")
+POST "https://{{ServerUrl}}/InstallClient"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "rebootClient": false,
+    "createPseudoClientRequest": {
+        "registerClient": true,
+        "clientInfo": {
+            "clientType": 0,
+            "plan": {
+                "planId": 1
+            },
+            "subclientInfo": {
+                "fsSubClientProp": {
+                    "useGlobalFilters": "USE_CELL_LEVEL_POLICY",
+                    "backupSystemState": true
+                },
+                "useLocalContent": true,
+                "contentOperationType": 1,
+                "content": [
+                    {
+                        "path": "\\%Office%"
+                    },
+                    {
+                        "path": "D:\\adminconsole\\Webcontent"
+                    },
+                    {
+                        "path": "\\%Desktop%"
+                    },
+                    {
+                        "path": "\\%Documents%"
+                    },
+                    {
+                        "path": "\\%Music%"
+                    },
+                    {
+                        "path": "\\%Pictures%"
+                    },
+                    {
+                        "path": "\\%Videos%"
+                    },
+                    {
+                        "excludePath": "\\%Home%"
+                    },
+                    {
+                        "excludePath": "\\%Archives%"
+                    },
+                    {
+                        "excludePath": "\\%Cloud app%"
+                    },
+                    {
+                        "excludePath": "C:\\excludeContent"
+                    },
+                    {
+                        "includePath": "C:\\ExceptionContent"
+                    }
+                ]
+            }
+        }
+    },
+    "packages": [
+        {
+            "packageId": 702,
+            "packageName": "File System"
+        }
+    ],
+    "clientAuthForJob": {
+        "userName": "manoj\\administrator",
+        "password": "cXE="
+    },
+    "entities": [
+        {
+            "clientId": 0,
+            "clientName": "TestInstallClient1",
+            "hostName": "TestInstallClient1.manoj.com"
+        },
+        {
+            "clientId": 0,
+            "clientName": "TestInstallClient2",
+            "hostName": "TestInstallClient2.manoj.com"
+        }
+    ]
+}')
+
+
+// <h2>Description</h2>
+// Allows you to install packages to existing Windows or Unix clients with the required agent and packages needed. This allows you to associate plan and content to it and push install the packages if it doesn't exist in the client. 
+// 
+// </br>
+// 
+// <b>Minimum supported SP:  SP19</b>
+// 
+// [_More Details_](https://api.commvault.com/?version=latest#1fb3fec7-ef98-4bff-8f1c-48c6f1968aeb)
+
+@name("Install Client - Existing Client association with the agents and plans needed")
+POST "https://{{ServerUrl}}/InstallClient"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "rebootClient": false,
+    "createPseudoClientRequest": {
+        "registerClient": true,
+        "clientInfo": {
+            "clientType": 0,
+            "plan": {
+                "planId": 1
+            },
+            "subclientInfo": {
+                "fsSubClientProp": {
+                    "useGlobalFilters": "USE_CELL_LEVEL_POLICY",
+                    "backupSystemState": true
+                },
+                "useLocalContent": true,
+                "contentOperationType": 1,
+                "content": [
+                    {
+                        "path": "\\%Office%"
+                    },
+                    {
+                        "path": "D:\\UpdateAdminConsole\\Webcontent"
+                    },
+                    {
+                        "path": "\\%Desktop%"
+                    },
+                    {
+                        "path": "\\%Documents%"
+                    },
+                    {
+                        "path": "\\%Music%"
+                    },
+                    {
+                        "path": "\\%Pictures%"
+                    },
+                    {
+                        "path": "\\%Videos%"
+                    },
+                    {
+                        "excludePath": "\\%Home%"
+                    },
+                    {
+                        "excludePath": "\\%Archives%"
+                    },
+                    {
+                        "excludePath": "\\%Cloud app%"
+                    },
+                    {
+                        "excludePath": "C:\\excludeContent"
+                    },
+                    {
+                        "includePath": "C:\\ExceptionContent"
+                    }
+                ]
+            }
+        }
+    },
+    "packages": [
+        {
+            "packageId": 702,
+            "packageName": "File System"
+        }
+    ],
+    "clientAuthForJob": {
+        "userName": "manoj\\administrator",
+        "password": "cXE="
+    },
+    "entities": [
+        {
+            "clientId": 127,
+            "clientName": "Test3",
+            "hostName": "Test3.manoj.com"
+        },
+        {
+            "clientId": 128,
+            "clientName": "Test4",
+            "hostName": "Test4.manoj.com"
+        }
+    ]
+}')
+
+
+// <h2>Description</h2>
+// This operation releases the licenses and uninstalls the CommVault software on the client.
+// If no client backup data exists in the ContentStore, then it is deleted. Otherwise, the client is set to a deconfigured state for restore purposes.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=102030.htm)
+
+@name("Retire Client")
+DELETE "https://{{ServerUrl}}/Client/{{clientId}}/Retire"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation deletes a client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/delete_client.htm)
+
+@name("Client")
+DELETE "https://{{ServerUrl}}/Client/{{clientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// 
+// This operation forcefully deletes a client.
+
+@name("Force Delete Client")
+DELETE "https://{{ServerUrl}}/Client/{{clientId}}"
+"Authtoken": "{{TOKEN}}"
+? "forcedelete"= "true"
+
+
+

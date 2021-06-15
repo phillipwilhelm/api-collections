@@ -1,0 +1,191 @@
+#!/usr/bin/env dothttp
+
+@name("getOrgSecurityPolicies")
+GET "https://{{host}}/api/v1/orgs/:org_id/secpolicies"
+
+
+@name("getOrgSecurityPolicieDetails")
+GET "https://{{host}}/api/v1/orgs/:org_id/secpolicies/:secpolicy_id"
+
+
+// #### Body Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// ssid|string|the name of the SSID
+// enabled|boolean|if this wlan is enabled, default is True
+// auth|object|authentication/security policies
+// type|string|open / psk / wep / eap / psk-tkip / psk-wpa2-tkip, default is open
+// pairwise|list|when type=psk / eap, one of more of wpa2-ccmp / wpa1-tkip / wpa1-ccmp / wpa2-tkip, default is [wpa2-ccmp]
+// psk|string|when type=psk, 8-64 characters, or 64 hex characters
+// wep\_as\_secondary_auth|boolean|enable WEP as secondary auth
+// keys|list|when type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
+// key_idx|int|when type=wep, 1 to 4, default is 1
+// multi\_psk\_only|boolean|whether to only use multi_psk, default is false
+// private\_wlan|boolean|whether private wlan is enabled. only applicable to multi_psk mode
+// enable\_mac\_auth|boolean|whether to enable MAC Auth, uses the same auth_servers, default is false
+// eap_reauth|boolean|whether to trigger EAP reauth when the session ends, default is false
+// roam_mode|string|none (default) / OKC / 11r
+// apply_to|string|site / wxtags / aps
+// wxtag\_ids|list|list of wxtag_ids
+// ap_ids|list|list of device ids
+// band|string|which radio the wlan should apply to, both (default) / 24 / 5
+// band\_steer|boolean|whether to enable band_steering, this works only when band==both, default is false
+// band\_steer\_force_band5|boolean|force dual-band capable client to connect to 5G, default is false
+// isolation|boolean|whether to allow clients to talk to each other, defualt is false
+// arp_filter|boolean|whether to enable smart arp filter, default is false
+// limit_bcast|boolean|whether to list bcast (i.e. only allow certain bcast packets to go through), default is false
+// allow\_mdns|boolean|only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through, default is false
+// allow\_ipv6\_ndp|boolean|only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through, default is true
+// no\_static_ip|boolean|whether to only allow client that we've learned from DHCP exchange to talk, default is false
+// no\_static_dns|boolean|whether to only allow client to use DNS that we've learned from DHCP response, default is false
+// enable\_wireless_bridging|boolean|whether to enable wireless bridging, which allows more broadcast packets to go through
+// block\_blacklist_clients|boolean|whether to block the clients in the blacklist (up to first 256 macs)
+// vlan_enabled|boolean|if vlan tagging is enabled, default is false
+// vlan_id|int|Jan-94
+// vlan_pooling|boolean|vlan pooling allows AP to place client on different VLAN using a deterministic algorithm, default is false
+// vlan_ids|list|list of VLAN ids
+// hide_ssid|boolean|whether to hide SSID in beacon, default is false
+// schedule|object|WLAN operating schedule, default is disabled
+// hours|object|time ranges, the key is mon / tue / wed / thu / fri / sat / sun, the value is time range in HH:MM-HH:MM (24-hour format), the minimum resolution is 30 minute
+// max_idletime|int|max idle time in seconds, default is 1800. valid range is 60-86400
+// sle_excluded|boolean|whether to exclude this WLAN from SLE metrics, default is false
+// 
+// NOTE: specifically, enable\_wireless_bridging allows forwarding of DHCP response to client not associated with the AP
+// 
+//  #### RADIUS Parameters 
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+// Name|Type|Description
+// auth\_servers\_nas_id|string|optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
+// auth\_servers\_nas_ip|string|optional, NAS-IP-ADDRESS to use
+// auth\_servers_timeout|int|radius auth session timeout, default is 5
+// auth\_servers_retries|int|radius auth session retries, default is 3
+// auth_servers|list|list of RADIUS authentication servers, at least one is needed if auth type == eap, order matters where the first one is treated as primary
+// host|string|ip / hostname of RADIUS server
+// port|int|port of RADIUS server, default is 1812 for auth server and 1813 for acct server
+// secret|string|secret of RADIUS server
+// acct_servers|list|list of RADIUS accounting servers, optional, order matters where the first one is treated as primary
+// acct\_interim_interval|int|how frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
+// coa_server|object|COA (change of authorization) server, optional
+// disable\_event\_timestamp_check|boolean|whether to disable Event-Timestamp Check, which is used to replay-protection, default is false (i.e. for better security)
+// dynamic_vlan|object|for 802.1x
+// enabled|boolean|whether to enable dynamic vlan, default is false
+// type|string|standard (using Tunnel-Private-Group-ID, widely supported), airespace-interface-name (Airespace/Cisco)
+// vlans|object|map between vlan_id (as string) to airespace interface names (comma-separated) or null for stndard mapping
+// default\_vlan\_id|int|vlan_id to use when there's no match from RADIUS, default is 999
+// local\_vlan\_ids|list|vlan_ids to be locally bridged
+// radsec|object|RadSec related, once enabled, auth\_servers / acct\_servers / coa_server will be ignored
+// server_name|string|name of the server to verify (against the cacerts in Org Setting)
+// dns\_server\_rewrite|object|for radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)
+// radius\_groups|object|map between radius_group and the desired DNS server (IPv4 only)
+// 
+// #### Airwatch Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// airwatch|object|Airwatch related
+// console_url|string|console URL
+// api_key|string|API Key
+// username|string|username
+// password|string|password
+// 
+// #### Cisco CWA Parameters 
+// Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA for more details.
+// 
+// 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// cisco_cwa|object|Cisco CWA Related
+// enabled|boolean|whether to enable CWA,
+// allowed_subnets|list|list of CIDRs
+// allowed_hostnames|list|list of hostnames without http(s):// (matched by substring)
+// 
+// #### QoS Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// overwrite|boolean|whether to overwrite QoS
+// class|string|background / best_effort (default) / video / voice
+// 
+// #### Data Tunnels Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// interface|string|where this WLAN will be connected to. all (all external ports, default) / eth0 / eth1 / wxtunnel / mxtunnel / site_mxedge
+// wxtunnel_id|string|when interface=wxtunnel, id of the WXLAN Tunnel
+// wxtunnel_remote_id|string|when interface=wxtunnel, remote tunnel identifier
+// mxtunnel_id|string|when interface=mxtunnel, id of the Mist Tunnel
+// 
+// #### Others Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// dtim|int|dtim, default is 2
+// disable_wmm|boolean|whether to disable WMM, default is false
+// disable_uapsd|boolean|whether to disable U-APSD, default is false
+// use_eapol_v1|boolean|if auth.type=='eap' or 'psk', should only be set for legacy client, such as pre-2004, 802.11b devices
+// legacy_overds|boolean|legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn't support it). Warning! Enabling this will cause problem for iOS devices.
+// hostname_ie|boolean|include hostname inside IE in AP beacons / probe responses, default is false
+// 
+// #### Data Rates Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// rateset|object|rateset (data rates to support)
+// min_rssi|int|Minimum RSSI for client to connect, 0 means not enforcing
+// template|string|no-legacy (basically no 11b and only supports 6 or 12 and up for 11a/g) / compatible (allow more, the default for now) / high-density (only 11n and 11ac) / custom
+// legacy|list|list of supported rates (IE=1) and extended supported rates (IE=50), append 'b' at the end to indicate it being basic/mandatory
+// ht|string|MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g.'00ff 00f0 001f'limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
+// vht|string|MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g.'03ff 01ff 00ff'limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
+// disable_11ax|boolean|some old WLAN drivers may not be compatible , default is false
+// 
+// #### Rate Limit Parameters 
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// wlan_limit_up_enabled|boolean|if uplink limiting for whole wlan is enabled, default is false
+// wlan_limit_up|int|kbps
+// wlan_limit_down_enabled|boolean|if downlink limiting for whole wlan is enabled, default is false
+// wlan_limit_down|int|kbps
+// client_limit_up_enabled|boolean|if uplink limiting per-client is enabled, default is false
+// client_limit_up|int|kbps
+// client_limit_down_enabled|boolean|if downlink limiting per-client is enabled, default is false
+// client_limit_down|int|kbps
+// app_limit|object|bandwidth limiting for apps (applies to up/down)
+// apps|object|map from app key to bandwidth in kbps. app key defined in'Get Application List
+// wxtag_ids|object|map from wxtag_id of Hostname Wxlan Tags to bandwidth in kbps
+
+@name("createOrgSecurityPolicies")
+POST "https://{{host}}/api/v1/orgs/:org_id/secpolicies"
+json({
+    "name": "corporate only",
+    "wlans": [
+        {
+            "ssid": "office",
+            "band": "both",
+            "auth": {
+                "type": "psk",
+                "pairwise": [
+                    "wpa1-tkip",
+                    "wpa2-tkip"
+                ]
+            }
+        },
+        {
+            "ssid": "office-guest",
+            "band": "5",
+            "auth": {
+                "type": "open"
+            }
+        }
+    ]
+})
+
+
+@name("updateOrgSecurityPolicies")
+PUT "https://{{host}}/api/v1/orgs/:org_id/secpolicies/:secpolicy_id"
+json({
+    "name": "corporate only"
+})
+
+
+@name("deleteOrgSecurityPolicies")
+DELETE "https://{{host}}/api/v1/orgs/:org_id/secpolicies/:secpolicy_id"
+"X-CSRFToken": "{{csrftoken}}"
+
+
+

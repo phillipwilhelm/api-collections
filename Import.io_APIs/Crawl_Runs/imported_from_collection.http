@@ -1,0 +1,172 @@
+#!/usr/bin/env dothttp
+
+// # Request 
+// 
+// A POST request to the following endpoint:
+// ```
+// https://run.import.io/{extractorGuid}/start
+// ```
+// 
+// * **extractorGuid** - This is the Guid of the extractor to be launched. 
+// 
+// The body should be empty.
+// 
+// A user can only launch an extractor that they own.
+// 
+// # Response
+// 
+// The response object has the following attribute:
+// 
+// * **crawlRunId** - This is the crawl run Guid of the crawl run that has been created by starting this run. Information about this run will be associated with this crawl run in the object store.
+// 
+// ## Response codes
+// 
+// * **200** - Success. Crawl started successfully.
+// * **400** - Failure. Extractor is archived or a crawl already in progress.
+// * **401** - Failure. User doesn't own this extractor, or doesn't have a valid session.
+// * **404** - Failure. Unable to find supplied extractor ID.
+// * 
+// # Authenticated Extractors 
+// 
+// To start an authenticated run, send POST request to the following endpoint:
+// ```
+// https://run.import.io/{extractorGuid}/start?loginSessionId={loginSessionGuid}
+// ```
+// 
+// * **extractorGuid** - This is the Guid of the extractor to be launched. 
+// * **loginSessionGuid** - The login session guid which has been created by first making a call to the webcache to set up a valid session with the target website.
+// 
+// The body should be empty.
+// 
+// A user can only launch an extractor that they own. This call must me made in as short as time as possible after the initial call to the webcache, this is so the login session has less chance of expiring.
+
+@name("Start run")
+POST "https://run.import.io/crawl/start"
+"io-user": "{{io-user}}"
+"io-subsciption": "{{io-subscription}}"
+"Content-Type": "application/json"
+? "_apikey"= "{{apikey}}"
+data('{
+        "extractors": [{
+                "tags": {
+                        "Source": "Costco",
+                        "Action": "GetProductFromUrl"
+                }
+        }],
+        "inputs": [
+                {
+                        "_url": "https://www.costco.com/Dell-Inspiron-13-5000-Series-2-in-1-Touchscreen-Laptop---Intel-Core-i7---1080p.product.100404076.html",
+                        "zip": "80044"
+                }
+        ]
+}
+')
+
+
+// # Request 
+// 
+// A POST request to the following endpoint:
+// ```
+// https://run.import.io/{extractorGuid}/cancel
+// ```
+// 
+// * **extractorGuid** - This is the Guid of the extractor that has an in-flight run that should be cancelled. 
+// 
+// The body should be empty.
+// 
+// A user can only cancel an extractor that they own, the extractor must have an in-flight run. Cancelling takes time to stop a run and results will not be immediately seen on the CrawlRun object.
+// 
+// # Response
+// 
+// The response object has the following attribute:
+// 
+// * **crawlRunId** - This is the crawl run Guid of the crawl run that has been cancelled. It will transition to a CANCELLED state.
+// 
+// ## Response codes
+// 
+// * **200** - Success. Cancel triggered successfully.
+// * **400** - Failure. No in progress crawl found to cancel.
+// * **401** - Failure. User doesn't own this extractor, or doesn't have a valid session.
+// * **404** - Failure. Unable to find supplied extractor ID.
+
+@name("Cancel run")
+POST "https://run.import.io/crawl/:extractorId/cancel"
+"io-user": "{{io-user}}"
+"io-subsciption": "{{io-subscription}}"
+? "_apikey"= "{{apikey}}"
+? "crawlRunId"= "a6908c11-3a79-4bc7-bd9a-4a4980f1a3ae"
+
+
+
+// Returns a list of crawl runs that have started or finished since the given timestamp. If no timestamp is provided defaults to the user's lastSeen value
+
+@name("Get Crawl Runs Since")
+GET "https://api.import.io/maestro/crawlRun/since"
+? "timestamp"= ":timestamp"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a list of crawl runs that are currently running.
+
+@name("Get Running Crawl Runs")
+GET "https://api.import.io/maestro/crawlRun/inProgress"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a list of crawl runs for a given extractor, with additional health statistics.
+
+@name("Get Crawl Run History")
+GET "https://api.import.io/maestro/extractor/:extractorId/crawlRun"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns a list of columns that a crawl run has
+
+@name("Get Crawl Run Columns")
+GET "https://api.import.io/maestro/extractor/:extractorId/crawlRun/:crawlRunId/column"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Returns first 20mb of a crawl run dataset
+
+@name("Get Crawl Run Data Sample (Large)")
+GET "https://api.import.io/maestro/extractor/:extractorId/crawlRun/:crawlRunId/direct"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Available `attachmentTypes` are `csv` `json` `log` `sample` `xlsx`
+
+@name("Download Crawl Run Attachment")
+GET "https://store.import.io/store/crawlRun/:crawlRunId/_attachment/:attachmentType/:attachmentId"
+? "_apikey"= "{{apikey}}"
+
+
+
+// Parameters:
+// 
+// * Query - _q_ - An elasticsearch query string - String (optional)
+// * Query - __page_ - What page to fetch - Integer (optional)
+// * Query - __perpage_ - How many results per page - Integer (optional)
+// * Query - __sort_ - The field to sort on - String (optional)
+// * Query - __sortDirection_ - ASC or DESC (default) - String (optional)
+// * Query - __exists_ - Multi-valued parameter for fields that must exist - String (optional)
+// * Query - __missing_ - Multi-valued parameter for fields that must be missing - String (optional)
+// * Query - __facet_ - Multi-valued parameter for fields to aggregate - String (optional)
+// * Query - __field_ - Field to operate upon if not searching all - String (optional)
+// * Query - __type_ - Type of ES query; `query_string` (default), `matchphrase`, `term` - String (optional)
+// * Query - __mine_ - Restrict to just objects you own if you have permission to search all - Boolean (optional)
+// * Query - __default_operator_ - either `OR` or `AND` - String (optional)
+// * Query - `faceted field name` - for any field specified as facetable you can apply a filter on a facet value - String (optional)
+
+@name("Search for Crawl Runs")
+GET "https://store.import.io/store/crawlrun/_search"
+? "_apikey"= "{{apikey}}"
+
+
+
+

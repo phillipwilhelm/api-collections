@@ -1,0 +1,1 @@
+An API for an integrator to access the features of DocuSign Rooms

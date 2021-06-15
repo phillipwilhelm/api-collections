@@ -1,0 +1,3 @@
+For any kind of business, the nowadays online approach is suggested so if you're providing a possibility of an online transaction. So, you have to provide your customers probably the most flexible way of payments. Softcare Infoteh offers latest technologies for the money transfer API and that we cover both NEFT and IMPS channel for cash transferring.
+
+Should you be building a phone company a telecommunication one, our provided money transfer API solution provides the utmost business. So, don't be late. Just link our professionals to integrate a quicker money transfer solution inside a better and convenient way.

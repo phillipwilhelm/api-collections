@@ -1,0 +1,86 @@
+#!/usr/bin/env dothttp
+
+// <h2> Description </h2>
+// This operation creates a user.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_user.htm)
+
+@name("Create User")
+POST "https://{{ServerUrl}}/User"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "users": [
+    {
+      "description": "Tenant Operator",
+      "agePasswordDays": 365,
+      "password": "QnVpbGRlciExMg==",
+      "email": "jdoe@company.com",
+      "fullName": "Jane Doe",
+      "enableUser": true,
+      "userEntity": {
+        "userName": "jdoe"
+      }
+    }
+  ]
+}')
+
+
+// <h2>Description</h2>
+// This operation returns the details associated with a Company including the Tenant Operator Role id.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92475.htm)
+
+@name("Tenant Operator Role")
+GET "https://{{ServerUrl}}/Organization/{{OrganizationId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation associates Tenant Operator role to a user or user group.
+// 
+// Users and user groups can have separate roles associated as tenant operators.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=92489.htm)
+
+@name("Add User/User Group to Tenant Operators")
+PUT "https://{{ServerUrl}}/Organization"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+? "organizationId"= "{{OrganizationId}}"
+data('{
+  "organizationInfo": {
+    "organization": {
+      "shortName": {
+        "id": {{OrganizationId}}
+      }
+    },
+    "organizationProperties": {
+      "operatorsOperationType": 1,
+      "operators": [
+        {
+          "role": {
+            "roleId": {{TenantOperatorRoleId}}
+          },
+          "userGroup": {
+            "userGroupId": {{TenantOperatorUserGroupId}}
+          }
+        },
+        {
+          "role": {
+            "roleId": {{TenantOperatorRoleId}}
+          },
+          "user": {
+            "userId": {{TenantOperatorUserId}}
+          }
+        }
+      ]
+    }
+  }
+}')
+
+
+

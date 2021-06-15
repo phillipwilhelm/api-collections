@@ -1,0 +1,75 @@
+#!/usr/bin/env dothttp
+
+// Get transfer details
+
+@name("Transfer Details")
+GET "https://{{url}}/api/transfer/details/{account}/{transferId}"
+
+
+// Look up status of recent transfers by account. `range` parameter overrides `dateFrom` and `dateTo` arguments. Range specifies number of units back from today. Format follows regular expression: `\d+[ymdw]$` where y=year, m=month, d=day, w=week. As such, specifying `range=1y` will look up all transfers for the last year.
+
+@name("Transfer Status")
+GET "https://{{url}}/api/transfer/status/{account}"
+
+
+// Look up status of recent transfers for all accounts in requested model. *See 'Transfer Status' for details*
+
+@name("Transfer Status Model")
+GET "https://{{url}}/api/transfer/status/model/{modelId}"
+
+
+// Look up status of recent transfers for all accounts in branch. *See 'Transfer Status' for details*
+
+@name("Transfer Status Branch")
+GET "https://{{url}}/api/transfer/status/branch"
+? "direction"= "ALL"
+? "mechanism"= "ALL"
+
+
+// Look up amount available for withdrawal.
+
+@name("Amount Available")
+GET "https://{{url}}/api/transfer/available/{account}"
+
+
+// Returns types of legal documents available for the custodian. Contents depend on the underlying custodian. Bare bones response is:
+// 
+// ```json
+// {
+//     "type": "",
+//     "id": "{some kind of unique id}"
+// }
+// ```
+
+@name("Legal document types")
+GET "https://{{url}}/api/transfer/legal/types"
+
+
+// Return contents of the legal document. Response depends on the underlying custodian. Bare bones result:
+// 
+// ```json
+// {
+//     "id": "{unique id}",
+//     "type": "{type}",
+//     "body": "{content of the document}"
+// }
+// ```
+
+@name("Legal document")
+GET "https://{{url}}/api/transfer/legal/content"
+
+
+// Cancels transfer request
+
+@name("Cancel")
+POST "https://{{url}}/api/transfer/ach/cancel"
+"Content-Type": "application/json"
+data('{
+	"account": "5VA0XXXX",
+	"transferId": "CC123456",
+	"remoteAddr": "0.0.0.0",
+	"remoteDevice": "ultra fast browser 1.1"
+ }')
+
+
+

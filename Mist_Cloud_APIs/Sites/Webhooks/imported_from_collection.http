@@ -1,0 +1,206 @@
+#!/usr/bin/env dothttp
+
+@name("getSiteWebhooks")
+GET "https://{{host}}/api/v1/sites/:site_id/webhooks"
+
+
+@name("getSiteWebhookDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/webhooks/:webhook_id"
+
+
+// #### Body Parameter
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|name of the webhook
+// enabled|boolean|whether webhook is enabled
+// topics|list|list of subscribed topics: location/zone/vbeacon/rssizone/asset-raw/device-events/alarms/audits/client-sessions
+// type|string|http-post (default) / splunk 
+// url|string|url
+// headers|object|custom headers: the headers name and value must be string, total bytes of headers name and value must be less than 1000
+// secret|string|optional, when type=http-post, if provided, additional signature HTTP headers will be added (see note below)
+// verify_cert|boolean|when url uses HTTPS, whether to verify the certificate, default is false
+// 
+// **Note:**
+// * when `secret` is provided, two HTTP headers will be added:
+//   * X-Mist-Signature-v2: HMAC_SHA256(secret, body)
+//   * X-Mist-Signature: HMAC_SHA1(secret, body)
+// * If `headers` format is invalid, “X-Mist-Error”: “headers format invalid” will be sent.
+// * If total bytes of `headers` exceed 1000, “X-Mist-Error”: “headers too big” will be sent.
+// * If any `header` value is not string, “X-Mist-Error”: “header[%s] not a string” will be sent.
+// 
+// 
+// #### Webhook bodies
+// ##### Location via http-post
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// topic|string|topic subscribed to
+// events|list|list of events
+// id|string|unique id of the client (a client would have different id for different org)
+// map_id|string|map id
+// x|float|x, in meter
+// y|float|y, in meter
+// name|string|name of the client, may be empty
+// timestamp|int|timestamp of the event, epoch
+// mfg_company_id|int|optional, BLE manufacturing company ID
+// mfg_data|string|optional, BLE manufacturing data in hex byte-string format (ie: “112233AABBCC”)
+// 
+// ##### Zone via http-post
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// topic|string|topic subscribed to
+// events|list|list of events
+// id|string|uuid of SDK-client
+// name|string|name of the client, may be empty
+// site_id|string|site id
+// map_id|string|map id
+// zone_id|string|zone id
+// trigger|string|enter / exit
+// timestamp|int|timestamp of the event, epoch
+// mac|string|mac address of wifi client or asset
+// asset_id|string|uuid of named asset
+// 
+// ##### asset-raw via http-post
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// topic|string|topic subscribed to
+// events|list|list of events
+// site_id|string|site id
+// map_id|string|map id
+// device_id|string|device where the asset reading is from
+// beam|int|antenna index, from 1-8, clock-wise starting from the LED
+// rssi|float|signal strength
+// mac|string|MAC of the beacon
+// asset_id|string|asset id
+// ibeacon_uuid|string|iBeacon UUID
+// ibeacon_major|string|iBeacon major
+// ibeacon_minor|string|iBeacon minor
+// mfg_company_id|int|optional, BLE manufacturing company ID
+// mfg_data|string|optional, BLE manufacturing data in hex byte-string format (ie: “112233AABBCC”)
+// 
+// ##### device-updowns via http-post
+// `device-updowns` delivers subset of device-events as following:
+// - `AP_DISCONNECTED` (from our perspective, the AP is disconnected)
+// - `AP_CONNECTED` (AP is now connected, i.e. it was disconnected before)
+// - `AP_RESTARTED` (AP was restarted where we observe the uptime being reset, e.g. manual restart, upgrade, switch port bounced)
+// 
+// ##### alarms via http-post
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// topic|string|topic subscribed to
+// events|list|list of events
+// site_id|string|site id
+// org_id|string|org id
+// id|string|event id
+// type|string|event type
+// count|string|If present, represents number of events of given type occurred in current interval, default=1
+// update|boolean|If presents, represents that this is an update to event with given id sent earlier. default=false
+// 
+// **Note:** 
+// Fields like `aps`, `bssids`, `ssids` are event specific. They are relevant to this event type (rogue-ap-detected). For a different event type, different fields may be sent. These don’t contain all affected entities and are representative samples of entities (capped at 10).
+// 
+// Events specific fields for other alarm event type can be found with API https://api.mist.com/api/v1/const/alarm_defs, under “fields” array of /alarm_defs response object.
+// 
+// ##### client-join via http-post
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ap|string|mac address of the AP the client connected to
+// ap_name|string|user-friendly name of the AP the client connected to.
+// band|string|5GHz or 2.4GHz band
+// ssid|string|ESSID
+// connect|int|time when the user connects
+// connect_float|float|floating point connect timestamp with millisecond precision
+// mac|string|the client’s mac
+// rssi|int|RSSI when the client associated
+// org_id|string|Org ID
+// site_id|string|Site ID
+// site_name|string|name of site
+// timestamp|int|time the message is sent. E.g. 1565987313
+// version|int|schema version of this message
+// wlan_id|string|WLAN ID
+// 
+// ##### client-sessions via http-post 
+// **Name**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ap|string|mac address of the AP the client roamed or disconnected from
+// ap_name|string|user-friendly name of the AP the client roamed or disconnected from.
+// band|string|5GHz or 2.4GHz band
+// client_family|string|device family E.g. “Mac”, “iPhone”, “Apple watch”
+// client_manufacture|string|device manufacturer E.g. “Apple”
+// client_model|string|device model E.g. “8+”, “XS”
+// client_os|string|device operating system E.g. “Mojave”, “Windows 10”, “Linux”
+// connect|int|time when the user connects
+// connect_float|float|floating point connect timestamp with millisecond precision
+// disconnect|int|time when the user disconnects
+// disconnect_float|float|floating point disconnect timestamp with millisecond precision
+// duration|int|the duration of the roamed or complete session indicated by termination_reason field.
+// mac|string|the client’s mac
+// rssi|int|latest average RSSI before the user disconnects
+// next_ap|string|the AP the client has roamed to.
+// org_id|string|Org ID
+// site_id|string|Site ID
+// site_name|string|name of site
+// ssid|string|ESSID
+// termination_reason|int|1 disassociate - when the client disassociates. 2 inactive - when the client is timeout. 3 roamed - when the client is roamed between APs
+// timestamp|int|time the message is sent. E.g. 1565987313
+// version|int|schema version of this message
+// wlan_id|string|WLAN ID
+
+@name("createSiteWebhook")
+POST "https://{{host}}/api/v1/sites/:site_id/webhooks"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "analytic",
+    "type": "http-post",
+    "url": "https://username:password@hooks.abc.com/uri/...",
+    "secret": "secret",
+    "headers": {
+        "x-custom-1": "your_custom_header_value1",
+        "x-custom-2": "your_custom_header_value2"
+    },
+    "enabled": true,
+    "verify_cert": false,
+    "topics": [
+        "location",
+        "zone",
+        "vbeacon",
+        "rssizone",
+        "asset-raw",
+        "device-events",
+        "alarms",
+        "audits",
+        "client-join",
+        "client-sessions",
+        "device-updowns",
+        "occupancy-alerts",
+        "mxedge-events",
+        "calea-clients"
+    ]
+})
+
+
+@name("editSiteWebhook")
+PUT "https://{{host}}/api/v1/sites/:site_id/webhooks/:webhook_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+json({
+    "name": "analytic"
+})
+
+
+@name("deleteSiteWebhook")
+DELETE "https://{{host}}/api/v1/sites/:site_id/webhooks/:webhook_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+// send a Ping event to the webhook
+
+@name("pingSiteWebhook")
+POST "https://{{host}}/api/v1/sites/:site_id/webhooks/:webhook_id/ping"
+
+
+

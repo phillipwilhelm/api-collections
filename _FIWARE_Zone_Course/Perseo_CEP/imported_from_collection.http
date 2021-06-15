@@ -1,0 +1,71 @@
+#!/usr/bin/env dothttp
+
+@name("Get rules")
+GET "https://{{host}}/rules"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+@name("Create rule (email)")
+POST "https://{{host}}/rules"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "LowTemperature",
+    "text": "select *,\"LowTemperature\" as ruleName from pattern [every ev=iotEvent((cast(`id`?, String)  regexp  \"myEntity\") AND (cast(`type`?, String)  =  \"myType\") AND (cast(cast(`temperature`?, String), float)  <  10))]",
+	"action": {
+        "type": "email",
+        "template": "Entity ${id} temperature is ${temperature}",
+        "parameters": {
+            "to": "john_doe@fakedomain.com",
+            "from": "no-reply@iotplatform.telefonica.com",
+            "subject": "Low temperature"
+        }
+    }
+}')
+
+
+@name("Create rule (entity update)")
+POST "https://{{host}}/rules"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "name": "BatteryLow",
+    "text": "select *,\"BatteryLow\" as ruleName from pattern [every ev=iotEvent((cast(`type`?, String)  =  \"Lamp\") AND (cast(cast(`battery`?, String), float)  <  10))]",
+	"action": {
+        "type": "update",
+        "parameters": {
+            "id": "TestEntity1",
+            "type": "TestEntity",
+            "attributes": [
+            	{
+            		"name": "msg",
+            		"value": "Battery in ${id} is ${battery}"
+            	}
+            ]
+        }
+    }
+}')
+
+
+@name("Delete rule")
+DELETE "https://{{host}}/rules/LowTemperature"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+
+@name("Get a rules")
+GET "https://{{host}}/rules/LowTemperature"
+"Fiware-Service": "{{service}}"
+"Fiware-ServicePath": "{{subservice}}"
+"X-Auth-Token": "{{token}}"
+
+
+

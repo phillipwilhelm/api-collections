@@ -1,0 +1,42 @@
+#!/usr/bin/env dothttp
+
+// List my Orders.
+
+@name("Order List")
+GET "https://{{url}}/{{version}}/orders"
+"Accept": "application/json"
+"Authorization": "Bearer {{token}}"
+? "include"= "sims,user,status"
+? "filter[created_at]"= "Y-m-d - Y-m-d"
+? "filter[code]"= "ORDER_CODE"
+? "filter[order_status]"= "completed"
+? "filter[iccid]"= "SIM_ICCID"
+? "limit"= "50"
+? "page"= "1"
+? "sort"= "-orders.created_at,-orders.id"
+
+
+// Get Order Details.
+
+@name("Get Order")
+GET "https://{{url}}/{{version}}/orders/{ORDER_ID}"
+"Accept": "application/json"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+? "include"= "sims,user,status"
+
+
+// Submit an Order.
+
+@name("Submit Order")
+POST "https://{{url}}/{{version}}/orders"
+"Accept": "application/json"
+"Authorization": "Bearer {{token}}"
+files(
+	("quantity", "1"),
+	("package_id", "PACKAGE_ID"),
+	("type", "sim")
+)
+
+
+

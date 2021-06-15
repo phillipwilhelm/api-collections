@@ -1,18 +1,25 @@
 #!/usr/bin/env dothttp
 
 // API call to [NPM](https://www.npmjs.com) to fetch the popular GitHub Repositories for a given search query.
+
 @name("npm search")
 GET "http://registry.npmjs.com/-/v1/search"
 ? "text"= "{{searchTerm}}"
 ? "size"= "{{maxSize}}"
 
 
-// Fetching *comments* for each repositories using [GitHub API](https://api.github.com/).// // // - **{{repoName}}** : Name of the GitHub repository// - **{{userName}}** : GitHub username for the given repository
+// Fetching *comments* for each repositories using [GitHub API](https://api.github.com/).
+// 
+// 
+// - **{{repoName}}** : Name of the GitHub repository
+// - **{{userName}}** : GitHub username for the given repository
+
 @name("fetch comments")
 GET "https://api.github.com/repos/{{userName}}/{{repoName}}/comments  "
 
 
 // Calculating sentiment using [ParallelDots API](https://www.paralleldots.com) for the comments of given GitHub repository.
+
 @name("calculate sentiment")
 POST "https://apis.paralleldots.com/v3/sentiment"
 ? "text"= "{{sentimentText}}"
@@ -20,6 +27,7 @@ POST "https://apis.paralleldots.com/v3/sentiment"
 
 
 // Pushing most popular repos to Slack using webhook.
+
 @name("push to slack")
 POST "https://{{slackWebhookURL}}/"
 "Content-Type": "application/json"

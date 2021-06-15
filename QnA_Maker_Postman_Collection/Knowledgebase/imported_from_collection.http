@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+// Asynchronous operation to create a new knowledgebase.
+
+@name("Create Knowledgebase")
+POST "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/create"
+"Content-Type": "application/json"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+data('{
+  "name": "QnA Maker FAQ",
+  "qnaList": [
+    {
+      "id": 0,
+      "answer": "You can change the default message if you use the QnAMakerDialog. See this for details: https://azure.microsoft.com/en-us/services/cognitive-services/qna-maker/faq/",
+      "source": "Custom Editorial",
+      "questions": [
+        "How can I change the default message from QnA Maker?"
+      ],
+      "metadata": []
+    },
+    {
+      "id": 0,
+      "answer": "You can use our REST apis to manage your KB. See here for details: https://westus.dev.cognitive.microsoft.com/docs/services/58994a073d9e04097c7ba6fe/operations/58994a073d9e041ad42d9baa",
+      "source": "Custom Editorial",
+      "questions": [
+        "How do I programmatically update my KB?"
+      ],
+      "metadata": [
+        {
+          "name": "category",
+          "value": "api"
+        }
+      ]
+    }
+  ],
+  "urls": [
+	"https://azure.microsoft.com/en-us/services/cognitive-services/qna-maker/faq/"
+  ]
+}')
+
+
+// Download the knowledgebase.
+
+@name("Download Knowledgebase")
+GET "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}/{{environment}}/qna"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+// Gets details of a specific knowledgebase.
+
+@name("Get Knowledgebase Details")
+GET "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+// Gets all knowledgebases for a user.
+
+@name("Get Knowledgebases for user")
+GET "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+// Publishes all changes in test index of a knowledgebase to its prod index.
+
+@name("Publish Knowledgebase")
+POST "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+// Replace knowledgebase contents.
+
+@name("Replace Knowledgebase")
+PUT "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}"
+"Content-Type": "application/json"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+data('{
+  "qnaList": [
+    {
+      "id": 0,
+      "answer": "You can change the default message if you use the QnAMakerDialog. See this for details: https://docs.botframework.com/en-us/azure-bot-service/templates/qnamaker/#navtitle",
+      "source": "Custom Editorial",
+      "questions": [
+        "How can I change the default message from QnA Maker?"
+      ],
+      "metadata": []
+    },
+    {
+      "id": 0,
+      "answer": "You can use our REST apis to manage your KB. See here for details: https://westus.dev.cognitive.microsoft.com/docs/services/58994a073d9e04097c7ba6fe/operations/58994a073d9e041ad42d9baa",
+      "source": "Custom Editorial",
+      "questions": [
+        "How do I programmatically update my KB?"
+      ],
+      "metadata": [
+        {
+          "name": "category",
+          "value": "api"
+        }
+      ]
+    }
+  ]
+}')
+
+
+// Asynchronous operation to modify a knowledgebase.
+
+@name("Update Knowledgebase")
+PATCH "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}"
+"Content-Type": "{{Content-Type}}"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+// Deletes the knowledgebase and all its data.
+
+@name("Delete Knowledgebase")
+DELETE "https://{{region}}.api.cognitive.microsoft.com/qnamaker/v4.0/knowledgebases/{{kbId}}"
+"Ocp-Apim-Subscription-Key": "{{Ocp-Apim-Subscription-Key}}"
+
+
+@name("Generate Answer")
+POST "https://{{host}}.azurewebsites.net/qnamaker/knowledgebases/{{kbId}}/generateAnswer"
+"Authorization": "EndpointKey {{endpointkey}}"
+"Content-Type": "application/json"
+data('{"question":"Wie gebe ich eine Änderung meiner Anschrift oder anderer Stammdaten bekannt?"}')
+
+
+

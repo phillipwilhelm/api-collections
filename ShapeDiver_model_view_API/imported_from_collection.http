@@ -1,0 +1,349 @@
+#!/usr/bin/env dothttp
+
+// A _session init request_ is a POST request which opens a new session with a ShapeDiver model. 
+// 
+// The API key allowing to open a session with a model is called a _ticket_. The ticket is part of the _session init request_ URL.
+// 
+// The request will be accepted or denied depending on 
+//   * validity of the ticket, and
+//   * configuration of the ShapeDiver model.
+// 
+// _Please be aware that tickets used for embedding models with the ShapeDiver Viewer do not allow direct backend access to the ShapeDiver model view API. Contact ShapeDiver to have your account configured such that you can request backend tickets for your models on app.shapediver.com_
+// 
+// The JSON reply to a successful _session init request_ includes the following properties: 
+//   * _parameters_: definition of the parameters provided by the model, including their default values
+//   * _outputs_: definition of the outputs (display geometry and data) provided by the model for default parameter values
+//   * _exports_: definition of the exports provided the model which may be requested by sending _export requests_
+//   * _version_: version number of the JSON data format, which will be increased in case of future breaking changes
+//   * _actions_: definition of actions supported by the session (e.g. requesting another version, requesting an export, etc)
+//   * _templates_: templates for POST requests which are referred to by _actions_
+//   * _name_: name of the model
+//   * _config_: optional configuration object used by the ShapeDiver Viewer
+//  
+// For details please import this collection to your Postman account, run the _session init request_, and inspect the JSON reply as well as the test scripts configured for the _session init request_.
+
+@name("Session init request")
+POST "https://{{modelViewUrl}}/ticket/{{ticket}}"
+"Content-Type": "application/json"
+"": ""
+"": ""
+
+
+
+// An _export request (waiting)_ is a POST request which requests a specific version of an export, and waits for the export to be finished before replying.
+// 
+// The JSON body of the request has to include the following properties: 
+//   * _exports_: object containing a property _id_ which defines the export to be computed
+//   * _parameters_: id and value pairs of parameters to be used for the export. Default parameter values will be used for parameters not specified here.
+//   * _max_wait_time_: maximum time in milliseconds to wait for the export to be completed. In case this property is not defined, the ShapeDiver backend will respond immediately and include a property _delay_ for the requested export in its reply, which provides an estimation in milliseconds of how long the client shall wait before sending a so called _export cache request_ for checking whether the export has already been finished.
+
+@name("Export request (waiting)")
+POST "https://{{exportActionUrl}}/"
+"Content-Type": "application/json"
+data('{
+    "max_wait_time": 10000,
+    "exports": {
+        "id": "{{downloadExportId}}"
+    },
+    "parameters": {
+        "71833bbc-535c-432a-884f-6fa0c0739ffa": 5,
+        "5d6384a2-7e1e-441f-bd7e-515ee1b12e08": 750,
+        "59c6be21-a476-4eaf-a656-e2a5b5079a08": 15,
+        "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e": 10,
+        "84fe8821-0c52-42fe-a877-92d60c1381a3": 20,
+        "4ed306b7-8fe6-428e-90f8-59f0813970f2": 10,
+        "6facb2be-9606-4482-b445-b0bd6bfa57ea": "",
+        "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1": 10
+    }
+}')
+
+
+// An _export request (direct response)_ is a POST request which requests a specific version of an export, and immediately replies even if the export has not been finished yet. 
+// 
+// In case the export for the given parameter values has previously been computed, a download link will be included in the direct reply. Otherwise a property _delay_ for the requested export provides an estimation in milliseconds of when the export should be finished and it makes sense for the client to send a so called _export cache request_ (round trip time should be estimated and subtracted by the client).
+// 
+// The JSON body of the request has to include the following properties: 
+//   * _exports_: object containing a property _id_ which defines the export to be computed
+//   * _parameters_: id and value pairs of parameters to be used for the export. Default parameter values will be used for parameters not specified here.
+
+@name("Export request (direct response)")
+POST "https://{{exportActionUrl}}/"
+"Content-Type": "application/json"
+data('{
+    "exports": {
+        "id": "{{downloadExportId}}"
+    },
+    "parameters": {
+        "71833bbc-535c-432a-884f-6fa0c0739ffa": 5,
+        "5d6384a2-7e1e-441f-bd7e-515ee1b12e08": 750,
+        "59c6be21-a476-4eaf-a656-e2a5b5079a08": 15,
+        "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e": 10,
+        "84fe8821-0c52-42fe-a877-92d60c1381a3": 20,
+        "4ed306b7-8fe6-428e-90f8-59f0813970f2": 10,
+        "6facb2be-9606-4482-b445-b0bd6bfa57ea": "",
+        "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1": 10
+    }
+}')
+
+
+// A _customization request (direct response)_ is a POST request which requests a specific version of the model outputs, and immediately replies even if the computation of this version has not been finished yet. 
+// 
+// In case the customization for the given parameter values has previously been computed, download links will be included in the direct reply. For each output version which has not been computed yet, a property _delay_ provides an estimation in milliseconds of when the output version should be available and it makes sense for the client to send a so called _cache request_ (round trip time should be estimated and subtracted by the client).
+// 
+// The JSON body of the request has to include the following properties: 
+//   * id and value pairs of parameters to be used for the computation of the model's outputs. Default parameter values will be used for parameters not specified here.
+
+@name("Customization request (direct response)")
+POST "https://{{customizeActionUrl}}/"
+"Content-Type": "application/json"
+data('{
+    "71833bbc-535c-432a-884f-6fa0c0739ffa": 5,
+    "5d6384a2-7e1e-441f-bd7e-515ee1b12e08": 750,
+    "59c6be21-a476-4eaf-a656-e2a5b5079a08": 15,
+    "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e": 10,
+    "84fe8821-0c52-42fe-a877-92d60c1381a3": 20,
+    "4ed306b7-8fe6-428e-90f8-59f0813970f2": 16,
+    "6facb2be-9606-4482-b445-b0bd6bfa57ea": "",
+    "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1": 10
+}')
+
+
+// A _cache request_ is a POST request which allows to check whether a specific version of an output (a so-called output version) has been computed yet.
+// 
+// In case the given output version has previously been computed, download links will be included in the direct reply. In case the output version has not been computed yet, a property _delay_ provides an estimation in milliseconds of when the output version should be available and it makes sense for the client to send another _cache request_ (round trip time should be estimated and subtracted by the client).
+// 
+// The JSON body of the request has to include the following properties: 
+//   * pair of output id and version for the output version that is requested
+
+@name("Cache request")
+POST "https://{{cacheActionUrl}}/"
+"Content-Type": "application/json"
+data('{
+    "{{outputId}}" : "{{outputVersionId}}"
+}')
+
+
+// An _export cache request_ is a POST request which allows to check whether a specific version of an export (a so-called export version) has been computed yet.
+// 
+// In case the given export version has previously been computed, download links will be included in the direct reply. In case the export version has not been computed yet, a property _delay_ provides an estimation in milliseconds of when the export version should be available and it makes sense for the client to send another _export cache request_ (round trip time should be estimated and subtracted by the client).
+// 
+// The JSON body of the request has to include the following properties: 
+//   * pair of export id and version for the output version that is requested
+
+@name("Export cache request")
+POST "https://{{cacheActionUrl}}/"
+"Content-Type": "application/json"
+json({
+    "{{outputId}}": "{{outputVersionId}}"
+})
+
+
+// A _session init and export request_ combines a _session init request_ with an _export request (waiting or direct response)_. 
+// 
+// Please refer to the documentation of the individual requests for more details.
+// 
+// Be aware of the following: 
+//   * When using this combined request type, you will need to code the export and parameter ids into your application.
+
+@name("Session init and export request")
+POST "https://{{modelViewUrl}}/ticket/{{ticket}}"
+"Content-Type": "application/json"
+data('{
+	"max_wait_time": 10000,
+    "exports": {
+        "id": "{{downloadExportId}}"
+    },
+    "parameters": {
+        "71833bbc-535c-432a-884f-6fa0c0739ffa": 5,
+        "5d6384a2-7e1e-441f-bd7e-515ee1b12e08": 750,
+        "59c6be21-a476-4eaf-a656-e2a5b5079a08": 15,
+        "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e": 10,
+        "84fe8821-0c52-42fe-a877-92d60c1381a3": 20,
+        "4ed306b7-8fe6-428e-90f8-59f0813970f2": 10,
+        "6facb2be-9606-4482-b445-b0bd6bfa57ea": "",
+        "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1": 10
+    }
+}')
+
+
+// A _session init and customization request_ combines a _session init request_ with a _customization request (direct response)_. 
+// 
+// Please refer to the documentation of the individual requests for more details.
+// 
+// Be aware of the following: 
+//   * When using this combined request type, you will need to code the parameter ids into your application.
+
+@name("Session init and customization request")
+POST "https://{{modelViewUrl}}/ticket/{{ticket}}"
+"Content-Type": "application/json"
+data('{
+    "71833bbc-535c-432a-884f-6fa0c0739ffa": 5,
+    "5d6384a2-7e1e-441f-bd7e-515ee1b12e08": 750,
+    "59c6be21-a476-4eaf-a656-e2a5b5079a08": 15,
+    "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e": 10,
+    "84fe8821-0c52-42fe-a877-92d60c1381a3": 20,
+    "4ed306b7-8fe6-428e-90f8-59f0813970f2": 10,
+    "6facb2be-9606-4482-b445-b0bd6bfa57ea": "",
+    "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1": 10
+}')
+
+
+// A _configure request_ allows to update the configuration object of the model. 
+// 
+// This request is available only for sessions which have been opened using an author ticket.
+
+@name("Configure request")
+POST "https://{{configureActionUrl}}/"
+"Content-Type": "application/json"
+data('{ 
+   "settings_version":"1.0",
+   "ambientOcclusion":true,
+   "autoRotateSpeed":0,
+   "backgroundColor":"0xffffffff",
+   "bumpAmplitude":1,
+   "camera":{ 
+      "position":{ 
+         "x":0,
+         "y":-1211.8046562652828,
+         "z":1182.869770843522
+      },
+      "target":{ 
+         "x":0,
+         "y":0,
+         "z":375
+      }
+   },
+   "cameraAutoAdjust":false,
+   "cameraMovementDuration":1000,
+   "cameraOrtho":{ 
+      "position":{ 
+         "x":0,
+         "y":0,
+         "z":0
+      },
+      "target":{ 
+         "x":0,
+         "y":0,
+         "z":0
+      }
+   },
+   "cameraRevertAtMouseUp":false,
+   "clearAlpha":1,
+   "clearColor":"#ffffff",
+   "commitParameters":false,
+   "controlDamping":0.1,
+   "controlNames":null,
+   "controlOrder":[ 
+      "0546d23e-bc21-46c2-8c1c-6b6d6b8370d1",
+      "75e7a8cf-7768-422c-a8c0-a760552849ce",
+      "4148198c-863f-4ecc-9aee-8c4328c25653",
+      "ea9b807a-13f6-4643-8060-99206667da49",
+      "58989f57-0a79-43d1-8d58-4a3e60cbe8fa",
+      "f5d44a01-b7da-4bee-ac3d-95c405c23280",
+      "71833bbc-535c-432a-884f-6fa0c0739ffa",
+      "5d6384a2-7e1e-441f-bd7e-515ee1b12e08",
+      "6facb2be-9606-4482-b445-b0bd6bfa57ea",
+      "59c6be21-a476-4eaf-a656-e2a5b5079a08",
+      "0bd17e30-a7d5-4a5c-bc34-8cd3ffae0b8e",
+      "84fe8821-0c52-42fe-a877-92d60c1381a3",
+      "4ed306b7-8fe6-428e-90f8-59f0813970f2",
+      "43b175b0-70ae-4762-9a5f-98e6111c9d66",
+      "69cbea2e-2dcb-4a3e-8159-8d1d82c1b6f5",
+      "ac60b1f7e9dd1c9b6d2e199507f9090c"
+   ],
+   "defaultMaterialColor":"#d3d3d3ff",
+   "disablePan":false,
+   "disableZoom":false,
+   "enableAutoRotation":false,
+   "enableRotation":true,
+   "environmentMap":"default_bw",
+   "environmentMapResolution":"256",
+   "fov":45,
+   "lightScene":"default",
+   "lightScenes":{ 
+
+   },
+   "panSpeed":0.5,
+   "parametersHidden":null,
+   "pointSize":1,
+   "revertAtMouseUpDuration":800,
+   "rotateSpeed":0.5,
+   "showEnvironmentMap":false,
+   "showGrid":true,
+   "showGroundPlane":true,
+   "showShadows":true,
+   "topView":false,
+   "zoomExtentFactor":1,
+   "zoomSpeed":1
+}')
+
+
+// A _file upload request_ is used to ask the model view API for URLs and unique ids to be used for uploading values of file parameters.
+// 
+// This request type is supported for models that have at least one file parameter. Requests need to include a JSON body according to the following schema: 
+// 
+// ```
+// {
+// 	FILE_PARAMETER_1_ID : {
+// 		format: 'FILE_PARAMETER_1_REQUESTED_MIME_TYPE',
+// 		size: FILE_PARAMETER_1_REQUESTED_SIZE
+// 	},
+// 	FILE_PARAMETER_2_ID : {
+// 		format: 'FILE_PARAMETER_2_REQUESTED_MIME_TYPE',
+// 		size: FILE_PARAMETER_2_REQUESTED_SIZE
+// 	},
+// 	...
+// }
+// ```
+// 
+// In case of success the response will contain a unique id and an upload URL for each of the requested file uploads. The id is used for setting the value of the file parameter to the uploaded file when running customization or export requests. It can be stored and used by the client application to later on recall previously uploaded files. The following schema applies for replies to file upload requests in case of success: 
+// 
+// ```
+// {
+//     "FILE_PARAMETER_1_ID": {
+//         "id": "FILE_PARAMETER_1_UNIQUE_ID_FOR_REQUEST",
+//         "href": "FILE_PARAMETER_1_UPLOAD_URL_FOR_REQUEST"
+//     },
+//     "FILE_PARAMETER_2_ID": {
+//         "id": "FILE_PARAMETER_2_UNIQUE_ID_FOR_REQUEST",
+//         "href": "FILE_PARAMETER_2_UPLOAD_URL_FOR_REQUEST"
+//     }
+// }
+// ```
+
+@name("File upload request")
+POST "https://{{uploadActionUrl}}/"
+"Content-Type": "application/json"
+data('{ 
+	"{{fileParameterId}}": {
+		"format": "{{fileParameterFormat}}",
+        "size": {{fileParameterMaxSize}}
+	}
+}')
+
+
+// Download the result of a previously finished export. The download URL is exposed as a property of the _exports_ array contained in the reply to _export requests_. 
+// 
+// For details please import this collection to your Postman account and inspect the test scripts configured for _export request (waiting)_ and _export request (direct response)_.
+
+@name("Export download")
+GET "https://{{downloadExportUrl}}/"
+
+
+
+// The _default request_ for a session responds with a full description of the model as documented for the _session init_ request.
+
+@name("Default")
+GET "https://{{defaultActionUrl}}/"
+"": ""
+
+
+
+// The _close request_ for a session closes the session. Sessions which you don't close will be cleaned up after some time of inactivity. A new session has to be opened in order to access the ShapeDiver model again.
+
+@name("Close")
+POST "https://{{closeActionUrl}}/"
+
+
+
+

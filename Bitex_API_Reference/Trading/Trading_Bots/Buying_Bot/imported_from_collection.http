@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+@name("List Buying Bots")
+GET "https://{{domain}}/api/buying_bots"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_nbr}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Buying Bot")
+GET "https://{{domain}}/api/buying_bots/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// A buying bot is an assistant that puts Buy orders for you. It uses a strategy of dividing the amount and making the orders smaller, to get the best price.
+// 
+// * `amount`: The amount of __quote__ money that you intend to spend buying __base__ money. Both the __quote__ and the __base__ currencies are determined by the Orderbook selected. (e.g. A buying bot with amount = 100 and orderbook = BTC/USD, will spend 100 dollars in buying as much BTC as it can).
+// 
+// 
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+
+@name("Create Buying Bot")
+POST "https://{{domain}}/api/buying_bots"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+  "data": {
+    "type": "buying_bots",
+    "attributes": {
+      "amount": 100,
+      "orderbook_code": "btc_usd"
+    },
+    "relationships": {
+      "user": {
+        "data": {
+          "id": 1,
+          "type": "users"
+        }
+      }
+    }
+  }
+}')
+
+
+// This action represents an intention to cancel the Buying Bot. No new bids will be made but if one is already being executed, it could be matched.
+
+@name("Cancel Buying Bot")
+POST "https://{{domain}}/api/buying_bots/:id/cancel"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

@@ -1,0 +1,124 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of credit notes.
+
+@name("List credit notes")
+GET "https://{{api_url}}/creditnotes"
+"Content-Type": "application/json"
+"Accept": "application/json"
+? "limit"= "15"
+? "page"= "1"
+? "status"= "draft"
+? "sort"= "creditnote_number_desc"
+
+
+// Retrieve a credit note by its number.
+
+@name("Retrieve a credit note")
+GET "https://{{api_url}}/creditnotes/{{creditnote_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Create a new credit note.
+
+@name("Create a new credit note")
+POST "https://{{api_url}}/creditnotes"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My credit note title",
+	"contact": 831,
+	"pdf_template": 1,
+	"date": "2019-03-01"
+}')
+
+
+// Update an existing credit note.
+
+@name("Update a credit note")
+PATCH "https://{{api_url}}/creditnotes/{{creditnote_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"title": "My updated credit note title"
+}')
+
+
+// Finalize a credit note.
+
+@name("Finalize a credit note")
+POST "https://{{api_url}}/creditnotes/{{creditnote_number}}/finalize"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Send a credit note by email.
+
+@name("Send a credit note by email")
+POST "https://{{api_url}}/creditnotes/{{creditnote_number}}/send-email"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"language": "en",
+	"subject": "Check this credit note, dude.",
+	"message": "My **custom** message",
+	"markdown": true,
+	"reply_to": "my-email@example.com",
+	"recipients": [
+		{
+			"name": "John Doe",
+			"email": "john.doe@gmail.com"
+		}
+	]
+}')
+
+
+// Send a credit note by post.
+
+@name("Send a credit note by post")
+POST "https://{{api_url}}/creditnotes/{{creditnote_number}}/send-letter"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+	"options": {
+		"priority_post": false
+	},
+	"recipients": [
+		{
+			"address_name": "John Doe",
+			"address_line_1": "Doe St. 123",
+			"address_postal_code": "11111",
+			"address_city": "Doe City",
+			"address_state": "DO",
+			"address_country": "USA"
+		}
+	]
+}')
+
+
+// Trash a credit note.
+
+@name("Trash a credit note")
+POST "https://{{api_url}}/creditnotes/{{creditnote_number}}/trash"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Restore a credit note from the trash.
+
+@name("Restore a credit note")
+POST "https://{{api_url}}/creditnotes/{{creditnote_number}}/restore"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+// Delete a credit note.
+
+@name("Delete a credit note")
+DELETE "https://{{api_url}}/creditnotes/{{creditnote_number}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+

@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// Detalha uma pausa do colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | team_change_id | Integer | Sim | ID da movimentação |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na pausa |
+// | first_break_start_time | String | Horário inicial da primeira pausa |
+// | second_break_start_time | String | Horário inicial da segunda pausa |
+// | main_interval_start_time | String | Horário inicial do intervalo principal |
+// | main_interval_end_time | String | Horário final do intervalo principal |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/breaks"
+"access-token": "{{client_token}}"
+? "attributes"= "id,first_break_start_time,second_break_start_time,date"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+? "sort_direction"= "asc"
+? "sort_property"= "date"
+
+
+// Exclui uma pausa de um colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador a ser excluído a pausa|
+// | break_id | Integer | Sim | ID da pausa a ser excluída |
+
+@name("Excluir")
+DELETE "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/breaks/{{break_id}}"
+"access-token": "{{client_token}}"
+
+
+// Cria uma pausa para um colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | date | Date | Sim |  Data de início na equipe |
+// | first_break_start_time | String | Sim | Horário inicial da primeira pausa do colaborador (HH:MM) |
+// | second_break_start_time | String | Sim | Horário inicial da segunda pausa do colaborador (HH:MM) |
+// | main_interval_start_time | String | Não | Horário inicial do intervalo principal (HH:MM) |
+// | main_interval_end_time | String | Não | Horário final do intervalo principal (HH:MM) |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/breaks"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+json({
+    "break": {
+        "date": "{{date}}",
+        "first_break_start_time": "{{first_break_start_time}}",
+        "second_break_start_time": "{{second_break_start_time}}"
+    }
+})
+
+
+// Detalha uma pausa do colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | team_change_id | Integer | Sim | ID da movimentação |
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | date | String | Data de início na pausa |
+// | first_break_start_time | String | Horário inicial da primeira pausa |
+// | second_break_start_time | String | Horário inicial da segunda pausa |
+// | main_interval_start_time | String | Horário inicial do intervalo principal |
+// | main_interval_end_time | String | Horário final do intervalo principal |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/employees/{{employee_id}}/breaks/{{break_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,first_break_start_time,second_break_start_time,date"
+
+
+

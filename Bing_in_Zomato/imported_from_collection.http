@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+// We will query Zomato API to query city details (its ID and other values).
+
+@name("Search for City")
+GET "https://developers.zomato.com/api/v2.1/cities"
+"user-key": "{{Zomato API Key}}"
+? "q"= "{{city}}"
+
+
+// This request should fetch the geographical co-ordinates of the place being querie. 
+// 
+// Tests should test of the Status code and save the coordinates in to environment variables.
+
+@name("Bing in the Geocodes")
+GET "http://dev.virtualearth.net/REST/v1/Locations"
+? "q"= "Metacube Software Private Limited, Sitapura Industrial Area, {{city}}"
+? "key"= "{{Bing Maps REST API Key}}"
+
+
+// This request would search for restaurant types based on the city id, location coordinates provided by the user.
+
+@name("Search for Establishment Types")
+GET "https://developers.zomato.com/api/v2.1/establishments"
+"user-key": "{{Zomato API Key}}"
+? "city_id"= "{{city_id}}"
+? "lat"= "{{latitude}}"
+? "lon"= "{{longitude}}"
+
+
+// This request would hit Zomato API endpoint to fetch the cuisines availabe at the city (and its geo coordinates) specified as parameter.
+
+@name("Search for Cuisine")
+GET "https://developers.zomato.com/api/v2.1/cuisines"
+"user-key": "{{Zomato API Key}}"
+? "city_id"= "{{city_id}}"
+? "lat"= "{{latitude}}"
+? "lon"= "{{longitude}}"
+
+
+// This request pools in everything that has been searched in the previous requests and searches the restaurants/ eateries that satisfy user's requirement of establishment type and cuisine.
+
+@name("Search for restaurant")
+GET "https://developers.zomato.com/api/v2.1/search"
+"user-key": "{{Zomato API Key}}"
+? "city_id"= "{{city_id}}"
+? "lat"= "{{latitude}}"
+? "lon"= "{{longitude}}"
+? "establishment_id"= "{{establishment_type_id}}"
+? "cuisines"= "{{cuisine_id}}"
+? "radius"= "500"
+? "sort"= "real_distance"
+? "order"= "asc"
+? "start"= "0"
+? "count"= "20"
+
+
+

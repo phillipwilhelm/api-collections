@@ -1,0 +1,95 @@
+#!/usr/bin/env dothttp
+
+@name("List PROMOTION campaigns")
+GET "https://{{url}}/campaigns"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+? "campaign_type"= "PROMOTION"
+data('{
+    "name": "TEST-API-FOR-CAMPAIGN-6",
+    "vouchers_count":2,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+        "redemption": {
+            "quantity": 5 
+        },
+        "code_config": {
+            "pattern": "TC6-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+@name("Validate promotion")
+POST "https://{{url}}/promotions/validation"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+data('{
+ "metadata": { "test": true},
+  "order":{
+    "amount":1000,
+    "items":[
+      {"quantity": 10, "amount": 100, "source_id": "internal_crm_id_1498629107", "related_object": "product", "price": 1000 }
+    ],
+      "customer": {
+    "source_id": "abc"
+  }
+  }
+}')
+
+
+@name("Validate promotion (client-api)")
+GET "https://{{clientUrl}}/promotions/validation"
+"X-Client-Application-Id": "{{X-Client-Application-Id}}"
+"X-Client-Token": "{{X-Client-Token}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Origin": "origin"
+"": ""
+? "amount"= "100001"
+? "item[0][product_id]"= "internal_crm_id_1498629107"
+? "item[0][quantity]"= "10"
+? "item[0][price]"= "1000"
+? "item[0][amount]"= "100"
+
+
+
+@name("List all tiers")
+GET "https://{{url}}/promotions/tiers"
+"X-App-Id": "{{X-App-Id}}"
+"X-App-Token": "{{X-App-Token}}"
+"Content-Type": "application/json"
+"X-Voucherify-API-Version": "v2017-04-20"
+data('{
+    "name": "TEST-API-FOR-CAMPAIGN-6",
+    "vouchers_count":2,
+    "voucher": {
+        "type": "DISCOUNT_VOUCHER",
+        "discount": {
+            "percent_off": "10.0",
+            "type": "PERCENT"
+        },
+        "redemption": {
+            "quantity": 5 
+        },
+        "code_config": {
+            "pattern": "TC6-PROMO-#######"
+        }
+    },
+    "metadata": {
+      "test": true
+    }
+}')
+
+
+

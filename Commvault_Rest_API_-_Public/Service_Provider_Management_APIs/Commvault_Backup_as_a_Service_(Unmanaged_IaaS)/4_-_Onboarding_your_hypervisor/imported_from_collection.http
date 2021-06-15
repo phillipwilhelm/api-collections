@@ -1,0 +1,790 @@
+#!/usr/bin/env dothttp
+
+@name("Get Recovery Enablers")
+GET "https://{{ServerUrl}}/MediaAgent/RecoveryEnabler"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+? "osType"= "CLIENT_PLATFORM_OSTYPE_UNIX"
+
+
+@name("Add Hypervisor (New virtualization client)")
+POST "https://{{ServerUrl}}/Client"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "clientInfo": {
+        "clientType": 12,
+        "virtualServerClientProperties": {
+            "virtualServerInstanceInfo": {
+                "vsInstanceType": 1,
+                "defaultFBRUnixMediaAgent": {
+                    "mediaAgentId": {{mediaAgentId}},
+                    "mediaAgentName": "{{mediaAgentName}}"
+                },
+                "associatedClients": {
+                    "memberServers": [
+                        {
+                            "client": {
+                                "clientName": "{{clientName}}",
+                                "clientId": {{clientId}},
+                                "_type_": 3
+                            }
+                        }
+                    ]
+                },
+                "vmwareVendor": {
+                    "vcenterHostName": "{{vcenterHostName}}",
+                    "virtualCenter": {
+                        "userName": "{{userName}}",
+                        "password": "{{password}}"
+                    }
+                }
+            }
+        }
+    },
+    "entity": {
+        "clientName": "{{clientName}}"
+    }
+}')
+
+
+@name("Create VM Group")
+POST "https://{{ServerUrl}}/subclient"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "subClientProperties": {
+        "vmContentOperationType": 2,
+        "vmContent": {
+            "children": [
+                {
+                    "equalsOrNotEquals": true,
+                    "displayName": "{{vmContentdisplayName}}",
+                    "allOrAnyChildren": true,
+                    "type": 4,
+                    "name": "{{vmContentname}}"
+                }
+            ]
+        },
+        "subClientEntity": {
+            "clientName": "{{clientName}}",
+            "appName": "Virtual Server",
+            "applicationId": 106,
+            "subclientName": "{{subclientName}}"
+        },
+        "planEntity": {
+            "planName": "{{planName}}"
+        },
+        "commonProperties": {
+            "enableBackup": true,
+            "numberOfBackupStreams": 5,
+            "isSnapbackupEnabled": false,
+            "snapCopyInfo": {
+                "transportModeForVMWare": 0,
+                "isSnapBackupEnabled": false
+            }
+        },
+        "vsaSubclientProp": {
+            "autoDetectVMOwner": false,
+            "quiesceGuestFileSystemAndApplications": true
+        }
+    }
+}')
+
+
+@name("Setting virtual machine backup type --Crash consistent")
+POST "https://{{ServerUrl}}/Subclient/{{vmGroupId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "subClientProperties": {
+        "subClientEntity": {
+            "subclientId": {{vmGroupId}}
+        },
+        "commonProperties": {
+            "numberOfBackupStreams": 5,
+            "snapCopyInfo": {
+                "transportModeForVMWare": 0,
+                "applicationAware": false
+            }
+        },
+        "vsaSubclientProp": {
+            "autoDetectVMOwner": false,
+            "quiesceGuestFileSystemAndApplications": false,
+            "useVMCheckpointSetting": false,
+            "useChangedTrackingOnVM": true,
+            "retainSnap": false,
+            "datastoreFreespaceCheck": true,
+            "datastoreFreespaceRequired": 10
+        }
+    },
+    "association": {
+        "entity": [
+            {
+                "subclientId": {{vmGroupId}}
+            }
+        ]
+    }
+}')
+
+
+@name("Setting virtual machine backup type --Application Aware")
+POST "https://{{ServerUrl}}/Subclient/{{vmGroupId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "subClientProperties": {
+        "subClientEntity": {
+            "subclientId": {{vmGroupId}}
+        },
+        "commonProperties": {
+            "numberOfBackupStreams": 5,
+            "snapCopyInfo": {
+                "transportModeForVMWare": 0,
+                "applicationAware": true
+            }
+        },
+        "vsaSubclientProp": {
+            "autoDetectVMOwner": false,
+            "quiesceGuestFileSystemAndApplications": false,
+            "useVMCheckpointSetting": false,
+            "useChangedTrackingOnVM": true,
+            "retainSnap": false,
+            "datastoreFreespaceCheck": true,
+            "datastoreFreespaceRequired": 10
+        }
+    },
+    "association": {
+        "entity": [
+            {
+                "subclientId": {{vmGroupId}}
+            }
+        ]
+    }
+}')
+
+
+@name("Setting virtual machine backup type --Filesystem and application consistent")
+POST "https://{{ServerUrl}}/Subclient/{{vmGroupId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "subClientProperties": {
+        "subClientEntity": {
+            "subclientId": {{vmGroupId}}
+        },
+        "commonProperties": {
+            "numberOfBackupStreams": 5,
+            "snapCopyInfo": {
+                "transportModeForVMWare": 0,
+                "applicationAware": false
+            }
+        },
+        "vsaSubclientProp": {
+            "autoDetectVMOwner": false,
+            "quiesceGuestFileSystemAndApplications": true,
+            "useVMCheckpointSetting": false,
+            "useChangedTrackingOnVM": true,
+            "retainSnap": false,
+            "datastoreFreespaceCheck": true,
+            "datastoreFreespaceRequired": 10
+        }
+    },
+    "association": {
+        "entity": [
+            {
+                "subclientId": {{vmGroupId}}
+            }
+        ]
+    }
+}')
+
+
+@name("Backup")
+POST "https://{{ServerUrl}}/v2/vsa/vmgroup/{{vmGroupId}}/backup"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/xml"
+
+
+
+@name("Assigning VM End User Role")
+POST "https://{{ServerUrl}}/Security"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "entityAssociated": {
+        "entity": [
+            {
+                "clientName": "{{clientName}}",
+                "_type_": 3
+            }
+        ]
+    },
+    "securityAssociations": {
+        "associationsOperationType": 1,
+        "associations": [
+            {
+                "userOrGroup": [
+                    {
+                        "userId": 0,
+                        "_type_": 13,
+                        "userName": "admin"
+                    }
+                ],
+                "properties": {
+                    "role": {
+                        "_type_": 120,
+                        "roleId": 20,
+                        "roleName": "VM End User"
+                    }
+                }
+            }
+        ],
+        "ownerAssociations": {
+            "ownersOperationType": 1,
+            "categoryPermission": {
+                "categoriesPermissionOperationType": 1
+            }
+        }
+    }
+}')
+
+
+@name("Assigning Tenant Admin Role")
+POST "https://{{ServerUrl}}/Security"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "entityAssociated": {
+        "entity": [
+            {
+                "clientName": "{{clientName}}",
+                "_type_": 3
+            }
+        ]
+    },
+    "securityAssociations": {
+        "associationsOperationType": 1,
+        "associations": [
+            {
+                "userOrGroup": [
+                    {
+                        "userId": 0,
+                        "_type_": 13,
+                        "userName": "admin"
+                    }
+                ],
+                "properties": {
+                    "role": {
+                        "_type_": 120,
+                        "roleId": 13,
+                        "roleName": "Tenant Admin"
+                    }
+                }
+            }
+        ],
+        "ownerAssociations": {
+            "ownersOperationType": 1,
+            "categoryPermission": {
+                "categoriesPermissionOperationType": 1
+            }
+        }
+    }
+}')
+
+
+@name("Adding user/user group as owner of vmgroup")
+POST "https://{{ServerUrl}}/Security"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "entityAssociated": {
+        "entity": [
+            {
+                "clientName": "{{clientName}}",
+                "_type_": 3
+            }
+        ]
+    },
+    "securityAssociations": {
+        "associationsOperationType": 1,
+        "ownerAssociations": {
+            "ownersOperationType": 1,
+            "categoryPermission": {
+                "categoriesPermissionOperationType": 1
+            },
+            "owners": [
+                {
+                    "entityTypeName": "",
+                    "userName": "admin"
+                }
+            ]
+        }
+    }
+}')
+
+
+@name("Full backup of VMGroup")
+POST "https://{{ServerUrl}}/CreateTask"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "taskInfo": {
+        "associations": [
+            {
+                "srmReportSet": 0,
+                "subclientId": {{vmGroupId}},
+                "srmReportType": 0,
+                "commCellId": 2,
+                "clientSidePackage": true,
+                "_type_": 3,
+                "consumeLicense": true
+            }
+        ],
+        "task": {
+            "taskType": 1,
+            "ownerName": "admin",
+            "initiatedFrom": 1,
+            "policyType": 0,
+            "taskFlags": {
+                "disabled": false
+            }
+        },
+        "subTasks": [
+            {
+                "subTask": {
+                    "subTaskName": "web sub task",
+                    "subTaskType": 2,
+                    "operationType": 2
+                },
+                "options": {
+                    "backupOpts": {
+                        "backupLevel": 1,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false
+                    },
+                    "adminOpts": {
+                        "updateOption": {
+                            "invokeLevel": 0
+                        }
+                    },
+                    "commonOpts": {
+                        "subscriptionInfo": "<Api_Subscription subscriptionId =\"19\"/>"
+                    }
+                }
+            }
+        ]
+    }
+}')
+
+
+@name("Incremental backup of VMGroup")
+POST "https://{{ServerUrl}}/CreateTask"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "taskInfo": {
+        "associations": [
+            {
+                "srmReportSet": 0,
+                "subclientId": {{vmGroupId}},
+                "srmReportType": 0,
+                "commCellId": 2,
+                "clientSidePackage": true,
+                "_type_": 3,
+                "consumeLicense": true
+            }
+        ],
+        "task": {
+            "taskType": 1,
+            "ownerName": "admin",
+            "initiatedFrom": 1,
+            "policyType": 0,
+            "taskFlags": {
+                "disabled": false
+            }
+        },
+        "subTasks": [
+            {
+                "subTask": {
+                    "subTaskName": "web sub task",
+                    "subTaskType": 2,
+                    "operationType": 2
+                },
+                "options": {
+                    "backupOpts": {
+                        "backupLevel": 2,
+                        "runIncrementalBackup": true,
+                        "isSpHasInLineCopy": false
+                    },
+                    "adminOpts": {
+                        "updateOption": {
+                            "invokeLevel": 0
+                        }
+                    },
+                    "commonOpts": {
+                        "subscriptionInfo": "<Api_Subscription subscriptionId =\"19\"/>"
+                    }
+                }
+            }
+        ]
+    }
+}')
+
+
+@name("Synthetic Full backup of VMGroup")
+POST "https://{{ServerUrl}}/CreateTask"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "taskInfo": {
+        "associations": [
+            {
+                "srmReportSet": 0,
+                "subclientId": {{vmGroupId}},
+                "srmReportType": 0,
+                "commCellId": 2,
+                "clientSidePackage": true,
+                "_type_": 3,
+                "consumeLicense": true
+            }
+        ],
+        "task": {
+            "taskType": 1,
+            "ownerName": "admin",
+            "initiatedFrom": 1,
+            "policyType": 0,
+            "taskFlags": {
+                "disabled": false
+            }
+        },
+        "subTasks": [
+            {
+                "subTask": {
+                    "subTaskName": "web sub task",
+                    "subTaskType": 2,
+                    "operationType": 2
+                },
+                "options": {
+                    "backupOpts": {
+                        "backupLevel": 4,
+                        "incLevel": 1,
+                        "runIncrementalBackup": false,
+                        "isSpHasInLineCopy": false
+                    },
+                    "adminOpts": {
+                        "updateOption": {
+                            "invokeLevel": 0
+                        }
+                    },
+                    "commonOpts": {
+                        "subscriptionInfo": "<Api_Subscription subscriptionId =\"19\"/>"
+                    }
+                }
+            }
+        ]
+    }
+}')
+
+
+@name("Adding a file browse enabler for a hypervisor")
+POST "https://{{ServerUrl}}/Application"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+    "prop": {
+        "lockId": 0,
+        "creatFailIndex": false,
+        "creatFullIndex": true,
+        "dataCollection": 0,
+        "virtualServerInfo": {
+            "hostName": "{{hostName}}",
+            "description": "",
+            "vendor": 1,
+            "virtualCenter": true,
+            "vcloudhostName": "",
+            "virtualCenterIsRegistered": false,
+            "createClientsForAllVms": false,
+            "vcenterWebPluginHost": "",
+            "googleCloud": {
+                "serviceAccountId": "",
+                "serverName": "",
+                "projectId": "",
+                "credentials": {}
+            },
+            "adminInstanceInfo": {
+                "enableAdminAccount": false,
+                "adminInstanceId": 0
+            },
+            "defaultFBRUnixMediaAgent": {
+                "mediaAgentName": "{{mediaAgentName}}"
+            },
+            "vcloudPassword": {
+                "userName": ""
+            },
+            "virtualServerCredentialinfo": {
+                "flags": {}
+            },
+            "docker": {
+                "serverName": "",
+                "credentials": {}
+            },
+            "autoScaleProxy": {
+                "enableAutoProxy": false,
+                "vmAllocationPolicyId": 0
+            },
+            "oracleCloudInfrastructure": {
+                "tenancyOCId": "",
+                "userOCId": "",
+                "regionName": "",
+                "privateKeyFileName": "",
+                "fingerPrint": ""
+            },
+            "redHatOpenShift": {
+                "serverName": "",
+                "serviceToken": "",
+                "credentials": {}
+            },
+            "appId": {
+                "subclientId": 0,
+                "clientId": 0,
+                "instanceId": 0,
+                "clientName": "",
+                "instanceName": "",
+                "backupsetName": "",
+                "backupsetId": 0,
+                "apptypeId": 0,
+                "subclientName": "",
+                "applicationName": ""
+            },
+            "vCloudInstanceInfo": {
+                "associatedVCenters": {}
+            },
+            "openStack": {
+                "serverName": "",
+                "credentials": {}
+            },
+            "vcPassword": {
+                "userName": "{{userName}}"
+            },
+            "azure": {
+                "serverName": "",
+                "credentials": {}
+            },
+            "azureResourceManager": {
+                "tenantId": "",
+                "serverName": "",
+                "subscriptionId": "",
+                "credentials": {}
+            },
+            "k8s": {
+                "secretName": "",
+                "secretType": "",
+                "endpointurl": "",
+                "namespac": ""
+            },
+            "oracleCloud": {
+                "serverName": "",
+                "identityDomain": "",
+                "credentials": {}
+            },
+            "amazonInstanceInfo": {
+                "discoveryamilist": "",
+                "accessKey": "",
+                "enableAdminAccount": false,
+                "adminInstanceId": 0,
+                "regionEndPoints": "",
+                "useIamRole": false,
+                "email": "",
+                "discoveryflags": 0
+            },
+            "guestCredentials": {
+                "userName": ""
+            },
+            "sshKey": {
+                "sshKeyFilePath": "",
+                "passPhrase": {}
+            },
+            "aliBabaCloud": {
+                "accessKey": ""
+            },
+            "vmApplicationCredentials": {
+                "userName": ""
+            }
+        },
+        "appId": {
+            "subclientId": 0,
+            "clientId": 8580,
+            "instanceId": 380,
+            "clientName": "",
+            "instanceName": "",
+            "backupsetName": "",
+            "backupsetId": 0,
+            "apptypeId": 0,
+            "subclientName": "",
+            "applicationName": ""
+        },
+        "credentails": {
+            "sqlDatabase": "VIM_VCDB",
+            "sqlInstance": "SQLEXP_VIM",
+            "userPassword": {}
+        }
+    }
+}')
+
+
+@name("Installing the Media Agent package on VSA")
+POST "https://{{ServerUrl}}/CreateTask"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "{{Accept}}"
+data('{
+    "taskInfo": {
+        "associations": [
+            {
+                "clientName": "{{clientName}}",
+                "commCellId": 2
+            }
+        ],
+        "task": {
+            "taskType": 1,
+            "initiatedFrom": 1,
+            "taskFlags": {
+                "disabled": false
+            }
+        },
+        "subTasks": [
+            {
+                "subTask": {
+                    "subTaskType": 1,
+                    "operationType": 4026
+                },
+                "options": {
+                    "adminOpts": {
+                        "clientInstallOption": {
+                            "reuseADCredentials": false,
+                            "installOSType": 0,
+                            "discoveryType": 0,
+                            "installerOption": {
+                                "requestType": 0,
+                                "Operationtype": 0,
+                                "CommServeHostName": "{{CommServeHostName}}",
+                                "RemoteClient": false,
+                                "installFlags": {
+                                    "allowMultipleInstances": true,
+                                    "restoreOnlyAgents": false,
+                                    "killBrowserProcesses": true,
+                                    "install32Base": false,
+                                    "disableOSFirewall": false,
+                                    "stopOracleServices": false,
+                                    "skipClientsOfCS": false,
+                                    "addToFirewallExclusion": true,
+                                    "ignoreJobsRunning": false,
+                                    "forceReboot": false,
+                                    "overrideClientInfo": true,
+                                    "firewallInstall": {
+                                        "enableFirewallConfig": false,
+                                        "firewallConnectionType": 0,
+                                        "portNumber": 0
+                                    }
+                                },
+                                "User": {
+                                    "userName": "admin",
+                                    "userId": 1
+                                },
+                                "clientComposition": [
+                                    {
+                                        "packageDeliveryOption": 0,
+                                        "overrideSoftwareCache": false,
+                                        "components": {
+                                            "commonInfo": {
+                                                "globalFilters": 2
+                                            },
+                                            "fileSystem": {
+                                                "configureForLaptopBackups": false
+                                            },
+                                            "componentInfo": [
+                                                {
+                                                    "osType": "Windows",
+                                                    "ComponentId": 51
+                                                },
+                                                {
+                                                    "osType": "Windows",
+                                                    "ComponentId": 453
+                                                }
+                                            ]
+                                        },
+                                        "clientInfo": {
+                                            "client": {
+                                                "evmgrcPort": 0,
+                                                "cvdPort": 0
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "clientDetails": [
+                                {
+                                    "clientEntity": {
+                                        "clientName": "{{entityclientName}}",
+                                        "commCellId": 2
+                                    }
+                                }
+                            ],
+                            "clientAuthForJob": {
+                                "userName": "admin"
+                            }
+                        },
+                        "updateOption": {
+                            "rebootClient": true
+                        }
+                    },
+                    "commonOpts": {
+                        "subscriptionInfo": "<Api_Subscription subscriptionId =\"77\"/>"
+                    }
+                }
+            }
+        ]
+    }
+}')
+
+
+@name("Configure use of vsa for package installation")
+POST "https://{{ServerUrl}}/client/{{clientId}}"
+"Authtoken": "{{TOKEN}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+json({
+    "clientProperties": {
+        "clientProps": {
+            "registryKeys": [
+                {
+                    "hidden": false,
+                    "relativepath": "iDataAgent\\VSA_APP_AWARE",
+                    "keyName": "PushInstallThroughProxy",
+                    "isInheritedFromClientGroup": false,
+                    "comment": "required to track why setting was applied",
+                    "type": "INTEGER",
+                    "value": "1",
+                    "enabled": 1
+                }
+            ]
+        }
+    }
+})
+
+
+

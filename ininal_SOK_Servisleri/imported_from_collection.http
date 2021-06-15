@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+// #### Header
+// |Adı            |Değeri      
+// |---            |---------------
+// |Content-Type   |application/json    
+// |Authorization  |Basic `encodedData`     
+// 
+// Header içerisine `Basic encodedData` şeklinde veri girilmesi gerekmektedir. `encodedData` elde etmek için size ilettiğimiz `API key` ve `Secret key` bilgilerinin **base64** ile encode edilmesi gerekmektedir. Base64 işlemi `apiKey:secretKey` formatı kullanılarak elde edilmelidir. Encoding işlemi için [base64encode](https://www.base64encode.org/) adresini kullanabilirsiniz. 
+// 
+// #### Response
+// |Adı            |Tipi       |Açıklaması
+// |---            |---------- |----
+// |accessToken    |String     | İninal Servislerinde Authorization kısmında "Bearer `accessToken`" şeklinde kullanılacaktır.
+// |tokenType      |String     | Authorization tipini ifade eder. Bearer ile kullanılması gerektiğini söyler.
+// |expiresIn      |Number     | Milisaniye olarak tokenın geçerlilik süresini belirtir.
+
+@name("Access Token")
+POST "https://tapi.ininal.com/v3.0/auth/accesstoken"
+"Content-Type": "application/json"
+"Authorization": "Basic {{encodedData}}"
+
+
+// Bu servis, ininal karta yükleme yapılmadan önce çağırılarak yüklemenin uygun olup olmadığı bilgisini ve yönetmelikçe belirlenmiş BSMV/KDV oranlarını listeler.
+// 
+// ### Request
+// 
+// |Adı            |Tipi       |Açıklaması
+// |------------   |---------  |------------
+// |barcodeNumber  | String    |Yüklemenin gerçekleşeceği barkod bilgisi
+// |amount         | BigDecimal|Yüklenecek tutar bilgisi
+// 
+// ### Response
+// Yüklenecek olan tutar uygunsa ve komisyon tanımları mevcutsa , servis response u içerisinde komisyon bilgileri ve loadable alanı true olarak döner.
+// Girilen tutar yükleme için uygun değilse loadable false ve diğer komisyon tutar bilgileri null olarak döner.
+// 
+// |Adı                    |Tipi        |Açıklaması
+// |-------                |---------   |----------------
+// |loadable               | boolean    | Yükleme tutarı yüklenebilir mi? (true/false)
+// |commissionAmount       | BigDecimal | Toplam komisyon tutarı
+// |companyCommissionAmount| String  	 | İşyeri Komisyon Tutarı
+// |companyCommissionRate  | String  	 | İşyeri Vergi Oranı
+// |ininalCommissionRate   | String  	 | ininal Komisyon Tutarı
+// |ininalCommissionAmount | String  	 | ininal Vergi Oranı
+
+@name("Verify Load Balance And Commission Information")
+POST "https://tapi.ininal.com/v3.0/transactions/in/verify/commission"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{OAuth_Token}}"
+data('{
+    "barcodeNumber" : "{{barcodeNumber}}",
+    "amount":10
+}')
+
+
+

@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+@name("Get token (login)")
+POST "https://{{nxos}}/api/aaaLogin.json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "aaaUser": {
+        "attributes": {
+            "name": "{{username}}",
+            "pwd": "{{password}}"
+        }
+    }
+})
+
+
+@name("Get interface eth1/20")
+GET "https://{{nxos}}/api/mo/sys/intf/phys-[eth1/20].json"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Configure interface eth1/20")
+POST "https://{{nxos}}/api/mo/sys/intf.json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "interfaceEntity": {
+        "children": [
+            {
+                "l1PhysIf": {
+                    "attributes": {
+                        "id": "eth1/20",
+                        "mode": "trunk",
+                        "trunkVlans": "15-20"
+                    }
+                }
+            }
+        ]
+    }
+})
+
+
+@name("Create VLAN 200")
+POST "https://{{nxos}}/api/mo/sys/bd.json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "bdEntity": {
+        "children": [
+            {
+                "l2BD": {
+                    "attributes": {
+                        "fabEncap": "vlan-200",
+                        "pcTag": "1"
+                    }
+                }
+            }
+        ]
+    }
+})
+
+
+@name("Get VLAN 200")
+GET "https://{{nxos}}/api/mo/sys/bd/bd-vlan-200.json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Assign VLAN 200 to eth1/21")
+POST "https://{{nxos}}/api/mo/sys.json"
+"Accept": "application/json"
+"Content-Type": "application/json"
+json({
+    "topSystem": {
+        "children": [
+            {
+                "interfaceEntity": {
+                    "children": [
+                        {
+                            "l1PhysIf": {
+                                "attributes": {
+                                    "accessVlan": "vlan-200",
+                                    "layer": "Layer2",
+                                    "id": "eth1/21"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+})
+
+
+@name("Get interface eth1/21")
+GET "https://{{nxos}}/api/mo/sys/intf/phys-[eth1/21].json"
+basicauth("{{username}}", "{{password}}")
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+

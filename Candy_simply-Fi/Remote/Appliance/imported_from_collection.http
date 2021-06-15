@@ -1,0 +1,121 @@
+#!/usr/bin/env dothttp
+
+// Validate a product serial number and retrieve some details about it.
+
+@name("ValidateApplianceCode")
+GET "https://{{CANDY_BASE_URI}}api/v1/appliances/validate.json"
+? "sixteen_digits_code"= "{{PRODUCT_SERIALNUMBER}}"
+
+
+// Create a new appliance. Serial number is the 16-digit number printed on the device and embedded into a QR Code.
+// 
+// This is called by Candy Simply Fi app once the device successfully connected to the WiFi network.
+// You can call it manually but then you will not be able to communication with your device as:
+//  - It is not connected to your WiFi
+//  - The encryption key will not match
+//  
+// Encryption key requires a short explanation: it is randomly generated during the registration process by the client app,  pushed to the device with your wifi auth info, then pushed here to the central Candy server. Further commands sent locally or remotely by Candy server are then encrypted using this key.
+
+@name("CreateNewApplianceWithSerial")
+POST "https://{{CANDY_BASE_URI}}api/v1/appliances.json"
+"Content-Type": "application/json"
+data('{
+	"appliance": {
+		"sixteen_digits_code": "{{PRODUCT_SERIALNUMBER}}",
+		"encryption_key": "{{PRODUCT_ENCRYPTIONKEY}}",
+		"ssid_name": "{{NETWORK_SSID}}",
+		"mac_address": "{{PRODUCT_MACADDRESS}}",
+		"ssid_security": "{{NETWORD_SECURITY}}"
+	}
+}')
+
+
+// List all registered appliances.
+
+@name("ApplianceList")
+GET "https://{{CANDY_BASE_URI}}api/v1/appliances.json"
+? "with_programs"= "1"
+
+
+@name("GetAppliance")
+GET "https://{{CANDY_BASE_URI}}api/v1/appliances/{{APPLIANCE_ID}}.json"
+? "with_programs"= "0"
+
+
+@name("GetEnergyStatsForMonth")
+GET "https://{{CANDY_BASE_URI}}api/v1/appliances/{{APPLIANCE_ID}}/energy/"
+? "month"= "1"
+? "year"= "2020"
+
+
+@name("GetEnergyStatsForWeek")
+GET "https://{{CANDY_BASE_URI}}api/v1/appliances/{{APPLIANCE_ID}}/energy/"
+? "week"= "1"
+? "year"= "2020"
+
+
+@name("DownloadDTDownloadablePrograms")
+GET "https://{{CANDY_BASE_URI}}api/v1/wm_wd_programs.json"
+
+
+// Remove an appliance from Candy central server using its id.
+
+@name("RemoveApplianceFromServer")
+DELETE "https://{{CANDY_BASE_URI}}api/v1/appliances/{{APPLIANCE_ID}}.json"
+
+
+// Update appliance statistics. Directly sent by the device or through a forward of data retrieved from GetStatistics call on local endpoint.
+
+@name("UpdateStatistics")
+POST "https://{{CANDY_BASE_URI}}api/v1/appliance_statistics.json"
+"Content-Type": "application/json"
+data('{
+	"appliance_statistic": {
+		"appliance_id": "{{APPLIANCE_ID}}",
+		"lastupload_timestamp": "{{$timestamp}}",
+		"counters": "99,0,66,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,164,0,3"
+	}
+}')
+
+
+// Update appliance status. Directly sent by the device or through a forward of data retrieved from GetStatus call on local endpoint.
+
+@name("ForwardStatus")
+GET "https://{{CANDY_BASE_URI}}api/av1/listen.json"
+? "macAddress"= "{{PRODUCT_MACADDRESS}}"
+? "forwarded"= "android"
+? "StatoWiFi"= "1"
+? "CodiceErrore"= "E0"
+? "StatoDWash"= "2"
+? "MetaCarico"= "0"
+? "StartStop"= "0"
+? "TreinUno"= "0"
+? "Eco"= "0"
+? "Program"= "P19"
+? "ExtraDry"= "0"
+? "OpenDoorOpt"= "0"
+? "DelayStart"= "0"
+? "RemTime"= "39"
+? "MissSalt"= "0"
+? "MissRinse"= "0"
+? "OpenDoor"= "1"
+? "Reset"= "0"
+? "CheckUp"= "0"
+? "r1"= "5"
+? "r2"= "0"
+? "r3"= "2"
+? "r4"= "1"
+? "r5"= "0"
+? "r6"= "1"
+? "r7"= "3"
+? "r8"= "0"
+? "r15"= "1"
+
+
+
+@name("GetErrorCodes")
+GET "https://{{CANDY_BASE_URI}}/api/v1/error_codes.json"
+? "with_suggestions"= "1"
+
+
+

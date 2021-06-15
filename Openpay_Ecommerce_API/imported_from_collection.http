@@ -1,0 +1,527 @@
+#!/usr/bin/env dothttp
+
+// A valid Plan ID is required before an Openpay order can be processed. This API call is required before a customer is directed to Websales signin/signup.
+// 
+// The API response will contain the PlanID for the subsequent order placement. 
+// 
+// ----
+// 
+// ### BODY STRUCTURE
+// 
+// The body of the requests contain the following data:
+// 
+// | Section                       | Fields                                                                                                                                 |
+// |-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+// | Order Information             | `PurchasePrice` `PlanCreationType` `RetailerOrderNo`                                                                                   |
+// | Customer Quality Information  | `ChargeBackCount` `CustomerQuality`                                                                                                    |
+// | Customer Personal Information | `FirstName` `FamilyName` `Email` `DateOfBirth` `Gender` `PhoneNumber` `ResAddress1` `ResAddress2` `ResSuburb` `ResState` `ResPostCode` |
+// | Customer Delivery Details     | `DeliveryDate` `DelAddress1` `DelAddress2` `DelSuburb` `DelState` `DelPostCode`                                                        |
+// | Basket Data                   | `ItemName` `ItemGroup` `ItemCode` `ItemGroupCode` `ItemRetail UnitPrice` `ItemQty` `ItemRetailCharge`                                  |
+// | Split Tender Information      | `Tender` `Amount`                                                                                                                      |
+// 
+// 
+// ----
+// 
+// ### Field Details
+// | Element            | Type        | Optional | Description                                                                                                                                                    |
+// |--------------------|-------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | `JamAuthToken`     | Chars       | No       | A unique string issued to the   Retailer                                                                                                                       |
+// | `PurchasePrice`    | Decimal     | Yes      | Purchase price of the order                                                                                                                                    |
+// | `PlanCreationType` | Chars       | Yes      | `Pending`, `Instant`                                                                                                                                            |
+// | `RetailerOrderNo`  | As supplied | No       | Retailer Order number                                                                                                                                |
+// | `ChargeBackCount`  | Number      | No       | How many chargebacks are known to have been received from this customer? `-1 Unknown`                                                                        |
+// | `CustomerQuality`  | Number      | No       | How is this customer categorised? `-1 Unknown (default)`, `0 Brand new with no history`, `1   Returning good customer`, `2 Returning average`, `3 Returning bad` |
+// | `FirstName`        | 50 chars    | Yes      | The customer’s first name.                                                                                                                                     |
+// | `OtherNames`       | 50 chars    | No       | The customer’s other names (middle names).                                                                                                                     |
+// | `FamilyName`       | 50 chars    | Yes      | The customer’s family name.                                                                                                                                    |
+// | `Email`            | 150 chars   | Yes      | The customers email address..                                                                                                                       |
+// | `DateOfBirth`      | 11 chars    | No       | Format: dd mmm yyyy                                                                                                                                            |
+// | `Gender`           | 1 char      | No       | `U Unspecified`, `M Male`, `F Female`, `O Other`                                                                                                                       |
+// | `PhoneNumber`      | 25 chars    | No       | Valid mobile phone number                                                                                                                                      |
+// | `ResAddress1`      | 100 chars   | No       | Physical residential address (line 1) as it would be known to the credit checking authority.  It may not be a PO Box.                                  |
+// | `ResAddress2`      | 100 chars   | No       | Physical address (line 2).                                                                                                                               |
+// | `ResSuburb`        | 100 chars   | No       | Physical suburb.                                                                                                                                         |
+// | `ResState`         | 100 chars     | No       | State or county.                                                                                                                                           |
+// | `ResPostCode`      | 8 chars     | No       | The postcode for the customers address.                                                                                                                      |
+// | `DeliveryDate`     | date        | No       | Format: dd mmm yyyy                                                                                                                                            |
+// | `DelAddress1`      | 100 chars   | Yes      | Delivery address                                                                                                                                               |
+// | `DelAddress2`      | 100 chars   | No       | Delivery address (line 2)                                                                                                                                      |
+// | `DelSuburb`        | 100 chars   | Yes      | Delivery suburb / town / county                                                                                                                                |
+// | `DelState`         | 3 chars     | Yes      | The state or county.                                                                                                                                           |
+// | `DelPostCode`      | 8 chars     | Yes      | The postcode for the customers address.                                                                                                                      |
+// 
+// ----
+// 
+// 
+// ### OPTIONAL BASKET DATA
+// 
+// The basket data component, if supplied may contain a collection of the following:
+// 
+// | Element              | Value   | Mandatory? | Notes                                                                                                                                       |
+// |------------------------|---------|------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+// | `ItemName`             | Chars   | Yes        | A description of the item used   by the retailer.                                                                                           |
+// | `ItemGroup`            | Chars   | No         | A group level description if   available.                                                                                                   |
+// | `ItemCode`             | Chars   | Yes        | An internal stock number for   this item.                                                                                                   |
+// | `ItemGroupCode`        | Chars   | No         | If a group has an internal code   that may be used to refer to it, it can be supplied.                                                      |
+// | `ItemRetail UnitPrice` | Decimal | Yes        | The individual retail price   charged for the item.  It may be   omitted if required in situations where group discounts have been applied. |
+// | `ItemQty`              | Number  | Yes        | How many of the items were   purchased.                                                                                                     |
+// | `ItemRetailCharge`     | Decimal | Yes        | The overall retail charge for   the quantity of items.                                                                                      |
+// 
+// 
+// 
+// ### OPTIONAL SPLIT TENDERS
+// 
+// For situations involving split tenders, the following details may be supplied:
+// 
+// | Element | Value   | Mandatory? | Notes                                                                                                                                                                                                                                                                      |
+// |---------|---------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | `Tender`  | Chars   | Yes        | A short description of the   tender type. e.g. “Cash”, “Card”, “Openpay”, “Unknown”, etc.  The unknown would reflect where the rest of   the transaction has not yet been conducted.                                                                                       |
+// | `Amount`  | Decimal | Yes        | How much of the overall purchase   price has been allocated against this tender type.  The assumption here is that the purchase   price that is visible in the call only represents the value that Openpay   needs to satisfy although the overall purchase may be higher. |
+// 
+// 
+// ----
+// 
+// ### RESPONSE
+// 
+// The response will contain the Plan ID that can be used for the subsequent order placement.
+// 
+// | Element         | Format      | Notes                                                                                                                                                                                                      |
+// |-----------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+// | `Status`          | Int         | `0  Successful` `>0 Error Code`                                                                                                                                                                            |
+// | `Reason`          | Chars       | A description of why it was   unsuccessful.                                                                                                                                                                |
+// | `PlanID`          | BigInt (13) | A 13 digit number representing   the Plan ID that can be used in the subsequent order. 13 digits are used in   case the retailer wishes to print the Plan ID as an EAN barcode on any   receipts produced. |
+// | `EncryptedPlanID` | Chars       | Future Use: Encrypted version of   Plan ID, which should be used for secure Plan related communications.                                                                                                   |
+// | `BackListMatch`   | Number      | `-1 Not enough information   supplied to check BlackList` `0 No match against black list database` `1 One   or more attributes supplied match a black list`                                                |
+// | `TransactionToken`   | Chars      | Transaction token attached to the PlanID, this token should be use to authorise transaction |
+
+@name("NewOnlineOrder")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/NewOnlineOrder"
+"Content-Type": "application/xml"
+data('<NewOnlineOrder>
+    <JamAuthToken>{{jamAuthToken}}</JamAuthToken>
+    <PurchasePrice>{{purchasePrice}}</PurchasePrice>
+    <PlanCreationType>Pending</PlanCreationType>
+    <RetailerOrderNo>{{orderNo}}</RetailerOrderNo>
+    <ChargeBackCount>{{chargeBackCount}}</ChargeBackCount>
+    <CustomerQuality>{{customerQuality}}</CustomerQuality>
+    <FirstName>{{firstName}}</FirstName>
+    <FamilyName>{{familyName}}</FamilyName>
+    <Email>{{email}}</Email>
+    <DateOfBirth>{{dob}}</DateOfBirth>
+    <Gender>{{gender}}</Gender>
+    <PhoneNumber>{{phoneNumber}}</PhoneNumber>
+    <ResAddress1>{{resAddress1}}</ResAddress1>
+    <ResAddress2>{{resAddress2}}</ResAddress2>
+    <ResSuburb>{{resSuburb}}</ResSuburb>
+    <ResState>{{resState}}</ResState>
+    <ResPostCode>{{resPostCode}}</ResPostCode>
+    <DeliveryDate>{{deliveryDate}}</DeliveryDate>
+    <DelAddress1>{{delAddress1}}</DelAddress1>
+    <DelAddress2>{{delAddress2}}</DelAddress2>
+    <DelSuburb>{{delSuburb}}</DelSuburb>
+    <DelState>{{delState}}</DelState>
+    <DelPostCode>{{delPostCode}}</DelPostCode>
+	<BasketData>
+		<BasketItem>
+			<ItemName>Shoes</ItemName>
+			<ItemGroup>Footwear</ItemGroup>
+			<ItemCode>1234567890</ItemCode>
+			<ItemGroupCode>F123</ItemGroupCode>
+			<ItemRetailUnitPrice>120.00</ItemRetailUnitPrice>
+			<ItemQty>1</ItemQty>
+			<ItemRetailCharge>120.00</ItemRetailCharge>
+		</BasketItem>
+	</BasketData>
+	<TenderTypes>
+		<TenderType>
+			<Tender>Cash</Tender>
+			<Amount>20.00</Amount>
+		</TenderType>
+	</TenderTypes>
+</NewOnlineOrder>
+')
+
+
+// Once a Plan ID has been received, the customer can be forwarded to Websales to sign in/sign up and select their plan. This is done through by redirecting the customer to a URL with several parameters.
+// 
+// The resultant URL would look somewhat like this:
+// ```
+// https://websales.sandbox.myopenpay.co.uk?JamCallbackURL=yoursite.co.uk?success&TransactionToken=[TransactionToken]&JamPlanID=[JamPlanID]
+// ```
+// 
+// 
+// ----
+// 
+// 
+// 
+// ### RESPONSE
+// 
+// The response will contain the Plan ID that can be used for the subsequent order placement.
+// 
+// |    Element    |    Value        |    Optional?    |    Notes                                                                                                                                             |
+// |---------------|-----------------|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+// |    `Status`     |    Chars        |    No           |    Possible outcomes of the order. `LODGED`,`CANCELLED`,`FAILURE`
+// |    `Planid`     |    13 digits    |    No           |    Plan ID provided by Openpay.                                                                                                                      |
+// |   `Orderid`    |    Chars        |    Yes          |    This field will be provided if the Order ID was provided.                                                                   |
+// 
+// An example callback URL might be:
+// ```
+// https://yoursite.co.uk?status=LODGED&planid=1000000000001&orderid=mysite786
+// ```
+// 
+// 
+// ----
+
+@name("OnlinePlanCreation")
+GET "https://{{websalesLink}}/"
+? "JamCallbackURL"= "{{jamCallbackURL}}"
+? "TransactionToken"= "{{transactionToken}}"
+? "JamCancelURL"= "{{jamCancelURL}}"
+? "JamFailURL"= "{{jamFailURL}}"
+
+
+// If your `PlanCreationType` is `Pending` you will need to capture the payment once the customer has been redirected to the `CallbackURL` with a successful result.
+// 
+// This call will capture the deposit amount for the Plan and make the purchase Active in the Openpay system. This call must occur within 15 minutes from when the consumer has finished the Plan selection process and the user has been redirected back to your online store.
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// 
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// Once the response is received you can confidently mark the customers payment as successful.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used for capture            |
+// |    `PurchasePrice`    |    Decimal        |    Purchase price of the order            |
+
+@name("OnlineOrderCapturePayment")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderCapturePayment"
+"Content-Type": "application/xml"
+data('<OnlineOrderCapturePayment>
+    <JamAuthToken>{{jamAuthToken}}</JamAuthToken>
+	<PlanID>{{planId}}</PlanID>
+</OnlineOrderCapturePayment>')
+
+
+// This call will return the order status associated with the PlanID. 
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// 
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be received.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used for capture            |
+// |    `OrderStatus`           |    Chars    |    `Approved`, `Rejected`, `Refused`         |
+// |    `PlanStatus`           |    Chars    |    `Active`, `Refunded`, `Finished`, `Errored`, `Refused`, `BeingProcessed`, `N/A`            |
+// |    `PurchasePrice`    |    Decimal        |    Purchase price of the order            |
+
+@name("OnlineOrderStatus")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderStatus"
+"Content-Type": "application/xml"
+data('<OnlineOrderStatus>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>
+	<PlanID>{{planId}}</PlanID>
+</OnlineOrderStatus>')
+
+
+// This call will return the payment status associated with the PlanID. 
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// 
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be received.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used for capture            |
+// |    `PlanErrorCode`           |    Int    |    `0 Success`, `>0 Fail` |
+// |    `PlanErrorReason`    |    Chars        |    Description of the error            |
+// |    `PlanStatus`           |    Chars    |    `Active`, `Refunded`, `Finished`, `Errored`, `Refused`, `BeingProcessed`, `N/A` |    
+// |    `PaymentStatus` | Chars |	`OK`, `LATE`, `N/A` |
+
+@name("OnlineOrderPaymentStatus")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderPaymentStatus"
+"Content-Type": "application/xml"
+data('<OnlineOrderPaymentStatus>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>
+	<PlanIDs>
+		<PlanID>{{planId}}</PlanID>
+	</PlanIDs>
+</OnlineOrderPaymentStatus>
+')
+
+
+// This call allows a plan to be refunded, or reduced in value. Either by setting a new purchase price, or reducing by a specific amount. The call is provided to suit automated fulfilment systems that can automatically adjust the value of prospective orders when stock availability requires it.
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// |    `NewPurchasePrice`          |    Money    |    No                              |    Must be zero, or greater than zero and less than the current Purchase Price for the Plan ID concerned.  Either NewPurchasePrice OR ReducePriceBy must be supplied. In the event that both are greater than zero, they both must be accurate (i.e. New Purchase Price and Reduction are correct). |
+// |    `ReducePriceBy`          |    Money    |    No                              |   Must be zero, or greater than zero and less than the current Purchase Price for the Plan ID concerned.  This will reduce the current value of a Plan by the nominated amount and helps cater for Split Order situations where the original value of the order is no longer known.    |
+// |    `Fullrefund`          |    True/False    |    No                              |    If True then the entire Plan will be Refunded instead of reduced.  A setting of True here will completely override the NewPurchasePrice and ReducePriceBy field values. |
+// 
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be received.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used for capture            |
+
+@name("OnlineOrderReduction")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderReduction"
+"Content-Type": "application/xml"
+data('<OnlineOrderReduction>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken> 
+	<PlanID>{{planId}}</PlanID>
+	<NewPurchasePrice>0</NewPurchasePrice>
+	<ReducePriceBy>0</ReducePriceBy>
+	<FullRefund>True</FullRefund>
+</OnlineOrderReduction>
+')
+
+
+// This call supports Retailers that are set up to not receive any payment for their Plans until their system has issued a dispatch notice. This allows those retailers to make adjustments to their orders as needed prior to fulfilment and then receive the payment and reconciliation information after the dispatch event occurs.
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// 
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be received
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used to dispatch plan          |
+
+@name("OnlineOrderDispatchPlan")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderDispatchPlan"
+"Content-Type": "application/xml"
+data('<OnlineOrderDispatchPlan>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken> 
+	<PlanID>{{planId}}</PlanID>
+</OnlineOrderDispatchPlan>
+')
+
+
+// This call allows Retailers to update the delivery date of a given plan.
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    No                              |    The Plan ID that represents the recently created order.    |
+// |    `NewDeliveryDate`          |    Chars    |    No                              |    The new delivery date to be used on the given plan. Format: dd mmm yyyy    |
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be recieved.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID used to change delivery date           |
+
+@name("OnlineOrderChangeDeliveryDate")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderChangeDeliveryDate"
+"Content-Type": "application/xml"
+data('<OnlineOrderChangeDeliveryDate>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>      
+	<PlanID>{{planId}}</PlanID>
+	<NewDeliveryDate>30 May 2019</NewDeliveryDate>
+</OnlineOrderChangeDeliveryDate>
+')
+
+
+// This call returns the currently configured Min and Max purchase price range that is available for the nominated Retailer. This call may not be used more than 3 times on any given calendar day.
+// 
+// 
+// ----
+// 
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer        |
+// 
+// ----
+// 
+// 
+// ### RESPONSE
+// 
+// The following response will be recieved.
+// 
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `Minimum Price`           |    Int   |    The Minimum Purchase Price of an active Retailer Plan for WebSales only.          |
+// |    `Maximum Price`           |    Int   |    The Maxmimum Purchase Price of an active Retailer Plan for WebSales only.          |
+
+@name("MinMaxPurchasePrice")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/MinMaxPurchasePrice"
+"Content-Type": "application/xml"
+data('<MinMaxPurchasePrice>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>  
+</MinMaxPurchasePrice>
+')
+
+
+// This API call is provided for those systems that support latent customer fraud warning alerts that may be received outside of the normal process.
+// 
+// ----
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// |    `PlanID`          |    BigInt (13)    |    Yes                              |    The Plan ID that represents the recently created order.    |
+// |    `Details`          |    Text (2000)    |    Yes                              |    Any comments / details about the person involved that were received from the external source.    |
+// 
+// 
+// ### RESPONSE
+// 
+// The response will contain the following.
+// 
+// |    Element          |    Format         |    Notes                                  |
+// |---------------------|-------------------|-------------------------------------------|
+// |    `Status`           |    Int            | `0 Success`, `>0 Fail`                    |
+// |    `Reason`           |    Chars          |    A description of error encountered.    |
+// |    `PlanID`           |    BigInt (13)    |    The PlanID which was inspected           |                                                              |
+// 
+// 
+// ----
+
+@name("OnlineOrderFraudAlert")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/OnlineOrderFraudAlert"
+"Content-Type": "application/xml"
+data('<OnlineOrderFraudAlert>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>
+	<PlanID>{{planId}}</PlanID>
+	<Details>Text</Details>
+</OnlineOrderFraudAlert>
+')
+
+
+// This API call returns information relating to the retailer's plan.
+// 
+// ----
+// 
+// ### Field Details
+// 
+// |    Element         |    Value          |    Optional?                       |    Notes                                                      |
+// |--------------------|-------------------|------------------------------------|---------------------------------------------------------------|
+// |    `JamAuthToken`    |    Chars          |    Either token must be present    |    A unique string issued to the Retailer                     |
+// 
+// 
+// 
+// ### RESPONSE
+// 
+// A JSON object containing plan information. 
+// 
+// ----
+
+@name("RetailerPlanInformation")
+POST "https://integration.{{environment}}.myopenpay.co.uk/JamServiceImpl.svc/RetailerPlanInformation"
+"Content-Type": "application/xml"
+data('<RetailerPlanInformation>
+	<JamAuthToken>{{jamAuthToken}}</JamAuthToken>  
+</RetailerPlanInformation>
+')
+
+
+

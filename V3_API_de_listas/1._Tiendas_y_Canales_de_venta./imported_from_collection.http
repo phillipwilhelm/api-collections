@@ -1,0 +1,381 @@
+#!/usr/bin/env dothttp
+
+// Este endpoint permite listar las tiendas de una marca registradas en el sistema.
+
+@name("Obtener tiendas por marca")
+GET "https://{{url}}/api/v3/stores"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+// Este endpoint permite registrar tiendas y canales de venta en el sistema.
+// 
+// ###### Importante!: Cada request enviado se procesa como una nueva configuración, por lo que si una tienda, canal de venta, bodega, ... no es enviado toda su configuración será eliminada.
+// <br>Ejemplo:
+// 
+// ```json
+// // Request inicial
+//  {
+//   ...
+//   "stores": [
+//       {
+//           "storeId": "west-store",
+//           "storeCode": "N001",
+//           "name": "West store",
+//           "default": true,
+//           ...
+//       },
+//       {
+//           "storeId": "south-store",
+//           "storeCode": "S001",
+//           "name": "South store",
+//           "default": true,
+//           ...
+//       }
+//   ]
+//   ...
+//  }
+// ```
+// 
+// ```json
+// // Nuevo request (west-store no es enviada)
+//  {
+//   ...
+//   "stores": [
+//       {
+//           "storeId": "south-store",
+//           "storeCode": "S001",
+//           "name": "South store",
+//           "default": true,
+//           ...
+//       }
+//   ]
+//   ...
+//  }
+// ```
+// Al finalizar la sincronización de este request la tienda "west-store" será inactivada y no será visible para los usuarios finales.
+// 
+// #### Estructura general.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | vendorId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la marca. ***Este identificador es suministrado por Trade**.|
+// | channels<br>**Este campo es requerido**| `[object]` | Más adelante se describe la estructura para canales de venta|
+// | warehouses<br>**Este campo es opcional**<br>**Requerido si el comercio necesita manejo de stock**| `[], null` | Más adelante se describe la estructura para bodegas.|
+// | stores<br>**Este campo es requerido**| `[object]` | Más adelante se describe la estructura para tiendas.|
+// 
+// #### Canales estandarizados en el ecommerce (ecommerceChannelId).
+// | Identificador |Descripción|
+// |--|--|
+// |1|Domicilio web app|
+// |2|Domicilio call center|
+// |3|Pickup|
+// |4|Pickup drive|
+// |5|Kiosko servirse|
+// |6|Kiosko llevar|
+// |7|Domicilio glovo|
+// |8|Domicilio uber|
+// |9|Domicilio Rappi|
+// 
+// #### Estructura para canales de venta.
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | ecommerceChannelId<br>**Este campo es opcional si se usa channelReferenceName**| `int` | Identificador del canal de venta unificado, hace referencia al identificador del canal estandarizado mostrado en la tabla anterior.|
+// | channelReferenceName<br>**Este campo es opcional si se usa ecommerceChannelId**| `string, maxlength:100` | Nombre único de referencia, este nombre será utilizado para la búsqueda y asociación del canal estandarizado.|
+// | channelId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador del canal de venta, este identificador debe ser definido por el cliente del API.|
+// | channel<br>**Este campo es requerido**| `string, maxlength:45` | Nombre del canal venta|
+// | active<br>**Este campo es requerido**| `boolean` | Estado del canal de ventas. (true = ACTIVO, false= INACTIVO)|
+// | additionalInfo<br>**Este campo es opcional si el channelId es único** | `null, object` | Información addicional del canal de venta.|
+// | `additionalInfo.mediaId`<br>**Este campo es requerido si el channelId no es único** | `string, maxlength: 45` | Identificador addicional para el canal de venta.|
+// | `additionalInfo.mediaName`<br>**Este campo es requerido si el channelId no es único** | `string, maxlength: 100` | Nombre para el identificador addicional del canal de venta.|
+// | `additionalInfo.relatedLists`<br>**Este campo es opcional** | `[],[object]` | Listas asociadas al canal de venta|
+// | `additionalInfo.relatedLists.*.listName`<br>**Este campo es requerido para cada elemento de additionalInfo.relatedLists** | `string, maxlength: 50` | Nombre de la lista que será enviada en el endpoint de Creación/Edición de lista (sección 2) |
+// 
+// #### Estructura para bodegas.
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | warehouseId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador de la bodega, este identificador debe ser definido por el cliente del API.|
+// | name<br>**Este campo es requerido**| `string, maxlength:100` | Nombre que identifique a la bodega.|
+// | active<br>**Este campo es requerido**| `boolean` | Estado de la bodega.|
+// 
+// #### Estructura para tiendas.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | storeId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la tienda, este identificador debe ser definido por el cliente del API.|
+// | storeCode<br>**Este campo es opcional**| `string, maxlength:10` | Conjunto de caracteres que identifican a la tienda.|
+// | name<br>**Este campo es requerido**| `string, maxlength:100` | Nombre de la tienda|
+// | default<br>**Este campo es requerido**| `boolean` | Determina si la tienda es el predeterminada.|
+// | active<br>**Este campo es requerido**| `boolean` | Estado de la tienda.|
+// | services<br>**Este campo es opcional**| `[objects],null` | Permite definir información sobre otros servicios que posea la tienda. Ej: heladería, juguetería, auto servicio, ...|
+// | `services.*.name`<br>**Este campo es requerido**| `string, maxlength:30` | Nombre del servicio|
+// | `services.*.status`<br>**Este campo es requerido**| `enum(ACTIVE,INACTIVE)` | Estado del servicio|
+// | locationInfo<br>**Este campo es requerido**| `object` | Informacion de geoposicionamiento de la tienda.|
+// | locationInfo.latitude<br>**Este campo es requerido**| `number` | Latitude en la que se encuentra la tienda.|
+// | locationInfo.longitude<br>**Este campo es requerido**| `number` | longitud en la que se encuentra la tienda.|
+// | locationInfo.city<br>**Este campo es requerido**| `string` | Nombre de la ciudad en la que se encuentra la tienda.|
+// | contactInfo<br>**Este campo es requerido**| `object` | Informacion de contacto de la tienda.|
+// | contactInfo.address<br>**Este campo es requerido**| `string` | Dirección completa de la tienda.|
+// | contactInfo.phone<br>**Este campo es requerido**| `string` | Teléfono de contacto para la tienda.|
+// | storeImages<br>**Este campo es opcional**| `[string]` | Imágenes asociadas a la tienda (logo).|
+// | deliveryInfo<br>**Este campo es opcional**| `object` | Si eres un restaurante te permite definir informacion sobre: tiempos de cocción, tiempos de entrega, costo de envío.|
+// | deliveryInfo.deliveryTimeValue<br>**Este campo es opcional**| `string, int` | Valor de tiempo de entrega.|
+// | deliveryInfo.deliveryTimeUnit<br>**Este campo es opcional**| `enum(min,hour)` |Unidad de tiempo de entrega.|
+// | deliveryInfo.minimumOrder<br>**Este campo es opcional**| `int` | Pedido mínimo de la tienda en pesos,dólares (dependiendo del País configurado por Trade).|
+// | deliveryInfo.shippingCost<br>**Este campo es opcional**| `int` | Costo de envío de la tienda.|
+// | deliveryInfo.cookTime<br>**Este campo es opcional**| `int` | Tiempo de preparaciòn en minutos.|
+// | paymentMethodInfo<br>**Este campo es opcional**| `object, null` | Permite definir los botones de pago que se van a utilizar en la tienda (todos los botone de pago definidos en este campo se mostrarán en el app/web), más adelante se describen los botones de pagos soportados así como su estructura.|
+// | `taxesInfo.*.taxRate`<br>**Este campo es requerido si taxes no es null**| `int` | Permite definir la tasa de impuesto que grava la tienda.|
+// | `taxesInfo.*.vatRatePercentage`<br>**Este campo es requerido si taxes no es null**| `int` | Permite definir la tasa de iva que grava la tienda.|
+// | storeChannels<br>**Este campo es requerido**| `[int,string]` | Permite definir los canales de venta que utilizará la tienda. (Deben estar definidos en **channels**).|
+// | storeWarehouses<br>**Este campo es opcional si no se usa bodegas.**| `[int,string]` | Permite definir las bodegas que utilizará la tienda. (Deben estar definidos en **warehouses**).|
+// 
+// #### Botones de pago soportados.
+// 
+// | Clave |Descripción|País|
+// |--|--|--|
+// | cash| Pago en efectivo| Todos|
+// | payPhone| Pago en mediante PayPhone| Ecuador|
+// | placeToPay| Pago en mediante Place to Pay| Ecuador|
+// | transbank| Pago en mediante Transbank| Chile|
+// | mercadoPago| Pago en mediante Mercado Pago| Argentina|
+// 
+// #### Estructura para configuración de botones de pago.
+// Cada uno de los botones de pago deben ser definidos por un objecto anteponiendo su clave expuesta en la sección anterior: Ej:
+// 
+// ```json
+//  {
+//   ...
+//   "paymentMethodInfo": {
+//     "payPhone": {
+//        "key": "123456",
+//        "secret": "111111",
+//        ....
+//      },
+//      "placeToPay": {
+//        "key": "ABCD"
+//        "secret": "22222",
+//        ....
+//      }
+//   }
+//  }
+// ```
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | key<br>**Este campo es requerido**| `string` | Esta clave debe ser proporcionada por la entidad encargada el botón de pagos (payPhone,Kushki, ...).<br>Kushki: puede ser conocido como **public_key**<br>transbank: puede ser conocido como **commerce_code**|
+// | secret<br>**Este campo es requerido**| `string` | Esta clave debe ser proporcionada por la entidad encargada el botón de pagos (payPhone,Kushki, ...).<br>Kushki: puede ser conocido como **private_key**|
+// | active<br>**Este campo es requerido**| `boolean` | Estado del botón de pagos: activo se muestra en app/web, caso contrario no.|
+// | enabledChannels<br>**Este campo es requerido**| `[],["string"]` | Canales de venta en donde el botón de pagos se mostrará.|
+// | creditCardBrands<br>**Este campo es opcional**| `[],[obj]` | Franquicias de tarjetas de crédito, permite mostrar en el app/web los logos de tarjetas soportadas por el botón de pagos.|
+// | `creditCardBrands.*.creditCardBrandId`<br>**Este campo es requerido**| `string` | Identificador único de la franquicia.|
+// | `creditCardBrands.*.type`<br>**Este campo es requerido**| `enum(VISA,DINERS,MASTERCARD,DISCOVER,AMERICAN)` | Franquicia.|
+// 
+// #### Activación programada de tiendas
+// 
+// La activación programada de tiendas permite activar e inactivar una o varias tiendas en una fecha futura.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | scheduledActivities<br>**Este campo es opcional**| `[],[obj]` | Actividades programadas.|
+// | `scheduledActivities.*.storeId`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `[],[obj]` | Identificador único de la tienda.|
+// | `scheduledActivities.*.scheduledActiveStatus`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea activar la tienda.|
+// | `scheduledActivities.*.scheduledActiveStatus`<br>**Este campo es requerido si scheduledActivities tiene elementos**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea inactivar la tienda.|
+
+@name("Crear tiendas y canales de venta")
+POST "https://{{url}}/api/v3/channels-stores"
+"Content-Type": "application/json"
+"Authorization": ""
+data('{
+    "vendorId": "ec-vendor",
+    "channels": [
+        {
+            "ecommerceChannelId": 5,
+            "channelId": "salon-channel",
+            "channel": "Salon",
+            "active": true,
+            "additionalInfo": {
+                "mediaId": "kiosk-media",
+                "mediaName": "Kiosko"
+            }
+        },
+        {
+            "channelReferenceName": "APP ECOMMERCE A",
+            "channelId": "app-channel",
+            "channel": "Domicilio",
+            "active": true,
+            "additionalInfo": {
+                "mediaId": "app-media",
+                "mediaName": "App",
+                "relatedLists": [
+                    {
+                        "listName": "APP ECOMMERCE A"
+                    },
+                    {
+                        "listName": "DOMICILIO WEB-APP A"
+                    }
+                ]
+            }
+        },
+        {
+            "ecommerceChannelId": 3,
+            "channelId": "pickup-channel",
+            "channel": "Llevar",
+            "active": true,
+            "additionalInfo": {
+                "mediaId": "pickup-media",
+                "mediaName": "Pickup"
+            }
+        }
+    ],
+    "warehouses": [
+        {
+            "warehouseId": "north-warehouse",
+            "name": "North Warehouse",
+            "active": true
+        },
+        {
+            "warehouseId": "south-warehouse",
+            "name": "South Warehouse",
+            "active": true
+        },
+        {
+            "warehouseId": "central-warehouse",
+            "name": "Central Warehouse",
+            "active": true
+        }
+    ],
+    "stores": [
+        {
+            "storeId": "my-store",
+            "storeCode": "S001",
+            "name": "My Store",
+            "default": true,
+            "active": true,
+            "locationInfo": {
+                "latitude": -0.159827,
+                "longitude": -78.48313,
+                "city": "QUITO"
+            },
+            "contactInfo": {
+                "address": "Amazonas av",
+                "phone": "999999999"
+            },
+            "storeImages": [
+                {
+                    "fileUrl": "https://example/path/to/file/logoForStore.png",
+                    "imageCategoryId": "stores"
+                }
+            ],
+            "deliveryInfo": {
+                "deliveryTimeValue": "60.00",
+                "deliveryTimeUnit": "min",
+                "minimumOrder": 8,
+                "shippingCost": 3.5,
+                "cookTime": 15
+            },
+            "paymentMethodInfo": {
+                "payPhone": {
+                    "key": "ABC-12346",
+                    "secret": "secret",
+                    "active": true,
+                    "enabledChannels": [
+                        "pickup-channel",
+                        "app-channel"
+                    ],
+                    "creditCardBrands": [
+                        {
+                            "creditCardBrandId": "diners-club",
+                            "type": "DINERS"
+                        },
+                        {
+                            "creditCardBrandId": "visa",
+                            "type": "VISA"
+                        },
+                        {
+                            "creditCardBrandId": "mastercard",
+                            "type": "MASTERCARD"
+                        }
+                    ]
+                },
+                "placeToPay": {
+                    "key": "place-to-pay-Key",
+                    "secret": "place-to-pay-secret",
+                    "active": true,
+                    "enabledChannels": [
+                        "app-channel"
+                    ],
+                    "creditCardBrands": [
+                        {
+                            "creditCardBrandId": "place-to-pay-visa-id",
+                            "type": "VISA"
+                        }
+                    ]
+                }
+            },
+            "services": [
+                {
+                    "name": "ice-cream saloon",
+                    "active": true
+                },
+                {
+                    "name": "auto service",
+                    "active": true
+                }
+            ],
+            "taxesInfo": {
+                "taxRate": 0,
+                "vatRatePercentage": 0
+            },
+            "storeChannels": [
+                "salon-channel",
+                "app-channel",
+                "pickup-channel"
+            ],
+            "storeWarehouses": [
+                "central-warehouse",
+                "south-warehouse"
+            ]
+        }
+    ],
+    "scheduledActivities": [
+        {
+            "storeId": "my-store",
+            "scheduledActiveStatus": "future-date"
+        }
+    ]
+}')
+
+
+// Este endpoint permite obtener la información de una tienda registrada en el sistema.
+
+@name("Obtener tienda")
+GET "https://{{url}}/api/v3/stores/:storeId"
+"Content-Type": "application/json"
+"Authorization": ""
+
+
+// Este endpoint cambiar el estado de una tienda del sistema.
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | active<br>**Este campo es requerido**| boolean | Estado de la tienda.|
+// 
+// #### Activación e inactivación programada de tienda
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | `scheduledActiveStatus`<br>**Este campo es opcional**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea activar la tienda.|
+// | `scheduledInactiveStatus`<br>**Este campo es opcional**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea inactivar la tienda.|
+// 
+// **Nota: Para el caso de activación programada es necesario que el atributo "active" sea false**
+
+@name("Cambiar estado de tienda")
+PUT "https://{{url}}/api/v3/stores/:storeId"
+"Content-Type": "application/json"
+"Authorization": ""
+data('{
+    "active": true
+}')
+
+
+

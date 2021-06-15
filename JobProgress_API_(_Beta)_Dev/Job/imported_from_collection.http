@@ -1,0 +1,545 @@
+#!/usr/bin/env dothttp
+
+// Create a new job
+
+@name("Create Job")
+POST "https://{{baseUrl}}/jobs"
+"Authorization": "Bearer {{accessToken}}"
+"Content-Type": "multipart/form-data"
+files(
+	("customer_id", "25"),
+	("description", "Carpentry Job"),
+	("name", "Test"),
+	("trades[]", "1"),
+	("call_required", "0"),
+	("appointment_required", "0"),
+	("duration", "0:0:0"),
+	("sub_contractor_ids[]", "1"),
+	("same_as_customer_address", "0"),
+	("address", "15721 Carlton Oaks"),
+	("city", "Fort Worth"),
+	("state_id", "48"),
+	("country_id", "1"),
+	("zip", "7617"),
+	("insurance", "0"),
+	("rep_ids[]	", ""),
+	("estimator_ids[]", "33"),
+	("address_line_1", "15721 Carlton Oaks"),
+	("work_types[]", "1"),
+	("job_types[]", "2"),
+	("alt_id", "adsfasdf"),
+	("lead_number", "asddas")
+)
+
+
+@name("Update Job")
+PUT "https://{{baseUrl}}/jobs/{{jobId}}"
+"Authorization": "Bearer {{accessToken}}"
+data({
+    "customer_id": [
+        "167"
+    ],
+    "description": [
+        "Carpentry Job"
+    ],
+    "name": [
+        "Test"
+    ],
+    "trades[]": [
+        "1"
+    ],
+    "call_required": [
+        "0"
+    ],
+    "appointment_required": [
+        "0"
+    ],
+    "duration": [
+        "0:0:0"
+    ],
+    "sub_contractor_ids[]": [
+        "1"
+    ],
+    "same_as_customer_address": [
+        "0"
+    ],
+    "address[address]": [
+        "15721 Carlton Oaks"
+    ],
+    "address[city]": [
+        "Fort Worth"
+    ],
+    "address[state_id]": [
+        "2"
+    ],
+    "address[country_id]": [
+        "1"
+    ],
+    "address[zip]": [
+        "7617"
+    ],
+    "insurance": [
+        "0"
+    ],
+    "rep_ids[]": [
+        ""
+    ],
+    "estimator_ids[]": [
+        "33"
+    ],
+    "address_line_1": [
+        "15721 Carlton Oaks"
+    ],
+    "work_types[]": [
+        "1"
+    ],
+    "job_types[]": [
+        "2"
+    ],
+    "alt_id": [
+        "adsfasdf"
+    ],
+    "lead_number": [
+        "asddas"
+    ]
+})
+
+
+// 
+// 
+// Get a single job by id
+// 
+// #### Request Parameters
+// | Name | Value |
+// | ------ | ------ 
+// | **includes[]** | Options Available: `address, reps, customer, sub_contractors, projects, work_types, trades, job_notes` 
+// 
+// > Example `includes[]=address&includes[]=customer`
+// 
+// #### Includes[] Details
+// 
+// > address
+// 
+// The address information will be returned by includes in the format below:
+// 
+// ```json
+// "address": {
+//       "id": 327,
+//       "address": "Teasley Lane",
+//       "address_line_1": "",
+//       "city": "",
+//       "state_id": 5,
+//       "state": {
+//           "id": 5,
+//           "name": "California",
+//           "code": "CA",
+//           "country_id": 1
+//       },
+//       "country_id": 1,
+//       "country": {
+//           "id": 1,
+//           "name": "United States",
+//           "code": "US",
+//           "phone_code": "+1"
+//       },
+//       "zip": "77375",
+//       "lat": 10.812973,
+//       "long": -16.978363
+//   }
+// ```
+// Address will have all the information related to Address like address id, state country, postcode etc. 
+// 
+// ##### Address field detail
+// 
+// * **id**: Unique address id   
+// * **address**: The street address
+// * **address_line_1**: An optional additional field for the street address
+// * **city**: The city, town, or village of the address
+// * **state**: State information of the address
+// * **country_id**: Id of the Country associated with the address
+// *  **country**: Country information of the address with all the details.
+// *  **lat**:  The latitude of the address.
+// *  **long**: The longitude of the address.
+// 
+// > reps
+// 
+// The representative information will be returned by includes in the format below:
+// 
+// ```json
+// "reps": {
+//       "data": [
+//           {
+//               "id": 25,
+//               "first_name": "John",
+//               "last_name": "Doe",
+//               "email": "john@example.com",
+//               "company_id": 6,
+//               "company": "John Constructions",
+//               "admin_privilege": false,
+//               "group": {
+//                   "id": 5,
+//                   "name": "owner"
+//               },
+//               "added_date": "2019-11-15 05:53:09",
+//               "profile_pic": null,
+//               "active": true,
+//               "company_name": null,
+//               "color": "blue",
+//               "role": [
+//                   {
+//                       "name": "plus-admin"
+//                   }
+//               ]
+//           }
+//       ]
+//   }
+// ```
+// 
+// Reps will have the list of representatives associated with the job.  
+// 
+// ##### Reps field detail
+// 
+// * **id**: Unique representative id   
+// * **first_name**: First name of the representative.
+// * **last_name**: Last name of the representative.
+// * **email**: Email of the representative.
+// * **company_id**: Company id of the representative associated with.
+// * **company**:  Company details of the representative.
+// * **admin_privilege**: shows if representative has admin privileges or not.
+// * **group**: User group information of the representative.
+// *  **added_date**:  The date and time when the representative was created in the system.
+// *  **profile_pic**: Profile picture of the representative.
+// * **active**: Shows if representative is active or not.
+// * **company_name**: Company name of the representative if user is commercial.
+// * **color**: Color information associated with representative.
+// * **role**: Role information of the representative.
+// 
+// 
+// > customer 
+// 
+// The customer information that will be returned by includes in the format below:
+// 
+// ```json
+// "customer": {
+//     "id": 25,
+//     "company_name": "",
+//     "first_name": "John",
+//     "last_name": "Doe",
+//     "email": "john.doe@gmail.com",
+//     "additional_emails": [],
+//     "referred_by_type": "",
+//     "referred_by_note": "",
+//     "call_required": false,
+//     "appointment_required": false,
+//     "note": "",
+//     "is_commercial": 0,
+//     "created_at": "2019-11-18 06:16:27",
+//     "deleted_at": null,
+//     "management_company": "",
+//     "property_name": "",
+//     "canvasser": null,
+//     "call_center_rep": null
+// }
+// ```
+// 
+// Customer field will have customer data associated with the job.
+// 
+// ##### Customer field detail
+// 
+// * **id**: Unique customer id   
+// * **first_name**: First name of the customer.
+// * **last_name**: Last name of the customer.
+// * **email**: Email of the customer.
+// * **additional_emails**: Additional emails of the customer.
+// * **referred_by_type**: Customer referral type (referral, customer, other).
+// * **referred_by_note**:  if `referred_by_type` is `other` then this field will have referral note.
+// * **call_required**: If call required or not when added.
+// * **appointment_required**: If appointment required or not when added.
+// *  **note**:  Note will have notes about the customer.
+// *  **is_commercial**: If individual or commercial.
+// * **created_at**:  The date and time when the customer was created.
+// * **deleted_at**: The date and time when the customer was deleted.
+// * **management_company**: Management company of the customer.
+// * **canvasser**: Canvasser Name.
+// * **call_center_rep**: Call centre representative.
+// 
+// 
+// > sub_contractors 
+// 
+// The Sub Contractor Users information will be returned by includes in the format below:
+// 
+// ```json
+//   "sub_contractors": {
+//      "data": [
+//         {
+//             "id": 28,
+//             "first_name": "Sub",
+//             "last_name": "Contractor 1",
+//             "email": "example@gmail.com",
+//             "company_name": "",
+//             "additional_phone": [],
+//             "address": "422 Massachusetts Avenue",
+//             "address_line_1": "",
+//             "zip": "10",
+//             "city": "Alabama",
+//             "country": {
+//                 "id": 4,
+//                 "name": "Canada",
+//                 "code": "CA",
+//                 "phone_code": "+1"
+//             },
+//             "country_id": "4",
+//             "state": {
+//                 "id": 4,
+//                 "name": "Arkansas",
+//                 "code": "AR",
+//                 "country_id": 1
+//             },
+//             "state_id": 4,
+//             "type": "sub_contractor",
+//             "is_active": true,
+//             "profile_pic": null,
+//             "trades": [],
+//             "created_at": "2019-11-22 05:21:34",
+//             "updated_at": "2019-11-22 05:21:34",
+//             "note": "",
+//             "rating": 0,
+//             "work_types": [],
+//             "color": "#FE6F5E"
+//         }
+//      ]
+//  }
+// ```
+// 
+// sub_contractors field will have the list of Sub Contractor Users associated with the job. 
+// 
+// ##### Sub Contractor user field detail
+// 
+// * **id**: Unique user id   
+// * **first_name**: First name of the user.
+// * **last_name**: Last name of the user.
+// * **email**: Email of the user.
+// * **company_name**: Company name of the user.
+// * **additional_phone**:  Additional phones details of the user.
+// * **address**: Street address of the user.
+// * **address_line_1**:  An optional additional field for the street address
+// *  **zip**:  The postal code (zip, postcode) of the user address.
+// *  **city**: City of the user.
+// * **country**: Country information of the address with all the details.
+// * **country_id**: Country id of the user.
+// * **state**: State information of the address 
+// * **state_id**: State id of the user.
+// * **type**: User type information 
+// * **is_active**: Shows if user is active or not
+// * **profile_pic**: profile picture of the user
+// * **trades**: Trades of the of the user
+// * **created_at**: The date and time when the user was created.
+// * **updated_at**: The date and time when the user was last updated.
+// * **note**: User notes
+// * **rating**: Rating of the user
+// * **work_types**: Work types of the user
+// * **color**:  Color information attached with the user
+//  
+//  > projects 
+//  
+// The Projects information will be returned by includes in the format below:
+// 
+// ```json
+//  "projects": {
+//     "data": [
+//         {
+//           "id": 105,
+//           "number": "1911-085-01-P1",
+//           "alt_id": "1551",
+//           "duration": "0:0:0",
+//           "created_at": "2019-11-27 10:42:11",
+//           "updated_at": "2019-11-28 14:20:28",
+//           "description": "asd",
+//           "parent_id": 104,
+//           "status": null,
+//           "awarded": 1
+//         }
+//     ]
+// }
+// ```
+// 
+// projects field will have the list of Projects associated with the job.
+// 
+// ##### Project field detail
+// 
+// * **id**: Unique project id   
+// * **number**: Unique project number.
+// * **alt_id**: Alternate id.
+// * **duration**: Duration of the project.
+// * **created_at**: The date and time when the project was created.
+// * **updated_at**: The date and time when the project was last updated.
+// * **description**: Project description.
+// * **parent_id**: Parent job id associated with project.
+// *  **status**:  Status information of the project.
+// *  **awarded**: Shows if job was awarded or not.
+// 
+// > work_types 
+// 
+// The Work type information will be returned by includes in the format below:
+// 
+// ```json
+//  "work_types": {
+//      "data": [
+//          {
+//            "id": 12,
+//            "name": "asdf",
+//            "trade_id": 31,
+//            "color": "#0D98BA"
+//          }
+//      ]
+//  }
+// ```
+// 
+// work_types field will have the list of work types associated with the job. 
+// 
+// #####  Work type field detail
+// 
+// * **id**: Unique project id   
+// * **name**: Work type name.
+// * **trade_id**: Trade id associated with work type.
+// * **color**: Color information associated with work type.
+// 
+// > job_notes 
+// 
+// The job note information will be returned by includes in the format below:
+// 
+// ```json
+//  "job_notes": {
+//      "data": [
+//          {
+//            "id": 1,
+//            "stage_code": "300966607",
+//            "note": "This is an example of a job note",
+//            "created_at": "2020-02-28 09:26:28",
+//            "updated_at": "2020-02-28 09:26:28"
+//          }
+//      ]
+//  }
+// ```
+// 
+// job_notes field will have the list of notes associated with the job. 
+// 
+// #####  Job note field detail
+// 
+// * **id**: Unique job note id. 
+// * **stage_code**: Unique code of job workflow stage when job note was created.
+// * **note**: Job note detail.
+// * **created_at**: The date and time when the job note was created.
+// * **updated_at**: The date and time when the job note was last updated.
+
+@name("View Job")
+GET "https://{{baseUrl}}/jobs/{{jobId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// 
+// # Get the list of jobs
+// #### Request Params 
+// | Name | Value |
+// | --- | --- |
+// | **includes[]** | Options of options: `address, reps, customer, sub_contractors, projects, work_types, trades`
+// 
+// > Example `includes[]=address&includes[]=customer`
+// 
+// #### includes[] Details
+// 
+// Includes[] information returned will be same as in the view single job section.
+// 
+// ### Request Parameters (for filtering):-
+// | Name | Value |
+// | --- | --- |
+// | **job_number** | Job number
+// | **trades[]** | Array of trade ids
+// | **work_types[]** | Array of ids(job types 2) 
+// | **rep_ids** | Array of customer's **rep Ids** or **(string) unassigned**
+// | **job_rep_ids** | Array of job's **rep Ids** or **(string) unassigned**
+// | **estimator_ids** | Array of job's **estimator Ids** or **(string) unassigned**
+// | **labor_ids** | Array of **labour Ids** or **(string) unassigned**
+// | **sub_ids** | Array of job's **sub contractors Ids** or **(string) unassigned**
+// | **stages[]** | Array of stage codes
+// | **name** | Job name
+// | **address** | Address field of job
+// | **customer_name** | Customer first name
+// | **customer_id** | ID associate to customer
+// | **zip_code** | customer address zip code
+// | **job_types[]** | Array of ids(job types 1)
+// | **work_types[]** | Array of ids(job types 1)
+// | **include_lost_jobs** | Send 1 to include lost jobs or projects forcefully
+// | **exclude_pb_jobs** | boolean(1 or 0)true or false
+// | **priority[]** | array of values(low, medium, high)
+// | **with_archived** | boolean(1 or 0)true or false
+// | **only_archived** | boolean(1 or 0)true or false
+// | **with_archived_project** | boolean(1 or 0)true or false
+// | **only_archived_project** | boolean(1 or 0)true or false
+// | **multi_jobs_only** | boolean(1, 0)for multi jobs only
+// | **exclude_multijobs** | boolean(1, 0)for single jobs only (exclude projects and multi job)
+// | **date_range_type** | (optional)(job_created_date, job_stage_changed_date, job_updated_date) by default is job_created_date
+// | **start_date** | (optional)(Y-m-d)
+// | **end_date** | (optional)(Y-m-d)
+// | **job_city** | (optional)(name of the city)
+// | **job_cities[]** | (optional)(array of cities)
+// | **customer_type** | 'commercial' or 'residential'
+// | **unassigned** | boolean(1 or 0)true or false to get unassigned jobs
+// | **start_date** | start date
+// | **end_date** | end date
+// 
+// > Example `job_number=62515`
+
+@name("Jobs")
+GET "https://{{baseUrl}}/jobs"
+"Authorization": "Bearer {{accessToken}}"
+
+
+@name("Financial Details")
+GET "https://{{baseUrl}}/jobs/{{jobId}}/financial_details"
+"Authorization": "Bearer {{accessToken}}"
+
+
+
+@name("Estimate Upload")
+POST "https://{{baseUrl}}/jobs/{{jobId}}/estimates/upload"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("file", "None")
+)
+
+
+@name("Proposal Upload")
+POST "https://{{baseUrl}}/jobs/{{jobId}}/proposals/upload"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("file", "None")
+)
+
+
+@name("Material Upload")
+POST "https://{{baseUrl}}/jobs/{{jobId}}/materials/upload"
+"Authorization": "Bearer {{accessToken}}"
+"Content-Type": "multipart/form-data"
+files(
+	("file", "None")
+)
+
+
+@name("Work Order Upload")
+POST "https://{{baseUrl}}/jobs/{{jobId}}/work_orders/upload"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("file", "None")
+)
+
+
+@name("Measurement Upload")
+POST "https://{{baseUrl}}/jobs/{{jobId}}/measurements/upload"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("file", "None")
+)
+
+
+

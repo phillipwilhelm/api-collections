@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// You need Visual Studio Profile member-id and a PAT with "all accessible organizations permissions"
+// 
+// To get your member-id go to https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=5.1 and sign in, a JSON will return with "id:"
+
+@name("List Accounts/Org")
+GET "https://app.vssps.visualstudio.com/_apis/accounts"
+basicauth("Basic", "{{OPAT}}")
+? "ownerId"= "{ownerId}"
+? "properties"= "{properties}"
+? "memberId"= "{{memberID}}"
+? "api-version"= "5.0"
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in an org")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// To get the existing ACL for the group
+
+@name("Get ACL/Tokens")
+GET "https://dev.azure.com/{{organization}}/_apis/accesscontrollists/{{OrgGroupSecurityNamespaceID}}"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1"
+
+
+// The Security Namespace for Collection Security is "3e65f728-f8bc-4ecd-8764-7e378b19bfa7"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS00ODkwMzQ4ODctMzU3NjM3NzQyMi0yNTgxNTQ5Njk3LTE1MTU2NjE5NDgtMS0yODEyNTYwMTktMzg3NzgyMjE0LTI0OTEzMjM2ODUtMzAxMTU1OTc0MA"
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS00ODkwMzQ4ODctMzU3NjM3NzQyMi0yNTgxNTQ5Njk3LTE1MTU2NjE5NDgtMS0yODEyNTYwMTktMzg3NzgyMjE0LTI0OTEzMjM2ODUtMzAxMTU1OTc0MA
+// 
+// https://www.base64decode.org/ 
+// from base64 to get 
+// 
+// S-1-9-1551374245-489034887-3576377422-2581549697-1515661948-1-281256019-387782214-2491323685-3011559740
+// 
+// The "token" is "NAMESPACE"
+
+@name("Edit/Set Group Permissions")
+POST "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{OrgGroupSecurityNamespaceID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1"
+json({
+    "token": "NAMESPACE",
+    "merge": false,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-489034887-3576377422-2581549697-1515661948-1-281256019-387782214-2491323685-3011559740",
+            "allow": 20,
+            "deny": 512,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+// The Security Namespace for Project Security is "52d39943-cb85-4d7f-8fa8-c6baac873819"
+// 
+// Take the descriptor of the group and decode the value from base64 (minus the vssgp.)
+// 
+// example, 
+// 
+// "descriptor": "vssgp.Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// Decode 
+// Uy0xLTktMTU1MTM3NDI0NS0xNDY3NzQ1ODIyLTE2ODg3MzI0ODUtMjk4ODExODQ3NS00MjUwOTY2Nzg1LTEtMjY1OTE1MTM1NS0xOTExMjc0NTY2LTI0MzIxMjE2NzYtNTg3ODc1Njg4
+// 
+// https://www.base64decode.org/
+// from base64 to get
+// 
+// S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688
+// 
+
+@name("Unset/Delete Group Permissions")
+DELETE "https://dev.azure.com/{{organization}}/_apis/accesscontrolentries/{{OrgGroupSecurityNamespaceID}}"
+basicauth("Basic", "{{PAT}}")
+? "token"= "NAMESPACE"
+? "descriptors"= "Microsoft.TeamFoundation.Identity;S-1-9-1551374245-489034887-3576377422-2581549697-1515661948-1-281256019-387782214-2491323685-3011559740"
+? "api-version"= "5.1"
+json({
+    "token": "$PROJECT:vstfs:///Classification/TeamProject/4313b221-xxxx-4f6a-838d-aeff90b0xxxx",
+    "merge": true,
+    "accessControlEntries": [
+        {
+            "descriptor": "Microsoft.TeamFoundation.Identity;S-1-9-155137xxxx-1467745822-1688732485-2988118475-4250966785-1-xxxx151355-1911274566-2432121676-5xxx75688",
+            "allow": 513,
+            "deny": 4,
+            "extendedinfo": {}
+        }
+    ]
+})
+
+
+

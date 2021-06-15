@@ -1,0 +1,1033 @@
+#!/usr/bin/env dothttp
+
+// Get all (or a subset of) suppliers available to you. By providing no optional parameters, you are requesting all suppliers in our catalog. By using the supplier_ids parameter, you'll filtering your results to just those suppliers you'd like to see. It is recommended that you filter your results whenever possible as it is generally easier to process in smaller chunks.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getSuppliers' in order to use this method.
+//     	* **getSuppliers** - The method name.
+// * Optional
+//     * **supplier_ids** - an array of supplier_id
+// 		* **supplier_id** - The identifier for the Doba supplier
+// 	
+// 	
+// ## Response Parameters
+// 
+// * **suppliers** - an array of supplier.
+// 	* **supplier** - an object represnting a supplier.
+// 		* **id** - integer(11) - This identifier is the same as the 'supplier_id' used elsewhere in the doba system.
+// 		* **name** - varchar(255) - The name of the given category.
+// 		* **is_pro** - bool(1) - If true, the supplier is a pro supplier. If false, the supplier is not a pro supplier.
+// 		* **group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this supplier is available at.
+// 		* **categories** - an array of category
+// 			* **category** - an abbreviated object representing a category
+// 				* **id** - integer(11) - this identifier is the same as the 'category_id' used elsewhere in the doba system.
+// 				* **name** - varchar(255) - The name of the given category
+// 		* **info** - an object with details about the supplier
+// 			* **alerts** - varchar(255) - Any alerts that Doba has added to this suppliers account will be shown here.
+// 			* **allows_custom_branding** - bool(1) - Determines whether the supplier allows for custom branding of packing slips.
+// 			* **allows_direct_relationships** - bool(1) - Determines whether the supplier allows for direct relationships with Doba merchants.
+// 			* **avg_item_lifespan** - integer(20) - The amount of time in days, on average, an item is available from this particular supplier.
+// 			* **avg_processing_time** - varchar(255) - The average number of days this supplier usually takes to ship the product.
+// 			* **avg_product_discount** - varchar(50)
+// 			* **avg_qty_in_stock** - integer(20) - The average quantity in stock that the supplier maintains for their products.
+// 			* **avg_ship_time** - float(9,2) - The average time it takes to ship an item after receiving the tracking number.
+// 			* **classification** - varchar(32) - Classification of the supplier.
+// 			* **damage_policy** - varchar(255) - The suppliers damaged item policy.
+// 			* **date_active** - date("YYYY-MM-DD") - The date the supplier became active within Doba.
+// 			* **days_allowed_to_return** - integer(11) - The number of days after an order is placed that the supplier will accept returns.
+// 			* **days_to_receive_refund** - integer(11) - The number of days after an order is placed that the supplier will refund the order.
+// 			* **description** - varchar(255) - A description of this supplier and the products they specialize in.
+// 			* **drop_ship_fee** - float(9,2) - Drop ship fee determined by the supplier. A fee charged once per supplier order.
+// 			* **fulfillment_percentage** - float(9,2) - The percentage of how many orders properly shipped of all orders received by the supplier.
+// 			* **inventory_info** - varchar(50) - Additional details about inventory.
+// 			* **inventory_update_frequency** - float(9,2) - The frequency, in days, that the supplier updates their quantity available (inventory) on their products.
+// 			* **item_count** - integer(20) - Informational. To be used in product research.
+// 			* **meta_description** - varchar(200) - Informational. To be used in product research.
+// 			* **meta_keywords** - varchar(200) - Informational. To be used in product research.
+// 			* **notes** - text - Special notes the customer may need to be aware of. Its best to display this information along with the product details.
+// 			* **num_in_stock** - integer(20) - The current number of products the supplier has in-stock.
+// 			* **num_out_of_stock** - integer(20) - The current number of products the supplier has out-of-stock.
+// 			* **product_alerts** - varchar(255) - The product alerts, such as recalls or safety concerns, that the supplier is aware of regarding any product in their product lines.
+// 			* **return_policy** - varchar(255) - The suppliers return policy.
+// 			* **rma_instructions** - varchar(255) - This will almost always be empty, unless the supplier allows returns without an RMA number.
+// 			* **rma_percentage** - float(9,2) - The percentage indicating how many orders were returned of all orders received by the supplier.
+// 			* **ship_price_strategy_class** - varchar(32) - The shipping strategy as determined by the supplier.
+// 			* **shipping_carriers** - varchar(50) - The shipping carriers this supplier uses to ship products.
+// 			* **shortage_policy** - varchar(255) - This will almost always be empty, unless the supplier is a manufacturer and they have full control over the resources used to manufacture the product.
+// 			* **special_conditions** - varchar(200) - Any special conditions provided by the supplier.
+// 			* **summary** - varchar(255) - The supplier-provided informational summary. These usually include information about the supplier's business and product lines.
+// 			* **visibility_group** - varchar(32) - Each merchant has access to certain products within the Doba catalog. This tells the merchant what level of access this product is available at.
+// 		* **inventory_stats** - varchar(50) - Statistics about the supplier's history with inventory
+// 			discontinued - integer(20) - Informational. To be used in product research.
+// 		* **is_active** - bool(1) - If true, the supplier is active. If false, the supplier is not active.
+
+@name("getSuppliers")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getSuppliers</action>
+    <supplier_ids>
+      <supplier_id>2646</supplier_id>
+      <supplier_id>1535</supplier_id>
+      <supplier_id>2693</supplier_id>
+    </supplier_ids>
+  </request>
+</dce>')
+
+
+// Searches and retrieves product information based on custom criteria.
+// 
+// The searchCatalog method can be used to build a replica of the Doba category structure. First, call the function with no parameters and the returned data will contain the top level category structure. From there you can specify the category_id on subsequent calls to obtain the sub-categories. A maximum of 50,000 items can be returned via searchCatalog.
+// 
+// Note: If no option arguments are provided, the response will not include product data. It will only include the filter information along with the top-level category structure.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'searchCatalog' in order to use this method.
+//     	* **searchCatalog** - The method name.
+//     * **display_start** - Starting point of number of products to display. Must be a postitive integer greater than zero. 
+// * Optional
+//     * **avg_qty_in_stock_max** - The upper limit for average quantity in stock for a product to be included in the result. All products returned will have an average stock lower than this amount.
+// 	* **avg_qty_in_stock_min** - The lower limit for average quantity in stock for a product to be included in the result. All products returned will have an average stock higher than this amount.
+// 	* **avg_ship_time_max** - The upper limit for average shipping time for a product to be included in the result. All products returned will have an average shipping time lower than this amount.
+// 	* **avg_ship_time_min** - The lower limit for average shipping time for a product to be included in the result. All products returned will have an average shipping time higher than this amount.
+// 	* **price_range_max** - The upper limit for price in order for a product to be included in the result. All products returned will have a price lower than this amount.
+// 	* **price_range_min** - The lower limit for price in order for a product to be included in the result. All products returned will have a price higher than this amount.	
+// 	* **display_count** - Number of products to return. A maximum of 500 will be returned in any given request.
+// 	* **filter** - An array of facets won which to filter.
+// 		* **facet** - An object representing a filter facet.
+// 			* **name** - A facet name. Possible values are: 'f_cat', 'f_supplier_id', 'f_brand', 'f_stock', 'f_refurbished', 'f_hasImage', 'f_hasAsin', 'f_hasUPC', 'f_special', 'f_weekly_deal', 'f_supplier_deal', and 'f_estDeliveryOver12Days'.
+// 			* **ids** - An array of id
+// 				* **id** - The identifier / data of whatever type is used in the 'name' parameter, e.g. if 'f_supplier_id' is chosen, then this 'id' will represent one of those 'supplier_id' identifiers that it's expecting. If 'f_stock' is used, valid a valid 'id' would be 'in-stock', 'out-of-stock', and/or 'discontinued'.
+// 	* **hide_descendents** - If true, only products from the specified category or folder will be returned and no descendant products will be returned. If false or not specified, all products at the specified level and all descendants will be returned.
+// 	* **list_id** - an inventory list id.
+// 	* **no_drop_ship_fees** - If true, only products without drop-ship fees will be included in the results. The default is false if not used.
+// 	* **qty_range_min** - Determines the lowest quantity amount that a product can have in order to be returned in the result.
+// 	* **rollup_products** - If true, all item options will be rolled up into a single product. If false or not specified, each option item will be returned as an individual product.
+// 	* **saved_search_id** - The id of the retailers saved search.
+// 	* **search_term** - Search terms that the user is searching for.
+// 	* **sort_column** - Determines which column will be used when sorting the results. Possible values are: 'default', 'brand', 'name', 'price', 'sku' and 'stock'. 'default' sorts by most relevant.
+// 	* **sort_direction** - Determines which direction the results will be sorted. Available options are: 'asc', 'desc'
+// 	* **updated_within_last_days** - If provided, a product would only be returned if the supplier updated the product within the specified number of days. This allows the merchant to receive all updates since the last update they performed.
+// 
+// ## Response Parameters
+// 
+// * **display_count** - The number of product records returned in this response.
+// * **display_start** - The beginning record number returned.
+// * **exact_match** - If the search term matches a product_id, item_id, product_sku or item_sku the product will be returned as an exact match regardless of the filters being used.
+// 	* **brand** - varchar(100) - The brand of the product.
+// 	* **description** - text - The long description of the product.
+// 	* **drop_ship_fee** - float(9,2) - Drop-ship fee determined by the supplier. A fee charged once per supplier order.
+// 	* **flags** - An array of flag
+// 		* **flag** - An object representing a flag representing something important.
+// 			* **name** - The name of the flag.
+// 			* **value** - The important information about the flag.
+// 	* **image_height** - integer(11) - The images height in pixels.
+// 	* **image_url** - varchar(255) - The URL to the image.
+// 	* **image_width** - integer(11) - The images width in pixels.
+// 	* **in_stock** - integer(1) - "1" if the product is in-stock, "2" if the product is out-of-stock.
+// 	* **in_warehouse** - bool(1) - If the merchant has access to virtual warehouse, this determins if the product is stored within their virtual warehouse.
+// 	* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 	* **item_sku** - varchar(32) - The SKU assigned to the item.
+// 	* **last_update** - datetime(format YYYY-MM-DD HH:MM:SS) - The last time the supplier updated this product.
+// 	* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 	* **original_price** - float(9,2) - The original price of the product if the product has a special price.
+// 	* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 	* **price** - float(9,2) - The purchase price of the item.
+// 	* **product_group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this product is available at.
+// 	* **product_id** - integer(11) - The product_id assigned to the product.
+// 	* **product_sku** - varchar(32) - The SKU of the product.
+// 	* **quantity_avail** - integer(11) - Number of product available for purchase.
+// 	* **stats** - Statistical information on this item.
+// 		* **item_count** - integer(11) - Number of child-items for this product.
+// 		* **item_count_in_specified_list** - integer(11) - The number of list this item is found within.
+// 		* **item_count_in_warehouse** - integer(11) - The number of warehouses this item is found within.
+// 		* **max_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 		* **max_qty** - integer(11) - The maximum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 		* **min_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 		* **min_qty** - integer(11) - The minimum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 	* **supplier_name** - varchar(32) - The name of the supplier.
+// 	* **thumb_height** - integer(11) - The hight, in pixels, of the products thumbnail image.
+// 	* **thumb_url** - varchar(255) - The URL to the thumbnail image.
+// 	* **thumb_width** - integer(11) - The width, in pixels, of the products thumbnail image.
+// 	* **title** - varchar(50) - The title of the product.
+// * **facets** - Filter options.
+// 	* **display_name** - varchar(32) - The display name of the filter option.
+// 	* **name** - varchar(32) - The name of the facet
+// 	* **values** - An array of value
+// 		* **value** - An object containing a single piece of information about the facet
+// 			* **count** - integer(11) - The number of products that match the given value.
+// 			* **displayValue** - varchar(100) - The name assigned to the given value.
+// 			* **id** - integer(11) - The id assigned to the given value.
+// 			* **selected** - bool(1) - If true, the given value is the value requested within the search criteria. If false, it was not specified.
+// * **has_next_page** - bool(1) - If true there is another page of search results to return.
+// * **parent_categories** - Lists the category higher than the category being searched for.
+// 	* **id** - integer(11) - The id assigned to the parent category.
+// 	* **name** - varchar(32) - The category name assigned to this parent category.
+// * **products** - an array of product
+// 	* **product** - an object representing a product 
+// 		* **brand** - varchar(100) - The brand of the product.
+// 		* **description** - text - The long description of the product.
+// 		* **drop_ship_fee** - float(9,2) - Drop ship fee determined by the supplier. A fee charged once per supplier order.
+// 		* **flags** - An array of flag
+// 			* **flag** - An object representing a flag representing something important.
+// 				* **name** - The name of the flag.
+// 				* **value** - The important information about the flag.
+// 		* **image_height** - integer(11) - The images height in pixels.
+// 		* **image_url** - varchar(255) - The URL to the image.
+// 		* **image_width** - integer(11) - The images width in pixels.
+// 		* **in_stock** - integer(1) - "1" if the product is in-stock, "2" if the product is out-of-stock.
+// 		* **in_warehouse** - bool(1) - If the merchant has access to virtual warehouse, this determines if the product is stored within their virtual warehouse.
+// 		* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 		* **item_sku** - varchar(32) - The SKU assigned to the item.
+// 		* **last_update** - datetime(format YYYY-MM-DD HH:MM:SS) - The last time the supplier updated this product.
+// 		* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 		* **original_price** - float(9,2) - The original price of the product if the product has a special price.
+// 		* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 		* **price** - float(9,2) - The purchase price of the item.
+// 		* **product_group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this product is available at.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **product_sku** - varchar(32) - The SKU of the product.
+// 		* **quantity_avail** - integer(11) - Number of product available for purchase.
+// 		* **stats** - Statistical information on this item.
+// 			* **item_count** - integer(11) - Number of child-items for this product.
+// 			* **item_count_in_specified_list** - integer(11) - The number of list this item is found within.
+// 			* **item_count_in_warehouse** - integer(11) - The number of warehouses this item is found within.
+// 			* **max_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **max_qty** - integer(11) - The maximum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 			* **min_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **min_qty** - integer(11) - The minimum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 		* **supplier_name** - varchar(32) - The name of the supplier.
+// 		* **thumb_height** - integer(11) - The hight, in pixels, of the products thumbnail image.
+// 		* **thumb_url** - varchar(255) - The URL to the thumbnail image.
+// 		* **thumb_width** - integer(11) - The width, in pixels, of the products thumbnail image.
+// 		* **title** - varchar(50) - The title of the product.
+// * **saved_searches** - an array of saved_search
+// 	* **saved_search** - an object representing the saved search in the doba catalog.
+// 		* **criteria** - varchar(255) - Detailed search criteria used by the search system.
+// 		* **date_created** - datetime - The date that the search was saved or last updated.
+// 		* **friendly_criteria** - varchar(255) - Readable version of the search criteria.
+// 		* **name** - varchar(255) - The retailer-provided name for the saved search
+// 		* **results_per_page** - integer(11) - The number of products to be displayed per page.
+// 		* **saved_search_id** - integer(11) - The id given by the system for this particular set of search criteria.
+// 		* **sort_order** - integer(11) - Determins how the results are sorted.
+// 		* **view_option** - varchar(32) The specified view requested within the criteria. Gallery, List, Marketplace are a few options.
+// * **search_term** - varchar(100) - The search-term used in the search criteria.
+// * **specials** - an array of product that are currently considered "special" deals
+// 	* **product** - an object representing a product 
+// 		* **brand** - varchar(100) - The brand of the product.
+// 		* **description** - text - The long description of the product.
+// 		* **drop_ship_fee** - float(9,2) - Drop ship fee determined by the supplier. A fee charged once per supplier order.
+// 		* **flags** - An array of flag
+// 			* **flag** - An object representing a flag representing something important.
+// 				* **name** - The name of the flag.
+// 				* **value** - The important information about the flag.
+// 		* **image_height** - integer(11) - The images height in pixels.
+// 		* **image_url** - varchar(255) - The URL to the image.
+// 		* **image_width** - integer(11) - The images width in pixels.
+// 		* **in_stock** - integer(1) - "1" if the product is in-stock, "2" if the product is out-of-stock.
+// 		* **in_warehouse** - bool(1) - If the merchant has access to virtual warehouse, this determines if the product is stored within their virtual warehouse.
+// 		* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 		* **item_sku** - varchar(32) - The SKU assigned to the item.
+// 		* **last_update** - datetime(format YYYY-MM-DD HH:MM:SS) - The last time the supplier updated this product.
+// 		* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 		* **original_price** - float(9,2) - The original price of the product if the product has a special price.
+// 		* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 		* **price** - float(9,2) - The purchase price of the item.
+// 		* **product_group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this product is available at.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **product_sku** - varchar(32) - The SKU of the product.
+// 		* **quantity_avail** - integer(11) - Number of product available for purchase.
+// 		* **stats** - Statistical information on this item.
+// 			* **item_count** - integer(11) - Number of child-items for this product.
+// 			* **item_count_in_specified_list** - integer(11) - The number of list this item is found within.
+// 			* **item_count_in_warehouse** - integer(11) - The number of warehouses this item is found within.
+// 			* **max_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **max_qty** - integer(11) - The maximum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 			* **min_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **min_qty** - integer(11) - The minimum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 		* **supplier_name** - varchar(32) - The name of the supplier.
+// 		* **thumb_height** - integer(11) - The hight, in pixels, of the products thumbnail image.
+// 		* **thumb_url** - varchar(255) - The URL to the thumbnail image.
+// 		* **thumb_width** - integer(11) - The width, in pixels, of the products thumbnail image.
+// 		* **title** - varchar(50) - The title of the product.
+// * **suggestion** - an array of product (Suggested by the supplier. This is often empty.)
+// * **top_sellers** - an array of product that are currently considered "top sellers".
+// 	* **product** - an object representing a product 
+// 		* **brand** - varchar(100) - The brand of the product.
+// 		* **description** - text - The long description of the product.
+// 		* **drop_ship_fee** - float(9,2) - Drop ship fee determined by the supplier. A fee charged once per supplier order.
+// 		* **flags** - An array of flag
+// 			* **flag** - An object representing a flag representing something important.
+// 				* **name** - The name of the flag.
+// 				* **value** - The important information about the flag.
+// 		* **image_height** - integer(11) - The images height in pixels.
+// 		* **image_url** - varchar(255) - The URL to the image.
+// 		* **image_width** - integer(11) - The images width in pixels.
+// 		* **in_stock** - integer(1) - "1" if the product is in-stock, "2" if the product is out-of-stock.
+// 		* **in_warehouse** - bool(1) - If the merchant has access to virtual warehouse, this determines if the product is stored within their virtual warehouse.
+// 		* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 		* **item_sku** - varchar(32) - The SKU assigned to the item.
+// 		* **last_update** - datetime(format YYYY-MM-DD HH:MM:SS) - The last time the supplier updated this product.
+// 		* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 		* **original_price** - float(9,2) - The original price of the product if the product has a special price.
+// 		* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 		* **price** - float(9,2) - The purchase price of the item.
+// 		* **product_group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this product is available at.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **product_sku** - varchar(32) - The SKU of the product.
+// 		* **quantity_avail** - integer(11) - Number of product available for purchase.
+// 		* **stats** - Statistical information on this item.
+// 			* **item_count** - integer(11) - Number of child-items for this product.
+// 			* **item_count_in_specified_list** - integer(11) - The number of list this item is found within.
+// 			* **item_count_in_warehouse** - integer(11) - The number of warehouses this item is found within.
+// 			* **max_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **max_qty** - integer(11) - The maximum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 			* **min_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **min_qty** - integer(11) - The minimum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 		* **supplier_name** - varchar(32) - The name of the supplier.
+// 		* **thumb_height** - integer(11) - The hight, in pixels, of the products thumbnail image.
+// 		* **thumb_url** - varchar(255) - The URL to the thumbnail image.
+// 		* **thumb_width** - integer(11) - The width, in pixels, of the products thumbnail image.
+// 		* **title** - varchar(50) - The title of the product.
+// * **total_search_results** - The total number of products in the catalog that match the given search criteria.
+
+@name("searchCatalog")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>searchCatalog</action>
+    <no_drop_ship_fees>true</no_drop_ship_fees>
+    <avg_qty_in_stock_max>10000</avg_qty_in_stock_max>
+    <avg_qty_in_stock_min>25</avg_qty_in_stock_min>
+    <avg_ship_time_max>14</avg_ship_time_max>
+    <avg_ship_time_min>0</avg_ship_time_min>
+    <display_count>10</display_count>
+    <filter>
+    	<facet>
+    		<name>f_supplier_id</name>
+    		<ids>
+    			<id>1</id>
+    			<id>2</id>
+    			<id>4</id>
+    			<id>6</id>
+    		</ids>
+    	</facet>
+    	<facet>
+    		<name>f_stock</name>
+    		<ids>
+    			<id>in-stock</id>
+    		</ids>
+    	</facet>
+    </filter>
+  </request>
+</dce>')
+
+
+// Get the details of products that match the criteria you provide.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getProductDetail' in order to use this method.
+//     	* **getProductDetail** - The method name.
+// * Optional
+// 	* **products** - an array of product_id
+// 		* **product_id** - the identifier for the product. This should not be confused with item_id.
+// 	* **items** - an array of item_id
+// 		* **item_id** - the identifier for the item. This should not be confused with product_id. 
+// 	* **list_ids** - an array of list_id
+// 		* **list_id** - the identifier for the inventory list from your retailer account.
+// 	* **limit** - The maximum number of records that will be returned.
+// 	* **page** - For pagination, start at page 1 and increase by one on subsequent requests until zero items are returned.
+// 	* **ship_postal** - If specified the return will include shipping costs updated for this postal code.
+// 	* **specify_in_list** - If set to 1 the response will specify the list each product pertains to.
+// 
+// ## Response Parameters
+// 
+// * **page** - integer(11) - The page number of the current response.
+// * **products** - an array of product
+// 	* **product** - an object representing a product
+// 		* **additional_details** - varchar(255) - Additional product information provided by the supplier.
+// 		* **brand** - varchar(100) - The brand of the product.
+// 		* **categories** - an array of category objects
+// 			* **category** - an object representing a category
+// 				* **id** - integer(11) - The category id assigned to this category.
+// 				* **name** - varchar(32) - The category name assigned to this category.
+// 		* **condition** - enum("new", "refurbished")
+// 		* **description** - text - The long description of the product.
+// 		* **flags** - An array of flag
+// 			* **flag** - An object representing a flag representing something important.
+// 				* **name** - The name of the flag.
+// 				* **value** - The important information about the flag.
+// 		* **freight** - bool(1) - Determines whether the product ships via freight or not.
+// 		* **images** - An array of image
+// 			* **image** - An object representing an image
+// 				* **default** - bool(1) - 1 if this image is the default image.
+// 				* **image_height** - integer(11) - The images height in pixels.
+// 				* **image_width** - integer(11) - The images width in pixels.
+// 				* **thumb_url** - varchar(255) - The URL to the thumbnail image.
+// 				* **url** - varchar(255) - The URL to the image.
+// 		* **items** - An array of item. Multiple items can exist for one product, typically to account for different sizes or colors of products
+// 			* **item** - An object representing a specific (orderable) item
+// 				* **attributes**
+// 					* **name** - varchar(32) - The name of the attribute.
+// 					* **value** - varchar(255) - The value of the attribute. Typically this will be whatever the size or color is, such as 'Large' or 'Orange'.
+// 				* **custom_price** - float(9,2) - The price of the product if the retailer has edited the product and set a custom price. This doesn't change what Doba will charge the retailer, only that that retailer wanted to use this price instead of the given price provided by the supplier.
+// 				* **est_avail** - datetime(format YYYY-MM-DD HH:MM:SS) - The estimated date/time that the supplier should have available quantities for this product. This is always an estimate and should only be used as such.
+// 				* **in_specified_list** - bool(1) - True if the item is found within the given list.
+// 				* **in_warehouse** - bool(1) - If the merchant has access to virtual warehouse, this determines if the product is stored within their virtual warehouse.
+// 				* **item_dim1** - float(9,2) - The dimension of the item. Used with the other two provided dimensions to provide a complete set of dimensions for the item.
+// 				* **item_dim2** - float(9,2) - The dimension of the item. Used with the other two provided dimensions to provide a complete set of dimensions for the item.
+// 				* **item_dim3** - float(9,2) - The dimension of the item. Used with the other two provided dimensions to provide a complete set of dimensions for the item.
+// 				* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 				* **item_sku** - varchar(32) - The SKU assigned to the item.
+// 				* **item_weight** - float(9,2) - The weight of the item in pounds (lbs).
+// 				* **last_update** - datetime(format YYYY-MM-DD HH:MM:SS) - The last time the supplier updated this product.
+// 				* **map** - float(9,2) - Minimum Advertised Price - retailers cannot advertise this product below this amount.
+// 				* **mpn** - varchar(50) - The Manufacturers Part Number (MPN) assigned by the supplier.
+// 				* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 				* **name** - varchar(255) - The name associated with this specific item option of the product.
+// 				* **original_price** - float(9,2) - The original price of the product if the product has a special price.
+// 				* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 				* **price** - float(9,2) - The purchase price of the item.
+// 				* **qty_avail** - integer(11) - Number of product available for purchase.
+// 				* **stock** - enum("in-stock", "out-of-stock", "discontinued") - Only purchaseable if "in-stock".
+// 				* **supplier_id** - integer(11) - The id assigned to the supplier.
+// 				* **upc** - varchar(50) - The UPC code assigned by the supplier.
+// 		* **manufacturer** - varchar(100) - The manufacturer of the product.
+// 		* **messages** - varchar(255) - Messages from the supplier regarding the product.
+// 		* **productStats** - varchar(255) - Product statistical information provided for research purposes.
+// 			* **item_count** - integer(11) - Number of child-items for this product.
+// 			* **item_count_in_specified_list** - integer(11) - The number of list this item is found within.
+// 			* **item_count_in_warehouse** - integer(11) - The number of warehouses this item is found within.
+// 			* **max_cost** - float(9,2) - The maximum cost of products within the merchants virtual warehouse.
+// 			* **max_qty** - integer(11) - The maximum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 			* **min_cost** - float(9,2) - The minimum cost of products within the merchants virtual warehouse.
+// 			* **min_qty** - integer(11) - The minimum number of quanity available for purchase for items within the merchants virtual warehouse.
+// 		* **product_group** - varchar(100) - Each merchant has access to certain products within the Doba catalog. This tells the merchant which level of access this product is available at.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **product_sku** - varchar(32) - The SKU of the product.
+// 		* **ship_cost** - float(9,2) - The expected cost for shipping this product in a single item order. The cost will change depending on shipping address and shipping method.
+// 		* **ship_height** - float(9,2) - The products shipping height. Used to determine shipping costs.
+// 		* **ship_length** - float(9,2) - The products shipping length. Used to determine shipping costs.
+// 		* **ship_weight** - float(9,2) - The products shipping weight. Used to determine shipping costs.
+// 		* **ship_width** - float(9,2) - The products shipping width. Used to determine shipping costs.
+// 		* **status** - enum("available","discontinued") - The status of the product.
+// 		* **supplier** - An abbreviated object representing a supplier.
+// 			* **alerts** - varchar(255) - Any alerts that Doba has added to this suppliers account will be shown here.
+// 			* **allows_custom_branding** - bool(1) - Determines whether the supplier allows for custom branding of packing slips.
+// 			* **allows_direct_relationships** - bool(1) - Determines whether the supplier allows for direct relationships with Doba merchants.
+// 			* **avg_item_lifespan** - integer(20) - The amount of time in days, on average, an item is available from this particular supplier.
+// 			* **avg_processing_time** - varchar(255) - The average number of days this supplier usually takes to ship the product.
+// 			* **avg_product_discount** - varchar(50)
+// 			* **avg_qty_in_stock** - integer(20) - The average quantity in stock that the supplier maintains for their products.
+// 			* **avg_ship_time** - float(9,2) - The average time it takes to ship an item after receiving the tracking number.
+// 			* **classification** - varchar(32) - Classification of the supplier.
+// 			* **damage_policy** - varchar(255) - The suppliers damaged item policy.
+// 			* **date_active** - date("YYYY-MM-DD") - The date the supplier became active within Doba.
+// 			* **days_allowed_to_return** - integer(11) - The number of days after an order is placed that the supplier will accept returns.
+// 			* **days_to_receive_refund** - integer(11) - The number of days after an order is placed that the supplier will refund the order.
+// 			* **description** - varchar(255) - A description of this supplier and the products they specialize in.
+// 			* **drop_ship_fee** - float(9,2) - Drop ship fee determined by the supplier. A fee charged once per supplier order.
+// 			* **fulfillment_percentage** - float(9,2) - The percentage of how many orders properly shipped of all orders received by the supplier.
+// 			* **inventory_info** - varchar(50) - Additional details about inventory.
+// 			* **inventory_update_frequency** - float(9,2) - The frequency, in days, that the supplier updates their quantity available (inventory) on their products.
+// 			* **item_count** - integer(20) - Informational. To be used in product research.
+// 			* **meta_description** - varchar(200) - Informational. To be used in product research.
+// 			* **meta_keywords** - varchar(200) - Informational. To be used in product research.
+// 			* **notes** - text - Special notes the customer may need to be aware of. Its best to display this information along with the product details.
+// 			* **num_in_stock** - integer(20) - The current number of products the supplier has in-stock.
+// 			* **num_out_of_stock** - integer(20) - The current number of products the supplier has out-of-stock.
+// 			* **product_alerts** - varchar(255) - The product alerts, such as recalls or safety concerns, that the supplier is aware of regarding any product in their product lines.
+// 			* **return_policy** - varchar(255) - The suppliers return policy.
+// 			* **rma_instructions** - varchar(255) - This will almost always be empty, unless the supplier allows returns without an RMA number.
+// 			* **rma_percentage** - float(9,2) - The percentage indicating how many orders were returned of all orders received by the supplier.
+// 			* **ship_price_strategy_class** - varchar(32) - The shipping strategy as determined by the supplier.
+// 			* **shipping_carriers** - varchar(50) - The shipping carriers this supplier uses to ship products.
+// 			* **shortage_policy** - varchar(255) - This will almost always be empty, unless the supplier is a manufacturer and they have full control over the resources used to manufacture the product.
+// 			* **special_conditions** - varchar(200) - Any special conditions provided by the supplier.
+// 			* **summary** - varchar(255) - The supplier-provided informational summary. These usually include information about the supplier's business and product lines.
+// 			* **visibility_group** - varchar(32) - Each merchant has access to certain products within the Doba catalog. This tells the merchant what level of access this product is available at.
+// 		* **title** - varchar(50) - The title of the product.
+// 		* **warranty** - varchar(100) - The product's warranty
+
+@name("getProductDetail")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getProductDetail</action>
+    <ship_postal>65656</ship_postal>
+    <items>
+    	<item_id>14980110</item_id>
+    </items>
+  </request>
+</dce>')
+
+
+// Retrieves current inventory information for the requested products.
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getProductInventory' in order to use this method.
+//     	* **getProductInventory** - The method name.
+// * Optional
+// 	* **products** - an array of product_id
+// 		* **product_id** - the identifier for the product. This should not be confused with item_id.
+// 	* **items** - an array of item_id
+// 		* **item_id** - the identifier for the item. This should not be confused with product_id. 
+// 	* **list_ids** - an array of list_id
+// 		* **list_id** - the identifier for the inventory list from your retailer account.
+// 	* **limit** - The maximum number of records that will be returned.
+// 	* **page** - For pagination, start at page 1 and increase by one on subsequent requests until zero items are returned.
+// 
+// ## Response Parameters
+// 
+// * **page** - integer(11) - The page number of the current response.
+// * **products** - an array of item objects matching the criteria
+// 	* **item** - an object representing an abbreviated item (for inventory purposes)
+// 		* **item_id** - integer(11) - The item_id assigned to the product. This is Doba's most unique identifier for products.
+// 		* **map** - float(9,2) - Minimum Advertised Price - retailers cannot advertise this product below this amount.
+// 		* **msrp** - float(9,2) - The manufacturer's suggested retail price.
+// 		* **prepay_price** - float(9,2) - The purchase price of the item if funded via pre-pay funds.
+// 		* **price** - float(9,2) - The purchase price of the item.
+// 		* **product_id** - integer(11) - The product_id assigned to the product.
+// 		* **qty_avail** - integer(11) - Number of product available for purchase.
+// 		* **stock** - enum("in-stock", "out-of-stock", "discontinued") - Only purchaseable if "in-stock".
+// 		* **street_price** - float(9,2) - The street price of the product.
+
+@name("getProductInventory")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getProductInventory</action>
+    <ship_postal>65656</ship_postal>
+    <items>
+    	<item_id>14980110</item_id>
+    </items>
+  </request>
+</dce>')
+
+
+// Retrieves a summary of inventory lists currently saved within a merchants account. Inventory lists can be created and managed at http://www.doba.com
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'getListsSummary' in order to use this method.
+//     	* **getListsSummary** - The method name.
+// 
+// ## Response Parameters
+// 
+// * **default** - bool(1) - True if this inventory list is set as the merchants default inventory list. False if it is not.
+// * **id** - integer(11) - The id assigned to this inventory list.
+// * **item_count** - integer(11) - The number of products in this inventory list.
+// * **name** - varchar(32) - The name assigned to this inventory list by the merchant.
+// * **send_callback** - bool(1) - Used to inform the end-users system of any changes to products inside the inventory list. If true, updates will be delivered. If false, no updates will be delivered. *This is included for historical purposes and is no longer used*
+
+@name("getListsSummary")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getListsSummary</action>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("editList")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>editList</action>
+    <list_id>{{LIST_ID}}</list_id>
+    <item_ids>
+    	<item_id>14980110</item_id>
+    	<item_id>4293649</item_id>
+    	<item_id>43298324</item_id>
+    </item_ids>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("getSpecials")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getSpecials</action>
+    <ship_postal>65656</ship_postal>
+    <items>
+    	<item_id>14980110</item_id>
+    </items>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("getProductExports")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getProductExports</action>
+    <ship_postal>65656</ship_postal>
+    <items>
+    	<item_id>14980110</item_id>
+    </items>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("getListsForItem")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <item_id>14980110</item_id>
+    <action>getListsForItem</action>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("getListNotificationItems")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>getListNotificationItems</action>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("getFullSearchFacet")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <facet>f_cat</facet>
+    <search>
+        <display_count>2</display_count>
+        <display_start>1</display_start>
+        <no_drop_ship_fees>1</no_drop_ship_fees>
+        <!--Optional:-->
+        <!--<price_range_max>?</price_range_max>-->
+        <!--Optional:-->
+        <price_range_min>10.00</price_range_min>
+        <!--Optional:-->
+        <qty_range_min>25</qty_range_min>
+        <!--Optional:-->
+        <retailer_id>{{RETAILER_ID}}</retailer_id>
+        <!--Optional:-->
+        <rollup_products>1</rollup_products>
+        <!--Optional:-->
+        <!--<saved_search_id>?</saved_search_id>-->
+        <!--Optional:-->
+        <!--<search_term>?</search_term>-->
+        <!--Optional:-->
+        <!--<sort_column>?</sort_column>-->
+        <!--Optional:-->
+        <!--<sort_direction>?</sort_direction>-->
+        <!--Optional:-->
+        <updated_within_last_days>5</updated_within_last_days>
+    </search>
+    <action>getFullSearchFacet</action>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("deleteList")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <list_ids>
+        <list_id>14980110</list_id>
+    </list_ids>
+    <action>deleteList</action>
+  </request>
+</dce>')
+
+
+// Adds or removes items from a specified inventory list.
+// 
+// 
+// There can be only one API call per action, meaning that if a retailer wants to add and remove products from a inventory list, one API call should be issued for adding products and another API call should be issued for the removal.
+// 
+// 
+// New inventory lists can be created using this method. To create a new inventory list, simply include all of the **item_id**s you wish to add to the new inventory list, or the **saved_search_id**'s, and provide a inventory **list_name**, but do not specify the inventory **list_id** or inventory **list_id**s. If inventory **list_id** or inventory **list_id**s are specified it will search the inventory lists for the inventory list_id and attempt to update it. If none is provided, it will create a new inventory list.
+// 
+// --------
+// 
+// ## Request Parameters
+// 
+// * Required
+//     * **authentication**
+//         * **password**
+//         * **username**
+//     * **retailer_id** - The merchant's retailer_id.
+//     * **action** - Make sure to use 'editList' in order to use this method.
+//     	* **editList** - The method name.
+// * Optional
+// 	* **default** - Sets the list_id you are updating as the default inventory list.
+// 	* **item_ids** - an array of item_id
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **item_ids_to_remove** - an array of item_id. This is to be used specifically when intending to remove items from an inventory list. *If using this, you may not also use **item_ids***
+// 		* **item_id** - an identifier for the item called item_id both in the catalog what is exported with the Data Export tool.
+// 	* **list_id** - The list_id you wish to edit.
+// 	* **list_name** - The name of the new inventory list or the new name you wish to name an existing inventory list.
+// 
+// ## Response Parameters
+// 
+// * **list_id** - integer(11) - The id of the inventory list that was modified.
+// * **num_added** - integer(11) - The number of items added to the specified inventory list.
+// * **num_removed** - integer(11) - The number of items removed from the specified inventory list.
+
+@name("addToList")
+POST "https://{{ENVIRONMENT}}.doba.com/api/20110301/xml_{{XTYPE}}_api.php"
+"Content-Type": "application/xml"
+data('<dce>
+  <request>
+    <authentication>
+      <username>{{USERNAME}}</username>
+      <password>{{PASSWORD}}</password>
+    </authentication>
+    <retailer_id>{{RETAILER_ID}}</retailer_id>
+    <action>addToList</action>
+    <list_id>{{LIST_ID}}</list_id>
+    <item_ids>
+    	<item_id>14980110</item_id>
+    	<item_id>4293649</item_id>
+    	<item_id>43298324</item_id>
+    </item_ids>
+  </request>
+</dce>')
+
+
+

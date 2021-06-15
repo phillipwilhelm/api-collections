@@ -1,0 +1,347 @@
+#!/usr/bin/env dothttp
+
+// get list of accounts, including information and statistics
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |status|no|one of active/canceled/paused, to filter by account status|
+
+@name("list of accounts")
+GET "https://{{host}}/{{base_path}}/accounts"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// get the current ID of the account that the given API credentials have access too:
+// 
+// example:
+// ```
+// {
+//   "account": 18614
+// }
+// ```
+
+@name("current api")
+GET "https://{{host}}/{{base_path}}/accounts"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |names     |yes     |1 to enable|
+// |all       |yes     |1 to enable|
+// 
+// If you enable both `names` and `all`, a list of active account id's and account names will be returned.
+
+@name("list of active account IDs and names")
+GET "https://{{host}}/{{base_path}}/accounts.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "names"= "1"
+? "all"= "1"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("account information")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Use get account status to determine if an account is active, stopped, or paused.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("account status")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/status"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Create a sub-account within an agency, with agency/shared billing (as opposed to customer billing).
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account[name]|yes|the name of the account|
+// |account[timezone_hint]|no|a timezone name like `America/New_York` or `America/Los_Angeles`|
+// |billing_type|yes|the string `existing` which will cause the account to be under agency billing|
+// 
+// JSON body example
+// ```json
+// {
+//   "account": {
+//       "name": "testing 123",
+//       "timezone": "America/Los_Angeles"
+//   },
+//   "billing_type": "existing"
+// }
+// ```
+// 
+// > Note that account names are not required to be unique. You can use "get list of accounts" to lookup account names if you need to see if an account already exists.
+// 
+// You can also create accounts linked to a Stripe account and a price schedule.
+// 
+// ```json
+// {
+//   "account": {
+//       "name": "testing 123",
+//       "website_url": "https://your-website.com/",
+//       "contact_number": "+18005771872",
+//       "timezone": "America/Los_Angeles"
+//   },
+//   "billing_type": "existing",
+//   "external_billing": {
+//   	"type": "stripe",
+//   	"price_schedule_id": 12345,
+//   	"stripe_customer_id": "your stripe customer id"
+//   }
+// }
+// ```
+
+@name("create an account (agency/shared billing)")
+POST "https://{{host}}/{{base_path}}/accounts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "account": {
+        "name": "test account 100h", 
+        "timezone": "America/Los_Angeles"
+    }, 
+    "billing_type": "existing"
+}
+')
+
+
+// Create a sub-account within an agency, with customer billing (as opposed to shared billing).
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account[name]|yes|the name of the account|
+// |account[timezone_hint]|no|a timezone name like `America/New_York` or `America/Los_Angeles`|
+// |account[payment_profiles_attributes]|yes|array of payment profiles (credit cards)|
+// |billing_type|yes|the string `new` which will cause the account to be customer billing|
+// 
+// 
+// 
+// Payment Profiles Attributes have the following fields:
+// 
+// |field|comments|
+// |-----|--------|
+// |first_name|Card holder's first name|
+// |last_name|Card holder's last name|
+// |address|Street address of card|
+// |city|City for card's address|
+// |zip|Zip/postal code for card's address|
+// |country|Country for card's address|
+// |card_type|One of: visa, master, american_express, diners_club, discover, jcb|
+// |card_number|Credit card number|
+// |verification_value|The verification code from the back of the card|
+// |month|Expiration month|
+// |year|Expiration year|
+// 
+// JSON body example
+// ```json
+// {
+//   "account": {
+//       "name": "testing 123",
+//       "timezone_hint": "America/Los_Angeles",
+//       "payment_profiles_attributes": [
+//         {"first_name": "John",
+//          "last_name": "Doe",
+//          "address": "123 Example St",
+//          "city": "Severna Park",
+//          "zip": "21146",
+//          "country": "US",
+//          "card_type": "visa",
+//          "card_number": "4242424242424242",
+//          "verification_value": "424",
+//          "month": "01",
+//          "year": "2029"
+//         }
+//       ]
+//   },
+//   "billing_type": "new"
+// }
+// ```
+// 
+// > Note that account names are not required to be unique. You can use "get list of accounts" to lookup account names if you need to see if an account already exists.
+
+@name("create an account (customer billing)")
+POST "https://{{host}}/{{base_path}}/accounts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "billing_type": "new",
+  "account": {
+      "name": "testing 123",
+      "timezone_hint": "America/Los_Angeles",
+      "payment_profiles_attributes": [
+        {"first_name": "John",
+         "last_name": "Doe",
+         "address": "123 Example St",
+         "city": "Severna Park",
+         "zip": "21146",
+         "country": "US",
+         "card_type": "visa",
+         "card_number": "4242424242424242",
+         "verification_value": "424",
+         "month": "01",
+         "year": "2029"
+        }
+      ]
+  }
+}')
+
+
+// Cancel a sub-account within an agency
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account_id|yes|the id of the account to cancel|
+// 
+// This will cancel the account and release all of the tracking numbers associated with the account.
+
+@name("cancel an account")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// #### Update a sub-account within an agency.
+// 
+// |parameters|required|comments|
+// |---------|--------|--------|
+// |account_id|yes|the id of the account|
+// |account[name]|no|the name of the account|
+// |account[timezone_hint]|no|a timezone name like `America/New_York` or `America/Los_Angeles`|
+// |account[website]|no|the url for the account|
+// |account[contact_number]|no|a phone number for the account|
+// 
+// > Note that account names are not required to be unique. You can use "get list of accounts" to look up account names if you need to see if an account already exists.
+
+@name("update an account")
+PUT "https://{{host}}/{{base_path}}/accounts/{{account_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "account": {
+      "name": "testing123",
+      "timezone_hint": "America/Los_Angeles",
+      "website": "http://testing123.example.com",
+      "contact_number": "+1 (251) 286-2740"
+  }
+}')
+
+
+// Starting an account will start dynamically swapping numbers and permit calls to tracking numbers.  This is the opposite of stopping an account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("start an account")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/start"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Stopping an account will stop dynamically swapping numbers and prevent calls to tracking numbers.  Compare to pausing an account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("stop an account")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/stop"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Pausing an account will stop dynamically swapping numbers but calls to tracking numbers will still work.  Compare to stopping an account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("pause an account")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/pause"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Resuming an account will start dynamically swapping numbers.  This is the opposite of pausing an account.
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("resume an account")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/resume"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Use get account scripts to retrieve the tracking script for your website as well as the Google Adwords script (if applicable).
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+
+@name("account tracking scripts")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/scripts"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |retention_period|yes|one of 0, 30, 60, 90 corresponding to the number of days of data retained|
+// |I_Understand_That_This_Has_Permanent_Data_Retention_Implications|yes|send 1 to ackknowledge you understand and agree|
+// 
+// To enable automatic redaction, you must be using the agency keys. Also, redaction must be enabled in the agency:
+// * https://app.calltrackingmetrics.com/agencies/{{agency_id}}/edit#agency-behaviors
+// * "Allow accounts to enable redacting calls within the call log (useful for GDPR compliance)"
+
+@name("enable automatic redaction")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/enable_automatic_redaction"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "retention_period": 90,
+    "I_Understand_That_This_Has_Permanent_Data_Retention_Implications": 1
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |I_Understand_That_This_Has_Permanent_Data_Retention_Implications|yes|send 1 to ackknowledge you understand and agree|
+
+@name("disable automatic redaction")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/disable_automatic_redaction"
+basicauth("{{access_key}}", "{{secret_key}}")
+json({
+    "I_Understand_That_This_Has_Permanent_Data_Retention_Implications": 1
+})
+
+
+

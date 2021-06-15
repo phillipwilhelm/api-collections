@@ -1,0 +1,141 @@
+#!/usr/bin/env dothttp
+
+// Returns total realtime balance on the branch:
+// 
+// ```javascript
+// {
+//   "balance": 22694.02
+// }
+// ```
+
+@name("/v1/branch/rtb")
+GET "https://{{url}}/api/v1/branch/rtb"
+
+
+// Returns realtime balances for accounts in the branch:
+// 
+// ```javascript
+// [{
+//     "accountId": 123,
+//     "totalDividendAmount": 904.78,
+//     "cashOnAccount": 0, // no cash available
+//     "balance": 175095.46,
+//     "totalDividendYield": 10.09,
+//     "modelId": 17520,
+//     "markToMarket": 220975,
+//     "sodMarginBalance": -45879.54, // account has debit on it
+//     "sodCashBalance": 0,
+//     "sodShortBalance": 0
+//   },
+//   {
+//     "accountId": 456,
+//     "totalDividendAmount": 207.62,
+//     "cashOnAccount": 71765.75, // cash on the account
+//     "balance": 160054.25,
+//     "totalDividendYield": 3.76,
+//     "modelId": 92743,
+//     "markToMarket": 88316.34,
+//     "sodMarginBalance": 71769.69,
+//     "sodCashBalance": 0,
+//     "sodShortBalance": 0
+//   },
+//   {
+//     "accountId": 789,
+//     "totalDividendAmount": 0,
+//     "cashOnAccount": 0,
+//     "balance": 0,
+//     "totalDividendYield": 0,
+//     "modelId": 92971,
+//     "markToMarket": 0,
+//     "sodMarginBalance": 0,
+//     "sodCashBalance": 0,
+//     "sodShortBalance": 0
+//   }]
+// ```
+
+@name("/v1/branch/rtbs")
+GET "https://{{url}}/api/v1/branch/rtbs"
+
+
+// Returns information about inventory aka average price aka allocation account associated with the branch. Format is the same as for any other account information endpoint:
+// 
+// ```javascript
+// [{
+// 	// information
+// }]
+// ```
+
+@name("/v1/branch/inventory")
+GET "https://{{url}}/api/v1/branch/inventory"
+
+
+// Returns total of realtime balances on the branch:
+// 
+// ```javascript
+// {balance: 22694.02, marketToMarket: 1000.0, totalDividendAmount: 100, totalDividendYield: 10}
+// ```
+
+@name("/v1/branch/rtbs/total")
+GET "https://{{url}}/api/v1/branch/rtbs/total"
+
+
+@name("/v1/branch/portfolio")
+GET "https://{{url}}/api/v1/branch/portfolio"
+? "loadQuotes"= "false"
+? "loadIndustries"= "false"
+? "loadUpgrades"= "false"
+? "loadEarnings"= "false"
+? "loadRtb"= "false"
+? "marketCapBreakdown"= "false"
+? "combined"= "false"
+
+
+// Get list of upcoming option expiration dates along with number short and long contracts on given dates. Response:
+// 
+// ```json
+// [
+//   {
+//     "longQty": 6,
+//     "maturity": "01/08/2021 00:00:00 EST",
+//     "shortQty": 5
+//   },
+//   {
+//     "longQty": 22,
+//     "maturity": "01/15/2021 00:00:00 EST",
+//     "shortQty": 0
+//   }
+// ]
+// ```
+
+@name("Option expirations")
+GET "https://{{url}}/v1/branch/portfolio/options/upcoming"
+
+
+// Returns list of given positions on given maturity date. Endpoint can be called via `GET` as well by passing `maturity` argument. `loadQuotes` can be passed to get actual quote data. Returns list of portfolio entries with `account` tied to them. Sample response with notable fields:
+// 
+// ```json
+// [
+//     {
+//         quantity: 10,
+//         quote: {
+//             symbol: "F     210122C00011000",
+//             underlying: {
+//                 symbol: "F"
+//             }
+//         },
+//         account: {
+//             accountNumber: "AC123456"
+//         }
+//     }
+// ]
+// ```
+
+@name("Option expirations details")
+POST "https://{{url}}/v1/branch/portfolio/options/upcoming/details"
+json({
+    "maturity": "01/15/2021 00:00:00 EST",
+    "loadQuotes": "true|false"
+})
+
+
+

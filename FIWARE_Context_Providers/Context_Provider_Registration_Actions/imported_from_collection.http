@@ -1,0 +1,120 @@
+#!/usr/bin/env dothttp
+
+// This example registers the Random Data Context Provider with the Orion Context Broker.
+// 
+// The body of the request states that: *"The URL* `http://context-provider:3000/proxy/v1/random/weatherConditions` *is capable of providing* `relativeHumidity`  and `temperature` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*"*
+// 
+// The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.
+// 
+// This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion.
+// 
+// >*Note:* if you have registered with the Weather API, you can retrieve live values for `temperature` and `relativeHumidity` in Berlin by placing the following `url` in the `provider`:
+// >
+// > * `http://context-provider:3000/proxy/v1/weather/weatherConditions`
+// >
+
+@name("Register a Context Provider - Weather")
+POST "http://{{orion}}/v2/registrations"
+"Content-Type": "application/json"
+? "type"= "Store"
+? "attrs"= "name"
+data('{
+   "description": "Get Weather data for Store 1",
+   "dataProvided": {
+     "entities": [
+       {
+         "id" : "urn:ngsi-ld:Store:001",
+         "type": "Store"
+       }
+     ],
+     "attrs": [
+      "temperature", "relativeHumidity"
+    ]
+   },
+   "provider": {
+     "http": {
+       "url": "http://context-provider:3000/random/weatherConditions"
+     },
+     "legacyForwarding": false
+   },
+   "status": "active"
+}')
+
+
+// This example registers the Cat Facts API Context Provider with the Orion Context Broker.
+// 
+// The body of the request states that: *"The URL* `http://context-provider:3000/proxy/v1/catfacts/tweets` *is capable of providing* `tweets` *data for the entity called* `id=urn:ngsi-ld:Store:001`.*"*
+// 
+// The values are **never** held within Orion, it is always requested on demand from the registered context provider. Orion merely holds the registration information about which context providers can offer context data.
+// 
+// This request will return with a **201 - Created** response code. The `Location` Header of the response contains a path to the registration record held in Orion.
+// 
+// >*Note:* if you have registered with the Twitter API, you can retrieve live values for `tweets` in Berlin by placing the following `url` in the `provider`:
+// >
+// > * `http://context-provider:3000/proxy/v1/twitter/tweets`
+// >
+
+@name("Register a Context Provider - Tweets")
+POST "http://{{orion}}/v2/registrations"
+"Content-Type": "application/json"
+? "type"= "Store"
+? "attrs"= "name"
+data('{
+   "description": "Get Tweets for Store 1",
+   "dataProvided": {
+     "entities": [
+       {
+         "id" : "urn:ngsi-ld:Store:001",
+         "type": "Store"
+       }
+     ],
+     "attrs": [
+      "tweets"
+    ]
+   },
+   "provider": {
+     "http": {
+       "url": "http://context-provider:3000/catfacts/tweets"
+     },
+     "legacyForwarding": false
+   },
+   "status": "active"
+}')
+
+
+// This example reads  the registration data with the id `5addeffd93e53f86d8264521` from the context.
+// 
+// Registration data can be obtained by making a GET request to the `/v2/registrations/<entity>` endpoint.
+
+@name("Read a registered content provider")
+GET "http://{{orion}}/v2/registrations/5addeffd93e53f86d8264521"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+
+// This example lists all registered context providers
+// 
+// Full context data  for a specified entity type can be retrieved by making a GET request to the `/v2/registrations/` endpoint.
+
+@name("List all registered content providers")
+GET "http://{{orion}}/v2/registrations"
+? "type"= "Store"
+
+
+
+// This example removes the registration with the id `5ad5b9435c28633f0ae90671` from the context.
+// 
+// Registrations can be deleted by making a DELETE request to the `/v2/registrations/<entity>` endpoint.
+// 
+// ---
+// Subsequent requests using the same `id` will result in an error response since the entity no longer exists
+
+@name("Remove a registered content provider")
+DELETE "http://{{orion}}/v2/registrations/5ad5b9435c28633f0ae90671"
+? "type"= "Store"
+? "attrs"= "name"
+
+
+
+

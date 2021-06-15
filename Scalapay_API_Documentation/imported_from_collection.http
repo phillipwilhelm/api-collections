@@ -1,0 +1,252 @@
+#!/usr/bin/env dothttp
+
+// **[NOTE: this call is deprecated and refers to an old version of Scalapay. Ignore it if you are a new customer.]**
+// 
+//  <details>
+// 
+// 
+//   Merchant calls **/v2/configurations** to indicate if Scalapay can be offered as a payment method to the customer.
+// It is recommended to store the value this payload on the client server for a period of time (approx. 1 day) as excessive calls may be denied.
+// <br>
+// Returns:  
+// 200 OK:  
+// - **minimumAmount** = The minimum amount of the order that Scalapay can be offered as a payment method
+// - **maximumAmount** = The maximum amount of the order that Scalapay can be offered as a payment method
+// - **numberOfPayments** = The number of payments that the customer will make the purchase with  
+// 
+// 4xx BAD REQUEST:
+// 
+// 
+// </details>
+// 
+
+@name("v2/configurations")
+GET "https://{{hostname}}/v1/configurations"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+// Merchant site makes a call to **/v2/orders** and receives an order-token as well as the redirectUrl to send the customer to Scalapay to authorize the payment  
+// 
+// <br>
+// Mandatory:
+// 
+// - **totalAmount** = The total amount for the order
+// - **consumer/givenNames** = Given names of the consumer
+// - **consumer/surname** = Surname of the consumer
+// - **consumer/email** = Email of the consumer
+// - **merchant/redirectConfirmUrl** = Return URL for an authorized transaction
+// - **merchant/redirectCancelUrl** = Return URL for an failed transaction
+// - **shipping** = Consumer shipping details
+// - **merchantReference** = Unique order reference from the merchant platform
+// - **items** = List of items associated to the order
+//  - **name** = The name of the item
+//  - **category** = The category of the item
+//  - **subcategory** = Array of subcategories for the item
+//  - **brand** = The brand of the item
+//  - **gtin** = Global Trade Item Number. One of [UPC, EAN, JAN, ISBN, ITF-14]
+//  - **sku** = Stock Keeping Unit code
+//  - **quantity** = Amount of item purchased
+//  - **price** = Item price
+// <br>
+// 
+// Optional:
+// - **billing** = Consumer billing details
+// - **discounts** = Discount amount
+// - **taxAmount** = Tax ammount
+// - **shippingAmount** Shipping amount
+// - **consumer/phoneNumber** = Phone number of the consumer
+// - **orderExpiryMilliseconds** = Time (in milliseconds) the order is valid on the merchant platform
+// 
+// <br>
+// Returns:  
+// 200 OK:   
+// 
+// - **token** = The Scalapay order UUID to store on the merchant platform  
+// - **expires** = The expiry date of the user authorisation of the purchase, after which v1/orders will need to be recalled
+// - **checkoutUrl** = The URL to redirect the user to to authorise the purchase  
+// 
+// <br>
+// 4xx BAD REQUEST: Check the response 'message' attribute for more information  
+// 
+// 500 INTERNAL SERVER ERROR
+
+@name("v2/orders")
+POST "https://{{hostname}}/v2/orders"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{  
+    "totalAmount": {  
+        "amount": "100.00",
+        "currency": "EUR"
+    },
+    "consumer": {  
+        "phoneNumber": "0400000001",
+        "givenNames": "Johnny",
+        "surname": "Mitrevski",
+        "email": "test@scalapay.com"
+    },
+    "billing": {  
+        "name": "Joe Consumer",
+        "line1": "Via della Rosa, 58",
+        "suburb": "Montelupo Fiorentino",
+        "postcode": "50056",
+        "countryCode": "IT",
+        "phoneNumber": "0400000000"
+    },
+    "shipping": {  
+        "name": "Joe Consumer",
+        "line1": "Via della Rosa, 58",
+        "suburb": "Montelupo Fiorentino",
+        "postcode": "50056",
+        "countryCode": "IT",
+        "phoneNumber": "0400000000"
+    },
+    "items":[  
+         {
+             "name": "32",
+             "category": "clothes",
+             "subcategory": ["shirt", "long-sleeve"],
+             "brand": "TopChoice",
+             "gtin": "123458791330",
+             "sku": "12341234",
+             "quantity": 1,
+             "price": {
+                 "amount": "10.00",
+                 "currency": "EUR"
+             }
+         },
+         {
+             "name": "Jeans",
+             "category": "clothes",
+             "subcategory": ["pants", "jeans"],
+             "brand": "TopChoice",
+             "gtin": "123458722222",
+             "sku": "12341235",
+             "quantity": 1,
+             "price": {
+                 "amount": "20.00",
+                 "currency": "EUR"
+             }
+         }
+    ],
+    "discounts": [
+        {
+            "displayName": "10% Off",
+            "amount": {
+                "amount": "103.00",
+                "currency": "EUR"
+            }
+        }
+    ],
+    "merchant": {
+        "redirectConfirmUrl": "https://scalapay.com",
+        "redirectCancelUrl": "https://scalapay.com"
+    },
+    "merchantReference": "merchantOrder-1234",
+     "taxAmount": {  
+        "amount": "3.70",
+        "currency": "EUR"
+     },
+     "shippingAmount": {  
+         "amount": "10.00",
+         "currency": "EUR"
+    },
+    "orderExpiryMilliseconds": 6000000
+  }')
+
+
+// For cases where a merchant is not able to pass the merchantReference in the /v2/orders call then they can subsequently make a call to **/v2/orders/{token}** with the appropriate merchant reference ID.
+// 
+// <br>
+// Mandatory:
+// 
+// - **merchantReference** = Unique order reference from the merchant platform
+// 
+// <br>
+// Returns:  
+// 200 OK:   
+// 
+// - **token** = The Scalapay order UUID to store on the merchant platform  
+// - **merchantReference** = The merchant order UUID to store on the Scalapay platform
+// 
+// 4xx BAD REQUEST: Check the response 'message' attribute for more information  
+// 500 INTERNAL SERVER ERROR
+
+@name("v2/orders/{token}")
+POST "https://{{hostname}}/v2/orders/{{order_token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{  
+    "merchantReference": "merchantOrder-1234-updated"
+}')
+
+
+// Merchant captures the payment by calling **/v2/payments/capture** and funds are deducted from user account and transferred to merchant account.  
+// 
+// <br>
+// Mandatory:
+// 
+// - **token** = The UUID provided by Scalapay in the **v2/orders** call
+// 
+// Optional:
+// 
+// - **merchantReference** = Unique order reference from the merchant platform
+// 
+// <br>
+// Returns: 
+// 
+// 200 OK: Check for {status: **'APPROVED'**}  
+// 
+// 4xx BAD REQUEST: Check the response 'message' attribute for more information.  
+// 500 INTERNAL SERVER ERROR
+
+@name("v2/payments/capture")
+POST "https://{{hostname}}/v2/payments/capture"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "token": "{{order_token}}",
+    "merchantReference": "merchantOrder-1234"
+}')
+
+
+// Check the status of a payment
+
+@name("v2/payments/{token}")
+GET "https://{{hostname}}/v1/payments/{{order_token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+// Merchant is able to refund a payment by calling **/v2/payments/{token}/refund**.
+// The funds will be reversed from the merchant account, and then refunded to the customer.
+// 
+// <br>
+// Returns:  
+// 
+// 200 OK:
+// 
+// - **token** = The Scalapay order UUID to store on the merchant platform  
+// - **amount** = The refund amount
+// - **merchantReference** = The merchant order UUID to store on the Scalapay platform
+// - **refundToken** = The UUID for the refund
+// - **refundedAt** = The timestamp of the refund
+// 
+// 4xx BAD REQUEST: Check the response 'message' attribute for more information.  
+// 500 INTERNAL SERVER ERROR
+
+@name("v2/payments/{token}/refund")
+POST "https://{{hostname}}/v2/payments/{{order_token}}/refund"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"refundAmount": {
+		"amount": "20.00",
+		"currency": "EUR"
+	},
+	"merchantReference": "RF127261AD22"
+ }')
+
+
+

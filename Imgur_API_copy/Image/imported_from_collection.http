@@ -1,0 +1,105 @@
+#!/usr/bin/env dothttp
+
+// Get information about an image.
+
+@name("Image")
+GET "https://api.imgur.com/3/image/{{imageHash}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Upload a new image.
+// 
+// #### Parameters
+// 
+// | Key         | Required | Description                                                                                                                            |
+// |-------------|----------|----------------------------------------------------------------------------------------------------------------------------------------|
+// | image       | required | A binary file, base64 data, or a URL for an image. (up to 10MB)                                                                        |
+// | album       | optional | The id of the album you want to add the image to. For anonymous albums, `album` should be the deletehash that is returned at creation. |
+// | type        | optional | The type of the file that's being sent; `file`, `base64` or `URL`                                                                            |
+// | name        | optional | The name of the file, this is automatically detected if uploading a file with a POST and multipart / form-data                         |
+// | title       | optional | The title of the image.                                                                                                                |
+// | description | optional | The description of the image.                                                                                                          |
+
+@name("Image Upload")
+POST "https://api.imgur.com/3/image"
+"Authorization": "Client-ID {{clientId}}"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("image", "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"),
+	("album", "{{albumHash}}"),
+	("title", "1x1 Pixel"),
+	("description", "This is an 1x1 pixel image."),
+	("name", "pixel.gif"),
+	("type", "gif")
+)
+
+
+// Deletes an image.
+// 
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)
+
+@name("Image Deletion (Un-Authed)")
+DELETE "https://api.imgur.com/3/image/{{imageDeleteHash}}"
+"Authorization": "Client-ID {{clientId}}"
+
+
+// Deletes an image.
+// 
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)
+
+@name("Image Deletion (Authed)")
+DELETE "https://api.imgur.com/3/image/{{imageHash}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Updates the title or description of an image.
+// 
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)
+// 
+// #### Parameters
+// 
+// | Key         | Required | Description                   |
+// |-------------|----------|-------------------------------|
+// | title       | optional | The title of the image.       |
+// | description | optional | The description of the image. |
+
+@name("Update Image Information (Un-Authed)")
+POST "https://api.imgur.com/3/image/{{imageDeleteHash}}"
+"Authorization": "Client-ID {{clientId}}"
+files(
+	("title", "Heart"),
+	("description", "This is an image of a heart outline.")
+)
+
+
+// Updates the title or description of an image.
+// 
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)
+// 
+// #### Parameters
+// 
+// | Key         | Required | Description                   |
+// |-------------|----------|-------------------------------|
+// | title       | optional | The title of the image.       |
+// | description | optional | The description of the image. |
+
+@name("Update Image Information (Authed)")
+POST "https://api.imgur.com/3/image/{{imageHash}}"
+"Authorization": "Bearer {{accessToken}}"
+files(
+	("title", "Heart"),
+	("description", "This is an image of a heart outline.")
+)
+
+
+// Favorite an image with the given ID. The user is required to be logged in to favorite the image.
+// 
+// 
+// #### Response Model: [Basic](https://api.imgur.com/models/basic)
+
+@name("Favorite an Image")
+POST "https://api.imgur.com/3/image/{{imageHash}}/favorite"
+"Authorization": "Bearer {{accessToken}}"
+
+
+

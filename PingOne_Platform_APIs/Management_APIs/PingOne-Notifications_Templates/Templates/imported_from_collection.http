@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+@name("READ All Templates")
+GET "https://{{apiPath}}/environments/{{envID}}/templates"
+
+
+@name("READ One Template")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}"
+
+
+@name("CREATE Email Content")
+POST "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Content-Type": "application/json"
+data('{
+	"locale":"en-GB",
+	"subject":"I\'m a subject!",
+	"body":"I\'m an email body! I was created at: {{$timestamp}}, I\'m a result of a POST request and your OTP is ${otp}",
+	"deliveryMethod": "Email"
+}')
+
+
+@name("CREATE Text Message Content")
+POST "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Content-Type": "application/json"
+data('{
+	"locale":"en",
+	"content":"Your OTP is ${otp}",
+	"deliveryMethod": "SMS"
+}')
+
+
+@name("UPDATE Email Content")
+PUT "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+data('{
+	"locale":"en",
+	"subject":"I\'m a subject! Your username is ${user.username}",
+	"body":"I\'m an email body! I was created at: {{$timestamp}}, I\'m a result of a PUT request and your OTP is ${otp}",
+	"deliveryMethod":"Email"
+}')
+
+
+@name("UPDATE Text Message Content")
+PUT "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+data('{
+	"locale":"en",
+	"sender":"sender",
+	"content":"The time is: {{$timestamp}}",
+	"deliveryMethod": "SMS"
+}')
+
+
+@name("READ One Content")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+
+
+@name("READ All Content")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Content-Type": "application/json"
+
+
+@name("DELETE Content")
+DELETE "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+
+
+
+

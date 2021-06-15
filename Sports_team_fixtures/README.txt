@@ -1,0 +1,1 @@
+Demo API using mock data to learn basic request configurations. Start by sending the `Get all matches` request! _Each response will indicate any required steps to make a successful request._

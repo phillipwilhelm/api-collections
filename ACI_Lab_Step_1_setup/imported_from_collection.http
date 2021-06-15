@@ -1,0 +1,94 @@
+#!/usr/bin/env dothttp
+
+@name("APIC Login Copy")
+POST "https://{{apic}}/api/aaaLogin.json"
+json({
+    "aaaUser": {
+        "attributes": {
+            "name": "{{user}}",
+            "pwd": "{{password}}"
+        }
+    }
+})
+
+
+@name("Create tenant")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}.json"
+json({
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{tenant}}",
+            "name": "{{tenant}}",
+            "rn": "tn-{{tenant}}",
+            "status": "created"
+        },
+        "children": []
+    }
+})
+
+
+@name("Create App Profile")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ap-{{app_profile}}.json"
+json({
+    "fvAp": {
+        "attributes": {
+            "dn": "uni/tn-{{tenant}}/ap-{{app_profile}}",
+            "name": "{{app_profile}}",
+            "rn": "ap-{{app_profile}}",
+            "status": "created"
+        },
+        "children": []
+    }
+})
+
+
+@name("create vrf")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ctx-{{vrf}}.json"
+json({
+    "fvCtx": {
+        "attributes": {
+            "dn": "uni/tn-{{tenant}}/ctx-{{vrf}}",
+            "name": "{{vrf}}",
+            "rn": "ctx-{{vrf}}",
+            "status": "created"
+        },
+        "children": []
+    }
+})
+
+
+@name("Create Old BD")
+POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/BD-{{old_bd}}.json"
+json({
+    "fvBD": {
+        "attributes": {
+            "dn": "uni/tn-{{tenant}}/BD-{{old_bd}}",
+            "name": "{{old_bd}}",
+            "rn": "BD-{{old_bd}}",
+            "status": "created"
+        },
+        "children": [
+            {
+                "fvRsCtx": {
+                    "attributes": {
+                        "tnFvCtxName": "{{vrf}}",
+                        "status": "created,modified"
+                    },
+                    "children": []
+                }
+            },
+            {
+                "fvRsIgmpsn": {
+                    "attributes": {
+                        "tnIgmpSnoopPolName": "default",
+                        "status": "created,modified"
+                    },
+                    "children": []
+                }
+            }
+        ]
+    }
+})
+
+
+

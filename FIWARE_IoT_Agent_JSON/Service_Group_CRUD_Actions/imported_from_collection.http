@@ -1,0 +1,80 @@
+#!/usr/bin/env dothttp
+
+// This example provisions an anonymous group of devices. It tells the IoT Agent that a series of devices
+// will be sending messages to the `IOTA_HTTP_PORT` (where the IoT Agent is listening for **Northbound** communications)
+// 
+// In the example the IoT Agent is informed that the `/iot/d` endpoint will be used and that devices will authenticate
+// themselves by including the token `4jggokgpepnvsb2uv4s40d59ov`.
+
+@name("Create a Service Group")
+POST "http://{{iot-agent}}/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+data('{
+ "services": [
+   {
+     "apikey":      "4jggokgpepnvsb2uv4s40d59ov",
+     "cbroker":     "http://orion:1026",
+     "entity_type": "Thing",
+     "resource":    "/iot/d"
+   }
+ ]
+}')
+
+
+// This example obtains the full details of a provisioned services with a given `resource` path.
+// 
+// The response includes all the defaults associated with the service group such as the `entity_type` and any default commands or attribute mappings.
+// 
+// Service group details can be read by making a GET request to the `/iot/services` endpoint and providing a `resource` parameter.
+
+@name("Read Service Group details")
+GET "http://{{iot-agent}}/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+// This example lists all provisioned services by making a GET request to the `/iot/services/` endpoint.
+// 
+// The response includes all the defaults associated with each service group such as the `entity_type` and any default commands or attribute mappings.
+
+@name("List all Service Groups")
+GET "http://{{iot-agent}}/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+
+
+// This example updates an existing service group with a given `resource` path and `apikey`
+// 
+// Service group details can be updated by making a PUT request to the `/iot/services` endpoint 
+// and providing a `resource` and `apikey` parameters.
+
+@name("Update a Service Group")
+PUT "http://{{iot-agent}}/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+? "resource"= "/iot/d"
+? "apikey"= "4jggokgpepnvsb2uv4s40d59ov"
+data('{
+  "entity_type": "IoT-Device"
+}')
+
+
+// This example removes a provisioned service group by making a DELETE request to the `/iot/services/` endpoint.
+// 
+// It means that requests to `http://iot-agent:7896/iot/d?i=<device_id>&k=4jggokgpepnvsb2uv4s40d59ov`
+// (where the IoT Agent is listening for **Northbound** communications) should no longer be processed by the IoT Agent. 
+// The `apiKey` and `resource` parameters must be supplied in order to identify the service group to be deleted.
+
+@name("Delete a Service Group")
+DELETE "http://{{iot-agent}}/iot/services/"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+? "resource"= "/iot/d"
+? "apikey"= "4jggokgpepnvsb2uv4s40d59ov"
+
+
+
+

@@ -1,0 +1,99 @@
+#!/usr/bin/env dothttp
+
+// Get feed order events
+// 
+// 
+// <div class="alert alert-danger">
+// Warning! We have a new version, please if you are starting a project know more about <a href="https://help.vtex.com/en/tutorial/orders-management-feed-v3" target="_blank">Feed v3 in VTEX Help</a>
+// </div>
+// 
+// 
+// 
+// 
+// ## Request has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `accountName` | string | Account Name |
+// | `maxLot` | integer |  Lot quantity, maximum accept value is 10 |
+// 
+// 
+// 
+// ## Response object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `eventId` | string | Feed event ID |
+// | `handle` | string |  Event handle, used in Confirm Item Feed |
+// | `domain` | integer |  Order Source |
+// | `state` | integer |  Feed event state |
+// | `orderId` | string |  Order ID |
+// 
+// > The event will be removed if the message send retry is equal to or greater than the maximum retention period
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with viewer access
+// 
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Get feed order status")
+GET "https://{{accountName}}.{{environment}}.com.br/api/oms/pvt/feed/orders/status"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+? "maxLot"= "{{maxLot}}"
+
+
+// Order status event acknowledge
+// 
+// <div class="alert alert-danger">
+// Warning! We have a new version, please if you are starting a project know more about <a href="https://help.vtex.com/en/tutorial/orders-management-feed-v3" target="_blank">Feed v3 in VTEX Help</a>
+// </div>
+// 
+// 
+// ## Request object has the following properties:
+// 
+// | Attribute    | Type        | Description |
+// | --------------- |:---------:| --------------------------------------:|
+// | `commitToken` | string | Event status order handle |
+// 
+// 
+// ## Response codes
+// 
+// 
+// 200 - Success
+// 
+// 429 - Too many requests
+// 
+// 403 - The credentials is not enabled to access the service
+// 
+// 404 - Not found value
+// 
+// 
+// 
+// ## Authentication
+// 
+// This is a private API and need a appKey and appToken with admin access
+// 
+// > know more about [Creating appKeys and appTokens to authenticate integrations](https://help.vtex.com/en/tutorial/creating-appkeys-and-apptokens-to-authenticate-integrations)
+// 
+
+@name("Confirm item feed order status")
+POST "https://{{accountName}}.{{environment}}.com.br/api/oms/pvt/feed/orders/status/confirm"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-VTEX-API-AppToken": "{{X-VTEX-API-AppToken}}"
+"X-VTEX-API-AppKey": "{{X-VTEX-API-AppKey}}"
+data('[
+    {
+        "commitToken": "Marketplace##{\"Receipt\":\"+eXJYhj5rDqHa28+XUcfebDO4pve3TvMpPlW0ivc5STyE/40J6wxooXgBF8LZ9CdhZkFJnMYBVDwPwQtNEoZQrVtErDB2Yq2zs16QqsJuYxSrQtBfl9rMfmkO5orB9oDHSpvwL6DjDzcuJeQBBNxono/m4F6BloJEsk9BmuTmPaRI+7xsrN5Oeg8NPUoNSnsT983JPr1B+Y+TbbFjC1R8ZkvFHGVfti1QbhOwmYWTHPG08YMqla+Qwh7kUONLBXPqporF/CcqJo5YVTSu2uBcCuXkUo+OH9uUTn6hHkUROo=\",\"PublisheId\":\"C0111A50CEB244E59C95422870127A4F\",\"PublisheId_Item\":\"C0111A50CEB244E59C95422870127A4F\",\"EventId\":\"0dc05b6b-48a5-4f03-975a-a69fb6550aaa\",\"LastSendOverwrite\":null}"
+    }
+]')
+
+
+

@@ -1,0 +1,58 @@
+#!/usr/bin/env dothttp
+
+// Show all Selling Bots
+
+@name("List Selling Bots")
+GET "https://{{domain}}/api/selling_bots"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+? "page[page]"= "{page_nbr}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Selling Bot")
+GET "https://{{domain}}/api/selling_bots/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+
+
+// A selling bot is an assistant that puts Sell orders for you. It uses a strategy of dividing the amount and making the orders smaller, to get the best price.
+// 
+// * `amount`: The amount of __base__ money that you intend to sell for __quote__ money. Both the __quote__ and the __base__ currencies are determined by the Orderbook selected. (e.g. A selling bot with amount = 2 and orderbook = BTC/USD, will sell 2 BTC for as much USD as it can).
+// 
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+
+@name("Create Selling Bot")
+POST "https://{{domain}}/api/selling_bots"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+data('{
+  "data": {
+    "type": "selling_bots",
+    "attributes": {
+      "amount": 100,
+      "orderbook_code": "btc_usd"
+    },
+    "relationships": {
+      "user": {
+        "data": {
+          "id": 1,
+          "type": "users"
+        }
+      }
+    }
+  }
+}')
+
+
+// This action represents an intention to cancel the Selling Bot. No new asks will be made but if one is already being executed, it could be matched.
+
+@name("Cancel Selling Bot")
+POST "https://{{domain}}/api/selling_bots/:id/cancel"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+
+
+
+

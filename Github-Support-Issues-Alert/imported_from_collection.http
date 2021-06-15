@@ -1,33 +1,84 @@
 #!/usr/bin/env dothttp
 
-// This request does the initializations//  - Checks what day is it and depending on the configuration skips the collection//  - Initializes the repositories to be watched. Only issues on these repositories will be checked.// // Note: Doing this here, in a dummy request since Postman as of now does not support cancelling/skipping the current request.// // Sets Environment Variables//  - config//  - organization// // The sample collection is set up to watch Postman repositories and check if Postman staff have replied to comments. Update this section to swap in your own personal configuration.//  
+// This request does the initializations
+//  - Checks what day is it and depending on the configuration skips the collection
+//  - Initializes the repositories to be watched. Only issues on these repositories will be checked.
+// 
+// Note: Doing this here, in a dummy request since Postman as of now does not support cancelling/skipping the current request.
+// 
+// Sets Environment Variables
+//  - config
+//  - organization
+// 
+// The sample collection is set up to watch Postman repositories and check if Postman staff have replied to comments. Update this section to swap in your own personal configuration.
+//  
+
 @name("Init")
 GET "https://api.github.com/"
 
 
 
-// This gets the list of members in postmanlabs organization.// This will be used to determine whether a comment made on the support repo is made from our team.// // Updates Environment Variables//  - config.postmanMembers//  - config.slack (In case of invalid response)
+// This gets the list of members in postmanlabs organization.
+// This will be used to determine whether a comment made on the support repo is made from our team.
+// 
+// Updates Environment Variables
+//  - config.postmanMembers
+//  - config.slack (In case of invalid response)
+
 @name("get-postman-members")
 GET "https://api.github.com/orgs/postmanlabs/members"
 "Authorization": "token {{gh-api-token}}"
 
 
 
-// This gets the last 20 github open issues for the current repo. This request is run for every repository being watched.// // Then it plucks out the issues//  - which has no labels//  - which has no Assignee// // It skips any issues which were opened before last 24 hours or 72 hours (if it's Monday it checks for issues from last Friday)// // Updates Environment Variables//  - config.missedIssues//  - config.potentiallyMissedIssues//  - current-repo-url//  - current-repo-name//  - slack-title-url//  - config.slack (In case of an error or invalid response)// // ##### TODO:// - The limit of 20 won't work when then are more than 20 issues opened in the last 24/72 hours. So this needs to call itself until it gets atleast one issue which was created before 24/72 hours.
+// This gets the last 20 github open issues for the current repo. This request is run for every repository being watched.
+// 
+// Then it plucks out the issues
+//  - which has no labels
+//  - which has no Assignee
+// 
+// It skips any issues which were opened before last 24 hours or 72 hours (if it's Monday it checks for issues from last Friday)
+// 
+// Updates Environment Variables
+//  - config.missedIssues
+//  - config.potentiallyMissedIssues
+//  - current-repo-url
+//  - current-repo-name
+//  - slack-title-url
+//  - config.slack (In case of an error or invalid response)
+// 
+// ##### TODO:
+// - The limit of 20 won't work when then are more than 20 issues opened in the last 24/72 hours. So this needs to call itself until it gets atleast one issue which was created before 24/72 hours.
+
 @name("get-github-issues")
 GET "https://{{current-repo-url}}/"
 "Authorization": "token {{gh-api-token}}"
 
 
 
-// This gets the comments for a github issue and then checks whether the user (who posted the comment) is from postman// // Updates Environment Variables//  - current-issue-number//  - config.missedIssues//  - config.potentiallyMissedIssues//  - config.slack (In case of an error or invalid response)
+// This gets the comments for a github issue and then checks whether the user (who posted the comment) is from postman
+// 
+// Updates Environment Variables
+//  - current-issue-number
+//  - config.missedIssues
+//  - config.potentiallyMissedIssues
+//  - config.slack (In case of an error or invalid response)
+
 @name("get-comments")
 GET "https://api.github.com/repos/{{organization}}/{{curent-repo-name}}/issues/{{current-issue-number}}/comments"
 "Authorization": "token {{gh-api-token}}"
 
 
 
-// Sends a slack notification.// // The pre-request script section composes the slack-body using the information collected in previous requests. It then sets this as an environment variable which is used by the Body of this request.// // The test script section checks for the remaining repositories. If more repositories are there then it goes back to the 'get-github-issues' request, otherwise it terminates.// // Sets Environment Variables//  - slack-body
+// Sends a slack notification.
+// 
+// The pre-request script section composes the slack-body using the information collected in previous requests. It then sets this as an environment variable which is used by the Body of this request.
+// 
+// The test script section checks for the remaining repositories. If more repositories are there then it goes back to the 'get-github-issues' request, otherwise it terminates.
+// 
+// Sets Environment Variables
+//  - slack-body
+
 @name("send-slack-notification")
 POST "https://{{slack-webhook}}/"
 "Content-Type": "application/json"

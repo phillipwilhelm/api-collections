@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// Get list of psks on the site. If provided, `name` or `ssid` or `role` query param, psks with exact name/ssid/role match will be returned.
+
+@name("getSitePsks")
+GET "https://{{host}}/api/v1/sites/:site_id/psks"
+
+
+@name("filterSitePsks")
+GET "https://{{host}}/api/v1/sites/:site_id/psks"
+? "name"= "{{psk_name}}"
+
+
+@name("getSitePskDetails")
+GET "https://{{host}}/api/v1/sites/:site_id/psks/:psk_id"
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+//  :-------------: |:-------------: |:-------------: 
+//  name|string|a name for the PSK
+//  passphrase|string|passphrase of the PSK (8-63 character or 64 in hex)
+//  ssid|string|SSID this PSK should be applicable to
+//  usage|string|multi (default) / single
+//  vlan_id|int|VLAN for this PSK key
+//  mac|string|if usage==single, the mac that this PSK ties to, empty if auto-binding
+// expire_time|int|default is half year, max is 5 year
+
+@name("createSitePsk")
+POST "https://{{host}}/api/v1/sites/:site_id/psks"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "name": "Common",
+    "passphrase": "foryoureyesonly",
+    "ssid": "warehouse",
+    "usage": "single",
+    "vlan_id": 417,            // optional
+    "mac": "5684dae9ac8b",     // optional
+    "expire_time": 1614990263  // optional
+}')
+
+
+@name("updateSitePsk")
+PUT "https://{{host}}/api/v1/sites/:site_id/psks/:psk_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+data('{
+    "vlan_id": 20
+}')
+
+
+@name("deleteSitePsk")
+DELETE "https://{{host}}/api/v1/sites/:site_id/psks/:psk_id"
+"Accept": "application/json"
+"X-CSRFToken": "{{csrftoken}}"
+"Content-Type": "application/json"
+
+
+

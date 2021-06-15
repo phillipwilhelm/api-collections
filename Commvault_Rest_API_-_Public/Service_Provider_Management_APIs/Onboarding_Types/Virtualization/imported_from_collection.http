@@ -1,0 +1,384 @@
+#!/usr/bin/env dothttp
+
+// This operations adds a hypervisor.
+// 
+// <h2>Description</h2>
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_virtualization_client.htm)
+
+@name("Add Hypervisor")
+POST "https://{{ServerUrl}}/Client"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "clientInfo": {
+    "clientType": 12,
+    "virtualServerClientProperties": {
+      "virtualServerInstanceInfo": {
+        "vsInstanceType": 1,
+        "associatedClients": {
+          "memberServers": [
+            {
+              "client": {
+                "clientName": "{{clientName}}",
+                "clientId": 2,
+                "_type_": 3
+              }
+            }
+          ]
+        },
+        "vmwareVendor": {
+          "vcenterHostName": "vsa-vc65.testlab.commvault.com",
+          "virtualCenter": {
+            "password": "Y29tbXZhdWx0ITEy",
+            "userName": "testlab\\admin"
+          }
+        }
+      }
+    }
+  },
+  "entity": {
+    "clientName": "vsa-vc65"
+  }
+}')
+
+
+// This operations associates and adds tenant admin as owner for the Hypervisor
+
+@name("Security Association To Tenant Admin")
+POST "https://{{ServerUrl}}/Security"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "entityAssociated": {
+    "entity": [
+      {
+        "clientId": {{HypervisorClientId}},
+        "_type_": {{HypervisorType}}
+      }
+    ]
+  },
+  "securityAssociations": {
+    "associationsOperationType": "overwrite",
+    "associations": [
+      {
+        "userOrGroup": [
+          {
+            "userId": 4,
+            "userName": "test\\TenantAdminUser"
+          }
+        ],
+        "properties": {
+          "role": {
+            "roleId": 14,
+            "roleName": "Tenant Admin"
+          }
+        }
+      }
+    ],
+    "ownerAssociations": {
+      "ownersOperationType": "overwrite",
+      "categoryPermission": {
+        "categoriesPermissionOperationType": "overwrite"
+      },
+      "owners": [
+        {
+          "userName": "test\\TenantAdminUser"
+        }
+      ]
+    }
+  }
+}')
+
+
+// Returns the list of hypervisors
+
+@name("Hypervisors")
+GET "https://{{ServerUrl}}/Client"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+? "PseudoClientType"= "VSPseudo"
+
+
+// This operations adds a VM Group.
+
+@name("Add VM Group")
+POST "https://{{ServerUrl}}/subclient"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "subClientProperties": {
+    "vmContentOperationType": "Add",
+    "vmContent": {
+      "children": [
+        {
+          "equalsOrNotEquals": true,
+          "displayName": "isha-v11-cs",
+          "name": "5008d1e6-5a0b-a0d5-f44d-8c0b7724a440",
+          "allOrAnyChildren": true,
+          "type": 9
+        }
+      ]
+    },
+    "subClientEntity": {
+      "backupsetId": 16,
+      "instanceId": 8,
+      "clientId": {{HypervisorClientId}},
+      "appName": "Virtual Server",
+      "applicationId": 106,
+      "subclientName": "Test_VM_Group"
+    },
+    "planEntity": {
+      "planId": 1
+    },
+    "commonProperties": {
+      "numberOfBackupStreams": 2,
+      "isSnapbackupEnabled": false,
+      "enableBackup": true,
+      "snapCopyInfo": {
+        "transportModeForVMWare": 0,
+        "isSnapBackupEnabled": false
+      }
+    },
+    "vsaSubclientProp": {
+      "autoDetectVMOwner": false,
+      "quiesceGuestFileSystemAndApplications": true
+    }
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation returns a list of VMGroups for a Hypervisor
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_subclient.htm)
+
+@name("VMGroups")
+GET "https://{{ServerUrl}}/Subclient"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "clientId"= "{{HypervisorClientId}}"
+
+
+@name("Backup VM Group")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "srmReportSet": 0,
+        "subclientId": {{VMGroupId}},
+        "srmReportType": 0,
+        "commCellId": 2,
+        "clientSidePackage": true,
+        "_type_": 3,
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "ownerName": "admin",
+      "initiatedFrom": 1,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "web sub task",
+          "subTaskType": 2,
+          "operationType": 2
+        },
+        "options": {
+          "backupOpts": {
+            "backupLevel": "FULL",
+            "runIncrementalBackup": true,
+            "isSpHasInLineCopy": false
+          },
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+@name("Restore VM Group")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "subclientId": {{VMGroupId}},
+        "applicationId": 106,
+        "_type_": {{HypervisorType}},
+        "client": {}
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "ownerName": "Administrator",
+      "initiatedFrom": 1,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "",
+          "subTaskType": 3,
+          "operationType": 1001
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          },
+          "restoreOptions": {
+            "restoreACLsType": 3,
+            "virtualServerRstOption": {
+              "isDiskBrowse": true,
+              "viewType": 0,
+              "vCenterInstance": {
+                "clientId": 8,
+                "clientName": "vsa-vc65.testlab.commvault.com",
+                "instanceId": 8,
+                "applicationId": 106
+              },
+              "diskLevelVMRestoreOption": {
+                "passUnconditionalOverride": false,
+                "useVcloudCredentials": true,
+                "diskOption": 0,
+                "powerOnVmAfterRestore": false,
+                "esxServerName": "vsa-vc65.testlab.commvault.com",
+                "transportMode": 0,
+                "restoreToDefaultHost": false,
+                "userPassword": {
+                  "userName": "testlab\\admin"
+                },
+                "advancedRestoreOptions": [
+                  {
+                    "addToFailoverCluster": false,
+                    "esxHost": "172.19.116.30",
+                    "resourcePoolPath": "/Venkat",
+                    "FolderPath": "/SGESX7/vm",
+                    "newName": "blueberry",
+                    "Datastore": "LocalDS",
+                    "name": "blueberry",
+                    "guid": "502d3b95-83f7-0c8e-63ac-caa18c7618b4",
+                    "disks": [
+                      {
+                        "Datastore": "LocalDS",
+                        "name": "scsi0-0-blueberry.vmdk"
+                      },
+                      {
+                        "Datastore": "LocalDS",
+                        "name": "scsi0-1-blueberry_1.vmdk"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "volumeRstOption": {
+              "volumeLeveRestore": false,
+              "volumeLevelRestoreType": 1
+            },
+            "browseOption": {
+              "listMedia": false,
+              "useExactIndex": false,
+              "noImage": true,
+              "fromTime": 0,
+              "commCellId": 2,
+              "toTime": 0,
+              "mediaOption": {
+                "copyPrecedence": {
+                  "copyPrecedence": 0
+                }
+              },
+              "timeRange": {
+                "_type_": 54,
+                "fromTime": 0,
+                "toTime": 0
+              }
+            },
+            "commonOptions": {
+              "clusterDBBackedup": false,
+              "isFromBrowseBackup": true,
+              "preserveLevel": 1,
+              "stripLevelType": 0,
+              "restoreACLs": true,
+              "stripLevel": 0,
+              "overwriteFiles": false,
+              "unconditionalOverwrite": false,
+              "detectRegularExpression": true
+            },
+            "destination": {
+              "isLegalHold": false,
+              "inPlace": true,
+              "destClient": {
+                "clientId": 2,
+                "clientName": "{{clientName}}"
+              }
+            },
+            "fileOption": {
+              "sourceItem": [
+                "\\502d3b95-83f7-0c8e-63ac-caa18c7618b4"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation returns a list of VMs that are backed up.
+
+@name("BackedUp Virtual Machines")
+GET "https://{{ServerUrl}}/Client/{{HypervisorClientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "backedUp"= "true"
+
+
+// This operations deletes a VM group.
+
+@name("VM Group")
+DELETE "https://{{ServerUrl}}/subclient/{{VMGroupId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// This operations deletes a hypervisor.
+
+@name("Hypervisor")
+DELETE "https://{{ServerUrl}}/Client/{{HypervisorClientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+

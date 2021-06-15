@@ -1,0 +1,164 @@
+#!/usr/bin/env dothttp
+
+// With this service, the calling apps can do a transfer to a destination account number from a given source. Authorisation details (for source of funds) will always be required by the SureGate, apps will have to provide this.
+// 
+// **NOTE**: Amount to be processed should be in `kobo` with decimal places.
+// 
+// Please see information on how to compute the `Signature` header [here](#authentication-headers).
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **WaitingForOTP**: Requires OTP, use `/v2/transact/validate` as [follow up](#f1bdb553-68dd-4016-aeed-e4c3d1e27fe4) call to complete transaction
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Transfer Funds")
+POST "https://{{url}}/v2/transact"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": " {{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "transfer_funds",
+    "auth": {
+        "type": "bank.account",
+        "secure": "{{encrypted_source_account_number}}",
+        "auth_provider": "Polaris",
+        "route_mode": null
+    },
+    "transaction": {
+        "mock_mode": "Live",
+        "transaction_ref": "{{transaction-ref}}",
+        "transaction_desc": "A random transaction",
+        "transaction_ref_parent": null,
+        "amount": 1000,
+        "customer": {
+            "customer_ref": "{{customer_id}}",
+            "firstname": "Uju",
+            "surname": "Usmanu",
+            "email": "ujuusmanu@gmail.com",
+            "mobile_no": "234802343132"
+        },
+        "meta": {
+            "a_key": "a_meta_value_1",
+            "b_key": "a_meta_value_2"
+        },
+        "details": {
+            "destination_account": "1020295620",
+            "destination_bank_code": "076",
+            "otp_override": true
+        }
+    }
+}')
+
+
+// With this service, the calling apps can do a transfer to a destination account number from a pre-configured account of the app. If authorisation details are required by a provider, apps will have to provide this.
+// 
+// **NOTE**: Amount to be processed should be in `kobo` with decimal places.
+// 
+// Please see information on how to compute the `Signature` header [here](#authentication-headers).
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **WaitingForOTP**: Requires OTP, use `/v2/transact/validate` as [follow up](#f1bdb553-68dd-4016-aeed-e4c3d1e27fe4) call to complete transaction
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Disburse")
+POST "https://{{url}}/v2/transact"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": "{{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "disburse",
+    "auth": {
+        "type": null,
+        "secure": null,
+        "auth_provider": "Polaris",
+        "route_mode": null
+    },
+    "transaction": {
+        "mock_mode": "Live",
+        "transaction_ref": "{{transaction-ref}}",
+        "transaction_desc": "A random transaction",
+        "transaction_ref_parent": null,
+        "amount": 1000,
+        "customer": {
+            "customer_ref": "{{customer_id}}",
+            "firstname": "Uju",
+            "surname": "Usmanu",
+            "email": "ujuusmanu@gmail.com",
+            "mobile_no": "234802343132"
+        },
+        "meta": {
+            "a_key": "a_meta_value_1",
+            "b_key": "a_meta_value_2"
+        },
+        "details": {
+            "destination_account": "0099880099",
+            "destination_bank_code": "076",
+            "otp_override": true
+        }
+    }
+}')
+
+
+// With this service, the calling apps can do a transfer to a destination account number from a pre-configured account (`usd_source_account`) of the app. If authorisation details are required by a provider, apps will have to provide this.
+// 
+// **NOTE**: 
+// 1. Amount to be processed should be in `cent` with decimal places.
+// 2. usd_source_account should be configured to have the USD account to be debited for transactions
+// 3. Ensure `transaction.meta.use_usd` is set to true
+// 
+// Please see information on how to compute the `Signature` header [here](#authentication-headers).
+// 
+// For information on how to encrypt `auth.secure` value, see [here](#encryption-of-secure-element).
+// 
+// #### Possible status values
+// * **Successful**: Success
+// * **WaitingForOTP**: Requires OTP, use `/v2/transact/validate` as [follow up](#f1bdb553-68dd-4016-aeed-e4c3d1e27fe4) call to complete transaction
+// * **[Anything else]**: Error. Read the errors object(s)
+
+@name("Disburse (USD)")
+POST "https://{{url}}/v2/transact"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{api-key}}"
+"Signature": "{{signature}}"
+data('{
+    "request_ref": "{{request-ref}}",
+    "request_type": "disburse",
+    "auth": {
+        "type": null,
+        "secure": null,
+        "auth_provider": "Polaris",
+        "route_mode": null
+    },
+    "transaction": {
+        "mock_mode": "Live",
+        "transaction_ref": "{{transaction-ref}}",
+        "transaction_desc": "A random transaction",
+        "transaction_ref_parent": null,
+        "amount": 1000,
+        "customer": {
+            "customer_ref": "{{customer_id}}",
+            "firstname": "Uju",
+            "surname": "Usmanu",
+            "email": "ujuusmanu@gmail.com",
+            "mobile_no": "234802343132"
+        },
+        "meta": {
+            "use_usd": true,
+            "currency": "USD"
+        },
+        "details": {
+            "destination_account": "0099880099",
+            "destination_bank_code": "076"
+        }
+    }
+}')
+
+
+

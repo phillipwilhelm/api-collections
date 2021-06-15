@@ -1,0 +1,237 @@
+#!/usr/bin/env dothttp
+
+// This endpoint is use to display all available services on Airvend Seamless. It also assist in getting to know the services type, which service has products or need to verify user.
+// 
+// <b>Response</b>
+// <table>
+// <tr>
+// <td><b>
+// confirmationMessage(OK):<b></td><td> Shows that there was no error from request
+// </td></tr>
+// <tr>
+// <td><b>
+// confirmationCode(200):<b></td><td> Shows that transaction was successful
+// </td></tr>
+// <tr>
+// <td><b>
+// message:<b></td><td> Contains the Services on Airvend Seamless</td></tr>
+// 
+// <tr>
+// <td><b>Service:<b></td><td> Contains the name of Service</td></tr>
+// 
+// <tr>
+// <td><b>Type:<b></td><td> Contains the code for particular service to be send during vending</td></tr>
+// 
+// <tr>
+// <td><b>NetworkID:<b></td><td> Contains ID for mobile network.  If NetworkID is null, kindly ignore during vend, product request or verify</td></tr>
+// 
+// <tr>
+// <td><b>Product(True/False):<b></td><td>True for Service that you can call for its product. False for service that has no listed products</td></tr>
+// 
+// <tr>
+// <td><b>Verify(True/False):<b></td><td> True for Service that you can verify account at Merchant. False for service that has no account verification</td></tr>
+// 		</table>
+
+@name("Services")
+POST "https://{{url}}/secured/seamless/services/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"ref":""}')
+
+
+// This Endpoint is use to confirm how much is left on the vendor account. It does not display money left on your distributor account.
+// 
+// <b> Response </b>
+// 
+// <table>
+// <tr>
+// <td><b>
+// confirmationMessage(OK):<b></td><td>	Shows that there was no error from request</td></tr>
+// 
+// <tr>
+// <td><b>
+// confirmationCode(200):<b></td><td>	Shows that transaction was successful</td></tr>
+// 
+// <tr>
+// <td><b>
+// message:<b></td><td>	Balance Enquiry Successful</td></tr>
+// 
+// <tr>
+// <td><b>
+// Balance:<b></td><td>	Amount Left on Vendor Account</td></tr>
+// </table>
+
+@name("Balance")
+POST "https://{{url}}/secured/seamless/balance/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"ref":""}')
+
+
+// This endpoint check status of transaction completed. You can either use your Transaction reference or Ours. Priority is given to your reference if both are used.
+// 
+// <b> Response </b>
+// 
+// <table>
+// <tr>
+// <td><b>
+// confirmationMessage(OK):<b></td><td>	Shows that there was no error from request</td></tr>
+// <tr><td><b>
+// confirmationCode(200):<b></td><td>	Shows that transaction was successful </td></tr>
+// <tr><td><b>
+// message:<b></td><td>	Display time and date of transaction if successful
+// </td></tr>
+// </table>
+
+@name("Transaction")
+POST "https://{{url}}/secured/seamless/transaction/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"details":{"transactionid":"6435248", "ref":"KDEIOCB337"}}')
+
+
+// This endpoint verify customer account with Merchant. If account not verified, Transaction should not be carried out to such account.
+// 
+// <b> Response </b>
+// 
+// <table>
+// <tr>
+// <td><b>confirmationMessage(OK):<b></td><td>	Shows that there was no error from request</td></tr>
+// 
+// <tr>
+// <td><b>confirmationCode(200):<b></td><td>	Shows that transaction was successful</td></tr>
+// 
+// <tr>
+// <td><b>message:<b></td><td>	Balance Enquiry Successful
+// 
+// <tr>
+// <td><b>name:<b></td><td>	Customer Name at Merchant</td></tr>
+// 
+// <tr>
+// <td><b>address:<b></td><td>	Customer Address at Merchant</td></tr>
+// 
+// <tr>
+// <td><b>customernumber:<b></td><td>	Customer Number at Merchant (Mandatory during vending)</td></tr>
+// 
+// <tr>
+// <td><b>account:<b></td><td>	Customer Verified Number at Merchant</td></tr>
+// 
+// <tr>
+// <td><b>customeraccounttype:<b></td><td>	Type associated with customer account. (Mandatory in vending Ikeja Electric)</td></tr>
+// 
+// <tr>
+// <td><b>accountstatus:<b></td><td>	Status of customer account at Vendor.</td></tr>
+// 
+// </table>
+
+@name("Verify")
+POST "https://{{url}}/secured/seamless/verify/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"details":{"ref":"","type":"30","account":"7021959296"}}')
+
+
+// To check available product you can get from a particular service. This allow you know all plans that can be paid for and their respective amount.
+// 
+// <b> Response </b>
+// 
+// <table>
+// <tr>
+// <td><b>
+// confirmationMessage(OK):</b></td><td>	Shows that there was no error from request</td></tr>
+// 
+// <tr>
+// <td><b>confirmationCode(200):</b></td><td>	Shows that transaction was successful</td></tr>
+// 
+// <tr>
+// <td><b>message:</b></td><td>	Contains the products available and treated accordingly for each individual Merchant</td></tr>
+// 
+// <tr>
+// <td><b>description:</b></td><td>	Description of product from Merchant</td></tr>
+// 
+// <tr>
+// <td><b>Amount:<b></td><td>	Amount to be sent for product during purchase</td></tr>
+// 
+// <tr>
+// <td><b>code:<b></td><td>	Code to identify product from Merchant</td></tr>
+// 
+// <tr>
+// <td><b>Validity:<b></td><td>	Number of day(s) product will last before expiring.</td></tr>
+// 
+// <tr>
+// <td><b>Note:<b></td><td> Data subscriptions could be exhausted before end of validity</td></tr>
+// </table>
+
+@name("Products")
+POST "https://{{url}}/secured/seamless/products/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"details":{"ref":"","type":"30","networkid":"3","account":""}}')
+
+
+// To check available product you can get from a particular service. This allow you know all plans that can be paid for and their respective amount.
+// 
+// <b> Response </b>
+// 
+// <table>
+// <tr>
+// 
+// <td><b>confirmationMessage(OK):</b></td><td>	Shows that there was no error from request</td></tr>
+// 
+// <tr>
+// <td><b>confirmationCode(200):</b></td><td>	Shows that transaction was successful</td></tr>
+// 
+// <tr>
+// <td><b>TransactionID:</b></td><td>	This refers to ID of transaction on our platform</td></tr>
+// 
+// <tr>
+// <td><b>referenceID:</b></td><td>	This refers to the transaction ID from the vendor</td></tr>
+// 
+// <tr>
+// <td><b>message:</b></td><td>	Contains Vend Message</td></tr>
+// 
+// <tr>
+// <td><b>type:</b></td><td>	Number assigned to service</td></tr>
+// 
+// <tr>
+// <td><b>networkid:</b></td><td>	Description of product from Merchant</td></tr>
+// 
+// <tr>
+// <td><b>account:</b></td><td>	Account that was credited with value</td></tr>
+// 
+// <tr>
+// <td><b>amount:</b></td><td>	Amount of service paid for</td></tr>
+// 
+// <tr>
+// <td><b>creditToken:<b></td><td>	Credited token contains the information about pins generated from vending. For multiple pins array is created</td></tr>
+// 
+// <tr>
+// <td><b>serialNumber:<b></td><td>	Serial Details of Pin value generated.</td></tr>
+// 
+// <tr>
+// <td><b>Expires:<b></td><td>	Expiring date of pin</td></tr>
+// 
+// <tr>
+// <td><b>Value:<b></td><td>	Value allocated to pin.</td></tr>
+// </table>
+
+@name("Vend")
+POST "https://{{url}}/secured/seamless/vend/"
+"Content-Type": "application/json"
+"username": "{{username}}"
+"password": "{{password}}"
+"hash": "{{hash}}"
+data('{"details":{"ref":"CPL-2034484","type":"2","account":"09032878127","amount":"1","networkid":"2"}}')
+
+
+

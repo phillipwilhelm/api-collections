@@ -1,0 +1,703 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |filter|no|search string to look for messages with specific callerid, caller_number, called_number, source name, etc.|
+// |page|no|the page number|
+// |per_page|no|the number of items per page, defaults to 10|
+// |start_date|no|the start date for the search (YYYY-MM-DD)|
+// |end_date|no|the end date for the search (YYYY-MM-DD)|
+// |time_duration|no|instead of a start_date and end_date, you can request a range. for example, last6hours, last7days, last2weeks, last3months, yesterday, today, thisweek, thismonth, lastweek, etc. the duration is limited to ~3 months of data.|
+// |start_day|no|used with time_duration and weeks to denote the first day of the week. for example, start_day=Sunday. the default is Monday|
+// |direction[]|no|you may optionally filter the type of call/activity from the endpoint by including multiple parameters direction[] which URL encoded woudl be direction%5B%5D= and has the following options: inbound,outbound,msg_inbound,msg_outbound,form|
+// |limit_fields[]|no|only return specific fields of interest from the API|
+// |all|no|if set to 1, returns results agency-wide instead of account-wide|
+// |stats|no|if set to 'on' return property stats that includes useful statistics regarding minutes, talk\_time, ring\_time, hold\_time (i.e. count, total, mean, min, max, standard deviation)|
+// |with_time|no|set to 1 to enable filtering with time|
+// |contact_number|no|prefixed based searching and filtering by the contact phone number|
+// 
+// ***example***
+// for example to pull back the list of calls from 2015-01-01 to 2015-02-01 with only the audio and the call id
+// 
+// ```bash
+// curl -u$key:$sec 'https://api.calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls.json?start_date=2015-01-01&end_date=2015-02-01&limit_fields\[\]=audio&limit_fields\[\]=id'
+// ```
+// 
+// ```json
+// {"calls":[{"id":1ddddddddd},{"id":2ddddddddd},{"id":3dddddddddd},{"id":4ddddddddd},{"id":5ddddddddd},{"audio":"https://calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls/CAddddddddddd/recording","id":2dddddddd},{"id":21dddddd},{"id":212ddddd},{"id":2ddddddd},{"id":2ddddddd}],"page":1,"total_entries":1168,"total_pages":117,"per_page":10,"stats":{},"next_page":"https://api.calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls.json?end_date=2015-02-01&limit_fields%5B%5D=audio&limit_fields%5B%5D=id&page=2&start_date=2015-01-01"}
+// ```
+// 
+// ***filter rules***
+// 
+// Filter rules allow you to specify additional field-level filtering of the calls (for use with the filter parameter listed above).  For example, tracking_number:"14105555555" would filter to only show calls involving the tracking number +1-410-555-5555
+// 
+// |parameters|comments|
+// |----------|--------|
+// |tracking_number|tracking number used, as a string of digits|
+// |source|the tracking source name|
+// |caller_number|contact phone number, as a string of digits|
+// |status|the call status, for example: in progress, no answer, answered, hangup, completed|
+// 
+// ***sorting activities***
+// sorting can be done by using the parameters:
+// 
+// order which allows you to sort the calls by the following dimensions:
+// metrics - the time of the call
+// caller - the name of the caller
+// source - the name of the source
+// 
+// ***paging through activity data***
+// The response body for each request will include an after property when more records exists after the current record set.  Include this after token in the next request to get another page of data.
+// 
+// 
+// ***schema***
+// https://api.calltrackingmetrics.com/api/v1/accounts/{account_id}/calls/schema.json
+
+@name("list of activities (calls/texts/chats/forms)")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |filter|no|search string to look for messages with specific callerid, caller_number, called_number, source name, etc.|
+// |page|no|the page number|
+// |per_page|no|the number of items per page, defaults to 10|
+// |start_date|no|the start date for the search (YYYY-MM-DD)|
+// |end_date|no|the end date for the search (YYYY-MM-DD)|
+// |time_duration|no|instead of a start_date and end_date, you can request a range. for example, last6hours, last7days, last2weeks, last3months, yesterday, today, thisweek, thismonth, lastweek, etc. the duration is limited to ~3 months of data.|
+// |start_day|no|used with time_duration and weeks to denote the first day of the week. for example, start_day=Sunday. the default is Monday|
+// |direction[]|no|you may optionally filter the type of call/activity from the endpoint by including multiple parameters direction[] which URL encoded woudl be direction%5B%5D= and has the following options: inbound,outbound,msg_inbound,msg_outbound,form|
+// |limit_fields[]|no|only return specific fields of interest from the API|
+// |all|no|if set to 1, returns results agency-wide instead of account-wide|
+// |stats|no|if set to 'on' return property stats that includes useful statistics regarding minutes, talk\_time, ring\_time, hold\_time (i.e. count, total, mean, min, max, standard deviation)|
+// |with_time|no|set to 1 to enable filtering with time|
+// |contact_number|no|prefixed based searching and filtering by the contact phone number|
+// 
+// ***example***
+// for example to pull back the list of calls from 2015-01-01 to 2015-02-01 with only the audio and the call id
+// 
+// ```bash
+// curl -XPOST -u$key:$sec 'https://api.calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls/search.json'
+// -d '{"start_date": "2015-01-01", "end_date":"2015-02-01","limit_fields": ["audio", "id"]}'
+// 
+// ```
+// 
+// ```json
+// {"calls":[{"id":1ddddddddd},{"id":2ddddddddd},{"id":3dddddddddd},{"id":4ddddddddd},{"id":5ddddddddd},{"audio":"https://calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls/CAddddddddddd/recording","id":2dddddddd},{"id":21dddddd},{"id":212ddddd},{"id":2ddddddd},{"id":2ddddddd}],"page":1,"total_entries":1168,"total_pages":117,"per_page":10,"stats":{},"next_page":"https://api.calltrackingmetrics.com/api/v1/accounts/{{your-account-id}}/calls.json?end_date=2015-02-01&limit_fields%5B%5D=audio&limit_fields%5B%5D=id&page=2&start_date=2015-01-01"}
+// ```
+// 
+// ***Query Object***
+// 
+// The query object is included in the request body allows you to specify additional field-level filtering of the calls (for use with the filter parameter listed above).  For example, tracking_number:"14105555555" would filter to only show calls involving the tracking number +1-410-555-5555
+// 
+// |parameters|comments|
+// |----------|--------|
+// |tracking_number|tracking number used, as a string of digits|
+// |source|the tracking source name|
+// |caller_number|contact phone number, as a string of digits|
+// |status|the call status, for example: in progress, no answer, answered, hangup, completed|
+// 
+// ***sorting activities***
+// sorting can be done by using the parameters:
+// 
+// order which allows you to sort the calls by the following dimensions:
+// metrics - the time of the call
+// caller - the name of the caller
+// source - the name of the source
+// 
+// ***paging through activity data***
+// The response body for each request will include an after property when more records exists after the current record set.  Include this after token in the next request to get another page of data.
+
+@name("search activities")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/search.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Request the transcribed text of a call recording.
+
+@name("call transcriptions")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/transcription.json"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// 
+// This response from this endpoint includes a link to the call transcription, if available.
+
+@name("activity details")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "item": {
+    "id": "",
+    "keypress": "3",
+    "voice_action_type": "dial",
+    "default_action": "1",
+    "physical_phone_number_id": "40109",
+    "play_message": "say:alice:da-DK:play message before action",
+    "whisper_message": "say:alice:de-DE:whisper message",
+    "tag_id": "tagme",
+    "assign_agent_id": "USR043E46722529BCB5578CA52BB780A1D2"
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |name|no|name of caller|
+// |email|no|email of caller|
+// |alternative_number|no|alternate number for caller (ex. +14105551212)|
+// |street|no|street address of caller|
+// |city|no|city from caller address|
+// |state|no|state from caller address|
+// |country|no|country of caller address|
+// |postal_code|no|postal code from caller address|
+// |tag_list|no|tags from pre-defined list, comma separated|
+// |custom_fields|no|nested object of custom attributes using the api name provided.|
+// |triggers|no|by default after each request we'll execute integration and trigger tasks.  To disable these side effects pass triggers=0|
+// 
+// Example of custom fields:
+// ```json
+// { "custom_fields": { "company": "Super", "userid": 1881 } }
+// ```
+
+@name("modify activity details")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/modify"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{ "custom_fields": {
+         "modelo": "notMINI" } }')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |redact_related|no|set to true to redact all calls matching the selected call's phone number|
+// 
+// Redaction destroys all personally identifiable information about a contact and *cannot be undone*. Use extra caution when setting redact_related to true.
+
+@name("redact activity details")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/redact"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |I_Understand_That_This_Can_Not_Be_Reversed|yes|set to 1 to agree that you understand this is irreversible|
+// |remove_transcriptions|no|set to 1 to also remove transcriptions for the call if they exist|
+// 
+// Removing a call recording permanently destroys the audio recording of a call (and optionally any transcriptions for that call) and *cannot be undone*.
+
+@name("delete call recording")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/delete_call_recording"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{ "I_Understand_That_This_Can_Not_Be_Reversed": "1" }')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |I_Understand_That_This_Can_Not_Be_Reversed|yes|set to 1 to agree that you understand this is irreversible|
+// 
+// Removing a call transcription permanently destroys the transcription of a call and *cannot be undone*. If the call audio is still available, the call could still be resubmitted for transcription.
+
+@name("delete call transcription")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/delete_call_transcription"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{ "I_Understand_That_This_Can_Not_Be_Reversed": "1" }')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |note|yes|the note/comment to add to a call|
+// |user|no|the user to assign to the note. if not specified the user assigned to the call will be used. you can specify the user with either an email address or ctm user id|
+// 
+// # example bodies
+// ```
+// {
+// 	"note": "hello, world!",
+// 	"user": "agent@example.com"
+// }
+// 
+// {
+// 	"note": "yet another note.",
+// 	"user": "USR043E46722529BCB5B49425FB5DC45EAF"
+// }
+// ```
+
+@name("add comment")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/add_comment"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"note": "hello, world!",
+	"user": "agent@example.com"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |note_id|yes|the note id to update|
+// |note|yes|the note/comment to update|
+// |user|no|the user to assign to the note. if not specified the user assigned to the call will be used. you can specify the user with either an email address or ctm user id|
+// 
+// # example bodies
+// ```
+// {
+// 	"note": "hello, world!",
+// 	"note_id": 46845,
+// 	"user": "agent@example.com"
+// }
+// 
+// {
+// 	"note": "yet another note.",
+// 	"note_id": 46845,
+// 	"user": "USR043E46722529BCB5B49425FB5DC45EAF"
+// }
+// ```
+
+@name("update comment")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/update_comment"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"note": "updated note",
+	"note_id": 46845,
+	"user": "nnn@example.com"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |note_id|yes|the note id to update|
+// 
+// # example body
+// ```
+// {
+// 	"note_id": 46845
+// }
+// ```
+
+@name("delete comment")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/delete_comment"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+	"note_id": 46845
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("get sale record")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/sale"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |name|no|reporting tag within the call log, typically used as a product name or sales person name|
+// |score|no|integer between 1 and 5 to indicate the quality of the call|
+// |conversion|no|boolean flag (1 or 0) to indicate whether the call resulted in a sale|
+// |value|no|numeric value to represent the total worth of the call in dollars|
+// |sale_date|no|date (YYYY-MM-DD) when a sale occurred as a result of this call|
+
+@name("create/edit sale record")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/sale"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("delete sale record")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/sale"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("start call recording")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/recording_start"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |id|yes|the call id|
+
+@name("end call")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/endcall"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "status": "success"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("stop call recording")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/recording_stop"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("mark call as spam")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/spam"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("mark call as not spam")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/unspam"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id|
+// |transfer_type|yes|set to: `transfer`|
+// |route_to|yes|set to: `number`|
+// |to_number|yes|the phone number to which to transfer the call in [E.164](https://en.wikipedia.org/wiki/E.164 Wikipedia) format (i.e. +18885551212 or +441632960162)|
+// |message|no|a whisper message to play to the person answering at the `to_number`|
+// |sync|no|a flag passing 1 to enable will run the transfer synchronously responding with a transfer object id|
+
+@name("transfer call to number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/transfer"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "transfer_type": "transfer",
+    "route_to": "number",
+    "to_number": "{{to_number}}",
+    "message": "{{message_whisper}}"
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id|
+// |transfer_type|yes|set to: `transfer`|
+// |route_to|yes|set to: `agent_id`|
+// |agent_id|yes|the USR id of the agent to whom to transfer|
+// |message|no|a whisper message to play to the agent|
+// |sync|no|a flag passing 1 to enable will run the transfer synchronously responding with a transfer object id|
+
+@name("transfer call to agent")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/transfer"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "transfer_type": "transfer",
+    "route_to": "agent_id",
+    "agent_id": "{{agent_id}}",
+    "message": "{{message_whisper}}"
+}')
+
+
+// FormReactors may be used through other form systems using our API (managed mode). When operating in managed mode, the specific form fields are managed by your third party system. The form data sent through this endpoint automatically creates a new FormReactor (based on the {unique_form_id}) and adds the form submission in your account's call log. You can then use the created FormReactor to configure how to react to new form submissions through the same {unique_form_id}. We limit the total number of unique API-based FormReactors to 1000 per Advanced/Marketing/Contact Center account (100 for other plans).
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |unique_form_id|yes|a unique ID to identify your form. One FormReactor will be created for each unique ID|
+// |caller_name|no|caller's name|
+// |country_code|no|phone number's country code (numeric)|
+// |phone_number|yes|phone number (i.e. 8885551212)|
+// |email|no|email address|
+// |visitor_sid|no|the visitor id|
+// |callback_number|no|the callback number, is a tracking number and used as the callerid when dialing a receiving number|
+// |receiving_number|no|optionally use to modify the receiving number dialed when dialing a receiving number first.  An E.164 number that also exists as a receiving number in CTM|
+// |delay_calling_by|no|optionally delay the form reactor from triggering any events by passing a value in minutes that is between 1 minute and 60 days.|
+// |custom_field|no|custom field (each custom field id is prefixed with "custom_") e.g. The custom field 'color' would be sent as custom_color or if you prefer british english custom_colour, but lets be real color is easier. |
+
+@name("formreactor server side request")
+POST "https://{{host}}/{{base_path}}/formreactor/{{unique_form_id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Returns your Do Not Call list
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |agency|no|show the agency do not call list (set to 1, requires agency API keys)|
+
+@name("list do not call numbers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/do_not_calls"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Prevents outgoing calls to a specified number, adding it to your Do Not Call list
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |number|yes|a phone number to add to the do not call list, including country code|
+// |agency|no|add to the agency-wide do not call list (set to 1, requires agency API keys)|
+
+@name("create a do not call number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/do_not_calls"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "number": "+14105554444"
+}')
+
+
+// Remove a number from your Do Not Call list, which will restore the ability to place outgoing calls to that number
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |do_not_call_number|yes|the digits of the phone number (including country code) to delete|
+// |agency|no|remove from the agency-wide do not call list, if added agency-wide (set to 1, requires agency API keys)|
+
+@name("delete a do not call number")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/do_not_calls/{{do_not_call_number}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Returns your Blocked Numbers list
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |agency|no|show the agency blocked numbers list (set to 1, requires agency API keys)|
+
+@name("list blocked numbers")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/blocked_numbers"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// Block a number
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |number|yes|a number in [E.164](https://en.wikipedia.org/wiki/E.164 Wikipedia) format (i.e. +18885551212 or +441632960162)|
+
+@name("block number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/block_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "number": "+14105550000"
+}')
+
+
+// Unblock a number
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |number|yes|a number in [E.164](https://en.wikipedia.org/wiki/E.164 Wikipedia) format (i.e. +18885551212 or +441632960162)|
+
+@name("unblock number")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/unblock_number"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+    "number": "+14105550000"
+}')
+
+
+// Block a caller based on a specific call ID
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+// |agency|no|block caller agency-wide (set to 1)|
+// |cnam|no|block calls matching the CNAM associated with the call_id (set to 1; use caution when blocking calls by CNAM! If you block "Wireless Caller," then all calls from all numbers with CNAM "Wireless Caller" will be blocked.)|
+// |exclude|no|block calls from this number from appearing in call log and reports (set to 1)|
+
+@name("block call")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/block_call"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Unblock a caller based on a specific call ID
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call_id|yes|the call id from the call record|
+
+@name("unblock call")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{call_id}}/unblock_call"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+// Initiate a call via API to connect two people together
+// 
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |call\_number|yes|the number you want to dial|
+// |from\_number|yes|the tracking number ID you want to bridge to the call_number on answer|
+// |to\_agent|no|similar to to_number but dial an agent and when the agent answers bridge the agent to the call_number connecting  the two parties.|
+// |to\_queue|no|similar to to_agent  but dial a call queue (1 or more agents dialed) and when an agent answers bridge the agent to the call_number connecting the two parties.|
+// |agent_prompt_message|no|"say:alice:en-US:hello please press 1 to accept the phone call" - limited to 128 characters  (specific to to_agent & to_queue)|
+// agent_prompt_option|no|1 or any - for any keypress (specific to to_agent & to_queue)|
+// |route|no|instead of dialing the tracking number configured route use this alternate route|
+// |name|no|the name of who you are dialing|
+// |user\_id|no|the user id to use for the outbound call when bridging to a user via a to\_number required if from_number is not assigned to an agent.|
+// |send_digits|no|'w1234' will wait 1 second and dial 1234; you can use w to trigger a 1 second pause before entering key press DTMF codes|
+// |callerid|no|optionally pass us a verified caller ID in E.164 format e.g. using +1 or +44 to use as the outgoing caller ID presented to the to_number|
+// |call_setting|no|Provide a call settings configuration to adjust the greeting message and other call recording / transcription settings associated with the phone call that is started through the API otherwise normally the call setting will be set based on the tracking number used in the from_number.|
+// |from_outbound_campaign|no|when selecting the from_number for the outbound dial select a tracking number based on the nearest geographic match to the call_number provided based on the configured outbound campaign.   Outbound campaigns can be configured: https://app.calltrackingmetrics.com/outbound_campaigns|
+// 
+// 
+// The from\_number tracking number may be configured to dial a call_queue, geo router, another number, sip route, etc.
+// 
+// For the from\_number, the tracking number ID can be found in the CTM portal. It is the TPN... string found in the address bar. You can also use the "list of tracking numbers" or "tracking number details" to lookup a number and find the tracking number ID.
+// 
+// You can also specify the from\number as a number in E.164 format (i.e. +18885551212).
+
+@name("Start Phone Call")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/"
+basicauth("{{access_key}}", "{{secret_key}}")
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "from_number": "+18885551234",
+  "call_number": "+14107031212"
+}')
+
+
+// Assign an agent to a call.  Keep in mind assigning an agent to a call in a queue can result in the call becoming un-answerable.
+// 
+
+@name("assign agent")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/agents/{{agent_sid}}/assign_call"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "call_id"= "{{call_id}}"
+data('{
+	"status": "success",
+	"id": 1234
+}')
+
+
+// Remove the assigned agent from the call.
+
+@name("remove agent")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/agents/{{agent_sid}}/remove_call"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "call_id"= "{{call_id}}"
+data('{
+	"status": "success",
+	"id": 1234
+}')
+
+
+// Remove a tag from the record.
+
+@name("Remove Tag")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{id}}/tag"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "tag"= "{{tag}}"
+data('{
+	"status": "success",
+	"id": 1234
+}')
+
+
+// Add a tag to the record.
+
+@name("Add Tag")
+PATCH "https://{{host}}/{{base_path}}/accounts/{{account_id}}/calls/{{id}}/tag"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+? "tag"= "{{tag}}"
+data('{
+	"status": "success",
+	"id": 1234
+}')
+
+
+// Get a mapping describing the structure of activity records e.g. call, text, chat and forms
+// 
+
+@name("Mapping")
+GET "https://api.calltrackingmetrics.com/api/v1/accounts/{account_id}/calls/mapping"
+
+
+

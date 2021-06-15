@@ -1,0 +1,113 @@
+#!/usr/bin/env dothttp
+
+@name("Get Agent Pool Security Groups")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roledefinitions"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("Get Current Agent Pool Groups/Users")
+GET "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+
+
+@name("List all users")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{OPAT}}")
+? "subjectTypes"= "aad,msa"
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get User/Group StorageKey")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/storagekeys/{{sampleUserDescriptor}}"
+basicauth("user", "{{PAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Get Agent Queues (Project)")
+GET "https://dev.azure.com/{{organization}}/{{projectID}}/_apis/distributedtask/queues"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+@name("Add Agent Queue Existing User (with specified role) (At project Root)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91ab4475-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Reader"
+    }
+])
+
+
+@name("Add Agent Queue Existing User (with specified role) (At specified agent queue ID)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentqueuerole/roleassignments/resources/{{projectID}}_{{queueID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Administrator"
+    }
+])
+
+
+// To modify permissions to the desired group, take a note of it's  "descriptor".
+
+@name("Get the list of groups in a Project")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/groups"
+basicauth("Basic", "{{PAT}}")
+? "scopeDescriptor"= "{{projectscopeDescriptor}}"
+? "api-version"= "5.1-preview.1"
+? "subjectTypes"= "{subjectTypes}"
+? "continuationToken"= "{continuationToken}"
+
+
+@name("Add Agent Queue Existing Group (with specified role) (At project Root)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Add Agent Queue Existing Group (with specified role) (At specified agent queue ID)")
+PUT "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentqueuerole/roleassignments/resources/{{projectID}}_{{queueID}}"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "userId": "91ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "roleName": "Administrator"
+    }
+])
+
+
+@name("Delete Agent Pool User/Group (Project Root Level)")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.globalagentqueuerole/roleassignments/resources/{{projectID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+@name("Delete Agent Pool User/Group (Given queue Level) ")
+PATCH "https://dev.azure.com/{{organization}}/_apis/securityroles/scopes/distributedtask.agentqueuerole/roleassignments/resources/{{projectID}}_{{queueID}}"
+basicauth("Basic", "{{OPAT}}")
+"Accept": "application/json;api-version=6.0-preview.1;excludeUrls=true"
+? "api-version"= "5.1-preview.1"
+json([
+    "94ab5375-889b-xxxx-ade2-0624b448xxxx"
+])
+
+
+

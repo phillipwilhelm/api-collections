@@ -1,0 +1,1 @@
+Creación, visualización, modificación y eliminación de usuarios, comercios y sucursales

@@ -1,0 +1,247 @@
+#!/usr/bin/env dothttp
+
+// #### Search partners in ERP
+// *(sapBusinessOne=2/OCRD, totvsProtheus=SA1|SA2|SUS)*
+// 
+// The search of partners allows filtering the ERP by:
+// - List Search: by `type` (C = customer, S = supplier, L = lead) {required}, by `taxType` (C = company, P = person, G = government, E = employee) or `sellerKey` {optional}
+// - Unitary Search: by `erpKey` or `taxNumber` (with or without punctuation)
+// 
+// If no fields for unitary search (erpKey or taxNumber) are informed in the request, the partner search is performed by `type` (which becomes required), and it is also possible to filter partners by `taxType` and/or `sellerKey`.
+// 
+// The partners service will consider partners:
+// - SAP Business One: Valid and not canceled (OCRD.validFor = Y AND OCRD.Canceled = N)
+// - TOTVS Protheus: Active (A1_MSBLQL other than 1)
+// 
+// Comments:
+// - `type`: SAP Business One (OCRD.CardType), TOTVS Protheus (tables SA1, SA2 and SUS)
+// - `taxType`: SAP Business One (CRD7.TaxId0 or CRD7.TaxId4), TOTVS Protheus (A1_PESSOA + A1_TPESSOA=EP)
+// - `sellerKey`: SAP Business One (OCRD.SlpCode), TOTVS Protheus (A1_VEND)
+// - `erpKey`: SAP Business One (OCRD.CardCode), TOTVS Protheus (A1_COD+'_'+A1_LOJA)
+// - `taxNumber`: SAP Business One (CRD7.TaxId0 or CRD7.TaxId4), TOTVS Protheus (A1_CGC)
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = number of records on each page (eg 100), defined in the API configuration and informed in the response
+// - `pageNum` = desired page, provided in the request and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service will allow you to search partners list in two situations:
+// - Full Search: will result in all partners, according to filters.
+// - Incremental Search: will result in all partners, according to filters, that have been included and/or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which partners should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields of the Business Partner record in SAP Business One (OCRD.CreateDate, OCRD.UpdateDate, OCRD.CreateTS, OCRD.UpdateTS), [2] TOTVS Protheus: the fields A1_USERLGI and A1_USERLGA, A2_USERLGI and A2_USERLGA, US_USERLGI and US_USERLGA
+// 
+// For the use of user fields (UDF) created in the partner table (SAPB1: OCRD, TOTVS: SA1, SA2, SUS), the respective registration must be performed in the Custom Table.
+
+@name("Partners")
+GET "https://{{endpoint}}/partners"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "type"= "S"
+? "taxType"= "P"
+? "sellerKey"= "000001"
+? "erpKey"= "C001"
+? "taxNumber"= "89175174987"
+? "pageNum"= "1"
+? "updatedAt"= "2020-01-30T15:00:00"
+
+
+// #### Insert/update partner in ERP
+// *(sapBusinessOne=2/OCRD, totvsProtheus=SA1|SA2|SUS)*
+// 
+// This service will allow to insert a new partner in the ERP, or to update an existing partner.
+// 
+// Partners are classified in the ERP as:
+// - `type`: C = customer, S = supplier, L = lead
+// - `taxType`: P = person, C = company, G = government, E = employee
+// 
+// The key to finding the partner is through `taxNumber`. If the partner is located by `taxNumber`, the data is updated, otherwise the new partner is included in the ERP.
+// - SAP Business One: CRD7.TaxId0 (company/government) or CRD7.TaxId4 (person/employee)
+// - TOTVS Protheus: A1_CGC (customer) or A2_CGC (supplier) or US_CGC (lead)
+// 
+// `sellerKey`:
+// - SAP BusinessOne: sellerKey=OCRD.SlpCode (OSLP)
+// - TOTVS Protheus: sellerKey=A1_VEND (SA3)
+// 
+// `phone`/`phoneSecundary`/`cellular` (format recommended: +XXYYNNNNNNNNN):
+// - SAP BusinessOne: OCRD.Phone1/OCRD.Phone2/OCRD.Cellular
+// - TOTVS Protheus: A1_FONE/A1_FAX/not used (note.: the value informed in field `phone`is splitted in fields A1_DDI/A1_DDD/A1_FONE)
+// 
+// `Adresses`:
+// - `shippingAddress` and `billingAddress`: shipping and billing address are required blocks
+// - SAP Business One: Each PN will have 2 registered addresses (CRD1, CRD7), namely: [1] ShipToCode (S) = /fullName, [2] BillToCode (B) = /fullName. Each PN will have 3 tax identification numbers (CRD12), namely: ShipToCode, BillToCode, empty
+// - TOTVS Protheus: Standard address fields and delivery address fields will be used. The Billing fields (only on recording) and Delivery Client will not be used.
+// 
+// `bankData`:
+// - partner bank data is optional
+// 
+// #### Request object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :--- 
+// type * | string | Type of partner (C=customer, S=supplier, L=lead)
+// taxType * | string | Tax Type of partner (P=person, C=company, G=government, E=employee)
+// partnerId | string | ID Partner 
+// fullName * | string | Partner full name
+// aliasName | string | Partner alias name
+// email | string | Email 
+// phone | string | Phone number (try to use in format +XXYYPPPPPPPP)
+// phoneSecondary | string | Secondary phone number (try to use in format +XXYYPPPPPPPP)
+// cellular | string | Cellular number (try to use in format +XXYYPPPPPPPP - SAPB1 only)
+// taxNumber * | string | Partner Tax Number
+// stateTaxNumber | string | State Tax Number
+// cityTaxNumber | string | City Tax Number
+// inssTaxNumber | string | INSS Tax Number {new}
+// sellerKey | string | Seller Primary Key in ERP
+// paymentCondition | string | Payment Condition Key {new}
+// paymentMethod | string | Payment Method Key {new}
+// billingAddress * | object | Billing Address
+// billingAddress.fullName | string | Full address name (example: BILLING or COBRANCA)
+// billingAddress.adress1 * | string | First address
+// billingAddress.adress2 | string | Second address
+// billingAddress.city * | string | City
+// billingAddress.postalCode * | string | Postal Code
+// billingAddress.stateCode * | string | State Code
+// billingAddress.countryCode | string | Country Code (example: BR)
+// billingAddress.community | string | Community
+// billingAddress.county | string | City County
+// billingAddress.exteriorNumber | string | Exterior number
+// billingAddress.streetType | string | Street type
+// shippingAddress | object | Shipping Address
+// shippingAddress.fullName | string | Full address name (example: SHIPPING or ENTREGA)
+// shippingAddress.adress1 * | string | First address
+// shippingAddress.adress2 | string | Second address
+// shippingAddress.city * | string | City
+// shippingAddress.postalCode * | string | Postal Code
+// shippingAddress.stateCode * | string | State Code
+// shippingAddress.countryCode | string | Country Code
+// shippingAddress.community | string | Community
+// shippingAddress.county | string | County
+// shippingAddress.exteriorNumber | string | Exterior Number
+// shippingAddress.streetType | string | Street type
+// bankData.bankCountry | string | Bank Country (ex: BR) {new}
+// bankData.bankName | string | Bank Name {new}
+// bankData.bankCode | string | Bank Code {new}
+// bankData.bankBranch | string | Bank Branch {new}
+// bankData.bankAccount | string | Bank Account {new}
+// bankData.bankBranchKey | string | Bank Branch Key {new}
+// bankData.bankAccountKey | string | Bank Account Key {new}
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | API Package
+// process | string | API Process
+// system | string | ERP System
+// target | string | API Target
+// user | string | User of request
+// host | string | Host of request
+// effectiveTimestamp | string | Effective Timestamp of processing
+// code | string | Return Code (200, 400, 401, 403, 404, 500, ...)
+// success | booleano | Success in processing? (true/false)
+// values | array | Values resulting of processing
+// values.Object | string | Object in ERP
+// values.Table | string | Table in ERP
+// values.Action | string | Action (insert, update, ...)
+// values.DocEntry | string |  Primary Key in ERP
+
+@name("Partner")
+PUT "https://{{endpoint}}/partners"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "type": "C",
+    "taxType": "C",
+    "partnerId": "C001",
+    "fullName": "Sport Club Corinthians Paulista",
+    "aliasName": "Timão",
+    "email": "campeão@corinthians.com.br",
+    "phone": "2095-3000",
+    "phoneSecondary": "11",
+    "cellular": "11-9595-2001",
+    "taxNumber": "61.902.722/0001-26",
+    "stateTaxNumber": "113.440.120.113",
+    "cityTaxNumber": "",
+    "inssTaxNumber": "0000",
+    "paymentCondition": "46",
+    "billingAddress": {
+        "address1": "São Jorge",
+        "address2": "",
+        "city": "São Paulo",
+        "postalCode": "03087-000",
+        "stateCode": "SP",
+        "community": "Tatuapé",
+        "exteriorNumber": "777",
+        "streetType": "Rua",
+        "countryCode": "BR"
+    },
+    "shippingAddress": {
+        "address1": "São Jorge 2",
+        "address2": "",
+        "city": "São Paulo",
+        "postalCode": "03087-000",
+        "stateCode": "SP",
+        "community": "Tatuapé",
+        "exteriorNumber": "777",
+        "streetType": "Rua",
+        "countryCode": "BR"
+    },
+    "bankData": {
+        "bankCountry": "BR",
+        "bankName": "Itau",
+        "bankCode": "341",
+        "bankBranch": "0134",
+        "bankAccount": "08254",
+        "bankBranchKey": "",
+        "bankAccountKey": "1"
+    }
+})
+
+
+// #### Search contacts in ERP
+// *(sapBusinessOne=11/OCPR, totvsProtheus=SU5)*
+// 
+// The search of contacts allows filtering the ERP by:
+// - List Search: by `partnerKey` or `partnerType` (C = customer, S = supplier, L = lead) {optional}
+// - Unitary Search: by `erpKey`
+// 
+// If no fields for unitary search (`erpKey`) are informed in the request, the partner search is performed by `partnerKey` or `partnerType`.
+// 
+// The contacts service will consider contacts:
+// - SAP Business One: Active (OCPR.Active=Y)
+// - TOTVS Protheus: Active (SU5.U5_MSBLQL!='1')
+// 
+// Comments:
+// - `partnerKey`: SAP Business One (OCPR.CardCode), TOTVS Protheus (AC8.AC8_CODENT)
+// - `partnerType`: SAP Business One (OCRD.CardType), TOTVS Protheus (AC8.AC8_ENTIDA)
+// - `erpKey`: SAP Business One (OCPR.CntctCode), TOTVS Protheus (SU5.U5_CODCONT)
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = number of records on each page (eg 100), defined in the API configuration and informed in the response
+// - `pageNum` = desired page, provided in the request and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service will allow you to search partners list in two situations:
+// - Full Search: will result in all partners, according to filters.
+// - Incremental Search: will result in all partners, according to filters, that have been included and/or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which partners should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields of the Business Partner record in SAP Business One (OCRD.CreateDate, OCRD.UpdateDate, OCRD.CreateTS, OCRD.UpdateTS), [2] TOTVS Protheus: the fields _USERLGI and _USERLGA in table SU5
+// 
+// For the use of user fields (UDF) created in the partner table (SAPB1: OCPR, TOTVS: SU5), the respective registration must be performed in the Custom Table.
+
+@name("Contacts NEW")
+GET "https://{{endpoint}}/contacts"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "partnerType"= "C"
+? "partnerKey"= "C001"
+? "erpKey"= "1"
+? "pageNum"= "1"
+? "updatedAt"= "2010-01-30T15:00:00"
+
+
+

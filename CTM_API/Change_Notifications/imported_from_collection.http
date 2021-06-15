@@ -1,0 +1,52 @@
+#!/usr/bin/env dothttp
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |page|no|the page number|
+// |per_page|no|the number of items per page|
+
+@name("list of change notifications")
+GET "https://{{host}}/{{base_path}}/accounts/{{account_id}}/change_notifications"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |deliver_to|yes|fully qualified URL used for callback|
+// |delivery_type|yes|must be set to webhook|
+// |name|yes|the name of the webhook|
+// |included_data|yes|an Array of one or more object types.  e.g. VirtualPhoneNumber or PhysicalPhoneNumber or CustomField.  These represent tracking number, receiving number and custom field.  More types are available.|
+// 
+
+@name("create change notification")
+POST "https://{{host}}/{{base_path}}/accounts/{{account_id}}/change_notifications"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+data('{
+  "change_notification": {
+    "name": "test1",
+    "delivery_type": "webhook",
+    "deliver_to": "https://example.com/hello-changes",
+    "included_data": [
+      "PhysicalPhoneNumber"
+    ]
+  }
+}')
+
+
+// |parameters|required|comments|
+// |----------|--------|--------|
+// |account_id|yes|the account id|
+// |change_notification_id|yes|the change notification id|
+
+@name("delete change notification")
+DELETE "https://{{host}}/{{base_path}}/accounts/{{account_id}}/change_notifications/{{id}}"
+"Authorization": "{{Basic Auth}}"
+"Content-Type": "application/json"
+
+
+
+

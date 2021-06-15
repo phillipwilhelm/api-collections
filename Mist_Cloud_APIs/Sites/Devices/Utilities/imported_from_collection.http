@@ -1,0 +1,158 @@
+#!/usr/bin/env dothttp
+
+// Ping can be performed from the Device. The output will be available through websocket. As there can be multiple command issued against the same AP at the same time and the output all goes through the same websocket stream, session is introduced for demux.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// host|string|host name
+// count|int|(Optional) Supported only for ping. default is 10
+// 
+// #### subscribe to Device Command outputs
+// ```
+// {
+//     "subscribe": "/sites/:site_id/devices/:device_id/cmd"
+// }
+// ```
+// ##### The Actual Output Data
+// ```
+// {
+//     "event": "data",
+//     "channel": "/sites/4ac1dcf4-9d8b-7211-65c4-057819f0862b/devices/00000000-0000-0000-1000-5c5b350e0060/cmd",
+//     "data": {
+//         "session": "session_id",
+//         "raw": "64 bytes from 23.211.0.110: seq=8 ttl=58 time=12.323 ms\n"
+//     }
+// }
+// ```
+
+@name("pingFromDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/ping"
+json({
+    "host": "1.1.1.1",
+    "count": 10
+})
+
+
+// ARP can be performed on the Device. The output will be available through websocket. As there can be multiple command issued against the same AP at the same time and the output all goes through the same websocket stream, session is introduced for demux.
+// 
+// 
+// #### subscribe to Device Command outputs
+// ```
+// {
+//     "subscribe": "/sites/:site_id/devices/:device_id/cmd"
+// }
+// ```
+// ##### The Actual Output Data
+// ```
+// {
+//     "event": "data",
+//     "channel": "/sites/4ac1dcf4-9d8b-7211-65c4-057819f0862b/devices/00000000-0000-0000-1000-5c5b350e0060/cmd",
+//     "data": {
+//         "session": "session_id",
+//         "raw": "Output": "\tMAC\t\tDEV\tVLAN\tRx Packets\t\t    Rx Bytes\t\tTx Packets\t\t    Tx Bytes\tFlows\tIdle                                               sec\n-----------------------------------------------------------------------------------------------------------------------"
+//     }
+// }
+// ```
+
+@name("arpForDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/arp"
+
+
+// Traceroute can be performed from the Device. The output will be available through websocket. As there can be multiple command issued against the same AP at the same time and the output all goes through the same websocket stream, session is introduced for demux.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// host|string|host name
+// protocol|string|udp (default) /icmp
+// port|int|when protocol=udp, the udp port to use (default is 33434)
+// 
+// #### subscribe to Device Command outputs
+// ```
+// {
+//     "subscribe": "/sites/:site_id/devices/:device_id/cmd"
+// }
+// ```
+
+@name("tracerouteFromDevice")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/traceroute"
+json({
+    "host": "1.1.1.1",
+    "protocol": "udp",
+    "port": 33434
+})
+
+
+// TDR can be performed from the Switch. The output will be available through websocket. As there can be multiple command issued against the same Switch at the same time and the output all goes through the same websocket stream, session is introduced for demux.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// port|string|the port to run the cable test
+// 
+// #### subscribe to Device Command outputs
+// ```
+// {
+//     "subscribe": "/sites/:site_id/devices/:device_id/cmd"
+// }
+// ```
+
+@name("cableTestFromSwitch")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/cable_test"
+json({
+    "port": "ge-0/0/0"
+})
+
+
+// Port Bounce can be performed from the Switch.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ports|list|list of ports to bounce
+// 
+
+@name("portsBounceFromSwitch")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/bounce_port"
+json({
+    "ports": [
+        "ge-0/0/0",
+        "ge-0/0/1"
+    ]
+})
+
+
+// Clear all learned MAC addresses, including persistent MAC addresses, on a port.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ports|list|a list of ports on which to clear mac addresses. must include logical unit number.
+
+@name("clearAllLearnedMacsFromPortOnSwitch")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/clear_macs"
+json({
+    "ports": [
+        "ge-0/0/0.0"
+    ]
+})
+
+
+// Clear bridge protocol data unit (BPDU) error condition caused by the detection of a possible bridging loop from Spanning Tree Protocol (STP) operation that renders the port unoperational.
+// 
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// ports|string|the ports on which to clear the detected BPDU error, or `["all"]` for all ports
+
+@name("clearBpduErrosFromPortsOnSwitch")
+POST "https://{{host}}/api/v1/sites/:site_id/devices/:device_id/clear_bpdu_error"
+json({
+    "ports": [
+        "ge-0/0/2"
+    ]
+})
+
+
+

@@ -1,0 +1,151 @@
+#!/usr/bin/env dothttp
+
+// Get a specific Box by uuid.
+
+@name("Get a Box by Mac Address")
+GET "https://{{server-url}}/{{version}}/box/byMacAddress/{{macAddress}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Get a specific Box by uuid.
+
+@name("Get a Box by UUID")
+GET "https://{{server-url}}/{{version}}/box/byUuid/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// A Box page is a list of boxes.
+// Instead of getting all the existing boxes in one request, you can iterate on pages, until the page is empty.
+
+@name("Get a Boxes page")
+GET "https://{{server-url}}/{{version}}/box/page/{{page}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// An Abandoned Box page is a list of boxes inactive, because either expired or deleted.
+// Instead of getting all the existing boxes in one request, you can iterate on pages, until the page is empty.
+
+@name("Get an Abandoned Boxes page")
+GET "https://{{server-url}}/{{version}}/inactive/box/page/{{page}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Update Box alias by uuid. Alias cannot be blank.
+// Leading and trailing spaces are removed.
+
+@name("Alias update")
+PUT "https://{{server-url}}/{{version}}/box/alias/{{uuid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+data('{
+	"alias": "{{alias}}"
+}')
+
+
+// Update Box notes by uuid. If notes field is missing or value is blank, they are removed.
+// Leading and trailing spaces are removed.
+// 
+// If the notes field is empty or absent, the notes are removed.
+
+@name("Notes update")
+PUT "https://{{server-url}}/{{version}}/box/notes/{{uuid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+data('{
+	"notes": "{{notes}}"
+}')
+
+
+// To be used on Boxes with active licenses.
+// 
+// Only renewal licenses are accepted.
+// 
+// For any other redeem type, use the redeem API.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Renew a Subscription by uuid")
+PUT "https://{{server-url}}/{{version}}/box/renewByUuid/{{uuid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+data('{
+	"token" : "{{licenseCode}}"
+}')
+
+
+// To be used on inactive and expired Boxes, without a uuid.
+// 
+// Only renewal licenses are accepted. For new Boxes use the adopt API.
+// 
+// For any other redeem type, use the redeem API.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Renew a Subscription by macAddress")
+PUT "https://{{server-url}}/{{version}}/box/renewByMacAddress/{{macAddress}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+data('{
+	"token" : "{{licenseCode}}"
+}')
+
+
+// Enable the Box VPN by uuid.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("VPN Enable")
+PUT "https://{{server-url}}/{{version}}/box/vpnEnable/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Disable the Box VPN by uuid.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("VPN Disable")
+PUT "https://{{server-url}}/{{version}}/box/vpnDisable/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Restart the Box by uuid.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Restart")
+PUT "https://{{server-url}}/{{version}}/box/restart/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Delete the Box by uuid. Any manual network setting is not reset.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Delete")
+DELETE "https://{{server-url}}/{{version}}/box/delete/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Delete the Box by uuid. Any manual network setting gets reset; if in manual mode, it goes back to DHCP setting.
+// 
+// If successful, returned HTTP status code is 202 (Accepted).
+
+@name("Delete Full")
+DELETE "https://{{server-url}}/{{version}}/box/deleteFull/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+

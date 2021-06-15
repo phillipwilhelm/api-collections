@@ -1,0 +1,1 @@
+This sample request uses a Mock server to return GeoJson data. The data is then rendered using Mapbox and Leaflet. Note that you must request your AccessToken from mapbox and provide it in the environmental var

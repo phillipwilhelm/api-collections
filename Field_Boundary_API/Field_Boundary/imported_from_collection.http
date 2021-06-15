@@ -1,0 +1,156 @@
+#!/usr/bin/env dothttp
+
+// Providing latitude and longitude as input coordinates of any point within the field, the endpoint will return the corresponding boundary as a GeoJSON.
+//       
+// > Requires API Token as `Authorization` request header.
+// 
+// 
+// ### Expected status codes ###
+// ---------------------------------------------
+// 
+// | status code |   Description						|
+// | ----------- |  -----------------------	|
+// |   200       |  returning  data successfully. |
+// |   204       |  No data to return.	|
+// 
+// ---------------------------------------------
+// 
+// 
+// ### Response ###
+// 
+// A single field boundary in GeoJSON format given a single geographical point within the field.
+// 
+// >	**_status code 200 OK_** 
+//  ---------------------------------------------
+//    ```json
+// 		{
+// 		    "count": 1,
+// 		    "next": null,
+// 		    "previous": null,
+// 		    "results": {
+// 		      'GEOJSON'
+// 		    }
+// 		}
+//    ```
+
+@name("Get a single boundary")
+GET "https://api.field-boundary.com/field-boundary/"
+"Authorization": "Token {{api token}}"
+? "lat"= "50.09383"
+? "lng"= "9.21508"
+
+
+// This endpoint allows you to detect all available boundaries within an area. To define the area, a closed polygon must be given as input, where closed means that the last coordinate in the JSON file must coincide with the first one. For example, if the polygon is a square, the JSON file will contain five points with the fifth point having the same coordinates as the first one.
+//       
+// > Requires API Token as `Authorization` request header.
+// 
+// > **_Note_**: **Pagination is powered exclusively by the `Page` parameter. Use the Link header to get the URL for the next or previous page of users.**
+// 
+// 
+// ### Expected status codes ###
+// ---------------------------------------------
+// 
+// | status code |   Description						|
+// | ----------- |  -----------------------	|
+// |   200       |  returning data successfully. |
+// |   204       |  No data to return.	|
+// 
+// ---------------------------------------------
+// 
+// 
+// ### Response ###
+// Multiple boundaries in GeoJSON format within an area defined as a closed polygon.
+// 
+// >	**_status code 200 OK_** 
+//  ---------------------------------------------
+//    ```json
+// 		{
+// 		    "count": 1,
+// 		    "next": "http://api.field-boundary.com/field-boundary/?page=2",
+// 		    "previous": null,
+// 		    "results": {
+// 		      'GEOJSON'
+// 		    }
+// 		}
+//    ```
+
+@name("Get multiple boundaries for an area")
+POST "https://api.field-boundary.com/field-boundary/"
+"Authorization": "Token {{api token}}"
+"Content-Type": "application/json"
+data('{
+    "bbox": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [
+                    8.53036880493164,
+                    49.816720843571765
+                ],
+                [
+                    8.468914031982422,
+                    49.79988210788039
+                ],
+                [
+                    8.474235534667969,
+                    49.75975573936961
+                ],
+                [
+                    8.585128784179688,
+                    49.7464468466617
+                ],
+                [
+                    8.595771789550781,
+                    49.79279036138332
+                ],
+                [
+                    8.58856201171875,
+                    49.82137261922289
+                ],
+                [
+                    8.542900085449219,
+                    49.81948981152359
+                ],
+                [
+                    8.53036880493164,
+                    49.816720843571765
+                ]
+            ]
+        ]
+    }
+}')
+
+
+// This endpoint returns the timestamp of the last update of a field boundary. This can be used to determine the last change of the geometric information documented in the system.
+// 
+// 
+// ### Expected status codes ###
+// ---------------------------------------------
+// 
+// | status code |   Description						|
+// | ----------- |  -----------------------	|
+// |   200       |  returning data successfully. |
+// |   204       |  No data to return.	|
+// 
+// ---------------------------------------------
+// 
+// > Requires API Token as `Authorization` request header.
+// 
+// ### Response ###
+// 
+// >	**_status code 200 OK_** 
+//  ---------------------------------------------
+//    ```json
+// 		[
+// 		      'GEOJSON'
+// 		]
+//    ```
+
+@name("Get last update time")
+GET "https://api.field-boundary.com/field-boundary/get_last_updated/"
+"Authorization": "Token {{api token}}"
+? "lng"= "50.09383"
+? "lat"= "9.21508"
+
+
+

@@ -1,0 +1,447 @@
+#!/usr/bin/env dothttp
+
+// # CreateSession API
+// 
+// The purchase workflow requires a subscriber authenticated session (level 5).  A level 5 session is created by passing the subscriber's credentials in the CreateSession call.
+// 
+// SubmitOrder requires a level 5 session if the order has non-zero charged order, otherwise a level 4 session is sufficient for zero charged orders.
+// 
+// UpdateExternalAuthorizations always requires a level 5 session.
+// 
+// # Security
+// 
+// This method requires HTTPS. Any request without SSL will be rejected.
+// Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 117 | AccessDenied | The session does not have rights to the requested resource
+// | 806 | DeviceNotFound | Fault indicating that a device could not be found.
+// | 1120 | SubscriberNotFound | The requested subscriber was not found |
+// | 113 | LoginExists | The requested login already exists |
+// | 1145 | SecurityTokenValidationFailed | Fault indicating that an external security token could not be validated |
+// | 115 | PasswordStrengthViolation | The requested password failed the password complexity rules |
+// |116 | NonUniquePasswordViolation | The requested password failed to meet the password history rules |
+// | 126 | AlternateCountryNotFound | The alternate country provided in the request headers is not valid. |
+// | 812 | DuplicateDeviceNickname | Fault indicating that the device's nickname is already used by the subscriber on another device |
+// 
+// # Request
+
+@name("CreateSession (L & PW)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/CreateSession"
+"CD-SystemId": "{{CD_SYSTEM_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "Login" : "{{LOGIN_1}}",
+    "Password" : "{{PASSWORD_1}}"
+}')
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// The product list form of RPC enables mutliple products to be checked for entitlement in a single call. Entitled pricing plans are identified by the "EntitledPricingPlanId" property in the response.
+// 
+// The "IncludeOrderablePricingPlans" property in not currently supported in this form of the RPC call.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReferences": [
+        "XYZ_Access_Monthly",
+        "XYZ_Access_Annual",
+        "XYZ_TV_Access_Monthly",
+        "XYZ_TV_Access_Annual",
+        "XYZ_TV_Pro_Monthly",
+        "XYZ_TV_Pro_Annual"
+    ],
+    "IncludeEntitlementContext": true
+}
+')
+
+
+// # SubmitOrder API
+//   
+// Submit an order for requested shopping cart products.
+// 
+// Ordered products will be fulfilled through workflow process and assigned to subscriber account.
+// 
+// Orders with non-zero charges must be submitted using a fully authenticated session.
+// 
+// If a payment instrument is not supplied in the request, the system will use the default payment instrument.  If the supplied payment instrument does not exist, it will be created.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an authenticated device.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 623 | SpendingLimitViolation | Fault indicating that a subscriber has exceeded their spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument. |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures. |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made. |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1144 | CaptchaVerificationFailed | Fault indicating Captcha is required on the method and the challenge-response provided is invalid. |
+// | 1052 | InvalidExternalRedemptionRequest | Fault thrown when unable to handle external redemption request |
+// | 1038 | InvalidCouponRedemption | Fault that occurs when a coupon code is cannot be applied to an order or subscription |
+// | 1106 | InvalidBillingAddress | Fault thrown when there is mismatch between the session or home country and the payment instrument's billing addresses based on system configuration |
+// | 217 | AdditionalPropertyNotFound | Indicates that the requested additional property was not found |
+// | 626 | ExternalGiftCardFailure | Fault there is an error during an external gift card call to a provider |
+// | 1197 | GeneralLedgerGuidenceCodeNotConfigured | Indicates that the general ledger code was not found |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1061 | DuplicateOrderFault | Trying to submit a duplicate order |
+// 
+// # Request
+
+@name("SubmitOrder (for iTunes)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DistributionChannel": "{{CD_DIST_CHANNEL_APP}}"
+"Content-Type": "application/json"
+data('{
+    "ShoppingCart": {
+        "Items": [
+            {
+                "ProductExternalReferenceType": "iTunes Connect Product ID",
+                "ProductExternalReference": "XYZ_TV_Pro_Monthly",
+                "PricingPlanExternalReferenceType": "iTunes App Store Product Id",
+                "PricingPlanExternalReference": "com.fodmltd.OfficialXYZ.XYZ_TV_Pro_Monthly.001"
+            }
+        ]
+    },
+    "PaymentInstruments": [
+        {
+            "Type": 6,
+            "Name": "itunes_XYZapp_XYZ_TV_Pro_monthly",
+            "Default": false,
+            "ITunesAccount": {
+                "UserName": "XYZmobileqa+csg3@gmail.com",
+                "TransactionReceipt": "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"
+            }
+        }
+    ],
+    "AdditionalProperties": [
+        {
+            "ExternalReference": "country_code",
+            "Values": ["US"]
+        }
+    ]
+}')
+
+
+// # SubmitOrder API
+//   
+// Submit an order for requested shopping cart products.
+// 
+// Ordered products will be fulfilled through workflow process and assigned to subscriber account.
+// 
+// Orders with non-zero charges must be submitted using a fully authenticated session.
+// 
+// If a payment instrument is not supplied in the request, the system will use the default payment instrument.  If the supplied payment instrument does not exist, it will be created.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an authenticated device.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 623 | SpendingLimitViolation | Fault indicating that a subscriber has exceeded their spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument. |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures. |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made. |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1144 | CaptchaVerificationFailed | Fault indicating Captcha is required on the method and the challenge-response provided is invalid. |
+// | 1052 | InvalidExternalRedemptionRequest | Fault thrown when unable to handle external redemption request |
+// | 1038 | InvalidCouponRedemption | Fault that occurs when a coupon code is cannot be applied to an order or subscription |
+// | 1106 | InvalidBillingAddress | Fault thrown when there is mismatch between the session or home country and the payment instrument's billing addresses based on system configuration |
+// | 217 | AdditionalPropertyNotFound | Indicates that the requested additional property was not found |
+// | 626 | ExternalGiftCardFailure | Fault there is an error during an external gift card call to a provider |
+// | 1197 | GeneralLedgerGuidenceCodeNotConfigured | Indicates that the general ledger code was not found |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1061 | DuplicateOrderFault | Trying to submit a duplicate order |
+// 
+// # Request
+
+@name("SubmitOrder (for Google Play)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DistributionChannel": "{{CD_DIST_CHANNEL_OTT}}"
+"Content-Type": "application/json"
+" ": ""
+data('{
+    "AdditionalProperties": [
+        {
+            "ExternalReference": "country_code",
+            "Values": ["US"]
+        }
+    ],
+    "ShoppingCart": {
+        "Items": [
+            {
+                "ProductExternalReferenceType": "Product Reference",
+                "ProductExternalReference": "XYZ_TV_Pro_Monthly",
+                "PricingPlanExternalReferenceType": "Google Play Product Id EXTREF",
+                "PricingPlanExternalReference": "643092"
+            }
+        ]
+    },
+    "PaymentInstruments": [
+        {
+            "Type": 12,
+            "Name": "GooglePlay1526398872014",
+            "Default": false,
+            "GooglePlayAccount": {
+                "PurchaseToken": "lbkbajicefijmeobppbijcfm.AO-J1Ox8L2KdJYgOlXxvvMXLadUmk0psRyHzGSDHSJl5-bx0a6-5O-JdLUlo8wfCwOZKs_cFNhZSnsm81Iq53Vi0qNGFpY775iY7wGZssweJolRXfUJbfuyujvgmOVX3rmZELjPzl9d6"
+            }
+        }
+    ]
+}')
+
+
+// # SubmitOrder API
+//   
+// Submit an order for requested shopping cart products.
+// 
+// Ordered products will be fulfilled through workflow process and assigned to subscriber account.
+// 
+// Orders with non-zero charges must be submitted using a fully authenticated session.
+// 
+// If a payment instrument is not supplied in the request, the system will use the default payment instrument.  If the supplied payment instrument does not exist, it will be created.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an authenticated device.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 916 | PricingPlanNotFound | Fault indicating that the requested pricing plan is not found |
+// | 1014 | InvalidOrderPayment | Fault when the order payment doesn't match the cost of the order |
+// | 1015 | InvalidOrderPaymentInstrumentAmount | Fault to be returned when an invalid order payment instrument amount is passed in an order |
+// | 1019 | InvalidShoppingCart | Fault exception thrown for invalid shopping carts |
+// | 1010 | InvalidInstanceProperty | Fault indicating that an invalid instance property has been provided on the request |
+// | 1011 | InvalidItemCurrency | Fault exception thrown when one item's currency is different from the rest in an order |
+// | 1012 | InvalidItemOrderingType | Fault indicating that a requested pricing plan is not orderable |
+// | 623 | SpendingLimitViolation | Fault indicating that a subscriber has exceeded their spending limit |
+// | 1028 | ProductNotOrderable | Fault thrown when an order is attempted on a non-stand alone product |
+// | 1034 | SubscriptionNotOrderable | Fault thrown when a subscriber attempts to order a subscription product of which they already have an active subscription |
+// | 1021 | InvalidSubscriberProductStatus | Fault thrown when an order is attempted on a subscriber product that is in an invalid state |
+// | 1009 | InvalidDiscount | Fault exception thrown when a discount is not valid for an order item |
+// | 1008 | InvalidDevice | Fault indicating that an invalid physical device was provided |
+// | 1006 | DeviceRequired | Fault indicating that a physical device id was required by the associated delivery capability, but was not provided |
+// | 1040 | CouponRequired | Fault indicating that a coupon was required by the requested pricing plan but was not provided in the request |
+// | 1039 | InvalidSubscriptionPaymentInstrument | Fault thrown when a valid payment instrument is not provided for a subscription pricing plan that requires a payment instrument. |
+// | 616 | RevenueTaxFailure | Fault thrown on tax processing failures. |
+// | 617 | TransactionFailure | The financial transaction failed to process |
+// | 607 | InvalidPaymentRequest | Fault thrown when an invalid payment request is made. |
+// | 606 | InvalidPaymentInstrument | Fault indicating that the requested payment instrument is not valid |
+// | 603 | InsufficientBalance | Fault thrown when insufficient funds are provided to cover the purchase |
+// | 1018 | InvalidShippingMethod | Fault thrown when a shipping order is requested with an invalid shipping method |
+// | 1049 | ProductAlreadyPurchased | Fault indicating that request product has already been purchased and may not be purchased again based on the product's configuration |
+// | 943 | ShippingMethodNotFound | Fault indicating that the requested shipping method could not be found |
+// | 1101 | AddressValidationFailed | Indicates the address could not be validated |
+// | 1100 | AddressNotFound | Indicates the requested address could not be found |
+// | 611 | PaymentInstrumentNotFound | The requested payment instrument was not found |
+// | 1144 | CaptchaVerificationFailed | Fault indicating Captcha is required on the method and the challenge-response provided is invalid. |
+// | 1052 | InvalidExternalRedemptionRequest | Fault thrown when unable to handle external redemption request |
+// | 1038 | InvalidCouponRedemption | Fault that occurs when a coupon code is cannot be applied to an order or subscription |
+// | 1106 | InvalidBillingAddress | Fault thrown when there is mismatch between the session or home country and the payment instrument's billing addresses based on system configuration |
+// | 217 | AdditionalPropertyNotFound | Indicates that the requested additional property was not found |
+// | 626 | ExternalGiftCardFailure | Fault there is an error during an external gift card call to a provider |
+// | 1197 | GeneralLedgerGuidenceCodeNotConfigured | Indicates that the general ledger code was not found |
+// | 1059 | InvalidBulkItemDetail | Fault exception thrown for invalid bulk item details |
+// | 1061 | DuplicateOrderFault | Trying to submit a duplicate order |
+// 
+// # Request
+// 
+// Payment Instrument fields:
+// 
+// Name - name of the payent instrument (e.g. Amazon_XYZ_TV _Pro Monthly).  It must be unique within the Amazon payment instruments in the subscriber's e-wallet.
+// 
+// ExternaBill.AccountNumber - The Amazon userId.  ID representing a distinct Amazon customer for your appstore app: purchaseResponse->userData->userIdd
+// 
+// ExternaBill.ExternalBillData - The receipt Id for the purchase. Unique ID for the purchase: purchaseResponse->receipt->receiptId or purchaseUpdatesResponse->receipts->receipt->receiptId
+// 
+// ExternaBill.NameOnAccount - ???
+// 
+// ExternaBill.Type - Ascendon system id for the Amazon integration.
+
+@name("SubmitOrder (for Amazon)")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/SubmitOrder"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DistributionChannel": "{{CD_DIST_CHANNEL_AMZ_TAB}}"
+"Content-Type": "application/json"
+" ": ""
+data('{
+    "ExternalOrderNumber": "AmazonIap",
+    "PaymentInstruments": [
+        {
+            "ExternalBill": {
+                "AccountNumber": "The Amazon userId.  ID representing a distinct Amazon customer for your appstore app: purchaseResponse->userData->userIdd",
+                "ExternalBillData": "The receipt Id for the purchase. Unique ID for the purchase: purchaseResponse->receipt->receiptId or purchaseUpdatesResponse->receipts->receipt->receiptId",
+                "NameOnAccount": "Amazon",
+                "Type": 10079
+            },
+            "Name": "Amazon External Bill",
+            "Type": 4
+        }
+    ],
+    "RecordPaymentInformation": true,
+    "ShoppingCart": {
+        "Items": [
+            {
+                "PricingPlanExternalReference": "The Amazon store product id - TBD",
+                "PricingPlanExternalReferenceType": "Amazon IAP Product ID",
+                "ProductExternalReference": "XYZ_TV_Access_Monthly",
+                "ProductExternalReferenceType": "Product Reference",
+                "Quantity": 1
+            }
+        ]
+    }
+}
+')
+
+
+// UpdateExternalAuthorizations API
+//   
+// Update external authorizations for the subscriber. UpdateExternalAuthorizations has been re-purposed to support the ABC Corp 1 EU Portability solution to store the country the product was purchased from.
+// 
+// * "ContextData" : "GB", # country code (ISO-2 or ISO-3)
+// * "Provider" : 6002, # Fix value to identofy the country code external authorisation.
+// * "SubscriberExternalReference" : "19685" # Pricing plan id.
+// 
+// NOTE:  The system using external authorisations for checking EU Poratability must be able to process both ISO-2 or ISO-3 country code formats.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a fully authenticated subscriber session.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// |1120 | SubscriberNotFound | The requested subscriber was not found
+// |1126 | SubscriberExternalAuthorizationNotFound | Fault indicating the requested subscriber external authorization could not be found
+// 
+// # Request
+// 
+
+@name("UpdateExternalAuthorizations")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/UpdateExternalAuthorizations"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionId": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DistributionChannel": "{{CD_DISTRIBUTION_CHANNEL}}"
+"Content-Type": "application/json"
+data('{
+    "ExternalAuthorizations": [
+        {
+            "ContextData": "GB",
+            "Provider": 6002,
+            "SubscriberExternalReference": "19685"
+        }
+    ]
+}')
+
+
+

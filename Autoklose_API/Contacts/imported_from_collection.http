@@ -1,0 +1,127 @@
+#!/usr/bin/env dothttp
+
+// Provides the information about contacts.
+// 
+// This method uses pagination.
+// 
+// Please check the example for a sample output.
+
+@name("Get a list of contacts")
+GET "https://{{url}}/api/contacts"
+? "page"= "1"
+? "created_date_from"= "2019-11-07"
+? "created_date_to"= "2019-11-08"
+? "updated_date_from"= "2019-11-07"
+? "updated_date_to"= "2019-11-08"
+? "sort"= "update_at"
+? "order"= "asc"
+? "order"= "desc"
+? "name"= "Mike"
+? "email"= "test_recipient@gmail.com"
+? "active_in"= "any or none"
+? "active_in_campaigns.*"= "127522"
+? "activity_type.*"= "sent,opened,clicked,replied,none-sent,none-opened"
+? "contacts_sources.*"= "manual"
+? "locations.*"= "US"
+? "organizations.*"= "Acme"
+? "job_titles.*"= "CEO"
+
+
+// Adds a contact to the contacts database. If there are non-mapped fields, they will be automatically created as contact fields.
+// 
+// Returns 200 on success, if there's a validation error it will return 422 with the explanation of what went wrong.
+
+@name("Insert a single contact")
+POST "https://{{url}}/api/contacts"
+"Content-Type": "application/json"
+data('{
+    "email": "test_contact@gmail.com",
+    "first_name": "Mike",
+    "last_name": "Parsons",
+    "organization": "ACME",
+    "job_title": "CEO",
+    "country": "US",
+    "state": "NY",
+    "city": "Schenectady",
+    "phone_number": "(555) 8888-888",
+    "facebook_url": "https://facebook.com/john.doe",
+    "twitter_url": "https://twitter.com/john.doe",
+    "linkedin_url": "https://linkedin.com/john.doe",
+    "new_field": "custom value"
+}
+')
+
+
+// Adds contacts to the contacts database. If there are non-mapped fields, they will be automatically created as contact fields.
+// 
+// A successful request gives 202 Accepted response which makes the request being queued for processing.
+
+@name("Bulk insert of contacts")
+POST "https://{{url}}/api/contacts/bulk"
+"Content-Type": "application/json"
+data('{
+	"contacts": [
+		{
+			"email": "test_contact_bulk@gmail.com",
+		    "first_name": "Mike",
+		    "last_name": "Parsons",
+		    "organization": "ACME",
+		    "job_title": "CEO",
+		    "country": "US",
+		    "state": "NY",
+		    "city": "Schenectady",
+		    "phone_number": "(555) 8888-888",
+		    "facebook_url": "https://facebook.com/john.doe",
+		    "twitter_url": "https://twitter.com/john.doe",
+		    "linkedin_url": "https://linkedin.com/john.doe",
+		    "new_field": "custom value"
+		},
+		{
+			"email": "test_contact2_bulk@gmail.com",
+		    "first_name": "Mike",
+		    "last_name": "Parsons",
+		    "organization": "ACME",
+		    "job_title": "CEO",
+		    "country": "US",
+		    "state": "NY",
+		    "city": "Schenectady",
+		    "phone_number": "(555) 8888-888",
+		    "facebook_url": "https://facebook.com/john.doe",
+		    "twitter_url": "https://twitter.com/john.doe",
+		    "linkedin_url": "https://linkedin.com/john.doe",
+		    "new_field": "custom value"
+		},
+		{
+			"email": "invalid"
+		}
+	]
+
+}
+')
+
+
+// A method used to provide information about contact by providing contacts ID.  
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Get a contact by ID")
+GET "https://{{url}}/api/contacts/{{contact}}"
+
+
+// A method used for updating a contact by ID. To get contacts ID use method [Get a list of Contacts](#c237bf5e-f433-4050-98ca-a169f6861d62), its the 36 digit number located in "id":                                
+// 
+// Replace {{contact}} token with contacts ID.
+
+@name("Update a contact by ID")
+PATCH "https://{{url}}/api/contacts/{{contact}}"
+"Content-Type": "application/json"
+data('{
+  "first_name":"Mike",
+  "last_name":"Parson",
+  "city": "Schenectady",
+  "state":"NY",
+  "country":"US"
+}
+')
+
+
+

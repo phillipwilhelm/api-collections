@@ -1,0 +1,45 @@
+#!/usr/bin/env dothttp
+
+@name("List Issues")
+GET "https://{{domain}}/api/issues"
+"Authorization": "{{your_api_key}}"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[user]"= "{user_id}"
+
+
+@name("Show Issue")
+GET "https://{{domain}}/api/issues/:issue_id"
+"Authorization": "{{your_api_key}}"
+
+
+@name("Create Issue")
+POST "https://{{domain}}/api/issues"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+data('{
+  "data": {
+    "type": "issues",
+    "attributes": {
+      "reason_code": "new_client"
+    },
+    "relationships": {
+      "issue": {
+        "data": { 
+          "type": "User",
+          "id": 2
+        }
+      }
+    }
+  }
+}')
+
+
+// When you finish adding `Seeds` to an `Issue` you announce it's complete so our compliance officers can review it.
+
+@name("Set Complete")
+POST "https://{{domain}}/api/issues/:issue_id/complete"
+"Authorization": "{{your_api_key}}"
+
+
+

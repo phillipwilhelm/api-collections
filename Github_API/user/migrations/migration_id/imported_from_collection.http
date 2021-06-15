@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+// Fetches a single user migration. The response includes the `state` of the migration, which can be one of the following values:
+// 
+// *   `pending` - the migration hasn't started yet.
+// *   `exporting` - the migration is in progress.
+// *   `exported` - the migration finished successfully.
+// *   `failed` - the migration failed.
+// 
+// Once the migration has been `exported` you can [download the migration archive](https://docs.github.com/rest/reference/migrations#download-a-user-migration-archive).
+
+@name("Get a user migration status")
+GET "https://{{baseUrl}}/user/migrations/:migration_id"
+? "exclude"= "<string>"
+? "exclude"= "<string>"
+
+
+// Unlocks a repository. You can lock repositories when you [start a user migration](https://docs.github.com/rest/reference/migrations#start-a-user-migration). Once the migration is complete you can unlock each repository to begin using it again or [delete the repository](https://docs.github.com/rest/reference/repos#delete-a-repository) if you no longer need the source data. Returns a status of `404 Not Found` if the repository is not locked.
+
+@name("Unlock a user repository")
+DELETE "https://{{baseUrl}}/user/migrations/:migration_id/repos/:repo_name/lock"
+
+
+// Lists all the repositories for this user migration.
+
+@name("List repositories for a user migration")
+GET "https://{{baseUrl}}/user/migrations/:migration_id/repositories"
+? "per_page"= "30"
+? "page"= "1"
+
+
+

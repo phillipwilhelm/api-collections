@@ -1,0 +1,516 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of all contacts. Includes information about contact status and creation / activity timestamps.
+// 
+
+@name("Retrieve All Contacts")
+GET "https://api.mailjet.com/v3/REST/contact"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Campaign"= "{{CampaignID}}"
+? "ContactsList"= "{{ListID}}"
+? "IsExcludedFromCampaigns"= "false"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve a specific contact. Includes information about contact status and creation / activity timestamps.
+// 
+
+@name("Retrieve a Single Contact")
+GET "https://api.mailjet.com/v3/REST/contact/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Add a new unique contact to your global contact list and select its exclusion status.
+// 
+
+@name("Create Contact")
+POST "https://api.mailjet.com/v3/REST/contact"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "IsExcludedFromCampaigns": false,
+    "Name": "Contact 1",
+    "Email": "user@example.com"
+}')
+
+
+// Update the user-given name and exclusion status of a specific contact.
+// 
+
+@name("Update Contact")
+PUT "https://api.mailjet.com/v3/REST/contact/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+  "IsExcludedFromCampaigns": false,
+  "Name": "Updated Name"
+}')
+
+
+// Retrieve all contact lists for a specific contact. You will receive information on the status of the contact for each list. Information about lists deleted within the last 60 days will be returned as well, since those are soft-deleted and can be reinstated.
+// 
+
+@name("Retrieve All Lists a Contact is Part of")
+GET "https://api.mailjet.com/v3/REST/contact/{{contact_ID}}/getcontactslists"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Manage the presence and subscription status of a contact for multiple contact lists. Select the contact lists, as well as the desired action to be performed on each one - add, remove or unsub. The contact should already be present in the global contact list.
+// 
+
+@name("Manage the Lists a Contact is Part of")
+POST "https://api.mailjet.com/v3/REST/contact/{{contact_ID}}/managecontactslists"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "ContactsLists": [
+        {
+            "ListID": 123456789,
+            "Action": "addnoforce"
+        },
+        {
+            "ListID": 987654321,
+            "Action": "addforce"
+        }
+    ]
+}')
+
+
+// Manage multiple contacts by adding, removing or unsubscribing them from multiple contact lists. Separate actions are set for each list and implemented for all contacts listed.
+// 
+// Once you submit the POST request, it will return a JobID, which you can use to verify the success of the POST request, as well as see what kind of errors came up.
+// 
+
+@name("Manage the Lists for Multiple Contacts")
+POST "https://api.mailjet.com/v3/REST/contact/managemanycontacts"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "ContactsLists": [
+        {
+            "ListID": 123456789,
+            "Action": "addforce"
+        }
+    ],
+    "Contacts": [
+        {
+            "Email": "email@example.com",
+            "Name": "contact_name",
+            "IsExcludedFromCampaigns": false,
+            "Properties": {
+                "property1": "value1",
+                "property2": "value2"
+            }
+        }
+    ]
+}')
+
+
+// Use the JobID generated after a POST /contact/managemanycontacts request to check its success, as well as any errors that might have occurred.
+// 
+
+@name("Retrieve an Upload Request for Multiple Contacts")
+GET "https://api.mailjet.com/v3/REST/contact/managemanycontacts/{{Job_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Retrieve a list of contact properties and their general settings - name and data type.
+// 
+
+@name("Retrieve All Contact Property Objects")
+GET "https://api.mailjet.com/v3/REST/contactmetadata"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "DataType"= "str"
+? "Namespace"= "static"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve information on a specific contact property - its name and data type.
+// 
+
+@name("Retrieve a Single Contact Property Object")
+GET "https://api.mailjet.com/v3/REST/contactmetadata/{{contactmetadata_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new contact property. Select its name and data type, then use it to assign property values for contacts of your choice (with /contactdata).
+// 
+
+@name("Create a Contact Property Object")
+POST "https://api.mailjet.com/v3/REST/contactmetadata"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+  "Datatype": "str",
+  "Name": "first_name"
+}')
+
+
+// Update the settings of an existing contact property - name and data type. Changing the data type will not affect existing property values, but new values must be entered using the new data type.
+// 
+
+@name("Update a Contact Property Object")
+PUT "https://api.mailjet.com/v3/REST/contactmetadata/{{contactmetadata_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Datatype": "int",
+    "Name": "integer"
+}')
+
+
+// Delete an existing contact property. Once the property is deleted, the values assigned to it for all contacts are also deleted.
+// 
+
+@name("Delete a Contact Property Object")
+DELETE "https://api.mailjet.com/v3/REST/contactmetadata/{{contactmetadata_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Retrieve a list of contacts with all properties and respective values associated with those contacts.
+// 
+
+@name("Retrieve All Contact Property Values")
+GET "https://api.mailjet.com/v3/REST/contactdata"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Campaign"= "{{CampaignID}}"
+? "ContactEmail"= "{{email_address}}"
+? "ContactsList"= "{{ListID}}"
+? "DateFormat"= "{{}}"
+? "Fields"= "first_name"
+? "IsExcludedFromCampaigns"= "false"
+? "LastActivityAt"= "2018-01-01T00:00:00"
+? "Status"= "{{}}"
+? "TimeZone"= "{{}}"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+? "Limit"= "1000"
+
+
+// Retrieve all properties and respective values associated with a specific contact.
+// 
+
+@name("Retrieve the Property Values for a Contact")
+GET "https://api.mailjet.com/v3/REST/contactdata/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create the extra static data for a contact by using your already created /contactmetadata objects (contact properties) and assigning / updating values to them for the specific ContactID.
+// 
+
+@name("Create Property Values for a Contact")
+POST "https://api.mailjet.com/v3/REST/contactdata"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "ContactID": 123456,
+    "Data": [
+        {
+            "Name": "Property1",
+            "value": "Value1"
+        }
+    ]
+}')
+
+
+// Update the extra static data for a contact by using your already created /contactmetadata objects (contact properties) and assigning / updating values to them for the specific ContactID.
+// 
+
+@name("Update Property Values for a Contact")
+PUT "https://api.mailjet.com/v3/REST/contactdata/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Data": [
+        {
+            "Name": "Property1",
+            "value": "UpdatedValue"
+        }
+    ]
+}')
+
+
+// Delete all contact property values relating to a specific contact.
+// 
+
+@name("Delete Property Values for a Contact")
+DELETE "https://api.mailjet.com/v3/REST/contactdata/{{contact_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Retrieve details for all contact lists - name, subscriber count, creation timestamp, deletion status.
+// 
+
+@name("Retrieve All Contact Lists")
+GET "https://api.mailjet.com/v3/REST/contactslist"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Address"= "{{address}}"
+? "ExcludeID"= "{{ListID}}"
+? "IsDeleted"= "false"
+? "Name"= "{{list_name}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve details for a specific contact list - name, subscriber count, creation timestamp, deletion status.
+// 
+
+@name("Retrieve a Single Contact List")
+GET "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new contact list.
+// 
+
+@name("Create a Contact List")
+POST "https://api.mailjet.com/v3/REST/contactslist/"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Name": "NewList",
+    "IsDeleted": false
+}')
+
+
+// Update a specific contact list by changing its name and / or deletion status. Using PUT you can delete lists, as well as reinstate previously deleted ones.
+// 
+
+@name("Update a Contact List")
+PUT "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Name": "UpdatedList",
+    "IsDeleted": true
+}')
+
+
+// Delete a contact list. The ContactsList object will continue to exist with Deleted status for 30 days, and can be reinstated by changing the value of IsDeleted to false via PUT /contactslist/{list_ID}.
+
+@name("Delete a Contact List")
+DELETE "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+// Add, unsubscribe or remove the contacts present in a list to / from another list. The list ID specified in the body of the payload is the source, while ID in the path specifies the destination list.
+// 
+
+@name("Import a Contact List into Another List")
+POST "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}/importlist"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Action": "duplicate-override",
+    "ListID": 123456
+}')
+
+
+// Use the JobID generated after a POST /contactslist/{list_id}/importlist request to check its progress, success, as well as any errors that might have occurred.
+// 
+
+@name("View the Import Status of a List into Another List")
+GET "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}/importlist/{{job_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Manage the presence and subscription status of a contact to a specific contact list. The API will internally create the new contact if it does not exist, as well as add or update the name and properties.
+// 
+
+@name("Manage a Contact's Subscription to a List")
+POST "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}/managecontact"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Email": "mrsmith@mailjet.com",
+    "Name": "MrSmith",
+    "Action": "addnoforce",
+    "Properties": {
+        "property1": "value",
+        "propertyN": "valueN"
+    }
+}')
+
+
+// Manage multiple contacts by adding, removing or unsubscribing them from a specific contact list. Once you submit the POST request, it will return a JobID, which you can use to verify the success of the POST request, as well as see what kind of errors came up.
+// 
+
+@name("Manage the Sub Status of Multiple Contacts to a List")
+POST "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}/managemanycontacts"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Action": "addnoforce",
+    "Contacts": [
+        {
+            "Email": "jimsmith@example.com",
+            "Name": "Jim",
+            "Properties": {
+                "Property1": "value",
+                "Property2": "value2"
+            }
+        },
+        {
+            "Email": "janetdoe@example.com",
+            "Name": "Janet",
+            "Properties": {
+                "Property1": "value",
+                "Property2": "value2"
+            }
+        }
+    ]
+}')
+
+
+// Use the JobID generated after a POST /contactslist/{list_id}/managemanycontacts request to check its progress, success, as well as any errors that might have occurred.
+// 
+
+@name("View the Import Status of Multiple Contacts into a List")
+GET "https://api.mailjet.com/v3/REST/contactslist/{{list_ID}}/managemanycontacts/{{job_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Add, remove or unsubscribe a list of contacts to/from a specific contact list by using a CSV uploaded to the Mailjet Data server. The CSV needs to be uploaded via the /contactslist/{list_id}/CSVData/text:plain endpoint.
+// 
+
+@name("Import Contacts via a CSV")
+POST "https://api.mailjet.com/v3/REST/csvimport"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "ContactsListID": 123456,
+    "DataID": 987654321,
+    "Method": "addnoforce"
+}')
+
+
+// View the settings and status of a contact CSV import job. The CSV needs to be uploaded via the /contactslist/{list_id}/CSVData/text:plain endpoint - only then can you create an import job.
+// 
+
+@name("View the Status of a CSV Import")
+GET "https://api.mailjet.com/v3/REST/csvimport/{{importjob_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Update or abort a contact CSV import job in progress.
+// 
+
+@name("Update a CSV Import in Progress")
+PUT "https://api.mailjet.com/v3/REST/csvimport/{{importjob_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "Status": "Abort"
+}')
+
+
+// Retrieve details about all contact list signup requests via a subscription widget. Provides details on signup and subscription confirmation IPs, timestamp, subscription source etc.
+// 
+
+@name("Retrieve All Subscription Requests via a Sub Widget")
+GET "https://api.mailjet.com/v3/REST/contactslistsignup"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Contact"= "{{ContactID}}"
+? "ContactsList"= "{{ListID}}"
+? "Domain"= "{{email_domainname}}"
+? "Email"= "{{email_address}}"
+? "LocalPart"= "{{email_localpart}}"
+? "MaxConfirmAt"= "1514764800"
+? "MaxSignupAt"= "1514764800"
+? "MinConfirmAt"= "1514764800"
+? "MinSignupAt"= "1514764800"
+? "SignupIp"= "{{IP_address}}"
+? "Source"= "widget"
+? "SourceID"= "{{widget_ID}}"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve details about a specific subscription request done via a subscription widget. Provides details on signup and subscription confirmation IP, timestamp, subscription source etc.
+// 
+
+@name("Retrieve a Single Subscription Requests via a Sub Widget")
+GET "https://api.mailjet.com/v3/REST/contactslistsignup/{{signuprequest_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Retrieve details on all list recipients, including the contact and list associated with them, as well as subscription status.
+// 
+
+@name("Retrieve All List Recipients")
+GET "https://api.mailjet.com/v3/REST/listrecipient"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+? "Blocked"= "false"
+? "Contact"= "{{contact_ID}}"
+? "ContactEmail"= "{{contact_email}}"
+? "ContactsList"= "{{list_ID}}"
+? "IgnoreDeleted"= "true"
+? "IsExcludedFromCampaigns"= "false"
+? "LastActivityAt"= "2018-01-01T00:00:00"
+? "ListName"= "{{list_name}}"
+? "Opened"= "true"
+? "Unsub"= "false"
+? "Limit"= "1000"
+? "Offset"= "0"
+? "countOnly"= "false"
+? "Sort"= "{{property_name+ASC_or_DESC}}"
+
+
+// Retrieve details for a specific list recipient, including the contact and list associated with it, as well as the subscription status.
+// 
+
+@name("Retrieve a Single List Recipient")
+GET "https://api.mailjet.com/v3/REST/listrecipient/{{listrecipient_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+// Create a new list recipient. A list recipient object manages the relationship between a contact and a contactslist - every instance of a contact being added to a list creates a new list recipient. Both the contact and the list need to be created beforehand.
+// 
+
+@name("Create a List Recipient")
+POST "https://api.mailjet.com/v3/REST/listrecipient"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "IsUnsubscribed": false,
+    "ContactAlt": "email@example.com",
+    "ListID": 123456
+}')
+
+
+// Update the subscription status of a list recipient.
+// 
+
+@name("Update a List Recipient")
+PUT "https://api.mailjet.com/v3/REST/listrecipient/{{listrecipient_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+"Content-Type": "application/json"
+data('{
+    "IsUnsubscribed": true
+}')
+
+
+// Delete a list recipient. This effectively removes a contact from a contact list.
+// 
+
+@name("Delete a List Recipient")
+DELETE "https://api.mailjet.com/v3/REST/listrecipient/{{listrecipient_ID}}"
+basicauth("{{Enter your API Key here}}", "{{Enter your Secret Key here}}")
+
+
+
+

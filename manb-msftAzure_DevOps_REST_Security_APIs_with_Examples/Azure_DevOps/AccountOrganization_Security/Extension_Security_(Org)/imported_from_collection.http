@@ -1,0 +1,37 @@
+#!/usr/bin/env dothttp
+
+@name("Get Memberships ")
+GET "https://extmgmt.dev.azure.com/{{organization}}/_apis/securityroles/scopes/ems.manage.ui/roleassignments/resources/ems-ui"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+
+
+@name("List all users")
+GET "https://vssps.dev.azure.com/{{organization}}/_apis/graph/users"
+basicauth("Basic", "{{OPAT}}")
+? "subjectTypes"= "aad,msa"
+? "api-version"= "5.1-preview.1"
+
+
+@name("Set User/Group as Manager")
+PUT "https://extmgmt.dev.azure.com/{{organization}}/_apis/securityroles/scopes/ems.manage.ui/roleassignments/resources/ems-ui"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    {
+        "userId": "91d7be20-f3ad-4b29-b2b0-20c06b7ce820",
+        "roleName": "manager"
+    }
+])
+
+
+@name("Remove User/Group as Manager")
+PATCH "https://extmgmt.dev.azure.com/{{organization}}/_apis/securityroles/scopes/ems.manage.ui/roleassignments/resources/ems-ui"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.0-preview.1"
+json([
+    "91d7be20-f3ad-4b29-b2b0-20c06b7ce820"
+])
+
+
+

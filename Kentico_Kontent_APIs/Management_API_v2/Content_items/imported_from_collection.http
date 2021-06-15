@@ -1,0 +1,100 @@
+#!/usr/bin/env dothttp
+
+// Create a new content item based on a specific content type.
+// 
+// <!--Callout type=Tip-->
+// 
+// <p>Content items don't contain any content themselves directly. They serve as wrappers for <a data-item-id="153c924f-ed81-4236-8cfb-7937329654d8" href="https://docs.kontent.ai/link-to/language_variants">language variants</a>. Language variants hold the items' content even in projects with just one language.</p>
+// <p>To change the content in content items, <a data-item-id="9de98072-589d-4076-a8bc-688c86ac0a4c" href="https://docs.kontent.ai/link-to/upsert_a_language_variant">upsert their specific language variant</a>.</p>
+// 
+// <!--Callout-end-->
+// 
+// If you are importing content from a different system and want to use the same identifiers for your content as in the previous system, use the `external_id` property to set a custom identifier for the new content item.
+
+@name("Add a content item")
+POST "https://manage.kontent.ai/v2/projects/:project_id/items"
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "type": {
+        "id": "<uuid>",
+        "codename": "<string>",
+        "external_id": "<string>"
+    },
+    "codename": "<string>",
+    "collection": {
+        "id": "<uuid>",
+        "codename": "<string>"
+    },
+    "sitemap_locations": [
+        {
+            "id": "<uuid>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        }
+    ],
+    "external_id": "<string>"
+}')
+
+
+// Retrieve a dynamically paginated list of content items.
+
+@name("List content items")
+GET "https://manage.kontent.ai/v2/projects/:project_id/items"
+"x-continuation": "<string>"
+
+
+// Retrieve metadata about a content item.
+// 
+// If you want to retrieve content data, see how to [retrieve language variants of a content item](https://docs.kontent.ai/link-to/retrieve_variants_of_an_item).
+
+@name("Retrieve a content item")
+GET "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier"
+
+
+// Update or add a content item. When updating, you can specify the item by codename, external ID, or internal ID. When creating, you need to specify the new item's external ID.
+// 
+// You can also specify the external ID when [adding content items](https://docs.kontent.ai/link-to/add_a_content_item).
+// 
+// <!--Callout type=Tip-->
+// 
+// <p>Content items don't contain any content themselves directly. They serve as wrappers for <a data-item-id="153c924f-ed81-4236-8cfb-7937329654d8" href="https://docs.kontent.ai/link-to/language_variants">language variants</a>. Language variants hold the items' content even in projects with just one language.</p>
+// <p>To change the content in content items, <a data-item-id="9de98072-589d-4076-a8bc-688c86ac0a4c" href="https://docs.kontent.ai/link-to/upsert_a_language_variant">upsert their specific language variant</a>.</p>
+// 
+// <!--Callout-end-->
+
+@name("Upsert a content item")
+PUT "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier"
+"Content-Type": "application/json"
+data('{
+    "name": "<string>",
+    "codename": "<string>",
+    "collection": {
+        "id": "<uuid>",
+        "codename": "<string>"
+    },
+    "sitemap_locations": [
+        {
+            "id": "<uuid>",
+            "codename": "<string>",
+            "external_id": "<string>"
+        }
+    ]
+}')
+
+
+// Delete a content item.
+// 
+// If you only want to delete a specific language variant, see how to [delete a language variant](https://docs.kontent.ai/link-to/delete_a_language_variant).
+// 
+// <!--Callout type=Info-->
+// 
+// <p>When you delete the last variant of a content item, the whole content item is deleted.</p>
+// 
+// <!--Callout-end-->
+
+@name("Delete a content item")
+DELETE "https://manage.kontent.ai/v2/projects/:project_id/items/:item_identifier"
+
+
+

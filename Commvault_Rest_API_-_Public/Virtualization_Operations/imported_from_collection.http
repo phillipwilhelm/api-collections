@@ -1,0 +1,1254 @@
+#!/usr/bin/env dothttp
+
+// <h2> Description </h2>
+// This operation returns all VMs
+// 
+// <p>&nbsp;</p>
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">status</p>
+// </td>
+// <td>
+// <p class="tabletext">Status of the VM.</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">0, All</li>
+// <li class="listbullet">1, Protected</li>
+// <li class="listbullet">2, Not Protected</li>
+// <li class="listbullet">3, Pending</li>
+// <li class="listbullet">4, Backed up with error</li>
+// <li class="listbullet">5, Discovered</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// <p>&nbsp;</p>
+// <h2>HEADERS</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">PagingInfo</p>
+// </td>
+// <td>
+// <p class="tabletext">a,b</p>
+// <p class="tabletext">a represents the page number , b represents number of records in page</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](https://documentation.commvault.com/commvault/v11/article?p=125353_1.htm)
+
+@name("VMs")
+GET "https://{{ServerUrl}}/VM"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"PagingInfo": "0,100"
+? "status"= "1"
+
+
+// <h2> Description </h2>
+// This operation returns details about a VM.
+
+@name("VM Details")
+GET "https://{{ServerUrl}}/VM"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "guid"= "502d4368-5d71-1341-dd53-e1ffbf4f9b0d"
+
+
+
+// <h2> Description </h2>
+// This operation returns all the virtual machine (VM) groups that are available in a virtual client.
+// 
+// [_More Details_](https://documentation.commvault.com/commvault/v11_sp20/article?p=105547_1.htm)
+
+@name("Virtual Group IDs")
+GET "https://{{ServerUrl}}/v2/vsa/vmgroups"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"PagingInfo": "0,100"
+? "clientName"= "{{clientName}}"
+
+
+// <h2> Description </h2>
+// This operation returns virtual machine (VM) group properties.
+
+@name("Virtual Group ID Properties")
+GET "https://{{ServerUrl}}/v2/vsa/vmgroups/{{subclientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"PagingInfo": "0,100"
+
+
+// <h2>Description</h2>
+// This operation returns a list of clients where the Virtual Server agent is installed.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_virtual_server_agent_client.htm)
+
+@name("Virtual Server Agent Clients")
+GET "https://{{ServerUrl}}/VSAclientlist"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns a list of virtualization clients, including clients with VMware or Microsoft Hyper-V instances and clients with the V9 Virtual Server agent installed.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_virtualization_client.htm)
+
+@name("Virtualization Clients")
+GET "https://{{ServerUrl}}/Client/VMPseudoClient"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "type": 0,
+        "clientName": "{VirtualizationclientName}",
+        "clientSidePackage": true,
+        "subclientName": "",
+        "backupsetName": "{BackupSetName}",
+        "instanceName": "VMware",
+        "appName": "Virtual Server",
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "initiatedFrom": 2,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "",
+          "subTaskType": 3,
+          "operationType": 1001
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          },
+          "restoreOptions": {
+            "restoreACLsType": 3,
+            "virtualServerRstOption": {
+              "isDiskBrowse": true,
+              "viewType": 0,
+              "userPassword": {
+                "userName": "root"
+              },
+              "diskLevelVMRestoreOption": {
+                "passUnconditionalOverride": true,
+                "powerOnVmAfterRestore": true,
+                "esxServerName": "",
+                "advancedRestoreOptions": [
+                  {
+                    "esxHost": "{esxHost}",
+                    "resourcePoolPath": "/",
+                    "newName": "newvmname",
+                    "Datastore": "LOCAL",
+                    "name": "vmname",
+                    "guid": "50121224-4c9e-3227-a161-2117e50972e8",
+                    "disks": [
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-0-diskname.vmdk"
+                      },
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-1-diskname_1.vmdk"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "volumeRstOption": {
+              "volumeLeveRestore": false,
+              "volumeLevelRestoreType": 1
+            },
+            "browseOption": {
+              "listMedia": false,
+              "useExactIndex": false,
+              "noImage": true,
+              "fromTime": 0,
+              "commCellId": 2,
+              "toTime": 0,
+              "mediaOption": {
+                "copyPrecedence": {
+                  "copyPrecedence": 0
+                }
+              },
+              "backupset": {
+                "clientName": "{VirtualizationclientName}",
+                "instanceName": "VMware",
+                "appName": "Virtual Server",
+                "backupsetName": "{BackupSetName}"
+              }
+            },
+            "commonOptions": {
+              "clusterDBBackedup": false,
+              "isFromBrowseBackup": true,
+              "preserveLevel": 1,
+              "stripLevelType": 0,
+              "restoreACLs": true,
+              "stripLevel": 0,
+              "overwriteFiles": true,
+              "unconditionalOverwrite": true,
+              "detectRegularExpression": true
+            },
+            "destination": {
+              "isLegalHold": false,
+              "inPlace": false,
+              "destClient": {
+                "clientName": "{clientName}",
+                "commCellName": "{CSName}"
+              }
+            },
+            "fileOption": {
+              "sourceItem": [
+                "\\50121224-4c9e-3227-a161-2117e50972e8"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation returns a list of subclients for a client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_subclient.htm)
+
+@name("Subclient")
+GET "https://{{ServerUrl}}/Subclient"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "clientId"= "{{vclientId}}"
+
+
+
+// <h2>Description</h2>
+// This operation creates a virtualization client.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_virtualization_client.htm)
+
+@name("Hyper-V Virtualization Client")
+POST "https://{{ServerUrl}}/Client"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+   "clientInfo":{
+      "clientType":12,
+      "virtualServerClientProperties":{
+         "virtualServerInstanceInfo":{
+            "vsInstanceType":2,
+            "associatedClients":{
+               "memberServers":[
+                  {
+                     "client":{
+                        "clientName":"",
+                        "_type_":3
+                     }
+                  }
+               ]
+            },
+            "hyperV":{
+               "serverName":"",
+               "credentials":{
+                  "password":"",
+                  "userName":""
+               }
+            }
+         }
+      }
+   },
+   "entity":{
+      "clientName":""
+   }
+}')
+
+
+// <h2>Description</h2>
+// This operation verifies the credentials for a Hypervisor Client
+// 
+// <h2>Request Headers</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 67px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 138px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 67px;">
+// <p class="tabletext">login</p>
+// </td>
+// <td style="width: 138px;">
+// <p class="tabletext">Login Username</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 67px;">
+// <p class="tabletext">password</p>
+// </td>
+// <td style="width: 138px;">
+// <p class="tabletext">Plain text password</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("Verify Credentials")
+GET "https://{{ServerUrl}}/Client/2/credentials/verify"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"login": "Vsaautomation@commvault.com"
+"password": "PlainTextPassword"
+? "server"= "vsaqa.gp.cv.commvault.com"
+? "vendor"= "1"
+
+
+// <h2>Description</h2>
+// This operation changes the credentials for a Hypervisor Client.
+// 
+// [_All vendors_](https://documentation.commvault.com/commvault/v11/article?p=49376_1.htm)
+
+@name("Change Hypervisor Client Credentials")
+POST "https://{{ServerUrl}}/Application"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+    "prop": {
+        "virtualServerInfo": {
+            "hostName": "vsaqa.gp.cv.commvault.com",
+            "vendor": 1,
+            "virtualCenter": true,
+            "vcPassword": {
+                "domainName": "",
+                "userName": "Vsaautomation@commvault.com",
+                "password": "<Base64EncodedPassword>"
+            }
+        },
+        "appId": {
+            "clientId": 865,
+            "instanceId": 503
+        }
+    }
+}')
+
+
+// <h2>Description</h2>
+// This operation adds or updates subclient virtual machine content.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/put_vm_subclient_content.htm)
+
+@name("Subclient Virtual Machine Content")
+PUT "https://{{ServerUrl}}/Subclient/{{vsubclientId}}/content"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+   "children":[
+      {
+         "equalsOrNotEquals":true,
+         "path":"",
+         "displayName":"",
+         "name":"",
+         "allOrAnyChildren":true
+      },
+      {
+         "equalsOrNotEquals":true,
+         "path":"",
+         "displayName":"",
+         "name":"",
+         "allOrAnyChildren":true
+      }
+   ]
+}')
+
+
+// <h2>Description</h2>
+// This operation browses datastores.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_datastore_browse.htm)
+
+@name("Datastore Browse Inventory")
+GET "https://{{ServerUrl}}/VSBrowse/{{vclientId}}/INVENTORY"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "requestType"= "INVENTORY"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "type": 0,
+        "clientName": "{VirtualizationclientName}",
+        "clientSidePackage": true,
+        "subclientName": "",
+        "backupsetName": "{BackupSetName}",
+        "instanceName": "VMware",
+        "appName": "Virtual Server",
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "initiatedFrom": 2,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "",
+          "subTaskType": 3,
+          "operationType": 1001
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          },
+          "restoreOptions": {
+            "restoreACLsType": 3,
+            "virtualServerRstOption": {
+              "isDiskBrowse": true,
+              "viewType": 0,
+              "userPassword": {
+                "userName": "root"
+              },
+              "diskLevelVMRestoreOption": {
+                "passUnconditionalOverride": true,
+                "powerOnVmAfterRestore": true,
+                "esxServerName": "",
+                "advancedRestoreOptions": [
+                  {
+                    "esxHost": "{esxHost}",
+                    "resourcePoolPath": "/",
+                    "newName": "newvmname",
+                    "Datastore": "LOCAL",
+                    "name": "vmname",
+                    "guid": "50121224-4c9e-3227-a161-2117e50972e8",
+                    "disks": [
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-0-diskname.vmdk"
+                      },
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-1-diskname_1.vmdk"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "volumeRstOption": {
+              "volumeLeveRestore": false,
+              "volumeLevelRestoreType": 1
+            },
+            "browseOption": {
+              "listMedia": false,
+              "useExactIndex": false,
+              "noImage": true,
+              "fromTime": 0,
+              "commCellId": 2,
+              "toTime": 0,
+              "mediaOption": {
+                "copyPrecedence": {
+                  "copyPrecedence": 0
+                }
+              },
+              "backupset": {
+                "clientName": "{VirtualizationclientName}",
+                "instanceName": "VMware",
+                "appName": "Virtual Server",
+                "backupsetName": "{BackupSetName}"
+              }
+            },
+            "commonOptions": {
+              "clusterDBBackedup": false,
+              "isFromBrowseBackup": true,
+              "preserveLevel": 1,
+              "stripLevelType": 0,
+              "restoreACLs": true,
+              "stripLevel": 0,
+              "overwriteFiles": true,
+              "unconditionalOverwrite": true,
+              "detectRegularExpression": true
+            },
+            "destination": {
+              "isLegalHold": false,
+              "inPlace": false,
+              "destClient": {
+                "clientName": "{clientName}",
+                "commCellName": "{CSName}"
+              }
+            },
+            "fileOption": {
+              "sourceItem": [
+                "\\50121224-4c9e-3227-a161-2117e50972e8"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation browses virtual machines.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_virtual_machine_browse.htm)
+
+@name("Virtual Machine Browse")
+GET "https://{{ServerUrl}}/VMBrowse"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "PseudoClientId"= "{{vclientId}}"
+? "inventoryPath"= "\none:VMs"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "type": 0,
+        "clientName": "{VirtualizationclientName}",
+        "clientSidePackage": true,
+        "subclientName": "",
+        "backupsetName": "{BackupSetName}",
+        "instanceName": "VMware",
+        "appName": "Virtual Server",
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "initiatedFrom": 2,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "",
+          "subTaskType": 3,
+          "operationType": 1001
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          },
+          "restoreOptions": {
+            "restoreACLsType": 3,
+            "virtualServerRstOption": {
+              "isDiskBrowse": true,
+              "viewType": 0,
+              "userPassword": {
+                "userName": "root"
+              },
+              "diskLevelVMRestoreOption": {
+                "passUnconditionalOverride": true,
+                "powerOnVmAfterRestore": true,
+                "esxServerName": "",
+                "advancedRestoreOptions": [
+                  {
+                    "esxHost": "{esxHost}",
+                    "resourcePoolPath": "/",
+                    "newName": "newvmname",
+                    "Datastore": "LOCAL",
+                    "name": "vmname",
+                    "guid": "50121224-4c9e-3227-a161-2117e50972e8",
+                    "disks": [
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-0-diskname.vmdk"
+                      },
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-1-diskname_1.vmdk"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "volumeRstOption": {
+              "volumeLeveRestore": false,
+              "volumeLevelRestoreType": 1
+            },
+            "browseOption": {
+              "listMedia": false,
+              "useExactIndex": false,
+              "noImage": true,
+              "fromTime": 0,
+              "commCellId": 2,
+              "toTime": 0,
+              "mediaOption": {
+                "copyPrecedence": {
+                  "copyPrecedence": 0
+                }
+              },
+              "backupset": {
+                "clientName": "{VirtualizationclientName}",
+                "instanceName": "VMware",
+                "appName": "Virtual Server",
+                "backupsetName": "{BackupSetName}"
+              }
+            },
+            "commonOptions": {
+              "clusterDBBackedup": false,
+              "isFromBrowseBackup": true,
+              "preserveLevel": 1,
+              "stripLevelType": 0,
+              "restoreACLs": true,
+              "stripLevel": 0,
+              "overwriteFiles": true,
+              "unconditionalOverwrite": true,
+              "detectRegularExpression": true
+            },
+            "destination": {
+              "isLegalHold": false,
+              "inPlace": false,
+              "destClient": {
+                "clientName": "{clientName}",
+                "commCellName": "{CSName}"
+              }
+            },
+            "fileOption": {
+              "sourceItem": [
+                "\\50121224-4c9e-3227-a161-2117e50972e8"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation restores virtual server data obtained through a backup.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_create_task_restore.htm)
+
+@name("Create Task (Restore)")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "type": 0,
+        "clientName": "{VirtualizationclientName}",
+        "clientSidePackage": true,
+        "subclientName": "",
+        "backupsetName": "{BackupSetName}",
+        "instanceName": "VMware",
+        "appName": "Virtual Server",
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1,
+      "initiatedFrom": 2,
+      "policyType": 0,
+      "taskFlags": {
+        "disabled": false
+      }
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskName": "",
+          "subTaskType": 3,
+          "operationType": 1001
+        },
+        "options": {
+          "adminOpts": {
+            "updateOption": {
+              "invokeLevel": 0
+            }
+          },
+          "restoreOptions": {
+            "restoreACLsType": 3,
+            "virtualServerRstOption": {
+              "isDiskBrowse": true,
+              "viewType": 0,
+              "userPassword": {
+                "userName": "root"
+              },
+              "diskLevelVMRestoreOption": {
+                "passUnconditionalOverride": true,
+                "powerOnVmAfterRestore": true,
+                "esxServerName": "",
+                "advancedRestoreOptions": [
+                  {
+                    "esxHost": "{esxHost}",
+                    "resourcePoolPath": "/",
+                    "newName": "newvmname",
+                    "Datastore": "LOCAL",
+                    "name": "vmname",
+                    "guid": "50121224-4c9e-3227-a161-2117e50972e8",
+                    "disks": [
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-0-diskname.vmdk"
+                      },
+                      {
+                        "Datastore": "LOCAL",
+                        "name": "scsi0-1-diskname_1.vmdk"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "volumeRstOption": {
+              "volumeLeveRestore": false,
+              "volumeLevelRestoreType": 1
+            },
+            "browseOption": {
+              "listMedia": false,
+              "useExactIndex": false,
+              "noImage": true,
+              "fromTime": 0,
+              "commCellId": 2,
+              "toTime": 0,
+              "mediaOption": {
+                "copyPrecedence": {
+                  "copyPrecedence": 0
+                }
+              },
+              "backupset": {
+                "clientName": "{VirtualizationclientName}",
+                "instanceName": "VMware",
+                "appName": "Virtual Server",
+                "backupsetName": "{BackupSetName}"
+              }
+            },
+            "commonOptions": {
+              "clusterDBBackedup": false,
+              "isFromBrowseBackup": true,
+              "preserveLevel": 1,
+              "stripLevelType": 0,
+              "restoreACLs": true,
+              "stripLevel": 0,
+              "overwriteFiles": true,
+              "unconditionalOverwrite": true,
+              "detectRegularExpression": true
+            },
+            "destination": {
+              "isLegalHold": false,
+              "inPlace": false,
+              "destClient": {
+                "clientName": "{clientName}",
+                "commCellName": "{CSName}"
+              }
+            },
+            "fileOption": {
+              "sourceItem": [
+                "\\50121224-4c9e-3227-a161-2117e50972e8"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// Get the VSA PseudoClient Properties provided the ID
+
+@name("Get Virtualization Client properties")
+GET "https://{{ServerUrl}}/v2/vsa/hypervisors/{{clientId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// fetches all the datacenter for the provided pseudoclient
+
+@name("DC Refresh")
+GET "https://{{ServerURL}}/v2/vsa/hypervisors/{{clientId}}/refresh"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// get the disk for the VM provided
+
+@name("Get Disks for VM")
+GET "https://{{ServerUrl}}/v2/vsa/vm/{{vmGuid}}/disks"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "jobid"= "{{jobid}}"
+
+
+// Get Nics for the backed up VM provided the VM GUID
+
+@name("Get VM Nics")
+GET "https://{{ServerUrl}}/v2/vsa/vm/{{vmGuid}}/nics"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+@name("Get VM Jobs")
+GET "https://{{ServerUrl}}/v2/vsa/vm/{{vmGuid}}/Jobs"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "completedJobLookupTime"= "12960000"
+? "jobTypeList"= "backup"
+? "statusList"= "Completed,Killed"
+? "showAgedJobs"= "true"
+? "backupLevel"= "Full"
+
+
+// This operations backups a VM based on its vmGUID
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td style="width: 86.8px;">
+// <p class="tabletext">Name</p>
+// </td>
+// <td style="width: 164.4px;">
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td style="width: 86.8px;">
+// <p class="tabletext">backupLevel</p>
+// </td>
+// <td style="width: 164.4px;">
+// <p class="tabletext">Types of Backup. Default is INCREMENTAL</p>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">FULL</li>
+// <li class="listbullet">INCREMENTAL</li>
+// <li class="listbullet">DIFFERENTIAL</li>
+// <li class="listbullet">SYNTHETIC_FULL</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("VM Backup")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmGuid}}/backup"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "backupLevel"= "INCREMENTAL"
+
+
+// Browse the VM for the particular job
+
+@name("VMBrowse")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{jobid}}/browse"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation recovers a virtual machine and returns details for the restore job.
+// 
+// Note: <i>vmClientGUID</i> is the client GUID of the backed-up VM. You can use [_GET Virtualization Clients_](https://api.commvault.com/?version=latest#e12f8a73-87cb-d7d3-872d-82cbeadd5c4a) to fetch the client GUID from the client properties of the VM.
+// 
+// <h2>Request Body</h2>
+// <table width="331">
+// <tbody>
+// <tr>
+// <td>Name</td>
+// <td>Description</td>
+// </tr>
+// <tr>
+// <td>powerOnVmAfterRestore</td>
+// <td>
+// <p>The option to start the virtual machine after it is restored.<br /></p>
+// </td>
+// </tr>
+// <tr>
+// <td>passUnconditionalOverride</td>
+// <td>
+// <p>The option to overwrite an existing virtual machine of the same name.<br /></p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>inPlaceRestore</td>
+// <td>
+// <p>The option to restore backed-up data to the same client from which it was backed up.<br /></p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>jobId</td>
+// <td>
+// <p>Triggers a point-in-time restore from the job ID that is passed in the request. You can use GET Job to get a list of jobs.</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>clientName</td>
+// <td>
+// <p>Destination Hypervisor client to which the VM is restored</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>esxHost</td>
+// <td>
+// <p>EsxHost in the Vcenter to which this VM has to be restored</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>dataStore</td>
+// <td>
+// <p>Datastore in the Vcenter to which this VM has to be restored</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>resourcePool</td>
+// <td>
+// <p>ResourcedPool in the Vcenter to which this VM has to be restored</p>
+// </td>
+// </tr>
+// 
+// <tr>
+// <td>newName</td>
+// <td>
+// <p>New restore name for the VM</p>
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+
+@name("VM Out Place Recover")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recover"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq powerOnVmAfterRestore ="true" passUnconditionalOverride="true" inPlaceRestore="false" jobId="">
+    <destinationClient clientName="{{clientName}}" />
+    <destinationInfo>
+        <vmware esxHost="{{esxHost}}" dataStore="{{DataStore}}" resourcePool="{{resourcePool}}" newName="{{newname}}" />
+    </destinationInfo>
+</Api_VMRestoreReq>')
+
+
+// Recover the VM provided in place
+
+@name("VM File In Place Recover")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recoverfile"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq passUnconditionalOverride="true" inPlaceRestore="true">
+<vmFileLevelRestoreOptions>
+<sourcePath>{{sourcePath}}</sourcePath>
+<destPath>{{destinationPath}}</destPath>
+<guestCredentials userName="{{guestUName}}" password="{{guestPass}}"/>
+</vmFileLevelRestoreOptions>
+</Api_VMRestoreReq>')
+
+
+// Recover the VM provided in place
+
+@name("VM File Out Place (Diff VM)")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recoverfile"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq passUnconditionalOverride="true" inPlaceRestore="false">
+<vmFileLevelRestoreOptions>
+<sourcePath>{{sourcePath}}</sourcePath>
+<destPath>{{destinationPath}}</destPath>
+<destinationVMGuid>{{destinationVMGuid}}</destinationVMGuid>
+<guestCredentials userName="{{guestUName}}" password="{{guestPass}}"/>
+</vmFileLevelRestoreOptions>
+<destinationClient clientName = "{{destinationHyperVisor}}"/>
+</Api_VMRestoreReq>')
+
+
+// Recover the VM provided in place
+
+@name("VM File Out Place (Simpana Client)")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recoverfile"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq passUnconditionalOverride="true" inPlaceRestore="false">
+<vmFileLevelRestoreOptions>
+<sourcePath>{{sourcePath}}</sourcePath>
+<destPath>{{destinationPath}}</destPath>
+</vmFileLevelRestoreOptions>
+<destinationClient clientName = "{{destinationClient}}"/>
+</Api_VMRestoreReq>')
+
+
+// Recover the VM provided in place
+
+@name("VM In Place Recover")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recover"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq powerOnVmAfterRestore ="true" passUnconditionalOverride="true" inPlaceRestore="true" />')
+
+
+// Perform Live recovery of the VM Provided
+
+@name("VM Live Recovery ")
+POST "https://{{ServerUrl}}/v2/vsa/vm/{{vmClientGUID}}/recover"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/xml"
+data('<Api_VMRestoreReq powerOnVmAfterRestore ="true" passUnconditionalOverride="true" inPlaceRestore="false">
+    <destinationClient clientName="{{clientName}}" />
+    <destinationInfo>
+        <vmware esxHost="{{esxHost}}" dataStore="{{DataStore}}" resourcePool="{{resourcePool}}" newName="{{livenewname}}" />
+    </destinationInfo>
+    <liveRecovery redirectWritesToDatastore = "{{resirectwritesto}}" delayMigrationMinutes = "240" />
+</Api_VMRestoreReq>')
+
+
+// <h2>Description</h2>
+// This operation creates an Azure client.
+
+@name("Create AzureRM Client")
+POST "https://{{ServerUrl}}/Client"
+"Authtoken": "{{TOKEN}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+    "clientInfo": {
+        "clientType": "VIRTUAL_SERVER_CLIENT",
+        "virtualServerClientProperties": {
+            "virtualServerInstanceInfo": {
+                "vsInstanceType": "AZURE_V2",
+                "vmwareVendor": {
+                    "vcenterHostName": ""
+                },
+                "associatedClients": {
+                    "memberServers": [
+                        {
+                            "client": {
+                                "clientName": "{{proxyname}}"
+                            }
+                        }
+                    ]
+                },
+                "azureResourceManager": {
+                    "credentials": {
+                        "userName": "{{appId}}",
+                        "password": "{{base64encodedappPassword}}",
+                        "confirmPassword": "{{base64encodedappPassword}}"
+                    },
+                    "subscriptionId": "{{subscriptionID}}",
+                    "tenantId": "{{TenantID}}"
+                }
+            },
+            "appTypes": [
+                {
+                    "applicationId": 106
+                }
+            ]
+        }
+    },
+    "entity": {
+        "clientName": "{{ClientName}}"
+    }
+}')
+
+
+// <h2> Description </h2>
+// This operation is used to create an AWS Pseudo client with STS authentication
+
+@name("AWS STS Client Creation")
+POST "https://{{ServerUrl}}/Client"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "clientInfo": {
+        "clientType": 12,
+        "virtualServerClientProperties": {
+            "virtualServerInstanceInfo": {
+                "vsInstanceType": 4,
+                "associatedClients": {
+                    "memberServers": [
+                        {
+                            "client": {
+                                "clientName": "{{clientName}}"
+                            }
+                        },
+                        {
+                            "client": {
+                                "clientName": "{{clientName}}"
+                            }
+                        }
+                    ]
+                },
+                "vmwareVendor": {
+                    "vcenterHostName": "default"
+                },
+                "amazonInstanceInfo": {
+                    "accessKey": "{{role ARN}}",
+                    "regionEndPoints": "default",
+                    "useIamRole": false
+                }
+            }
+        }
+    },
+    "entity": {
+        "clientName": "{{clientName}}"
+    }
+}')
+
+
+// <h2> Description </h2>
+// This operation is used to create an AWS Pseudo client with STS authentication using admin resources
+
+@name("AWS STS Tenant Client Creation")
+POST "https://{{ServerUrl}}/Client"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "clientInfo": {
+        "clientType": 12,
+        "virtualServerClientProperties": {
+            "virtualServerInstanceInfo": {
+                "vsInstanceType": 4,
+                "vmwareVendor": {
+                    "vcenterHostName": "default"
+                },
+                "amazonInstanceInfo": {
+                    "accessKey": "{{role ARN}}",
+                    "enableAdminAccount": true,
+                    "adminInstanceId": {{admin resource instance Id}},
+                    "regionEndPoints": "default",
+                    "useIamRole": false
+                }
+            }
+        }
+    },
+    "entity": {
+        "clientName": "{{clientName}}"
+    }
+}')
+
+
+// <h2> Description </h2>
+// This operation is used to run a live mount.
+
+@name("VSA Live Mount ")
+POST "https://{{ServerUrl}}/CreateTask"
+"authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+    "taskInfo": {
+        "task": {
+            "taskType": "IMMEDIATE",
+            "initiatedFrom": "COMMANDLINE"
+        },
+        "subTasks": [
+            {
+                "subTask": {
+                    "subTaskType": "ADMIN",
+                    "operationType": "VIRTUAL_MACHINE_MANAGEMENT"
+                },
+                "options": {
+                    "adminOpts": {
+                        "vmProvisioningOption": {
+                            "operationType": "LIVE_MOUNT",
+                            "virtualMachineOption": [
+                                {
+                                    "vmInfo": {
+                                        "vm": {
+                                            "vmName": "{{vmName}}"
+                                        },
+                                        "advancedProperties": {
+                                            "networkCards": [
+                                                {
+                                                    "label": "{{network to attach to}}"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "vmEntity": {
+                                        "vmName": "{{live mounted vm name}}",
+                                        "clientName": "{{destination client name}}"  
+                                    },
+                                    "vmAllocPolicy": {
+                                        "vmAllocPolicyName": "{{recovery target name}}"  
+                                    },
+                                    "powerOnVM": true,
+                                    "vmTargetType": "OUTOFPLACE"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "subTaskOperation": "OVERWRITE"
+            }
+        ]
+    }
+}')
+
+
+

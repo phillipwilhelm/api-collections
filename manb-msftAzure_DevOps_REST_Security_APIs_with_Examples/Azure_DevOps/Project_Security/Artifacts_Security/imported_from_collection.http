@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+@name("Get Feeds")
+GET "https://feeds.dev.azure.com/{{organization}}/{{projectID}}/_apis/packaging/feeds"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+
+
+// Role and Meaning
+// 
+// 2 Reader
+// 3 Contributor
+// 4 administrator\owner
+// 5 collaborator
+
+@name("Edit Feed Permissions")
+PATCH "https://feeds.dev.azure.com/{{organization}}/{{projectID}}/_apis/Packaging/Feeds/{{feedID}}/Permissions"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "displayName": "Vrunda Monnappa",
+        "identityId": "91aa4375-889b-xxxx-ade2-0624b448xxxx",
+        "role": 5,
+        "identityDescriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\\user@company.com",
+        "isInheritedRole": false
+    }
+])
+
+
+@name("Remove from Feed")
+PATCH "https://feeds.dev.azure.com/{{organization}}/{{projectID}}/_apis/Packaging/Feeds/{{feedID}}/Permissions"
+basicauth("Basic", "{{OPAT}}")
+? "api-version"= "5.1-preview.1"
+json([
+    {
+        "role": 1,
+        "identityDescriptor": "Microsoft.IdentityModel.Claims.ClaimsIdentity;tenantid\\user@company.com",
+        "identityId": "91ab5375-889b-xxxx-ade2-0624b448xxxx",
+        "displayName": "Jane Doe",
+        "isInheritedRole": false
+    }
+])
+
+
+

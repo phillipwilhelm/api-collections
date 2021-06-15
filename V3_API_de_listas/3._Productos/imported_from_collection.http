@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// Este endpoint permite crear / actualizar el stock de uno o varios productos en el sistema.
+// #### Parametros
+// 
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | warehouseId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la bodega, este Identificador es definido por el cliente del API en la creación de bodegas (sección 1).|
+// | productId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único del producto, este identificador es definido por el cliente del API en la creación de listas (sección 2).|
+// | stock<br>**Este campo es requerido**| `int` | Cantidad a añadir o sobreescribir.|
+
+@name("Crear / Actualizar Stock")
+POST "https://{{url}}/api/v3/warehouses/stock"
+"Content-Type": "application/json"
+"Authorization": ""
+data('[
+    {
+        "vendorId": "ec-vendor",
+        "warehouseId": "north-warehouse",
+        "productId": "gamer-laptop",
+        "stock": 10
+    },
+    {
+        "vendorId": "ec-vendor",
+        "warehouseId": "south-warehouse",
+        "productId": "lg-coffee",
+        "stock": 100
+    }
+]')
+
+
+// Este endpoint permite actualizar la información de un producto.
+// #### Parametros
+// 
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | storeId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único de la tienda.|
+// | productId<br>**Este campo es requerido**| `int, string, maxlength:45` | Identificador único del producto|
+// | active<br>**Este campo es requerido**| `boolean` | Estado del producto.|
+// | priceInfo<br>**Este campo es requerido**| `object` | Impuestos que aplica el producto.|
+// | `priceInfo.*.price`<br>**Este campo es requerido**| `float` | Permite definir el precio final del producto (este precio se mostrará en el app o la web).|
+// | `priceInfo.*.pointPrice`<br>**Este campo es opcional**| `int,null` | Permite el precio en puntos.|
+// 
+// #### Activación e inactivación programada de producto
+// 
+// | Campo |Tipo|Descripción|
+// |--|--|--|
+// | `scheduledActiveStatus`<br>**Este campo es opcional**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea activar el producto.|
+// | `scheduledInactiveStatus`<br>**Este campo es opcional**| `dateTime: Y-m-d H:i:s` | Fecha futura en la que se desea inactivar el producto.|
+// 
+// **Nota: Para el caso de activación programada es necesario que el atributo "active" sea false**
+
+@name("Actualizar Precio/Estado de Producto")
+PUT "https://{{url}}/api/v3/products"
+"Content-Type": "application/json"
+"Authorization": ""
+data('{
+    "storeId": "my-store",
+    "productId": "lg-coffee",
+    "active": false,
+    "priceInfo": {
+        "price": 5.99,
+        "pointPrice": 1
+    }
+}')
+
+
+

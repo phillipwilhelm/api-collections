@@ -1,0 +1,65 @@
+#!/usr/bin/env dothttp
+
+// Before creating a new invoice you must first create a new invoice setting. An `identifier` value is returned upon successful creation which you must then pass in with each invoice request.
+// 
+// Attributes
+// ----------
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |**trading_name**|String|**Yes**|The company or trading name to appear on an invoice. Max 255 characters.|
+// |**trading_address**|String|**Yes**|The address of the company or individual associated with the `trading_name`.|
+// |**vat_number**|String|**Yes**|The registered VAT number of the company or individual associated with the `trading_name`. Max 16 characters.|
+// |logo|String|No|HTTPS url of a logo to appear on invoices. PNG or JPG format is recommended with a max height or width of 200px.|
+// |sin|Integer|No|This value is an acronymn for *Sequential Invoice Number* this needs to be set to a whole number, for example if you want your sequential invoice numbering to start at the number 1 you'd set this value at 0 and if you wanted it start at 1001 you'd set it to 1000.|
+
+@name("Create Invoice Setting")
+POST "https://{{region}}.vatapi.com/v2/invoice/settings"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+	"trading_name": "Demo Commerce",
+	"trading_address": "Demo Street, London, WA1 7GT",
+	"vat_number": "GB154636784",
+	"logo":	"https://democommerce.com/logo.png",
+	"sin": 0
+}')
+
+
+// Specify an `identifier` value in the URI to retreive an invoice setting.
+
+@name("Retrieve Invoice Setting")
+GET "https://{{region}}.vatapi.com/v2/invoice/settings/{{identifier}}"
+"x-api-key": "{{x-api-key}}"
+
+
+// Specify an `identifier` value in the URI to update an invoice setting.
+// 
+// Attributes
+// ----------
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |purge_logo|Boolean|No|If you previously set a `logo` value for an Invoice Setting and you would prefer instead to show just the `trading_name` on the invoice then set the `purge_logo` value to 'true' and the logo url will be removed.|
+// 
+// Also refer to the attributes section in the **Create Invoice Setting** to update an attribute simply pass in any value you wish to update, for example if you only wanted to change the `sin` *Sequential Invoice Number* you'd pass just that name/value pair in.
+
+@name("Update Invoice Setting")
+PATCH "https://{{region}}.vatapi.com/v2/invoice/settings/{{identifier}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+"sin": 1000
+}')
+
+
+// Specify an `identifier` value in the URI to delete an invoice setting.
+
+@name("Delete Invoice Setting")
+DELETE "https://{{region}}.vatapi.com/v2/invoice/settings/{{identifier}}"
+"x-api-key": "{{x-api-key}}"
+
+
+

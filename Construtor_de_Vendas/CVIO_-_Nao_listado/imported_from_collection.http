@@ -1,0 +1,430 @@
+#!/usr/bin/env dothttp
+
+// Cliente é uma pessoa física ou jurídica que pode se tornar proprietário de uma unidade. 
+// Essa integração coleta informações de requisições realizadas por sistemas legados e verifica se o dado inserido no campo documento existe ou não no Construtor de Vendas. Se já existir uma pessoa cadastrada com o mesmo documento, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// 
+// > Para esta verificação, o documento pode ser tanto CPF quanto CNPJ, ambos devem ser documentos válidos. Somente será aceito um cadastro por CPF e CNPJ.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// 
+// **Request Body**
+// 
+// | CAMPO | TIPO | DESCRIÇÃO | OBRIGATÓRIO |
+// |-------------|-------------|-------------|-------------|
+// | `idpessoa_int` | Inteiro | Identificador da pessoa no sistema legado | SIM |
+// | `documento_tipo` | String | CPF ou CNPJ |SIM |
+// | `documento` | String | Número do documento | SIM |
+// | `nome` | String | Nome da pessoa | SIM |
+// | `data_nasc` | String | Data de Nascimento | SIM |
+// | `telefone` | String | Telefone no Formato 1199999888 | SIM |
+// | `profissao` | String | Profissão da pessoa | SIM |
+
+@name("Clientes")
+POST "https://{{host}}/api/cvio/cliente "
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idpessoa_int", "sdsds6768"),
+	("documento_tipo", "CPF"),
+	("documento", "01156983533"),
+	("nome", "Jeniffer"),
+	("sexo", "M"),
+	("data_nasc", "03/12/1993"),
+	("estado_civil", "1"),
+	("data_casamento", "12/12/1998"),
+	("reconhecimento_firma", "Reconheço a firma"),
+	("pais", "Brasil"),
+	("naturalidade", "Aracajuano"),
+	("idclassificacao", "4"),
+	("renda_familiar", "1547.55"),
+	("observacoes", "Observação"),
+	("rg", "3.365.984-2"),
+	("orgao_emissor", "SSP-SE"),
+	("rg_data_emissao", "05/05/2000"),
+	("mae", "Josefa"),
+	("pai", "José"),
+	("cep", "49040350"),
+	("idlogradouro", "Rua"),
+	("endereco", "Rua Angela Maria Santana Ribeiro"),
+	("bairro", "Inacio Barbosa"),
+	("numero", "25"),
+	("complemento", "Complemento residencia"),
+	("estado", "SE"),
+	("cidade", "Aracaju"),
+	("valor_aluguel", "1.328"),
+	("tempo_residencia", "15"),
+	("email", "gdsf786786gfdgf2@mail.com"),
+	("telefone", "79998108365"),
+	("celular", "(79) 988004477"),
+	("referencia_nome", "Referencia Nome"),
+	("referencia_telefone", "(79) 988774455"),
+	("referencia_parentesco", "Irmão"),
+	("possui_bem", "S"),
+	("quais_bens", "Casa, carro, apartamento..."),
+	("situacao_do_bem", "QU"),
+	("valor_do_bem", "888.8"),
+	("valor_fgts", "999.9"),
+	("numero_pis", "16547"),
+	("banco_nome", "Aleatorio"),
+	("banco_agencia", "1603-9ab"),
+	("banco_conta", "4321"),
+	("banco_nome_titular", "Nome Titular"),
+	("banco_tipo_doc", "cpf"),
+	("banco_cpf_titular", "95519724571"),
+	("banco_cnpj_titular", "52.233.063/0001-91"),
+	("banco_observacoes", "Observação do do Banco"),
+	("trabalho_nome_empresa", "Alfama"),
+	("trabalho_data_admissao", "05/06/1998"),
+	("profissao", " 13 - Assistente"),
+	("remuneracao_bruta", "79.897,9"),
+	("remuneracao_liquida", "7.777,8"),
+	("trabalho_cep", "49040230"),
+	("idlogradouro_trabalho", "Rua"),
+	("trabalho_endereco", "Rua Qualquer"),
+	("trabalho_bairro", "Inacio Barbosa"),
+	("trabalho_numero", "24"),
+	("complemento_trabalho", "Complemento do trabalho"),
+	("trabalho_idestado", "SE"),
+	("trabalho_idcidade", "Aracaju"),
+	("trabalho_telefone", "(79) 988004488"),
+	("trabalho_email", "trabalho4123@mail.com"),
+	("senha", "123456778"),
+	("confirma", "123456778"),
+	("tipo_residencia", "CA"),
+	("disponivel", ""),
+	("origem", "APP")
+)
+
+
+// Cessão é o processo de troca do cliente associado a unidade, como uma transferência de imóvel.
+// 
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados da proposta que se deseja executar cessão no Construtor de Vendas, logo após irá verificar se os dados inseridos nos campos reserva, documento_novo_titular e documento_novo_associado existem ou não no Construtor de Vendas, somente se todos esses campos existirem será executada a troca do cliente.
+// > Para que essas informações sejam inseridas no Construtor de Vendas, a reserva deve estar em situação com flag 'vendida'. Todos os documentos devem ser válidos. É obrigatório o preenchimento de todos os campos relacionados no item *body*.
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Cessão")
+POST "https://{{host}}/api/cvio/cessao"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("reserva", "1077"),
+	("documento_novo_titular", "87679639434"),
+	("documento_novo_associado", "04692729457"),
+	("motivo", "Doação")
+)
+
+
+// Essa integração coleta informações de requisições realizadas por sistemas legados e verifica se o dado inserido no campo documento existe ou não no Construtor de Vendas. Se já existir um corretor cadastrado com o mesmo documento, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// 
+// > Para esta verificação, o documento CPF deve ser válido. Somente será aceito um cadastro por CPF.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idcorretor_int
+// * nome
+// * sexo
+// * cpf
+// * data_nasc
+// * creci
+// * idimobiliaria_int
+// * telefone
+// * notificar_novos_leads
+// * email
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Corretores")
+POST "https://{{host}}/api/cvio/corretor"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idcorretor_int", "34437"),
+	("nome", "José Aberlado"),
+	("sexo", "M"),
+	("data_nasc", "1993-08-11"),
+	("telefone", "79999995541"),
+	("cep", "49042-270"),
+	("endereco", "Rua A-1"),
+	("bairro", "Atalaia"),
+	("numero", "1127"),
+	("complemento", "Próximo a um hospital"),
+	("creci", "48452"),
+	("notificar_novos_leads", "S"),
+	("tipo_conta", "C"),
+	("nome_agencia", "Agência Serigy"),
+	("numero_agencia", "25841"),
+	("numero_conta", "87451"),
+	("digito_conta", "1"),
+	("banco", "Banco do Brasil S.A."),
+	("cpf", "31620513048"),
+	("cpf_favorecido", "31620513048"),
+	("nome_favorecido", "José Abelardo"),
+	("cidade", "Aracaju"),
+	("estado", "SE"),
+	("logradouro", "Rua"),
+	("idimobiliaria_int", "2"),
+	("email", "abelardo@gmail.com"),
+	("ativo_login", "S"),
+	("remover", "154")
+)
+
+
+// Distrato é a ação de 'cancelar' uma venda. 
+// 
+// O sistema legado fará uma requisição a esta API para alterar a situação da reserva no Construtor de Vendas. A reserva terá sua situação modificada para a que tiver a flag 'distrato'.
+// > Para que esta ação seja executada com êxito o campo preenchido idreserva deve existir no Construtor de Vendas. É obrigatório o preenchimento do campo relacionado no item *body*.
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações do campo utilizado nessa integração no item *body*.
+
+@name("Distrato")
+POST "https://{{host}}/api/cvio/distrato"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idreserva", "000")
+)
+
+
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados da imobiliária que se deseja inserir no Construtor de Vendas, logo após irá verificar se o dado inserido no campo idimobiliaria_int existe ou não no Construtor de Vendas. Se já existir uma imobiliária cadastrada com o mesmo idimobiliaria_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// > Para que essas informações sejam inseridas no Construtor de Vendas, o campo estado deve ser a sigla em letras maiúsculas e os campos de CNPJ devem ser válidos.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idimobiliaria_int
+// * nome
+// * sigla
+// * razao_social
+// * escala_plantao
+// * micro_empresa
+// * estado
+// * cidade
+// * logradouro
+// * endereco
+// * creci
+// * validade_creci
+// * alterar_login_corretor
+// * ativo_painel
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Imobiliárias")
+POST "https://{{host}}/api/cvio/imobiliaria"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idimobiliaria_int", "2"),
+	("nome", "Imobiliária Raio do Sol"),
+	("sigla", "RS"),
+	("razao_social", "Imob. Raio do Sol"),
+	("escala_plantao", "S"),
+	("endereco", "Avenida João Bosco"),
+	("creci", "5684732"),
+	("micro_empresa", "S"),
+	("estado", "SE"),
+	("cidade", "Aracaju"),
+	("logradouro", "Avenida"),
+	("validade_creci", "2019-12-12"),
+	("alterar_login_corretor", "S"),
+	("ativo_painel", "S")
+)
+
+
+// Esta API serve como um informativo ao sistema legado acerca das reservas que podem ser integradas como vendidas, por esse motivo não há solicitação de preenchimento de dados para a sua execução.
+// > Ela fará consultas no Construtor de Vendas por reservas em situação com flag 'pode faturar' ou 'vendida' e que ainda não foram integradas.
+// 
+// Ao lado podemos observar um exemplo de resposta de uma requisição feita ao Construtor de Vendas.
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes.
+
+@name("Reservas")
+GET "https://{{host}}/api/cvio/reserva/"
+"email": "{{email}}"
+"token": "{{token}}"
+
+
+// Esta API fará requisições ao Construtor de Vendas para que as reservas sejam atualizadas como vendida no sistema legado.
+// > Para que essas informações sejam atualizadas no sistema legado, as reservas em questão deverão estar em situação com flag 'pode faturar' ou 'vendida' e não devem estar em situação vendida no sistema legado. É obrigatório o preenchimento de todos os campos relacionados no item *body*. Todos os campos são únicos.
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Informar Vendas")
+POST "https://{{host}}/api/cvio/informar_venda"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idreserva_cv", "2173"),
+	("idreserva_int", "2173")
+)
+
+
+// Séries são fragmentos de valores que constituem o valor total do imóvel.
+// 
+// Esta API fará requisições ao sistema legado para que lhe seja fornecido os dados da série que se deseja inserir no Construtor de Vendas, logo após irá verificar se o dado inserido no campo idserie_int existe ou não no Construtor de Vendas. Se já existir uma série cadastrada com o mesmo idserie_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idserie_int
+// * nome
+// * sigla
+// * tipo_distancia
+// * tamanho_distancia
+// * contrato_fora
+// * data_vencimento_contrato
+// * comissao
+// * financimento
+// * exibir_vencimento
+// * ato
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Séries de Tabela de Preço")
+POST "https://{{host}}/api/cvio/serie"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("nome", "Série A3 int"),
+	("sigla", "SA"),
+	("disponivel", "Ativo"),
+	("tipo_distancia", "M"),
+	("tamanho_distancia", "1"),
+	("contrato_fora", "N"),
+	("comissao", "N"),
+	("financiamento", "S"),
+	("data_vencimento_contrato", "N"),
+	("ato", "N"),
+	("idserie_int", "956"),
+	("exibir_vencimento", "N"),
+	("remover", "11"),
+	("codigointerno", "154")
+)
+
+
+// Essa integração coleta informações de requisições realizadas por sistemas legados e verifica se o dado inserido no campo idparcela_int existe ou não no Construtor de Vendas. Se já existir uma parcela de comissão cadastrada com o mesmo idparcela_int, essa API irá atualizar os dados solicitados na requisição, se não irá cadastrá-los. Ela também pode ser utilizada para inserir pagamentos de parcelas já existentes ou criá-las junto a seus pagamentos.
+// 
+// Os seguintes campos são de prenchimento obrigatório:
+// * idreserva_cv
+// * idreserva_int
+// * idempreendimento_int
+// * idbloco_int
+// * idunidade_int
+// * idcomissao_int
+// 
+// 
+// > Se o campo idparcela_int for preenchido, todos os campos serão de preenchimento obrigatório. Para esta integração, a reserva deve existir no Construtor de Vendas e estar em situação com flag 'vendida'. Não será possível fazer pagamentos acima do valor da comissão. Somente será permitida uma parcela por idparcela_int.
+// 
+// Observações importantes:
+// * O campo idreserva_int deve ser igual ao número de venda existente na reserva.
+// * A reserva não pode ter comissão gerada.
+// * O campo parcelacomissao_quem deve ser o identificador do usuário cadastrado na reserva, ao qual será destinado tal pagamento.
+// 
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações dos campos utilizados nessa integração no item *body*.
+
+@name("Comissões")
+POST "https://{{host}}/api/cvio/comissao"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idreserva_cv", "1282"),
+	("idreserva_int", "1010"),
+	("idempreendimento_int", "170"),
+	("idbloco_int", "01b002"),
+	("idunidade_int", "A0001"),
+	("idcomissao_int", "0001"),
+	("pagamentos[0][idparcela_int]", "A001"),
+	("pagamentos[0][parcelacomissao_valor]", "1254,00"),
+	("pagamentos[0][data_parcelacomissao]", "2018-09-04"),
+	("pagamentos[0][notafiscal_parcela]", "N - 1046"),
+	("pagamentos[0][parcelacomissao_para]", "Corretor"),
+	("pagamentos[0][parcelacomissao_quem]", "130"),
+	("pagamentos[0][parcelacomissao_tipo]", "C"),
+	("pagamentos[0][parceladata_mediacao]", "2018-09-20"),
+	("pagamentos[0][cancelamento]", "N"),
+	("pagamentos[0][observacoes_parcela]", "Observações")
+)
+
+
+// O sistema legado fará uma requisição a esta API para alterar a situação da reserva no Construtor de Vendas. A reserva terá sua situação modificada para a que tiver a flag 'cancelada'.
+// > Para que esta ação seja executada com êxito o campo idreserva_cv deve ser preenchido e existir no Construtor de Vendas. Somente serão atualizadas as reservas em situação com flag diferente de 'cancelada', 'distrato', 'vendida' e 'vencida'.
+//  
+// Abaixo dispomos os dados para acesso em nosso ambiente de testes no item *headers* e as especficações do campo utilizado nessa integração no item *body*.
+
+@name("Cancelamento de reserva")
+POST "https://{{host}}/api/cvio/cancelarReserva"
+"email": "{{email}}"
+"token": "{{token}}"
+files(
+	("idreserva_cv", "1301"),
+	("idreserva_int", "154")
+)
+
+
+@name("Planta")
+GET "https://{{host}}/api/cvio/planta/194"
+"email": "{{email}}"
+"token": "{{token}}"
+
+
+
+@name("Serie")
+GET "https://{{host}}/api/cvio/planta/194"
+"email": "{{email}}"
+"token": "{{token}}"
+
+
+
+@name("Lead")
+POST "https://{{host}}/api/cvio/lead"
+"email": "henriquef@alfamaweb.com.br"
+"token": "83f76e558679139d44a787be48b21a8ba6b56b20"
+json({
+    "email": "thalles12@gmail.com"
+})
+
+
+// Os seguintes campos são de prenchimento obrigatório:
+// 
+// **Request Body**
+// 
+// | CAMPO | TIPO | DESCRIÇÃO | OBRIGATÓRIO |
+// |-------------|-------------|-------------|-------------|
+// | `valor` | Float | valor a ser financiado | SIM |
+// | `juros` | Float | juros |SIM |
+// | `prazo` | Integer | meses do financiamento | SIM |
+
+@name("Price")
+POST "https://{{host}}/api/cvio/price"
+json({
+    "valor": 54391.5,
+    "juros": 5,
+    "prazo": 150
+})
+
+
+// | CAMPO | DESCRIÇÃO |
+// |-------------|-------------|
+// | base | data incial|
+// | vencimento | vencimento da primeira parcela|
+// | quantidade | numero de parcelas|
+// | mensal | 10 x 5.000,00 a partir de vencimento(01/01/2025) |
+// 
+//     "base": "01/10/2020",
+//     "vencimento": "01/11/2020",
+//     "quantidade": 4,
+//     "distancia_tamanho":1,
+//     "distancia": "M",
+//     "juros": 0.95,
+//     "valor": 5000
+
+@name("Price v2")
+POST "https://{{host}}/api/cvio/price"
+? "ato"= "ato"
+json({
+    "base": "01/10/2020",
+    "vencimento": "01/11/2020",
+    "quantidade": 4,
+    "distancia_tamanho": 1,
+    "distancia": "M",
+    "juros": 0.95,
+    "valor": 5000
+})
+
+
+

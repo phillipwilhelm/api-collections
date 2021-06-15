@@ -1,0 +1,150 @@
+#!/usr/bin/env dothttp
+
+// Note: Only card type Pan and Voter is supported.
+// 
+// <h4>Transaction Success </h4>
+// 
+// ```
+// {
+//     "id": "44ee15bc-f86b-4a22-83ac-a1ce95165d55",
+//     "env": 2,
+//     "consent": "Y",
+//     "consent_text": "I herby declare my consent",
+//     "transaction_status": 1,
+//     "response_message": "Transaction Successful",
+//     "request_timestamp": "2019-03-27 13:55:30:091 +05:30",
+//     "response_timestamp": "2019-03-27 13:55:36:704 +05:30",
+//     "result": {
+//         "card_holder_name": {
+//             "OCR": "TRIXXXXX",
+//             "API": "TRIXXXXX",
+//             "matchscore": "1.00"
+//         },
+//         "father_or_husband_name": {
+//             "OCR": "YOUGXXXX"
+//         },
+//         "date_of_birth": {
+//             "OCR": "14/12/19XX"
+//         },
+//         "pan_number": {
+//             "OCR": "ARLPC23XXX",
+//             "API": "ARLPC23XXX",
+//             "status": "VALID"
+//         },
+//         "rawText": "raw text string from OCR"
+//     },
+//     "verification_status": "VALID/INVALID/FAILED"
+// }
+// ```
+// 
+// <h4>Transaction Failure </h4>
+// 
+// ```
+// {
+//     "id": "8f16db47-0041-42ad-ad56-454fa3a11189",
+//     "env": 2,
+//     "consent": "Y",
+//     "consent_text": "I herby declare my consent",
+//     "transaction_status": 3,
+//     "response_message": "Could not find a Valid ID card",
+//     "request_timestamp": "2019-03-27 13:52:57:452 +05:30",
+//     "response_timestamp": "2019-03-27 13:52:58:625 +05:30",
+// }
+// ```
+
+@name("Verification API")
+POST "https://{{base_url}}/id-ocr/"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+    "id_image": "base 64 of image",
+    "consent": "Y",
+    "consent_text": "consent message",
+    "verify_data": "Y or N"
+}')
+
+
+// | Type of Cards  Supported | card_type       |
+// |--------------------------|-----------------|
+// | Aadhaar Card             | AADHAAR         |
+// | Aadhaar Card with Masked | AADHAAR_MASKED  |
+// | Pan Card                 | PAN             |
+// | VoterId                  | VOTERID         |
+// | Driving License          | DRIVING_LICENSE |
+// | PASSPORT                 | PASSPORT        |
+// 
+// 
+//  <h4> Currently we are supporting these state for Driving License</h4>
+//  
+// ```
+//  BIHAR 
+//  DELHI 
+//  KARNATAKA 
+//  MADHYA PRADESH 
+//  PUNJAB 
+//  RAJASTHAN 
+//  ```
+// 
+// 
+// <h4>Transaction Success </h4>
+// 
+// ```
+// {
+//   "id": "a4cf4daf-aea3-446b-9f09-8ba3cd3614a5",
+//   "result": [
+//     {
+//       "card_info": {
+//         "dob": "XX/XX/1994",
+//         "gender": "MALE",
+//         "name": "XXXXXX",
+//         "relation_name": " XXXXXX",
+//         "voter_id": "XXXX029"
+//       },
+//       "card_side": "front"
+//     }
+//   ],
+//   "response_code": "OCR006",
+//   "response_message": "Data Extraction Successful.",
+//   "transaction_status": 1,
+//   "env": 1,
+//   "consent": "Y",
+//   "consent_text": "I hearby consent to perform OCR for testing",
+//   "id_type": "VOTERID",
+//   "response_timestamp": "2020-04-17 15:22:33:100 +05:30",
+//   "request_timestamp": "2020-04-17 15:22:32:043 +05:30"
+// }
+// ```
+// 
+// <h4>Transaction Failure </h4>
+// 
+// ```
+// {
+//       "id":  "2dbe63ef-0c3d-46de-9b81-05e5cdf23650",
+//       "transaction_status":  2,
+//       "response_code":  "OCR014",
+//       "response_message":  "invalid image size",
+//       "env":  1,
+//       "consent":  "Y",
+//       "consent_text":  "I hearby consent to perform OCR for testing",
+//       "id_type":  "PASSPORT",
+//       "response_timestamp":  "2020-04-17 15:17:32:448 +05:30",
+//       "request_timestamp":  "2020-04-17 15:17:31:031 +05:30"
+// }
+// ```
+
+@name("Verification API V2")
+POST "https://{{base_url}}/id-ocr/v2"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+    "id_image": "base 64 of image",
+    "consent": "Y",
+    "card_type" : "type of card",
+    "consent_text": "consent message"
+
+}')
+
+
+

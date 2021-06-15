@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+@name("Create Role")
+POST "https://{{domain}}/roles"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"name": "test",
+	"description": "This is a test role.",
+	"display_name": "test-role"
+}')
+
+
+@name("Fetch All Roles")
+GET "https://{{domain}}/roles"
+"Accept": "application/json"
+"Content-Type": "application/json"
+? "include"= "users"
+? "filter"= "id;name"
+? "search"= "name:admin"
+? "orderBy"= "id"
+? "sortedBy"= "desc"
+? "limit"= "10"
+? "page"= "1"
+
+
+@name("Fetch Role By Id")
+GET "https://{{domain}}/roles/{id}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+? "include"= "permissions"
+? "filter"= "id;name"
+
+
+@name("Delete Role By Id")
+DELETE "https://{{domain}}/roles/{id}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+@name("Sync Roles on User")
+POST "https://{{domain}}/roles/sync"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"user_id": "user_id",
+	"roles_ids": [
+		"role_id1",
+		"role_id2",
+		"role_id3"
+	]
+}')
+
+
+@name("Assign Roles on User")
+POST "https://{{domain}}/roles/assign"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"user_id": "user_id",
+	"roles_ids": [
+		"role_id1",
+		"role_id2",
+		"role_id3"
+	]
+}')
+
+
+@name("Revoke Roles on User")
+POST "https://{{domain}}/roles/revoke"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+	"user_id": "user_id",
+	"roles_ids": [
+		"role_id1",
+		"role_id2",
+		"role_id3"
+	]
+}')
+
+
+

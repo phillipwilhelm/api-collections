@@ -1,6 +1,26 @@
 #!/usr/bin/env dothttp
 
-// ## About// #### Overview// This request asks the Twitter API to return all the latest tweets that match a specific query string. // // #### Searching for Hashtags// Twitter doesn't have a specific endpoint or clearly defined way to search for a hashtag, but the functionality is still present. A hashtag is essentially just the pound sign followed immediately by a string of text. Because we know the Unicode for the pound sign (%23), we can make our query `%23` + `hashtag_to_query`. For example, to find tweets with the hashtag **#PostmanGalaxy**, you can make the `query` param value equal to `%23PostmanGalaxy`. Queries are case-insensitive as well.// // #### The since_id parameter// Because the goal of this collection is to run over and over again and only find the newest tweets, we don't need to search ALL of Twitter if it runs every 5 minutes. We only want the new tweets since the collection last ran. Thankfully, for every single tweet, Twitter has an [ID that is derived from a timestamp](https://developer.twitter.com/en/docs/twitter-ids). We make use of this functionality to help narrow our search. By setting the `since_id` param equal to the last known `highest_tweet_id` value, we ensure that the search only happens for undiscovered new tweets.// // #### Expansions// Twitter doesn't give you ALL of the info for any given tweet by default. You have to request child objects of the initial tweet object to get all information you want. This is done via [expansions](https://developer.twitter.com/en/docs/twitter-api/expansions). By default, the "users" expansion is turned on and asks for more info `author_id` which gives the information needed.// // // #### Pre-request Script// The code in the Pre-request Script tab runs _before_ your request is sent. Here we check to see if we have the aforementioned `highest_tweet_id` saved as an environment variable. If it exists, nothing happens. If it does not exist, it may be because it's the first time running this collection and we haven't captured the earliest tweet yet. If this is the case, it does not make sense to include it as a query param, and thankfully Postman has a convenient method of [removing a parameter from the query](https://www.postmanlabs.com/postman-collection/Request.html#removeQueryParams).// // #### The Tests Tab// The code here runs _after_ the request is sent and the response has been received. Once the response is received, we reverse it, and then do a series of nested for loops to match up the info from the `data` object in the response with the `users` object in the response. This ensures that we now have the names and Twitter handles that correspond with each tweet. // The tweets are then put into a format that Slack will be able to receive.
+// ## About
+// #### Overview
+// This request asks the Twitter API to return all the latest tweets that match a specific query string. 
+// 
+// #### Searching for Hashtags
+// Twitter doesn't have a specific endpoint or clearly defined way to search for a hashtag, but the functionality is still present. A hashtag is essentially just the pound sign followed immediately by a string of text. Because we know the Unicode for the pound sign (%23), we can make our query `%23` + `hashtag_to_query`. For example, to find tweets with the hashtag **#PostmanGalaxy**, you can make the `query` param value equal to `%23PostmanGalaxy`. Queries are case-insensitive as well.
+// 
+// #### The since_id parameter
+// Because the goal of this collection is to run over and over again and only find the newest tweets, we don't need to search ALL of Twitter if it runs every 5 minutes. We only want the new tweets since the collection last ran. Thankfully, for every single tweet, Twitter has an [ID that is derived from a timestamp](https://developer.twitter.com/en/docs/twitter-ids). We make use of this functionality to help narrow our search. By setting the `since_id` param equal to the last known `highest_tweet_id` value, we ensure that the search only happens for undiscovered new tweets.
+// 
+// #### Expansions
+// Twitter doesn't give you ALL of the info for any given tweet by default. You have to request child objects of the initial tweet object to get all information you want. This is done via [expansions](https://developer.twitter.com/en/docs/twitter-api/expansions). By default, the "users" expansion is turned on and asks for more info `author_id` which gives the information needed.
+// 
+// 
+// #### Pre-request Script
+// The code in the Pre-request Script tab runs _before_ your request is sent. Here we check to see if we have the aforementioned `highest_tweet_id` saved as an environment variable. If it exists, nothing happens. If it does not exist, it may be because it's the first time running this collection and we haven't captured the earliest tweet yet. If this is the case, it does not make sense to include it as a query param, and thankfully Postman has a convenient method of [removing a parameter from the query](https://www.postmanlabs.com/postman-collection/Request.html#removeQueryParams).
+// 
+// #### The Tests Tab
+// The code here runs _after_ the request is sent and the response has been received. Once the response is received, we reverse it, and then do a series of nested for loops to match up the info from the `data` object in the response with the `users` object in the response. This ensures that we now have the names and Twitter handles that correspond with each tweet. 
+// The tweets are then put into a format that Slack will be able to receive.
+
 @name("Search for Hashtag")
 GET "https://api.twitter.com/2/tweets/search/recent"
 ? "query"= "#postmangalaxy"
@@ -12,7 +32,19 @@ GET "https://api.twitter.com/2/tweets/search/recent"
 ? "place.fields"= "country,geo,id,name,place_type"
 
 
-// ## About// #### Overview// This request sends a single tweet to a Slack channel via a POST request/Slack webhook integration. There are 3 things that are essential for this request. Below we'll break down each component.// // #### Pre-request Script// The code in the Pre-request Script tab runs _before_ your request is sent. In this case, to know what tweets to send to Slack, we capture the data from the environment variable `tweets_to_post` and save it as a variable we can work with called `tweetsToPost`. This is the array containing all of the tweets for a specific hashtag. If there are elements in the array, we simultaneously remove the first element of the `tweetsToPost` array and set it as an environment variable called `current_tweet`, which is the stringified version of a single tweet to be sent in the body of the request.// // #### Body// Here is the content that is sent over to Slack. Using the nifty [Block Kit Builder](https://app.slack.com/block-kit-builder/) tool provided by Slack, it's easy to format your message exactly how you'd like to see it in Slack. You can see that `current_tweet` is in the double curly braces to reference the variable named "current_tweet" that we defined in the Pre-request Script.// // #### Tests// Here we again capture that newly updated `tweetsToPost` variable and make use of Postman's ability to [customize your workflow](https://learning.postman.com/docs/running-collections/building-workflows/). Because we want this request to run for every single tweet found, we use the `setNextRequest` method to determine which request should run next. If there are still tweets to post to Slack, we actually want to set the next request to the same request we just ran ("Post Tweets to Slack")! When all the tweets have been posted to Slack, we set the next request to "Get Postman Environment UID", which allows to store the highest tweet id.
+// ## About
+// #### Overview
+// This request sends a single tweet to a Slack channel via a POST request/Slack webhook integration. There are 3 things that are essential for this request. Below we'll break down each component.
+// 
+// #### Pre-request Script
+// The code in the Pre-request Script tab runs _before_ your request is sent. In this case, to know what tweets to send to Slack, we capture the data from the environment variable `tweets_to_post` and save it as a variable we can work with called `tweetsToPost`. This is the array containing all of the tweets for a specific hashtag. If there are elements in the array, we simultaneously remove the first element of the `tweetsToPost` array and set it as an environment variable called `current_tweet`, which is the stringified version of a single tweet to be sent in the body of the request.
+// 
+// #### Body
+// Here is the content that is sent over to Slack. Using the nifty [Block Kit Builder](https://app.slack.com/block-kit-builder/) tool provided by Slack, it's easy to format your message exactly how you'd like to see it in Slack. You can see that `current_tweet` is in the double curly braces to reference the variable named "current_tweet" that we defined in the Pre-request Script.
+// 
+// #### Tests
+// Here we again capture that newly updated `tweetsToPost` variable and make use of Postman's ability to [customize your workflow](https://learning.postman.com/docs/running-collections/building-workflows/). Because we want this request to run for every single tweet found, we use the `setNextRequest` method to determine which request should run next. If there are still tweets to post to Slack, we actually want to set the next request to the same request we just ran ("Post Tweets to Slack")! When all the tweets have been posted to Slack, we set the next request to "Get Postman Environment UID", which allows to store the highest tweet id.
+
 @name("Post Tweets to Slack")
 POST "https://{{slack_webhook_url}}/"
 json({
@@ -28,13 +60,25 @@ json({
 })
 
 
-// ## About// #### Overview// This request serves as a helper function to capture the UID of the environment you're working in so that it can be updated in the next PUT request. It saves you having to find the UID yourself and copy/paste it in your environment. See "Update Postman Environment" request documentation for more info on why this flow is necessary.
+// ## About
+// #### Overview
+// This request serves as a helper function to capture the UID of the environment you're working in so that it can be updated in the next PUT request. It saves you having to find the UID yourself and copy/paste it in your environment. See "Update Postman Environment" request documentation for more info on why this flow is necessary.
+
 @name("Get Postman Environment UID")
 GET "https://api.getpostman.com/environments"
 
 
 
-// ## About// #### Overview// We make use of the [Postman API](https://www.postman.com/postman/workspace/postman-public-workspace/documentation/12959542-c8142d51-e97c-46b6-bd77-52bb66712c9a#152d94ab-a94d-f5fc-c8db-73c61a56f4ce) to keep track of the ID number of the most recent tweet that has been posted to Slack. Because every tweet on Twitter has an [ID that is derived from a timestamp](https://developer.twitter.com/en/docs/twitter-ids), we can use that information to guide our next search for new tweets. Instead of searching ALL of Twitter for specific hashtagged tweets, you only need to search from the most recent ID you found.// // #### Why do we need this request?// We need to update the environment to make sure that `highest_tweet_id` is always tracked. Because this collection is designed to be run via a monitor, and global/environment variables are NOT persisted across collection runs using a monitor, using the Postman API to update the environment programmatically ensures that we safely track that ID number.// // #### Explaining the Body// The body tab shows you what is being sent to Postman. The only variable you **need** to update here is the `highest_tweet_id`, but you can see everything else being set as well.
+// ## About
+// #### Overview
+// We make use of the [Postman API](https://www.postman.com/postman/workspace/postman-public-workspace/documentation/12959542-c8142d51-e97c-46b6-bd77-52bb66712c9a#152d94ab-a94d-f5fc-c8db-73c61a56f4ce) to keep track of the ID number of the most recent tweet that has been posted to Slack. Because every tweet on Twitter has an [ID that is derived from a timestamp](https://developer.twitter.com/en/docs/twitter-ids), we can use that information to guide our next search for new tweets. Instead of searching ALL of Twitter for specific hashtagged tweets, you only need to search from the most recent ID you found.
+// 
+// #### Why do we need this request?
+// We need to update the environment to make sure that `highest_tweet_id` is always tracked. Because this collection is designed to be run via a monitor, and global/environment variables are NOT persisted across collection runs using a monitor, using the Postman API to update the environment programmatically ensures that we safely track that ID number.
+// 
+// #### Explaining the Body
+// The body tab shows you what is being sent to Postman. The only variable you **need** to update here is the `highest_tweet_id`, but you can see everything else being set as well.
+
 @name("Update Postman Environment")
 PUT "https://api.getpostman.com/environments/{{environment_uid}}"
 json({

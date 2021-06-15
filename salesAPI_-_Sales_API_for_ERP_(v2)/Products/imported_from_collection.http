@@ -1,0 +1,139 @@
+#!/usr/bin/env dothttp
+
+// #### Search product groups in ERP
+// *(sapBusinessOne=52/OITB, totvsProtheus=SBM)*
+// 
+// The service will search the ERP database and return the product groups, linked with valid products.
+// 
+// The search can also be unitary, informing the desired `erpKey` in the request.
+// - SAP Business One: OITB.ItmsGrpCod
+// - TOTVS Protheus: BM_GRUPO
+// 
+// The itemGroups service will consider as valid products:
+// - SAP Business One: [1] Sale Item (OITM.SellItem = Y), [2] Valid and not canceled (OITM.validFor = Y AND OITM.Canceled = N)
+// - TOTVS Protheus: [1] “Finished Product” Type (B1_TIPO = PA), [2] active product (B1_MSBLQL other than 1), [3] E-commerce field active (B5_ECFLAG = 1)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// This service does not have pagination or incremental treatment.
+// 
+// This service does not have user field (UDF) treatment.
+
+@name("Item Groups")
+GET "https://{{endpoint}}/itemGroups"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "erpKey"= "100"
+
+
+// #### Search products in ERP
+// *(sapBusinessOne=4/OITM, totvsProtheus=SB1)*
+// 
+// The service will search the ERP database and return the items located (skus), grouped or not by `partnumber` (Configurable Product).
+// 
+// The search of products allows filtering the ERP by:
+// - List Search: by `itemType`, by `itemGroup` and/or by `brand` {optional}
+// - Unitary Search: by `erpKey` or `codeBars`
+// 
+// If no field for unitary search (`erpKey` or `codeBars`) is informed in the request, the search returns all valid products. The list search can be optionally filtered by `itemType`, by `itemGroup` and/or by `brand`.
+// 
+// Comments:
+// - Item Type: [1] SAP Business One: OITM.MatType (table OMTP), [2] TOTVS Protheus: B1_TIPO (table SX5/02)
+// - Item Group: [1] SAP Business One: OITM.ItmsGrpCod (table OITB), [2] TOTVS Protheus: B1_GRUPO (table SBM)
+// - Brand (or Manufacturer): [1] SAP Business One: OITM.FirmCode (table OMRC), [2] TOTVS Protheus: B1_FABRIC
+// - treeType: S=sales (kit), P=production, N=no. [1] SAP Business One: OITM.TreeType, [2] TOTVS Protheus: B1_TIPO=KT, with valid component in SG1
+// 
+// The products service will consider as valid products:
+// - SAP Business One: [1] Valid and not canceled (OITM.validFor = Y AND OITM.Canceled = N)
+// - TOTVS Protheus: [1] active product (B1_MSBLQL other than 1)
+// - optionally you can define in Setup API to return only products with valid `codeBars`
+// 
+// By default, the products service consider all items/products as the SKU (Simple Product), that is, without the concept of a grouping Partnumber (Configurable Product). To implement the Partnumber concept: create UDF field and define the field created in the API configuration and in the Custom Table. Search response will modify with or without Partnumber concept.
+// 
+// The service will return two prices for each product: `price` (normal price) and `pricePromo` (promotional price). The table price used for normal and promotional prices are definied in API Setup.
+// 
+// Price list:
+// - SAP Business One: OITM.PriceList
+// - TOTVS Protheus: [1] If the price tables are not definied in the API Setup (IG_PRICEL+IG_PRICELP): fields B1_PRV1 and B5_PRV2 will be used, [2] If the price tables are definied in the API Setup: tables DA0/DA1 will be used
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page.
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true/false), informed in the response
+// 
+// This service will allow you search the products list in two situations:
+// - Full Search: will result in all partnumber/SKU (optionally by brand).
+// - Incremental Search: will result in all partnumber/SKU (optionally by brand) that have been included and/or changed in after a certain date/time provided in the request. In the Incremental Search, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which products (partnumber/skus) should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields of the product in SAP Business One (OITM.CreateDate, OITM.UpdateDate, OITM.CreateTS*, OITM.UpdateTS*), [2] TOTVS Protheus: fields B1_USERLGI and B1_USERLGA. Time treatment: available from SAP B1 9.2 PL8, and not available for TOTVS Protheus.
+// 
+// The response will inform:
+// - The total number of skus or partnumbers in the `count` field
+// - The total number of SKUs per partnumber in the `countSKU` field
+// 
+// For use of user fields (UDF) created in the product table (SAPB1: OITM, TOTVS: SB1) the respective registration must be performed in the Custom Table.
+
+@name("Products")
+GET "https://{{endpoint}}/products"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "itemType"= "4"
+? "itemGroup"= "103"
+? "brand"= "2"
+? "erpKey"= "PA00244"
+? "codeBars"= "I004"
+? "pageNum"= "1"
+? "updatedAt"= "2020-08-20T00:00:00"
+? "usePartnumber"= "false"
+
+
+// #### Search bill of materials in ERP
+// *(sapBusinessOne=66/OITT, totvsProtheus=SG1)*
+// 
+// This service will allow you to search bill of materials on the ERP.
+// 
+// Products with treeType not equals N=No have bill of components for sale (S=sales - kit or bundle) or bill of components for production (P=production). 
+// 
+// The search of bill of materials allows filtering the ERP by:
+// - List Search: by `itemType`, by `itemGroup` and/or by `brand` {optional}
+// - Unitary Search: by `erpKey` or `codeBars`
+// 
+// If no field for unitary search (`erpKey` or `codeBars`) is informed in the request, the search returns all valid bill of materials. The list search can be optionally filtered by `itemType`, by `itemGroup` and/or by `brand`.
+// 
+// Comments:
+// - `itemType`: [1] SAP Business One: OITM.MatType (table OMTP), [2] TOTVS Protheus: B1_TIPO (table SX5/02)
+// - `item Group`: [1] SAP Business One: OITM.ItmsGrpCod (table OITB), [2] TOTVS Protheus: B1_GRUPO (table SBM)
+// - `brand` (or Manufacturer): [1] SAP Business One: OITM.FirmCode (table OMRC), [2] TOTVS Protheus: B1_FABRIC
+// 
+// The bill of materiais service will consider as valid bill of materials:
+// - SAP Business One: 
+// - TOTVS Protheus: 
+// 
+// The bill of materiais service will consider as valid products:
+// - SAP Business One: [1] Sale Item (OITM.SellItem = Y), [2] Valid and not canceled (OITM.validFor = Y AND OITM.Canceled = N)
+// - TOTVS Protheus: [1] active product (B1_MSBLQL other than 1)
+// - optionally you can define in Setup API to return only products with valid codeBars
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum` > `pageTotal` = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the bill of materials list in two situations:
+// - Full Search: will result in all bill of materials, according to filters.
+// - Incremental Search: will result in all bill of materials, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which bill of materials should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OITT.CreateDate, OITT.UpdateDate, OITT.CreateTS, OITT.UpdateTS), [2] TOTVS Protheus: fields G1_USERLGI and G1_USERLGA
+// 
+// For the use of user fields (UDF) created in the bill of materials table (SAPB1: OITT, TOTVS: SG1), the respective registration must be performed in the Custom Table.
+
+@name("Bill of Materials")
+GET "https://{{endpoint}}/billOfMaterials"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "itemType"= "4"
+
+
+

@@ -1,0 +1,115 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/templates` endpoint returns a list of all notifications template resources for the specified environment resource.
+
+@name("READ All Templates")
+GET "https://{{apiPath}}/environments/{{envID}}/templates"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a single template resource, the `GET /environments/{environmentId}/templates/{templateName}` operation returns data only for the template resource with the template name specified in the request URL.
+
+@name("READ One Template")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/templates/{templateName}/contents` operation can be used to create a new customized email content resource associated with the template specified in the request URL.
+// 
+// Note that the email's body should weigh no more than 100 KB, the subject should contain no more than 256 characters and the variables restrictions should apply. Additionally, "noreply@pingidentity.com" is used as 'From' by default.  
+
+@name("CREATE Email Content")
+POST "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+	"locale":"en-GB",
+	"subject":"I\'m a subject!",
+	"body":"I\'m an email body! I was created at: {{$timestamp}}, I\'m a result of a POST request and your OTP is ${otp}",
+	"deliveryMethod": "Email"
+}')
+
+
+// The `POST /environments/{environmentId}/templates/{templateName}/contents` operation can be used to create a new customized text message content resource associated with the template specified in the request URL.
+// 
+// The size restriction on the `content` value is derived from the `content` encoding. UC-2 encoding is used for messages that contain non GSM-7 characters, and in this case, a size restriction of 67 characters is enforced. However, GSM-7 encoded messages may contain up to 153 characters.
+// 
+// The `sender` value may contain only alphanumeric characters and spaces, and its length may be up to 11 characters.
+// 
+// In some countries, including the US, it is impossible to send an SMS with an alphanumeric sender ID. For those countries, the sender ID must be empty. For international alphanumeric sender support, please refer to <a class="xref" href="https://support.twilio.com/hc/en-us/articles/223133767-International-support-for-Alphanumeric-Sender-ID" target="_blank">https://support.twilio.com/hc/en-us/articles/223133767-International-support-for-Alphanumeric-Sender-ID</a>.
+// 
+// Due to India's pre-registration laws, "PingID" is always used as the sender ID for SMS recipients in India.
+// 
+// In addition, the variables restrictions should apply to text message notification content.
+
+@name("CREATE Text Message Content")
+POST "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "locale":"en",
+  "content":"The text message content.",
+  "sender":"PingID",
+  "deliveryMethod":"SMS"
+}')
+
+
+// The `PUT /environments/{environmentId}/templates/{templateName}/contents/{contentId}` operation updates an existing customized content resource associated with the template specified in the request URL.
+// 
+// In addition, the variables restrictions should apply.
+
+@name("UPDATE Email Content")
+PUT "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+	"locale":"en",
+	"subject":"I\'m a subject! Your username is ${user.username}",
+	"body":"I\'m an email body! I was created at: {{$timestamp}}, I\'m a result of a PUT request and your OTP is ${otp}",
+	"deliveryMethod":"Email"
+}')
+
+
+// The `PUT /environments/{environmentId}/templates/{templateName}/contents/{contentId}` operation updates an existing customized content resource associated with the template specified in the request URL.
+// 
+// In addition, the ariables restrictions should apply.
+
+@name("UPDATE Text Message Content")
+PUT "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+	"locale":"en",
+	"sender":"sender",
+	"content":"The time is: {{$timestamp}}",
+	"deliveryMethod": "SMS"
+}')
+
+
+// To get data for a single content resource, the `GET /environments/{environmentId}/templates/{templateName}/contents/{contentId}` operation returns data only for the content resource with the content ID specified in the request URL.
+
+@name("READ One Content")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET /environments/{environmentId}/templates/{templateName}/contents` endpoint returns a list of all content resources associated with the template specified in the request URL.
+
+@name("READ All Content")
+GET "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `DELETE /environments/{environmentId}/templates/{templateName}/contents/{contentId}` operation deletes an existing customized content resource associated with the template specified in the request URL.
+// 
+// 
+// The response returns a 204 no content message.
+
+@name("DELETE Content")
+DELETE "https://{{apiPath}}/environments/{{envID}}/templates/{{templateName}}/contents/{{contentID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+
+

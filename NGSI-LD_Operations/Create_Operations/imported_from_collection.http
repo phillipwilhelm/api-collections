@@ -1,0 +1,159 @@
+#!/usr/bin/env dothttp
+
+// This example adds a new **TemperatureSensor** entity to the context.
+// 
+// New entities can be added by making a POST request to the `/ngsi-ld/v1/entities` endpoint.
+// 
+// The request will fail if the entity already exists in the context.
+
+@name("Create a New Data Entity")
+POST "http://{{orion}}/ngsi-ld/v1/entities/"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+data('{
+      "id": "urn:ngsi-ld:TemperatureSensor:001",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 25,
+            "unitCode": "CEL"
+      }
+}')
+
+
+// This example adds a new `batteryLevel` Property and a `controlledAsset` Relationship to the existing
+// **TemperatureSensor** entity with `id=urn:ngsi-ld:TemperatureSensor:001`.
+// 
+// New attributes can be added by making a POST request to the `/ngsi-ld/v1/entities/<entity>/attrs` endpoint.
+// 
+// The payload should consist of a JSON object holding the attribute names and values as shown.
+// 
+// All `type=Property` attributes must have a `value` associated with them. All `type=Relationship` attributes must have an
+// `object` associated with them which holds the URN of another entity. Well-defined common metadata elements such as
+// `unitCode` can be provided as strings, all other metadata should be passed as a JSON object with its own `type` and
+// `value` attributes
+// 
+// Subsequent requests using the same `id` will update the value of the attribute in the context.
+
+@name("Create a New Attribute")
+POST "http://{{orion}}/ngsi-ld/v1/entities/urn:ngsi-ld:TemperatureSensor:001/attrs"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+data('{
+       "batteryLevel": {
+            "type": "Property",
+            "value": 0.8,
+            "unitCode": "C62"
+      },
+      "controlledAsset": {
+            "type": "Relationship",
+            "object": "urn:ngsi-ld:Building:barn002"
+      }
+}')
+
+
+// This example uses the convenience batch processing endpoint to add three new **TemperatureSensor** entities to the
+// context. Batch create uses the `/ngsi-ld/v1/entityOperations/create` endpoint.
+// 
+// The request will fail if any of the attributes already exist in the context. The response highlights which actions have
+// been successful and the reason for failure (if any has occurred).
+
+@name("Batch Create New Data Entities or Attributes")
+POST "http://{{orion}}/ngsi-ld/v1/entityOperations/create"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+data('[
+    {
+      "id": "urn:ngsi-ld:TemperatureSensor:002",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 20,
+            "unitCode": "CEL"
+      }
+    },
+    {
+      "id": "urn:ngsi-ld:TemperatureSensor:003",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 2,
+            "unitCode": "CEL"
+      }
+    },
+     {
+      "id": "urn:ngsi-ld:TemperatureSensor:004",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 100,
+            "unitCode": "CEL"
+      }
+    }
+]')
+
+
+// This example uses the convenience batch processing endpoint to add or amend two **TemperatureSensor** entities in the
+// context.
+// 
+// -   if an entity already exists, the request will update that entity's attributes.
+// -   if an entity does not exist, a new entity will be created.
+// 
+// Batch processing for create/overwrite uses the `/ngsi-ld/v1/entityOperations/upsert` endpoint.
+// 
+// A subsequent request containing the same data (i.e. same entities and `actionType=append`) will also succeed won't
+// change the context state. The `modifiedAt` metadata will be amended however.
+
+@name("Batch Create/Overwrite New Data Entities")
+POST "http://{{orion}}/ngsi-ld/v1/entityOperations/upsert"
+"Content-Type": "application/json"
+"Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
+"Accept": "application/ld+json"
+data('[
+    {
+      "id": "urn:ngsi-ld:TemperatureSensor:002",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 21,
+            "unitCode": "CEL"
+      }
+    },
+    {
+      "id": "urn:ngsi-ld:TemperatureSensor:003",
+      "type": "TemperatureSensor",
+      "category": {
+            "type": "Property",
+            "value": "sensor"
+      },
+      "temperature": {
+            "type": "Property",
+            "value": 27,
+            "unitCode": "CEL"
+      }
+    }
+]')
+
+
+

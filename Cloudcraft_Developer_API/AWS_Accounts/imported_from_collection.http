@@ -1,0 +1,140 @@
+#!/usr/bin/env dothttp
+
+// Register a new AWS account with Cloudcraft, for visualization via the API (see "Snapshot AWS account" below) or using with the Live mode in the web application.
+// 
+// The body of the request should contain the account properties in JSON format. The response will contain the created account object, including the newly assigned ID for use with other API endpoints.
+// 
+// Properties
+// ==========
+// - name: A human readable name for the AWS account. For example "Production" or "Staging".
+// - roleArn: The ARN of the read-only IAM Role you've created in your AWS account for Cloudcraft. For instructions on creating the role, please see the "AWS Accounts" dialog in the web application. For the purposes of the Developer API, the IAM Role must be created with the unique external ID value of the person who generated the API key being used. Your external ID value is provided to you in the "AWS Accounts" dialog of the app.
+// 
+// Responses
+// =========
+// - **201 Created on success**
+// - 401 Unauthorized
+// - 403 Forbidden, insufficient privileges
+
+@name("Add AWS account")
+POST "https://{{cloudcraft_url}}/aws/account"
+"Content-Type": "application/json"
+data('{
+    "name": "My AWS Account",
+    "roleArn": "arn:aws:iam::1234567890:role/cloudcraft"
+}
+')
+
+
+// List all of your linked AWS accounts.
+// 
+// You can register new AWS Accounts in the Cloudcraft application via the _Manage AWS Accounts_ → _Add AWS Account_.
+// 
+// The response is an array of AWS accounts. Each entry includes the account ID and name, access control and user information.
+// 
+// The provided account IDs are required to access the other AWS related APIs.
+// 
+// Responses
+// =========
+// - **200 OK on success**
+// - 401 Unauthorized
+
+@name("List my AWS accounts")
+GET "https://{{cloudcraft_url}}/aws/account"
+
+
+// Scan and render one region of an AWS account into a blueprint in JSON, SVG, PNG, PDF or MxGraph format.
+// 
+// The time required to generate the snapshot depends on the number of resources in the AWS region.
+// The API behaves as a long poll, with a wait time of up to 120 seconds for the result. For most
+// environments the API call will therefore directly return a blueprint. In case
+// the wait time is exceeded, a `202 Accepted` response is returned with a
+// `{code: STILL_PROCESSING, retry: true ...}` JSON body. The snapshot will continue processing
+// in the background, and a retry will either immediately return the result or continue waiting.
+// 
+// Path Parameters
+// ===============
+// - **ACCOUNT_ID**: _UUID_. AWS Account ID as registered with Cloudcraft. See "List my AWS Accounts".
+// - **REGION**: _String_. AWS region, for example "us-east-1".
+// - **FORMAT**: _String_. One of "json", "svg", "png", "pdf", "mxGraph".
+// 
+// Optional query parameters
+// =========================
+// - **filter**: _String_. Render a subset of the AWS account. Accepts a filter expression as used on the Live tab in the web application.
+// - **exclude**: _List of Strings_. Exclude AWS services by name. Example: "ec2,sg" to exclude both EC2s and Security Groups. The service value is specified by the "type" field of Blueprint components.
+// - **label**: _Bool_. Automatically label all components. Defaults to true.
+// - **autoconnect**: _Bool_. Automatically connect all components. Defaults to true.
+// - **scale**: _Float_. Scale relative to original size (1.0), for example 0.5 for half or 2.0 for double size.
+// - **width**: _Number_. Image width in pixels (for SVG, PNG and PDF).
+// - **height**: _Number_. Image height in pixels (for SVG, PNG and PDF).
+// - **grid**: _Boolean_. Enable or disable grid rendering.
+// - **transparent**: _Boolean_. Enable or disable transparent background rendering.
+// - **landscape**: _Boolean_. Enable or disable landscape paper format (PDF).
+// - **paperSize**: _String_. Applies when the format is PDF. One of "Letter", "Legal", "Tabloid", "Ledger", "A0", "A1", "A2", "A3", "A4", "A5".
+// - **projection**: _String_. The visual style of the diagram. One of "isometric" or "2d".
+// 
+// Responses
+// =========
+// - **200 OK on success**, with the content type being one of:
+//   - image/svg+xml
+//   - image/png
+//   - application/pdf
+//   - application/xml
+//   - application/json
+// - **202 Accepted**, if the snapshot generation is taking longer than the max wait time
+// - 401 Unathorized
+// - 403 Forbidden, insufficient privileges
+// - 404 AWS account not found
+
+@name("Snapshot AWS account")
+GET "https://{{cloudcraft_url}}/aws/account/ACCOUNT_ID/REGION/FORMAT"
+
+
+// Update an AWS account registered in Cloudcraft.
+// 
+// The body of the request should contain the account properties in JSON format. The response will contain the updated account object.
+// 
+// Properties
+// ==========
+// - name: A human readable name for the AWS account. For example "Production" or "Staging".
+// - roleArn: The ARN of the read-only IAM Role you've created in your AWS account for Cloudcraft. For instructions on creating the role, please see the "AWS Accounts" dialog in the web application. For the purposes of the Developer API, the IAM Role must be created with the unique external ID value of the person who generated the API key being used. Your external ID value is provided to you in the "AWS Accounts" dialog of the app.
+// 
+// Responses
+// =========
+// - **200 OK on success**
+// - 401 Unauthorized
+// - 403 Forbidden, insufficient privileges
+
+@name("Update AWS account")
+PUT "https://{{cloudcraft_url}}/aws/account/ACCOUNT_ID"
+json({
+    "name": "My updated AWS Account",
+    "roleArn": "arn:aws:iam::1234567890:role/cloudcraft"
+})
+
+
+// Delete a registered AWS account by ID.
+// 
+// Path Parameters
+// ===============
+// - **ID**: _UUID_, AWS account ID. Required.
+// 
+// Responses
+// =========
+// - **204 No Content on success**
+// - 401 Unathorized
+// - 403 Forbidden, insufficient privileges
+// - 404 AWS account not found
+
+@name("Delete AWS account")
+DELETE "https://{{cloudcraft_url}}/aws/account/ACCOUNT_ID"
+
+
+// List all the parameters required for registering a new IAM Role in AWS for use with Cloudcraft, customized to you.
+// 
+// This API, combined with the AWS CLI to generate IAM Roles, can facilitate fully automated role creation at scale for an organization with a lot of AWS accounts.
+
+@name("Get my AWS IAM Role parameters")
+GET "https://{{cloudcraft_url}}/aws/account/iamParameters"
+
+
+

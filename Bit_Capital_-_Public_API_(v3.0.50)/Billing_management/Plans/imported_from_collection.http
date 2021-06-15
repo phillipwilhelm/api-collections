@@ -1,0 +1,220 @@
+#!/usr/bin/env dothttp
+
+// Obtain list of plans
+
+@name("List all plans")
+GET "https://{{API_BASE_URL}}/plans"
+
+
+// Creating a plan
+// 
+// ## Body Payload
+// - name: Display name for the plan
+// - items: list of services to be charged
+// - billingSettings: configurations for the plan
+// 	- invoiceClosing: periocity can be *monthly*, *weekly* or *daily* basis
+// - domain
+// - validFrom: Date it will start be avaliable
+// - default: Default plan use to be subscribed on consumer creation
+
+@name("Create a plan with absolute fees")
+POST "https://{{API_BASE_URL}}/plans"
+"Content-Type": "application/json"
+data('{
+    "name": "PLANO CONSUMER TAXA ZERO COM VALOR ABSOLUTO",
+    "items": [
+        {
+            "serviceId": "03cb8632-bdf6-4b90-8189-64404abe1f2c",
+            "name": "Saque no cartao",
+            "price": 0,
+            "entryCalculationMode": "absolute"
+        },
+        {
+            "serviceId": "41b1b499-1143-4368-9668-1325aa993355",
+            "name": "TED-OUT",
+            "price": 0,
+            "entryCalculationMode": "absolute"
+        },
+        {
+            "serviceId": "a27cb592-c3a0-4dca-8963-52607b18abea",
+            "name": "Emissão de boleto",
+            "price": 0,
+            "entryCalculationMode": "absolute"
+        }
+    ],
+    "billingSettings": {
+        "invoiceClosing": {
+            "periodicity": "monthly",
+            "lastDayOfMonth": true
+        },
+        "settlementTrigger": "invoiceClosing"
+    },
+    "default": true, //REALLY IMPORTANT! all users will automatically be added to a "default" plan. If the domain doesn\'t has a default plan configured, all consumers will need to be added mannually later to a plan, at the onboarding in "pending_billing_plan_subscription" state. 
+    "domain": "a0dd5053-9be8-4031-b77b-cdb936889259",
+    "validFrom": "2020-09-23",
+    "validUntil": "2025-09-23" //don\'t forget to set a valid date
+}')
+
+
+// Creating a plan
+// 
+// ## Body Payload
+// - name: Display name for the plan
+// - items: list of services to be charged
+// - billingSettings: configurations for the plan
+// 	- invoiceClosing: periocity can be *monthly*, *weekly* or *daily* basis
+// - domain
+// - validFrom: Date it will start be avaliable
+// - default: Default plan use to be subscribed on consumer creation
+
+@name("Create a plan with % fees")
+POST "https://{{API_BASE_URL}}/plans"
+"Content-Type": "application/json"
+data('{
+    "name": "PLANO CONSUMER TAXA ZERO COM VALOR PERCENTUAL",
+    "items": [
+        {
+            "serviceId": "03cb8632-bdf6-4b90-8189-64404abe1f2c",
+            "name": "Saque no cartao",
+            "entryClazz": "service_charge",
+            "value": 0, // % of total amount of transaction
+            "billingTrigger": "transaction",
+            "entryCalculationMode": "transaction_percentage"
+        },
+        {
+            "serviceId": "03cb8632-bdf6-4b90-8189-64404abe1f2c",
+            "name": "TED-OUT",
+            "entryClazz": "service_charge",
+            "value": 0, // % of total amount of transaction
+            "billingTrigger": "transaction",
+            "entryCalculationMode": "transaction_percentage"
+        }
+    ],
+    "billingSettings": {
+        "invoiceClosing": {
+            "periodicity": "monthly",
+            "lastDayOfMonth": true
+        },
+        "settlementTrigger": "invoiceClosing"
+    },
+    "default": true,
+    "domain": "a0dd5053-9be8-4031-b77b-cdb936889259",
+    "validFrom": "2020-09-23",
+    "validUntil": "2025-09-23"
+}')
+
+
+@name("Configure fees with absolute values")
+POST "https://{{API_BASE_URL}}/plans/:id/items"
+data('[
+    {
+        "serviceId": "548a6e1e-efb7-46f9-9f1a-8e67f3cccf21",
+        "name": "Compra no cartão",
+        "price": 2,
+        "entryClazz": "service_charge",
+        "billingTrigger": "transaction", //default é "transaction" | invoice_close | period_closing
+        "freeUntil": 0, //numero X de gratuidade 
+        "entryCalculationMode": "percentage"
+    },
+    {
+        "serviceId": "eb97e60b-2820-4386-9791-3c322800ce24",
+        "name": "Saque no cartão",
+        "price": 9, //price sobre o valor ABSOLUTO 
+        "entryClazz": "service_charge",
+        "billingTrigger": "transaction",
+        "freeUntil": 0
+    }
+]')
+
+
+@name("Configure fees with % values")
+POST "https://{{API_BASE_URL}}/plans/:id/items"
+data('[
+    {
+        "serviceId": "548a6e1e-efb7-46f9-9f1a-8e67f3cccf21", //serviceID da lista da prateleira em GET /services 
+        "name": "Compra no cartão", //configure um nome amigável para este serviço
+        "entryClazz": "service_charge",
+        "value": 2, //valor cobrado pelo SERVIÇO
+        //tipo de acionamento da taxa (o default é "transaction")
+        "billingTrigger": "transaction", //transaction | invoice_close | period_closing
+        "entryCalculationMode": "transaction_percentage", //tipo de calculo
+        "freeUntil": 0 //numero de vezes que o serviço ira executar de modo GRATUITO
+    },
+    {
+        "serviceId": "eb97e60b-2820-4386-9791-3c322800ce24",
+        "name": "Saque no cartão",
+        "entryCalculationMode": "transaction_percentage", // assume valor "absolute" como default
+        "value": 10, // 10 % pra utilizar transaction_percentage price_percentage
+        "entryClazz": "service_charge",
+        "billingTrigger": "transaction",
+        "freeUntil": 2 //direito a 2 saques gratuitos
+    }
+]')
+
+
+// Subscribe user to a plan
+
+@name("Subscribe Consumer to a plan")
+POST "https://{{API_BASE_URL}}/plans/:id/subscribe"
+"Content-Type": "application/json"
+data('{
+	"subscriber": "uuidv4" //userId
+
+}')
+
+
+// Obtain details of a specific plan
+
+@name("Open a plan")
+GET "https://{{API_BASE_URL}}/plans/:id"
+
+
+// Removing a service from the plan.
+
+@name("Remove a service from a plan")
+DELETE "https://{{API_BASE_URL}}/plans/:id/services/:serviceType"
+"Content-Type": "application/json"
+
+
+// Editing or adding plan (services) items
+
+@name("/plans/:id/items")
+POST "https://{{API_BASE_URL}}/plans/:id/items"
+"Content-Type": "application/json"
+data('[
+    {
+        "serviceId": "d5f5d02b-e2da-4a52-b6fd-243cc6b45a38",
+        "name": "Assinatura",
+        "price": 110,
+        "entryClazz": "service_charge",
+        "billingTrigger": "invoice_closing",
+        "freeUntil": 110
+    }
+]')
+
+
+// Get actual fee of one service that is been applied to a certain user.
+
+@name("Verify a fee in a a service")
+GET "https://{{API_BASE_URL}}/billing/users/:userId/type/:serviceType/fee"
+
+
+@name("Change plan parameters")
+PUT "https://{{API_BASE_URL}}/plans/:id"
+data('{
+    "name": "Plano Básico", //new name
+    "default": true, // true | false
+    "validUntil": "2020-10-12", 
+    "serviceFeeCollectionDefaultMode": "prepaid",
+    "status": "unavailable"
+}')
+
+
+@name("Desactive a plan")
+PUT "https://{{API_BASE_URL}}/plans/:id"
+data('{
+    "status": "unavailable" // not recommended. For best practices change a plan parameter to expire soon and wait to be expired.
+}')
+
+
+

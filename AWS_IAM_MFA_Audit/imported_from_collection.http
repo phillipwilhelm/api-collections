@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+// A simple `GET` request to fetch all users under the AWS organization for Postman. This is step one in the described process. Since AWS users can be configured to not have console sign in access, the fetched list is reducued to users with valid console passwords only. (Bot users should not have console sign in access, so the presence of the last password used timestamp will indicate the current user is a human user).
+
+@name("List Users")
+GET "https://iam.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170901T145542Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170901/us-east-1/iam/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=53ddcb5962268601b20c61fccb476dda9cfa418d6111a0d34e459e1a14d346ae"
+? "Action"= "ListUsers"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+
+
+
+// A simple `GET` request to fetch all MFA devices in use under the Postman org (steps three, four in the process). This is done one user at a time, so `postman.setNextRequest` is used to handle looping over this list of users (obtained in the previous step).
+
+@name("List MFA devices")
+GET "https://iam.amazonaws.com/"
+"Content-Type": "application/x-www-form-urlencoded"
+"X-Amz-Date": "20170901T152033Z"
+"Authorization": "AWS4-HMAC-SHA256 Credential=AKIAJSC5VPELVYZXCMLA/20170901/us-east-1/iam/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=cd757bfe3bd0ca3f4b30f762e2124a32a1a9ff6c36523c88e974b2fe72c8b33d"
+? "Action"= "ListMFADevices"
+? "Version"= "2010-05-08"
+? "MaxItems"= "1000"
+? "UserName"= "{{user}}"
+
+
+
+// A simple `POST` requst to send reports to Slack. This report is merely a list of all users that do not have MFA enabled.
+
+@name("Send IAM MFA Audit report to Slack")
+POST "https://{{slack_webhook_url}}/"
+"Content-Type": "application/json"
+data('{{slack_body}}')
+
+
+

@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// It is highly recommended to **specify the ".pdf" extension** at the end of your file name. So, when you will download your file, it will directly contain the extension and then, it will be easier to open it on your computer.
+// 
+// The content of a file must be converted in base64 encoding, **without the base64 header**.
+// Before send it to the API, you need to check and eventually **remove the header** `data:application/pdf;base64,`.
+
+@name("/files")
+POST "https://{{base-api-url}}/files"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "The best name for my file.pdf",
+    "content": "JVBERi0xLjUKJb/3ov4KNiA [...] VPRgo="
+}')
+
+
+// Now that the file is uploaded, send the following request to create a procedure.
+// 
+// It's important to underline that **email addresses need to have an existing domain**. In addition, the **phone numbers need to be valid numbers and follow the [E.164 recommendation](https://en.wikipedia.org/wiki/E.164)**.
+// 
+// 
+// The status field for a procedure can have many values:
+// 
+// | Status   | Description                                                                                                                                                                                               |
+// | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+// | `draft`      | The signing process is not started, so no one can sign it. However, it is still possible to edit the procedure.                                                                                           |
+// | `active`     | The procedure is started, members can sign it.                                                                                                                                                            |
+// | `finished`   | All members have finished to sign the procedure.                                                                                                                                                          |
+// | `expired`    | You can set an expiration date in the `expiresAt` field (in ISO format like the `createdAt` field above - e.g. `2018-08-05T07:46:45+02:00`). After this date, members can't sign it anymore.              |
+// | `refused`    | At least, one of members decided to refuse the procedure. It mainly means that he did not agree with the content of the documents to sign or maybe it is not the right contact to make on this signature. |
+// 
+
+@name("/procedures")
+POST "https://{{base-api-url}}/procedures"
+"Authorization": "Bearer {{your-api-key}}"
+"Content-Type": "application/json"
+data('{
+    "name": "My first procedure",
+    "description": "Awesome! Here is the description of my first procedure",
+    "members": [
+        {
+            "firstname": "John",
+            "lastname": "Doe",
+            "email": "john.doe@yousign.fr",
+            "phone": "+33612345678",
+            "fileObjects": [
+                {
+                    "file": "/files/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+                    "page": 2,
+                    "position": "230,499,464,589",
+                    "mention": "Read and approved",
+                    "mention2": "Signed by John Doe"
+                }
+            ],
+            "operationLevel": "advanced"
+        }
+    ]
+}')
+
+
+

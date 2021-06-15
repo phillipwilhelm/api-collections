@@ -1,0 +1,190 @@
+#!/usr/bin/env dothttp
+
+// # Add a Record
+// ---
+// 
+// This method is used to add a single record into the database. This method returns an `AddRecordResponse`, which contains the `UniqueID` of the added record. This `UniqueID` can then be used elsewhere for updating or deleting.
+// 
+// # Parameters
+// ---
+// 
+// **TableName** - Type *String* **:**
+// This input parameter identifies the name of the table in the database that contains the record you wish to delete.
+// 
+// **ListOfFieldValues** - Type *List of String[key] and String[value] pairs* **:**
+// This is an array of key-value-pairs. The key is the field name, and the value is the value you wish to set for that field.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Add")
+POST "https://{{ServerPath}}/Record/Add"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "TableName": "Employees",
+  "ListOfFieldValues": [
+    {
+      "Key": "ClockNumber",
+      "Value": "10500"
+    },
+    {
+      "Key": "Name",
+      "Value": "Allison Smith"
+    },
+    {
+      "Key": "Shift",
+      "Value": "1"
+    },
+    {
+      "Key": "Foreman",
+      "Value": "DOUG"
+    },
+    {
+      "Key": "Department",
+      "Value": "1"
+    },
+    {
+    "Key":"Badge",
+    "Value":"456456"
+    }
+  ]
+}')
+
+
+// # Delete a Record
+// ---
+// 
+// The `Delete` method is used to remove a single record from the database.
+// 
+// The return object property, `ErrorMessage`, will inform you of any error that might have occurred when attempting the deletion.
+// 
+// # Parameters
+// ---
+// 
+// **TableName** - Type *String* **:**
+// This input parameter identifies the name of the table in the database that contains the record you wish to delete.
+// 
+// **UniqueID** - Type *Integer* **:**
+// This input parameter specifies the Unique ID of the record that you wish to delete.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Delete")
+POST "https://{{ServerPath}}/Record/Delete"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "TableName": "Employees",
+  "UniqueID": 123456,
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+// # Find a Record
+// ---
+// 
+// This method will allow you to find a single record in the database using one or more fields and their values. 
+// 
+// # Parameters
+// ---
+// 
+// **TableName** - Type *String* **:**
+// This identifies the name of the Data View to run. It must exist in the same company that you logged into.
+// 
+// **ListOfFieldValues** - Type *List of String[key] and String[value] pairs* **:**
+// This is an array of key-value-pairs. The key is the field name, and the value is the value you wish to set for that field.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Find")
+POST "https://{{ServerPath}}/Record/Find"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "CompanyID": "{{CompanyID}}",
+  "TableName": "Employees",
+  "ListOfFieldValues": [
+    {
+      "Key": "ClockNumber",
+      "Value": "10500"
+    }
+  ]
+}')
+
+
+// # Import Odyssey Data
+// ---
+// 
+// This method is used to import records into the database.
+// 
+// # Parameters
+// ---
+// 
+// **ProfileID** - Type *String* **:** 
+// The Import Profile ID that you are running.
+// 
+// **SourceFileData** - Type *String* **:** 
+// The content of the file you are importing from.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Import")
+POST "https://{{ServerPath}}/Record/Import"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "ProfileID": "OOD-ImportTest",
+  "SourceFileData": "ClockNumber,Name,Shift,Foreman,Department,Badge\r\n10551,Allison Smith-T1,1,DOUG,1,10551\r\n10552,Allison Smith-T2,1,DOUG,1,10552\r\n10553,Allison Smith-T3,1,DOUG,1,10553\r\n10554,Allison Smith-T4,1,DOUG,1,10554\r\n10555,Allison Smith-T5,1,DOUG,1,10555",
+  "CompanyID":"{{CompanyID}}"
+}')
+
+
+// # Update A Record
+// ---
+// 
+// The `Update` method is used to update a single record in the database with new values.
+// 
+// The return object property, `ErrorMessage`, will inform you of any error that might have occurred when attempting the deletion.
+// 
+// # Parameters
+// ---
+// 
+// **TableName** - Type *String* **:**
+// This input parameter identifies the name of the Odyssey table that you will be updating the record in.
+// 
+// **UniqueID** - Type *Integer* **:**
+// This is the unique ID of the record that you will be updating.
+// 
+// **ListOfFieldValues** - Type *List of String[key] and String[value] pairs* **:**
+// This is an array of key-value-pairs. The key is the field name, and the value is the value you wish to set for that field.
+// 
+// **CompanyID** - Type *String* **:** 
+// This is the Company that you are logging into. Your user that you are logging into Odyssey with must have access to this company. You can fetch records from any company, based your query.
+
+@name("/Update")
+POST "https://{{ServerPath}}/Record/Update"
+"X-API-Key": "{{APIKey}}"
+"Content-Type": "application/json"
+data('{
+  "TableName": "Employees",
+  "UniqueID": 9504,
+  "ListOfFieldValues": [
+    {
+      "Key": "Name",
+      "Value": "Allison Smith (Modified)"
+    },
+    {
+      "Key": "Address1",
+      "Value": "1234 Main Street"
+    }
+  ],
+  "CompanyID": "{{CompanyID}}"
+}')
+
+
+

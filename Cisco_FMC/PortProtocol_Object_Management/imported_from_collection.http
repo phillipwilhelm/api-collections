@@ -1,0 +1,97 @@
+#!/usr/bin/env dothttp
+
+@name("Get port groups")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/portobjectgroups"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get port/protocol objects")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/protocolportobjects"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Get example port")
+GET "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/protocolportobjects/005056BB-0B24-0ed3-0000-871878367348"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+? "limit"= "10"
+
+
+@name("Create IKE object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/protocolportobjects"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "UDP_IKE",
+    "description": "Internet Key Exchange for IPsec VPNs",
+    "port": "500",
+    "protocol": "UDP",
+    "type": "ProtocolPortObject"
+}')
+
+
+@name("Create IPsec NAT-T object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/protocolportobjects"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "UDP_IPSEC_NATT",
+    "description": "ESP encapsulated in UDP for NAT Traversal IPsec",
+    "port": "4500",
+    "protocol": "UDP",
+    "type": "ProtocolPortObject"
+}')
+
+
+@name("Create IPsec ESP object")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/protocolportobjects"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "PROTO_ESP",
+    "description": "Encapsulating Security Payload for IPsec VPNs",
+    "protocol": "ESP",
+    "type": "ProtocolPortObject"
+}')
+
+
+@name("Create IPsec port/protocol group")
+POST "https://{{fmc}}/api/fmc_config/v1/domain/{{domain_uuid}}/object/portobjectgroups"
+"Accept": "application/json"
+"Content-Type": "application/json"
+"X-Auth-Access-Token": "{{api_token}}"
+data('{
+    "name": "PORTG_IPSEC",
+    "description": "All IPsec related ports and protocols",
+    "type": "PortObjectGroup",
+    "objects": [
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468480703",
+            "name": "PROTO_ESP",
+            "type": "ProtocolPortObject"
+        },
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468480643",
+            "name": "UDP_IKE",
+            "type": "ProtocolPortObject"
+        },
+        {
+            "id": "005056BB-0B24-0ed3-0000-880468480685",
+            "name": "UDP_IPSEC_NATT",
+            "type": "ProtocolPortObject"
+        }
+    ]
+}')
+
+
+

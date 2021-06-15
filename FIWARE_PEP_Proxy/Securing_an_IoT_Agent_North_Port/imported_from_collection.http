@@ -1,0 +1,57 @@
+#!/usr/bin/env dothttp
+
+// The Keyrock application has been configured to offer permanent tokens
+// 
+// The standard `Authorization: Basic` header holds the base 64 concatentation of the client id and secret. The parameter
+// `scope=permanent` is added to retrieve permanent tokens when available. The response contains an `access_token` which
+// can be used for device provisioning.
+
+@name("Keyrock  - Obtaining a permanent token")
+POST "http://{{keyrock}}/oauth2/token"
+"Authorization": "Basic {{Authorization}}"
+"Content-Type": "application/x-www-form-urlencoded"
+"Accept": "application/json"
+data('username=alice-the-admin@test.com&password=test&grant_type=password&scope=permanent')
+
+
+// The Access token (also known as a Trust Token) must be added to the service group.
+
+@name("IoT Agent - Provisioning a trusted service group")
+PUT "http://localhost/iot/services"
+"fiware-service": "openiot"
+"fiware-servicepath": "/"
+"Content-Type": "application/json"
+? "resource"= "/iot/d"
+? "apikey"= "1068318794"
+data('{
+     "cbroker":     "http://orion-proxy:1027",
+     "trust": "b7a4baa86642280b446d733dc2d62c8a21112481"
+}')
+
+
+// Once a trusted service group has been created, a device can be provisioned in the usual manner
+
+@name("IoT Agent - Provisioning a sensor")
+POST "http://localhost/iot/devices"
+"fiware-service": "openiot"
+"fiware-service-path": "/"
+"Accept": "application/json"
+data('{
+ "devices": [
+   {
+     "device_id":   "motion001",
+     "entity_name": "urn:ngsi-ld:Motion:001",
+     "entity_type": "Motion",
+     "timezone":    "Europe/Berlin",
+     "attributes": [
+       { "object_id": "c", "name": "count", "type": "Integer" }
+     ],
+     "static_attributes": [
+       { "name":"refStore", "type": "Relationship", "value": "urn:ngsi-ld:Store:001"}
+     ]
+   }
+ ]
+}')
+
+
+

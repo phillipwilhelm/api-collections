@@ -1,0 +1,231 @@
+#!/usr/bin/env dothttp
+
+// 
+// 
+// ### BODY PARAMS
+// 
+// * pan (required) - Pan number of the Customer which needs to be verified
+// * full_name (required) - Fullname of the pan card holder
+// * DOB (required) - Date of birth on PAN in DD/MM/YYYY format
+// * consent (required) - Consent of the end-user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ## OUTPUT
+// 
+// <h4>Invalid JSON Format</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Invalid JSON format in request body."
+// 
+// }
+// ```
+// <h4>Error with API key</h4>
+// 
+// ```
+// {
+//     
+//     "statusCode": 401,
+//     "message": "API Key is required."
+// 
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "API key is invalid for agency ",
+//     "error": "UNAUTHORIZED"
+// }
+// ```
+// 
+// <h4>Error with Agency ID</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Agency ID Cannot be empty."
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Invaild Agency ID."
+// }
+// ```
+// 
+// <h4>Error with Product Access</h4>
+// 
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "UNAUTHORIZED ACCESS - Agency doesn't have (Product name) Access.
+// }
+// ```
+// ```
+// {
+//     "statusCode": 401,
+//     "message": "Access Denied: IP is not whitelisted :(IP address)".
+// }
+// ```
+// 
+// <h4>Missing PAN input</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Missing parameter: pan"
+// }
+// ```
+// 
+// <h4>Invalid PAN format</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid Pan Number(s) :- <<List of invalid PAN numbers>>"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful with valid record </h4> 
+// 
+// ```
+// {
+//     "id": "24d66d36-6d56-48c2-85f6-62570f3ea07b",
+//     "env": 1,
+//     "request_timestamp": "2021-03-10 12:14:01:913 +05:30",
+//     "response_timestamp": "2021-03-10 12:14:05:641 +05:30",
+//     "transaction_status": 1,
+//     "result": {
+//         "result": "Success"
+//     },
+//     "response_msg": "Success",
+//     "response_code": "101"
+// }
+// 
+// ```
+// 
+// <h4>Transaction successful (When Name is wrong ) </h4> 
+// 
+// ```
+// {
+//     "id": "3af402c9-e8fd-4273-87f9-0f1a356ceaa1",
+//     "env": 1,
+//     "request_timestamp": "2018-11-22 18:04:56:300 +05:30",
+//     "response_timestamp": "2018-11-22 18:04:58:142 +05:30",
+//     "transaction_status": 1,
+//     "data":{ 
+//       "result":"Active with invalid details"
+//     },
+//     "response_msg": "Success",
+//     "response_code": "101"
+// }
+// ```
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "6bf2cfb8-0a48-4756-a3d0-478e29500701",
+//     "env": 1,
+//     "request_timestamp": "2019-10-11 14:58:01:402 +05:30",
+//     "response_timestamp": "2019-10-11 14:58:01:436 +05:30",
+//     "transaction_status": 0,
+//     "data":{ 
+//       "result":"No record found"
+//     },
+//     "response_msg": "Invalid ID number or combination of inputs",
+//     "response_code": "102"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "5ebbada3-7c7a-4f39-8006-e628a7688f42",
+//     "env": 1,
+//     "request_timestamp": "2019-12-16 14:15:50:280 +05:30",
+//     "response_timestamp": "2019-12-16 14:16:15:489 +05:30",
+//     "transaction_status": 0,
+//     "response_msg": "Internal Error",
+//     "response_code": "100"
+// }
+// ```
+// 
+// <br>
+
+@name("Verification API")
+POST "https://{{base_url}}/pan-demographic"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+	"full_name" : "full name of PAN holder",
+	"date_of_birth" : "DOB in DD/MM/YYYY format",
+	"pan" : "Pan number",
+	"consent" : "Y",
+	"consent_text" : "Consent text"
+}')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "6bf2cfb8-0a48-4756-a3d0-478e29500701",
+//     "response_code": "102",
+//     "env": 1,
+//     "pan_count": 1,
+//     "pan_success_count": 0,
+//     "transaction_status": 0,
+//     "consent": "Y",
+//     "consent_text": "I give my consent to Zoop.one to check my pan info for kyc purpose",
+//     "response_msg": "Invalid ID number or combination of inputs",
+//     "request_timestamp": "2019-10-11 14:58:01:402 +05:30",
+//     "response_timestamp": "2019-10-11 14:58:01:436 +05:30"
+// }
+// ```
+// <h4>Transaction not found</h4>
+// 
+// ```
+// {
+//     "statusCode": 400,
+//     "errors": [],
+//     "message": "Transaction not found in your company records"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/pan-demographic/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

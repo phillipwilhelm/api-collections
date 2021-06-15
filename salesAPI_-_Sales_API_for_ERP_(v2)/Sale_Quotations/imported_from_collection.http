@@ -1,0 +1,274 @@
+#!/usr/bin/env dothttp
+
+// #### Search sales quotations in ERP
+// *(sapBusinessOne=23/OQUT, totvsProtheus=SCJ)*
+// 
+// This service will allow you to search sales quotations on the ERP.
+// 
+// Searching sales quotations allows you to filter the ERP by:
+// - List search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey`, `sellerKey` (SAPB1 only), `salesAgentKey` (SAPB1 only) or `docStatus` 
+//  {optional}
+// - Unitary search: by `erpKey` or `orderNum` or `docNum`
+// 
+// If no field for unitary query is provided in the request (`erpKey` or `orderNum` or `docNum`), the query for sales quotations is done by creation date from/to (which become mandatory).
+// 
+// The quotations service will consider sales quotations with:
+// - SAP Business One: ORDR.ObjType = 23
+// - TOTVS Protheus: 
+// 
+// Comments:
+// - `branch`: SAP Business One (OQUT.BPLId), TOTVS Protheus (CJ_FILIAL)
+// - `partnerKey`: SAP Business One (OQUT.CardCode), TOTVS Protheus (CJ_CLIENTE+'_'+CJ_LOJA ou CJ_PROSPE+'_'+CJ_LOJPRO)
+// - `sellerKey`: SAP Business One (OQUT.SlpCode)
+// - `salesAgentKey`: SAP Business One (OQUT.AgentCode)
+// - `erpKey`: SAP Business One (OQUT.DocEntry), TOTVS Protheus (CJ_NUM)
+// - `orderNum`: SAP Business One (OQUT.NumAtCard), TOTVS Protheus (CJ_COTCLI)
+// - `docNum`: SAP Business One (OQUT.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O = open, X = cancelled, A = approved (only PROTHEUS), N = not budgeted (only PROTHEUS), P = paid (only SAPB1)
+// 
+// Data returned in response: Quotation data, Partner data, Items (+ taxes), Totals (Payments, Taxes, Sales Orders = roadmap)
+// 
+// The response will inform:
+// - The number of returned objects in the `count` field
+// 
+// For list search, the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If “pageNum” not informed = 1, If “pageNum” <=0 = 1, If “pageNum”> ”pageTotal” = last page
+// - `pageTotal` = total pages, reported in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the sales quotation list in two situations:
+// - Full Search: will result in all sales quotations, according to filters.
+// - Incremental Search: will result in all sales quotations, according to filters, which have been included and / or changed in the main register after a certain date / time provided in the request. In the Incremental Consultation, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales orders should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Document Update Date fields in SAP Business One (OQUT.CreateDate, OQUT.UpdateDate, OQUT.CreateTS, OQUT.UpdateTS), [2] TOTVS Protheus: fields CJ_USERLGI and CJ_USERLGA
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: OQUT, TOTVS: SCJ), the respective registration must be performed in the Custom Table.
+
+@name("Sale Quotations")
+GET "https://{{endpoint}}/quotations"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2021-01-01"
+? "createdTo"= "2021-01-31"
+? "branch"= "01"
+? "partnerKey"= "C001"
+? "sellerKey"= "22"
+? "salesAgentKey"= "Intergate"
+? "erpKey"= "149231"
+? "docNum"= "122608"
+? "orderNum"= "1074052740415-01"
+? "pageNum"= "3"
+? "updatedAt"= "2020-11-03T18:00:00"
+
+
+// #### Insert sales quotation in ERP
+// *(sapBusinessOne=23/OQUT, totvsProtheus=SCJ)*
+// 
+// This service allows to insert a new sales quotation in the ERP, with treatment for new and existing partner.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales quotation will be added if the sales quotation is not found on the ERP by branch + orderNum:
+// - SAP B1: OQUT.BPLId + OQUT.NumAtCard
+// - TOTVS Protheus: CJ_FILIAL + CJ_PEDECOM
+// 
+// The key to finding the partner is through taxNumber. If the partner is located by taxNumber, the data is updated, otherwise the new partner is added in the ERP.
+// - SAP Business One: CRD7.TaxId0 (company / government) or CRD7.TaxId4 (person / employee)
+// - TOTVS Protheus: A1_CGC (customer / lead) or A2_CGC (supplier)
+// 
+// The products sent for the service will be identified in the ERP:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// Comments:
+// - Customer: [1] customer/type: C = customer, S = supplier, L = lead, [2] customer/taxType: P = person, C = company, G = government, E = employee. Each PN will have 2 registered addresses (CRD1, CRD7), namely: ShipToCode (S) = /customer/fullName OR /shipment/shippingAddress/firstName + "" + /shipment/shippingAddress/lastName, BillToCode (B) = /customer/fullName OR /customer/billingAddress/firstName + "" + /customer/billingAddress/lastName. Each PN will have 3 tax identification numbers (CRD12), namely: ShipToCode, BillToCode, empty.
+// - Seller: sellerKey
+// - Discounts: in total items (priceAdjustValue), in total freight (shipAdjustValue). shipAdjustType = minus or plus
+// - items: Duplication of items on more than 1 order line is not accepted, basePrice: base/gross price, taxBasis: total value of the item (quantity * price), calculation date for tax
+// - shipment: shipment data, as shipping address, carrier primary key in ERP, shipping method and carrier message
+// - totals: netValue: net value with discounts applied, grossValue: gross value with discounts and taxes applied, baseValue: base value for tax calculation, taxValue: taxes that increase order value (IPI, ICMS-ST, ...)
+// 
+// For the use of user fields (UDF) created in the sales order table (SAPB1: OQUT, TOTVS: SCJ), the respective registration must be performed in the Custom Table.
+// 
+// #### Request object has the following properties
+// Field | Type | Description |
+// :---:|:---:|:---:|
+// branch | string | Number branch
+// orderNum | string | Number Sales Order
+// brand | string | Brand
+// sellerKey | string | Seller Primary Key in ERP 
+// salesAgentKey| string | Sales Agent Primary Key in ERP
+// customer | object | Customer
+// customer.type | string | C=customer, S=supplier, L=lead 
+// customer.taxType | string |  P=person, C=company, G=government, E=employee
+// customer.partnerId | string | Id partner
+// customer.fullName | string | Customer full name
+// customer.aliasName | string | Customer alias name
+// customer.email | string |  Customer emai
+// customer.phone | string | Customer phone Number 
+// customer.phoneSecondary | string | Customer secondary phone number
+// customer.cellular | string | cell Customer phone number
+// customer.taxNumber | string  | Customer identification number
+// customer.stateTaxNumber | string | State customer identification number
+// customer.cityTaxNumber| string | City customer identification number
+// customer.billingAddress | object | Customer billing addresses
+// customer.billingAddress.address1 | string |  Customer billing address1
+// customer.billingAddress.address2 | string | Customer billing address2
+// customer.billingAddress.city | string | Customer billing city
+// customer.billingAddress.postalCode | string | Customer billing postal Code
+// customer.billingAddress.stateCode | string | Customer billing state Code
+// customer.billingAddress.community | string | Customer billing community
+// customer.billingAddress.exteriorNumber | string | Customer billing exterior number
+// customer.billingAddress.streetType | string | Customer billing type street
+// customer.billingAddress.countryCode | string | Customer billing country code
+// items | array | Order Items Object
+// productKey | string | Product key
+// productName | string | Product Name
+// quantity | number | Quantity
+// unit | string | Unit
+// unitPrice | number | Unit price
+// taxBasis | number | Tax Basis
+// shipment | object | Shipment
+// shipment.carrierKey | string | Carrier Primary Key in ERP
+// shipment.shippingMethod | string | Shipping method
+// shipment.carrierMessage| string | Carrier message
+// shipment.shippingAddress | array | Shipping adress
+// shippingAdress.address1 | string | Shipping first adress
+// shippingAdress.address2 | string | Shipping second adress
+// shippingAdress.city | string | Shipping city
+// shippingAdress.postalCode | string | Shipping postal Code
+// shippingAdress.stateCode | string | Shipping state Code
+// shippingAdress.community| string | Shipping community
+// shippingAdress.exteriorNumber | string| Shipping exterior number
+// shippingAdress.streetType | string | Shipping type street
+// shippingAdress.countryCode | string | Shipping country Code
+// totals | object | Totals
+// totals.orderTotal | object | Order totals
+// totals.orderTotal.netValue | number | Totals net value
+// totals.orderTotal.grossValue | number | Totals gross value
+// totals.orderTotal.baseValue |number | Totals base value 
+// totals.orderTotal.taxValue | number | Totals taxes that increase the value 
+// totals.merchandizeTotal | object | Merchandize Totals
+// totals.merchandizeTotal.netValue | number | Net value merchandize
+// totals.merchandizeTotal.grossValue | number | Gross value merchandize 
+// totals.merchandizeTotal.baseValue |number | Base value merchandize
+// totals.merchandizeTotal.taxValue | number | Taxes that increase the value merchandizeTotal
+// totals.merchandizeTotal.priceAdjustValue | number | Discounts in total items
+// totals.merchandizeTotal.priceAdjustType | string | Price adjustment type 
+// totals.merchandizeTotal.priceAdjustPromotionId | string | Price adjustment Id promotion
+// totals.merchandizeTotal.priceAdjustCouponId | string | Price adjustment Id coupon
+// totals.shippingTotal | object | Shipping totals
+// totals.shippingTotal.netValue | number | Shipping total Net value
+// totals.shippingTotal.grossValue | number | Shipping total Gross value 
+// totals.shippingTotal.baseValue |number | Shipping totals base value
+// totals.shippingTotal.taxValue | number | Shipping total Tax value
+// totals.shippingTotal.priceAdjustValue | number | Discounts on total shipping
+// totals.shippingTotal.priceAdjustType | string | Price adjust type
+// totals.shippingTotal.priceAdjustPromotionId | string | Price adjust Id promotion
+// totals.shippingTotal.priceAdjustCouponId | string | Price adjust Id coupon
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | process
+// system | string | System
+// target | string | Target
+// user | string | user
+// host | string | host
+// effectiveTimestamp | string | Effective Time stamp 
+// code | string | Code
+// success | booleano | Success
+// values | array | Values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erpkey
+
+@name("Sale Quotation")
+PUT "https://{{endpoint}}/quotations"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "1",
+    "orderNum": "1013",
+    "dueDate": "2021-01-10",
+    "comments": "Test",
+    "customer": {
+        "type": "L",
+        "taxType": "P",
+        "fullName": "Rafael Hernandes Ogeda",
+        "aliasName": "Ogeda",
+        "email": "rafael.ogeda@terra.com.br",
+        "phone": "+5547988493101",
+        "cellular": "+5547988493101",
+        "taxNumber": "891.751.749-87",
+        "billingAddress": {
+            "address1": "Luiz Walendowsky",
+            "address2": "",
+            "city": "Porto Belo",
+            "postalCode": "88210-000",
+            "stateCode": "SC",
+            "community": "Pereque",
+            "exteriorNumber": "218",
+            "streetType": "Rua",
+            "countryCode": "BR"
+        }
+    },
+    "items": [
+        {
+            "productKey": "PA100001",
+            "productName": "CAMISA TOPPER FLAMENGO P",
+            "quantity": 1,
+            "unit": "UN",
+            "unitPrice": 49.9,
+            "taxBasis": 49.9,
+            "comments": ""
+        }
+    ],
+    "shipment": {
+        "shippingAddress": {
+            "address1": "Luiz Walendowsky",
+            "address2": "",
+            "city": "Porto Belo",
+            "postalCode": "88210-000",
+            "stateCode": "SC",
+            "community": "Pereque",
+            "exteriorNumber": "218",
+            "streetType": "Rua",
+            "countryCode": "BR"
+        }
+    },
+    "totals": {
+        "orderTotal": {
+            "netValue": 59.71,
+            "grossValue": 59.71,
+            "baseValue": 59.71,
+            "taxValue": 0
+        },
+        "merchandizeTotal": {
+            "netValue": 49.9,
+            "grossValue": 49.9,
+            "baseValue": 49.9,
+            "taxValue": 0,
+            "priceAdjustValue": 0,
+            "priceAdjustType": "",
+            "priceAdjustPromotionId": "",
+            "priceAdjustCouponId": ""
+        },
+        "shippingTotal": {
+            "netValue": 9.81,
+            "grossValue": 9.81,
+            "baseValue": 9.81,
+            "taxValue": 0,
+            "shipAdjustValue": 0,
+            "shipAdjustType": "",
+            "shipAdjustPromotionId": "",
+            "shipAdjustCouponId": ""
+        }
+    }
+})
+
+
+

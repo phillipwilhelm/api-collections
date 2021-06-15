@@ -1,0 +1,1 @@
+This collection is part of a series of Postman tutorials that you can find on the official Postman YouTube channel: https://www.youtube.com/channel/UCocudCGVb3MmhWQ1aoIgUQw

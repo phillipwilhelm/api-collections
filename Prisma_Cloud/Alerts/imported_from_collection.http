@@ -1,0 +1,62 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of alerts that match the constraints specified in the query parameters.
+
+@name("List Alerts")
+GET "https://{{api-endpoint}}/alert"
+"accept": "application/json; charset=UTF-8"
+"x-redlock-auth": "{{token}}"
+? "timeType"= "relative"
+? "timeAmount"= "1"
+? "timeUnit"= "week"
+? "detailed"= "true"
+
+
+// Returns a filtered list of alerts.
+// (This example list all resolved alerts)
+
+@name("List Alerts (Filtered)")
+POST "https://{{api-endpoint}}/alert"
+"accept": "application/json; charset=UTF-8"
+"content-type": "application/json"
+"x-redlock-auth": "{{token}}"
+? "detailed"= "true"
+data('{"timeRange":{"type":"to_now","value":"epoch"},"filters":[{"name":"alert.status","value":"resolved","operator":"="}]}')
+
+
+// Returns a paginated list of alerts from the Prisma Cloud platform.
+
+@name("List Alerts V2")
+GET "https://{{api-endpoint}}/v2/alert"
+"accept": "application/json; charset=UTF-8"
+"x-redlock-auth": "{{token}}"
+? "timeType"= "relative"
+? "timeAmount"= "1"
+? "timeUnit"= "week"
+? "detailed"= "true"
+
+
+// Returns a filtered and paginated list of alerts.
+// (This example lists all resolved alerts)
+
+@name("List Alerts V2 (Filtered)")
+POST "https://{{api-endpoint}}/v2/alert"
+"accept": "application/json; charset=UTF-8"
+"content-type": "application/json"
+"x-redlock-auth": "{{token}}"
+? "detailed"= "true"
+data('{"timeRange":{"type":"to_now","value":"epoch"}}')
+
+
+// Returns a filtered list of alerts grouped by the policy they violated.
+
+@name("List Alerts Grouped By Policy")
+POST "https://{{api-endpoint}}/alert/policy"
+"accept": "application/json; charset=UTF-8"
+"Content-Type": "application/json"
+"x-redlock-auth": "{{token}}"
+? "detailed"= "true"
+data('{"timeRange":{"type":"to_now","value":"epoch"}}')
+
+
+

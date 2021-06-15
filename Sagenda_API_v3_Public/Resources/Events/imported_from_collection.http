@@ -1,0 +1,145 @@
+#!/usr/bin/env dothttp
+
+// Returns an array of zero or more event occurrence for the requested bookable item in the defined date range
+// 
+// > Please refer to example request and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn of the possible response fields
+// 
+// **You can override or set desired date range/bookable item in the `Pre-request Script` tab** 
+// 
+// > First event identifier from this endpoint response is used to automatically fill `eventIdentifier` Postman variable (if it's empty)
+
+@name("Search within date range")
+GET "https://{{domain}}/api/v3/events/{{startDate}}/{{endDate}}/{{bookableItem}}"
+
+
+// Request to book a single event occurence
+// 
+// 
+// This endpoint expects an `application/json` request body with these fields:
+// * __eventIdentifier__: identifier of the event being booked
+// * __eventLock__: identifier of the event lock acquired for this event
+// * __member__: details of the person booking the event. Required fields depend on the account settings
+// 
+// > Please refer to example response and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn possible values of `member` structure
+// 
+// **You can override or set desired event identifier/event lock in the `Pre-request Script` tab**
+
+@name("Book single event")
+POST "https://{{domain}}/api/v3/events"
+"Content-Type": "application/json"
+data('{
+	"eventIdentifier": "{{eventIdentifier}}",
+	"lockIdentifier": "{{eventLock}}",
+	"member": { 
+		"email": "test@example.com",
+		"participants": 1
+	}
+}')
+
+
+// Request to book multiple event occurrences in one request
+// 
+// > You can use this endpoint for single event bookings as well, to simplify your workflow if you support multi-booking in your API consumer
+// 
+// To book multiple event you should obtain event locks for all of them (either in one request or one-by one)
+// 
+// **When obtaining event locks one-by-one or via multiple requests, make sure that you supply `userIdentifier` received from first event lock to the next lock requests, ALL locks should share the same `userIdentifier`**
+// 
+// This endpoint expects an `application/json` request body with these fields:
+// * __userIdentifier__: user identifier that is shared by all of the event locks representing events intended to be booked
+// * __member__: details of the person booking the event. Required fields depend on the account settings
+// * __discountCode__: if account owner has set up discount codes for this event, the value entered by user should be passed here (optional, subscription required) 
+// 
+// > Please refer to example response and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn possible values of `member` structure
+// 
+// > If your account has paid events enabled (optional, requires module subscription) and the request 
+// > contained one or more of there events, then this endpoint will return an URL to redirect user to 
+// > complete payment (please see `Successful request with paid events` example)
+// 
+// **You can override or set desired event identifier in the `Pre-request Script` tab**
+
+@name("Book multiple events")
+POST "https://{{domain}}/api/v3/events/multi"
+"Content-Type": "application/json"
+data('{
+  "userIdentifier": "{{userIdentifier}}",
+  "member": {
+    "email": "test@example.com"
+    }
+}')
+
+
+// Request to book multiple members for one or more events in one request
+// 
+// > You can use this endpoint for single event-single member bookings as well, to simplify your workflow if you support multi-member booking in your API consumer
+// 
+// To book multiple event with multiple members you should maintain a mapping of event identifiers and members that need to be booked under that identifier (`eventIdentifier` -> `member` pairs)
+// 
+// Obtain event locks based on that information (either in one request or one-by one)
+// 
+// **When obtaining event locks one-by-one or via multiple requests, make sure that you supply `userIdentifier` received from first event lock to the next lock requests, ALL locks should share the same `userIdentifier`**
+// 
+// This endpoint expects an `application/json` request body with these fields:
+// * __userIdentifier__: user identifier that is shared by all of the event locks representing events intended to be booked
+// * __mappings__: array of `eventIdentifier` - `member` mappings, below are single object fields
+// 	*  __eventIdentifier__: identifier of the event being booked
+// 	*  __members__: array of `member` entities that should be booked under this identifier
+// * __discountCode__: if account owner has set up discount codes for this event, the value entered by user should be passed here (optional, subscription required) 
+// 
+// > Please refer to example response and documentation at [Sagenda.com](https://www.sagenda.com/booking-system-api-v3/) to learn possible values of `member` structure
+// 
+// **You can override or set desired event identifier in the `Pre-request Script` tab**
+
+@name("Book multiple members")
+POST "https://{{domain}}/api/v3/events/multi-member"
+"Content-Type": "application/json"
+data('{
+  "userIdentifier": "{{userIdentifier}}",
+  "mappings": 
+  [
+    {
+      "eventIdentifier": "{{eventIdentifier}}",
+      "members": 
+      [
+        {
+        	"email": "test@example.com"
+    	},
+    	{
+    		"email": "test2@example.com"
+    	}
+      ]
+    }
+  ] 
+}')
+
+
+// If you are working with paid events (optional, module subscription required) and allow multi-booking, you can use this endpoint to get a total payment amount for selected events before actually booking them. 
+// 
+// It will take features that are enabled on your account (like discounts, taxes & fees, etc.) and apply them automatically to price calculation.
+// 
+// To calculate payments, you just need to supply the same request body here as you would for the actual `Book multiple members` endpoint.
+// 
+// > Note that this price isn't a guarantee, because something can change before you actually request booking. Payment URL will contain the correct and final amount
+
+@name("Calculate total payment value")
+POST "https://{{domain}}/api/v3/payment/calculate-totals"
+"Content-Type": "application/json"
+data('{
+  "discountCode": "EXAMPLE", 
+  "mappings": 
+  [
+    {
+      "eventIdentifier":  "{{eventIdentifier}}",
+      "members": 
+      [
+        {
+          "email": "test@example.com",
+          "participants": 1
+    	}
+      ]
+    }
+  ] 
+}')
+
+
+

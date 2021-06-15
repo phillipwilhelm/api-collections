@@ -1,0 +1,46 @@
+#!/usr/bin/env dothttp
+
+// To use the Trippy API, your app must send an OAuth2 access token in an Authorization header with each request. 
+// 
+// 1. Make a request to https://api.trippy.com/oauth/token.
+// 2. Provide your `client_id` and `client_secret` as the username:password for HTTP Basic Authentication.
+// 
+
+@name("Generate access token")
+POST "https://api.trippy.com/oauth2/token"
+"Content-Type": "application/json"
+files(
+	("client_id", ""),
+	("client_secret", ""),
+	("grant_type", "client_credentials"),
+	("scope", "public")
+)
+
+
+// A `POST` to the /trips endpoint allows your application to request a trip on behalf of the user. 
+
+@name("Request a trip")
+POST "https://api.trippy.com/v1/trips"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+files(
+	("origin_lat", ""),
+	("origin_lng", ""),
+	("destination_lat", ""),
+	("destination_lng", "")
+)
+
+
+// A `PUT` to the /trips/:trip_id/destination endpoint allows your application to update the destination of the specified trip.
+
+@name("Update destination")
+PUT "https://api.trippy.com/v1/trips/:trip-id/destination"
+"Authorization": "Bearer {{access_token}}"
+"Content-Type": "application/json"
+files(
+	("lat", ""),
+	("lng", "")
+)
+
+
+

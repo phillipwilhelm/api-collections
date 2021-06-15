@@ -1,0 +1,148 @@
+#!/usr/bin/env dothttp
+
+// This API can be used to verify a single PAN card.
+// 
+// ## REQUEST JSON
+// 
+// ### BODY PARAMS
+// 
+// * pan (required) - Pan number of the customer which needs to be verified
+// * consent (required) - Consent of the end user to get their information for verification purpose
+// * consent_text(required) - Purpose for which user has given their consent.
+// 
+// ## OUTPUT
+// 
+// 
+// <h4>Missing PAN input</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Missing parameter: pan"
+// }
+// ```
+// 
+// <h4>Invalid PAN format</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid Pan Number(s) :- <<List of invalid PAN numbers>>"
+// }
+// ```
+// 
+// <h4>Invalid consent</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent is required"
+// }
+// ```
+// 
+// <h4>Invalid consent text</h4>
+// 
+// ```
+// {
+//     "statusCode": 422,
+//     "errors": [],
+//     "message": "Invalid parameter: Consent text must be atleast 20 characters long."
+// }
+// ```
+// 
+// <h4>Transaction successful (valid record)</h4> 
+// 
+// ```
+// {
+//     "id": "3af402c9-e8fd-4273-87f9-0f1a356ceaa1",
+//     "env": 1,
+//     "request_timestamp": "2018-11-22 18:04:56:300 +05:30",
+//     "response_timestamp": "2018-11-22 18:04:58:142 +05:30",
+//     "transaction_status": 1,
+//     "data": {
+//         "pan_number": "BFZPT1XXXX",
+//         "name": "MOHXX  XXXXX",
+//         "pan_status": "VALID"
+//     },
+//     "response_msg": "Success",
+//     "response_code": "101"
+// }
+// ```
+// 
+// <h4>Transaction successful (invalid record)</h4>
+// 
+// ```
+// {
+//     "id": "6bf2cfb8-0a48-4756-a3d0-478e29500701",
+//     "env": 1,
+//     "request_timestamp": "2019-10-11 14:58:01:402 +05:30",
+//     "response_timestamp": "2019-10-11 14:58:01:436 +05:30",
+//     "transaction_status": 0,
+//     "data": {
+//         "pan_number": "ABNPNXXXXX",
+//         "pan_status": "INVALID"
+//     },
+//     "response_msg": "Invalid ID number or combination of inputs",
+//     "response_code": "102"
+// }
+// ```
+// 
+// <h4>Transaction failure</h4>
+// 
+// ```
+// {
+//     "id": "bbe85f62-6be0-48ee-9864-8f1308ccb9a9",
+//     "response_code": 110,
+//     "error_message": "Source Unavailable",
+//     "pan_count": 1,
+//     "pan_success_count": 0,
+//     "transaction_status": 0,
+//     "request_timestamp": "2018-06-21 14:23:06:109 +05:30",
+//     "response_timestamp": "2018-06-21 14:23:08:295 +05:30"
+// }
+// ```
+// <br>
+
+@name("Verification API")
+POST "https://{{base_url}}/pan-lite"
+"Content-Type": "application/json"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+data('{
+	"pan":"<<pan number>>",
+	"consent": "Y",
+	"consent_text": "<<consent text>>"
+}')
+
+
+// This API can be used to obtain a transaction's META DATA
+// 
+// <h4>Fetch response</h4>
+// 
+// ```
+// {
+//     "id": "6bf2cfb8-0a48-4756-a3d0-478e29500701",
+//     "response_code": "102",
+//     "env": 1,
+//     "pan_count": 1,
+//     "pan_success_count": 0,
+//     "transaction_status": 0,
+//     "consent": "Y",
+//     "consent_text": "I give my consent to aadhaar api to check my pan info for kyc purpose",
+//     "response_msg": "Invalid ID number or combination of inputs",
+//     "request_timestamp": "2019-10-11 14:58:01:402 +05:30",
+//     "response_timestamp": "2019-10-11 14:58:01:436 +05:30"
+// }
+// ```
+// <br>
+
+@name("Fetch API")
+GET "https://{{base_url}}/pan-lite/fetch/<<transaction_id>>"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

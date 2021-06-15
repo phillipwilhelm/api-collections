@@ -1,0 +1,229 @@
+#!/usr/bin/env dothttp
+
+@name("Company Research")
+GET "https://{{url}}/api/research/{symbol}"
+
+
+
+// Analyze option ratios by symbols to find positive and negative bias towards specific equities.
+
+@name("Option Ratios")
+GET "https://{{url}}/api/research/option/ratios"
+"Authorization": "{{auth}}"
+? "symbols"= "AAPL,BABA"
+
+
+// Analyze option ratios across the whole option market to find positive and negative bias towards specific equities.
+// 
+// |filter|Description|
+// |-------|--------|
+// |vol_oi|Volume: Open Interest ratios|
+// |vol|Open Interest ratios|
+// |oi|Volume ratios|
+
+@name("Option Radar")
+GET "https://{{url}}/api/research/option/radar"
+"Authorization": "{{auth}}"
+
+
+// Returns index' components. Use `loadQuotes` query parameters to load quotes as well.
+// 
+// ## Indexes
+// 
+// * I:DJI
+// * I:SPX
+// * QQQ
+// * OI:CHXN
+// * OI:ISRQ
+// * OI:ROSS
+
+@name("Index Components")
+GET "https://{{url}}/api/research/index/components/{index}"
+"Authorization": "{{auth}}"
+? "loadQuotes"= "true"
+
+
+@name("Stock Upgrades")
+GET "https://{{url}}/api/research/upgrades"
+? "symbols"= "AAPL"
+
+
+
+@name("Ownership Details")
+GET "https://{{url}}/api/research/ownerships/details"
+? "symbols"= "MSFT,GOOG"
+? "filter"= "ALL"
+? "sort"= "portfolio"
+? "count"= "20"
+? "page"= "0"
+
+
+@name("Owner Details")
+GET "https://{{url}}/api/research/owner/details"
+? "ids"= "PS000000YH,PS000004TI"
+
+
+// Obtain a list of all upcoming earning release data.
+
+@name("Earnings Calendar")
+GET "https://{{url}}/api/research/earnings"
+"Authorization": "{{auth}}"
+? "excludeOtcs"= "true"
+? "days"= "90"
+? "loadQuotes"= "false"
+? "symbols"= "AAPL,T,GOOGL"
+
+
+// Obtain a list of upcoming earning release data in the porfolio of an account.
+
+@name("Earnings Calendar for Portfolio")
+GET "https://{{url}}/api/research/earnings"
+? "excludeOtcs"= "true"
+? "days"= "7"
+? "loadQuotes"= "false"
+
+
+// Returns fundamental data for the specified symbol. Currently, there are three document types that can be accessed as the {*type*} parameter:
+// 
+// * **IncomeStatement**
+// * **CashFlow**
+// * **BalanceSheet**
+// 
+// Included in each quarter there may be additional **semi-annual(6M)** and **annual(12M)** data which includes combined values for that period.
+
+@name("Fundamentals")
+GET "https://{{url}}/api/research/fundamentals/{type}/{symbol}"
+
+
+
+@name("Fundamental Types")
+GET "https://{{url}}/api/research/fundamentals/types"
+
+
+
+// * Field values: `MarketCap`, `LastPrice`, `Beta`, `DividendAmount`, `DividendRate`, `DividendYield`, `DividendPayDate`, `DividendExDate`, `Exchange`, `Gap`, `Adr`, `Etf`, `Industry`, `Volume`, `Volume30D`, `PriceEarningRatio`
+// * Comparators: `Equals`, `LessThan`, `GreaterThan`, `NotEquals`
+
+@name("Screener")
+POST "https://{{url}}/api/research/screener"
+"Content-Type": "application/json"
+data("[{
+	field: 'Adr',
+	comparator: 'Equals',
+	value: true
+}, {
+	field: 'MarketCap',
+	comparator: 'GreaterThan',
+	value: 10,
+	dateRange: {
+		lowerBound: '',
+		upperBound: ''
+	}
+}]")
+
+
+// * Request Start Index, Page Size (limit) is now passed along with the body
+// * Starts at index 0. 
+// * If start exceeds the length of the list, an empty list is returned
+// * Field values: `MarketCap`, `LastPrice`, `Beta`, `DividendAmount`, `DividendRate`, `DividendYield`, `DividendPayDate`, `DividendExDate`, `Exchange`, `Gap`, `Adr`, `Etf`, `Industry`, `Volume`, `Volume30D`, `PriceEarningRatio`
+// * Comparators: `Equals`, `LessThan`, `GreaterThan`, `NotEquals`
+
+@name("Screener V2")
+POST "https://{{url}}/api/research/screener"
+"Content-Type": "application/json"
+data("[{
+	field: 'Adr',
+	comparator: 'Equals',
+	value: true
+}, {
+	field: 'MarketCap',
+	comparator: 'GreaterThan',
+	value: 10,
+	dateRange: {
+		lowerBound: '',
+		upperBound: ''
+	}
+}]")
+
+
+// - `marketCap` is in unit millions.
+// - `priceChange` and `marketCapChange` are intra day change.
+// - `priceChange`, `priceChangeOneWeek`, `priceChangeTwoWeeks`, `priceChangeOneMonth`, `marketCapChange`, `marketCapChangeOneWeek`, `marketCapChangeTwoWeeks`, `marketCapChangeOneMonth` are changes in percentage.
+
+@name("Industry Heat Map")
+GET "https://{{url}}/api/research/heatMap/industryRanking"
+"Authorization": "{{auth}}"
+? "industryType"= "group"
+
+
+// Gets a json list of industries with the industry-level code based on the given industry type [ SECTOR, GROUP, INDUSTRY, SUB_INDUSTRY]
+
+@name("Industry List")
+GET "https://{{host}}/"
+
+
+@name("Symbol Heat Map")
+GET "https://{{url}}/api/research/heatMap/symbols"
+
+
+
+// Response
+// ```javascript
+// 
+// {
+// 	"I:DJI": {	                 // index symbol
+// 		"components": [],        // components of the index
+// 		"best5": [],             // quotes of top 5 performance stock
+// 		"worst5": [],            // quotes of bottom 5 performance 
+// 		"prices": {},            // historical price of this index
+// 		"etfs": []               // related EFTs
+// 	}
+// }
+// ```
+// 
+// Available indices:
+// - I:DJI
+// - I:SPX
+// - DIA
+// - SPY
+// - QQQ
+// - OI:CHXN
+// - OI:ISRQ
+// - OI:ROSS
+// - OI:SHAR
+
+@name("Index Overview")
+GET "https://{{url}}/api/research/marketOverview"
+
+
+@name("Historical Data")
+GET "https://{{url}}/api/research/historicalPrices"
+
+
+
+// The `{category}` path parameters can be any of the following:
+// * **LP**  - Largest % Price
+// * **MA**  - Most Active
+// * **DT**  - Most Active by $ Traded
+// * **MALP**  - Most Active by % Price
+// 
+// Supported markets:
+// * **BIG3** - NYSE/Nasdaq/AmEx
+// * **NASDAQ** - Nasdaq
+// * **NYSE** - NYSE
+// * **AMEX** - AmEx
+// * **OTCk** - OTC BB
+// * **OTCi** - OTC issues
+// 
+// Supported order:
+// * **H** - Winners
+// * **L** - Losers
+
+@name("Top Quotes by Category")
+GET "https://{{url}}/api/quotes/top10/{category}"
+? "market"= "BIG3"
+? "order"= "H"
+
+
+
+

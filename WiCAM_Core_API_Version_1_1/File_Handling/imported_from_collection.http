@@ -1,0 +1,175 @@
+#!/usr/bin/env dothttp
+
+// The file upload takes care of all files, no matter if they are 2D or 3D format. According to the format some automatic processes will be started.
+// 
+// ##### 2D - DXF or DWG
+// 
+// 1. Preview generation
+// 2. Geometry analysis
+// 3. Geometry validation
+// 
+// ##### 2D - All other
+// 
+// 1. CAD conversion to DXF
+// 2. Preview generation
+// 3. Geometry analysis
+// 4. Geometry validation
+// 
+// ##### 3D
+// 
+// * Unfolding has to be started first
+// 
+// ---
+// 
+// _Common mistakes:_
+// 
+// * _Don't forget to set the Disposition Header including a complete filename with extension_
+
+@name("Upload File")
+POST "https://{{BaseUrl}}/file"
+files(
+	("File", "None")
+)
+
+
+// <br/>
+// This endpoint always returns the original uploaded file. 
+// 
+// If you want to download the file in another format, please go to the section **CAD Converter**
+// 
+// 
+// ---
+// 
+// 
+// _Special case:_
+// 
+// _If you want to download a part of a split assembly, default format is ".n3d"_
+
+@name("Download File")
+GET "https://{{BaseUrl}}/file/{{FileID}}"
+
+
+// This endpoint returns all information which are collected while the file is processed. Depending on which processes are already finished, the fileinfo contains different information.
+// 
+// #### Basic information
+// 
+// Immediately after uploading, only the fields `name`, `extension` and `ready` are filled.
+// 
+// <br /> 
+// 
+// #### After geometry validation
+// 
+// Once the geometry validation is complete, the fields `length`, `width`, `cadElements`, `valid` and `colors` are available
+// 
+// <br /> 
+// 
+// #### After geometry analysis
+// 
+// The geometry analysis provides the information `minCircle`, `maxCircle`, `partNetArea`, `partArea`, `partWasteArea`, `minAreaInnerContour`, `minInnerContourWidth`, `maxAreaInnerContour`, `maxInnerContourWidth`, `maxInnerContourHeight`, `contours`, `closedInnerContours`, `openInnerContours`, `totalLenght`, `outerLenght`, `openInnerLenght` and `closedInnerLenght`
+// 
+// <br /> 
+// 
+// #### After unfolding or split
+// 
+// The unfolding process provides the following data `x`, `y`, `z`, `thickness`, `originalName`, `geometryName`, `partType`, `amountInAssembly` and `assembly`
+// 
+// <br /> 
+// 
+// #### After geometry validation of an unfolded file
+// 
+// After validating an unfolded file, the additional information `bendLines` are provided
+// 
+// <br /> 
+// 
+// ##### Response fields
+// 
+// | Property                    | Type                      | Description                                                   |
+// | ----------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **id**                      | **integer**               | FileID of the uploaded file                                   |
+// | **name**                    | **string**                | Original filename _(part name in case of an assembly part)_   |
+// | **originalName**            | _nullable_ **string**     | Structural name inside a 3D file							  |
+// | **geometryName**            | _nullable_ **string**     | Geometrymane used inside a 3D file                            |
+// | **extension**               | **string**                | Original file extension                                       |
+// | **length**                  | _nullable_ **integer**    | X dimension of the geometry in millimeters                    |
+// | **width**                   | _nullable_ **integer**    | Y dimension of the geometry in millimeters                    |
+// | **x**                       | _nullable_ **double**     | 3D X dimension in millimeters                                 |
+// | **y**                       | _nullable_ **double**     | 3D Y dimension in millimeters                                 |
+// | **z**                       | _nullable_ **double**     | 3D Z dimension in millimeters                                 |
+// | **thickness**               | _nullable_ **double**     | Thickness detected in the 3D model                            |
+// | **cadElements**             | _nullable_ **integer**    | Number of cad elements in the 2D drawing                      |
+// | **partType**                | _nullable_ **integer**    | Detected 3D part type _(See partType chapter)_                |
+// | **amountInAssembly**        | _nullable_ **integer**    | Number of instances in the assembly                           |
+// | **valid**                   | **boolean**               | 2D geometry validation result                                 |
+// | **ready**                   | **boolean**               | 3D file is unfolded                                           |
+// | **assembly**                | **boolean**               | File is assembly                                              |
+// | **minCircle**               | _nullable_ **double**     | Diameter of the smallest full                                 |
+// | **maxCircle**               | _nullable_ **double**     | Diameter of the largest full                                  |
+// | **partNetArea**             | _nullable_ **double**     | Area of outer contour - area of inner contour in mm²          |
+// | **partArea**                | _nullable_ **double**     | Area of outer contour in mm²                                  |
+// | **partWasteArea**           | _nullable_ **double**     | Area of all inner contours in mm²                             |
+// | **minAreaInnerContour**     | _nullable_ **double**     | Area of the smallest inner contour in mm²                     |
+// | **minInnerContourWidth**    | _nullable_ **double**     | X dimension of the smallest inner contour                     |
+// | **minInnerContourHeight**   | _nullable_ **double**     | Y dimension of the smallest inner contour                     |
+// | **maxAreaInnerContour**     | _nullable_ **double**     | Area of the largest inner contour in mm²                      |
+// | **maxInnerContourWidth**    | _nullable_ **double**     | X dimension of the largest inner contour                      |
+// | **maxInnerContourHeight**   | _nullable_ **double**     | Y dimension of the largest inner contour                      |
+// | **contours**                | _nullable_ **integer**    | Number of contours in the 2D geometry                         |
+// | **closedInnerContours**     | _nullable_ **integer**    | Number of closed inner contours in the 2D geometry            |
+// | **openInnerContours**       | _nullable_ **integer**    | Number of open inner contours in the 2D geometry              |
+// | **totalLenght**             | _nullable_ **double**     | Length of all contours                                        |
+// | **outerLenght**             | _nullable_ **double**     | Length of outer contour                                       |
+// | **openInnerLenght**         | _nullable_ **double**     | Length of all open inner contours                             |
+// | **closedInnerLenght**       | _nullable_ **double**     | Length of all open closed contours                            |
+// | **colors**                  | **integer array**         | Array of color ids, which are contained in the 2D drawing     |
+// | **bendLines**               | **object array**          | Array of all bendzones                                        |
+// | **counterSinks**            | **object array**          | Array of all countersinks                                     |
+// | **instances**               | **object array**          | Array of all instances inside 3D model                        |
+// | **roundTubeFeatures**       | _nullable_ **object**     | Round tube features                                           |
+// | **rectangularTubeFeatures** | _nullable_ **object**     | Rectangular tube features                                     |
+// 
+// ##### RoundTubeFeatures Object
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **tubeDiameter**          | **double**                | Outer diameter of the tube                                    |
+// | **tubeLength**            | **double**                | Length of the tube                                            |
+// 
+// ##### RectangularTubeFeatures Object
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **tubeWidth**             | **double**                | Width of the tube                                             |
+// | **tubeHeight**            | **double**                | Height of the tube                                            |
+// | **tubeLength**            | **double**                | Length of the tube                                            |
+// | **tubeCornerRaduis**      | **double**                | Corner radius of the tube                                     |
+// 
+// ##### Bendline Object
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **radius**                | **double**                | Radius of the bendzone                                        |
+// | **angle**                 | **double**                | Angle in degree of the bendzone                               |
+// | **segments**              | **integer**               | Amount of bend segments which can be bend together            |
+// | **lengthWithGaps**        | **double**                | Total length of the bending                                   |
+// | **lengthWithoutGaps**     | **double**                | Length of the bending without gaps                            |
+// 
+// ##### CounterSink Object
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **minDiameter**           | **double**                | Innerdiameter                                                 |
+// | **maxDiameter**           | **double**                | Outerdiameter                                                 |
+// 
+// 
+// ##### Instance Object
+// 
+// | Property                  | Type                      | Description                                                   |
+// | --------------------------|--------------------------:|:--------------------------------------------------------------|
+// | **structurePath**         | **string**                | Structure path of the 3D model                                |
+// | **matrix**                | **4x4 matrix**            | rotation and translation matrix for the instance              |
+
+@name("Fileinformations")
+GET "https://{{BaseUrl}}/file/info/{{FileID}}"
+
+
+

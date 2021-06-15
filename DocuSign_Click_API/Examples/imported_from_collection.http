@@ -1,0 +1,322 @@
+#!/usr/bin/env dothttp
+
+// This example is a very basic example of creating an evenlope with a document and a single signer. This evenlope does not specify a tab.
+
+@name("1. Create an Envelope")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "documents": [
+    {
+      "documentBase64": {{document}},
+      "documentId": {{documentId}},
+      "fileExtension": "pdf",
+      "name": "document"
+    }
+  ],
+  "emailSubject": "Simple Signing Example",
+  "recipients": {
+    "signers": [
+      {
+        "email": {{user1}},
+        "name": {{user1_name}},
+        "recipientId": "{{recipientId}}"
+      }
+    ]
+  },
+  "status": "sent"
+}')
+
+
+// In this example, we are creating an envelope similar to the previous step. However, we are keeping it in `draft` stage so can continue to make changes to it. If the status was set to `sent` the envelope would be sent to users.
+
+@name("2. Create Envelope in Draft Stage")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "documents": [
+    {
+      "documentBase64": {{document}},
+      "documentId": "123",
+      "fileExtension": "pdf",
+      "name": "document"
+    }
+  ],
+  "emailSubject": "Simple Signing Example",
+  "recipients": {
+    "signers": [
+      {
+        "email": {{user1}},
+        "name": {{user1_name}},
+        "recipientId": "{{recipientId}}"
+      }
+    ]
+  },
+  "status": "created"
+}')
+
+
+// If one needs to check the status of an envelope, they can use this endpoint to retrieve the status.
+
+@name("3. Get Envelope Status")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will list the recipents of an envelope. This endpoint is particularly useful if the envelope is in `draft` stage and we want to make changes to its recipents before sending.
+
+@name("4. Envelope Recipients")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/recipients"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will modify an evelope and add a tab to a document. This endpoint allows one to modify envelopes after they were created, which is very useful.
+
+@name("5. Add Tab to Envelope")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/recipients/{{recipientId}}/tabs"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+    "signHereTabs": [{
+        "anchorString": "test",
+        "anchorXOffset": "1",
+        "anchorYOffset": "0",
+        "anchorIgnoreIfNotPresent": "false",
+        "anchorUnits": "inches"
+    }]
+}')
+
+
+// After adding a new tab to the envelope, we can verify the tab was created by listing all the tabs in the envelope.
+
+@name("6. Get Tabs in an Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/recipients/{{recipientId}}/tabs"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will make further changes to our existing envelope by adding an attachmen to it.
+
+@name("7. Add an Attachment to Envelope")
+PUT "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/attachments"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+    "attachments": [{
+        "attachmentId": "123",
+        "data": {{document}},
+        "name": "sample_document",
+        "anchorIgnoreIfNotPresent": "false",
+        "anchorUnits": "inches"
+    }]
+}')
+
+
+// In this example, we will verify the attachment was added by listing all the attachments in the envelope.
+
+@name("8. List Attachments in an Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/attachments"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will list all the documents that are included in an envelope.
+
+@name("9. Lists the Documents in an Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/documents"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will download one document from the envelope. This approach allows one to inspect the document after envelope was created.
+
+@name("10. Get a Document from Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/documents/{{documentId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// This method locks the specified envelope and sets the time until the lock expires to prevent other users or recipients from changing the envelope.
+// 
+// The response to this request returns a `lockToken` parameter. You must use the lockToken to update or delete an existing lock. You must also include the `lockToken` in the header for every PUT call that you make on the envelope while it is locked. If you do not include the `lockToken`, the system returns the following error:
+// 
+// ```{
+//    "errorCode": "EDIT_LOCK_NOT_LOCK_OWNER",
+//    "message": "The user is not the owner of the lock. The template is locked by another user or in another application"
+// }```
+// 
+// `Note`: Users must have envelope locking capability enabled to use this function (userSetting canLockEnvelopes must be set to true for the user).
+
+@name("11. Lock the Envelope")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/lock"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "lockDurationInSeconds": "500",
+  "lockType": "edit"
+}')
+
+
+// In this example, we will list all the locks existing on an envelope.
+
+@name("12. Lists the Existing Locks on an Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/lock"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// This example will delete the lock we created on the envelope.
+
+@name("13. Delete Existing Lock on an Envelope")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId}}/lock"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// In this example, we will create an embedded preview of what our recipients see when the envelope is sent out to them.
+
+@name("14. Created Embedded View")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes/{{envelopeId_draft}}/views/recipient_preview"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+    "returnUrl": "http://httpbin.org/get",
+    "authenticationMethod": "none",
+    "email": {{user1}},
+    "userName": {{user1_name}}
+}')
+
+
+// In this example, we will create a template with document, tabs and its recipients specified. This is a great future if we know we will be sending the same envelope multiple times.
+
+@name("15. Create an Account Template")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/templates"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "documents": [
+    {
+      "name": "agreement",
+      "documentBase64": {{document}},
+      "documentId": {{documentId}},
+      "fileExtension": "pdf"
+    }
+  ],
+  "emailBlurb": "Email message",
+  "emailSubject": "email subject",
+  "recipients": {
+    "signers": [
+      {
+        "recipientId": "1",
+        "roleName": "seller",
+        "email":{{user1}},
+        "name": {{user1_name}},
+        "tabs": {
+          "signHereTabs": [
+            {
+              "documentId": "123",
+              "pageNumber": 1,
+              "xPosition": "4",
+              "yPosition": "4"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}')
+
+
+// We can always see the templates that have been created by listing them. The templates we just created in the previous step is listed here.
+
+@name("16. Get Account Templates")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/templates"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// If one is not sure which template is the one they want to use, they can fetch the template after listing it and verify that it is the one they want to use.
+
+@name("17. Get Template Definition")
+GET "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/templates/{{templateId}}"
+"Authorization": "Bearer {{accessToken}}"
+
+
+// Send an envelop with a single template.
+
+@name("18. Send Envelope with Template")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+    "emailBlurb": "Create an envelope with a templateId",
+    "emailSubject": "Template",
+    "templateId": "{{templateId}}",
+    "status": "sent"
+}')
+
+
+// In order to make templates more board and be able to use them in `CompositeTemplates` we can create them by specifying the role only. This way, the recipients can be specified at envelope creation. This example shows how useful templates can be.
+
+@name("19. Create a Template with Role Only")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/templates"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+  "documents": [
+    {
+      "name": "agreement",
+      "documentBase64": {{document}},
+      "documentId": {{documentId}},
+      "fileExtension": "pdf"
+    }
+  ],
+  "emailBlurb": "Email message",
+  "emailSubject": "email subject",
+  "recipients": {
+    "signers": [
+      {
+        "recipientId": "1",
+        "roleName": "seller",
+      }
+    ]
+  }
+}')
+
+
+// In this example, we will use the template we created in previous step and we will use `CompositeTemplates` to add a signer and a tab to it using `inlineTemplates`. You can see how one can create a template and keep reusing it this way.
+
+@name("20. Send an Envelope Using CompositeTemplates")
+POST "https://{{baseUrl}}/{{apiVersion}}/accounts/{{accountId}}/envelopes"
+"Authorization": "Bearer {{accessToken}}"
+data('{
+    "emailBlurb": "Create an envelope with a templateId",
+    "emailSubject": "Template",
+    "compositeTemplates": [
+        {
+            "serverTemplates": [
+                {
+                    "sequence": "1",
+                    "templateId": "{{templateId}}"
+                }
+            ],
+            "inlineTemplates": [
+                {
+                    "recipients": {
+                        "signers": [
+                            {
+                                "email": "{{user1}}",
+                                "name": "{{user1_name}}",
+                                "recipientId": "2",
+                                "roleName": "seller",
+                                "tabs": {
+                                    "signHereTabs": [
+                                        {
+                                            "anchorString": "test",
+                                            "anchorUnits": "pixels",
+                                            "anchorXOffset": "200",
+                                            "anchorYOffset": "10"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "sequence": "2"
+                }
+            ]
+        }
+    ],
+    "status": "sent"
+}')
+
+
+

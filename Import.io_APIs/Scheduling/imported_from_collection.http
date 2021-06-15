@@ -1,0 +1,163 @@
+#!/usr/bin/env dothttp
+
+// # GET list all schedules
+// 
+// Returns the list of all schedules created by a user who made the request.
+// 
+// ## Request
+// 
+// A GET request to the following endpoint
+// ```
+// /extractor
+// ```
+// 
+// This endpoint will list all schedule objects created by a user who made the request.
+// 
+// ## Response 
+// 
+// A successful response will be an array of the Schedule object.
+// 
+// Properties:
+// - **interval** - Either cron expression or an andvanced schedule object that defines how often the schedule should be triggered.
+// - **nextRunAt** - A timestamp generated internally to define when the next run should occur.
+// - **extractorId** - Defines the extractor for which the schedule was created.
+// - **ownerId** - Defines the user who owns the extractor.
+// - **intervalData (optional)** - Defines the data used by the frontend to properly display the schedule in the UI.
+
+@name("Get schedules")
+GET "https://schedule.import.io/extractor"
+? "_apikey"= "{{apikey}}"
+
+
+
+// # GET selected schedule
+// 
+// Returns a single schedule object.
+// 
+// ## Request
+// 
+// A GET request to the following endpoint
+// ```
+// /extractor/{extractorId}
+// ```
+// 
+// This endpoint will get a schedule object created by a user who made the request for an extractor defined by `extractorId` parameter.
+// 
+// ## Response 
+// 
+// A successful response will be a Schedule object.
+// 
+// Properties:
+// - **interval** - Either cron expression or an andvanced schedule object that defines how often the schedule should be triggered.
+// - **nextRunAt** - A timestamp generated internally to define when the next run should occur.
+// - **extractorId** - Defines the extractor for which the schedule was created.
+// - **ownerId** - Defines the user who owns the extractor.
+// - **intervalData (optional)** - Defines the data used by the frontend to properly display the schedule in the UI.
+
+@name("Get extractor schedule")
+GET "https://schedule.import.io/extractor/:extractorId"
+? "_apikey"= "{{apikey}}"
+
+
+
+// # POST create new schedule
+// 
+// Creates a new schedule for an extractor, and returns the created object.
+// 
+// ## Request
+// 
+// A POST request to the following endpoint
+// ```
+// /extractor
+// ```
+// 
+// The request will create new Schedule object, and will return it.
+// 
+// Properties:
+// 
+// - **extractorId** - Defines the extractor for which the schedule was created.
+// - **interval** - Either cron expression or an andvanced schedule object (defined by this library: https://bunkat.github.io/later/) that defines how often the schedule should be triggered.
+// - **startTimestamp (optional)** - A timestamp when the schedule should start it's execution. If this value is not provided, it will default to request's timestamp + 10 minutes.
+// 
+// ## Response 
+// 
+// A successful response will be a Schedule object.
+// 
+// Properties:
+// - **interval** - Either cron expression or an andvanced schedule object that defines how often the schedule should be triggered.
+// - **nextRunAt** - A timestamp generated internally to define when the next run should occur.
+// - **extractorId** - Defines the extractor for which the schedule was created.
+// - **ownerId** - Defines the user who owns the extractor.
+// - **intervalData (optional)** - Defines the data used by the frontend to properly display the schedule in the UI.
+
+@name("Set extractor schedule")
+POST "https://schedule.import.io/extractor"
+"Content-Type": "application/json"
+? "_apikey"= "{{apikey}}"
+data('{
+  "interval": "10 * * * *",
+  "startTimestamp": 1486259377325,
+  "extractorId": "404e07e2-8a38-475a-8230-2131bde123ec"
+}')
+
+
+// # DELETE selected schedule
+// 
+// Deletes the schedule object, and returns a simple object as confirmation.
+// 
+// ## Request
+// 
+// A DELETE request to the following endpoint
+// ```
+// /extractor/{extractorId}
+// ```
+// 
+// This endpoint will delete a schedule object created by a user who made the request for an extractor defined by `extractorId` parameter.
+// 
+// ## Response 
+// 
+// A successful response will be a simple JSON object.
+// 
+// Properties:
+// - **message** - confirmation information that schedule was deleted.
+
+@name("Delete extractor schedule")
+DELETE "https://schedule.import.io/extractor/:extractorId"
+"Content-Type": "application/json"
+? "_apikey"= "{{apikey}}"
+
+
+
+// # POST test schedule interval
+// 
+// Tests if provided schedule interval is correct, and if so, returns an array of 10 next run dates when the schedule would be triggered.
+// 
+// ## Request
+// 
+// A POST request to the following endpoint
+// ```
+// /validate
+// ```
+// 
+// The request will test if provided schedule interval is correct, and if so, returns an array of 10 next run dates when the schedule would be triggered.
+// 
+// Properties:
+// 
+// - **interval** - Either cron expression or an andvanced schedule object (defined by this library: https://bunkat.github.io/later/) that defines how often the schedule should be triggered.
+// - **startTimestamp (optional)** - A timestamp when the schedule should start it's execution. If this value is not provided, it will default to request's timestamp + 10 minutes.
+// 
+// ## Response 
+// 
+// A successful response will be a an array of timestamps when the extractor would be triggered.
+
+@name("Validate schedule")
+POST "https://schedule.import.io/validate"
+"Content-Type": "application/json"
+? "_apikey"= "{{apikey}}"
+data('{
+  "interval": "10 * * * *",
+  "startTimestamp": 1486084790983
+}')
+
+
+

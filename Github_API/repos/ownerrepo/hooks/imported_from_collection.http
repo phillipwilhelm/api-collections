@@ -1,0 +1,32 @@
+#!/usr/bin/env dothttp
+
+@name("List repository webhooks")
+GET "https://{{baseUrl}}/repos/:owner/:repo/hooks"
+? "per_page"= "30"
+? "page"= "1"
+
+
+// Repositories can have multiple webhooks installed. Each webhook should have a unique `config`. Multiple webhooks can
+// share the same `config` as long as those webhooks do not have any `events` that overlap.
+
+@name("Create a repository webhook")
+POST "https://{{baseUrl}}/repos/:owner/:repo/hooks"
+"Content-Type": "application/json"
+data('{
+    "config": {
+        "url": "<uri>",
+        "content_type": "<string>",
+        "secret": "<string>",
+        "insecure_ssl": "<string>",
+        "token": "<string>",
+        "digest": "<string>"
+    },
+    "name": "<string>",
+    "events": [
+        "push"
+    ],
+    "active": true
+}')
+
+
+

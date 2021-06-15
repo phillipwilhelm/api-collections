@@ -1,0 +1,131 @@
+#!/usr/bin/env dothttp
+
+@name("Create new area")
+POST "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "type": "area",
+    "site": {
+        "area": {
+            "name": "Maryland",
+            "parentName": "Global"
+        }
+    }
+}')
+
+
+@name("Get area")
+GET "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "name"= "Global/Maryland"
+
+
+@name("Create new building")
+POST "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "type": "building",
+    "site": {
+        "building": {
+            "name": "secretlab",
+            "address": "123 Main Street",
+            "parentName": "Global/Maryland",
+            "latitude": "39.0458",
+            "longitude": "-76.6413"
+        }
+    }
+}')
+
+
+@name("Get building")
+GET "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "name"= "Global/Maryland/secretlab"
+
+
+@name("Create new floor")
+POST "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "type": "floor",
+    "site": {
+        "floor": {
+            "name": "Floor 2",
+            "parentName": "Global/Maryland/secretlab",
+            "rfModel": "Cubes and Walled Offices",
+            "width": "50",
+            "length": "60",
+            "height": "10"
+        }
+    }
+}')
+
+
+@name("Get floor")
+GET "https://{{dnac}}/dna/intent/api/v1/site"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+? "name"= "Global/Maryland/secretlab/Floor 1"
+
+
+@name("Add dummy device")
+POST "https://{{dnac}}/dna/intent/api/v1/network-device"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "ipAddress": [
+        "192.0.2.1"
+    ],
+    "snmpVersion": "v2",
+    "snmpROCommunity": "readonly",
+    "snmpRWCommunity": "readwrite",
+    "snmpRetry": "1",
+    "snmpTimeout": "60",
+    "cliTransport": "ssh",
+    "userName": "nick",
+    "password": "secret123!",
+    "enablePassword": "secret456!"
+}')
+
+
+@name("Assign device to site")
+POST "https://{{dnac}}/dna/system/api/v1/site/7eb20f21-4ff0-476f-9810-207144f8992b/device"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "device": [
+        {
+            "ip": "192.0.2.1"
+        }
+    ]
+}')
+
+
+@name("Get membership")
+GET "https://{{dnac}}/dna/intent/api/v1/membership/7eb20f21-4ff0-476f-9810-207144f8992b"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+@name("Get site execution status")
+GET "https://{{dnac}}/dna/platform/management/business-api/v1/execution-status/3a3018fd-77e1-4c29-a132-5d2b6b4701ad"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+
+
+

@@ -1,0 +1,178 @@
+#!/usr/bin/env dothttp
+
+// WebSocket endpoint for realtime order notification updates. Once opened, order fills will be pushed as they happen. Messages are JSON formatted and contain minimum necessary information as seen below. Endpoint is also capable of consuming incoming messages. All incoming messages are JSON formatted and must contain `action` field. Other fields are specified based on action's requirements as defined below. 
+// 
+// NOTE: replayed messages may arrive out of sequence and may be commingled with live events; replays are denoted by `replay` field.
+// 
+// NOTE: Event types may be added without notice. Ensure that unknown event types are not halting the system
+// 
+// ### Order Event ###
+// ```json
+// {
+// 	"eventId": 1234,
+// 	"type": "Fill|Accept|Cancelled|Rejected",
+// 	"mpid": "XXXX",
+// 	"accountNumber": "ABC123456",
+// 	"symbol": "F",
+// 	"ourRef": "XX123546789",
+// 	"legRef": 1,
+// 	"timestamp": 'MM/dd/yyyy HH:mm:ss z',
+// 	"transaction": 'BUY|SELL|...'
+// 	"lastPx": 10.45,
+// 	"avgPx": 10.45,
+// 	"lastShares": 100.0,
+// 	"leavesQty": 0.0,
+// 	"cumQty": 100.0,
+// 	"option": false,
+// 	"replay": false,
+// 	"branch": 1000
+// }
+// ```
+// 
+// ### Event replay command ###
+// ```json
+// {
+// 	"action": "replay",
+// 	"account": {
+// 		"accountNumber": "either this or accountId",
+// 		"accountId": 1234
+// 	},
+// 	"orderRef": "XX123456789",
+// 	"from": "{timestamp} - required",
+// 	"to": "{timestamp} - required"
+// }
+// ```
+
+@name("Order updates")
+GET "wss://{hostname}/orders/feed"
+? "auth"= "{auth}"
+
+
+// For clients wishing to receive realtime notifications from Orbis, multiple facilities are available - SQS, SNS, WebHooks, and Azure Service Bus. Utilizing cloud services, it is possible for Orbis to publish events alongside a WebSocket. Each cloud service needs to be set up and configured per their own requirements prior utilization of API below.
+// 
+// List of available `{type}` - `sqs`, `sns`, `hook`, `sb`
+// 
+// # Azure Service Bus
+// Orbis supports authentication to Service Bus via shared access signatures (SAS). Send is the only required permission. Namespace needs to have at least 3 queues - `orders`, `welcome` and `banking`. Once link is added, a welcome message will be sent to the `welcome` queue echoing given connection string. Sample connection string: `Endpoint=sb://namespace.servicebus.windows.net/;SharedAccessKeyName=name;SharedAccessKey=sharedkey`.
+// 
+// # Amazon SQS/SNS
+// Once Orbis' account has been permissioned, one can link resource below. Order events will be delivered in JSON format (as shown below) with `type=orderEvent` and `format=json` attributes under `orderEvent` group ID. Any bank transfers will be with `type=bankingEvent` in format shown below. Once linked, a welcome message will be sent to the queue with `type=welcome` and group ID set to `welcome`. The welcome message will echo URL as provided.
+// 
+// Orbis' AWS account ID needs to be permitted via IAM for Orbis to be able to write to SQS/SNS. Following example is to permit SQS. Grant `SQS:SendMessage` permission to `arn:aws:iam::{Orbis Account ID}:root`. See below:
+// 
+// ```json
+// {
+//   "Version": "2012-10-17",
+//   "Id": "arn:aws:sqs:us-east-1:{ARN}:YourOrderEventsQueue.fifo/SQSDefaultPolicy",
+//   "Statement": [
+//     {
+//       "Sid": "OrbisPermissions",
+//       "Effect": "Allow",
+//       "Principal": {
+//         "AWS": "arn:aws:iam::{ARN}:root"
+//       },
+//       "Action": "SQS:SendMessage",
+//       "Resource": "arn:aws:sqs:us-east-1:{ARN}:YourOrderEventsQueue.fifo"
+//     }
+//   ]
+// }
+// ```
+// 
+// ### Order Event ###
+// ```json
+// {
+// 	"eventId": 1234,
+// 	"type": "Fill|Accept|Cancelled|Rejected",
+// 	"mpid": "XXXX",
+// 	"accountNumber": "ABC123456",
+// 	"symbol": "F",
+// 	"ourRef": "XX123546789",
+// 	"legRef": 1,
+// 	"timestamp": 'MM/dd/yyyy HH:mm:ss z',
+// 	"transaction": 'BUY|SELL|...'
+// 	"lastPx": 10.45,
+// 	"avgPx": 10.45,
+// 	"lastShares": 100.0,
+// 	"leavesQty": 0.0,
+// 	"cumQty": 100.0,
+// 	"option": false,
+// 	"replay": false,
+// 	"branch": 1000
+// }
+// ```
+// 
+// ### Transfer Event ###
+// ```json
+// {
+// 	"type": "Approved|Cancelled|Done|Pending|Rejected",
+// 	"mpid": "XXXX",
+// 	"transferId": "CC123456",
+// 	"accountNumber": "AN123456",
+// 	"amount": 100.0,
+// 	"branch": 1000,
+// 	"eventId": 1234
+// }
+// ```
+
+@name("Notification link")
+POST "https://{hostname}/api/v1/branch/feed/queue/{type}/link"
+"Content-Type": "application/json"
+data('{
+	"name": "orders|banking",
+	"queueUrl": "https://sqs.us-east-1.amazonaws.com/123456789/MyOrderUpdateQueue.fifo"
+}')
+
+
+// For clients wishing to unlink existing SQS/SNS. Must specify valid `{type}` - `sqs`, `sns`
+
+@name("Notification unlink")
+POST "https://{hostname}/api/v1/branch/feed/queue/{type}/unlink"
+"Content-Type": "application/json"
+data('{
+	"name": "orders|banking"
+}')
+
+
+// Returns list of currently linked resources. `{type}` can be `sqs` or `sns`:
+// 
+// ```
+// {
+// 	"orders": "https://sqs.amazonaws.com/123456789/MyOrderUpdateQueue.fifo"
+// 	"banking": "https://sqs.amazonaws.com/123546789/MyBankingQueue.fifo"
+// }
+// ```
+
+@name("Notification links")
+GET "https://{hostname}/api/v1/branch/feed/queues/{type}"
+
+
+// WebSocket endpoint for realtime transfer notification updates. All trnasfer related events (ACHs, Wires, etc...) will be pushed.
+// 
+// NOTE: Event types may be added without notice. Ensure that unknown types do not halt the system.
+// 
+// ### Transfer Event ###
+// ```json
+// {
+// 	"type": "Approved|Cancelled|Done|Pending|Rejected|Returned|Redirect|Delivered",
+// 	"mpid": "XXXX",
+// 	"transferId": "CC123456",
+// 	"accountNumber": "AN123456",
+// 	"amount": 100.0,
+// 	"branch": 1000,
+// 	"eventId": 1234,
+// 	"timestamp": "{timestamp}",
+// 	"direction": "INCOMING|OUTGOING"
+// }
+// ```
+
+@name("Transfer updates")
+GET "wss://{hostname}/transfers/feed"
+? "auth"= "{auth}"
+
+
+@name("Messenger")
+GET "wss://{hostname}/messenger"
+? "auth"= "{auth}"
+
+
+

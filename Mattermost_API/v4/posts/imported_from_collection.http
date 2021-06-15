@@ -1,0 +1,128 @@
+#!/usr/bin/env dothttp
+
+// Create a new post in a channel. To create the post as a comment on another post, provide `root_id`.
+// ##### Permissions
+// Must have `create_post` permission for the channel the post is being created in.
+
+@name("Create a post")
+POST "https://{{baseURL}}/posts"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+data('{
+	"message":"asdf2",
+	"channel_id":"{{channel_id}}"
+}')
+
+
+// Create a new ephemeral post in a channel.
+// ##### Permissions
+// Must have `create_post_ephemeral` permission (currently only given to system admin)
+
+@name("Create a ephemeral post")
+POST "https://{{baseURL}}/posts/ephemeral"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Ephemeral Post object to send')
+
+
+// Get a single post.
+// ##### Permissions
+// Must have `read_channel` permission for the channel the post is in or if the channel is public, have the `read_public_channels` permission for the team.
+
+@name("Get a post")
+GET "https://{{baseURL}}/posts/{{post_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Update a post. Only the fields listed below are updatable, omitted fields will be treated as blank.
+// ##### Permissions
+// Must have `edit_post` permission for the channel the post is in.
+
+@name("Update a post")
+PUT "https://{{baseURL}}/posts/{{post_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('Post object that is to be updated')
+
+
+// Soft deletes a post, by marking the post as deleted in the database. Soft deleted posts will not be returned in post queries.
+// ##### Permissions
+// Must be logged in as the user or have `delete_others_posts` permission.
+
+@name("Delete a post")
+DELETE "https://{{baseURL}}/posts/{{post_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Partially update a post by providing only the fields you want to update. Omitted fields will not be updated. The fields that can be updated are defined in the request body, all other provided fields will be ignored.
+// ##### Permissions
+// Must have the `edit_post` permission.
+
+@name("Patch a post")
+PUT "https://{{baseURL}}/posts/{{post_id}}/patch"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+data('{"message":"hi4","id":"{{post_id}}","channel_id":"h8os4bofcbykjxbiyushwg9wbh"}')
+
+
+// Get a post and the rest of the posts in the same thread.
+// ##### Permissions
+// Must have `read_channel` permission for the channel the post is in or if the channel is public, have the `read_public_channels` permission for the team.
+
+@name("Get a thread")
+GET "https://{{baseURL}}/posts/{{post_id}}/thread"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+"X-Requested-With": "XMLHttpRequest"
+
+
+// Gets a list of file information objects for the files attached to a post.
+// ##### Permissions
+// Must have `read_channel` permission for the channel the post is in.
+
+@name("Get file info for post")
+GET "https://{{baseURL}}/posts/{{post_id}}/files/info"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Pin a post to a channel it is in based from the provided post id string.
+// ##### Permissions
+// Must be authenticated and have the `read_channel` permission to the channel the post is in.
+
+@name("Pin a post to the channel")
+POST "https://{{baseURL}}/posts/{{post_id}}/pin"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Unpin a post to a channel it is in based from the provided post id string.
+// ##### Permissions
+// Must be authenticated and have the `read_channel` permission to the channel the post is in.
+
+@name("Unpin a post to the channel")
+POST "https://{{baseURL}}/posts/{{post_id}}/unpin"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+// Perform a post action, which allows users to interact with integrations through posts.
+// ##### Permissions
+// Must be authenticated and have the `read_channel` permission to the channel the post is in.
+
+@name("Perform a post action")
+POST "https://{{baseURL}}/posts/{{post_id}}/actions/{{action_id}}"
+"Authorization": "Bearer {{token}}"
+"Content-Type": "application/json"
+
+
+
+

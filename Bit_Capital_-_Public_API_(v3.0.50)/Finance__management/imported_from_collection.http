@@ -1,0 +1,74 @@
+#!/usr/bin/env dothttp
+
+@name("Open a wallet")
+GET "https://{{API_BASE_URL}}/wallets/:id"
+
+
+@name("Payments statement")
+GET "https://{{API_BASE_URL}}/wallets/:id/payments"
+? "limit"= "50"
+? "skip"= "0"
+
+
+// Here you can get all payments in a wallet, filtering by asset code.
+
+@name("Payment statement by asset")
+GET "https://{{API_BASE_URL}}/wallets/:id/payments"
+? "limit"= "50"
+? "skip"= "0"
+? "asset"= "{{ASSETCODE}}"
+
+
+// Gets a payment based on its id.
+
+@name("Open a Payment")
+GET "https://{{API_BASE_URL}}/payments/:id"
+
+
+@name("List all transactions")
+GET "https://{{API_BASE_URL}}/wallets/:id/transactions"
+? "limit"= "50"
+? "skip"= "0"
+
+
+// Gets a payment based on its id.
+
+@name("Open a Transaction")
+GET "https://{{API_BASE_URL}}/transactions/:id"
+
+
+@name("List all wallets from a userId")
+GET "https://{{API_BASE_URL}}/users/:id/wallets"
+
+
+// With this endpoint it is possible to verify your checking account number at the custody provider.</br>
+// The checking account number will only be available after approval of the compliance analysis by the custody provider. With these datas it is already possible to perform a TED-IN or TED-OUT on the platform.</br>
+// 
+// If the response to this endpoint is empty "[]", it indicates that your account has not yet been approved at the custody provider.
+// </br>
+// This function can be perfomed by:
+// 
+// | role| allowed | info |
+// | --- | --- | --- |
+// | `mediator` | true | all users |
+// | `consumer` | true | yourself |
+// | `audit` | true | all users |
+// | `operator` | true | all users|
+
+@name("View external bank account")
+GET "https://{{API_BASE_URL}}/wallets/:id/depositInfo"
+
+
+// > This endpoint is note necessary to use
+// 
+// > This endpoint can be performed only by mediator
+
+@name("Create a new wallet")
+POST "https://{{API_BASE_URL}}/wallets"
+"Content-Type": "application/json"
+data('{
+	"provider": "cards"
+}')
+
+
+

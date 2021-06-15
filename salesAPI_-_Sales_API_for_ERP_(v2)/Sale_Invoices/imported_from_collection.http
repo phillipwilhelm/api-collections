@@ -1,0 +1,334 @@
+#!/usr/bin/env dothttp
+
+// #### Search sales invoices in ERP
+// *(sapBusinessOne=13/OINV, totvsProtheus=SF2)*
+// 
+// This service will allow to search sales invoices in the ERP.
+// 
+// The search of sales invoices allows filtering the ERP by:
+// - List Search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey`, `sellerKey`, `nfeAuthCode` {optional}
+// - Unitary Search: `erpKey` or `orderNum` or `docNum`
+// 
+// If no field for unitary search (`erpKey` or `orderNum` or `docNum`) is informed in the request, the search for sales invoices is carried out by date of creation from/to (which become mandatory).
+// 
+// The invoices service will consider sales invoices with:
+// - SAP Business One: OINV.ObjType = 13
+// - TOTVS Protheus: F2_TIPO IN 'N', 'C', 'I', 'P'
+// 
+// Comments:
+// - `branch`: SAP Business One (OINV.BPLId), TOTVS Protheus (F2_FILIAL)
+// - `partnerKey`: SAP Business One (OINV.CardCode), TOTVS Protheus (F2_CLIENTE+'_'+F2_LOJA)
+// - `sellerKey`: SAP Business One (OINV.SlpCode), TOTVS Protheus (F2_VEND1)
+// - `nfeAuthCode`: SAP Business One (OINV.[GP UdfInvoiceNfeAuth]), TOTVS Protheus (F3_CODRSEF)
+// - `erpKey`: SAP Business One (OINV.DocEntry), TOTVS Protheus (F2_SERIE+'_'+F2_NUM)
+// - `orderNum`: SAP Business One (OINV.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - `docNum`: SAP Business One (OINV.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O = open, C = closed, X = canceled, P = paid, R = returned, XC = cancelation invoice (SAP Business One: cancelation of invoice changes `docStatus` to X and generate a new invoice with `docStatus`=XC and same `nfeNum`)
+// - `baseObject` and `baseKey`: object and erpKey which invoice is based
+// 
+// Data returned in response: invoice data, partner data, items (+ taxes), totals, payments, taxes
+// 
+// The response will inform:
+// - The number of returned objects in `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum`> `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the sales invoices list in two situations:
+// - Full Search: will result in all sales invoices, according to filters.
+// - Incremental Search: will result in all sales invoices, according to filters, which have been included and/or changed in the main register after a certain date/time provided in the request. In the Incremental Search, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales invoices should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields for the Document record in SAP Business One (OINV.CreateDate, OINV.UpdateDate, OINV.CreateTS, OINV.UpdateTS), [2] TOTVS Protheus: the F2_USERLGI and F2_USERLGA fields
+// 
+// For the use of user fields (UDF) created in the table of sales invoices (SAPB1: OINV, TOTVS: SF2), the respective registration must be performed in the Custom Table.
+
+@name("Sale Invoices")
+GET "https://{{endpoint}}/invoices"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2020-11-10"
+? "createdTo"= "2020-11-10"
+? "branch"= "1"
+? "partnerKey"= "C001"
+? "sellerKey"= "22"
+? "nfeAuthCode"= "100"
+? "erpKey"= "157025"
+? "docNum"= "142595"
+? "orderNum"= "1074403543750-01"
+? "pageNum"= "100"
+? "updatedAt"= "2020-10-30T14:00:00"
+? "shippingMethod"= "LOGGI"
+
+
+// #### Insert sales invoice in ERP
+// *(sapBusinessOne=13/OINV, totvsProtheus=SF2)*
+// 
+// This service will allow to insert a new sales invoice in the ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales invoice will be insert if the informed sales order is located and validated on the ERP. The key for locating the sales order on the ERP can be:
+// - SAP Business One: ORDR.DocEntry = baseKey or ORDR.DocNum = baseNum or ORDR.NumAtCard = orderNum
+// - TOTVS Protheus: C5_NUM = baseKey or R_E_C_N_O_ = baseNum or C5_PEDECOM = orderNum (note: field C5_PEDECOM is only 10 characters long and cannot be increased)
+// 
+// Products sent to the service will be validated for the search key, order line number and quantity. Products can be identified in the ERP in 2 ways:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// In addition to the sales invoice, the service may or may not include incoming payments. Incoming Paymnets can have 2 sources:
+// - If the process goes through physical separation of products (picklist): from records in an Payments Table
+// - If the process does not go through physical separation of products (picklist): from the data received in the request in the payments block.
+// 
+// For the use of user fields (UDF) created in the table of sales invoices (SAPB1: OINV / INV1, TOTVS: SF2 / SD2), the respective registration must be performed in the Custom Table.
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |branch | number | Branch 
+// baseObject | string | Base Object (default = 17)
+// baseKey | string | Base Key
+// totalWeight | number | Total Weight
+// totalVolume | number | Total Volume
+// totalCubage | number | Total cubage
+// items | array | invoice Items Object
+// items.baseLineNum | string | Base line number
+// items.productKey | string | Product key
+// items.codeBars | string | Code bars
+// items.quantity | number | quantity
+// payments | array |  Method
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.details | object | details
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | string | Acquire
+// payments.details.tid | string | tid
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | Code
+// success | booleano | success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Sale Invoice")
+PUT "https://{{endpoint}}/invoices"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "1",
+    "baseKey": "000020",
+    "whsCode *": "",
+    "mainUsage *": "",
+    "orderNum *": "",
+    "totalWeight": 10.0,
+    "totalVolume": 3.0,
+    "totalCubage": 0.0,
+    "items": [
+        {
+            "productKey": "900.000.003",
+            "quantity": 1,
+            "whsCode *": "",
+            "usage *": "",
+            "unitPrice *": "",
+            "baseKey *": "",
+            "baseLineNum": "01",
+            "batchNumbers": [
+                {
+                    "batchCode": "01",
+                    "productionDate": "2020-06-30",
+                    "expirationDate": "2021-06-24",
+                    "quantity": 1
+                }
+            ]
+        }
+    ],
+    "shipment": {
+        "carrierKey": ""
+    },
+    "payments": [
+        {
+            "paymentMethod": "cash",
+            "amount": 10.0,
+            "installments": 1
+        },
+        {
+            "paymentMethod": "creditCard",
+            "amount": 49.71,
+            "installments": 3,
+            "details": {
+                "cardName": "Visa",
+                "acquirer": "",
+                "tid": "12125",
+                "authid": "12121872612918721",
+                "nsu": "023567"
+            }
+        }
+    ]
+})
+
+
+// #### Search sales deliveries in ERP
+// *(sapBusinessOne=15/ODLN)*
+// 
+// This service will allow to search sales deliveries in the ERP.
+// 
+// The search of sales deliveries allows filtering the ERP by:
+// - List Search: by `createdFrom` + `createdTo` {required}, by `branch`, `partnerKey`, `sellerKey`, `nfeAuthCode` {optional}
+// - Unitary Search: `erpKey` or `orderNum` or `docNum`
+// 
+// If no field for unitary search (`erpKey` or `orderNum` or `docNum`) is informed in the request, the search for sales deliveries is carried out by date of creation from/to (which become mandatory).
+// 
+// The deliveries service will consider sales deliveries with:
+// - SAP Business One: ODLN.ObjType = 15
+// 
+// Comments:
+// - `branch`: SAP Business One (ODLN.BPLId), TOTVS Protheus (F2_FILIAL)
+// - `partnerKey`: SAP Business One (ODLN.CardCode), TOTVS Protheus (F2_CLIENTE+'_'+F2_LOJA)
+// - `sellerKey`: SAP Business One (ODLN.SlpCode), TOTVS Protheus (F2_VEND1)
+// - `nfeAuthCode`: SAP Business One (ODLN.[GP UdfInvoiceNfeAuth]), TOTVS Protheus (F3_CODRSEF)
+// - `erpKey`: SAP Business One (ODLN.DocEntry), TOTVS Protheus (F2_NUM)
+// - `orderNum`: SAP Business One (ODLN.NumAtCard), TOTVS Protheus (C5_PEDECOM)
+// - `docNum`: SAP Business One (ODLN.DocNum), TOTVS Protheus (R_E_C_N_O_)
+// - `docStatus`: O = open, C = closed, X = canceled, P = paid, R = returned, XC = cancelation delivery (SAP Business One: cancelation of delivery changes `docStatus` to X and generate a new delivery with `docStatus`=XC and same `nfeNum`)
+// - `baseObject` and `baseKey`: object and erpKey which delivery is based
+// 
+// Data returned in response: delivery data, partner data, items (+ taxes), totals, taxes
+// 
+// The response will inform:
+// - The number of returned objects in `count` field
+// 
+// For list search the pagination feature in the response will be used, where the following fields are used to control the pagination:
+// - `pageSize` = maximum number of records on each page (eg: 100), defined in the API configuration, and informed in the response
+// - `pageNum` = desired page, provided in the request, and informed in the response. If `pageNum` not informed = 1, If `pageNum` <=0 = 1, If `pageNum`> `pageTotal` = last page
+// - `pageTotal` = total pages, informed in the response
+// - `hasNext` = if there are more pages (true / false), informed in the response
+// 
+// This service will allow you to search the sales deliveries list in two situations:
+// - Full Search: will result in all sales deliveries, according to filters.
+// - Incremental Search: will result in all sales deliveries, according to filters, which have been included and/or changed in the main register after a certain date/time provided in the request. In the Incremental Search, the `updatedAt` field of the body request (format YYYY-MM-DDTHH:MM:SS) will be used to determine which sales deliveries should be returned. This information will be used in conjunction with: [1] SAP Business One: the Creation Date and Update Date fields for the Document record in SAP Business One (OINV.CreateDate, OINV.UpdateDate, OINV.CreateTS, OINV.UpdateTS)
+// 
+// For the use of user fields (UDF) created in the table of sales deliveries (SAPB1: ODLN), the respective registration must be performed in the Custom Table.
+
+@name("Sale Deliveries")
+GET "https://{{endpoint}}/deliveries"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+? "createdFrom"= "2010-01-01"
+? "createdTo"= "2020-09-29"
+? "branch"= "1"
+? "partnerKey"= "C001"
+? "sellerKey"= "22"
+? "nfeAuthCode"= "100"
+? "erpKey"= "120"
+? "docNum"= "49084"
+? "orderNum"= "1049210322364-01"
+? "pageNum"= "100"
+? "updatedAt"= "2020-09-21T00:00:00"
+? "shippingMethod"= "LOGGI"
+
+
+// #### Insert sales delivery in ERP
+// *(sapBusinessOne=15/ODLN, totvsProtheus=x)*
+// 
+// This service will allow to insert a new sales delivery in the ERP.
+// 
+// The scenario will validate the data received, making selects in the ERP database.
+// 
+// A new sales delivery will be insert if the informed sales order is located and validated on the ERP. The key for locating the sales order on the ERP can be:
+// - SAP Business One: ORDR.DocEntry = baseKey or ORDR.DocNum = baseNum or ORDR.NumAtCard = orderNum
+// - TOTVS Protheus: C5_NUM = baseKey or R_E_C_N_O_ = baseNum or C5_PEDECOM = orderNum (note: field C5_PEDECOM is only 10 characters long and cannot be increased)
+// 
+// Products sent to the service will be validated for the search key, order line number and quantity. Products can be identified in the ERP in 2 ways:
+// - SAP B1: OITM.CodeBars = codeBars or OITM.ItemCode = productKey
+// - TOTVS Protheus: B1_CODBAR = codeBars or B1_COD = productKey
+// 
+// For the use of user fields (UDF) created in the table of sales invoices (SAPB1: ODLN, TOTVS: x), the respective registration must be performed in the Custom Table.
+// #### Request object has the following properties
+// | Field | Type | Description |
+// |:---:|:---:|:---:|
+// |branch | number | Branch 
+// baseObject | string | Base Object (default = 17)
+// baseKey | string | Base Key
+// totalWeight | number | Total Weight
+// totalVolume | number | Total Volume
+// totalCubage | number | Total cubage
+// items | array | invoice Items Object
+// items.baseLineNum | string | Base line number
+// items.productKey | string | Product key
+// items.codeBars | string | Code bars
+// items.quantity | number | quantity
+// payments | array |  Method
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.paymentMethod | string | Payment Method
+// payments.amount | number | Amount
+// payments.installments | number | installments
+// payments.details | object | details
+// payments.details.cardName | string | Card name
+// payments.details.acquirer | string | Acquire
+// payments.details.tid | string | tid
+// payments.details.authid | string | Authid
+// payments.details.nsu | string | nsu
+// 
+// \* = *Required field*
+// 
+// #### Response object has the following properties
+// Field | Type | Description 
+// :--- | :--- | :---
+// package | string | package
+// process | string | Process
+// system | string | System
+// target | string | Target
+// user | string | User
+// host | string | Host
+// effectiveTimestamp | string | Effective Time stamp
+// code | string | Code
+// success | booleano | success
+// values | array | values
+// values.object | string | Object
+// values.table | string | Table
+// values.action | string | action
+// values.erpKey | string | Erp key
+
+@name("Sale Delivery")
+PUT "https://{{endpoint}}/deliveries"
+basicauth("{{user}}", "{{pass}}")
+"Content-Type": "application/json"
+json({
+    "branch": "1",
+    "baseKey": "108336",
+    "items": [
+        {
+            "productKey": "I004",
+            "quantity": 1.0,
+            "orderLineNum": "0",
+            "priceStore": 14.0
+        }
+    ],
+    "shipment": {
+        "carrierKey": ""
+    }
+})
+
+
+

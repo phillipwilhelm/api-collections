@@ -1,0 +1,1 @@
+API for building a standard Rock/Paper/Scissor game. This documentation will provide the different fetches available.

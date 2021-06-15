@@ -1,0 +1,343 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// This operation initiates a download of data obtained through a backup.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_recall.htm)
+
+@name("Recall")
+GET "https://{{ServerUrl}}/Recall"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "at"= "33"
+? "si"= "MjoxMjI1MTY3Nzg6MDoxMzQ6NDE2ODM2NA=="
+? "op"= "QzpcXHYxMVNQNGEueG1s"
+? "appId"= "49"
+? "ec"= "1"
+
+
+// <h2>Description</h2>
+// This request returns subclients that have backup jobs available to restore.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/get_client_hierarchy_available_backup.htm)
+
+@name("Client Hierarchy")
+GET "https://{{ServerUrl}}/Client/2/Hierarchy"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation browses data obtained through a backup.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_browse.htm)
+
+@name("Browse")
+POST "https://{{ServerUrl}}/DoBrowse"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "opType": 0,
+  "queries": [
+    {
+      "type": 1,
+      "queryId": "countQuery",
+      "aggrParam": {
+        "field": 0,
+        "aggrType": 4
+      }
+    },
+    {
+      "type": 0,
+      "queryId": "dataQuery",
+      "dataParam": {
+        "sortParam": {
+          "ascending": true,
+          "sortBy": [
+            38,
+            0
+          ]
+        },
+        "paging": {
+          "firstNode": 0,
+          "pageSize": 15,
+          "skipNode": 0
+        }
+      }
+    }
+  ],
+  "mode": {
+    "mode": 2
+  },
+  "paths": [
+    {
+      "path": "C:\\"
+    }
+  ],
+  "options": {
+    "showDeletedFiles": true,
+    "restoreIndex": true
+  },
+  "entity": {
+    "subclientId": 49,
+    "applicationId": 33,
+    "clientName": "{{clientName}}",
+    "backupsetId": 3,
+    "instanceId": 1,
+    "clientId": 2
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation restores data obtained through a backup.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_retrievetoclient.htm)
+
+@name("Retrieve to Client (Restore)")
+POST "https://{{ServerUrl}}/retrieveToClient"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+data('{
+  "mode": 2,
+  "serviceType": 1,
+  "userInfo": {
+    "userGuid": "EBEA9754-607C-4CA4-B047-C9F656A1ABB0"
+  },
+  "advanced": {
+    "restoreDataAndACL": true,
+    "restoreDeletedFiles": true
+  },
+  "header": {
+    "destination": {
+      "clientId": 2,
+      "clientName": "firewalltestcs",
+      "inPlace": true
+    },
+    "filePaths": [
+      "\\C:\\csguid.PNG",
+      "\\C:\\DEMO_3.pptx"
+    ],
+    "srcContent": {
+      "subclientId": 49,
+      "clientId": 2,
+      "instanceId": 1,
+      "backupSetId": 3,
+      "appTypeId": 33
+    }
+  }
+}')
+
+
+// <h2>Description</h2>
+// This operation restores data obtained through a backup.
+
+@name("Create Task (Restore)")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"taskInfo": {
+		"associations": [
+			{
+				"clientName": "{{clientName}}",
+				"subclientName": "{{subclientName}}",
+				"backupsetName": "{{backupsetName}}",
+				"instanceName": "DefaultInstanceName",
+				"appName": "Windows File System"
+			}
+		],
+		"task": {
+			"taskType": 1,
+			"initiatedFrom": 2,
+			"policyType": 0,
+			"taskFlags": {
+				"disabled": false
+			}
+		},
+		"subTasks": [
+			{
+				"subTaskOperation": 1,
+				"subTask": {
+					"subTaskType": 3,
+					"operationType": 1001
+				},
+				"options": {
+					"adminOpts": {
+						"contentIndexingOption": {
+							"subClientBasedAnalytics": false
+						}
+					},
+					"restoreOptions": {
+						"restoreACLsType": 3,
+						"impersonation": {
+							"useImpersonation": false,
+							"user": {
+								"userName": ""
+							}
+						},
+						"virtualServerRstOption": {
+							"isBlockLevelReplication": false,
+							"isDiskBrowse": false,
+							"viewType": 0
+						},
+						"volumeRstOption": {
+							"volumeLeveRestore": false
+						},
+						"browseOption": {
+							"listMedia": false,
+							"useExactIndex": false,
+							"noImage": false,
+							"commCellId": 2,
+							"mediaOption": {
+								"mediaAgent": {},
+								"library": {},
+								"copyPrecedence": {
+									"copyPrecedenceApplicable": false
+								},
+								"drivePool": {},
+								"proxyForSnapClients": {
+									"clientName": ""
+								}
+							},
+							"backupset": {
+								"clientName": "v11onepasscs",
+								"backupsetName": "stubdatasize"
+							},
+							"timeZone": {
+								"TimeZoneName": "(UTC-05:00) Eastern Time (US & Canada)"
+							},
+							"timeRange": {}
+						},
+						"commonOptions": {
+							"systemStateBackup": false,
+							"recreateMountPoints": true,
+							"clusterDBBackedup": false,
+							"isFromBrowseBackup": true,
+							"powerRestore": false,
+							"restoreToDisk": false,
+							"restoreDataInsteadOfStub": true,
+							"offlineMiningRestore": false,
+							"restoreToExchange": false,
+							"preserveLevel": 1,
+							"restoreOnlyStubExists": false,
+							"stripLevelType": 0,
+							"stripLevel": 0,
+							"overwriteFiles": true,
+							"copyToObjectStore": false,
+							"onePassRestore": false,
+							"doNotOverwriteFileOnDisk": false,
+							"disableStubRestore": false,
+							"unconditionalOverwrite": true,
+							"syncRestore": false,
+							"clusterDbBackupType": 2,
+							"detectRegularExpression": true,
+							"wildCard": false
+						},
+						"destination": {
+							"restoreOnlyIfTargetExists": false,
+							"isLegalHold": false,
+							"noOfStreams": 1,
+							"inPlace": true,
+							"destinationInstance": {
+								"instanceName": "DefaultInstanceName"
+							},
+							"destClient": {
+								"clientName": "v11onepasscs"
+							}
+						},
+						"fileOption": {
+							"sourceItem": [
+								"\\E:\\onepass2\\"
+							]
+						},
+						"distributedAppsRestoreOptions": {
+							"clientType": 0,
+							"distributedRestore": false,
+							"isMultiNodeRestore": false,
+							"backupConfiguration": {}
+						},
+						"sharePointRstOption": {
+							"is90OrUpgradedClient": false
+						}
+					}
+				}
+			}
+		]
+	}
+}')
+
+
+// <h2>Description</h2>
+// This operation returns files for given database(s) and instance. It also returns a list of SQL instances application to be restored to.
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">restoreDbType</p>
+// </td>
+// <td>
+// <p>This is to be left at zero. This will return list of SQL instances it can safely be restored to based on the user defined databases passed in list and instance version check (SQL restores can be to same instance version or higher).</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">sourceInstanceId</p>
+// </td>
+// <td>
+// <p>Id of source instance</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">selectedDatabases</p>
+// </td>
+// <td>
+// <p class="tabletext">List of databases to restore</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">pointInTime</p>
+// </td>
+// <td>
+// <p class="tabletext">The reference time for the restore.</p>
+// <p class="tabletext">Valid values are UNIX-style timestamps (seconds since January 1, 1970)</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 
+// [_More Details_](https://documentation.commvault.com/commvault/v11_sp20/article?p=130527.htm)
+
+@name("SQL RestoreOptions")
+POST "https://{{ServerUrl}}/SQL/RestoreOptions"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+    "restoreDbType": 0,
+    "sourceInstanceId": 7,
+    "selectedDatabases": [
+        {
+            "databaseName": "yqpwdh1"
+        }
+    ],
+    "pointInTime": 1597782602
+}')
+
+
+

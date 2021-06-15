@@ -1,0 +1,157 @@
+#!/usr/bin/env dothttp
+
+@name("Create project")
+POST "https://{{dnac}}/dna/intent/api/v1/template-programmer/project"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "name": "postman_proj",
+    "description": "testing some postman requests"
+}')
+
+
+@name("Create simple template")
+POST "https://{{dnac}}/dna/intent/api/v1/template-programmer/project/c79f12c6-fcae-4c25-a567-c5aefedfec88/template"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "name": "simple_temp",
+    "composite": false,
+    "deviceTypes": [
+        {
+            "productFamily": "Switches and Hubs",
+            "productSeries": "Cisco Catalyst 9300 Series Switches",
+            "productType": "Cisco Catalyst 9300 Switch"
+        }
+    ],
+    "softwareType": "IOS-XE",
+    "templateContent": "hostname $hostname\nip ssh version $ssh_ver",
+    "templateParams": [
+        {
+            "parameterName": "hostname",
+            "dataType": "STRING",
+            "required": true,
+            "order": 1
+        },
+        {
+            "parameterName": "ssh_ver",
+            "dataType": "INTEGER",
+            "required": true,
+            "order": 2
+        }
+    ]
+}')
+
+
+@name("Render/preview simple template")
+PUT "https://{{dnac}}/dna/intent/api/v1/template-programmer/template/preview"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "params": {
+        "hostname": "ROUTER1",
+        "ssh_ver": 2
+    },
+    "templateId": "ed52f79e-e391-4685-922a-77e3f34f20e2"
+}')
+
+
+@name("Create complex template")
+POST "https://{{dnac}}/dna/intent/api/v1/template-programmer/project/7656b198-e0d6-49c6-8ed1-bfa98f46a54a/template"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "name": "complex_temp",
+    "composite": false,
+    "deviceTypes": [
+        {
+            "productFamily": "Switches and Hubs",
+            "productSeries": "Cisco Catalyst 9300 Series Switches",
+            "productType": "Cisco Catalyst 9300 Switch"
+        }
+    ],
+    "softwareType": "IOS-XE",
+    "templateContent": "#if($ntp_logging == \"true\")\nntp logging\n#else\nno ntp logging\n#end\n#foreach($s in $ntp_servers)\nntp server $s\n#end",
+    "templateParams": [
+    	{
+            "parameterName": "ntp_servers",
+            "dataType": "STRING",
+            "required": true,
+            "order": 2,
+            "selection": {
+                "selectionType": "MULTI_SELECT",
+                "selectionValues": {
+                    "s1": "203.0.113.1",
+                    "s2": "203.0.113.2"
+                },
+                "defaultSelectedValues": [
+                    "s1",
+                    "s2"
+                ]
+            },
+            "paramArray": true
+        },
+        {
+            "parameterName": "ntp_logging",
+            "dataType": "STRING",
+            "required": true,
+            "order": 1
+        }
+    ]
+}')
+
+
+@name("Render/preview complex template")
+PUT "https://{{dnac}}/dna/intent/api/v1/template-programmer/template/preview"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "params": {
+        "ntp_servers": [
+            "203.0.113.1",
+            "203.0.113.2"
+        ],
+        "ntp_logging": "true"
+    },
+    "templateId": "ab759012-f4c4-4b4a-9510-e53621acd310"
+}')
+
+
+@name("Version (commit) template")
+POST "https://{{dnac}}/dna/intent/api/v1/template-programmer/template/version"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "comments": "commit comments here",
+    "templateId": "317fabac-b5a2-458a-adf3-373b91c119bc"
+}')
+
+
+@name("Deploy (apply) template")
+POST "https://{{dnac}}/dna/intent/api/v1/template-programmer/template/deploy"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"X-Auth-Token": "{{api_token}}"
+data('{
+    "forcePushTemplate": false,
+    "targetInfo": [
+        {
+            "id": "100.118.1.69",
+            "params": {
+                "ftp_src": "Vlan99",
+                "ssh_ver": 2
+            },
+            "type": "MANAGED_DEVICE_IP"
+        }
+    ],
+    "templateId": "317fabac-b5a2-458a-adf3-373b91c119bc"
+}')
+
+
+

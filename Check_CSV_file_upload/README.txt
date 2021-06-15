@@ -1,0 +1,3 @@
+By making use of the Postman echo services lets check how to use the csv file in our collection. First Import this collection and then download the csv file from this link [here](https://docs.google.com/spreadsheets/d/e/2PACX-1vSkoh5sZUCuVuQpXpYDYRI3kydwNrRBhRBKVubhufzmuE8Kd25sbBo4A-d_JqhsmdNUXqWsI8PwwsE8/pub?gid=1182176311&single=true&output=csv).
+
+Once that is done, Run this collection using _Collection Runner_ and Select the CSV file under *Data* section. Select the _Save Responses_ and Hit run.

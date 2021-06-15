@@ -1,6 +1,7 @@
 #!/usr/bin/env dothttp
 
 // Get a listing of all the events for a specific computer when the quarantine failed
+
 @name("1.) Find all events where Malware Executed")
 GET "https://{{amp4e_host}}/v1/events"
 ? "connector_guid[]"= "{{amp4e_computer}}"
@@ -8,11 +9,13 @@ GET "https://{{amp4e_host}}/v1/events"
 
 
 // Get a listing of all the computers in the network, looking specifically for what we want
+
 @name("2.) Find Endpoint Details for Remediation")
 GET "https://{{amp4e_host}}/v1/computers"
 
 
 // Get all ANC Endpoints from ISE
+
 @name("3.) Nuke the Endpoint to Prevent Further Breach")
 PUT "https://{{ise_host}}/ers/config/ancendpoint/apply"
 "Content-Type": "application/json"
@@ -32,6 +35,7 @@ data('{
 
 
 // Request a TG analysis Report with a given SHA-256
+
 @name("4.) Find samples in Threat Grid")
 GET "https://{{threatgrid_host}}/api/v2/samples/search"
 ? "checksum_sample"= "{{threatgrid_sha}}"
@@ -39,6 +43,7 @@ GET "https://{{threatgrid_host}}/api/v2/samples/search"
 
 
 // Request all domains for a specific sample in TG and store them in an array to get more data out of them
+
 @name("5.) Get all sample domains to analyze")
 GET "https://{{threatgrid_host}}/api/v2/samples/feeds/domains"
 ? "sample"= "{{threatgrid_sample_id}}"
@@ -59,6 +64,7 @@ GET "https://investigate.api.umbrella.com/security/name/{{umbrella_suspect}}.jso
 
 
 // using the umbrella enforcement API add domains to the custom integration
+
 @name("8.) Enforce on bad Domains in Umbrella")
 POST "https://{{umbrella_host}}/1.0/events"
 "Content-Type": "application/json"
@@ -85,18 +91,21 @@ data('[{
 
 
 // Grab a feed in STIX format for ransomware DNS
+
 @name("9.) Research other Ransomware Domains to protect")
 GET "https://{{threatgrid_host}}/api/v3/feeds/ransomware-dns_2017-12-08.stix"
 ? "api_key"= "{{threatgrid_key}}"
 
 
 // FMC REST API call to generate authentication token for subsequent API calls
+
 @name("Generate Authentication Token Copy")
 POST "https://{{fmc_hostname}}/api/fmc_platform/v1/auth/generatetoken"
 basicauth("{{fmc_user}}", "{{fmc_pasword}}")
 
 
 // REST call to add a custom intelligence feed
+
 @name("10.) Add custom intelligence Feed into FMC")
 POST "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
 "X-auth-access-token": "{{fmc_token}}"

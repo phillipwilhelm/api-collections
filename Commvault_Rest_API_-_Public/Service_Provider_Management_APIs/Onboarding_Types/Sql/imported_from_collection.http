@@ -1,0 +1,1079 @@
+#!/usr/bin/env dothttp
+
+@name("Create SQL Availability Group")
+POST "https://{{ServerUrl}}/sql/PseudoAvailabilityGroup"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+json({
+    "overrideHigherLevelSettings": {
+        "useLocalSystemAccount": true,
+        "overrideGlobalAuthentication": true,
+        "userAccount": {}
+    },
+    "clientInfo": {
+        "clientType": 20,
+        "mssqlagClientProperties": {
+            "SQLServerInstance": {
+                "clientId": 3,
+                "clientName": "dokwinclient3",
+                "instanceName": "DOKWINCLIENT3\\SQL2016",
+                "instanceId": 6
+            },
+            "plan": {
+                "planId": 1
+            }
+        }
+    }
+})
+
+
+@name("SQL Availability Groups")
+GET "https://{{ServerUrl}}/v2/sql/availabilityGroups/client/{{clientId}}/instance/{{instanceId}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+@name("SQL Availability Replicas For Group")
+GET "https://{{ServerUrl}}/v2/sql/availabilityGroupReplicas/client/{{clientId}}/instance/{{instanceId}}/availabilityGroup/{{sqlAvailabilityGroupName}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+@name("Update SQL Availability Group")
+POST "https://{{ServerUrl}}/Instance/{{instanceId}}"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+json({
+    "instanceProperties": {
+        "instance": {
+            "clientId": 14,
+            "instanceId": 21,
+            "applicationId": 81
+        },
+        "mssqlInstance": {
+            "agProperties": {
+                "SQLAvailabilityReplicasList": {
+                    "SQLAvailabilityReplicasList": [
+                        {
+                            "failoverMode": 1,
+                            "role": 1,
+                            "connectionState": 1,
+                            "endpointURL": "TCP://DokWinClient3.devemc.commvault.com:5025",
+                            "name": "DOKWINCLIENT3\\SQL2016",
+                            "availabilityMode": 0,
+                            "backupPriority": 50
+                        },
+                        {
+                            "failoverMode": 1,
+                            "role": 2,
+                            "connectionState": 1,
+                            "endpointURL": "TCP://DokWinClient4.devemc.commvault.com:5025",
+                            "name": "DOKWINCLIENT4\\SQL2016",
+                            "availabilityMode": 0,
+                            "backupPriority": 50
+                        }
+                    ]
+                },
+                "SQLServerInstance": {
+                    "flags": {}
+                },
+                "availabilityGroup": {
+                    "endpointURL": "TCP://DokWinClient3.devemc.commvault.com:5025",
+                    "name": "{{sqlAvailabilityGroupName}}",
+                    "backupPreference": 2,
+                    "uniqueId": "d08e2cfa-5f23-4bef-937b-08af745850a9",
+                    "primaryReplicaServerName": "DOKWINCLIENT3\\SQL2016",
+                    "SQLAvailabilityGroupListenerList": [
+                        {
+                            "availabilityGroupListenerName": "AG1SQL2016Liste"
+                        }
+                    ]
+                },
+                "proxyClient": {
+                    "flags": {}
+                },
+                "plan": {
+                    "flags": {}
+                },
+                "MSSQLStorageDevice": {
+                    "dataBackupStoragePolicy": {
+                        "flags": {}
+                    },
+                    "deDuplicationOptions": {
+                        "generateSignature": 1
+                    },
+                    "logBackupStoragePolicy": {
+                        "flags": {}
+                    },
+                    "commandLineStoragePolicy": {
+                        "flags": {}
+                    },
+                    "apptoDataPath": {},
+                    "performanceMode": {}
+                }
+            }
+        }
+    },
+    "association": {
+        "entity": [
+            {
+                "applicationId": 81,
+                "clientName": "DOKWINCLIENT3_SQL2016_AGClient",
+                "displayName": "DOKWINCLIENT3_SQL2016_AGClient_DN",
+                "instanceId": 21,
+                "clientId": 14,
+                "instanceGUID": "692CD32A-9444-4E1D-8C50-D96C222186FB",
+                "instanceName": "AG1SQL2016Liste/DOKWINCLIENT3_SQL2017_AGClient",
+                "appName": "SQL Server",
+                "flags": {}
+            }
+        ]
+    }
+})
+
+
+// <h2>Description</h2>
+// This operation deletes a particular instance using instance id.
+
+@name("Instance")
+DELETE "https://{{ServerUrl}}/instance/{{instanceId}}"
+"Accept": "application/json"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// <h2>Description</h2>
+// This operation mounts the database with database Id/ creates a recovery point for database with database Id 
+
+@name("Mount the database")
+POST "https://{{ServerUrl}}/v2/sql/instances/{{instanceid}}/databases/{{dbid}}/mount"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"destinationDatabaseName": "Clone_1",
+	"destinationClient": {
+		"clientGroupId" : 0,  	
+		"clientId" : 3,
+		"apptypeId" :81,
+		"instanceId" : 4,
+		"libraryId" : 0			
+	},
+	"expireDays": 2,
+	"copyPrecedence": 0,
+	"overwriteDatabase": false
+}')
+
+
+// <h2>Description</h2>
+// This operation returns the details for the sql-clone/recoveryPoint with given id
+
+@name("Details of SQL clone/recovery point")
+GET "https://{{ServerUrl}}/sql/clones/{{CloneId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation returns all the sql clones and recovery points
+// 
+// <h2>Request Parameters</h2>
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">clientId</p>
+// </td>
+// <td>
+// <p class="tabletext">for clones/recovery points on a specified client</p>
+// 
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">instanceId</p>
+// </td>
+// <td>
+// <p class="tabletext">for specified sql instance</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">cloneName </p>
+// </td>
+// <td>
+// <p class="tabletext">name of the destination clone/recoveryPoint</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">sourceInstance </p>
+// </td>
+// <td>
+// <p class="tabletext">source instance</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">destinationInstance </p>
+// </td>
+// <td>
+// <p class="tabletext">destination instance</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">sourceDB </p>
+// </td>
+// <td>
+// <p class="tabletext">source DB which is cloned</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 		
+// 			
+// 		 	
+// 			
+// 		
+
+@name("SQL clones and recovery points")
+GET "https://{{ServerUrl}}/sql/clones"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation retrives the sql client and instances properties.
+// 
+// <h2>Request Parameters</h2>
+// Atleast one of the params is neccessary
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">clientId</p>
+// </td>
+// <td>
+// <p class="tabletext">for retrieving sql client info and all the sql instances on that client.</p>
+// 
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">instanceId</p>
+// </td>
+// <td>
+// <p class="tabletext">for retrieving sql client info and the sql instance for the instance with specified id.</p>
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+// 
+// 		
+// 			
+// 		 	
+// 	
+// 	
+// 	
+// 	 
+
+@name("SQL client and instance properties")
+GET "https://{{ServerUrl}}/SQL/properties"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "clientId"= "{{clientId}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the db backup history 
+// 
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">fromTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// 
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">toTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+// 
+
+@name("DB backup history")
+GET "https://{{ServerUrl}}/sql/instance/{{instanceId}}/database/{{dbId}}/history/backup"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the backup history (JOBS history) of that instance
+// 	
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">fromTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// 
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">toTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+
+@name("Backup history of instance")
+GET "https://{{ServerUrl}}/sql/instance/{{instanceId}}/history/backup"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the dbbackup job with the jobid
+// 
+
+@name("DBBackup job with jobid")
+GET "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/jobs/{{jobId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the sql instance properties
+// 	
+
+@name("SQL instance properties")
+GET "https://{{ServerUrl}}/sql/instance/{{instanceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches all the sql instances properties
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">paging</p>
+// </td>
+// <td>
+// <p class="tabletext">0/1</p>
+// 
+// </td>
+// </tr>
+// 
+// </tbody>
+// </table>
+// 			
+
+@name("SQL instances")
+GET "https://{{ServerUrl}}/sql/instances"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the all the sql databases properties.
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">instance</p>
+// </td>
+// <td>
+// <p class="tabletext">instance Id</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">database</p>
+// </td>
+// <td>
+// <p class="tabletext">database Id</p>
+// </td>
+// </tr>
+// 
+// 
+// 
+// </tbody>
+// </table>
+// 			
+
+@name("SQL databases properties")
+GET "https://{{ServerUrl}}/sql/databases"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the database properties of database with databaseId.
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">replicationInfo</p>
+// </td>
+// <td>
+// <p class="tabletext">(show replicationInfo) 0 or 1</p>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 			
+// 
+// 	
+
+@name("Properties of a database")
+GET "https://{{ServerUrl}}/sql/instance/{{instanceId}}/database/{{databaseId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches all the clients with sql instances,
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">opType</p>
+// </td>
+// <td>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">GETINSTANCES=0</li>
+// <li class="listbullet">VERIFYGUID=1</li>
+// <li class="listbullet">ISAGCONFIGURED=2</li>
+// <li class="listbullet">GETCLOUDPROXYLIST=3</li>
+// <li class="listbullet">GETAGCLIENTSLIST=4</li>
+// <li class="listbullet">ANALYSIS_SERVER_INSTANCES=5</li>
+// <li class="listbullet">APPLESS = 6</li>
+// <li class="listbullet">CLOUD_APPS = 7</li>
+// </ul>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">osType</p>
+// </td>
+// <td>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">UNKNOWN= 0</li>
+// <li class="listbullet">WINDOWS= 1</li>
+// <li class="listbullet">UNIX = 2</li>
+// <li class="listbullet">NETWARE= 3</li>
+// <li class="listbullet">NASFILER = 4</li>
+// <li class="listbullet">DATAONTAP= 5</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 			
+// 
+// 	
+// 		
+// 	
+
+@name("Clients with SQL instances")
+GET "https://{{ServerUrl}}/Client/SQL"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches all the databases on the client with {clientID} and instance with {instanceId}
+
+@name("Databases on the client")
+GET "https://{{ServerUrl}}/client/{{clientId}}/sql/instance/{{instanceId}}/databases"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// Browse instance to get backed-up databases
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">commcellId</p>
+// </td>
+// <td>
+// <p class="tabletext">Id of commcell</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">toTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">fromTime</p>
+// </td>
+// <td>
+// <p class="tabletext">unix timestamp</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">jobId</p>
+// </td>
+// <td>
+// <p class="tabletext">id for the job</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">backupMethod</p>
+// </td>
+// <td>
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">VDI -0</li>
+// <li class="listbullet">VSS - 1</li>
+// <li class="listbullet">SNAP-2</li>
+// <li class="listbullet">BLOCKSNAP - 5</li>
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+// 			
+
+@name("Backed-up databases")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/SQL/Instance/{{instanceId}}/Browse"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the first backup job details
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">databaseName</p>
+// </td>
+// <td>
+// <p class="tabletext">database name</p>
+// 
+// </td>
+// </tr>
+// 
+// 
+// </tbody>
+// </table>
+// 			
+// 
+
+@name("First backup job details")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/SQL/Instance/{{instanceId}}/GetFirstBackupJob"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the SQL Database Configuration. ( all the sql subclients on that instance and its associated databases)
+// 	
+
+@name("SQL Database Configuration")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/Sql/Instance/{{instanceId}}/DatabaseConfiguration"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the Latest Backup Details relative to the given 
+// point in time  { PointInTimeVal}
+// 
+// <h2>Request Parameters</h2>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">databaseName</p>
+// </td>
+// <td>
+// <p class="tabletext">database name</p>
+// 
+// </td>
+// </tr>
+// 
+// 
+// </tbody>
+// </table>
+// 			
+
+@name("Latest backup details")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/SQL/Instance/{{instanceId}}/ReferenceTimeForPITRestore/{{PointInTimeVal}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the unconfiguredDatabases on the instance with instanceId
+
+@name("Unconfigured Databases")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/Sql/Instance/{{instanceId}}/unconfiguredDatabases"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the unconfiguredServers 
+// 	
+
+@name("Unconfigured Servers")
+GET "https://{{ServerUrl}}/Client/{{clientId}}/Sql/unconfiguredServers"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the sql restore options for the databases selected ( in json )
+// <br>
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">restoreDbType</p>
+// </td>
+// <td>
+// 
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">NONE = 0</li>
+// <li class="listbullet"> FULL=1</li>
+// <li class="listbullet">DIFFERENTIAL=3</li>
+// <li class="listbullet">SYNTHETIC_FULL=4</li>
+// <li class="listbullet">TRANSACTION_LOG=6</li>
+// 
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>
+
+@name("SQL Restore Options")
+POST "https://{{ServerUrl}}/SQL/RestoreOptions"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"pointInTime": 0,
+	"restoreDbType": 0, 
+	 
+	"sourceInstanceId": 4,
+	"userId": 1,
+	"selectedDatabases": [
+		{
+			"databaseName": "clone",
+			"databaseId": 33
+		}
+	]
+}')
+
+
+// <h2>Description</h2>
+// This operation fetches the sql DB fileGroup Info
+// 
+// 		All the params are neccessary.
+// 	
+
+@name("SQL DB filegroup info")
+GET "https://{{ServerUrl}}/SQLFileGroup"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+? "instanceId"= "{{instanceId}}"
+? "databaseId"= "{{databaseId}}"
+? "databaseName"= "{{databaseName}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the backup job for the database with dbId and job with jobId
+
+@name("Backup job for the database")
+GET "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/databases/{{dbId}}/jobs/{{jobId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation performs the restore for all the databases  configured for backup
+// 	
+
+@name("Restore for all the databases  configured for backup")
+POST "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/recovery"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"overwriteFiles": false,
+	"destDiskPath": "",
+
+	"destinationEntity": {
+		"clientId":  3,
+		"instanceId": 4
+		},
+	"copyPrecedence": 0,
+	"destinationDatabaseName": "",
+	"dataFilePath": "",
+	"logFilePath": ""
+}')
+
+
+// <h2>Description</h2>
+// This operation deletes the clone with clone id
+
+@name("Clone")
+DELETE "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/clone/{{cloneId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+"Content-Type": "application/json"
+
+
+
+// <h2>Description</h2>
+// This operation Backups all the subclients in the instance with instanceId
+// 
+//    
+//    
+
+@name("Backup all the subclients in the instance")
+POST "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/backup"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"overwriteFiles": false,
+	"destDiskPath": "",
+	"destinationEntity": {
+				"clientId": "3",
+			"instanceId": "4"
+		},
+	"copyPrecedence": 0,
+	"destinationDatabaseName": "clone10",
+	"dataFilePath": "",
+	"logFilePath": ""
+}')
+
+
+// <h2>Description</h2>
+// This operation is used to backup selected database in a instance.
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">BackupType</p>
+// </td>
+// <td>
+// 
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">NONE = 0</li>
+// <li class="listbullet"> FULL=1</li>
+// <li class="listbullet">DIFFERENTIAL=3</li>
+// <li class="listbullet">SYNTHETIC_FULL=4</li>
+// <li class="listbullet">TRANSACTION_LOG=6</li>
+// 
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>	
+// 
+// 
+
+@name("Backup selected database")
+POST "https://{{ServerUrl}}/v2/sql/instance/{{instanceId}}/databases/{{dataBaseId}}/backup"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"backupType" : 6    	
+}')
+
+
+// <h2>Description</h2>
+// This operation is used to start backup for selected dbs
+// 
+// <table class="tableintopic" border="0" cellspacing="0" cellpadding="2">
+// <tbody>
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">Name</p>
+// </td>
+// <td>
+// <p class="tabletext">Description</p>
+// </td>
+// </tr>
+// 
+// <tr align="left" valign="top">
+// <td>
+// <p class="tabletext">BackupType</p>
+// </td>
+// <td>
+// 
+// <p class="tabletext">Valid values are:</p>
+// <ul class="listbullet">
+// <li class="listbullet">NONE = 0</li>
+// <li class="listbullet"> FULL=1</li>
+// <li class="listbullet">DIFFERENTIAL=3</li>
+// <li class="listbullet">SYNTHETIC_FULL=4</li>
+// <li class="listbullet">TRANSACTION_LOG=6</li>
+// 
+// </ul>
+// </td>
+// </tr>
+// </tbody>
+// </table>	
+// 
+// 
+
+@name("Start backup for selected DBs")
+POST "https://{{ServerUrl}}/v2/sql/backup"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"instances": [
+	{
+	"userId" : 1,
+	"sourceInstance" : {
+		"clientName": "ssp20",
+		"instanceId": 4,
+		"clientId": 3,
+		"apptype" : 81,
+		"instanceName": "PLUGINNOSERVC"
+	},
+		"selectedDatabases" : [
+			{
+			"databaseName": "clone",
+			"databaseId": 67
+			},
+			{
+			"databaseName" : "normal",
+			"databaseId" : 60
+			}
+		]
+	}
+	],
+	"backupType" : 1,
+	"reserved" : ""
+}')
+
+
+// <h2>Description</h2>
+// This operation fetches the availabilityGroup for the instance with instanceId
+// 	
+
+@name("Availability Group for the instance")
+GET "https://{{ServerUrl}}/v2/sql/availabilityGroups/client/{{clientId}}/instance/{{instanceId}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation fetches the Availability group details 
+// 	
+
+@name("Availability group details ")
+GET "https://{{ServerUrl}}/v2/sql/availabilityGroupReplicas/client/{{clientId}}/instance/{{instanceId}}/availabilityGroup/{{availabilityGroupName}}"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+// <h2>Description</h2>
+// This operation performs the database restore for the db with dbId
+// 	
+
+@name("Database restore for the DB")
+POST "https://{{ServerUrl}}/v2/sql/instances/{{instanceId}}/databases/{{dataBaseId}}/restore"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+	"overwriteFiles": false,
+	"destDiskPath": "",
+
+	"destinationEntity": {
+		"clientId":  3,
+		"instanceId": 4
+		},
+	"copyPrecedence": 0,
+	"destinationDatabaseName": "",
+	"dataFilePath": "",
+	"logFilePath": ""
+}')
+
+
+

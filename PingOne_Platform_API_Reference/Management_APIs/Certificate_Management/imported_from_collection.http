@@ -1,0 +1,258 @@
+#!/usr/bin/env dothttp
+
+// The `GET /environments/{environmentId}/keys` endpoint returns a list of all key resources for the specified environment. This operation allows SCIM filtering on the `algorithm` and `status` properties with the `eq` operator.
+// 
+// The sample returns the complete list of key resources associated with the environment ID specified in the request URL.
+// 
+// This operation allows SCIM filtering on the `algorithm` and `status` properties with the `eq` operator. The following sample returns the list of valid key resources associated with the environment ID specified in the request URL:
+// 
+// ```
+// https://api.pingone.com/v1/environments/{environmentId}/keys?filter=status eq "VALID"
+// 
+// ```
+
+@name("GET Keys")
+GET "https://{{apiPath}}/environments/{{envID}}/keys"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a specific environment key, the `GET /environments/{environmentId}/keys/{keyId}` operation returns data for the key resource with the specified ID.
+
+@name("GET Key")
+GET "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get a list of applications that use a specific key, the `GET /environments/{environmentId}/keys/{keyId}/applications` operation returns all applications associated with the key resource ID specified in the request URL.
+// 
+// The response returns the list of applications associated with the specified key.
+
+@name("GET Key Applications")
+GET "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}/applications"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/keys` operation creates a new environment key resource for the specified environment.
+// 
+// 
+// 
+// For the `subjectDN` attribute, a valid DN must contain `commonName`, `organization`, `organizationUnit`, `city`, `state`, and `country` (CN=commonName, O=organization, OU=organizationUnit, C=country, ST=state, L=city).
+// 
+// 
+// Instead of posting the key attributes in the request body, this operation also supports the `application/x-pkcs12-certificates` media type to upload a `pkcs12` file.
+// 
+
+@name("CREATE Key")
+POST "https://{{apiPath}}/environments/{{envID}}/keys"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "name": "Doc test cert",
+  "serialNumber": 1575483893597,
+  "subjectDN": "CN=Doc test cert, OU=Ping Identity, O=Ping Identity, L=, ST=, C=US",
+  "algorithm": "RSA",
+  "keyLength": 2048,
+  "createdAt": 1575483893597,
+  "expiresAt": 1607019893597,
+  "validityPeriod": 365,
+  "signatureAlgorithm": "SHA256withRSA",
+  "usageType": "SIGNING",
+  "status": "VALID",
+  "default": false
+}')
+
+
+// Instead of posting the key attributes in the request body, this operation also supports the `application/x-pkcs12-certificates` media type to upload a `pkcs12` file.
+// 
+
+@name("CREATE Key with PKCS12 File")
+POST "https://{{apiPath}}/environments/{{envID}}/keys"
+"Content-Type": "application/x-pkcs12-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "{filename}"
+}')
+
+
+// The `PUT /environments/{environmentId}/keys/{keyId}` operation updates the current key to be the default signing or encryption key for an environment.
+
+@name("UPDATE Key")
+PUT "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "default": true
+}')
+
+
+// To export a certificate from a specified key pair, the `GET /environments/{environmentId}/key/{keyId}` operation downloads a certificate file in the specified file format. This operation requires a `Content-type` header in the request that specifies the certificate file type. Options are `Content-type: application/x-pkcs7-ca-cert` or `Content-type: application/x-x509-ca-cert`.
+// 
+// The sample shows an export operation to download a certificate in PKCS7 DER format.
+// 
+// The downloaded certificate file has a .p7b file extension.
+
+@name("EXPORT Public Key (PKCS7 DER)")
+GET "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Content-Type": "application/x-pkcs7-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To export a certificate from a specified key pair, the `GET /environments/{environmentId}/key/{keyId}` operation downloads a certificate file in the specified file format. This operation requires a `Content-type` header in the request that specifies the certificate file type. Options are `Content-type: application/x-pkcs7-ca-cert` or `Content-type: application/x-x509-ca-cert`.
+// 
+// The following sample shows an export operation to download a certificate in X509 PEM format.
+// 
+// The exported certificate file has a .crt file extension.
+
+@name("EXPORT Public Key (X509 PEM)")
+GET "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Content-Type": "application/x-pkcs7-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `GET /environments/{environmentId}/certificates` endpoint returns a list of all certificate resources for the specified environment.
+
+@name("GET Certificates")
+GET "https://{{apiPath}}/environments/{{envID}}/certificates"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get data for a specific environment certificate, the `GET /environments/{environmentId}/certificates/{certificateId}` operation returns data for the certificate resource with the specified ID.
+
+@name("GET Certificate")
+GET "https://{{apiPath}}/environments/{{envID}}/certificates/{{certID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// To get a list of applications that use a specific certificate, the `GET /environments/{environmentId}/certificates/{certificateId}/applications` operation returns all applications associated with the certificate resource ID specified in the request URL.
+// 
+// The response returns the list of applications associated with the specified certificate.
+
+@name("GET Certificate Applications")
+GET "https://{{apiPath}}/environments/{{envID}}/certificates/{{certID}}/applications"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// The `POST /environments/{environmentId}/certificates` operation creates a new environment certificate resource for the specified environment. It creates a certificate from an upload of a pkcs7 file with public and trust certificates. Properties returned in the response are parsed from the uploaded file.
+// 
+// 
+// The response returns a `202 Accepted` message and shows the certificate data parsed from the uploaded certificate file.
+// 
+
+@name("CREATE Certificate with PKCS7 File")
+POST "https://{{apiPath}}/environments/{{envID}}/certificates"
+"Content-Type": "application/x-pkcs7-certificates"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+  "<filename>"
+}')
+
+
+// The `POST /environments/{environmentId}/encryptions` operation encrypts the plaintext string specified in the request body. You must specify either the certificate ID or the key ID in the request (but not both). The following request initiates the encrypt operation by specifying the certificate ID in the request body.
+// 
+// 
+// The response data returns the encrypted cipher text string.
+
+@name("ENCRYPT Data")
+POST "https://{{apiPath}}/environments/{{envID}}/encryptions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{   
+    "key" : {   
+        "id": "{keyId}"
+    },
+    "certificate" : {   
+        "id": "{certificateId}"
+    },
+    "plainText": "SGVsbG8sIFdvcmxkIQ=="
+}')
+
+
+// The `POST /environments/{environmentId}/decryptions` operation decrypts the cypher text string specified in the request body. You must also specify the key ID in the request.
+// 
+// 
+// 
+// The response data returns the decrypted plain text string.
+// 
+
+@name("DECRYPT Data")
+POST "https://{{apiPath}}/environments/{{envID}}/decryptions"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{
+    "key" : {   
+        "id": "40e6c099-20dd-4763-be84-a5d9fd30f3ba"
+    },
+    "cipherText": "0kEOngncmwvmGal0pT1y71bNsfWfvllmoDQlPfUq4UxiFE/u2w0RoS0yqPieNY1samW971zFuZ+XGtqIp69id6KSd9WXaaZliE18GAk8XvnilKF4A6TW1lmkpGuezI6G6AxPaaFVMKZyPx6R8Ai90aRBkcZ+2TtOrzZjGWh0Z132R/3syiFpEzBIqmo/ksnHKcojfj0Eq8cMwaSeymLaxT/wykeCwDC4x2QrRQLVmM4yCDNM2eC/3ArkB24pjMXHKfcr5jzR9ZtHdlh7Bs8D4JpdNMyD+uI6mrJyFll+E3TLGUhRymjMc4ZiUpPPntoXVzYq4xupZdNTbbcClA6hyg=="
+}')
+
+
+// The `POST /environments/{environmentId}/signings` operation signs the string specified by the `plainText` attribute in the request body. You must also specify the key ID in the request.
+// 
+// 
+// This operation supports the following algorithms for RSA based certificates: `SHA256withRSA`, `SHA384withRSA`, and `SHA512withRSA`. The chosen signature algorithm must be compliant with the chosen key’s algorithm.
+// 
+// 
+// The response data returns the signature string:
+
+@name("SIGN Data")
+POST "https://{{apiPath}}/environments/{{envID}}/signings"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{   
+  "algorithm": "SHA256withRSA",
+  "plainText": "string",
+  "key": {
+    "id": "{keyId}"
+  }
+}')
+
+
+// The `POST /environments/{environmentId}/verifications` operation uses the public key to verify the signed plain text string. You must specify either the certificate ID or the key ID in the request (but not both). You must also specify the signature ID, certificate ID, and the key ID in the request.
+// 
+// 
+// The response data returns a `200 Success` message and the key ID and certificte ID.
+
+@name("VERIFY Signed Data")
+POST "https://{{apiPath}}/environments/{{envID}}/verifications"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{jwtToken}}"
+data('{   
+  "key" : {   
+      "id": "{keyId}"
+  },
+  "certificate" : {   
+      "id": "{certificateId}"
+  },
+  "plainText": "SGVsbG8sIFdvcmxkIQ==",
+  "signature": "{signature}"
+
+}')
+
+
+// You can perform a `DELETE` operation on a certificate resource to remove it from the environment. However, the certificate must not be associated with any applications. If the certificate is used by an application, it cannot be deleted.
+// 
+// To delete a certificate resource, use the `DELETE /environments/{environmentId}/certificates/{certificateId}` operation and specify the ID of the certificate to delete in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+// 
+
+@name("DELETE Certificate")
+DELETE "https://{{apiPath}}/environments/{{envID}}/certificates/{{certID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+// You can perform a `DELETE` operation on a key resource to remove it from the environment. However, the key must not be associated with any applications. If the key is used by an application, it cannot be deleted.
+// 
+// To delete a key resource, use the `DELETE /environments/{environmentId}/keys/{keyId}` operation and specify the ID of the key to delete in the request URL.
+// 
+// 
+// When successful, the `DELETE` request returns a code `204 No Content` message.
+// 
+
+@name("DELETE Key")
+DELETE "https://{{apiPath}}/environments/{{envID}}/keys/{{keyID}}"
+"Authorization": "Bearer {{jwtToken}}"
+
+
+

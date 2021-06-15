@@ -1,0 +1,76 @@
+#!/usr/bin/env dothttp
+
+// Groups are useful for organizing your devices in a way
+// that makes sense to you.
+// 
+// Devices can be a member of more than one group,
+// and device groups can be nested.
+// 
+// CLI Equivalent
+// 
+// devices device-group campus-devices device-name [ ios0 nx0 ]
+// top
+// devices device-group backbone-devices device-name [ iosxr0 asa0 ]
+// top
+// devices device-group parent-group-all-devices device-group [ campus-devices backbone-devices ]
+// commit dry-run
+// commit dry-run outformat xml
+// top
+
+@name("Configure Device Groups")
+PATCH "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+xml"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+data('<devices xmlns="http://tail-f.com/ns/ncs">
+               <device-group>
+                 <name>ALL</name>
+                 <device-group>ASA-DEVICES</device-group>
+                 <device-group>IOS-DEVICES</device-group>
+                 <device-group>NXOS-DEVICES</device-group>
+                 <device-group>XR-DEVICES</device-group>
+               </device-group>
+               <device-group>
+                 <name>ASA-DEVICES</name>
+                 <device-name>edge-firewall01</device-name>
+               </device-group>
+               <device-group>
+                 <name>IOS-DEVICES</name>
+                 <device-name>dist-rtr01</device-name>
+                 <device-name>dist-rtr02</device-name>
+                 <device-name>internet-rtr01</device-name>
+               </device-group>
+               <device-group>
+                 <name>NXOS-DEVICES</name>
+                 <device-name>dist-sw01</device-name>
+                 <device-name>dist-sw02</device-name>
+               </device-group>
+               <device-group>
+                 <name>XR-DEVICES</name>
+                 <device-name>core-rtr01</device-name>
+                 <device-name>core-rtr02</device-name>
+               </device-group>
+             </devices>')
+
+
+@name("List Device Groups")
+GET "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device-group"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+"": ""
+
+
+
+@name("List Device Single Device Group Details")
+GET "{{PROTOCOL}}://{{NSO_IP}}/restconf/data/tailf-ncs:devices/device-group=IOS-DEVICES"
+basicauth("{{username}}", "{{password}}")
+"Content-Type": "application/yang-data+json"
+"Authorization": "Basic YWRtaW46YWRtaW4="
+"Accept": "application/yang-data+json"
+
+
+
+

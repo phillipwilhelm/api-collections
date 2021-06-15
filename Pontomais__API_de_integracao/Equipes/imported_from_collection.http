@@ -1,0 +1,169 @@
+#!/usr/bin/env dothttp
+
+// Lista as equipes.
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60) | Nome da equipe |
+// | code | Code (60) | Código identificador da equipe |
+// | department | Object | Departamento ao qual a equipe pertence (Verificar tabela descritiva do objeto) |
+// | leaders | Array | Lista de gestores da equipe (Verificar tabela descritiva do objeto) |
+// 
+// 
+// #### Formato do objeto department
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code   | Code (60) | Código identificador do departamento |
+// | name | String (60)  | Tipo de registro |
+// 
+// #### Formato do objeto no array leaders
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial do código do colaborador gerado automaticamente pelo sistema |
+// | name   | String | Nome completo do colaborador/gestor |
+// | picture | Object | Foto do colaborador/gestor |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/teams"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,department,leaders"
+? "count"= "{{count}}"
+? "page"= "{{page_number}}"
+? "per_page"= "{{per_page}}"
+
+
+// Exibe os atributos de uma equipe.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | team_id | Integer | Sim | ID da equipe a ser detalhada |
+// 
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | name | String (60) | Nome da equipe |
+// | code | Code (60) | Código identificador da equipe |
+// | department | Object | Departamento ao qual a equipe pertence (Verificar tabela descritiva do objeto) |
+// | leaders | Array | Lista de gestores da equipe (Verificar tabela descritiva do objeto) |
+// 
+// 
+// #### Formato do objeto department
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial gerado automaticamente pelo sistema |
+// | code   | Code (60) | Código identificador do departamento |
+// | name | String (60)  | Tipo de registro |
+// 
+// #### Formato do objeto no array leaders
+// 
+// | Nome | Tipo    | Descrição                                                    |
+// | ---- | ------- | ------------------------------------------------------------ |
+// | id   | Integer | Identificador sequencial do código do colaborador gerado automaticamente pelo sistema |
+// | name   | String | Nome completo do colaborador/gestor |
+// | picture | Object | Foto do colaborador/gestor |
+
+@name("Detalhar")
+GET "https://{{server_url}}/external_api/v1/teams/{{team_id}}"
+"access-token": "{{client_token}}"
+? "attributes"= "id,code,name,department,leaders"
+
+
+// Cria uma equipe.
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | name | String (60) | Sim | Nome da equipe |
+// | code | Code (60) | Não | Código identificador da equipe |
+// | observation | String (255) | Não | Observação |
+// | department_id | Integer | Sim | ID do departamento ao qual a equipe deve pertencer |
+// | leader_ids | Array | Não | Array de ids de colaboradores a serem cadastrados como gestores |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/teams"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "team":
+  {
+    "code":"{{code}}",
+    "name":"{{name}}",
+    "observation":"{{observation}}",
+    "department_id":{{department_id}},
+    "leader_ids":[]
+  }
+}')
+
+
+// Edita uma equipe.
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | team_id | Integer | Sim | ID da equipe |
+// 
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | name | String (60) | Sim | Nome da equipe |
+// | code | Code (60) | Não | Código identificador da equipe |
+// | observation | String (255) | Não | Observação |
+// | department_id | Integer | Sim | ID do departamento ao qual a equipe deve pertencer |
+// | leader_ids * | Array | Não | Array de ids de colaboradores a serem cadastrados como gestores. Irá remover todos os gestores e adicionar a listagem enviada |
+// 
+// ## * leader_ids
+// | Ação | Como passar o atributo |
+// | ---- | ---------------------- |
+// | Excluir todos os gestores da equipe | { "team": { "leader_ids":[] } } |
+// | Manter todos os gestores | não enviar o atributo |
+// | Manter todos os gestores | { "team": { "leader_ids":null } } |
+// | Alterar os gestores | { "team": { "leader_ids":[1, 2, n] } } |
+
+@name("Editar")
+PUT "https://{{server_url}}/external_api/v1/teams/{{team_id}}"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+  "team":
+  {
+    "code":"{{code}}",
+    "name":"{{name}}",
+    "observation":"{{observation}}",
+    "department_id":{{department_id}},
+    "leader_ids":null
+  }
+}')
+
+
+// Inativa uma equipe.
+// 
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | team_id | Integer | Sim | ID da equipe |
+
+@name("Inativar")
+DELETE "https://{{server_url}}/external_api/v1/teams/{{team_id}}"
+"access-token": "{{client_token}}"
+
+
+
+

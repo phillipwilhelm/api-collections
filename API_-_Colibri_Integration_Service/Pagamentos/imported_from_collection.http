@@ -1,0 +1,222 @@
+#!/usr/bin/env dothttp
+
+// Resource para obter os totais do pedido.
+// 
+// Retorna os totais e os pagamentos parciais já efetuados.
+// 
+// O saldo a pagar deve ser verificado na chave `faltaReceber`. O valor já pago está em `totalPago`.
+
+@name("Obter totais da venda/pedido.")
+GET "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+
+
+
+// Resource para iniciar um bloqueio de recebimento para um determinado consumo.
+// 
+// Informe o **timeout** em **segundos** do bloqueio no JSON de requisição: `"timeout": 30`.
+
+@name("Iniciar bloqueio de recebimento.")
+POST "https://{{url}}/{{version}}/caixa/lock/"
+basicauth("super", "1234")
+"Content-Type": "application/json; charset=utf-8"
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+data('{
+  "timeout": 300,
+  "info": "iniciando o recebimento"
+}')
+
+
+// Remove ou cancela o bloqueio de início de recebimento.
+
+@name("Remover/Cancelar bloqueio de início de recebimento")
+DELETE "https://{{url}}/{{version}}/caixa/lock/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+
+
+
+@name("Renovar timeout de bloqueio")
+PUT "https://{{url}}/{{version}}/caixa/lock/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "timeout": 300
+}')
+
+
+// #### Pagamento normal/total
+// 
+// É quando o valor do pagamento é igual ou maior ao valor a pagar. Esse pagamento finaliza o ticket impedindo novos lançamentos.
+// 
+// Os meios de pagamentos podem ser informados com o código ou o ID.
+
+@name("Lançar pagamento total da conta.")
+POST "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "1234")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "pessoas": 3,
+  "finaliza_conta": true,
+  "meios": [
+    {
+      "codigo": 1,
+      "valor": 1000,
+      "dados_adicionais": {
+        "transacao_id": "{BF5F36FB-60D4-4501-8359-EFA79460574E}",
+        "obs": "Observações dos dados adicionais de pagamento.",
+        "meio": "Cartão Online",
+        "online": true,
+        "origem": "ifood"
+      }
+    }
+  ]
+}')
+
+
+// #### Pagamento antecipado
+// 
+// É igual ao pagamento normal, mas sem a emissão de comprovante de pagamento. Nesse caso o consumo vai para o estado  **pago** para ter o comprovante de pagamento emitido posteriormente no Colibri.
+// 
+// Os meios de pagamentos podem ser informados com o código ou o ID.
+
+@name("Lançar pagamento antecipado")
+POST "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "consumidor": {
+    "cpf": "58157867053"
+  },
+  "pagamento_antecipado": true, 
+  "meios": [{
+    "codigo": 1, 
+    "valor": 250
+  }]
+}')
+
+
+// #### Intenção de pagamento
+// 
+// É quando o pagamento ainda não ocorreu, mas deseja se guardar a informação de como o cliente deve pagar. Ideal para cálculo de troco em caso de delivery/entrega.
+// 
+// Deve ser informado o tipo da intenção de pagamento que pode ser:
+// 1 para dinheiro, 2 para cartão ou 3 para voucher.
+// 
+// O campo troco_para deve conter o valor total da intenção de pagamento.
+// 
+// Pode-se informar também um novo valor de entrega.
+
+@name("Lançar intenção de pagamento")
+POST "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "tipo_intencao_pagamento": 1,
+  "troco_para": 50.0,
+  "entrega": 5
+}')
+
+
+// Lança um meio de pagamento mas mantém a conta em aberto, mesmo que o valor seja maior que o total da conta.
+// 
+// Pode-se informar também a quantidade de pessoas e o nome de quem está fazendo o pagamento.
+// 
+// Se permitido pelas configurações do sistema, pode-se enviar um valor de desconto.
+// 
+// Os meios de pagamentos podem ser informados com o código ou o ID.
+
+@name("Lançar pagamento parcial.")
+POST "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+  "pessoas": 3, 
+  "meios": [
+    {
+      "codigo": 1, 
+      "valor": 5,
+      "tef": true,
+      "dados_adicionais":{
+            "transacao_id":"343215ec-39ec-47f7-a25d-cd89ff9ebbc7",
+            "solucao":"Shipay",
+            "carteira":"PIC PAY",
+            "status":"Confirmado"
+         }
+    }
+  ], 
+  "desconto": 0, 
+  "identificacao": "Fulano de Oliveira"
+}')
+
+
+// Permite cancelar um pagamento de uma venda não finalizada.
+
+@name("Cancelar pagamento")
+DELETE "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "pagamento_id"= "{{pagamento_id}}"
+? "lock_id"= "{{lock_id}}"
+
+
+
+// Permite remover o valor total do serviço. Não é possível informar um valor diferente de zero.
+// 
+// Permite também informar a quantidade de pessoas.
+
+@name("Remover taxa de serviço")
+PUT "https://{{url}}/{{version}}/caixa/"
+basicauth("super", "{{password}}")
+"Authorization": "Basic c3VwZXI6MTIzNA=="
+"Content-Type": "application/json; charset=utf-8"
+? "api_key"= "{{apikey}}"
+? "codigo"= "{{codigo}}"
+? "modo_venda"= "{{modo_venda}}"
+? "lock_id"= "{{lock_id}}"
+data('{
+    "pessoas": 3, 
+    "servico": 0
+}')
+
+
+

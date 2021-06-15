@@ -1,0 +1,87 @@
+#!/usr/bin/env dothttp
+
+// Lista todos os abonos, independentemente de colaborador
+// 
+// ## Variáveis na URL
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- |----- |------------ | --------- |
+// | start_date | Date | Sim | data de início do período |
+// | end_date | Date | Sim | Data de término do período |
+// | medical_certificate | Boolean | Sim | Atestado médico? (*true - sim \| false - não*) |
+// 
+// 
+// ## Atributos disponíveis
+// 
+// | Nome | Tipo | Descrição |
+// | ------ | ------|----------- |
+// | id | Integer | Identificador único|
+// | employee | Object | Dados do colaborador (id, nome, picture) |
+// | date | Date | Data do abono
+// | start_time | String | hora de início |
+// | end_time | String | hora de término |
+// | solicitation_status | Object | Status da solicitação |
+// | answered_by | Object | Dados de quem respondeu a solicitação |
+// | answered_at | Timestamp | Data e hora da resposta | 
+// | observation | string | Descrição do afastamento ou férias |
+// | is_medical_certificate | Boolean | Atestado médico? (*true - sim \| false - não*) |
+// | cid | String | CID |
+// | crm | String | CRM do médico |
+// | medical_name | String | Nome do médico |
+// | clinic_name | String | Local de atendimento |
+// | file | Object | Imagem do atestado médico |
+// | created_at | Date | Data de criação |
+// | updated_at | Date | Data de atualização |
+
+@name("Listar")
+GET "https://{{server_url}}/external_api/v1/allowances"
+"access-token": "{{client_token}}"
+"Content-Type": "application/json"
+? "start_date"= "{{start_date}}"
+? "end_date"= "{{end_date}}"
+? "medical_certificate"= "{{medical_certificate}}"
+
+
+// Cria um abono para um colaborador.
+// 
+// ## Estrutura do objeto JSON a ser enviado
+// 
+// | Nome | Tipo | Obrigatório | Descrição |
+// | ---- | -----|------------ | --------- |
+// | employee_id | Integer | Sim | ID do colaborador |
+// | date | Date | Sim | Data do abono |
+// | start_time | String | Não | hora de início |
+// | end_time | String | Não | hora de término |
+// | observation | String | Sim | Descrição do abono |
+// | is_medical_certificate | Boolean | Não | Atestado médico? (*true - sim \| false - não*) |
+// | cid | String | Não | CID |
+// | crm | String | Não | CRM do médico |
+// | medical_name | String | Não | Nome do médico |
+// | clinic_name | String | Não | Local de atendimento |
+// | file | String | Não | Imagem do atestado médico em Base64 |
+// | status_id | Integer | Sim | ID do motivo cadastrado nos Motivos de ajuste dentro da tela de Configurações. |
+
+@name("Criar")
+POST "https://{{server_url}}/external_api/v1/allowances"
+"Content-Type": "application/json"
+"access-token": "{{client_token}}"
+data('{
+	"exemption": {
+		"cid": "999999",
+		"clinic_name": "Clínica Teste",
+		"crm": "{{crm}}",
+		"medical_name": "Frodo Baggins",
+		"is_medical_certificate": true,
+		"date": "2020-06-08",
+		"employee_id": {{employee_id}},
+		"start_time": "08:00",
+		"end_time": "14:00",
+		"all_day": false,
+		"observation": "Lorem ipsum",
+		"status_id": {{status_id}},
+		"file": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAALCAYAAABCm8wlAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5AQQFBA6c3nCJAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABdklEQVQYGQFrAZT+AQD/qP8AAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAA/6j/AAAAAAAAAAAAAAAAAgAAAAAAAAAAAAFYAQAAAAAAAAAAAP+o/wAAAAAAAAAAAgAAAAAAAAAAAAAAAAABWAEAAAAAAAAAAAD/qP8AAAAAAgAAAAAAAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAA/6j/AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAFYAQAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAP+o/wAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAA/6j/AAAAAAAAAAAAAVgBAgAAAAAAAAAAAAAAAAD/qP8AAAAAAAAAAAABWAEAAAAAAQD/qP8AAAAAAAAAAAAAAAAAAAAAAAFYAQAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAVgBAAAAAAAAAAAAAAAAlK4bFYA5uokAAAAASUVORK5CYII="
+	}
+}')
+
+
+

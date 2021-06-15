@@ -1,0 +1,1 @@
+Collection demonstrating how to use postman.setNextRequest to do dynamic iteration within a collection based on the HTTP response without using CSV files.

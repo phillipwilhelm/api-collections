@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+@name("View Request")
+GET "https://{{url}}/request/{{request_id}}"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "certificate": {
+    "common_name": "testing.wilsonovi.com",
+    "csr": "-----BEGIN CERTIFICATE REQUEST-----MIICpTCCAY0CAQAwYDELMAkGA1UEBhMCVVMxDTALBgNVBAgTBFV0YWgxDTALBgNVBAcTBE9yZW0xFTATBgNVBAoTDENsaW50IFdpbHNvbjEcMBoGA1UEAxMTbWFya211ZWxsZXItY3BhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKdAq2wAhmjoACVg/1BRu+in5C7PD6ph6Uz7daj8p7a1DSefw59eI/3lg3I7/Ogk5lNTC4bJChyXmebskFWzz3vfF3ANFFkVwCQO7VWt6kuKNK9Dod4mDRg7bZUgWF1JKDnrUaDM4FgwfXUjZMT1UwBZkjTH0fc4JQSgZDaGSCFzEWruuy1tKGlL/qinUSvU6W3vs+EqNLWYX/06YXwgIkM5Ykx2IU9BUyqjCdNc4Irw7LLSus0z5vJ3I0KG5wNgUaBMcobXy/oOLz+68vndjFhy+tXjcmMz7QLNRBglzmG14AqPtbgQmk8BSa6EwW7P8kbXPyk7kDectyBKdvYSU0cCAwEAAaAAMA0GCSqGSIb3DQEBBQUAA4IBAQBwvkd0Q3VmAwhP9vjoS8tN2etlm96sKXKiQ6y86PtiL21GAnLLKog+uLT52FZ7SNSaxS6jZdNOi/gL7mFKDhGAowhDHf7rbThyJh+UpzhrPYn8honDBbWYJl96/c5N59sCen0+CDe+l9pQc28or1bDTS5jYPxBTumiImwSpzsKEuoOJbepTNjVdik39QfOiTf/+JLnnw1kbhjlKWf7zAmzbGwfSctm1Kb/FvTCkbGmqyxXGNo54Jt3x7WEl+C9utwRmYGOsbgCU9dZGiklOZbPE7CvkKTFbBciu1EUXh13ibIU9kIzCbAYKhb2b1+4wSNUntAIPKGhNXczsBvQA7wJ-----END CERTIFICATE REQUEST-----",
+    "server_platform": {
+      "id": "45"
+    },
+    "signature_hash": "sha256"
+  },
+  "comments": "This cert is for the Netscaler on 192.168.10.102"  
+}')
+
+
+// https://www.digicert.com/services/v2/documentation/request/status
+// 
+// This endpoint is used to update a request (generally a certificate request) to a status of approved. This allows the certificate to be issued by DigiCert, once Validation of the data in the certificate request has been confirmed.
+
+@name("Update Request Object Status to Approved")
+PUT "https://{{url}}/request/{{request_id}}/status"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{"status":"approved"}')
+
+
+// https://www.digicert.com/services/v2/documentation/order/view
+// 
+// This endpoint is used to view the details of a certificate order. Once approved, a certificate request will generate a certificate order. The order's details will indicate whether the certificate has been issued and what identifier has been assigned to the certificate once issued.
+// Because issuing a certificate requires associated validation to be complete prior to the certificate being issued, it is recommended to implement generous sleep timers in between checks for an updated certificate order status.
+
+@name("View Order Details")
+GET "https://{{url}}/order/certificate/{{order_id}}"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// https://www.digicert.com/services/v2/documentation/order/view
+// 
+// This endpoint is used to view the details of a certificate order. Once approved, a certificate request will generate a certificate order. The order's details will indicate whether the certificate has been issued and what identifier has been assigned to the certificate once issued.
+// Because issuing a certificate requires associated validation to be complete prior to the certificate being issued, it is recommended to implement generous sleep timers in between checks for an updated certificate order status.
+
+@name("View Order Validation Details")
+GET "https://{{url}}/order/certificate/{{order_id}}/validation"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// https://www.digicert.com/services/v2/documentation/certificate/download-by-format
+// 
+// This endpoint is used to download the issued certificate file in a specified format. Available certificate format values are listed here:
+// https://www.digicert.com/services/v2/documentation/appendix-certificate-formats
+
+@name("Download Certificate (as PKCS#7)")
+GET "https://{{url}}/certificate/{{certificate_id}}/download/format/p7b"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+// https://www.digicert.com/services/v2/documentation/certificate/download-by-format
+// 
+// This endpoint is used to download the issued certificate file in a specified format. Available certificate format values are listed here:
+// https://www.digicert.com/services/v2/documentation/appendix-certificate-formats
+
+@name("Download Certificate (as PEM Chain)")
+GET "https://{{url}}/certificate/{{certificate_id}}/download/format/pem_all"
+"X-DC-DEVKEY": "{{CC_API_KEY}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+
+
+
+

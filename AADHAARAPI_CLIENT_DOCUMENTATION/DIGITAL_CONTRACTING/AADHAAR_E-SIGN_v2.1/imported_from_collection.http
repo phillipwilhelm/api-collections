@@ -1,0 +1,353 @@
+#!/usr/bin/env dothttp
+
+// This API initialises the signing of a sigle PDF document being passed in base64 format
+// 
+// <h4>INIT Request JSON</h4>
+// 
+// ```
+// {
+//     "document": {
+//         "data": "<<pass base64 value of the pdf here>>",
+//         "type": "pdf",
+//         "info": "<<Information about the document>>",
+//         "xCoordinate": "<<x Co-ordinate for signature position>>",
+//         "yCoordinate": "<<y Co-ordinate for signature position>>",
+//         "signPageNumber": "<<Page number where signature to be shown>>"
+//     },
+//     "signerName": "<<Signer name here>>",
+//     "signerCity": "<<Signer City>>",
+//     "purpose": "<<Purpose of Esign>>",
+//     "version": "2.1",
+//     "responseURL": "<<HTTPS POST Response url for server to server result communication>>"
+// }
+// ```
+// 
+// <h4>INIT Response JSON</h4>
+// 
+// ```
+// {
+//     "id": "1059772e-d8dd-4ddb-98b7-fb62ef0bbe3c",
+//     "docs": [
+//         "35286018-ab6a-4468-ac25-b17f55877082"
+//     ],
+//     "request_version": "2.0",
+//     "createdAt": "2018-06-25T06:57:14.451Z",
+//     "agreement": "this is a static agreement",
+//     "webhook_security_key": "token set in headers for verification"
+// }
+// ```
+// <br>
+// Once the transaction is initiated pass the above generated id to the web/android SDK to start the transaction. This will open the gateway window and rest of the transaction will be processed on the gateway till document is signed successfully or there is any failure. 
+// 
+// <h3>Result to response_url (provided in INIT call)</h3>
+// 
+// <h4>Success Result JSON</h4>
+// 
+// ```
+// {
+//     "id": "ed15fc9f-5880-4b98-9671-4d094e5a8fe8",
+//     "response_timestamp": "2018-09-01T19:25:49.730Z",
+//     "transaction_status": 16, //Status of the transaction – check Annexure 1
+//     "public_ip": "223.196.31.62", //Public IP of the Signer
+//     "signer_consent": "Y", //Consent shown and taken from customer to e-sign and share document
+//     "request_medium": "W", //W for web, M for Mobile
+//     "last_document": true, //Check if user is on last document – Multi document flow only
+//     "current_document": 1, //Check current document number – Multi document flow only
+//     "documents": [{
+//         "id": "9db76386-b6fe-4cc1-916b-52784a8fe777",
+//         "index": 1,
+//         "doc_info": "Sample pdf - sample doc",
+//         "type": "pdf",
+//         "dynamic_url": "<<Signed URL FOR PDF DOWNLOAD - valid for 48 hours>>",
+//         "sign_status": "Y", //Signed or not
+//         "auth_mode": "O", // O/F/I - OTP/FINGERNPRINT/IRIS
+//         "response_status": "Y",
+//         "error_code": null, //if error occurred this will have error code
+//         "error_message": null, //if error occurs this will have error message
+//         "request_timestamp": "2018-09-01T19:25:49.730Z",
+//         "signer_name_esp": "Mohak Talwar", //Name on Aadhaar Card – SIGNER INFO
+//         "signer_location_esp": "248198", //Pin Code in Aadhaar Card – SIGNER INFO
+//         "name_match_score": "1" //Check 1 for exact match. Other values mean some mismatch with AadhaarCard
+//     }]
+// }
+// ```
+// 
+// <h4>Failure Result JSON</h4>
+// 
+// ```
+// {
+//     "id": "5c34f783-7930-43b7-a5c8-34b5222398de",
+//     "transaction_status": 17,
+//     "public_ip": "223.196.31.62",
+//     "signer_consent": "Y",
+//     "request_medium": "W",
+//     "current_document": 1,
+//     "documents": [{
+//         "id": "1af9ffca-7c34-4bb0-b0ee-ad284b1fe4a4",
+//         "index": 1,
+//         "doc_info": "Sample pdf - sample doc",
+//         "type": "pdf",
+//         "sign_status": "N",
+//         "auth_mode": "O",
+//         "response_status": "N",
+//         "error_code": "998",
+//         "error_message": "Unknown error",
+//         "request_timestamp": "2018-09-01T20:55:29.045Z"
+//     }],
+//     "response_timestamp": "2018-09-01T20:55:29.045Z"
+// }
+// ```
+
+@name("INIT API (Single PDF  [base64 format])")
+POST "https://{{base_url}}/gateway/esign/init"
+"qt_api_key": "{{qt_api_key}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+  "document" : {
+    "data" : "<<pass base64 value of the pdf here>>",
+    "type" : "pdf",
+    "info" : "<<Information about the document>>",
+    "xCoordinate": "<<x Co-ordinate for signature position>>",
+	"yCoordinate": "<<y Co-ordinate for signature position>>",
+	"signPageNumber": "<<Page number where signature to be shown>>"
+  },
+  "signerName": "<<Signer name here>>",
+  "signerCity": "<<Signer City>>",
+  "purpose": "<<Purpose of Esign>>",
+  "version": "2.1",
+  "responseURL": "<<HTTPS POST Response url for server to server result communication>>"
+}
+')
+
+
+// This API initialises the signing of a multiple PDF document being passed in base64 format in a single Login.
+// 
+// Note: The customer will have to perform EKYC for each document on NSDL portal. While the main login will be required only once. 
+// 
+// <h4>INIT Request JSON</h4>
+// 
+// ```
+// {
+//     "document": [{
+//             "data": "<<pass base64 value of the 1st pdf here>>",
+//             "type": "pdf",
+//             "info": "<<Information about the document1>>"
+//             "xCoordinate”: " << x Co - ordinate
+//             for signature position >> ",
+//             "yCoordinate": "<<y Co-ordinate for signature position>>",
+//             "signPageNumber": 1,
+//             ”: "<<Page number where signature to be shown>>"
+//         },
+//         {
+//             "data": "<<pass base64 value of the 2nd pdf here>>",
+//             "type": "pdf",
+//             "info": "<<Information about the document2>>"
+//             "xCoordinate”: " << x Co - ordinate
+//             for signature position >> ",
+//             "yCoordinate": "<<y Co-ordinate for signature position>>",
+//             "signPageNumber": 1,
+//             ”: "<<Page number where signature to be shown>>"
+//         }
+//     ],
+//     "signerName": "<<Signer name here>>",
+//     "signerCity": "<<Signer City>>",
+//     "purpose": "<<Purpose of Esign>>",
+//     "version": "2.1",
+//     "responseURL": "<<HTTPS POST Response url for server to server result communication>>"
+// }
+// ```
+// 
+// <h3>INIT Response JSON:</h3>
+// 
+// ```
+// {
+//     "id": "1059772e-d8dd-4ddb-98b7-fb62ef0bbe3c",
+//     "docs": [
+//         "35286018-ab6a-4468-ac25-b17f55877082"
+//         "55877082-dq7b-2968-ac25-m23k35286018"
+//     ],
+//     "request_version": "2.0",
+//     "createdAt": "2018-06-25T06:57:14.451Z",
+//     "agreement": "this is a static agreement",
+//     "webhook_security_key": "token set in headers for verification"
+// }
+// ```
+// <br>
+// Once the transaction is initiated pass the above generated id to the web/android SDK to start the transaction. This will open the gateway window and rest of the transaction will be processed on the gateway till document is signed successfully or there is any failure. 
+// 
+// <h3>Result to response_url(provided in INIT call)</h3>
+// 
+// <h4>Success Result JSON</h4>
+// 
+// ```
+// {
+//     "id": "d5e954e8-4f8e-48a2-8217-c7a95d1b5a93",
+//     "transaction_status": 16,
+//     "public_ip": "223.196.31.62",
+//     "signer_consent": "Y",
+//     "request_medium": "W",
+//     "current_document": 2,
+//     "documents": [{
+//             "id": "98652786-f5a0-4ebc-bcc3-1479b15cc516",
+//             "index": 1,
+//             "doc_info": "Sample pdf - sample doc",
+//             "type": "pdf",
+//             "dynamic_url": "secure signed url for pdf 1 fetching",
+//             "sign_status": "Y",
+//             "auth_mode": "O",
+//             "response_status": "Y",
+//             "error_code": null,
+//             "error_message": null,
+//             "request_timestamp": "2018-09-03T05:23:48.648Z",
+//             "signer_name_esp": "Vijay Chhuttani",
+//             "signer_location_esp": "488001",
+//             "name_match_score": "0.10"
+//         },
+//         {
+//             "id": "4887b497-aee0-4d0a-8882-9390146974ea",
+//             "index": 2,
+//             "doc_info": "Sample pdf 1 - sample doc 1",
+//             "type": "pdf",
+//             "dynamic_url": "secure signed url for pdf 2 fetching",
+//             "sign_status": "Y",
+//             "auth_mode": "O",
+//             "response_status": "Y",
+//             "error_code": null,
+//             "error_message": null,
+//             "request_timestamp": "2018-09-03T05:29:13.094Z",
+//             "signer_name_esp": "Mohak Talwar",
+//             "signer_location_esp": "248198",
+//             "name_match_score": "1.00"
+//         }
+//     ],
+//     "response_timestamp": "2018-09-03T05:29:13.094Z",
+//     "last_document": true,
+//     "signed_document_count": 2
+// }
+// ```
+// 
+// <h4>Failure Result JSON</h4>
+// 
+// ```
+// {
+//     id: 8524 ccc2 - 866e-4 d51 - a7b7 - 78005 decc585,
+//     response_timestamp: 2018 - 06 - 27 T13: 08: 12.319 Z,
+//     transaction_status: 17,
+//     signer_consent: Y,
+//     request_medium: WEB,
+//     documents: [{
+//             "id": "86e77002-6479-42ff-8202-f1ce3a60d85b",
+//             "index": 1,
+//             "type": "pdf",
+//             "sign_status": "N",
+//             "auth_mode": "O",
+//             "response_status": "N",
+//             "error_code": "ESP-999",
+//             "error_message": "Unknown Error",
+//             "request_timestamp": "2018-06-27T13:08:12.319Z"
+//         },
+//         {
+//             "id": "54e31022-aee0-4d0a-8882-9390146974ea",
+//             "index": 2,
+//             "type": "pdf",
+//             "sign_status": "N",
+//             "auth_mode": null,
+//             "response_status": "N",
+//             "error_code": null,
+//             "error_message": null,
+//             "request_timestamp": null
+//         }
+//     ]
+// }
+// ```
+
+@name("INIT API (Multiple PDF  [base64 format]) (Deprecated)")
+POST "https://{{base_url}}/gateway/esign/init"
+"qt_api_key": "{{qt_api_key}}"
+"qt_agency_id": "{{qt_agency_id}}"
+"Content-Type": "application/json"
+data('{
+  "document" : {
+    "data" : "<<pass base64 value of the pdf here>>",
+    "type" : "pdf",
+    "info" : "<<Information about the document>>"
+  },
+  "signerName": "<<Signer name here>>",
+  "signerCity": "<<Signer City>>",
+  "purpose": "<<Purpose of Esign>>",
+  "version": "2.1",
+  "responseURL": "<<HTTPS POST Response url for server to server result communication>>"
+}
+')
+
+
+// This API can be used to fetch the Esign transaction meta-data for any status check etc
+// 
+// <h5>Response JSON</h5>
+// 
+// ```
+// {
+//     "id": "d5e954e8-4f8e-48a2-8217-c7a95d1b5a93",
+//     "transaction_status": 5,
+//     "public_ip": "223.196.31.62",
+//     "signer_consent": "Y",
+//     "request_medium": "W",
+//     "current_document": 2,
+//     "documents": [ //single entry for single document 
+//         {
+//             "id": "98652786-f5a0-4ebc-bcc3-1479b15cc516",
+//             "index": 1,
+//             "doc_info": "Sample pdf 1 - sample doc 1",
+//             "type": "pdf",
+//             "dynamic_url": "URL to signed PDF 1",
+//             "sign_status": "Y",
+//             "auth_mode": "O",
+//             "response_status": "Y",
+//             "error_code": null,
+//             "error_message": null,
+//             "request_timestamp": "2018-09-03T05:23:48.648Z",
+//             "signer_name_esp": "Vijay Chhuttani",
+//             "signer_location_esp": "488001",
+//             "name_match_score": "0.10"
+//         },
+//         {
+//             "id": "4887b497-aee0-4d0a-8882-9390146974ea",
+//             "index": 2,
+//             "doc_info": "Sample pdf 2 - sample doc 2",
+//             "type": "pdf",
+//             "dynamic_url": " URL to signed PDF 1 if success",
+//             "sign_status": "Y",
+//             "auth_mode": "O",
+//             "response_status": "Y",
+//             "error_code": null,
+//             "error_message": null,
+//             "request_timestamp": "2018-09-03T05:29:13.094Z",
+//             "signer_name_esp": "Mohak Talwar",
+//             "signer_location_esp": "248198",
+//             "name_match_score": "1.00"
+//         }
+//     ],
+//     "signed_document_count": 2,
+//     "request_version": "2.0",
+//     "response_url": "https://aadhaarapiresp.herokuapp.com/tnpc5jtn",
+//     "env": 2,
+//     "signer_name": "Mohak Talwar",
+//     "signer_city": "Test Location",
+//     "purpose": "Development and testing purpose",
+//     "transaction_attempts": 1,
+//     "otp_attempts": 0,
+//     "otp_failures": 0,
+//     "user_notified": "Y",
+//     "response_to_agency": "Y",
+//     "createdAt": "2018-09-03T05:21:59.380Z"
+// }
+// ```
+
+@name("Fetch API")
+GET "https://{{base_url}}/gateway/esign/<<transaction_id>>/fetch"
+"qt_api_key": "{{qt_api_key_value}}"
+"qt_agency_id": "{{qt_agency_id}}"
+
+
+

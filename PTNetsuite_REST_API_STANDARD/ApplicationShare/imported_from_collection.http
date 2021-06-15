@@ -1,0 +1,272 @@
+#!/usr/bin/env dothttp
+
+// This API returns all the existing applications owned by the logged user and shared with other users.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key     | Value       | Description               | 
+// | ------- | ----------- | ------------------------- |
+// | guestid | {{guestid}} | Application shared with this user id
+// | appid     | {{appid}}     | ID that uniquely identifies the application for the user
+// | label   | {{label}}   | Label used to tag the application sharing
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * The request has no body
+//    * Examples of response are available in the right-side section
+
+@name("Application List Shared With")
+GET "{{protocol}}://{{host}}/api/v2/applications/shared/with"
+"Authorization": "Bearer {{token}}"
+
+
+// This API returns all the existing applications shared with the logged user and owned by other users.
+// 
+// This API supports advanced filtering: the url accepts a set of parameters to filter over the list.
+// 
+// The available filters are:
+// 
+// | Key     | Value       | Description               | 
+// | ------- | ----------- | ------------------------- |
+// | ownerid | {{ownerid}} | Application shared by this user id
+// | aid     | {{aid}}     | ID that uniquely identifies the application
+// | label   | {{label}}   | Label used to tag the application sharing
+// 
+// Filtering is supported as described in `Common` section under Filtering.
+// 
+// Paging is supported as described in `Common` section under Paging.
+//  
+// Details:
+//    * The request has no body
+//    * Examples of response are available in the right-side section
+
+@name("Application List Shared By")
+GET "{{protocol}}://{{host}}/api/v2/applications/shared/by"
+"Authorization": "Bearer {{token}}"
+
+
+// This API creates a new share for the application.
+// 
+// The response supplies an object with the created sharing application.
+//  
+// Details:
+//    * The Request body parameters description is listed in the `Properties` table
+//    * Examples of response are available in the right-side section
+// 
+//  
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//       "label": {
+//         "type": "string",
+//         "minLength": 1,
+//         "maxLength": 255,
+//         "pattern": "^(\\w+\\s?)+$",
+//         "description": "Description of the sharing relation"
+//       },
+//       "GuestId": {
+//         "type": "integer",
+//         "minimum": 1,
+//         "maximum": 4294967295,
+//         "description": "The user to whom share the application"
+//       },
+//       "GuestEmail": {
+//         "type": "string",
+//         "minLength": 1,
+//         "maxLength": 255,
+//         "format": "email",
+//         "description": "Identifies the user on which add the gateway"
+//       },
+//       "ids": {
+//         "type": "array",
+//         "minItems": 1,
+//         "items": {
+//           "type": "integer"
+//         },
+//         "description": "Array of application identifiers"
+//       }
+//     },
+//     "oneOf": [{
+//         "required": [
+//           "GuestId"
+//         ]
+//       },
+//       {
+//         "required": [
+//           "GuestEmail"
+//         ]
+//       }
+//     ],
+//     "required": [
+//       "ids",
+//       "label"
+//     ],
+//     "additionalProperties": false
+//   }
+// ```
+// 
+// # Properties
+// 
+// | Property            | Type       | Required     | Nullable | Defined by    |
+// | ------------------- | ---------- | ------------ | -------- | ------------- |
+// | [GuestId](#guestid) | `integer`  | **Required** | No       | (this schema) |
+// | [GuestEmail](#GuestEmail) | `string`  | **Required** | No       | (this schema) |
+// | [ids](#ids)         | `integer[]` | **Required** | No       | (this schema) |
+// | [label](#label)     | `string`   | **Required** | No       | (this schema) |
+// 
+// ## GuestId
+// 
+// Identify the user to whom share the application
+// 
+// `GuestId`
+// 
+// - is **required**
+// - type: `integer`
+// - defined in this schema
+// 
+// ### GuestId Type
+// 
+// `integer`
+// 
+// - minimum value: `1`
+// 
+// ## GuestId
+// 
+// Identify the user to whom share the application
+// 
+// `GuestEmail`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### GuestEmail Type
+// 
+// `string`
+// 
+// ## ids
+// 
+// Array of application identifiers
+// 
+// `ids`
+// 
+// - is **required**
+// - type: `integer[]`
+// - at least `1` items in the array
+// - defined in this schema
+// 
+// ### ids Type
+// 
+// Array type: `integer[]`
+// 
+// All items must be of the type: `integer`
+// 
+// ## label
+// 
+// Description of the sharing relation
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Share Application")
+POST "{{protocol}}://{{host}}/api/v2/application-share"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"GuestId": {{guest-uid}},
+	"ids": [{{gid}}],
+	"label": "{{share-label}}"
+}')
+
+
+// This API updates the information of the application share given the `{{asid}}`.
+// 
+// All the API properties are optional, but at least one valid property has to be provided (e.g. label).
+//  
+// Details:
+//    * The Request body parameters description is listed in the `Properties` table
+//    * Examples of response are available in the right-side section
+// 
+// # Schema
+// ```
+// {
+//     "type": "object",
+//     "properties": {
+//         "label": {
+//             "type": "string",
+//             "minLength": 1,
+//             "maxLength": 255,
+//             "description": "Description of the sharing relation"
+//         }
+//     },
+//     "required": [
+//         "label"
+//     ],
+//     "additionalProperties": false
+// }
+// ```
+// 
+// # Properties
+// 
+// | Property        | Type     | Required     | Nullable | Defined by    |
+// | --------------- | -------- | ------------ | -------- | ------------- |
+// | [label](#label) | `string` | **Required** | No       | (this schema) |
+// 
+// ## label
+// 
+// Description of this sharing relation
+// 
+// `label`
+// 
+// - is **required**
+// - type: `string`
+// - defined in this schema
+// 
+// ### label Type
+// 
+// `string`
+// 
+// - minimum length: 1 characters
+// - maximum length: 255 characters
+
+@name("Update Application Shared Information")
+PUT "{{protocol}}://{{host}}/api/v2/application-share/{{asid}}"
+"Content-Type": "application/json"
+"Authorization": "Bearer {{token}}"
+data('{
+	"label": "{{new-share-label}}"
+}')
+
+
+// This API removes the application share given the `{{asid}}`.
+// 
+// The application share to delete is identified by the application share identifier `{{asid}}`.
+//  
+// Details:
+//    * The request has no body
+//    * The application share to delete is identified in the url by `{{asid}}`
+//    * Examples of response are available in the right-side section
+
+@name("Remove Application Sharing")
+DELETE "{{protocol}}://{{host}}/api/v2/application-share/{{asid}}"
+"Authorization": "Bearer {{token}}"
+
+
+

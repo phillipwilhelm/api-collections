@@ -1,0 +1,49 @@
+#!/usr/bin/env dothttp
+
+@name("login")
+POST "https://{{host}}/api/v1/login"
+json({
+    "email": "{{login_email}}",
+    "password": "{{login_password}}"
+})
+
+
+// When 2FA is enabled, there are two ways to login. 
+// 1. login with two_factor token (with Google Authenticator, etc) 
+// 2. login with email/password, SMS the token, and use `/login/two_factor` with the token
+
+@name("loginWithTwoFactor")
+POST "https://{{host}}/api/v1/login"
+"Content-Type": "application/json"
+json({
+    "email": "{{login_email}}",
+    "password": "{{login_password}}",
+    "two_factor": "{{login_two_factor}}"
+})
+
+
+@name("logout")
+POST "https://{{host}}/api/v1/logout"
+
+
+@name("twoFactor")
+POST "https://{{host}}/api/v1/login/two_factor"
+"Content-Type": "application/json"
+data('{
+	"two_factor": "{{login_two_factor}}"
+}')
+
+
+// #### Body Parameters
+// **Parameter**|**Type**|**Description** 
+// :-------------: |:-------------: |:-------------: 
+// email|string|Required.
+
+@name("lookup")
+POST "https://{{host}}/api/v1/login/lookup"
+json({
+    "email": "test@mistsys.com"
+})
+
+
+

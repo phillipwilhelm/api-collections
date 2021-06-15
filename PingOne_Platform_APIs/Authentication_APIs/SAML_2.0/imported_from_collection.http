@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+@name("READ SAML Metadata")
+GET "https://{{authPath}}/{{envID}}/saml20/metadata/{{appID}}"
+
+
+@name("SAML SSO Using POST")
+POST "https://{{authPath}}/{{envID}}/saml20/idp/sso"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "SAMLRequest": [
+        "{{SAMLRequest}}"
+    ],
+    "RelayState": [
+        "token"
+    ]
+})
+
+
+@name("SAML SSO Using GET")
+GET "https://{{authPath}}/{{envID}}/saml20/idp/sso"
+? "SAMLRequest"= "{{SAMLRequest}}"
+? "RelayState"= "token"
+
+
+@name("SAML Resume")
+GET "https://{{authPath}}/{{envID}}/saml20/resume"
+? "flowId"= "{{flowID}}"
+
+
+@name("SAML SLO Using GET")
+GET "https://{{authPath}}/{{envID}}/saml20/idp/slo"
+? "SAMLRequest"= "{{SAMLRequest}}"
+? "RelayState"= "testing..."
+
+
+@name("SAML SLO Using POST")
+POST "https://{{authPath}}/{{envID}}/saml20/idp/slo"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "SAMLRequest": [
+        "{{SAMLRequest}}"
+    ],
+    "RelayState": [
+        "testing..."
+    ]
+})
+
+
+

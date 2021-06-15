@@ -1,0 +1,43 @@
+#!/usr/bin/env dothttp
+
+// Get a paginated list of all existing invoices in your Belvo account. We return up to 100 results per page.
+
+@name("List")
+GET "https://{{baseUrl}}/api/invoices/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+? "page"= "1"
+
+
+// Retrieve invoice information from a specific fiscal link.
+// 
+// ℹ️ You can ask for up to **one** year (365 days) of invoices per request. If you need invoices for more than one year, just make another request.
+
+@name("Retrieve")
+POST "https://{{baseUrl}}/api/invoices/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+"Content-Type": "application/json"
+data('{
+    "date_from": "2020-01-01",
+    "date_to": "2020-02-01",
+    "link": "d4617561-1c01-4b2f-83b6-a594f7b3bc57",
+    "type": "OUTFLOW",
+    "attach_xml": false,
+    "save_data": true
+}')
+
+
+// Get the details of a specific invoice.
+
+@name("Detail")
+GET "https://{{baseUrl}}/api/invoices/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+// Delete a specific invoice from your Belvo account.
+
+@name("Destroy")
+DELETE "https://{{baseUrl}}/api/invoices/:id/"
+basicauth("{{secretId}}", "{{secretPassword}}")
+
+
+

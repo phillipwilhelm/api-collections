@@ -1,0 +1,134 @@
+#!/usr/bin/env dothttp
+
+// The Products API is used to retrieve and query the VitalSource catalog, which has more than a million titles available. Users can choose specific requests to filter results and also configure paging on how many records are returned per page. With this API you get access to data used by VitalSource to distribute, sell and link content including links to additional resources to retrieve other metadata for use within a users own commerce system.
+
+@name("v4/products - Read All")
+GET "https://api.vitalsource.com/v4/products"
+"X-VitalSource-API-Key": ""
+
+
+
+// The Products API is used to retrieve information about an individual title in your catalog. It includes the same data you would see in in v4/products, as well as information on eBook accessibility that is not available in the general catalog.
+
+@name("v4/products/:vbid - Title, TOC, Metadata")
+GET "https://api.vitalsource.com/v4/products/"
+"X-VitalSource-API-Key": ""
+
+
+@name("v4/products/:vbid/toc - Table of Contents")
+GET "https://api.vitalsource.com/v4/products/{{vst_vbid}}/toc"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+
+
+// The Catalog API will retrieve a company's entire catalog. Companies can choose specific requests to filter results and also configure paging on how many records are returned per page. Basic delta abilities are also available via the Catalog API, using the <updated> element to only return products that have changed since the last time a client pulled the catalog. It does require that the client keep track of the last pull date to ensure the right date is entered and product changes are not missed. Other notes:
+// 
+// Using the <distributable> element of TRUE/FALSE will tell you if an item is available for "sale" (i.e. codes can be created or redeemed).
+// If distributable = false, the item has likely been removed from your distribution set. If you are storing catalog data in your database, this item should be removed from sale until distributable = true.
+
+@name("v3/catalog  - All")
+POST "https://api.vitalsource.com/v3/catalog"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data('<catalog>
+	<page>0</page> 
+	<per-page>1000</per-page>
+	<created>ge 2014-01-01</created>
+	<updated>ge 2014-10-01</updated> 
+	<include-packages>true</include-packages>
+</catalog>')
+
+
+// Used if you are searching for a specific product, this allows for a search via SKU, or ISBN. Only provide when looking for a specific title or set of titles. Available condition types are limited to "identifier" which will search all numeric values within the catalog.
+
+@name("v3/catalog - Search for SKU or VBID")
+POST "https://api.vitalsource.com/v3/catalog"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data("<catalog>
+  <condition type='identifier'>{{vst_vbid}}</condition>
+  <include-packages>true</include-packages>
+</catalog>")
+
+
+// Returns all products the caller has rights to via a manual distribution.
+
+@name("v3/catalog/manual - Manually Assigned Content")
+POST "https://api.vitalsource.com/v3/catalog/manual"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data('<catalog>
+</catalog>')
+
+
+// Returns all products the caller has rights to via a manual distribution.
+
+@name("v3/catalog/sets - Assigned Distribution Sets")
+POST "https://api.vitalsource.com/v3/catalog/sets"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/xml"
+data('<catalog>
+</catalog>')
+
+
+// Create or modify a booklist adoption
+
+@name("v4/inventory/adoptions")
+PUT "https://api.vitalsource.com/v4/inventory/adoptions"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": "application/json"
+data('[
+{
+  "isbn": "L-999-70461",
+  "term": "fall2020",
+  "edition": 2,
+  "title": "A Christmas Carol",
+  "publisher": "Hayes Barton Press",
+  "author": "Charles Dickens",
+  "publication_date": "2006-03-03",
+  "prefer_courseware": true,
+  "pos_tags": [
+    "L-999-70461-POS"
+  ],
+  "courses": [
+    {
+      "course_code": "ABC121",
+      "section_number": "SEC1",
+      "enrollment": 15,
+      "deadline": "2016-01-01",
+      "start_date": "2016-01-01"
+    }
+  ]
+},
+{
+  "isbn": "L-999-70021",
+  "term": "winter2020",
+  "edition": 1,
+  "title": "Common Sense",
+  "publisher": "Hayes Barton Press",
+  "author": "Thomas Paine",
+  "publication_date": "2006-03-04",
+  "prefer_courseware": false,
+  "pos_tags": [
+    "L-999-70021-POS"
+  ],
+  "courses": [
+    {
+      "course_code": "ENG-102",
+      "section_number": "001",
+      "enrollment": 26,
+      "deadline": "2016-01-01",
+      "start_date": "2016-01-01"
+    },
+    {
+      "course_code": "ENG-102",
+      "section_number": "002",
+      "enrollment": 26,
+      "deadline": "2016-01-01",
+      "start_date": "2016-01-01"
+    }
+  ]
+}
+]')
+
+
+

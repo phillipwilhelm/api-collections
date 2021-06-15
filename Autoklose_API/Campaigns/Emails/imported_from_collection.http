@@ -1,0 +1,136 @@
+#!/usr/bin/env dothttp
+
+// Provides information about the emails in the Email Sequence by providing Campaign id.
+// 
+// 
+// The available options for expand parameter are "body" and "statistics".
+
+@name("A list of emails in the campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/emails"
+? "expand[]"= "body"
+? "expand[]"= "statistics"
+
+
+// Provides information about the specific email in the Email Sequence, you need to provide Campaign Id and Email id.
+// 
+// The available options for the expand parameter are "body" and "statistics".
+
+@name("View an email from a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/emails/{{email}}"
+? "expand[]"= "body"
+? "expand[]"= "statistics"
+
+
+// Provides statistics information about the email in campaign by providing Campaign id and the Email id. 
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("View email statistics from a campaign")
+GET "https://{{url}}/api/campaigns/{{campaign}}/emails/{{email}}/statistics"
+
+
+// Method used to update email or change it’s position in email sequence, to do so you need to provide campaign id and edit body options.
+// 
+// The “position” option in body allows you to move that email in place you want. The first position is 0, followed by 1, etc.
+// 
+// Changing the position of one email in the sequance moves all other emails down by one position.
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Update an email from a campaign")
+PATCH "https://{{url}}/api/campaigns/{{campaign}}/emails/{{email}}"
+"Content-Type": "application/json"
+data('{
+	"position": 0,
+    "send_after_days": 5,
+    "cc": [
+        "testupdate1@example.com",
+        "testupdate2@example.com"
+          ],
+    "bcc": [
+        "testbccupdate1@example.com",
+        "testbccupdate2@example.com"
+           ]
+}')
+
+
+// Method used to create the email in the Email Sequence, you need to provide Campaign id and handle data in body option.
+// 
+// New created emails are always added at the end of the email sequence.
+//   
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Create an email in the campaign")
+POST "https://{{url}}/api/campaigns/{{campaign}}/emails"
+"Content-Type": "application/json"
+data('{
+    "send_after_days": 1,
+    "is_reply": 0,
+    "subject": "Testing copy #2",
+    "cc": [
+        "testemail@example.com",
+        "testemail2@example.com"
+          ],
+    "bcc": [
+        "testbccemail1@example.com",
+        "testbccemail2@example.com"
+           ]
+}')
+
+
+// A method used to delete the email from a campaign by providing campaign id and the email id. 
+// 
+// Removing an email from a sequence arranges other emails in that sequence.
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Delete an email from a campaign")
+DELETE "https://{{url}}/api/campaigns/{{campaign}}/emails/{{email}}"
+
+
+// A method used to update the email or change it’s position in the email sequence, to do so you need to provide campaign Id, use match_position parameter and edit body options.
+// 
+// The match_position parameter allows you to select which email in sequence you want to edit or move and “position” option in body allows you to move that email in place you want.
+// 
+// The first position is 0, followed by 1, etc.Changing position of one email in sequance moves all other emails down by one position.
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Update an email from a campaign based on the position")
+PATCH "https://{{url}}/api/campaigns/{{campaign}}/emails"
+"Content-Type": "application/json"
+? "match_position"= "1"
+data('{
+	"match_position": 0,
+	"position": 1,
+    "send_after_days": 5,
+    "is_reply": 1,
+    "subject": "Testing copy #2",
+    "cc": [
+        "testupdate1@example.com",
+        "testupdate2@example.com"
+          ],
+    "bcc": [
+        "testbccupdate1@example.com",
+        "testbccupdate2@example.com"
+           ]
+}')
+
+
+// Method used to delete email from Email Sequence by providing Campaign id and using match_position parameter.
+// 
+// Removing an email from a sequence arranges other emails in that sequence.
+// 
+// Some of the information provided can be seen in the Response Example on the right.
+
+@name("Delete an email from a campaign based on the position")
+DELETE "https://{{url}}/api/campaigns/{{campaign}}/emails"
+"Content-Type": "application/x-www-form-urlencoded"
+? "match_position"= "5"
+data('{
+	"match_position": 5,
+
+}')
+
+
+

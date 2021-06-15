@@ -1,0 +1,81 @@
+#!/usr/bin/env dothttp
+
+// Allows for initial load of some common, mostly non-changing ETF data. Use this endpoint to look up available parameter values used in the <b>Screener</b> endpoint.
+// 
+// ### Inclued parameter values are:
+// * Sponsors
+// * AssetClasses
+// * InverseTypes
+// * Categories
+// * Sectors
+// * LeverageTypes
+// * SectorCodes
+
+@name("Init Screener")
+GET "https://{{url}}/api/research/etf/init"
+"Authorization": "{{auth}}"
+
+
+// Use filters to screen a wide variety of ETFs. Most of the filter options can be loaded using the <b>Init Screener</b> endpoint.
+
+@name("Screener")
+GET "https://{{url}}/api/research/etf/screener"
+"Authorization": "{{auth}}"
+? "loadIndustries"= "false"
+? "loadUpgrades"= "false"
+? "loadEarnings"= "false"
+
+
+// Load top 10 ETFs Can filter based on inverseType and leverageType.
+// 
+// ### Inverse Types
+// |inverseType|definition|
+// |:---|:---|
+// |ALL|Any|
+// |LONG|Long ETFs|
+// |SHORT|Inverse ETFs|
+// 
+// ### Leverage Types
+// |leverageType|definition|
+// |:---|:---|
+// |ALL|Any|
+// |LEVERAGE|All leverage ETFs|
+// |LEVERAGE_I|Non leverage|
+// |LEVERAGE_II|Leverage x2|
+// |LEVERAGE_III|Leverage x3|
+
+@name("Top 10")
+GET "https://{{url}}/api/research/etf/top10"
+"Authorization": "{{auth}}"
+? "inverseType"= "ALL"
+? "leverageType"= "LEVERAGE"
+
+
+// Load various details on the selected ETF symbol:
+// 
+// * Maturities
+// * Sectors
+// * Countries
+// * Holdings
+// * MarketCaps
+// * Continents
+// * AssetAllocations
+
+@name("Details")
+GET "https://{{url}}/api/research/etf/details"
+"Authorization": "{{auth}}"
+? "symbol"= "VXF"
+? "loadQuotes"= "false"
+
+
+// Load top ETFs by sector.
+
+@name("Breakdown by Sector")
+GET "https://{{url}}/api/research/etf/breakdown"
+"Authorization": "{{auth}}"
+? "duration"= "1d"
+? "displaySize"= "5"
+? "exposure"= "90"
+
+
+

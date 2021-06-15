@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// This method allows the developer to create a subscriber for the store you assign within your auth string.  The SMS API will then deliver a compliant opt-in confirmation or request message (Depending on whether you use the single or double parameter) to the subscriber. It is required before you can send any recurring text messages to a mobile subscriber using Send Message or Send Campaign, except where otherwise noted. 
+// 
+// It is developer discretion on using single opt-in.  Read up on compliance in the documentation.
+// 
+// The subscriber will now be assigned a communication short code and all 2-way SMS communication with the subscriber will occur on that assigned communication short code for the life of the opt-in.
+// 
+// The API will consume your request for any valid phone number and return a 200 synchronously.  If the number is invalid, the API will fail that synchronously as well.  Other failures, such as attempting to use single opt-in on a pending subscriber, will be sent asynchronously to your notification URL and available from the transaction ID via Get Message Status.  
+// 
+// Remember to pass numbers with no spaces or + sign and include the country code.  (Exp:  '19994447777')
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Message Status in the Messaging Folder.</li>
+// <li>Opt-in templates fired to the subscriber in this method are pulled from the store templates.  They cannot be dynamically controlled for compliance reasons.</li>
+// <li>For double opt-in, the subscriber must reply YES or Y to the opt-in request to complete the opt-in.  Once cloudwi.re receives the YES or Y it will automate delivery of the opt-in confirmation and switch the subscriber's status to opted-in.</li>
+// <li>If the subscriber is in an opted-out or pending state and single opt-in is attempted, it will error out.  In this event Double opt-in is required.</li>
+// <li>If the subscriber is in an locked state and single or double opt-in is attempted it will be blocked.</li>
+// <li>If the subscriber replies NO or N to a double opt-in request they will be switched to an opted-out state.</li>
+// </ul>
+
+@name("Send Opt-In")
+POST "https://moonbeamapi.cloudwi.re/subscriber/sendoptin"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("mobileId", "mobile"),
+	("optInType", "single")
+)
+
+
+// This method allows the developer to opt-out a subscriber from a store and trigger the delivery of the store opt-out confirmation. After completion, the subscriber can receive no further recurring text messages from the store and the subscriber status will change to opted-out.   After the opt-out is completed, the SMS API will release the mobile subscriber from the assigned communication short code.
+// 
+// The API will respond synchronously if the subscriber is already opted-out and no message will be attempted.
+// 
+// <b>Considerations</b>
+// <ul>
+// <li>Store the transaction ID returned to you with a 200 if you wish to get delivery status with Get Message Status in the Messaging Folder.</li>
+// </ul>
+
+@name("Send Opt-Out")
+POST "https://moonbeamapi.cloudwi.re/subscriber/sendoptout"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "{{storeId}}"),
+	("mobileId", "{{mobileId}}")
+)
+
+
+// This method allows the developer to check the opt-in status of an individual mobile subscriber at the store level.  The store ID and the mobile number will be passed in the request URL as noted in the URL above.
+
+@name("Status by Store")
+GET "https://moonbeamapi.cloudwi.re/subscriber/statusbystore/{{storeId}}/{{mobileId}}"
+"authorization": "{{Authorization}}"
+files(
+	("storeId", "58067cead16a10561695be16"),
+	("accountId", "57fefdb6d16a105c4708ad9b")
+)
+
+
+// This method is built to track the inbound and outbound messages to a specified mobile ID.  It's built for tracking conversational SMS.  It does not report sent campaigns to the mobile ID.  That is available in a seperate method.  Additionally, this method will only return the most recent 200 messages.  
+
+@name("Subscriber Message History")
+GET "https://moonbeamapi.cloudwi.re/subscriber/message/history/14155964193"
+"authorization": "{{Authorization}}"
+
+
+
+

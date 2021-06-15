@@ -1,0 +1,231 @@
+#!/usr/bin/env dothttp
+
+@name("Add Windows Device")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "clientSidePackage": true,
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskType": 1,
+          "operationType": 4026
+        },
+        "options": {
+          "adminOpts": {
+            "clientInstallOption": {
+              "installOSType": 0,
+              "discoveryType": 0,
+              "installerOption": {
+                "requestType": 0,
+                "Operationtype": 0,
+                "CommServeHostName": "yashgdprauto",
+                "RemoteClient": false,
+                "installFlags": {
+                  "overrideClientInfo": true
+                },
+                "User": {
+                  "userName": "admin",
+                  "userId": 1
+                },
+                "clientComposition": [
+                  {
+                    "packageDeliveryOption": 0,
+                    "overrideSoftwareCache": false,
+                    "components": {
+                      "fileSystem": {
+                        "configureForLaptopBackups": true
+                      },
+                      "componentInfo": [
+                        {
+                          "osType": "WINDOWS",
+                          "ComponentName": "File System Core",
+                          "consumeLicense": true,
+                          "ComponentId": 1,
+                          "clientSidePackage": true
+                        }
+                      ]
+                    },
+                    "clientRoles": {
+                      "bLaptopBackup": true
+                    },
+                    "clientInfo": {
+                      "client": {
+                        "evmgrcPort": 0,
+                        "cvdPort": 0
+                      }
+                    }
+                  }
+                ]
+              },
+              "clientDetails": [
+                {
+                  "clientEntity": {
+                    "clientName": "windowstestlaptop.domain.com",
+                    "commCellName": "yashgdprauto"
+                  }
+                }
+              ],
+              "clientAuthForJob": {
+                "password": "WFhYWFhYWFg=",
+                "userName": "admin"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+@name("Add Mac or Unix Device")
+POST "https://{{ServerUrl}}/CreateTask"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "taskInfo": {
+    "associations": [
+      {
+        "clientSidePackage": true,
+        "consumeLicense": true
+      }
+    ],
+    "task": {
+      "taskType": 1
+    },
+    "subTasks": [
+      {
+        "subTask": {
+          "subTaskType": 1,
+          "operationType": 4026
+        },
+        "options": {
+          "adminOpts": {
+            "clientInstallOption": {
+              "installOSType": 1,
+              "discoveryType": 0,
+              "installerOption": {
+                "requestType": 0,
+                "Operationtype": 0,
+                "CommServeHostName": "yashgdprauto",
+                "RemoteClient": false,
+                "installFlags": {
+                  "overrideClientInfo": true
+                },
+                "User": {
+                  "userName": "admin",
+                  "userId": 1
+                },
+                "clientComposition": [
+                  {
+                    "packageDeliveryOption": 0,
+                    "overrideSoftwareCache": false,
+                    "components": {
+                      "fileSystem": {
+                        "configureForLaptopBackups": true
+                      },
+                      "componentInfo": [
+                        {
+                          "osType": "UNIX_LINUX",
+                          "ComponentName": "File System Core",
+                          "consumeLicense": true,
+                          "ComponentId": 1002,
+                          "clientSidePackage": true
+                        }
+                      ]
+                    },
+                    "clientRoles": {
+                      "bLaptopBackup": true
+                    },
+                    "clientInfo": {
+                      "client": {
+                        "evmgrcPort": 0,
+                        "cvdPort": 0
+                      }
+                    }
+                  }
+                ]
+              },
+              "clientDetails": [
+                {
+                  "clientEntity": {
+                    "clientName": "mac.companydomain.com",
+                    "commCellName": "yashgdprauto"
+                  }
+                }
+              ],
+              "clientAuthForJob": {
+                "password": "WFhYWFhYWFg=",
+                "userName": "admin"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}')
+
+
+// Activates and associates the laptop device to a Plan.
+
+@name("Activate Device With Plan Association")
+PUT "https://{{ServerUrl}}/Plan/{{PlanId}}/clients"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "clientOperationType": 1,
+  "clients": [
+    {
+      "clientId": 12240,
+      "_type_": 3
+    }
+  ],
+  "additonalTasks": [
+    {
+      "value": "Activate",
+      "key": "LaptopAssociationRequest"
+    }
+  ]
+}')
+
+
+// DeActivates a laptop device and remove plan association.
+
+@name("DeActivate Device")
+PUT "https://{{ServerUrl}}/Plan/0/clients"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+"Authtoken": "{{TOKEN}}"
+data('{
+  "clientOperationType": 1,
+  "clients": [
+    {
+      "clientId": 12240,
+      "_type_": 3
+    }
+  ],
+  "additonalTasks": [
+    {
+      "value": "Deactivate",
+      "key": "LaptopAssociationRequest"
+    }
+  ]
+}')
+
+
+

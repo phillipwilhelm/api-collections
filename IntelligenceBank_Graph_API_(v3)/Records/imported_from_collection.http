@@ -1,0 +1,208 @@
+#!/usr/bin/env dothttp
+
+// Request a list of Database Records.
+// 
+// |     |     |
+// | --- | --- |
+// | **Optional Parameters** |     |
+// | **.limit** | Set the offset value, and the number of results to be returned. If empty, 10 results are returned. The maximum supported value is 100.<br><br>Format: .limit(,) or .limit()<br><br>e.g. .limit(0,100). |
+// | **.order** | Set the field to be used for sorting the results, and the ascending/descending order. Default is ascending. :-1 is descending.<br><br>Format: .order() or order(:-1)<br><br>e.g. .order(createTime:-1) for sorting results by Date Created in descending order. |
+// | **.fields** | Restrict the fields to be returned against each result.<br><br>Format: .fields(,)<br><br>e.g. .fields(name,createTime) |
+// | **.foreignfields** | When the Form contains a Lookup field (“type”: “lookup”), nominate fields to be returned from the foreign lookup table (“lookupTable”) against the Lookup field values.<br><br>Use the [Custom Form](https://apidoc.intelligencebank.com/#c3200700-76cc-425e-b95e-b0fa22a72730) request to get the fields definition from another Database lookup table.<br><br>e.g. .foreignfields(formSectionID.uuid) |
+
+@name("Records List")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record.limit(100).order(lastUpdateTime)"
+"sid": "{{sid}}"
+? "searchParams[ib_category_s]"= "{{category_id}}"
+
+
+// Request **Records** and apply the same search and filtering conditions as available within IntelligenceBank. All **query parameters** must be added to the **body**. Use the [Custom Database Form GET request](https://apidoc.intelligencebank.com/?version=latest#e81e7ca3-e4ca-4f65-aa94-bf184c7c45e7) to get the field id of **Custom Form Fields**.
+// 
+// |     |     |
+// | --- | --- |
+// | **Optional Parameters** |     |
+// | **.limit** | Set the offset value, and the number of results to be returned. If empty, 10 results are returned. The maximum supported value is 100.<br><br>Format: .limit(,) or .limit()<br><br>e.g. .limit(0,100). |
+// | **.order** | Set the field to be used for sorting the results, and the ascending/descending order. Default is ascending. :-1 is descending.<br><br>Format: .order() or order(:-1)<br><br>e.g. .order(createTime:-1) for sorting results by Date Created in descending order. |
+// | **.fields** | Restrict the fields to be returned against each result.<br><br>Format: .fields(,)<br><br>e.g. .fields(name,createTime) |
+// | **.foreignfields** | When the Form contains a Lookup field (“type”: “lookup”), nominate fields to be returned from the foreign lookup table (“lookupTable”) against the Lookup field values.<br><br>Use the [Custom Form](https://apidoc.intelligencebank.com/#c3200700-76cc-425e-b95e-b0fa22a72730) request to get the fields definition from another Database lookup table.<br><br>e.g. .foreignfields(formSectionID.uuid) |
+// 
+// |     |     |     |     |
+// | --- | --- | --- | --- |
+// | **Search Parameter** | **IntelligenceBank Field Name or Custom Field Type** | **JSON Query** | **Notes** |
+// | **CORE** |     |     |     |
+// | keywords | N/A | "searchParams": {  <br>"keywords": "{{value}} AND "{{exact match value}}"\\ OR {{other value}}"  <br>} | This is the equivalent of the IntelligenceBank search bar.  <br>Surround "" with \\ in JSON query to apply "" for exact matches. |
+// | ib\_category\_s | N/A | "searchParams": {  <br>"ib\_category\_s": "{{category\_id}}",  <br>} | Apply a Database \_id to apply the query to. Replace {{category\_id}} with the applicable Database \_id value. Use the Databases List call to retrieve these values. |
+// | recordSubmissionStatus / recordCurrentStageSubmissionStatus | **Record Status** | "searchParams": {  <br>"recordSubmissionStatus": \[  <br>"published","draft"  <br>\]  <br>}<br><br>"searchParams": {  <br>"recordCurrentStageSubmissionStatus": \[  <br>"published","draft","pendingApproval","completed"  <br>\]  <br>} | This query will only return results if restricted to a single Database via searchParams\[ib\_category\_s\]".<br><br>Enter the submission status of the records to return.<br><br>Allowed values for Single Databases: "draft", "published".<br><br>For Staged Databases, the search query should be searchParams\[recordCurrentStageSubmissionStatus\].<br><br>Allowed values for Staged Databases: "draft", "published", "pendingApproval", "completed". |
+// | **GENERAL OPTIONS** |     |     |     |
+// | ib\_uuid | **UUID** |     |     |
+// | ib\_creator | **Creator** | searchParams": {  <br>"ib\_creator": \[  <br>"{{user\_id}}"  <br>\]  <br>} | Replace {{user\_id}} with the applicable user \_id value. Use the Users Request call (Upcoming) to retrieve these values. |
+// | ib\_updater | **Last Updater** | searchParams": {  <br>"ib\_updater": \[  <br>"{{user\_id}}",  <br>"{{user\_id}}"  <br>\]  <br>} | Replace {{user\_id}} with the applicable user \_id value. Use the Users Request call (Upcoming) to retrieve these values. |
+// | ib\_createtime | **Created** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_createtime",  <br>"switchField": "rangepast",  <br>"op": "today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed"  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_createtime",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// | ib\_updatetime | **Last Updated** | searchParams":  <br>{"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_updatetime",  <br>"switchField": "rangepast",  <br>"op": "today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed",  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "ib\_updatetime",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "2020-12-15T23:00:00.000Z"  <br>}  <br>\]  <br>\]  <br>} | ISO Date format and UTC timezone is used. |
+// |     |     |     |     |
+// | **CUSTOM FORM FIELDS** |     |     |     |
+// | uuid\_ss\_ib | **Custom Select Field ("list": Multiple Selection - Checkboxes or Multi Select Dropdown); Custom Grid Field** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_ss\_ib",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "{{uuid}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable Select Field and Select Field Options uuid values. Use the Custom Form Request call to retrieve these values. |
+// | uuid\_s\_ib | **Custom Select Field ("list": Single Selection - Radio Buttons or Single Select Dropdown)** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}_s_ib",  <br>"op": "in", "notIn",  <br>"union": "and", "or",  <br>"value": "{{uuid}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable Select Field and Select Field Options uuid values. Use the Custom Form Request call to retrieve these values. |
+// | uuid\_dt\_ib | **Custom Date Field ("date")** | searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_dt\_ib",  <br>"switchField": "range",  <br>"op": "today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear",  <br>"union": "and", "or",  <br>"value": "  <br>}  <br>\]  <br>\]  <br>}  <br>/  <br>searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_dt\_ib",  <br>"op": "beforeOn", "afterOn",  <br>"union": "and", "or",  <br>"value": "{{yyyy-MM-ddThh:hh:ss}}"  <br>}  <br>\]  <br>\]  <br>} | Replace {{uuid}} with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. ISO Date format is used. |
+// | uuid\_d\_ib | **Custom Number Field ("number"); Custom Currency Field ("currency"); Custom Calculation Field ("calculation")** | "searchParams": {  <br>"wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_d\_ib",  <br>"value": "{{number}}",  <br>"union": "and", "or",  <br>"type": "number","currency",  <br>"op": "equals", "less", "lessEqual", "greater", "greaterEqual"  <br>}  <br>\]  <br>\]  <br>}" | Replace {{uuid}} value with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. |
+// | uuid\_t\_ib | **Custom Text Field ("text"); Custom Email Field ("text"; Custom Website Field ("text"); Custom Phone Field ("text"); Custom Upload Field ("text" - filename match)** | "searchParams": {  <br>wrapped\_conditions": \[  <br>\[  <br>{  <br>"field": "{{uuid}}\_t_\__ib",  <br>"value": "{{value}}",  <br>"union": "and", "or"  <br>"type": "text",  <br>"op": "equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"  <br>}  <br>\]  <br>\]  <br>}" | Replace {{uuid}} value with the applicable field uuid value. Use the Custom Form Request call to retrieve this value. |
+// |     |     |     |     |
+// | **Wrapped Conditions - Options Summary** | **Supported Types & Values** |     |     |
+// | "switchField" | DATE ("date")<br><br>"range", "rangepast" |     |     |
+// | "op" | SELECT ("list", "gridMatrix")<br><br>"in", "notIn"<br><br>DATE ("date") - rangepast (for date fields that can only have values in the past)<br><br>"today", "yesterday", "last7day", "lastweek", "last30", "lastmonth", "last60", "last90", "lastyear", "thisyearelapsed"<br><br>DATE ("date") - range (for date fields that can have values in the past or future)<br><br>"today", "yesterday", "tomorrow", "last7day", "next7day", "lastweek", "thisweek", "nextweek", "last30", "next30", "lastmonth", "thismonth", "nextmonth", "last60", "next60", "last90", "next60", "lastyear", "thisyear", "thisyearelapsed", "thisyearfuture", "nextyear"<br><br>DATE ("date")<br><br>"beforeOn", "afterOn"<br><br>TEXT ("text", "upload")<br><br>"equals", "notEquals", "begins", "notBegins", "ends", "notEnds", "arrayContains", "notContains"<br><br>NUMERIC ("number", "currency", "calculation")<br><br>"equals", "less", "lessEqual", "greater", "greaterEqual" |     |     |
+// | "union" | ALL<br><br>"and", "or" |     |     |
+// | "foreignSource" | LOOKUP SELECT ("lookup")<br><br>"{{database\_id}}", "resource", "group", "user" |     | For "resource" source field options, see the Resources List Json POST call documentation. |
+// | "foreignField" | LOOKUP SELECT ("lookup")<br><br>"{{foreignSource\_fielduuid}}" |     |     |
+
+@name("Records List With JSON Search & Filtering Conditions")
+POST "https://{{apiV3url}}/api/json"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+json({
+    "method": "GET",
+    "version": "3.0.0",
+    "client": "{{clientid}}",
+    "table": "record.limit(100).order(createTime:-1).fields().foreignfields()",
+    "query_params": {
+        "searchParams": {
+            "ib_category_s": "{{category_id}}",
+            "keywords": "",
+            "recordCurrentStageSubmissionStatus": "",
+            "recordSubmissionStatus": "",
+            "wrapped_conditions": [
+                [
+                    {
+                        "field": "",
+                        "switchField": "",
+                        "value": "",
+                        "union": "",
+                        "op": ""
+                    },
+                    {
+                        "field": "",
+                        "switchField": "",
+                        "value": "",
+                        "union": "",
+                        "op": ""
+                    },
+                    {
+                        "field": "",
+                        "switchField": "",
+                        "value": "",
+                        "union": "",
+                        "op": ""
+                    }
+                ]
+            ]
+        }
+    }
+})
+
+
+// Create a new Record.
+
+@name("Create New Record")
+POST "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record/"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+data('{
+ "options": {
+    "categoryId": "{{database_id}}",
+    "actionStatus": "create"
+    },
+ "data": {
+	"detailPermissions": {
+        "{{group_id}}": {
+            "action": "view",
+            "checked": 2
+            },
+        "{{group_id2}}": {
+            "action": "edit",
+            "checked": 2
+            }
+        },
+ "formData": {
+    "{{section_id}}": {
+        "{{field_id}}": "{{field_value}}"
+        },
+    "{{section_id2}}": {
+        "{{field_id2}}": "{{field_value}}",
+        "{{upload_field_id3": {
+        	"type": "",
+        	"tmp_name": "",
+        	"size": 1,
+        	"name": "",
+        	"error": 0                        
+            }
+            }
+		}
+    }
+}')
+
+
+// Update an existing Record. To only provide input on select formData fields, “partialFormData”: true MUST be provided under the “options” section.
+
+@name("Update Record")
+PUT "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record/{{record_id}}"
+"Content-Type": "application/json"
+"sid": "{{sid}}"
+data('{
+ "options": {
+    "categoryId": "{{database_id}}",
+    "actionStatus": "update",
+    "partialFormData": true
+    },
+ "data": {
+	"detailPermissions": {
+        "{{group_id}}": {
+            "action": "view",
+            "checked": 2
+            },
+        "{{group_id2}}": {
+            "action": "edit",
+            "checked": 2
+            }
+        },
+ "formData": {
+    "{{section_id}}": {
+        "{{field_id}}": "{{field_value}}"
+        },
+    "{{section_id2}}": {
+        "{{field_id2}}": "{{field_value}}",
+        "{{upload_field_id3": {
+        	"type": "",
+        	"tmp_name": "",
+        	"size": 1,
+        	"name": "",
+        	"error": 0                        
+            }
+            }
+		}
+    }
+}')
+
+
+// Download an file from a Record upload field.
+
+@name("Download Record Attachment")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record/{{record_id}}"
+"sid": "{{sid}}"
+? "action"= "download"
+? "sid"= "{{sid}}"
+
+
+// View an existing Record.
+
+@name("View Record")
+GET "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record/{{record_id}}"
+"sid": "{{sid}}"
+
+
+// Delete an existing Record.
+
+@name("Delete Record")
+DELETE "https://{{apiV3url}}/api/3.0.0/{{clientid}}/record/{{record_id}}"
+"sid": "{{sid}}"
+
+
+

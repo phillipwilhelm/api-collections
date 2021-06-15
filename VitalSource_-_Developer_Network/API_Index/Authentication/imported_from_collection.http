@@ -1,0 +1,79 @@
+#!/usr/bin/env dothttp
+
+@name("v3/users/reset_access - Reset Token")
+POST "https://api.vitalsource.com/v3/users/reset_access.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+
+
+
+@name("v3/credentials - Verify Credentials")
+POST "https://api.vitalsource.com/v3/credentials.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"Content-Type": ""
+data('<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<credentials>
+  <credential access-token="{{vst_access_token}}" />
+  <credential reference="{{vst_reference}}" />
+</credentials>')
+
+
+@name("v3/redirects - SSO to Bookshelf eReader")
+POST "https://api.vitalsource.com/v3/redirects.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/xml"
+data('<redirect>
+ <destination>https://online.vitalsource.com/books</destination>
+ <brand>online.vitalsource.com</brand>
+</redirect>')
+
+
+@name("v3/redirects - SSO to Bookshelf + full account upgrade")
+POST "https://api.vitalsource.com/v3/redirects.xml"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/xml"
+data('<redirect>
+ <destination>https://full-bookshelf.vitalsource.com/books</destination>
+ <brand>online.vitalsource.com</brand>
+</redirect>')
+
+
+@name("v4/activation_requests - Create")
+POST "https://api.vitalsource.com/v4/activation_requests"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "activation_request" : {
+    "email": "username@domain.com",
+    "brand_destination_url": "https://bookshelf.vitalsource.com",
+    "send_email": false
+  }
+}')
+
+
+@name("v4/activation_requests/:email/resend - Resend Link")
+POST "https://api.vitalsource.com/v4/activation_requests/{{vst_email}}/resend"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+"Content-Type": "application/json"
+"Accept": "application/json"
+data('{
+  "activation_request" : {
+    "email": "{{vst_email}}",
+    "brand_destination_url": "https://bookshelf.vitalsource.com",
+    "send_email": false
+  }
+}')
+
+
+@name("v4/activation_requests/:id - Read")
+GET "https://api.vitalsource.com/v4/activation_requests/{{vst_activation_request_id}}"
+"X-VitalSource-API-Key": "{{vst_api_key}}"
+"X-VitalSource-Access-Token": "{{vst_access_token}}"
+
+
+

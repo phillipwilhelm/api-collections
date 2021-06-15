@@ -9,7 +9,7 @@ Just [create a Postman environment](https://learning.getpostman.com/docs/postman
 
 | Variable | Value |
 | ------ | ------ |
-| url | [https://cloud.uipath.com](https://platform.uipath.com)/[Account Name]/[Tenant Logical Name] |
+| url | [https://platform.uipath.com](https://platform.uipath.com)/[Account Name]/[Tenant Logical Name] |
 | userKey | [your User Key] |
 | clientId | [your Client ID] |
 | (Optional) folderId | [a folder/org unit ID] |

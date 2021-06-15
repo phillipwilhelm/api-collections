@@ -1,0 +1,1 @@
+Voucherify is API first platform for 1:1 personalized promotions. Here are some examples for you to learn more about Voucherify. The up-to-date list of API endpoints covers simple calls and more complex promo scenarios.

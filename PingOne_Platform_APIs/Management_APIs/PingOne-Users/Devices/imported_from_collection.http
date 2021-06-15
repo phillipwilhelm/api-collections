@@ -1,0 +1,83 @@
+#!/usr/bin/env dothttp
+
+// #### Device Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// type | N | Y | One of: `EMAIL`, `MOBILE`, `SMS` |
+// status | N | N | One of: `ACTIVATION_REQUIRED`, `ACTIVE` | For delegated enrollment, default `ACTIVE`.<br>For self enrollment, default `ACTIVATION_REQUIRED` and `ACTIVE` is _not allowed_.
+// 
+// #### Additional Email Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// email | N | Y | String | Email address to use for MFA.
+
+@name("CREATE User Device (Email)")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+"Content-Type": "application/json"
+data('{
+    "type": "EMAIL",
+    "email": "do-not-send@example.com"
+}')
+
+
+// #### Device Data Model
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// type | N | Y | One of: `EMAIL`, `MOBILE`, `SMS` |
+// status | N | N | One of: `ACTIVATION_REQUIRED`, `ACTIVE` | For delegated enrollment, default `ACTIVE`.<br>For self enrollment, default `ACTIVATION_REQUIRED` and `ACTIVE` is _not allowed_.
+// 
+// #### Additional SMS Fields
+// 
+// Property | Mutable? | Required? | Type | Notes
+// -------- | -------- | --------- | ---- | -----
+// phone | N | Y | String | Phone number to use for MFA. Uses `@PhoneNumber` constraint.
+
+@name("CREATE User Device (SMS)")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+"Content-Type": "application/json"
+data('{
+    "type": "SMS",
+    "phone": "<see description for phone number format>"
+}')
+
+
+// #### `expand` Parameter
+// Can set to `applications` to include in `_embedded` all `CUSTOM_APP` or `NATIVE` type Apps with a `bundleId` and/or `packageName` value set.
+// 
+// #### `filter` Parameter
+// Can be set to a [SCIM filtering expression](https://tools.ietf.org/html/rfc7644#section-3.4.2.2) to indicate the Devices to be returned, for example `type eq "EMAIL" or type eq "SMS"`.
+// 
+// The following attributes are available for the filter expression:
+// 
+// Attribute | Description
+// --------- | -----------
+// status | One of: `ACTIVE`, `ACTIVATION_REQUIRED`
+// type | One of: `EMAIL`, `MOBILE`, `SMS`
+// 
+// Only `eq`, `and`, and `or` are available to use as operators.
+
+@name("READ All User Devices")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices"
+
+
+@name("READ One User Device")
+GET "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+
+
+@name("Activate User Device")
+POST "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+"Content-Type": "application/vnd.pingidentity.device.activate+json"
+data('{
+    "otp": "xxxxxx"
+}')
+
+
+@name("DELETE User Device")
+DELETE "https://{{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}"
+
+
+
+

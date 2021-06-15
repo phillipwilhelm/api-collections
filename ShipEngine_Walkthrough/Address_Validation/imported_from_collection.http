@@ -1,0 +1,191 @@
+#!/usr/bin/env dothttp
+
+// ShipEngine supports address validation for nearly every country on Earth, including the United States, Canada, Great Britain, Australia, Germany, France, Norway, Spain, Sweden, Israel, Italy, and over 160 others.
+
+@name("Validate an address (valid)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+		"address_line1": "525 S Winchester Blvd",
+		"city_locality": "San Jose",
+		"state_province": "CA",
+		"postal_code": "95128",
+		"country_code": "US"
+	}
+]')
+
+
+// This request demonstrates ShipEngine's ability to validate and fill-in an incomplete address. For most addresses, a `postal_code` is sufficient to fill-in the `city_locality` and `state_province`, or vice-versa. Also notice that the incomplete stree address (525 Winchester) is filled-in as well (525 S Winchester Blvd).
+
+@name("Validate an address (incomplete)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+		"address_line1": "525 Winchester",
+		"postal_code": "95128",
+		"country_code": "US"
+	}
+]')
+
+
+// This request demonstrates ShipEngine's ability to automatically correct some addresses. In this case, the `city_locality` and `state_province` do not match the `postal_code`, and ShipEngine is able to determine that the _correct_ values are San Jose, California". We're able to determine this because there is no "525 S Winchester Blvd" in Austin, Texas, but there _is_ one in San Jose, California, which matches the `postal_code`. However, if the street address had been a valid Austin address (such as 4009 Marathon Blvd), then the `postal_code` would have been corrected instead.
+
+@name("Validate an address (corrected)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+		"address_line1": "525 S Winchester Blvd",
+		"city_locality": "Austin",
+		"state_province": "Texas",
+		"postal_code": "95128",
+		"country_code": "US"
+	}
+]')
+
+
+// This request shows how ShipEngine responds when an address cannot be verified. The `status` field is `unverified`, and the `messages` array lists the problems with the address.
+
+@name("Validate an address (unverified)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+		"address_line1": "525 S Winchester Blvd",
+		"city_locality": "San Jose",
+		"state_province": "CA",
+		"postal_code": "95128",
+		"country_code": "USA"
+	}
+]')
+
+
+// This request shows how ShipEngine responds when an address can be verified, but there are warnings such as major corrections. The `status` field is `verified`, and the `messages` array lists the warnings and other information about the corrected the address.
+
+@name("Validate an address (warning)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+      "address_line1": "Studio Tour Drive, Leavesden WD25 7LR, UK",
+      "country_code": "GB"
+	}
+]')
+
+
+// This request shows how ShipEngine responds when an address is invalid. The `status` field is `error`, and the `messages` array lists the problems with the address.
+
+@name("Validate an address (invalid)")
+POST "https://api.shipengine.com/v1/addresses/validate"
+"Content-Type": "application/json"
+data('[
+	{
+		"address_line1": "Winchester Blvd",
+		"city_locality": "San Jose",
+		"state_province": "CA",
+		"postal_code": "78756",
+		"country_code": "US"
+	}
+]')
+
+
+// You can validate the address at the same time as creating a shipment in ShipEngine by setting the `validate_address` field to either `validate_only` or `validate_and_clean`.
+
+@name("Validate when creating a shipment")
+POST "https://api.shipengine.com/v1/shipments"
+"Content-Type": "application/json"
+data('{
+	"shipments": [{
+		"validate_address": "validate_and_clean",
+		"service_code": "usps_priority_mail",
+		"ship_from": {
+			"name": "John Doe",
+			"company_name": "Example Corp.",
+			"address_line1": "4009 Marathon Blvd",
+			"city_locality": "Austin",
+			"state_province": "TX",
+			"postal_code": "78756",
+			"country_code": "US",
+			"phone": "512-555-5555"
+		},
+		"ship_to": {
+			"name": "Amanda Miller",
+			"address_line1": "525 Winchester",
+			"postal_code": "95128",
+			"country_code": "US"
+		},
+		"packages": [
+			{
+				"weight": {
+					"value": 17,
+					"unit": "pound"
+				},
+				"dimensions": {
+					"length": 36,
+					"width": 12,
+					"height": 24,
+					"unit": "inch"
+				}
+			}
+		]
+	}]
+}')
+
+
+// You can choose to validate the address as part of the rate request, which will help ensure that you get back the most accurate rates possible. Just set the `validate_address` field to either `validate_only` or `validate_and_clean`.
+
+@name("Validate when getting rates")
+POST "https://api.shipengine.com/v1/rates"
+"Content-Type": "application/json"
+data('{
+	"rate_options": {
+		"carrier_ids": [
+			"{{stamps_com}}",
+			"{{fedex}}",
+			"{{ups}}"
+		],
+		"service_codes": [
+			"usps_priority_mail",
+			"fedex_ground",
+			"ups_ground"
+		]
+	},
+	"shipment": {
+		"validate_address": "validate_and_clean",
+		"ship_from": {
+			"name": "John Doe",
+			"company_name": "Example Corp.",
+			"address_line1": "4009 Marathon Blvd",
+			"city_locality": "Austin",
+			"state_province": "TX",
+			"postal_code": "78756",
+			"country_code": "US",
+			"phone": "512-555-5555"
+		},
+		"ship_to": {
+			"name": "Amanda Miller",
+			"address_line1": "525 Winchester",
+			"postal_code": "95128",
+			"country_code": "US"
+		},
+		"packages": [
+			{
+				"weight": {
+					"value": 17,
+					"unit": "pound"
+				},
+				"dimensions": {
+					"length": 36,
+					"width": 12,
+					"height": 24,
+					"unit": "inch"
+				}
+			}
+		]
+	}
+}')
+
+
+

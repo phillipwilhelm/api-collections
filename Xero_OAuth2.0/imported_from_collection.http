@@ -1,0 +1,41 @@
+#!/usr/bin/env dothttp
+
+@name("Connections")
+GET "https://api.xero.com/connections"
+"Authorization": "Bearer {{access_token}}"
+
+
+// 	
+
+@name("Invoices")
+GET "https://api.xero.com/api.xro/2.0/Invoices/"
+"xero-tenant-id": "{{xero-tenant-id}}"
+"Authorization": "Bearer {{access_token}}"
+"Accept": "application/json"
+"Content-Type": "application/json"
+
+
+
+@name("Refresh token")
+POST "https://identity.xero.com/connect/token"
+"grant_type": "refresh_token"
+"Content-Type": "application/json"
+files(
+	("grant_type", "refresh_token"),
+	("refresh_token", "{{refresh_token}}"),
+	("client_id", "{{client_id}}"),
+	("client_secret", "{{client_secret}}")
+)
+
+
+@name("Revoke Token")
+POST "https://identity.xero.com/connect/revocation"
+"Content-Type": "application/x-www-form-urlencoded"
+data({
+    "token": [
+        "{{refresh_token}}"
+    ]
+})
+
+
+

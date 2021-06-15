@@ -1,0 +1,55 @@
+#!/usr/bin/env dothttp
+
+// Get the existing Webhooks for a specific Box by uuid.
+
+@name("Get Box Webhooks")
+GET "https://{{server-url}}/{{version}}/boxWebhooks/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+
+
+// Add a Box Webhook to a specific Box by uuid.
+// 
+// `type` must be one of the following values:
+// * `box_connected`
+// * `box_disconnected`
+// * `user_connected`
+// * `user_disconnected`
+// 
+// `url` must start with `https://`
+// 
+// `payload` is optional. If present it must be a valid JSON string.
+// 
+// The following placeholder can be used in the JSON payload; their values will be populated dinamically at runtime.
+// 
+// * `#BOX_SERIAL#`: Box serial number
+// * `#BOX_ALIAS#`: Box alias
+// * `#USER_EMAIL#`: connected/disconnected username email
+// * `#USER_ALIAS#`: connected/disconnected username alias
+// * `#DATE_TIME#`: event date and time
+
+@name("Add Box Webhook")
+POST "https://{{server-url}}/{{version}}/boxWebhooks/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"type" : "{{type}}",
+	"url" : "{{url}}",
+	"payload" : "{{paylod}}"
+}')
+
+
+// Delete a Box Webhook to a specific Box by uuid.
+
+@name("Delete Box Webhook")
+DELETE "https://{{server-url}}/{{version}}/boxWebhooks/{{uuid}}"
+"Authorization": "Bearer {{token}}"
+"UserUUID": "{{useruuid}}"
+"Content-Type": "application/json"
+data('{
+	"id" : "{{id}}"
+}')
+
+
+

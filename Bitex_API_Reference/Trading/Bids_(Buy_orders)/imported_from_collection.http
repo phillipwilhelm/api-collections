@@ -1,0 +1,70 @@
+#!/usr/bin/env dothttp
+
+// Possible status:
+// 
+// * `pending`: The bid has not been processed yet.
+// * `executing`: The bid is processed and could be matched.
+// * `completed`: The bid has been matched completely.
+// * `to_cancel`: You requested the cancellation but it can still be matched if a matching ask was sent previously.
+// * `cancelled`: The bid is cancelled and will not receive more matches.
+
+@name("Show Bid")
+GET "https://{{domain}}/api/bids/:id"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+
+@name("List Bids")
+GET "https://{{domain}}/api/bids"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+? "page[page]"= "{page_number}"
+? "page[per_page]"= "{requests_per_page}"
+? "filter[orderbook_code]"= "{orderbook_code}"
+? "filter[user]"= "{user_id}"
+
+
+// To get all possible `orderbook_code`s check [Orderbooks](#274fb149-0603-4d41-af61-2f1a0f438aec)
+// 
+// **Important note**: The amount of a bid is the amount of **Fiat (quote currency)** to spend. E.g: In the BTC/USD market, the bid amount is the amount of USD to spend in buying BTC.
+
+@name("Create Bid")
+POST "https://{{domain}}/api/bids"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+data('{
+    "data": {
+        "type": "bids",
+        "attributes": {
+            "amount": 100,
+            "price": 12,
+            "orderbook_code": "btc_usd"
+        },
+        "relationships": {
+          "user": {
+            "data": {
+              "id": 1,
+              "type": "users"
+            }
+          }
+        }
+    }
+}    ')
+
+
+// This action represents an intention to cancel a Bid. Despite of this endpoint responding with a 204 status, the Bid may not have been cancelled if it was previously matched. In order to check the status of the bid, you can query all your active orders with the `/api/orders` endpoint.
+
+@name("Cancel Bid")
+POST "https://{{domain}}/api/bids/:id/cancel"
+"Content-Type": "application/json"
+"Authorization": "{{your_api_key}}"
+"Version": "2.0"
+
+
+
+

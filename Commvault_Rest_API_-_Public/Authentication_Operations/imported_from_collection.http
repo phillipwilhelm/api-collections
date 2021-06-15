@@ -1,0 +1,64 @@
+#!/usr/bin/env dothttp
+
+// <h2>Description</h2>
+// (starting with V11 RTM)
+// 
+// Commvault REST APIs support token-based authentication via the Authtoken request header. The POST Login API is used to retrieve the authentication token. Once obtained, the authentication token must be inserted into the Authtoken header for all requests.
+// 
+// <b>Note:</b> The authentication token expires after 30 minutes of inactivity.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/rest_api_authentication.htm)
+
+@name("Login")
+POST "https://{{ServerUrl}}/Login"
+"Accept": "{{Accept}}"
+"Content-Type": "application/json"
+data('{
+  "password": "{{password}}",
+  "username": "{{userName}}"
+}')
+
+
+// <h2>Description</h2>
+// This operation ends the current session.
+// 
+// [_More Details_](http://documentation.commvault.com/commvault/v11/article?p=features/rest_api/operations/post_logout.htm)
+
+@name("Logout")
+POST "https://{{ServerUrl}}/Logout"
+"Accept": "{{Accept}}"
+"Authtoken": "{{TOKEN}}"
+
+
+
+// This operation renews and returns a new session token by providing the expired token
+
+@name("RenewLoginToken")
+POST "https://{{ServerUrl}}/RenewLoginToken"
+"Accept": "application/json"
+"Content-Type": "application/json"
+data('{
+"sessionId": "{{TOKEN}}",
+"deviceId": "{{CommcellName}}"
+}')
+
+
+// <h2>Description</h2>
+// Returns information about a user's two-factor authentication settings.
+
+@name("User Two-Factor Authentication Status")
+GET "https://{{ServerUrl}}/Security/TwoFactorAuth/Status"
+"Accept": "application/json"
+? "username"= "{{Username}}"
+
+
+// <h2>Description</h2>
+// Sends an email with the pin for two-factor authentication to the email address for the username in the request.
+
+@name("Send Pin for Two-Factor Authentication")
+GET "https://{{ServerUrl}}/Security/TwoFactorAuth/Pin"
+"Accept": "application/json"
+? "username"= "{{Username}}"
+
+
+

@@ -1,0 +1,1 @@
+A complete collection of all publicly available endpoints and methods for the Mailjet API

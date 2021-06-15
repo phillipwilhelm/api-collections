@@ -1,0 +1,56 @@
+#!/usr/bin/env dothttp
+
+@name("getReturns")
+GET "https://{{url}}/v3/returns"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+? "nextcursor"= "*"
+
+
+@name("bulkItemOverrides")
+POST "https://{{url}}/v3/feeds"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+? "feedType"= "RETURNS_OVERRIDES"
+data('{
+    "header": {
+      "feedDate": "2018-08-31T20:59:14.000Z"
+    },
+    "overrideFeed": [
+      {
+        "sku": "ABC001",
+        "overrides": {
+          "returnCenterAlias": "CAL1"
+        }
+      }
+    ]
+  }
+  ')
+
+
+@name("issueRefund")
+POST "https://{{url}}/v3/returns/1535274411287/refund"
+basicauth("", "prod_client_secret")
+"WM_SVC.NAME": "Walmart Marketplace"
+"WM_QOS.CORRELATION_ID": "test"
+"Accept": "application/json"
+"WM_SEC.ACCESS_TOKEN": "{{token}}"
+"Content-Type": "application/json"
+data('{
+    "customerOrderId": "1535274411287",
+    "refundLines": [
+      { "returnOrderLineNumber": 1}
+  ]
+}
+')
+
+
+

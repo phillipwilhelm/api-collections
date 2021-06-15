@@ -1,0 +1,116 @@
+#!/usr/bin/env dothttp
+
+// # Product API
+//   
+// Retrieve the full metadata set for a product
+// An additional request to RetrieveProductContext will return the product's context specific data for a given subscriber/geo/device/etc
+// 
+// NOTE: The response for this method is cached by the CDN. Any system/configuration updates will take up to 30 minutes before they are consistently reflected in any requests based on how quickly the cache clear request propagates across the CDN.
+// 
+// # Security
+// 
+// + This method must be called using HTTPS.
+// + This method does not allow sessions.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+
+@name("Metadata - Product")
+GET "https://{{CD_CORE_METADATA_DOMAIN}}/Product/SystemId/{{CD_SYSTEM_ID}}/Language/en-US/ProductExternalReferenceType/Product Reference/ProductExternalReference/XYZ_TV_Pro_Monthly"
+
+
+
+// # RetrieveProductContext API
+// 
+// Retrieve a product's context personalized for the subscriber, device, and geography
+// 
+// # Security
+// 
+// + This method must be called using HTTPS. 
+// + Sessions are optional for this method. However, if one is provided, it will be validated and any invalid session will be rejected.
+// + This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// 
+// # Request
+
+@name("RetrieveProductContext")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/RetrieveProductContext"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "ProductExternalReferenceType": "Product Reference",
+    "ProductExternalReference": "XYZ_Access_Monthly",
+    "IncludeEntitlementContext": true,
+    "IncludeOrderablePricingPlans": true 
+}
+')
+
+
+// # ValidateEntitlements API
+// 
+// Validate each of the requested entitlements for a subscriber.
+// An entitlement is considered valid if it can be viewed at the time the method is invoked, or if the underlying product has a Neutral line of business.
+// 
+// # Security
+// 
+// * This method requires HTTPS. Any request without SSL will be rejected.
+// * This method requires a minimum session level of an authenticated device.
+// * This method is available when the system is in maintenance mode.
+// 
+// # Error Codes
+// 
+// In addition to the common error codes, this method also returns the following error codes:
+// 
+// | Code | Name | Description |
+// | ---- | ---- | ----------- |
+// | 920 | ProductNotFound | Fault indicating that the requested product could not be found |
+// | 1004 | ContentNotAvailable | Fault thrown when a piece of content is not available for viewing for the given subscriber |
+// | 1002 | ContentAvailabilityViolation | Fault indicating that a product was requested that is not yet available |
+// | 954 | ViewProductContentNotInitialized | Fault thrown when a view product content intialization fails with a content provider |
+// | 964 | ExternalProductAccessDenied | Fault thrown when product access is denied by an external content provider |
+// | 1223 | HierarchyNodeNotFound | Hierarchy node not found |
+// 
+// # Request
+
+@name("ValidateEntitlements")
+POST "https://{{CD_CORE_SERVICE_DOMAIN}}/Subscriber/ValidateEntitlements"
+"CD-SystemID": "{{CD_SYSTEM_ID}}"
+"CD-SessionID": "{{CD_SESSION_ID}}"
+"CD-Language": "{{CD_LANGUAGE}}"
+"CD-DeviceType": "{{CD_DEVICE_TYPE}}"
+"Content-Type": "application/json"
+data('{
+    "Entitlements": [
+        {
+                "ProductExternalReferenceType": "Product Reference",
+                "ProductExternalReference": "XYZ_TV_Access_Monthly",
+                "PricingPlanExternalReferenceType": "Subscription",
+                "PricingPlanExternalReference": "XYZ_TV_Access_Monthly_USA_USD"
+        },
+        {
+                "ProductExternalReferenceType": "Product Reference",
+                "ProductExternalReference": "XYZ_TV_Pro_Monthly",
+                "PricingPlanExternalReferenceType": "Subscription",
+                "PricingPlanExternalReference": "XYZ_TV_Pro_Monthly_USA_USD"
+        }
+    ]
+}')
+
+
+

@@ -1,0 +1,75 @@
+#!/usr/bin/env dothttp
+
+// Add new line items to an existing invoice. Pass the `invoice_id` in the URI to add new items to that invoice.
+// 
+// **Note:- An invoice cannot contain more than 100 line items. This is a soft limit, contact support if you need this limit upping.**
+// 
+// `line_items` Array
+// 
+// An array of line items being invoiced for.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |sku|String|No|A stock keeping unit to identify the item. Max 40 characters.|
+// |**description**|String|**Yes**|A description of the item. Max 600 characters.|
+// |**quantity**|Integer|**Yes**|The quantity of the item. Must be greater than 0.|
+// |**price_each**|Float|**Yes**|The price of the item. Must be to 2 decimal places. E.g. "10.00", "9.99".|
+// |discount_rate|Float|No|A percentage discount rate to be applied to the price. Must be to 2 decimal places. E.g. "5.00".|
+// |**vat_rate**|Integer|**Yes**|The % VAT rate to apply to the item.|
+
+@name("Create Line Items")
+POST "https://{{region}}.vatapi.com/v2/invoice/{{invoice_id}}/line-items"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+	"line_items": [
+		{
+			"sku": "PROD3",
+			"description": "Product 3",
+			"quantity": 1,
+			"price_each": 10.00,
+			"vat_rate": 20
+		},
+		{
+			"sku": "PROD4",
+			"description": "Product 4",
+			"quantity": 1,
+			"price_each": 20.00,
+			"vat_rate": 20
+		}
+	]
+}')
+
+
+// Pass the `invoice_id` and line item `id` in the URI to update line item data.
+// 
+// |Attribute|Type|Required|Description|
+// |---|---|---|---|
+// |sku|String|No|A stock keeping unit to identify the item. Max 40 characters.|
+// |**description**|String|**Yes**|A description of the item. Max 600 characters.|
+// |**quantity**|Integer|**Yes**|The quantity of the item. Must be greater than 0.|
+// |**price_each**|Float|**Yes**|The price of the item. Must be to 2 decimal places. E.g. "10.00", "9.99".|
+// |discount_rate|Float|No|A percentage discount rate to be applied to the price. Must be to 2 decimal places. E.g. "5.00".|
+// |**vat_rate**|Integer|**Yes**|The % VAT rate to apply to the item.|
+
+@name("Update Line Item")
+PATCH "https://{{region}}.vatapi.com/v2/invoice/c4ca4238a0/line-items/c74d97b01e"
+"Content-Type": "application/json"
+"Accept": "application/json"
+"x-api-key": "{{x-api-key}}"
+data('{
+	"quantity": 2
+}')
+
+
+// Pass the `invoice_id` and line item `id` in the URI to delete line item data.
+// 
+// **Note:- you cannot delete the only line item of an invoice.**
+
+@name("Delete Line Item")
+DELETE "https://{{region}}.vatapi.com/v2/invoice/{{invoice_id}}/line-items/{{id}}"
+"x-api-key": "{{x-api-key}}"
+
+
+
