@@ -1,0 +1,444 @@
+#!/usr/bin/env dothttp
+
+// Returns a list of [income tax returns](#income-tax-return-entity) details for tax payer
+
+@name("Fetch ITRs")
+GET "https://{{host}}/it/tax-payers/:tax_payer_id/itrs"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+? "assessment_year"= "{{assessment_year}}"
+
+
+// Returns [income tax return](#income-tax-return-entity) details for tax payer
+
+@name("Fetch ITR")
+GET "https://{{host}}/it/tax-payers/:tax_payer_id/itrs/:itr_id"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+
+
+// Post [income tax return](#income-tax-return-entity) details for tax payer
+
+@name("Post ITR")
+POST "https://{{host}}/it/tax-payers/:tax_payer_id/itrs"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+"Content-Type": "application/json"
+json({
+    "form": "ITR-1",
+    "filed_under_section": "On or before the due date u/s 139(1)",
+    "assessment_year": "AY 2019-20",
+    "filed_on": "27/07/2019",
+    "type": "Original",
+    "acknowledgement_number": "717876520270719",
+    "@entity": "itr",
+    "status": "E-Filed"
+})
+
+
+// Receives a [form16 entity](#form-16-entity) and fetches income, deductions, etc details from form16 to prepare income tax return
+
+@name("Post Form16")
+POST "https://{{host}}/it/form-16"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+json({
+    "@entity": "form16",
+    "employer": {
+        "@entity": "employer",
+        "name": "Stark Industries",
+        "pan": "ABCCD1469N",
+        "address": {
+            "@entity": "address",
+            "street": "1 Marine Drive, ",
+            "area": "",
+            "postal_code": "400001"
+        },
+        "tan": "AHMS41521B"
+    },
+    "employee": {
+        "@entity": "employee",
+        "pan": "ACPPA2608F",
+        "address": {
+            "@entity": "address",
+            "street": "5 Marine Drive, ",
+            "area": "",
+            "postal_code": "400001"
+        },
+        "first_name": "TONY",
+        "last_name": "STARK"
+    },
+    "assessment_year": "2020-21",
+    "eligible_deductions": [
+        {
+            "@entity": "deduction",
+            "qualified": 141600,
+            "eligible": 141600,
+            "section": "80C",
+            "is_chapter_vi_a": true
+        }
+    ],
+    "taxes_paid": [],
+    "incomes": [
+        {
+            "@entity": "salary",
+            "description": "current",
+            "gross_income": 1778401,
+            "is_exempt": false,
+            "taxable_income": 1725901,
+            "deductions": [
+                {
+                    "@entity": "deduction",
+                    "qualified": 50000,
+                    "section": "16(ia)",
+                    "is_chapter_vi_a": false
+                },
+                {
+                    "@entity": "deduction",
+                    "section": "16(ii)",
+                    "is_chapter_vi_a": false
+                },
+                {
+                    "@entity": "deduction",
+                    "qualified": 2500,
+                    "section": "16(iii)",
+                    "is_chapter_vi_a": false
+                }
+            ],
+            "tds": {
+                "@entity": "tds",
+                "amount": 299302.0,
+                "credit_amount": 1778401.0,
+                "deductor": "Stark Industries",
+                "tan": "AHMS41521B",
+                "income_head": "Salary",
+                "year": "FY 2019-20"
+            },
+            "basic_salary": 1778401,
+            "perquisites": 0,
+            "profit": 0,
+            "total_deduction_us_16": 52500,
+            "allowances": [
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10(5)",
+                    "is_exempt": true
+                },
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10(10)",
+                    "is_exempt": true
+                },
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10(10A)",
+                    "is_exempt": true
+                },
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10(10AA)",
+                    "is_exempt": true
+                },
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10(13A)",
+                    "is_exempt": true
+                },
+                {
+                    "@entity": "allowance",
+                    "qualified": 0,
+                    "section": "10",
+                    "is_exempt": true
+                }
+            ],
+            "total_allowances_us_10": 0
+        }
+    ],
+    "total_taxes_paid": 299302.0,
+    "total_salary_current_employer": 1778401,
+    "total_salary_previous_employer": 0,
+    "total_income_chargeable_under_head_salary": 1725901,
+    "gross_house_property_income": 0,
+    "gross_other_income": 0,
+    "total_other_income": 0,
+    "gross_total_income": 1725901,
+    "total_deduction_us_80_cce": 141600,
+    "total_chapter_vi_a_deductions": 141600,
+    "total_income": 1584301,
+    "total_tax": 287790,
+    "rebate_us_87": 0,
+    "surcharge": 0,
+    "cess": 11512,
+    "total_tax_payable": 299302,
+    "relief_us_89": 0,
+    "net_tax_payable": 299302
+})
+
+
+// Receives a [form16 entity](#form-16-entity) and fetches income, deductions, etc details from form16 to prepare income tax return
+
+@name("Post Form 16")
+POST "https://{{host}}/it/tax-payers/:tax_payer_id/itrs/:itr_id/form-16"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+"Content-Type": "application/json"
+json({
+    "incomes": [
+        {
+            "allowances_us_10": [
+                {
+                    "amount": 0,
+                    "section": "10(5)",
+                    "@entity": "allowance"
+                },
+                {
+                    "amount": 0,
+                    "section": "10(10)",
+                    "@entity": "allowance"
+                },
+                {
+                    "amount": 0,
+                    "section": "10(10A)",
+                    "@entity": "allowance"
+                },
+                {
+                    "amount": 0,
+                    "section": "10(10AA)",
+                    "@entity": "allowance"
+                },
+                {
+                    "amount": 16000,
+                    "section": "10(13A)",
+                    "@entity": "allowance"
+                },
+                {
+                    "amount": 0,
+                    "section": "10",
+                    "@entity": "allowance"
+                }
+            ],
+            "gross_income": 2201559,
+            "total_deduction_us_16": 42500,
+            "total_allowances": 16000,
+            "description": "current",
+            "@entity": "salary",
+            "total_other_allowances": 0,
+            "deductions_us_16": [
+                {
+                    "amount": 40000,
+                    "section": "16(ia)",
+                    "is_chapter_vi_a": false,
+                    "@entity": "deduction"
+                },
+                {
+                    "amount": 0,
+                    "section": "16(ii)",
+                    "is_chapter_vi_a": false,
+                    "@entity": "deduction"
+                },
+                {
+                    "amount": 2500,
+                    "section": "16(iii)",
+                    "is_chapter_vi_a": false,
+                    "@entity": "deduction"
+                }
+            ],
+            "perquisites": 0,
+            "taxes_paid": [
+                {
+                    "amount": 444648,
+                    "year": "FY 2018-19",
+                    "credit_amount": 2217560,
+                    "@entity": "tds"
+                }
+            ],
+            "basic_salary": 2217559,
+            "taxable_income": 2159059,
+            "profit": 0
+        },
+        {
+            "allowances_us_10": [],
+            "gross_income": 0,
+            "deductions_us_16": [],
+            "taxes_paid": [],
+            "basic_salary": 0,
+            "description": "previous",
+            "taxable_income": 0,
+            "@entity": "salary"
+        },
+        {
+            "gross_income": 0,
+            "description": "oth",
+            "taxable_income": 0,
+            "@entity": "other_income"
+        },
+        {
+            "lenders": [],
+            "deductions_us_24": [],
+            "description": "hp",
+            "taxable_income": 0,
+            "tenant": {
+                "rent": 0,
+                "@entity": "tenant"
+            },
+            "@entity": "let_out_house_property_income"
+        }
+    ],
+    "total_income_chargeable_under_head_salary": 2159059,
+    "gross_total_income": 2159059,
+    "assessment_year": "2019-20",
+    "total_chapter_vi_a_deudctions": 175000,
+    "employee": {
+        "address": {
+            "area": "Vastrapur",
+            "country": "India",
+            "street": "1005, Himalaya Arcade, Oppo Vastrapur Lake, Ahmedabad",
+            "postal_code": "380015",
+            "@entity": "address"
+        },
+        "gender": "Male",
+        "contact": {
+            "@entity": "contact"
+        },
+        "residential_status": "Resident",
+        "last_name": "DOE",
+        "pan": "XXXPX1234X",
+        "first_name": "JOHN",
+        "@entity": "employee"
+    },
+    "qualifying_deductions": [],
+    "@entity": "form16",
+    "gross_deductions": [
+        {
+            "amount": 150000,
+            "section": "80C",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80CCC",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80CCD(1)",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80CCD(1B)",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80CCD(2)",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 25000,
+            "section": "80D",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 81160,
+            "section": "80E",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80G",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80TTA",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80DD",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80DDB",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80EE",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80GG",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80GGA",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80GGC",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80U",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        },
+        {
+            "amount": 0,
+            "section": "80TTB",
+            "is_chapter_vi_a": true,
+            "@entity": "deduction"
+        }
+    ],
+    "taxes_paid": [],
+    "total_other_income": 0,
+    "employer": {
+        "tan": "TANX01234Y",
+        "address": {
+            "area": "Vastrapur",
+            "country": "India",
+            "street": "B/701 Amrapali Lakeview, Opp. Vastrapur Lake, Ahmedabad",
+            "postal_code": "380015",
+            "@entity": "address"
+        },
+        "name": "QUICKO INFOSOFT PRIVATE LIMITED",
+        "pan": "XXXCX1234X",
+        "@entity": "employer"
+    },
+    "deductibe_deductions": []
+})
+
+
+

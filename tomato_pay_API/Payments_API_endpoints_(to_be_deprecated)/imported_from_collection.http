@@ -1,0 +1,275 @@
+#!/usr/bin/env dothttp
+
+// Create Payment Consent
+// 
+// Before initiating a payment, a payment request must be created and presented to the user for their consent.
+// 
+// Payment request must include the bank details of the payee and the details of the payment (amount, currency and payment type).
+// 
+// Calling this endpoint will generate a payment link (authUrl) that can be sent to the payer. The payer will have to authorise the payment by authenticating with their bank before it can be completed.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | redirect | string (link) | URL to redirect to after the bank account is added |
+// | creditor | JSON object | Creditor information |
+// | creditor -> schemename | string | IBAN or Account and sort code|
+// | creditor -> identification | string | Creditor's account details|
+// | creditor -> name | string | Creditor name |
+// | creditor -> secondaryIdentification | string | Any optional extra information about account |
+// | currency | string | Account currency |
+// | amount | integer | Payment amount |
+// | reference | string | Transaction reference |
+// | paymentType | string | Payment type {DOMESTICSCHEDULED,DOMESTIC-STANDINGORDER, DOMESTIC-PAYMENT,INTERNATIONAL-SCHEDULED, INTERNATIONAL-STANDINGORDER, INTERNATIONAL-PAYMENT}|
+// 
+// <h2> Response </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | authUrl | string | Sign in URL for the requested bank |
+// | consentId | string | Unique ID for the consent |
+// | consentStatus | string | | status | string | Status of consent {Authorised, AwaitingAuthorisation, Rejected |
+// | bankId | integer | Unique identifier for the bank|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- |
+// | Invalid bankId| 404 Not Found | |
+// | No request body | 400 Bad Request | {"error": "Missing redirect”} |
+// | Missing redirect | 400 Bad Request | {"error": "Missing redirect”} |
+// | Invalid redirect | 400 Bad Request | {"error": "invalid redirect”} |
+// | No currency in the request body | 400 Bad Request | {"error": "Missing currency"} |
+// | Invalid currency | 400 Bad Request | {"error": "Invalid currency"} |
+// | No amount in the request body | 400 Bad Request | {"error": "Missing amount"} |
+// | Invalid amount | 400 Bad Request | {"error": "Invalid amount"} |
+// | Reference greater than 35 characters in the request body| 400 Bad Request | {"error": "The reference field has a maximum of 35 chars"} |
+// | Invalid type | 400 Bad Request | {"error": "Missing/invalid paymentType. Must be one of : [ DOMESTIC, DOMESTICSCHEDULED, INTL, INTLSCHEDULED]"} |
+// | No creditor in the request body | 400 Bad Request | {"error": "One of the following is mandatory: [creditor, creditorAccountId]"}
+// | No schemeName or identification or name in request body | 400 Bad Request | {"error": "Invalid creditor account identification. SortCodeAccountNumber scheme must contain identification of 6 digit Sort Code and 8 digit Account Number"}|
+// | Invalid schemeName in request body | 400 Bad Request | {"error": "Invalid creditor account schemeName. Must be one of: [SortCodeAccountNumber, IBAN]"}|
+// | Invalid identification in request body | 400 Bad Request | {"error": "Invalid creditor account identification. SortCodeAccountNumber scheme must contain identification of 6 digit Sort Code and 8 digit Account Number"} |
+// | Bank error | 502 Bad Gateway | {error: “Bank error”} |
+// | Server error | 500 Internal server error |
+
+@name("Create Payment Consent (to be deprecated)")
+POST "https://{{base_url}}/banking/v2/banks/:bankId/pay/consents/"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+json({
+    "redirect": "redirect_url",
+    "creditor": {
+        "schemeName": "UK.OBIE.SortCodeAccountNumber",
+        "identification": "Identification",
+        "name": "Account name",
+        "secondaryIdentification": "Secondary identification"
+    },
+    "reference": "Reference",
+    "amount": "1.00",
+    "currency": "GBP",
+    "paymentType": "DOMESTIC"
+})
+
+
+// Authorise Payment
+// 
+// Before the payment can be initiated, the payment request needs to be approved.
+// 
+// Before calling this endpoint, authentication needs to be created in order to retrieve the authentication URL (authUrl) for the bank.
+// 
+// Now, your application will need to redirect a user to the authUrl location for them to sign in through their bank account.
+// 
+// The payment request will be completed once the user successfully signs in. You will be redirected back to your redirect field in the initial POST request body.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// 
+// <h2> Request </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | code | string | Temporary code to be exchanged for access token with the bank |
+// | id_token | string | Base64 encoded JSON for verifying state and token’s validity |
+// | state | string | Base64 encoded JSON containing information about the original request to persist the state throughout the user journey|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | paymentId| string | Unique identifier for the payment |
+// | consentId | string | Unique identifier for the consent|
+// | creditor | JSON object | Creditor information |
+// | creditor -> schemename | string | IBAN or Account and sort code|
+// | creditor -> identification | string | Creditor's account details|
+// | creditor -> name | string | Creditor name |
+// | creditor -> secondaryIdentification | string | Any optional extra information about account |
+// | amount | integer | Payment amount |
+// | currency | string | Account currency |
+// | reference | string | Transaction reference |
+// | paymentType | string | Payment type {DOMESTICSCHEDULED,DOMESTIC-STANDINGORDER, DOMESTIC-PAYMENT,INTERNATIONAL-SCHEDULED, INTERNATIONAL-STANDINGORDER, INTERNATIONAL-PAYMENT}|
+// |date| datetime | Date and time of the transaction |
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 404 Not Found | |
+// | No code | 400 Bad Request | {“error”: “Missing bank code”} |
+// | No state | 400 Bad Request | {“error”: “Missing state}|
+// | No id_token | 400 Bad Request | {“error”: “Missing id_token”} |
+// | Invalid state | 400 Bad Request | {“error”: “Invalid state”} |
+// | Invalid id_token | 400 Bad Request | {“error”: “Open ID token verification failed”} |
+// | Bank errors | 502 Bad Gateway | {“error”: “Bank error”} |
+
+@name("Authorise Payment (to be deprecated)")
+POST "https://{{base_url}}/banking/v2/banks/:bankId/pay/payment"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+json({
+    "code": "code",
+    "id_token": "id token",
+    "state": "state"
+})
+
+
+// Payment consents can be retrieved by providing a bankId.
+// 
+// The consent response will include payment details (amount, currency, payment type), consent Id, date and status.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// 
+// <h2> Query parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | pageId | string | Page offset of results |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field  | Type | Description |
+// | ------ | ----- | ---------- |
+// | consentId | string | Unique consent id returned by the bank |
+// | bankId | integer | Unique id for the bank |
+// | dateCreated | datetime | Date when the consent was created |
+// | status | string | Status of consent {Authorised, AwaitingAuthorisation, Rejected}|
+// | currency | string | Account currency |
+// | amount | integer | Payment amount |
+// | paymentType | string | Payment type {DOMESTICSCHEDULED,DOMESTIC-STANDINGORDER, DOMESTIC-PAYMENT,INTERNATIONAL-SCHEDULED, INTERNATIONAL-STANDINGORDER, INTERNATIONAL-PAYMENT}|
+// | consentType | string | |
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 404 Not Found | |
+
+@name("Retrieve Payment Consents (to be deprecated)")
+GET "https://{{base_url}}/banking/v2/banks/:bankId/pay/consents/"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+
+// A specific payment consent can be retrieved by providing a bankId and a consent id.
+// 
+// The consent response will include payment details (amount, currency, payment type), consent Id, date and status.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// | consentId | string | Unique identifier for the payment consent |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field  | Type | Description |
+// | ------ | ----- | ---------- |
+// | consentId | string | Unique consent id returned by the bank |
+// | bankId | integer | Unique id for the bank |
+// | dateCreated | datetime | Date when the consent was created |
+// | status | string | Status of consent {Authorised, AwaitingAuthorisation, Rejected}|
+// | currency | string | Account currency |
+// | amount | integer | Payment amount |
+// | paymentType | string | Payment type {DOMESTICSCHEDULED,DOMESTIC-STANDINGORDER, DOMESTIC-PAYMENT,INTERNATIONAL-SCHEDULED, INTERNATIONAL-STANDINGORDER, INTERNATIONAL-PAYMENT}|
+// | consentType | string | |
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 404 Not Found | |
+// | Invalid consentId | 404 Not Found | |
+
+@name("Retrieve Payment Consent (by id) [to be deprecated]")
+GET "https://{{base_url}}/banking/v2/banks/:bankId/pay/consents/:consentId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+
+// The 'Retrieve payment' endpoint can be used to retrieve a particular payment using the bank id and payment id.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// | paymentId | string | Unique identifier for the payment |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | paymentId| string | Unique identifier for the payment |
+// | consentId | string | Unique identifier for the consent|
+// | creditor | JSON object | Creditor information |
+// | creditor -> schemename | string | IBAN or Account and sort code|
+// | creditor -> identification | string | Creditor's account details|
+// | creditor -> name | string | Creditor name |
+// | creditor -> secondaryIdentification | string | Any optional extra information about account |
+// | amount | integer | Balance amount |
+// | currency | string | Account currency |
+// | reference | string | Transaction reference |
+// | paymentType | string | Payment type {DOMESTICSCHEDULED,DOMESTIC-STANDINGORDER, DOMESTIC-PAYMENT,INTERNATIONAL-SCHEDULED, INTERNATIONAL-STANDINGORDER, INTERNATIONAL-PAYMENT}|
+// |date| datetime | Date and time of the transaction |
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 404 Not Found | |
+// | Invalid paymentId | 404 Not Found | |
+
+@name("Retrieve Payment (by id) [to be deprecated]")
+GET "https://{{base_url}}/banking/v2/banks/:bankId/pay/payment/:paymentId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+
+

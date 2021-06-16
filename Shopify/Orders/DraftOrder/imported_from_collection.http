@@ -1,0 +1,64 @@
+#!/usr/bin/env dothttp
+
+// <p>Creates a draft order.</p> <p>Using the DraftOrder resource you can create orders in draft state using product variant line items, or custom line items. To create a product variant draft order, provide the <code>variant_id</code>, <code>quantity</code> and <code>discount</code> properties. To create a custom line item, provide the <code>title</code>, <code>price</code>, <code>taxable</code>, and <code>quantity</code> properties.</p> <br/> <aside class="note"> <h4>Note</h4> <p>If you are using this endpoint with a Partner development store or a trial store, then you can only create five draft orders per minute.</p> </aside> <h3>Polling</h3> When you create and update draft orders some calculations are done asynchronously, such as calculating shipping and taxes. There might be times when a draft order is created but these calculations haven't completed. In these cases, you need to poll the draft order until the calculations are finished. <br> When a draft order requires polling, a <code>202 accepted</code> response code is returned along with <code>location</code> and <code>retry-after</code> response headers. The <code>location</code> header refers to the URL to be polled, and <code>retry-after</code> denotes the interval (in seconds) at which polling requests should be sent. When the draft order is ready, a <code>200 OK</code> response code will be returned. <h3>About custom shipping lines</h3> You can use the DraftOrder resource to send orders with custom shipping lines. A custom shipping line includes a <code>title</code> and <code>price</code> with <code>handle</code> set to <code>Nil</code>. A shipping line with a carrier provided shipping rate (currently set via the Shopify admin) includes the shipping rate handle. <h3>Applying discounts</h3> <p>A draft order and its line items can have one discount each. Calculations for discounts are based on the setting of the <code>value_type</code> property, which can be set to either <code>fixed_amount</code> or <code>percentage</code>. For example, you can apply a fixed amount discount to a draft order to reduce the price by the specified <code>value</code> property. When you use a percentage discount, the discount <code>amount</code> property is the price multiplied by the <code>value</code> property. For line item discounts, the <code>value</code> property is applied per individual unit of the item, based on the line item's quantity.</p> <br> <p><strong>Calculating line item discount amounts</strong></p> <p>For <code>fixed_amount</code> discounts, the total <code>amount</code> corresponds to the line item quantity times the value of the discount. For percentage discounts, the total amount corresponds to the following:</p> <br> <p><code>amount = floor(price * quantity * value) / 100</code>, where <code>floor()</code> is the usual round down function.</p> <br> <p>For non-fractional currencies, this formula needs to use round() instead of floor(), and the division by 100 takes place inside the rounding, resulting in a non-fractional value. Otherwise, an error is returned.</p> <br> <p><code>amount = round(price * quantity * value / 100)</code></p> <br> <strong>Line item examples</strong> <br> <p><i>Fixed amount discount</i></p> <p>For a $19.99 line item with quantity of 2 and with $5 dollars off, discount amount corresponds to $10 ($5 * 2):</p> <br> <p><code>applied_discount: { "value_type": "fixed_amount", "value": 5, "amount": 10 }</code></p> <br> <p>For a fixed amount example, see <a href="#create-a-draft-order-with-a-discount-"><i>Create a draft order with a discount</i></a>.</p> <br> <p><i>Percentage discount</i></p> <p>For a $19.99 line item with quantity of 2 and with 15% off, discount amount corresponds to $5.99 (floor ($19.99 * 2 * 15) / 100):</p> <br> <p><code>applied_discount: { "value_type": "percentage", "value": 15, "amount": 5.99 }</code></p> <br> <p>For a percentage example, see <a href="#create-a-percent-discount-on-a-line-item-"><i>Create a percent discount on a line item</i></a>.</p> <h3>Loading and removing customers</h3> <p>You can load a customer to a draft order by sending the <code>customer_id</code> as part of the draft order object. The recommended way to remove a customer from a draft order is to make a POST request with the Customer object set to null, without specifying an email, shipping address, or billing address. A customer may also be removed by setting <code>customer</code>, <code>email</code>, <code>shipping_address</code>, and <code>billing_address</code> to <code>null</code>. </p>
+
+@name("Create a new DraftOrder")
+POST "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders.json"
+"Content-Type": "application/json"
+
+
+
+// Updates a draft order
+
+@name("Modify an existing DraftOrder")
+PUT "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/{{draft_order_id}}.json"
+"Content-Type": "application/json"
+
+
+
+// Retrieves a list of draft orders. <strong>Note:</strong> As of version 2019-10, this endpoint implements pagination by using links that are provided in the response header. Sending the <code>page</code> parameter will return an error. To learn more, see <a href="https://help.shopify.com/api/guides/paginated-rest-results"><em>Making requests to paginated REST Admin API endpoints</em></a>.
+
+@name("Retrieves a list of draft orders")
+GET "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders.json"
+"Content-Type": "application/json"
+
+
+// Retrieves a specific draft order
+
+@name("Receive a single DraftOrder")
+GET "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/{{draft_order_id}}.json"
+"Content-Type": "application/json"
+
+
+// Retrieves a count of draft orders
+
+@name("Receive a count of all DraftOrders")
+GET "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/count.json"
+"Content-Type": "application/json"
+
+
+// <p>Sends an invoice for the draft order.</p> <p>You can include the following parameters in the body of the request:</p> <ul> <li><strong>draft_order_invoice</strong>: The object to send in the body of the request. <ul> <li><strong>to</strong>: The email address that will populate the <strong>to</strong> field of the email.</li> <li><strong>from</strong>: The email address that will populate the <strong>from</strong> field of the email.</li> <li><strong>bcc</strong>: The list of email addresses to include in the <strong>bcc</strong> field of the email. Emails must be associated with staff accounts on the shop.</li> <li><strong>subject</strong>: The email subject.</li> <li><strong>custom_message</strong>: The custom message displayed in the email.</li> </ul> </li> </ul>
+
+@name("Send an invoice")
+POST "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/{{draft_order_id}}/send_invoice.json"
+"Content-Type": "application/json"
+
+
+
+// Deletes a draft order
+
+@name("Remove an existing DraftOrder")
+DELETE "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/{{draft_order_id}}.json"
+"Content-Type": "application/json"
+
+
+
+// Completes a draft order. <br> <p>Using the DraftOrder resource, you can create a draft order and transition it to an order.</p> <br> <p>The following flows are supported:</p> <br> <ul> <li>Create a draft order that calculates taxes and totals but accept payment from the customer outside of Shopify.</li> <li>Create a draft order and send an invoice to the customer.</li> </ul>
+
+@name("Complete a draft order")
+PUT "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/draft_orders/{{draft_order_id}}/complete.json"
+"Content-Type": "application/json"
+
+
+
+

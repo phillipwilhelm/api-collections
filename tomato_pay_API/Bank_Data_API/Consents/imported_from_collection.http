@@ -1,0 +1,247 @@
+#!/usr/bin/env dothttp
+
+// Retrieve a list of all available banks with their corresponding bank ids and logos. Bank id is required to create an auth for a bank, or to retrieve accounts, balances, and transactions for a particular bank.
+// 
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------| ----- | ---------- |
+// | id | integer | Unique identifier for the bank |
+// | name | string | Name of the bank |
+// | logo | string (link for logo in svg format)| Link with bank's logo |
+// | pngLogo | string | Bank logo URL |
+// | rdfName | string | Bank name |
+// | aisStatus | object | Status of Account information services (i.e. downloading accounts, balances, transactions etc.) consent |
+// | aisStatus->status | string | status {Up, Down} |
+// | aisStatus->lastTested | DateTime | Last time when AIS connection was tested|
+// | aisStatus->lastSuccessful | DateTime | Last time when AIS connection was successful|
+// | pisStatus | object | Status of Payment information services consent|
+// | pisStatus->status | string | status {Up, Down} |
+// | pisStatus->lastTested | DateTime | Last time when PIS connection was tested|
+// | pisStatus->lastSuccessful | DateTime | Last time when PIS connection was successful|
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | pageId | string | Page offset of results|
+// | type | string | {Account, Payment}|
+
+@name("Retrieve Banks")
+GET "https://{{base_url}}/banking/v2/banks"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+// Before the user can sign in, a bank consent needs to be created in order to get the consent id and the authorisation date. By default, the consent lasts for 90 days as per Open Banking regulations. After 90 days, consent will have to be requested again.
+// 
+// By default, a bank consent will be created to request all bank data from the user. If you want to request specific data, you can specify that in permissions.
+//  
+// Calling this endpoint will return a signInUrl for the user's bank, and a unique consentId that must be used in the "Put bank consent" request.
+// 
+// On successful authentication, a code, id_token, and state will be returned along with the bankId.
+// 
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | redirect | string (link) | URL to redirect to after the bank account is added |
+// | permissions| string | {READALLBANKDATA (download all bank data), READACCOUNTSDETAIL (download account details only)} |
+// | bankId | integer | Unique identifier for the bank |
+// | code | string | Temporary code to be exchanged for access token with the bank |
+// | id_token | string | Base64 encoded JSON for verifying state and token’s validity |
+// | state | string | Base64 encoded JSON containing information about the original request to persist the state throughout the user journey|
+// |state->nonce| string | String value used to associate a client session with an ID Token, and to mitigate replay attacks (for internal use)|
+// |state->reRed| string | Redirect URL |
+// |state->accReq| string | tomato pay consentId |
+// |state->bId| integer | bankId (Unique identifier for the bank)|
+// |state->consentId|string| bank consentId |
+// 
+// If a permission is not provided, then READALLBANKDATA permission will be requested by default.
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- |
+// | Missing redirect | 400 Bad Request | {"error": "Missing/Invalid redirect”} |
+// | Invalid redirect | 400 Bad Request | {"error": "Missing/Invalid redirect”} |
+// | Invalid bankId | 403 Forbidden | |
+// | Bank error | 502 Bad Gateway | {“error”: “Bank error”} |
+// | Server error | 500 Internal server error |
+
+@name("Create Bank Consent")
+POST "https://{{base_url}}/banking/v2/consents"
+"Content-Type": "application/json"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "redirect": "redirect_URL",
+    "permissions": "READALLBANKDATA",
+    "bankId": "6"
+})
+
+
+// Bank consents can be retrieved by filtering by bankId. This filter can be used in combination with companyId to search your application users' consents.
+// 
+// The consent response will include the date of authorisation and the status.
+// 
+// 
+// <h2> Query parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// | pageId | string | Page offset of results |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field  | Type | Description |
+// | ------ | ----- | ---------- |
+// | companyId | string | Unique identifier for the company |
+// | permissions| string | {READALLBANKDATA (download all bank data), READACCOUNTSDETAIL (download account details only)} |
+// | expiryDate | datetime | Date when the consent expires |
+// | consentId | string | Unique consent id returned by the bank |
+// | bankId | integer | Unique id for the bank |
+// | authorisedDate | datetime | Date when authorisation was provided by the user |
+// | status | string | Status of consent {Authorised, AwaitingAuthorisation, Rejected}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 403 Forbidden | |
+
+@name("Retrieve Bank Consents")
+GET "https://{{base_url}}/banking/v2/consents"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// Bank consents can be retrieved by filtering by bankId. This filter can be used in combination with companyId to search your application users' consents.
+// 
+// The consent response will include the date of authorisation and the status.
+// 
+// 
+// <h2> Attributes </h2>
+// 
+// | Field  | Type | Description |
+// | ------ | ----- | ---------- |
+// | companyId | string | Unique identifier for the company |
+// | permissions| string | {READALLBANKDATA (download all bank data), READACCOUNTSDETAIL (download account details only)} |
+// | expiryDate | datetime | Date when the consent expires |
+// | consentId | string | Unique consent id returned by the bank |
+// | bankId | integer | Unique id for the bank |
+// | authorisedDate | datetime | Date when authorisation was provided by the user |
+// | status | string | Status of consent {Authorised, AwaitingAuthorisation, Rejected}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid consentId | 404 Not found | |
+
+@name("Retrieve Bank Consent (by id)")
+GET "https://{{base_url}}/banking/v2/consents/:consentId"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// Before connecting to the bank, authentication needs to be created in order to retrieve the sign in URL (signinUrl) for the bank. Calling this endpoint adds a bank account for companyId and bankId and redirects to the URL specified.
+// 
+// Now, your application will need to redirect a user to the signinUrl location for them to sign in through their bank account.
+// 
+// After the user successfully signs in, they will be redirected back to your redirect field in the initial POST request body, alongside query params in the url including code, id_token, and state.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | consentId | string | Unique consent returned from the bank |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | bankId | integer | Unique identifier for the bank |
+// | code | string | Temporary code to be exchanged for access token with the bank |
+// | id_token | string | Base64 encoded JSON for verifying state and token’s validity |
+// | state | string | Base64 encoded JSON containing information about the original request to persist the state throughout the user journey|
+// |state->nonce| string | String value used to associate a client session with an ID Token, and to mitigate replay attacks (for internal use)|
+// |state->reRed| string | Redirect URL |
+// |state->accReq| string | tomato pay consentId |
+// |state->bId| integer | bankId (Unique identifier for the bank)|
+// |state->consentId|string| bank consentId |
+// 
+// <h2> Success </h2>
+// 204 No content
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid bankId | 403 Forbidden | |
+// | Invalid consentId | 404 Not Found | |
+// | No code | 400 Bad Request | {“error”: “Missing/Invalid code”} |
+// | No state | 400 Bad Request | {“error”: “Missing/Invalid state}|
+// | No id_token | 400 Bad Request | {“error”: “Missing/Invalid id_token”} |
+// | Invalid state | 400 Bad Request | {“error”: “Missing/Invalid state”} |
+// | consentId is not in AwaitingAuthorisation status | 400 Bad Request | {“error”: “Missing/Invalid Status”} |
+// | Invalid id_token | 400 Bad Request | |
+// | Bank errors | 502 Bad Gateway | {“error”: “Bank error”} |
+
+@name("Put Bank Consent (by id)")
+PUT "https://{{base_url}}/banking/v2/consents/:consentId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "bankId": "6",
+    "code": "code",
+    "id_token": "id_token",
+    "state": "state"
+})
+
+
+// Delete consent to a bank account
+// 
+// Deleting a user’s consent will also delete the tokens created through the user’s authorisation. To execute further requests requiring consent, you will need to request authorisation again.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|-------------|
+// | consentId | string | Unique consent returned from the bank |
+// 
+// <h2> Success </h2>
+// 202 Accepted
+// 
+// <h2> Error messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid consentId | 404 Not Found | |
+
+@name("Delete Bank Consent (by id)")
+DELETE "https://{{base_url}}/banking/v2/consents/:consentId"
+"Content-Type": "application/json"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+

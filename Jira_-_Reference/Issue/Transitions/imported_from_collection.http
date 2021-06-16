@@ -1,0 +1,93 @@
+#!/usr/bin/env dothttp
+
+// Returns either all transitions or a transition that can be performed by the user on an issue, based on the issue's status.
+// 
+// Note, if a request is made for a transition that does not exist or cannot be performed on the issue, given its status, the response will return any empty transitions list.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required: A list or transition is returned only when the user has:**
+// 
+//  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
+//  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
+// 
+// However, if the user does not have the *Transition issues* [ project permission](https://confluence.atlassian.com/x/yodKLg) the response will not list any transitions.
+
+@name("Get Transitions")
+GET "https://{{baseUrl}}/rest/api/3/issue/:issueIdOrKey/transitions"
+? "expand"= "<string>"
+? "transitionId"= "<string>"
+? "skipRemoteOnlyCondition"= "false"
+? "includeUnavailableTransitions"= "false"
+? "sortByOpsBarAndStatus"= "false"
+
+
+// Performs an issue transition and, if the transition has a screen, updates the fields from the transition screen.
+// 
+// sortByCategory To update the fields on the transition screen, specify the fields in the `fields` or `update` parameters in the request body. Get details about the fields using [ Get transitions](#api-rest-api-3-issue-issueIdOrKey-transitions-get) with the `transitions.fields` expand.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Browse projects* and *Transition issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
+//  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
+
+@name("Transition Issue")
+POST "https://{{baseUrl}}/rest/api/3/issue/:issueIdOrKey/transitions"
+"Content-Type": "application/json"
+json({
+    "transition": {
+        "id": "<string>",
+        "looped": "<boolean>"
+    },
+    "fields": "<object>",
+    "update": "<object>",
+    "historyMetadata": {
+        "type": "<string>",
+        "description": "<string>",
+        "descriptionKey": "<string>",
+        "activityDescription": "<string>",
+        "activityDescriptionKey": "<string>",
+        "emailDescription": "<string>",
+        "emailDescriptionKey": "<string>",
+        "actor": {
+            "id": "<string>",
+            "displayName": "<string>",
+            "displayNameKey": "<string>",
+            "type": "<string>",
+            "avatarUrl": "<string>",
+            "url": "<string>"
+        },
+        "generator": {
+            "id": "<string>",
+            "displayName": "<string>",
+            "displayNameKey": "<string>",
+            "type": "<string>",
+            "avatarUrl": "<string>",
+            "url": "<string>"
+        },
+        "cause": {
+            "id": "<string>",
+            "displayName": "<string>",
+            "displayNameKey": "<string>",
+            "type": "<string>",
+            "avatarUrl": "<string>",
+            "url": "<string>"
+        },
+        "extraData": "<object>"
+    },
+    "properties": [
+        {
+            "key": "<string>",
+            "value": {}
+        },
+        {
+            "key": "<string>",
+            "value": {}
+        }
+    ]
+})
+
+
+

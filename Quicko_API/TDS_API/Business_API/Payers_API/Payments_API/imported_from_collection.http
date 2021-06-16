@@ -1,0 +1,117 @@
+#!/usr/bin/env dothttp
+
+// Retrieve all payments. Provide count and skip for pagination
+
+@name("Fetch Payments")
+GET "https://{{host}}/tds/payers/:payer_id/payments"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+? "nature_of_payment"= "{{nature_of_payment}}"
+? "from"= "{{from}}"
+? "to"= "{{to}}"
+? "count"= "{{count}}"
+? "skip"= "{{skip}}"
+
+
+// Retrieve a payment
+
+@name("Fetch Payment")
+GET "https://{{host}}/tds/payers/:payer_id/payments/:payee_id"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+
+
+// Get count of payments
+
+@name("Count Payments")
+GET "https://{{host}}/tds/payers/:payer_id/payments/count"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+? "nature_of_payment"= "{{nature_of_payment}}"
+
+
+// Create a new payment
+
+@name("Post Payment")
+POST "https://{{host}}/tds/payers/:payer_id/payments"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+json({
+    "@entity": "payment",
+    "payee": {
+        "@entity": "payee",
+        "name": "Jacob Doe",
+        "pan": "AABPJ1234P",
+        "residential_status": "Resident",
+        "addresses": [
+            {
+                "@entity": "address",
+                "full_address": "13, XYZ Tower, Ahmedabad, India",
+                "country": "India"
+            }
+        ],
+        "contact": [
+            {
+                "@entity": "contact",
+                "primary_email": "jacob@doe.com",
+                "mobile_number": "9889999999"
+            }
+        ]
+    },
+    "amount": {
+        "@entity": "money",
+        "value": 500000,
+        "value_type": "MONEY",
+        "currency": "Indian Rupee"
+    },
+    "date": "14/04/2020",
+    "tax_deducted_at_source": {
+        "@entity": "tds.deduction",
+        "section": "194C - Contracts",
+        "deduction_date": "14/04/2020",
+        "deduction_amount": {
+            "@entity": "money",
+            "value": 10000,
+            "value_type": "MONEY",
+            "currency": "Indian Rupee"
+        },
+        "challan": {
+            "@entity": "challan",
+            "bsr_code": "0510999",
+            "challan_number": "99999",
+            "paid_date": "10/06/2020",
+            "minor_head": "(200) TDS Payable by Tax Payer",
+            "amount": {
+                "@entity": "money",
+                "value": 10000,
+                "value_type": "MONEY",
+                "currency": "Indian Rupee"
+            },
+            "mode_of_deposit": "Otherwise",
+            "is_nil_challan": false,
+            "unclaimed_amount": {
+                "@entity": "money",
+                "value": 0,
+                "value_type": "MONEY",
+                "currency": "Indian Rupee"
+            }
+        }
+    },
+    "nature_of_payment": "Contactual Payment"
+})
+
+
+// Delete a payment
+
+@name("Delete Payment")
+DELETE "https://{{host}}/tds/payers/:payer_id/payments/:payment_id"
+"Authorization": "{{access_token}}"
+"x-api-key": "{{api_key}}"
+"x-api-version": "{{version}}"
+
+
+

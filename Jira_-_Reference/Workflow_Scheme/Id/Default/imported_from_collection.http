@@ -1,0 +1,38 @@
+#!/usr/bin/env dothttp
+
+// Returns the default workflow for a workflow scheme. The default workflow is the workflow that is assigned any issue types that have not been mapped to any other workflow. The default workflow has *All Unassigned Issue Types* listed in its issue types for the workflow scheme in Jira.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Default Workflow")
+GET "https://{{baseUrl}}/rest/api/3/workflowscheme/:id/default"
+? "returnDraftIfExists"= "false"
+
+
+// Sets the default workflow for a workflow scheme.
+// 
+// Note that active workflow schemes cannot be edited. If the workflow scheme is active, set `updateDraftIfNeeded` to `true` in the request object and a draft workflow scheme is created or updated with the new default workflow. The draft workflow scheme can be published in Jira.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Update Default Workflow")
+PUT "https://{{baseUrl}}/rest/api/3/workflowscheme/:id/default"
+"Content-Type": "application/json"
+json({
+    "workflow": "<string>",
+    "updateDraftIfNeeded": "<boolean>"
+})
+
+
+// Resets the default workflow for a workflow scheme. That is, the default workflow is set to Jira's system workflow (the *jira* workflow).
+// 
+// Note that active workflow schemes cannot be edited. If the workflow scheme is active, set `updateDraftIfNeeded` to `true` and a draft workflow scheme is created or updated with the default workflow reset. The draft workflow scheme can be published in Jira.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Default Workflow")
+DELETE "https://{{baseUrl}}/rest/api/3/workflowscheme/:id/default"
+? "updateDraftIfNeeded"= "<boolean>"
+
+
+

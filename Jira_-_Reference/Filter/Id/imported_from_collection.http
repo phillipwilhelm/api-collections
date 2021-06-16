@@ -1,0 +1,78 @@
+#!/usr/bin/env dothttp
+
+// Returns a filter.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None, however, the filter is only returned where it is:
+// 
+//  *  owned by the user.
+//  *  shared with a group that the user is a member of.
+//  *  shared with a private project that the user has *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for.
+//  *  shared with a public project.
+//  *  shared with the public.
+
+@name("Get Filter")
+GET "https://{{baseUrl}}/rest/api/3/filter/:id"
+? "expand"= "<string>"
+
+
+// Updates a filter. Use this operation to update a filter's name, description, JQL, or sharing.
+// 
+// **[Permissions](#permissions) required:** Permission to access Jira, however the user must own the filter.
+
+@name("Update Filter")
+PUT "https://{{baseUrl}}/rest/api/3/filter/:id"
+"Content-Type": "application/json"
+? "expand"= "<string>"
+json({
+    "name": "<string>",
+    "description": "<string>",
+    "jql": "<string>",
+    "favourite": "<boolean>",
+    "sharePermissions": [
+        {
+            "type": "<string>",
+            "project": {
+                "id": "<string>",
+                "email": "<string>",
+                "favourite": "<boolean>"
+            },
+            "role": {
+                "name": "<string>",
+                "translatedName": "<string>",
+                "currentUserRole": "<boolean>"
+            },
+            "group": {
+                "name": "<string>"
+            }
+        },
+        {
+            "type": "<string>",
+            "project": {
+                "id": "<string>",
+                "email": "<string>",
+                "favourite": "<boolean>"
+            },
+            "role": {
+                "name": "<string>",
+                "translatedName": "<string>",
+                "currentUserRole": "<boolean>"
+            },
+            "group": {
+                "name": "<string>"
+            }
+        }
+    ]
+})
+
+
+// Delete a filter.
+// 
+// **[Permissions](#permissions) required:** Permission to access Jira, however filters can only be deleted by the creator of the filter or a user with *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Filter")
+DELETE "https://{{baseUrl}}/rest/api/3/filter/:id"
+
+
+

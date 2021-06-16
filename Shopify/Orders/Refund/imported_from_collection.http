@@ -1,0 +1,33 @@
+#!/usr/bin/env dothttp
+
+// Retrieves a list of refunds for an order. <strong>Note:</strong> As of version 2019-10, this endpoint implements pagination by using links that are provided in the response header. Sending the <code>page</code> parameter will return an error. To learn more, see <a href="https://help.shopify.com/api/guides/paginated-rest-results"><em>Making requests to paginated REST Admin API endpoints</em></a>.
+
+@name("Retrieves a list of refunds for an order")
+GET "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/orders/{{order_id}}/refunds.json"
+"Content-Type": "application/json"
+
+
+// Retrieves a specific refund.
+
+@name("Retrieves a specific refund")
+GET "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/orders/{{order_id}}/refunds/{{refund_id}}.json"
+"Content-Type": "application/json"
+
+
+// <aside class="note caution"> <h4>Caution</h4> <p>For multi-currency orders, the <code>currency</code> property is required whenever the <code>amount</code> property is provided. For more information, see <a href="https://help.shopify.com/api/guides/multi-currency-migration-guide"><i>Migrating to support multiple currencies</i></a>.</p> </aside> <p>Calculates refund transactions based on line items and shipping. When you want to create a refund, you should first use the calculate endpoint to generate accurate refund transactions. Specify the line items that are being refunded, their quantity and restock instructions, and whether you intend to refund shipping costs. If the restock instructions can't be met—for example, because you try to return more items than have been fulfilled—then the endpoint returns modified restock instructions. You can then use the response in the body of the request to create the actual refund.</p> <p>The response includes a <code>transactions</code> object with <code>"kind": "suggested_refund"</code>, which must to be changed to <code>"kind" : "refund"</code> for the refund to be accepted.
+
+@name("Calculates a refund")
+POST "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/orders/{{order_id}}/refunds/calculate.json"
+"Content-Type": "application/json"
+
+
+
+// <aside class="note caution"> <h4>Caution</h4> <p>For multi-currency orders, the <code>currency</code> property is required whenever the <code>amount</code> property is provided. For more information, see <a href="https://help.shopify.com/api/guides/multi-currency-migration-guide"><i>Migrating to support multiple currencies</i></a>.</p> </aside> <p>Creates a refund. Use the <a href="#calculate">calculate</a> endpoint to produce the transactions to submit.</p> <br/> <aside class="note"> <h4>Note</h4> <p>When you use this endpoint with a Partner development store or a trial store, you can create only five refunds per minute.</p> </aside>
+
+@name("Creates a refund")
+POST "https://{{store_name}}.myshopify.com/admin/api/{{api_version}}/orders/{{order_id}}/refunds.json"
+"Content-Type": "application/json"
+
+
+
+

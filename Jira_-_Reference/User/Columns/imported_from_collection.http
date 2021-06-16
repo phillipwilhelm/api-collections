@@ -1,0 +1,50 @@
+#!/usr/bin/env dothttp
+
+// Returns the default [issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If `accountId` is not passed in the request, the calling user's details are returned.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLgl), to get the column details for any user.
+//  *  Permission to access Jira, to get the calling user's column details.
+
+@name("Get User Default Columns")
+GET "https://{{baseUrl}}/rest/api/3/user/columns"
+? "accountId"= "<string>"
+? "username"= "<string>"
+
+
+// Sets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If an account ID is not passed, the calling user's default columns are set. If no column details are sent, then all default columns are removed.
+// 
+// The parameters for this resource are expressed as HTML form data. For example, in curl:
+// 
+// `curl -X PUT -d columns=summary -d columns=description https://your-domain.atlassian.net/rest/api/3/user/columns?accountId=5b10ac8d82e05b22cc7d4ef5'`
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to set the columns on any user.
+//  *  Permission to access Jira, to set the calling user's columns.
+
+@name("Set User Default Columns")
+PUT "https://{{baseUrl}}/rest/api/3/user/columns"
+"Content-Type": "multipart/form-data"
+? "accountId"= "<string>"
+files(
+	("0", "<string>"),
+	("1", "<string>")
+)
+
+
+// Resets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user to the system default. If `accountId` is not passed, the calling user's default columns are reset.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to set the columns on any user.
+//  *  Permission to access Jira, to set the calling user's columns.
+
+@name("Reset User Default Columns")
+DELETE "https://{{baseUrl}}/rest/api/3/user/columns"
+? "accountId"= "<string>"
+? "username"= "<string>"
+
+
+

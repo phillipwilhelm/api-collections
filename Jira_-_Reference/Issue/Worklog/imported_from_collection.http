@@ -1,0 +1,63 @@
+#!/usr/bin/env dothttp
+
+// Returns worklogs for an issue, starting from the oldest worklog or from the worklog started on or after a date and time.
+// 
+// Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see [Configuring time tracking](https://confluence.atlassian.com/x/qoXKM).
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** Workloads are only returned where the user has:
+// 
+//  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
+//  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
+//  *  If the worklog has visibility restrictions, belongs to the group or has the role visibility is restricted to.
+
+@name("Get Issue Worklogs")
+GET "https://{{baseUrl}}/rest/api/3/issue/:issueIdOrKey/worklog"
+? "startAt"= "0"
+? "maxResults"= "1048576"
+? "startedAfter"= "<long>"
+
+
+// Adds a worklog to an issue.
+// 
+// Time tracking must be enabled in Jira, otherwise this operation returns an error. For more information, see [Configuring time tracking](https://confluence.atlassian.com/x/qoXKM).
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Browse projects* and *Work on issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
+//  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
+
+@name("Add Worklog")
+POST "https://{{baseUrl}}/rest/api/3/issue/:issueIdOrKey/worklog"
+"Content-Type": "application/json"
+? "notifyUsers"= "true"
+? "adjustEstimate"= "auto"
+? "newEstimate"= "<string>"
+? "reduceBy"= "<string>"
+? "overrideEditableFlag"= "false"
+json({
+    "comment": {},
+    "visibility": {
+        "type": "<string>",
+        "value": "<string>"
+    },
+    "started": "<dateTime>",
+    "timeSpent": "<string>",
+    "timeSpentSeconds": "<long>",
+    "properties": [
+        {
+            "key": "<string>",
+            "value": {}
+        },
+        {
+            "key": "<string>",
+            "value": {}
+        }
+    ]
+})
+
+
+

@@ -1,0 +1,131 @@
+#!/usr/bin/env dothttp
+
+// Returns a project version.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the version.
+
+@name("Get Version")
+GET "https://{{baseUrl}}/rest/api/3/version/:id"
+? "expand"= "<string>"
+
+
+// Updates a project version.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
+
+@name("Update Version")
+PUT "https://{{baseUrl}}/rest/api/3/version/:id"
+"Content-Type": "application/json"
+json({
+    "expand": "<string>",
+    "description": "<string>",
+    "name": "<string>",
+    "archived": "<boolean>",
+    "released": "<boolean>",
+    "startDate": "<date>",
+    "releaseDate": "<date>",
+    "project": "<string>",
+    "projectId": "<long>",
+    "moveUnfixedIssuesTo": "<uri>"
+})
+
+
+// Deletes a project version.
+// 
+// Deprecated, use [ Delete and replace version](#api-rest-api-3-version-id-removeAndSwap-post) that supports swapping version values in custom fields, in addition to the swapping for `fixVersion` and `affectedVersion` provided in this resource.
+// 
+// Alternative versions can be provided to update issues that use the deleted version in `fixVersion` or `affectedVersion`. If alternatives are not provided, occurrences of `fixVersion` and `affectedVersion` that contain the deleted version are cleared.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
+
+@name("Delete Version")
+DELETE "https://{{baseUrl}}/rest/api/3/version/:id"
+? "moveFixIssuesTo"= "<string>"
+? "moveAffectedIssuesTo"= "<string>"
+
+
+// Merges two project versions. The merge is completed by deleting the version specified in `id` and replacing any occurrences of its ID in `fixVersion` with the version ID specified in `moveIssuesTo`.
+// 
+// Consider using [ Delete and replace version](#api-rest-api-3-version-id-removeAndSwap-post) instead. This resource supports swapping version values in `fixVersion`, `affectedVersion`, and custom fields.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
+
+@name("Merge Versions")
+PUT "https://{{baseUrl}}/rest/api/3/version/:id/mergeto/:moveIssuesTo"
+
+
+// Modifies the version's sequence within the project, which affects the display order of the versions in Jira.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version.
+
+@name("Move Version")
+POST "https://{{baseUrl}}/rest/api/3/version/:id/move"
+"Content-Type": "application/json"
+json({
+    "after": "<uri>",
+    "position": "<string>"
+})
+
+
+// Returns the following counts for a version:
+// 
+//  *  Number of issues where the `fixVersion` is set to the version.
+//  *  Number of issues where the `affectedVersion` is set to the version.
+//  *  Number of issues where a version custom field is set to the version.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version.
+
+@name("Get Version's Related Issues Count")
+GET "https://{{baseUrl}}/rest/api/3/version/:id/relatedIssueCounts"
+
+
+// Deletes a project version.
+// 
+// Alternative versions can be provided to update issues that use the deleted version in `fixVersion`, `affectedVersion`, or any version picker custom fields. If alternatives are not provided, occurrences of `fixVersion`, `affectedVersion`, and any version picker custom field, that contain the deleted version, are cleared. Any replacement version must be in the same project as the version being deleted and cannot be the version being deleted.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
+
+@name("Delete And Replace Version")
+POST "https://{{baseUrl}}/rest/api/3/version/:id/removeAndSwap"
+"Content-Type": "application/json"
+json({
+    "moveFixIssuesTo": "<long>",
+    "moveAffectedIssuesTo": "<long>",
+    "customFieldReplacementList": [
+        {
+            "customFieldId": "<long>",
+            "moveTo": "<long>"
+        },
+        {
+            "customFieldId": "<long>",
+            "moveTo": "<long>"
+        }
+    ]
+})
+
+
+// Returns counts of the issues and unresolved issues for the project version.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version.
+
+@name("Get Version's Unresolved Issues Count")
+GET "https://{{baseUrl}}/rest/api/3/version/:id/unresolvedIssueCount"
+
+
+

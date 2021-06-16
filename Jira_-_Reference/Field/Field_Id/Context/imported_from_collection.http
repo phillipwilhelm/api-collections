@@ -1,0 +1,85 @@
+#!/usr/bin/env dothttp
+
+// Returns a [paginated](#pagination) list of [ contexts](https://confluence.atlassian.com/adminjiracloud/what-are-custom-field-contexts-991923859.html) for a custom field. Contexts can be returned as follows:
+// 
+//  *  With no other parameters set, all contexts.
+//  *  By defining `id` only, all contexts from the list of IDs.
+//  *  By defining `isAnyIssueType`, limit the list of contexts returned to either those that apply to all issue types (true) or those that apply to only a subset of issue types (false)
+//  *  By defining `isGlobalContext`, limit the list of contexts return to either those that apply to all projects (global contexts) (true) or those that apply to only a subset of projects (false).
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Custom Field Contexts")
+GET "https://{{baseUrl}}/rest/api/3/field/:fieldId/context"
+? "isAnyIssueType"= "<boolean>"
+? "isGlobalContext"= "<boolean>"
+? "contextId"= "<long>"
+? "startAt"= "0"
+? "maxResults"= "50"
+
+
+// Creates a custom field context.
+// 
+// If `projectIds` is empty, a global context is created. A global context is one that applies to all project. If `issueTypeIds` is empty, the context applies to all issue types.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Create Custom Field Context")
+POST "https://{{baseUrl}}/rest/api/3/field/:fieldId/context"
+"Content-Type": "application/json"
+json({
+    "name": "<string>",
+    "description": "<string>",
+    "projectIds": [
+        "<string>",
+        "<string>"
+    ],
+    "issueTypeIds": [
+        "<string>",
+        "<string>"
+    ]
+})
+
+
+// Returns a [paginated](#pagination) list of context to issue type mappings for a custom field. Mappings are returned for all contexts or a list of contexts. Mappings are ordered first by context ID and then by issue type ID.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Issue Types For Custom Field Context")
+GET "https://{{baseUrl}}/rest/api/3/field/:fieldId/context/issueTypeMapping"
+? "contextId"= "<long>"
+? "contextId"= "<long>"
+? "startAt"= "0"
+? "maxResults"= "50"
+
+
+// Returns a [paginated](#pagination) list of project and issue type mappings and, for each mapping, the ID of a [custom field context](https://confluence.atlassian.com/x/k44fOw) that applies to the project and issue type.
+// 
+// If there is no custom field context assigned to the project then, if present, the custom field context that applies to all projects is returned if it also applies to the issue type or all issue types. If a custom field context is not found, the returned custom field context ID is `null`.
+// 
+// Duplicate project and issue type mappings cannot be provided in the request.
+// 
+// The order of the returned values is the same as provided in the request.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Custom Field Contexts For Projects And Issue Types")
+POST "https://{{baseUrl}}/rest/api/3/field/:fieldId/context/mapping"
+"Content-Type": "application/json"
+? "startAt"= "0"
+? "maxResults"= "50"
+json({
+    "mappings": [
+        {
+            "issueTypeId": "<string>",
+            "projectId": "<string>"
+        },
+        {
+            "issueTypeId": "<string>",
+            "projectId": "<string>"
+        }
+    ]
+})
+
+
+

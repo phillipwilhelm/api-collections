@@ -1,0 +1,280 @@
+#!/usr/bin/env dothttp
+
+// This endpoint can be used to manually import bank accounts and link them to a company.
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | bankId | integer| Unique identifier for the bank |
+// | currency | string | Account currency |
+// | nickname | string | Nickname |
+// | account | JSON object | Account information |
+// | account -> schemename | string | IBAN or Account and sort code|
+// | account -> identification | string | Unique id per bank account|
+// | account -> name | string | Account name |
+// | account -> secondaryIdentification | string | Any optional extra information about account |
+// | externalId | string | An Id linked to an external source|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | No request body | 400 Bad Request | { "error": "Missing/invalid JSON” }|
+// | Missing/invalid currency | 403 Forbidden |{ "error": "Missing/invalid currency” } |
+// | Missing/Invalid bankId | 404 Not Found | { "error": "Missing/invalid bankId” }|
+
+@name("Add Bank Accounts")
+POST "https://{{base_url}}/banking/v2/accounts"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "values": [
+        {
+            "bankId": 6,
+            "currency": "GBP",
+            "nickname": "Business Account",
+            "account": [
+                {
+                    "schemeName": "IBAN",
+                    "identification": "GB84BANKIDENTIFICATION",
+                    "secondaryIdentification": "POS",
+                    "name": "Debit Account"
+                }
+            ],
+            "externalId": "BANK_NAME_ID"
+        }
+    ]
+})
+
+
+// The 'Add bank balances' endpoint can be used to add balances to accounts that were added using the ‘Add bank accounts’ endpoint.
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | currency | string | Account currency |
+// | date | datetime | Balance data |
+// | amount | integer | Balance amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Balance status {CLOSINGAVAILABLE, CLOSINGBOOKED, EXPECTED, FORWARDAVAILABLE, INFORMATION, INTERIMAVAILABLE, INTERIMBOOKED, OPENINGAVAILABLE, OPENINGBOOKED, PREVIOUSLYCLOSEDBOOKED}|
+// | externalId | string | An Id linked to an external source|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Missing/Invalid bankId | 400 Bad Request | {"error": "Missing/Invalid bankId"} |
+// | Missing/Invalid accountId | 400 Bad Request | {"error": "Missing/Invalid accountId"} |
+// | Missing/Invalid currency | 400 Bad Request | {"error": "Missing/Invalid currency"} |
+// | Missing/Invalid amount | 400 Bad Request | {"error": "Missing/Invalid amount"} |
+// | Missing/Invalid status | 400 Bad Request | {"error": "Missing/Invalid status"} |
+// | Missing/Invalid type (DEBIT/CREDIT) | 400 Bad Request | {"error": "Missing/Invalid type"} |
+// | Missing/Invalid date (ISO 8601 format) | 400 Bad Request | {"error": "Missing/Invalid bookingDate"} |
+// | Adding more than 500 balances | 413 Payload too large | |
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+//  
+
+@name("Add Bank Balances")
+POST "https://{{base_url}}/banking/v2/balances"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "values": [
+        {
+            "bankId": 6,
+            "accountId": "accountId1234",
+            "date": "2020-08-31",
+            "amount": "100.00",
+            "currency": "GBP",
+            "type": "DEBIT",
+            "status": "INTERIMAVAILABLE"
+        }
+    ]
+})
+
+
+// The ‘Add bank transactions’ endpoint can be used to add transactions to accounts that are added using the ‘Add bank accounts’ endpoint.
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | bookingDate | datetime | Booking date for the transaction |
+// | valueDate | datetime | Value date for the transaction |
+// | transactionCode | string | Specifies the transaction family within a domain|
+// | transactionSubCode | string | Sub code of the transaction |
+// | proprietaryCode | string |Proprietary bank transaction code to identify the underlying transaction |
+// | proprietarySubCode | string |Proprietary sub code of the transaction |
+// | reference | string | Transaction reference |
+// | description | string | Description provided in the transaction |
+// | currency | string | Transaction currency |
+// | amount | integer | Transaction amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Transaction status {BOOKED,PENDING}|
+// | merchant->name | string | Name of the merchant |
+// | externalId | string | An Id linked to an external source|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Missing/Invalid bankId | 400 Bad Request | {"error": "Missing/Invalid bankId"} |
+// | Missing/Invalid accountId | 400 Bad Request | {"error": "Missing/Invalid accountId"} |
+// | Invalid currency | 400 Bad Request | {"error": "Missing/Invalid currency"} |
+// | Invalid amount | 400 Bad Request | {"error": "Missing/Invalid amount"} |
+// | Invalid status | 400 Bad Request | {"error": "Missing/Invalid status"} |
+// | Invalid type (DEBIT/CREDIT) | 400 Bad Request | {"error": "Missing/Invalid type"} |
+// | Invalid bookingDate (ISO 8601 format) | 400 Bad Request | {"error": "Missing/Invalid bookingDate"} |
+// | Invalid valueDate (ISO 8601 format) | 400 Bad Request | {"error": "Missing/Invalid valueDate"} |
+// | Adding more than 500 transactions | 413 Payload too large | |
+
+@name("Add Bank Transactions")
+POST "https://{{base_url}}/banking/v2/transactions"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "values": [
+        {
+            "bankId": 6,
+            "accountId": "accountId1234",
+            "bookingDate": "2020-09-01",
+            "valueDate": "2020-09-01",
+            "amount": 1400,
+            "currency": "GBP",
+            "type": "DEBIT",
+            "status": "BOOKED",
+            "merchant": {
+                "name": "Big suppliers Ltd.",
+                "categoryCode": "12345",
+                "addressLine": "12345"
+            }
+        },
+        {
+            "bankId": 7,
+            "accountId": "accountId3456",
+            "bookingDate": "2020-01-01",
+            "valueDate": "2020-01-01",
+            "amount": 100.5,
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "name": "Invoice - Customer 102",
+                "categoryCode": "",
+                "addressLine": "2345"
+            }
+        }
+    ]
+})
+
+
+// The ‘Delete bank account’ endpoint can be used to delete an account that was manually imported.
+// 
+// It will also delete the transactions and balances linked to that bank account.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | accountId | string | Unique identifier for the bank account|
+// 
+// <h2> Success </h2>
+// 202 Accepted
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid accountId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Delete Bank Account (by id)")
+DELETE "https://{{base_url}}/banking/v2/accounts/:accountId"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// The ‘Delete bank balance’ endpoint can be used to delete a balance for an account that was manually imported.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | balanceId | string | Unique identifier for balance|
+// 
+// <h2> Success </h2>
+// 202 Accepted
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid balanceId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Delete Bank Balance (by id)")
+DELETE "https://{{base_url}}/banking/v2/balances/:balanceId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// Delete Bank Transaction endpoint can be used to delete transactions for an account that was manually imported.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | transactionId | integer| Unique identifier for the transaction |
+// 
+// <h2> Success </h2>
+// 202 Accepted
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid transactionId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Delete Bank Transaction (by id)")
+DELETE "https://{{base_url}}/banking/v2/transactions/:transactionId"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+

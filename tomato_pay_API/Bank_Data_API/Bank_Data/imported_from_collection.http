@@ -1,0 +1,390 @@
+#!/usr/bin/env dothttp
+
+// This endpoint can be used to retrieve bank accounts for a business (using the bank id). The endpoint will return all the banks that a business has connected.
+// 
+// Bank Accounts can be filtered by providing a bankId
+// 
+// _April 2021: Updated this endpoint and added consentId to the response_
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | bankId | integer| Unique identifier for the bank|
+// | pageId | string | Page offset of results|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// |consentId| string | Unique identifier for the consent |
+// | currency | string | Account currency |
+// | nickname | string | Nickname |
+// | account | JSON object | Account information |
+// | account -> schemename | string | IBAN or Account and sort code|
+// | account -> identification | string | Unique id per bank account|
+// | account -> name | string | Account name |
+// | account -> secondaryIdentification | string | Any optional extra information about account |
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+// | Invalid pageId | 400 Bad Request | { "error": "Missing/Invalid pageId” }|
+
+@name("Retrieve Bank Accounts")
+GET "https://{{base_url}}/banking/v2/accounts"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// Cash balances are returned for all the bank accounts that have been connected to the company. 
+// 
+// Balances can be queried by bankId and accountId
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | bankId | integer | Unique identifier for the bank|
+// | accountId | string | Unique identifier for the bank account |
+// | pageId | string | Page offset of results|
+// | from | dateTime | Returns balances posted on or after from date|
+// | to | dateTime | Returns balances posted on or before "to" date |
+// |status| string | Balance status {CLOSINGAVAILABLE, CLOSINGBOOKED, EXPECTED, FORWARDAVAILABLE, INFORMATION, INTERIMAVAILABLE,  NTERIMBOOKED, OPENINGAVAILABLE, OPENINGBOOKED, PREVIOUSLYCLOSEDBOOKED}|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string | Balance Id |
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | currency | string | Account currency |
+// | date | datetime | Balance date |
+// | amount | integer | Balance amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Balance status {CLOSINGAVAILABLE, CLOSINGBOOKED, EXPECTED, FORWARDAVAILABLE, INFORMATION, INTERIMAVAILABLE,  NTERIMBOOKED, OPENINGAVAILABLE, OPENINGBOOKED, PREVIOUSLYCLOSEDBOOKED}|
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid accountId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+// | Invalid pageId | 400 Bad Request | |
+
+@name("Retrieve Bank Balances")
+GET "https://{{base_url}}/banking/v2/balances"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// All bank transactions are returned across all connected user accounts. If dates are specified, then only transactions for specific dates are returned.
+// 
+// Bank transactions can be queried by bankId and accountId.
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | bankId | integer | Unique identifier for the bank|
+// | accountId | string | Unique identifier for the bank account |
+// | pageId | string | Page offset of results|
+// | from | dateTime | Returns transactions posted on or after "from" date|
+// | to | dateTime | Returns transactions posted on or before "to" date |
+// |status| string | Status of the transaction { PENDING, CLOSINGBOOKED } |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string | Unique identifier for the transaction |
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | bookingDate | datetime | Booking date for the transaction |
+// | valueDate | datetime | Value date for the transaction |
+// | transactionCode | string | Specifies the transaction family within a domain|
+// | transactionSubCode | string | Sub code of the transaction |
+// | proprietaryCode | string |Proprietary bank transaction code to identify the underlying transaction |
+// | proprietarySubCode | string |Proprietary sub code of the transaction |
+// | reference | string | Transaction reference |
+// | description | string | Description provided in the transaction |
+// | currency | string | Transaction currency |
+// | amount | integer | Transaction amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Transaction status {BOOKED,PENDING}|
+// | merchant | JSON Object | Details of the merchant |
+// | merchant->id | string | Unique identifier for the merchant |
+// | merchant->name | string | Name of the merchant |
+// | merchant->category | string | Business category that the merchant belongs to |
+// | merchant->categoryCode | integer | Category Code |
+// | merchant->addressLine | string | Address of the merchant (if available)
+// | merchant->source | string | Source for how the merchant was identified {MODEL, USER, PROVIDER} |
+// | category | JSON Object | Details of the transaction category |
+// | category->id | integer | Unique identifier for the category |
+// | category->name | string | Name of the category |
+// | category->source | string | Source for how the category was identified {MERCHANT, MODEL, USER, PROVIDER} |
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid accountId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+// | Invalid pageId | 400 Bad Request |  { "Message": "Missing/Invalid pageId” }|
+
+@name("Retrieve Bank Transactions")
+GET "https://{{base_url}}/banking/v2/transactions"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// This endpoint can be used to retrieve party information.
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | bankId | integer| Unique identifier for the bank|
+// | accountId | string| Unique identifier for the bank account|
+// |partyType| string | {Joint, Sole, Delegate}|
+// | pageId | string | Page offset of results|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string| Unique identifier for the party |
+// | bankId | integer| Unique identifier for the bank |
+// | accountId | string| Unique identifier for the bank account |
+// |name| string | Name of the party |
+// | email | string | Email address of the party |
+// |phoneNumber| string | Phone number of the party |
+// |address| object | Address of the party|
+// |address->addressType|string|{Business, Correspondence, Delivery to, Mail to, PO Box, Postal, Residential, Statement}
+// |address->address|string|Address of the party|
+// |partyType| string | {Joint, Sole, Delegate}|
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+// | Invalid pageId | 400 Bad Request | { "error": "Missing/Invalid pageId” }|
+// |Invalid partyType| 400 Bad Request |{ "error": "Missing/Invalid partyType” } |
+
+@name("Retrieve Parties")
+GET "https://{{base_url}}/banking/v2/parties"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// This endpoint can be used to retrieve party information by id
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string| Unique identifier for the party |
+// | bankId | integer| Unique identifier for the bank |
+// | accountId | string| Unique identifier for the bank account |
+// |name| string | Name of the party |
+// | email | string | Email address of the party |
+// |phoneNumber| string | Phone number of the party |
+// |address| object | Address of the party|
+// |address->addressType|string|{Business, Correspondence, Delivery to, Mail to, PO Box, Postal, Residential, Statement}
+// |address->address|string|Address of the party|
+// |partyType| string | {Joint, Sole, Delegate}|
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+// | Invalid partyId | 404 Not found | |
+
+@name("Retrieve Parties (by id)")
+GET "https://{{base_url}}/banking/v2/parties/:partyId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// This endpoint can be used to retrieve a particular bank account using an account id.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | accountId | string | Unique identifier for the account|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// |consentId| string | Unique identifier for the consent |
+// | currency | string | Account currency |
+// | nickname | string | Nickname |
+// | account | JSON object | Account information |
+// | account -> schemename | string | IBAN or Account and sort code|
+// | account -> identification | string | Unique id per bank account|
+// | account -> name | string | Account name |
+// | account -> secondaryIdentification | string | Any optional extra information about account |
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid accountId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Retrieve Bank Account (by id)")
+GET "https://{{base_url}}/banking/v2/accounts/:accountId"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// This endpoint can be used to retrieve a particular bank balance by providing a balance id.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | balanceId | string | Unique identifier for balance|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string | Balance Id |
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | currency | string | Account currency |
+// | date | datetime | Balance date |
+// | amount | integer | Balance amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Balance status {CLOSINGAVAILABLE, CLOSINGBOOKED, EXPECTED, FORWARDAVAILABLE, INFORMATION, INTERIMAVAILABLE, INTERIMBOOKED, OPENINGAVAILABLE, OPENINGBOOKED, PREVIOUSLYCLOSEDBOOKED}|
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid balanceId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Retrieve Bank Balance (by id)")
+GET "https://{{base_url}}/banking/v2/balances/:balanceId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+"X-Company-Id": "{{companyId}}"
+
+
+// This endpoint can be used to retrieve a particular bank transaction using a transaction id.
+// 
+// All bank transactions are returned for all the accounts that the user has connected. If dates are specified, then only transactions for specific dates are downloaded. 
+// 
+// Bank transactions can be queried by bankId and accountId.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | transactionId | string | Unique identifier for the transaction |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// |-------|------|--------------|
+// | id | string | Unique identifier for the transaction |
+// | accountId | string| Unique identifier for the account |
+// | bankId | integer| Unique identifier for the bank |
+// | bookingDate | datetime | Booking date for the transaction |
+// | valueDate | datetime | Value date for the transaction |
+// | transactionCode | string | Specifies the transaction family within a domain|
+// | transactionSubCode | string | Sub code of the transaction |
+// | proprietaryCode | string |Proprietary bank transaction code to identify the underlying transaction |
+// | proprietarySubCode | string |Proprietary sub code of the transaction |
+// | reference | string | Transaction reference |
+// | description | string | Description provided in the transaction |
+// | currency | string | Transaction currency |
+// | amount | integer | Transaction amount |
+// | type | string | Transaction type {DEBIT,CREDIT}|
+// | status | string | Transaction status {BOOKED,PENDING}|
+// | merchant | JSON Object | Details of the merchant |
+// | merchant->id | string | Unique identifier for the merchant |
+// | merchant->name | string | Name of the merchant |
+// | merchant->category | string | Business category that the merchant belongs to |
+// | merchant->categoryCode | integer | Category Code |
+// | merchant->addressLine | string | Address of the merchant (if available)
+// | merchant->source | string | Source for how the merchant was identified {MODEL, USER, PROVIDER} |
+// | category | JSON Object | Details of the transaction category |
+// | category->id | integer | Unique identifier for the category |
+// | category->name | string | Name of the category |
+// | category->source | string | Source for how the category was identified {MERCHANT, MODEL, USER, PROVIDER} |
+// | externalId | string | An Id linked to an external source|
+// | source | string | Source of data import {MANUALIMPORT, OPENBANKING}|
+// 
+// <h2> Error Messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid transactionId | 404 Not Found | |
+// | Invalid partnerId | 403 Forbidden | |
+// | Invalid companyId | 403 Forbidden | |
+
+@name("Retrieve Bank Transaction (by id)")
+GET "https://{{base_url}}/banking/v2/transactions/:transactionId"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+
+
+

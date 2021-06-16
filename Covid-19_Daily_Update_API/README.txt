@@ -1,0 +1,1 @@
+Coronavirus daily update api documentation.

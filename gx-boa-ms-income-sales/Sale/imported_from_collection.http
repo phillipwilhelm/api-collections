@@ -1,0 +1,417 @@
+#!/usr/bin/env dothttp
+
+// Create a sale
+// #### Business rules
+// * All sales will be created as valid
+// * Required params with int values null are not accepted
+// * expectedPaymentMethodDescription, expectedPaymentForm, saleAdditionalDataLocalized, key, claveProductoServicioSAT, unit and taxes only accepts corresponding values with the catalogs of the SAT.
+// * Fields claveProductoServicioSAT and claveUnidadMedidaSAT are only required to create an invoiced sale.
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| sale created| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Invalid info for process|Field value error, read the docs | 
+// | 422| Unprocessable Entity Error|Business rule error, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Create sale")
+POST "https://gx-boa-ms-income-sales-dev.azurewebsites.net/sales"
+"Content-Type": "application/json"
+json({
+    "saleCategory": "sale",
+    "companyNumber": 191,
+    "branchNumber": 12,
+    "postalCode": "57130",
+    "clientId": "8AC0694A-C973-4011-88F6-BE833573DE92",
+    "date": "2019-09-06T07:43:00.000Z",
+    "expectedPaymentMethod": "PUE",
+    "expectedPaymentMethodDescription": "Pago en una sola exhibición",
+    "expectedPaymentForm": {
+        "code": "03",
+        "paymentType": "Transferencia electrónica de fondos",
+        "usesBank": true
+    },
+    "registeredByUserId": "BED7A141-2D7F-42E4-AD55-2F893F9A28BA",
+    "saleAdditionalDataLocalized": {
+        "usoCfdi": "G03",
+        "regimenFiscal": "Personas Físicas con Actividades Empresariales y Profesionales",
+        "regimenFiscalClave": "612"
+    },
+    "items": [
+        {
+            "itemTypeId": 1,
+            "position": 1,
+            "description": "Papitas",
+            "additionalNotes": "Papitas is a demo product",
+            "key": "Papas 300",
+            "itemAdditionalDataLocalized": {},
+            "quantity": "10",
+            "unit": "Kilo bruto",
+            "unitBasePrice": "1",
+            "currency": "MXN",
+            "discountPercentage": "10",
+            "discountAmount": "1",
+            "discountDescription": "No Comment",
+            "unitPriceWithDiscounts": "0.9",
+            "withheldTaxesPerUnit": [
+                {
+                    "code": "IVA-RET-FED",
+                    "taxName": "IVA",
+                    "rate": "16",
+                    "amount": "0.144",
+                    "taxDependence": ""
+                }
+            ],
+            "unitTotalPrice": "0.756000",
+            "subtotalAmount": "9",
+            "totalAmount": "7.560000"
+        }
+    ],
+    "subtotal": "9",
+    "totalTransferredTaxes": "0",
+    "totalWithheldTaxes": "1.440000",
+    "total": "7.56",
+    "exchangeRate": "0",
+    "currency": "MXN",
+    "saleStatusId": 3,
+    "incomeCategoryId": "5e9a619f-8cff-4745-b3ae-39b73cf8540e",
+    "internalNotes": "Esto NO lo ve el cliente en su comprobante de Venta",
+    "externalNotes": "Esto SÍ ¡lo ve el Cliente en su comprobante de Venta",
+    "receivedPayments": [
+        {
+            "receivedPaymentId": "5e9a619f-8cff-4745-b3ae-39b73cf8540e",
+            "date": "2019-09-06T07:43:00.000Z",
+            "amountPaidToThisSale": "7.56",
+            "currency": "MXN",
+            "exchangeRate": "1"
+        }
+    ]
+})
+
+
+// Allows to update sale information
+// 
+// ### Business rules
+// * Can only update sales that were created with saleCategory like sale (not invoiced sale) and the invoice status is notInvoiced.
+// * All the fields of the sale can be updated as long as they respect sale rules.
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return updated sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable Entity Error|Business rule error, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Update sale")
+PATCH "https://{{base_url}}/sales/98A1283D-9F0D-4F94-9805-25830237F12F"
+"Content-Type": "application/json"
+json({
+    "saleCategory": "sale",
+    "companyNumber": 191,
+    "branchNumber": 12,
+    "postalCode": "57130",
+    "clientId": "8AC0694A-C973-4011-88F6-BE833573DE92",
+    "date": "2019-09-06T07:43:00.000Z",
+    "expectedPaymentMethod": "PUE",
+    "expectedPaymentMethodDescription": "Pago en una sola exhibición",
+    "expectedPaymentForm": {
+        "code": "03",
+        "paymentType": "Transferencia electrónica de fondos",
+        "usesBank": true
+    },
+    "saleAdditionalDataLocalized": {
+        "usoCfdi": "G03",
+        "regimenFiscal": "Personas Físicas con Actividades Empresariales y Profesionales",
+        "regimenFiscalClave": "612"
+    },
+    "items": [
+        {
+            "itemTypeId": 1,
+            "position": 1,
+            "description": "Papitas",
+            "additionalNotes": "Papitas is a demo product",
+            "key": "Papas 300",
+            "itemAdditionalDataLocalized": {
+                "claveProductoServicioSAT": "50405706"
+            },
+            "quantity": "10",
+            "unit": "Kilo bruto",
+            "unitBasePrice": "1",
+            "currency": "MXN",
+            "discountPercentage": "10",
+            "discountAmount": "1",
+            "discountDescription": "No Comment",
+            "unitPriceWithDiscounts": "0.9",
+            "transferredTaxesPerUnit": [
+                {
+                    "code": "IVA-TRA-FED",
+                    "taxName": "IVA",
+                    "rate": "16",
+                    "amount": "0.144",
+                    "taxDependence": ""
+                }
+            ],
+            "withheldTaxesPerUnit": [
+                {
+                    "code": "ISR-RET-FED",
+                    "taxName": "ISR",
+                    "rate": "10",
+                    "amount": "0.09",
+                    "taxDependence": ""
+                }
+            ],
+            "unitTotalPrice": "0.954",
+            "subtotalAmount": "9",
+            "totalAmount": "9.54"
+        }
+    ],
+    "subtotal": "10",
+    "totalTransferredTaxes": "1.44",
+    "totalWithheldTaxes": "0.9",
+    "total": "9.54",
+    "exchangeRate": "0",
+    "currency": "MXN",
+    "saleStatusId": 3,
+    "incomeCategoryId": "5e9a619f-8cff-4745-b3ae-39b73cf8540e",
+    "internalNotes": "Esto NO lo ve el cliente en su comprobante de Venta",
+    "externalNotes": "Esto SÍ ¡lo ve el Cliente en su comprobante de Venta",
+    "receivedPayments": [
+        {
+            "receivedPaymentId": "5e9a619f-8cff-4745-b3ae-39b73cf8540e",
+            "date": "2019-09-06T07:43:00.000Z",
+            "amountPaidToThisSale": "9.54",
+            "currency": "MXN",
+            "exchangeRate": "1"
+        }
+    ]
+})
+
+
+// Allows to update sale status
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// ### Business rules
+// * Can only update **saleStatus** to _cancelled_
+// * Can only update **invoiceStatus** to _notInvoiced_, _invoicing_, _fullyInvoiced_ and _cancelled_
+// * Can only update **paymentStatus** to _notPaid_ and _fullyPaid_
+// * Can only update **cancellationStatus** to _inProcess_, _aceptedWithConfirmation_, _aceptedWithoutConfirmation_ and _rejected_
+// * All the status can be updated in the same request
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return updated sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable Entity Error|Business rule error, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Update sale status")
+PATCH "https://{{base_url}}/sales/98A1283D-9F0D-4F94-9805-25830237F14F/status"
+json({
+    "saleStatus": "internallyCancelled",
+    "paymentStatus": "notPaid",
+    "invoiceStatus": "notInvoiced"
+})
+
+
+// Allows to update sale payment method
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// ### Business rules
+// * Can only update **paymentMethod** to _PUE_ or _PPD_
+// 
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return updated sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable Entity Error|Business rule error, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Update payment method")
+PATCH "https://{{base_url}}/sales/98A1283D-9F0D-4F94-9805-25830237F12F/payment_method"
+json({
+    "paymentMethod": "PUE"
+})
+
+
+// Allows to update income category
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return updated sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable Entity Error|Business rule error, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Update income category")
+PATCH "https://{{base_url}}/sales/98A1283D-9F0D-4F94-9805-25830237F125/income_category"
+json({
+    "incomeCategoryId": "5e9a619f-8cff-4745-b3ae-39b73cf8540e"
+})
+
+
+// Given a sale_id returns all the information related
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable Entity Error|Sale does not exist | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Get sale by id")
+GET "https://{{base_url}}/sales/9771F042-A159-433E-BD5C-7D665D941120"
+"Content-Type": "application/json"
+
+
+
+// Get sales error catalog
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return catalog| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Get errors catalog")
+GET "https://{{base_url}}/sales/cat_errors"
+
+
+// Allows to search sales
+// 
+// ### Business rules
+// * The search is always carried out at company-branch level
+// * Search text must always be specified
+// * The search can also include the following parameters: _startDate, endDate, clientId, paymentStatus, saleStatus, invoicedStatus_ and _categoriesNameString_
+// * Search results always return paginated
+// 
+// #### Query params
+// ```
+// companyNumber            20125
+// branchNumber             20
+// search                   VE-2
+// startDate                2020-01-20
+// endDate                  2020-01-30
+// clientId                 E220574E-E13B-4A3C-AE27-11FDF9F3E761 
+// paymentStatus            1,2
+// saleStatus               1
+// invoicedStatus           2,3
+// categoriesNameString     Categoria1,Categoria2 
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return sale| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Search sales")
+GET "https://{{base_url}}/sales/search"
+
+
+// Allows to filter sales
+// 
+// ### Business rules
+// * Filter is always carried out at company-branch level
+// * Available filters are _startDate,  endDate, paymentStatus, saleStatus_ and _invoicedStatus_
+// * Search results always return paginated
+// 
+// #### Query params
+// ```
+// companyNumber            20125
+// branchNumber             20
+// startDate                2020-01-20
+// endDate                  2020-01-30
+// saleStatus               1
+// paymentStatus            1,2
+// invoicedStatus           2,3
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| OK| Return sales| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Filter sales")
+GET "https://{{base_url}}/sales/search/filters"
+? "companyNumber"= "2110240"
+
+
+// Delete sale
+// 
+// ### Business rules
+// * Delete can be done logically or physically, indicated by query param
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Query params
+// ```
+// isPhysicalErase             true
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 204| OK| return true| 
+// | 400| Bad request|Malformed request syntax, read the docs | 
+// | 422| Unprocessable entity|Sale does not exist | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Delete sale")
+DELETE "https://{{base_url}}/sales/98A1283D-9F0D-4F94-9805-27830237F12F"
+
+
+@name("Get last sale by companyNumber ")
+GET "https://localhost/sales"
+? "lastSale"= "true"
+? "companyNumber"= "191"
+? "branchNumber"= "13"
+
+
+@name("Get Sale Files")
+GET "https://{{url}}/sales/:sale_id/files"
+
+
+

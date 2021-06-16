@@ -1,0 +1,210 @@
+#!/usr/bin/env dothttp
+
+// Returns the [project details](https://confluence.atlassian.com/x/ahLpNw) for a project.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey"
+? "expand"= "<string>"
+? "properties"= "<string>"
+? "properties"= "<string>"
+
+
+// Updates the [project details](https://confluence.atlassian.com/x/ahLpNw) of a project.
+// 
+// All parameters are optional in the body of the request.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Update Project")
+PUT "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey"
+"Content-Type": "application/json"
+? "expand"= "<string>"
+json({
+    "key": "<string>",
+    "name": "<string>",
+    "projectTypeKey": "<string>",
+    "projectTemplateKey": "<string>",
+    "description": "<string>",
+    "lead": "<string>",
+    "leadAccountId": "<string>",
+    "url": "<string>",
+    "assigneeType": "<string>",
+    "avatarId": "<long>",
+    "issueSecurityScheme": "<long>",
+    "permissionScheme": "<long>",
+    "notificationScheme": "<long>",
+    "categoryId": "<long>"
+})
+
+
+// Deletes a project.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Project")
+DELETE "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey"
+? "enableUndo"= "false"
+
+
+// Archives a project. Archived projects cannot be deleted. To delete an archived project, restore the project and then delete it. To restore a project, use the Jira UI.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Archive Project")
+POST "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/archive"
+
+
+// Loads an avatar for a project.
+// 
+// Specify the avatar's local file location in the body of the request. Also, include the following headers:
+// 
+//  *  `X-Atlassian-Token: no-check` To prevent XSRF protection blocking the request, for more information see [Special Headers](#special-request-headers).
+//  *  `Content-Type: image/image type` Valid image types are JPEG, GIF, or PNG.
+// 
+// For example:  
+// `curl --request POST `
+// 
+// `--user email@example.com:<api_token> `
+// 
+// `--header 'X-Atlassian-Token: no-check' `
+// 
+// `--header 'Content-Type: image/< image_type>' `
+// 
+// `--data-binary "<@/path/to/file/with/your/avatar>" `
+// 
+// `--url 'https://your-domain.atlassian.net/rest/api/3/project/{projectIdOrKey}/avatar2'`
+// 
+// The avatar is cropped to a square. If no crop parameters are specified, the square originates at the top left of the image. The length of the square's sides is set to the smaller of the height or width of the image.
+// 
+// The cropped image is then used to create avatars of 16x16, 24x24, 32x32, and 48x48 in size.
+// 
+// After creating the avatar use [Set project avatar](#api-rest-api-3-project-projectIdOrKey-avatar-put) to set it as the project's displayed avatar.
+// 
+// **[Permissions](#permissions) required:** *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg).
+
+@name("Load Project Avatar")
+POST "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/avatar2"
+"Content-Type": "*/*"
+? "x"= "0"
+? "y"= "0"
+? "size"= "<integer>"
+data('{}')
+
+
+// Returns all project avatars, grouped by system and custom avatars.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get All Project Avatars")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/avatars"
+
+
+// Returns a [paginated](#pagination) list of all components in a project. See the [Get project components](#api-rest-api-3-project-projectIdOrKey-components-get) resource if you want to get a full list of versions without pagination.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project Components Paginated")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/component"
+? "startAt"= "0"
+? "maxResults"= "50"
+? "orderBy"= "<string>"
+? "query"= "<string>"
+
+
+// Returns all components in a project. See the [Get project components paginated](#api-rest-api-3-project-projectIdOrKey-component-get) resource if you want to get a full list of components with pagination.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project Components")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/components"
+
+
+// Deletes a project asynchronously.
+// 
+// This operation is:
+// 
+//  *  transactional, that is, if part of the delete fails the project is not deleted.
+//  *  [asynchronous](#async). Follow the `location` link in the response to determine the status of the task and use [Get task](#api-rest-api-3-task-taskId-get) to obtain subsequent updates.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Project Asynchronously")
+POST "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/delete"
+
+
+// Restores a project from the Jira recycle bin.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Restore Deleted Project")
+POST "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/restore"
+
+
+// Returns all [project roles](https://confluence.atlassian.com/x/3odKLg) and the details for each role. Note that the list of project roles is common to all projects.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project Role Details")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/roledetails"
+? "currentMember"= "false"
+? "excludeConnectAddons"= "false"
+
+
+// Returns the valid statuses for a project. The statuses are grouped by issue type, as each project has a set of valid issue types and each issue type has a set of valid statuses.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get All Statuses For Project")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/statuses"
+
+
+// Deprecated, this feature is no longer supported and no alternatives are available, see [Convert project to a different template or type](https://confluence.atlassian.com/x/yEKeOQ). Updates a [project type](https://confluence.atlassian.com/x/GwiiLQ). The project type can be updated for classic projects only, project type cannot be updated for next-gen projects.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Update Project Type")
+PUT "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/type/:newProjectTypeKey"
+
+
+// Returns a [paginated](#pagination) list of all versions in a project. See the [Get project versions](#api-rest-api-3-project-projectIdOrKey-versions-get) resource if you want to get a full list of versions without pagination.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project Versions Paginated")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/version"
+? "startAt"= "0"
+? "maxResults"= "50"
+? "orderBy"= "<string>"
+? "query"= "<string>"
+? "status"= "<string>"
+? "expand"= "<string>"
+
+
+// Returns all versions in a project. The response is not paginated. Use [Get project versions paginated](#api-rest-api-3-project-projectIdOrKey-version-get) if you want to get the versions in a project with pagination.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
+
+@name("Get Project Versions")
+GET "https://{{baseUrl}}/rest/api/3/project/:projectIdOrKey/versions"
+? "expand"= "<string>"
+
+
+

@@ -1,0 +1,138 @@
+#!/usr/bin/env dothttp
+
+// Returns a user.
+// 
+// **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get User")
+GET "https://{{baseUrl}}/rest/api/3/user"
+? "accountId"= "<string>"
+? "username"= "<string>"
+? "key"= "<string>"
+? "expand"= "<string>"
+
+
+// Creates a user. This resource is retained for legacy compatibility. As soon as a more suitable alternative is available this resource will be deprecated.
+// 
+// The option is provided to set or generate a password for the user. When using the option to generate a password, by omitting `password` from the request, include `"notification": "true"` to ensure the user is sent an email advising them that their account is created. This email includes a link for the user to set their password. If the notification isn't sent for a generated password, the user will need to be sent a reset password request from Jira.
+// 
+// If the user exists and has access to Jira, the operation returns a 201 status. If the user exists but does not have access to Jira, the operation returns a 400 status.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Create User")
+POST "https://{{baseUrl}}/rest/api/3/user"
+"Content-Type": "application/json"
+json({
+    "displayName": "<string>",
+    "emailAddress": "<string>",
+    "key": "<string>",
+    "name": "<string>",
+    "password": "<string>",
+    "notification": "<string>",
+    "applicationKeys": [
+        "<string>",
+        "<string>"
+    ]
+})
+
+
+// Deletes a user.
+// 
+// **[Permissions](#permissions) required:** Site administration (that is, membership of the *site-admin* [group](https://confluence.atlassian.com/x/24xjL)).
+
+@name("Delete User")
+DELETE "https://{{baseUrl}}/rest/api/3/user"
+? "accountId"= "<string>"
+? "username"= "<string>"
+? "key"= "<string>"
+
+
+// Returns the groups to which a user belongs.
+// 
+// **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get User Groups")
+GET "https://{{baseUrl}}/rest/api/3/user/groups"
+? "accountId"= "<string>"
+? "username"= "<string>"
+? "key"= "<string>"
+
+
+// Returns a list of users who fulfill these criteria:
+// 
+//  *  their user attributes match a search string.
+//  *  they have a set of permissions for a project or issue.
+// 
+// If no search string is provided, a list of all users with the permissions is returned.
+// 
+// This operation takes the users in the range defined by `startAt` and `maxResults`, up to the thousandth user, and then returns only the users from that range that match the search string and have permission for the project or issue. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the search string and have permission for the project or issue, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to get users for any project.
+//  *  *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for a project, to get users for that project.
+
+@name("Find Users With Permissions")
+GET "https://{{baseUrl}}/rest/api/3/user/permission/search"
+? "query"= "<string>"
+? "username"= "<string>"
+? "accountId"= "<string>"
+? "permissions"= "<string>"
+? "issueKey"= "<string>"
+? "projectKey"= "<string>"
+? "startAt"= "0"
+? "maxResults"= "50"
+
+
+// Returns a list of users whose attributes match the query term. The returned object includes the `html` field where the matched query term is highlighted with the HTML strong tag. A list of account IDs can be provided to exclude users from the results.
+// 
+// This operation takes the users in the range defined by `maxResults`, up to the thousandth user, and then returns only the users from that range that match the query term. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the query term, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg). Anonymous calls and calls by users without the required permission return search results for an exact name match only.
+
+@name("Find Users For Picker")
+GET "https://{{baseUrl}}/rest/api/3/user/picker"
+? "query"= "<string>"
+? "maxResults"= "50"
+? "showAvatar"= "false"
+? "exclude"= "<string>"
+? "exclude"= "<string>"
+? "excludeAccountIds"= "<string>"
+? "excludeAccountIds"= "<string>"
+? "avatarSize"= "<string>"
+? "excludeConnectUsers"= "false"
+
+
+// Returns a list of users who fulfill these criteria:
+// 
+//  *  their user attributes match a search string.
+//  *  they have permission to browse issues.
+// 
+// Use this resource to find users who can browse:
+// 
+//  *  an issue, by providing the `issueKey`.
+//  *  any issue in a project, by providing the `projectKey`.
+// 
+// This operation takes the users in the range defined by `startAt` and `maxResults`, up to the thousandth user, and then returns only the users from that range that match the search string and have permission to browse issues. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the search string and have permission to browse issues, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg). Anonymous calls and calls by users without the required permission return empty search results.
+
+@name("Find Users With Browse Permission")
+GET "https://{{baseUrl}}/rest/api/3/user/viewissue/search"
+? "query"= "<string>"
+? "username"= "<string>"
+? "accountId"= "<string>"
+? "issueKey"= "<string>"
+? "projectKey"= "<string>"
+? "startAt"= "0"
+? "maxResults"= "50"
+
+
+

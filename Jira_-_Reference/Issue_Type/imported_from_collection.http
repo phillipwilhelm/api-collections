@@ -1,0 +1,146 @@
+#!/usr/bin/env dothttp
+
+// Returns all the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database/#a-id-jira-entity-properties-a-jira-entity-properties) keys of the issue type.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) to get the property keys of any issue type.
+//  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) to get the property keys of any issue types associated with the projects the user has permission to browse.
+
+@name("Get Issue Type Property Keys")
+GET "https://{{baseUrl}}/rest/api/3/issuetype/:issueTypeId/properties"
+
+
+// Returns all issue types.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** Issue types are only returned as follows:
+// 
+//  *  if the user has the *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), all issue types are returned.
+//  *  if the user has the *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for one or more projects, the issue types associated with the projects the user has permission to browse are returned.
+
+@name("Get All Issue Types For User")
+GET "https://{{baseUrl}}/rest/api/3/issuetype"
+
+
+// Creates an issue type and adds it to the default issue type scheme.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Create Issue Type")
+POST "https://{{baseUrl}}/rest/api/3/issuetype"
+"Content-Type": "application/json"
+json({
+    "name": "<string>",
+    "description": "<string>",
+    "type": "<string>"
+})
+
+
+// Creates or updates the value of the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database/#a-id-jira-entity-properties-a-jira-entity-properties). Use this resource to store and update data against an issue type.
+// 
+// The value of the request body must be a [valid](http://tools.ietf.org/html/rfc4627), non-empty JSON blob. The maximum length is 32768 characters.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Set Issue Type Property")
+PUT "https://{{baseUrl}}/rest/api/3/issuetype/:issueTypeId/properties/:propertyKey"
+"Content-Type": "application/json"
+
+
+
+// Returns the key and value of the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database/#a-id-jira-entity-properties-a-jira-entity-properties).
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:**
+// 
+//  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) to get the details of any issue type.
+//  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) to get the details of any issue types associated with the projects the user has permission to browse.
+
+@name("Get Issue Type Property")
+GET "https://{{baseUrl}}/rest/api/3/issuetype/:issueTypeId/properties/:propertyKey"
+
+
+// Deletes the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database/#a-id-jira-entity-properties-a-jira-entity-properties).
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Issue Type Property")
+DELETE "https://{{baseUrl}}/rest/api/3/issuetype/:issueTypeId/properties/:propertyKey"
+
+
+// Returns an issue type.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) in a project the issue type is associated with or *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Issue Type")
+GET "https://{{baseUrl}}/rest/api/3/issuetype/:id"
+
+
+// Updates the issue type.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Update Issue Type")
+PUT "https://{{baseUrl}}/rest/api/3/issuetype/:id"
+"Content-Type": "application/json"
+json({
+    "name": "<string>",
+    "description": "<string>",
+    "avatarId": "<long>"
+})
+
+
+// Deletes the issue type. If the issue type is in use, all uses are updated with the alternative issue type (`alternativeIssueTypeId`). A list of alternative issue types are obtained from the [Get alternative issue types](#api-rest-api-3-issuetype-id-alternatives-get) resource.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Delete Issue Type")
+DELETE "https://{{baseUrl}}/rest/api/3/issuetype/:id"
+? "alternativeIssueTypeId"= "<string>"
+
+
+// Returns a list of issue types that can be used to replace the issue type. The alternative issue types are those assigned to the same workflow scheme, field configuration scheme, and screen scheme.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Get Alternative Issue Types")
+GET "https://{{baseUrl}}/rest/api/3/issuetype/:id/alternatives"
+
+
+// Loads an avatar for the issue type.
+// 
+// Specify the avatar's local file location in the body of the request. Also, include the following headers:
+// 
+//  *  `X-Atlassian-Token: no-check` To prevent XSRF protection blocking the request, for more information see [Special Headers](#special-request-headers).
+//  *  `Content-Type: image/image type` Valid image types are JPEG, GIF, or PNG.
+// 
+// For example:  
+// `curl --request POST \ --user email@example.com:<api_token> \ --header 'X-Atlassian-Token: no-check' \ --header 'Content-Type: image/< image_type>' \ --data-binary "<@/path/to/file/with/your/avatar>" \ --url 'https://your-domain.atlassian.net/rest/api/3/issuetype/{issueTypeId}'This`
+// 
+// The avatar is cropped to a square. If no crop parameters are specified, the square originates at the top left of the image. The length of the square's sides is set to the smaller of the height or width of the image.
+// 
+// The cropped image is then used to create avatars of 16x16, 24x24, 32x32, and 48x48 in size.
+// 
+// After creating the avatar, use [ Update issue type](#api-rest-api-3-issuetype-id-put) to set it as the issue type's displayed avatar.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Load Issue Type Avatar")
+POST "https://{{baseUrl}}/rest/api/3/issuetype/:id/avatar2"
+"Content-Type": "*/*"
+? "x"= "0"
+? "y"= "0"
+? "size"= "<integer>"
+data('{}')
+
+
+

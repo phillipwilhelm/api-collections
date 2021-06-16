@@ -1,0 +1,207 @@
+#!/usr/bin/env dothttp
+
+// Link invoice to sale
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// ### Business rules
+// * This process is done after the invoiced process was done.
+// * Only applies to sales that have not been invoiced.
+// 
+// #### Path Variables
+// ```
+// sale_id             E330574E-E13B-4A3C-AE27-11FFF9F3E761         
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| return invoice info| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|Sale does not exist | 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Link invoice to sale")
+POST "https://{{base_url}}/sales/3B18CAFE-530F-40BD-BE79-6BCDF5616CE0/invoice"
+json([
+    {
+        "invoiceId": "4761DF07-10E7-484D-B91F-A12AE26B5DA4",
+        "amount": "500",
+        "saleAmount": "563",
+        "folio": "A-1",
+        "fiscalFolio": "16182cf7-4485-46d3-ab9a-a0f2e6ff2526",
+        "fullyInvoicedDate": "2020-04-01T23:26:09Z"
+    }
+])
+
+
+// Assing invoice folio for company-branch
+// 
+// #### Notes
+// *  The maximum length for the **prefix** is 25 characters
+// * the maximum length for the **suffix** is 40 characters
+// 
+// 
+// 
+// #### Path Variables
+// ```
+// company_number             20166     
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| return invoice info| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|Company-branch does not have an active folio| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("assign invoice folio")
+POST "https://{{base_url}}/sales/invoice/company_number/20166/invoice_folios"
+json({
+    "prefix": 33,
+    "suffix": "01",
+    "isActive": true,
+    "branchNumber": 156
+})
+
+
+// Get the next active invoice folio for company-branch
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// #### Path Variables
+// ```
+// company_number             20166
+// branch_number              156        
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| return invoice info| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|Company-branch does not have an active folio| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Get invoice folio")
+GET "https://{{base_url}}/sales/invoice/folio/company_number/20166/branch_number/156"
+
+
+// Get the object with the necessary properties for the invoice process
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// #### Path Variables
+// ```
+// sale_id             4EC041C2-E733-4C56-B622-490AFF39942E    
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 200| Created| return object| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|Company-branch does not have an active folio| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Get sale object for invoice")
+POST "https://{{base_url}}/sales/BF1D7AB4-0E85-48DA-BBB0-CE94D26BF2A7/invoice/build_object"
+json({
+    "saleId": "4196CB78-EC14-4A19-B6BA-40366DA96B93",
+    "saleNumber": 4511,
+    "companyNumber": 191,
+    "branchNumber": 12,
+    "invoiceEmitter": {
+        "companyId": "D0C65C69-36A7-4649-A54F-FA87FCA31E8A",
+        "companyNumber": "201754",
+        "taxId": "sarb9311022r4",
+        "legalName": "BRENDA",
+        "countryCode": "MEX",
+        "fiscalAddress": {
+            "countryCode": "MEX",
+            "postalCode": "57130"
+        },
+        "commercialAddress": "3444",
+        "companyDataLocalized": {
+            "companyNumber": "201754",
+            "regimenFiscalCodigo": 608,
+            "csd": {
+                "companyNumber": "201754",
+                "certificateNumber": "qweqwasd234ferewrewr",
+                "certificateToken": "1b11c11b-e34a-415b-942c-c847777f3bdc14e5646464646464",
+                "certificateStatus": "valid",
+                "certificateType": "CSD",
+                "countryCode": "MEX"
+            }
+        }
+    },
+    "client": {
+        "clientId": "17B48302-695F-4174-B7B5-51939ACA005A",
+        "taxId": "GARY950630393",
+        "businessName": "Gestionix AC33",
+        "commercialName": "Gestionix AC339",
+        "countryCode": "MEX",
+        "gln": "1234567891234",
+        "address": {
+            "countryCode": "MEX",
+            "postalCode": "06700"
+        }
+    },
+    "tipoDeComprobante": "factura"
+})
+
+
+// Insert invoice cancellation data
+// 
+// ### Note
+// This endpoint is only being used internally and not subjected to user input, the input that is provided herein is already validated in other point of the sale invoice creation. 
+// 
+// #### Path Variables
+// ```
+// sale_id             7D7C5C5E-DA8B-4EC7-9A51-FB2E1E1E8B9F
+// fiscal_folio        98A1283D-9F0D-4F94-9805-25830237F12F
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| return object| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|the invoice is not link to sale| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Insert invoice cancellation")
+POST "https://{{base_url}}/sales/7D7C5C5E-DA8B-4EC7-9A51-FB2E1E1E8B9F/invoice/98A1283D-9F0D-4F94-9805-25830237F12F/invoice_cancellation"
+json({
+    "cancelSaleAfterProcess": true,
+    "datetimeLimitToReceivedCancellNotification": "2020-04-29T17:03:35.137Z"
+})
+
+
+// Get all the invoice cancellation records for the invoice. The results are returned paginated, by default page 1 with size 10
+// 
+// #### Path Variables
+// ```
+// sale_id             7D7C5C5E-DA8B-4EC7-9A51-FB2E1E1E8B9F
+// fiscal_folio        98A1283D-9F0D-4F94-9805-25830237F12F
+// ```
+// 
+// #### Reponse status codes
+// | Code| Message|Reason | 
+// | -- | -- | -- | 
+// | 201| Created| return object| 
+// | 400| Bad request|Malformed request syntax, read the docs | 1
+// | 422| Unprocessable entity|the invoice is not link to sale| 
+// | 404| Not found| Bad endpoint invocation | 
+
+@name("Get invoice cancellation")
+GET "https://{{base_url}}/sales/7D7C5C5E-DA8B-4EC7-9A51-FB2E1E1E8B9F/invoice/98A1283D-9F0D-4F94-9805-25830237F12F/invoice_cancellation"
+? "page"= "2"
+? "size"= "1"
+
+
+

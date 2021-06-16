@@ -1,0 +1,61 @@
+#!/usr/bin/env dothttp
+
+// Checks whether one or more issues would be returned by one or more JQL queries.
+// 
+// **[Permissions](#permissions) required:** None, however, issues are only matched against JQL queries where the user has:
+// 
+//  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
+//  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
+
+@name("Check Issues Against Jql")
+POST "https://{{baseUrl}}/rest/api/3/jql/match"
+"Content-Type": "application/json"
+json({
+    "issueIds": [
+        "<long>"
+    ],
+    "jqls": [
+        "<string>",
+        "<string>"
+    ]
+})
+
+
+// Parses and validates JQL queries.
+// 
+// Validation is performed in context of the current user.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Parse Jql Query")
+POST "https://{{baseUrl}}/rest/api/3/jql/parse"
+"Content-Type": "application/json"
+? "validation"= "strict"
+json({
+    "queries": [
+        "<string>",
+        "<string>"
+    ]
+})
+
+
+// Converts one or more JQL queries with user identifiers (username or user key) to equivalent JQL queries with account IDs.
+// 
+// You may wish to use this operation if your system stores JQL queries and you want to make them GDPR-compliant. For more information about GDPR-related changes, see the [migration guide](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-user-privacy-api-migration-guide/).
+// 
+// **[Permissions](#permissions) required:** Permission to access Jira.
+
+@name("Convert User Identifiers To Account Ids In Jql Queries")
+POST "https://{{baseUrl}}/rest/api/3/jql/pdcleaner"
+"Content-Type": "application/json"
+json({
+    "queryStrings": [
+        "<string>",
+        "<string>"
+    ]
+})
+
+
+

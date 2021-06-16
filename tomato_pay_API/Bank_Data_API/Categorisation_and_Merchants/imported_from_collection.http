@@ -1,0 +1,195 @@
+#!/usr/bin/env dothttp
+
+// The ‘Get categories’ endpoint returns the list of categories that tomato pay currently supports. Category id and the category name are returned in the response.
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | pageId | string | Page offset of results|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | id | string | Unique identifier for the category |
+// | name | string | Name of the category |
+
+@name("Retrieve Categories")
+GET "https://{{base_url}}/banking/v2/categories"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+// Retrieve Category by id
+// 
+// The ‘Get categories by id’ endpoint returns the category linked to the corresponding category id that has been passed as a param.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | categoryId | string | Unique identifier for the category |
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | id | string | Unique identifier for the category |
+// | name | string | Name of the category |
+// 
+// <h2> Error messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid categoryId | 404 Not Found | |
+
+@name("Retrieve Category (by id)")
+GET "https://{{base_url}}/banking/v2/categories/:categoryId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+// The ‘Get Merchants’ endpoint returns the list of merchants that are currently categorised by tomato pay. Merchant id and the merchant name are returned in the response.
+// 
+// <h2> Query Parameters </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | pageId | string | Page offset of results|
+// 
+// <h2> Attributes </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// |id | string | Unique identifier for the merchant |
+// | name | string | Name of the merchant |
+// | categoryCode | string | Code for the category |
+// | addressLine | string | Merchant address (if available)|
+
+@name("Retrieve Merchants")
+GET "https://{{base_url}}/banking/v2/merchants"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+// The ‘Get Merchant by id’ endpoint returns the merchant linked to the corresponding merchant id that has been passed as a param.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | merchantId | string | Unique identifier for the merchant|
+// 
+// <h2> Attrributes </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// |id | string | Unique identifier for the merchant |
+// | name | string | Name of the merchant |
+// | categoryCode | string | Code for the category |
+// | addressLine | string | Merchant address (if available)|
+// 
+// <h2> Error messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid merchantId | 404 Not Found | |
+
+@name("Retrieve Merchant (by id)")
+GET "https://{{base_url}}/banking/v2/merchants/:merchantId"
+"Content-Type": "application/json"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"Authorization": "{{Authorization}}"
+
+
+// The ‘Update category’ endpoint can be used to update the category in a particular transaction.
+// 
+// If the user re-categorises a transaction to a different category, they can do so by using this endpoint.
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | transactionId | string | Unique identifier for the transaction|
+// 
+// <h2> Attributes </h2>
+// 
+// 
+// | Field Name | Type | Description |
+// |------------|------|-------------|
+// | id | string | Unique identifier for the new category |
+// | updateType | string | updateType {"ONE" will only recategorise a particular transaction, "ALL" will change all recategorise all similar transactions including past and future transactions} |
+// 
+// <h2> Success </h2>
+// 204 No content
+// 
+// <h2> Error messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid transactionId | 404 Not Found | |
+// | Missing/Invalid categoryId | 400 Bad Request |{ "error": "Missing/invalid categoryId } |
+// | Missing/Invalid updateType | 400 Bad Request | { "error": "Missing/invalid updateType }|
+
+@name("Update Category")
+PUT "https://{{base_url}}/banking/v2/transactions/:transactionId/category"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "id": "category Id",
+    "updateType": "ALL"
+})
+
+
+// The ‘Update category’ endpoint can be used to update the merchant in a particular transaction.
+// 
+// 
+// <h2> Path variables </h2>
+// 
+// | Field | Type | Description |
+// | ------| ----- | ---------- |
+// | transactionId | string | Unique identifier for the transaction|
+// 
+// <h2> Attributes </h2>
+// 
+// 
+// | Field Name | Type | Description |
+// |------------|------|-------------|
+// | id | string | Unique identifier for the merchant |
+// | updateType | string | updateType {"ONE" will only recategorise a particular transaction, "ALL" will change all recategorise all similar transactions including past and future transactions} |
+// 
+// <h2> Success </h2>
+// 204 No content
+// 
+// <h2> Error messages </h2>
+// 
+// | Condition | Response Status | Response Body |
+// |-----------| ----------------| ------------- | 
+// | Invalid transactionId | 404 Not Found | |
+// | Missing/Invalid updateType | 400 Bad Request | { "error": "Missing/invalid updateType }|
+
+@name("Update Merchant")
+PUT "https://{{base_url}}/banking/v2/transactions/:transactionId/merchant"
+"Content-Type": "application/json"
+"Authorization": "{{Authorization}}"
+"X-Api-Key": "{{X-Api-Key}}"
+"X-Partner-Id": "{{X-Partner-Id}}"
+"X-Company-Id": "{{companyId}}"
+json({
+    "id": "64b7f5de-d178-4b23-a3a3-4c0783090d91",
+    "updateType": "ALL"
+})
+
+
+

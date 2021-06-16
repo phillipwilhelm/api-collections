@@ -1,0 +1,173 @@
+#!/usr/bin/env dothttp
+
+// Returns information about the Jira instance.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Get Jira Instance Info")
+GET "https://{{baseUrl}}/rest/api/3/serverInfo"
+
+
+// Returns details of an issue security level.
+// 
+// Use [Get issue security scheme](#api-rest-api-3-issuesecurityschemes-id-get) to obtain the IDs of issue security levels associated with the issue security scheme.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Get Issue Security Level")
+GET "https://{{baseUrl}}/rest/api/3/securitylevel/:id"
+
+
+// Returns details for the current user.
+// 
+// **[Permissions](#permissions) required:** Permission to access Jira.
+
+@name("Get Current User")
+GET "https://{{baseUrl}}/rest/api/3/myself"
+basicauth("{{atlassian_email}}", "{{atlassian_token}}")
+? "expand"= "<string>"
+
+
+// Returns a list of permissions indicating which permissions the user has. Details of the user's permissions can be obtained in a global, project, or issue context.
+// 
+// The user is reported as having a project permission:
+// 
+//  *  in the global context, if the user has the project permission in any project.
+//  *  for a project, where the project permission is determined using issue data, if the user meets the permission's criteria for any issue in the project. Otherwise, if the user has the project permission in the project.
+//  *  for an issue, where a project permission is determined using issue data, if the user has the permission in the issue. Otherwise, if the user has the project permission in the project containing the issue.
+// 
+// This means that users may be shown as having an issue permission (such as EDIT\_ISSUES) in the global context or a project context but may not have the permission for any or all issues. For example, if Reporters have the EDIT\_ISSUES permission a user would be shown as having this permission in the global context or the context of a project, because any user can be a reporter. However, if they are not the user who reported the issue queried they would not have EDIT\_ISSUES permission for that issue.
+// 
+// Global permissions are unaffected by context.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Get My Permissions")
+GET "https://{{baseUrl}}/rest/api/3/mypermissions"
+? "projectKey"= "<string>"
+? "projectId"= "<string>"
+? "issueKey"= "<string>"
+? "issueId"= "<string>"
+? "permissions"= "<string>"
+? "projectUuid"= "<string>"
+? "projectConfigurationUuid"= "<string>"
+
+
+// Returns a custom field option. For example, an option in a select list.
+// 
+// Note that this operation **only works for issue field select list options created in Jira or using operations from the [Issue custom field options](#api-group-Issue-custom-field-options) resource**, it cannot be used with issue field select list options created by Connect apps.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** The custom field option is returned as follows:
+// 
+//  *  if the user has the *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+//  *  if the user has the *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for at least one project the custom field is used in, and the field is visible in at least one layout the user has permission to view.
+
+@name("Get Custom Field Option")
+GET "https://{{baseUrl}}/rest/api/3/customFieldOption/:id"
+
+
+// Returns a list of audit records. The list can be filtered to include items:
+// 
+//  *  containing a string in at least one field. For example, providing *up* will return all audit records where one or more fields contains words such as *update*.
+//  *  created on or after a date and time.
+//  *  created or or before a date and time.
+//  *  created during a time period.
+// 
+// **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+
+@name("Get Audit Records")
+GET "https://{{baseUrl}}/rest/api/3/auditing/record"
+? "offset"= "0"
+? "limit"= "1000"
+? "filter"= "<string>"
+? "from"= "<dateTime>"
+? "to"= "<dateTime>"
+
+
+// Returns a list of system avatar details by owner type, where the owner types are issue type, project, or user.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** None.
+
+@name("Get System Avatars By Type")
+GET "https://{{baseUrl}}/rest/api/3/avatar/:type/system"
+
+
+// Returns a list of groups whose names contain a query string. A list of group names can be provided to exclude groups from the results.
+// 
+// The primary use case for this resource is to populate a group picker suggestions list. To this end, the returned object includes the `html` field where the matched query term is highlighted in the group name with the HTML strong tag. Also, the groups list is wrapped in a response object that contains a header for use in the picker, specifically *Showing X of Y matching groups*.
+// 
+// The list returns with the groups sorted. If no groups match the list criteria, an empty list is returned.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg). Anonymous calls and calls by users without the required permission return an empty list.
+
+@name("Find Groups")
+GET "https://{{baseUrl}}/rest/api/3/groups/picker"
+? "accountId"= "<string>"
+? "query"= "<string>"
+? "exclude"= "<string>"
+? "exclude"= "<string>"
+? "maxResults"= "<integer>"
+? "userName"= "<string>"
+
+
+// Returns a list of users and groups matching a string. The string is used:
+// 
+//  *  for users, to find a case-insensitive match with display name and e-mail address. Note that if a user has hidden their email address in their user profile, partial matches of the email address will not find the user. An exact match is required.
+//  *  for groups, to find a case-sensitive match with group name.
+// 
+// For example, if the string *tin* is used, records with the display name *Tina*, email address *sarah@tinplatetraining.com*, and the group *accounting* would be returned.
+// 
+// Optionally, the search can be refined to:
+// 
+//  *  the projects and issue types associated with a custom field, such as a user picker. The search can then be further refined to return only users and groups that have permission to view specific:
+//     
+//      *  projects.
+//      *  issue types.
+//     
+//     If multiple projects or issue types are specified, they must be a subset of those enabled for the custom field or no results are returned. For example, if a field is enabled for projects A, B, and C then the search could be limited to projects B and C. However, if the search is limited to projects B and D, nothing is returned.
+//  *  not return Connect app users and groups.
+//  *  return groups that have a case-insensitive match with the query.
+// 
+// The primary use case for this resource is to populate a picker field suggestion list with users or groups. To this end, the returned object includes an `html` field for each list. This field highlights the matched query term in the item name with the HTML strong tag. Also, each list is wrapped in a response object that contains a header for use in a picker, specifically *Showing X of Y matching groups*.
+// 
+// This operation can be accessed anonymously.
+// 
+// **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/yodKLg).
+
+@name("Find Users And Groups")
+GET "https://{{baseUrl}}/rest/api/3/groupuserpicker"
+? "query"= "<string>"
+? "maxResults"= "50"
+? "showAvatar"= "false"
+? "fieldId"= "<string>"
+? "projectId"= "<string>"
+? "projectId"= "<string>"
+? "issueTypeId"= "<string>"
+? "issueTypeId"= "<string>"
+? "avatarSize"= "xsmall"
+? "caseInsensitive"= "false"
+? "excludeConnectAddons"= "false"
+
+
+// Returns a [paginated](#pagination) list of labels.
+
+@name("Get All Labels")
+GET "https://{{baseUrl}}/rest/api/3/label"
+basicauth("{{atlassian_email}}", "{{atlassian_token}}")
+? "startAt"= "0"
+? "maxResults"= "1000"
+
+
+
