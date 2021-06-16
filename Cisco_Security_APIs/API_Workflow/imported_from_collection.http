@@ -20,18 +20,20 @@ GET "https://{{amp4e_host}}/v1/computers"
 PUT "https://{{ise_host}}/ers/config/ancendpoint/apply"
 "Content-Type": "application/json"
 "Accept": "application/json"
-data('{
-		"OperationAdditionalData": {
-		"additionalData": [{
-		"name": "macAddress",
-		"value": "{{ise_mac}}"
-		},
-		{
-		"name": "policyName",
-		"value": "ANC-KickFromNetwork"
-		}]
-		}
-		}')
+json({
+    "OperationAdditionalData": {
+        "additionalData": [
+            {
+                "name": "macAddress",
+                "value": "{{ise_mac}}"
+            },
+            {
+                "name": "policyName",
+                "value": "ANC-KickFromNetwork"
+            }
+        ]
+    }
+})
 
 
 // Request a TG analysis Report with a given SHA-256
@@ -69,25 +71,28 @@ GET "https://investigate.api.umbrella.com/security/name/{{umbrella_suspect}}.jso
 POST "https://{{umbrella_host}}/1.0/events"
 "Content-Type": "application/json"
 ? "customerKey"= "{{umbrella_key}}"
-data('[{
-    "alertTime": "2013-02-08T11:14:26.0Z",
-    "deviceId": "ba6a59f4-e692-4724-ba36-c28132c761de",
-    "deviceVersion": "13.7a",
-    "dstDomain": "{{umbrella_blacklist_entry_0}}",
-    "dstUrl": "http://{{umbrella_blacklist_entry_0}}/a-bad-url",
-    "eventTime": "2013-02-08T09:30:26.0Z",
-    "protocolVersion": "1.0a",
-    "providerName": "Security Platform"
-},{
-    "alertTime": "2015-02-08T11:14:26.0Z",
-    "deviceId": "ba6a59f4-e692-4724-ba36-c28132c761de",
-    "deviceVersion": "13.7a",
-    "dstDomain": "{{umbrella_blacklist_entry_1}}",
-    "dstUrl": "{{umbrella_blacklist_entry_1}}",
-    "eventTime": "2015-02-08T09:30:26.0Z",
-    "protocolVersion": "1.0a",
-    "providerName": "Security Platform"
-}]')
+json([
+    {
+        "alertTime": "2013-02-08T11:14:26.0Z",
+        "deviceId": "ba6a59f4-e692-4724-ba36-c28132c761de",
+        "deviceVersion": "13.7a",
+        "dstDomain": "{{umbrella_blacklist_entry_0}}",
+        "dstUrl": "http://{{umbrella_blacklist_entry_0}}/a-bad-url",
+        "eventTime": "2013-02-08T09:30:26.0Z",
+        "protocolVersion": "1.0a",
+        "providerName": "Security Platform"
+    },
+    {
+        "alertTime": "2015-02-08T11:14:26.0Z",
+        "deviceId": "ba6a59f4-e692-4724-ba36-c28132c761de",
+        "deviceVersion": "13.7a",
+        "dstDomain": "{{umbrella_blacklist_entry_1}}",
+        "dstUrl": "{{umbrella_blacklist_entry_1}}",
+        "eventTime": "2015-02-08T09:30:26.0Z",
+        "protocolVersion": "1.0a",
+        "providerName": "Security Platform"
+    }
+])
 
 
 // Grab a feed in STIX format for ransomware DNS
@@ -110,27 +115,27 @@ basicauth("{{fmc_user}}", "{{fmc_pasword}}")
 POST "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
 "X-auth-access-token": "{{fmc_token}}"
 "Content-Type": "application/json"
-data('{
-  "startHour": 2,
-  "name": "Threat Grid Ransomware DNS ",
-  "description": "Feed of Ransomware Domains from TG",
-  "feedType": "stix",
-  "feedContent": "stix",
-  "delivery": "url",
-  "uri": "{{threatgrid_feed}}",
-  "refresh": 1440,
-  "version": "1.0.0",
-  "downloadOn": true,
-  "params": {
-    "selfSignedServerCertificate": "true",
-    "hostnameVerifier": "allow_all"
-  },
-  "property": {
-    "ttl": 90,
-    "publish": true,
-    "action": "monitor"
-  }
-}')
+json({
+    "startHour": 2,
+    "name": "Threat Grid Ransomware DNS ",
+    "description": "Feed of Ransomware Domains from TG",
+    "feedType": "stix",
+    "feedContent": "stix",
+    "delivery": "url",
+    "uri": "{{threatgrid_feed}}",
+    "refresh": 1440,
+    "version": "1.0.0",
+    "downloadOn": true,
+    "params": {
+        "selfSignedServerCertificate": "true",
+        "hostnameVerifier": "allow_all"
+    },
+    "property": {
+        "ttl": 90,
+        "publish": true,
+        "action": "monitor"
+    }
+})
 
 
 

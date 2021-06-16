@@ -18,16 +18,16 @@ GET "https://{{MEETINGS_API_URL}}/people/me"
 @name("Create a non recurring meeting for tommorow")
 POST "https://{{MEETINGS_API_URL}}/meetings"
 "Content-Type": "application/json"
-data('{
+json({
     "title": "Sample Title",
     "agenda": "Sample Agenda",
     "password": "A@ssword123",
     "start": "{{_start_time}}",
     "end": "{{_end_time}}",
-    "timezone": "{{TIMEZONE_STRING}}", 
+    "timezone": "{{TIMEZONE_STRING}}",
     "enabledAutoRecordMeeting": false,
     "allowAnyUserToBeCoHost": false
-}')
+})
 
 
 // We did not set any invitees when we first created the meeting, so we expect this API to return an empty list.
@@ -42,12 +42,12 @@ GET "https://{{MEETINGS_API_URL}}/meetingInvitees"
 @name("Add a meeting invitee by email")
 POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
 "Content-Type": "application/json"
-data('{
-	"meetingId": "{{_singleMeetingId}}",
-	"email": "{{OTHER_USERS_EMAIL}}",
-	"displayName": "{{_otherUsersDisplayName}}",
-	"coHost": false
-}')
+json({
+    "meetingId": "{{_singleMeetingId}}",
+    "email": "{{OTHER_USERS_EMAIL}}",
+    "displayName": "{{_otherUsersDisplayName}}",
+    "coHost": false
+})
 
 
 // If we try to add somone who is already invited (based on the email), we will get a 409 conflict error.
@@ -56,12 +56,12 @@ data('{
 POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
 "Content-Type": "application/json"
 ? "meetingId"= "{{_singleMeetingId}}"
-data('{
-	"meetingId": "{{_singleMeetingId}}",
-	"email": "{{OTHER_USERS_EMAIL}}",
-	"displayName": "{{OTHER_USERS_DISPLAYNAME}}",
-	"alternateHost": false
-}')
+json({
+    "meetingId": "{{_singleMeetingId}}",
+    "email": "{{OTHER_USERS_EMAIL}}",
+    "displayName": "{{OTHER_USERS_DISPLAYNAME}}",
+    "alternateHost": false
+})
 
 
 // There should now be one user in the invitee list
@@ -75,10 +75,10 @@ GET "https://{{MEETINGS_API_URL}}/meetingInvitees/{{_meetingInvitee}}"
 @name("Invite myself via email")
 POST "https://{{MEETINGS_API_URL}}/meetingInvitees"
 "Content-Type": "application/json"
-data('{
-	"meetingId": "{{_singleMeetingId}}",
-	"email": "{{_myEmail}}"
-}')
+json({
+    "meetingId": "{{_singleMeetingId}}",
+    "email": "{{_myEmail}}"
+})
 
 
 @name("Get meeting invitees --now 2")

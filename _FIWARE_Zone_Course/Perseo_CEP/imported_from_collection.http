@@ -13,10 +13,10 @@ POST "https://{{host}}/rules"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "name": "LowTemperature",
     "text": "select *,\"LowTemperature\" as ruleName from pattern [every ev=iotEvent((cast(`id`?, String)  regexp  \"myEntity\") AND (cast(`type`?, String)  =  \"myType\") AND (cast(cast(`temperature`?, String), float)  <  10))]",
-	"action": {
+    "action": {
         "type": "email",
         "template": "Entity ${id} temperature is ${temperature}",
         "parameters": {
@@ -25,7 +25,7 @@ data('{
             "subject": "Low temperature"
         }
     }
-}')
+})
 
 
 @name("Create rule (entity update)")
@@ -34,23 +34,23 @@ POST "https://{{host}}/rules"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "name": "BatteryLow",
     "text": "select *,\"BatteryLow\" as ruleName from pattern [every ev=iotEvent((cast(`type`?, String)  =  \"Lamp\") AND (cast(cast(`battery`?, String), float)  <  10))]",
-	"action": {
+    "action": {
         "type": "update",
         "parameters": {
             "id": "TestEntity1",
             "type": "TestEntity",
             "attributes": [
-            	{
-            		"name": "msg",
-            		"value": "Battery in ${id} is ${battery}"
-            	}
+                {
+                    "name": "msg",
+                    "value": "Battery in ${id} is ${battery}"
+                }
             ]
         }
     }
-}')
+})
 
 
 @name("Delete rule")

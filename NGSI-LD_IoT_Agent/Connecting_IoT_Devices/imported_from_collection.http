@@ -54,7 +54,7 @@ POST "http://{{iot-agent}}/iot/services"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
+json({
     "services": [
         {
             "apikey": "4jggokgpepnvsb2uv4s40d59ov",
@@ -98,7 +98,7 @@ data('{
             ]
         }
     ]
-}')
+})
 
 
 // The NGSI-LD [specification](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.03.01_60/gs_cim009v010301p.pdf)
@@ -126,36 +126,36 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "temperature001",
-      "entity_name": "urn:ngsi-ld:Device:temperature001",
-      "entity_type": "Device",
-      "timezone": "Europe/Berlin",
-      "attributes": [
+json({
+    "devices": [
         {
-          "object_id": "t",
-          "name": "temperature",
-          "type": "Property",
-          "metadata": {
-            "unitCode": {
-              "type": "Text",
-              "value": "CEL"
-            }
-          }
+            "device_id": "temperature001",
+            "entity_name": "urn:ngsi-ld:Device:temperature001",
+            "entity_type": "Device",
+            "timezone": "Europe/Berlin",
+            "attributes": [
+                {
+                    "object_id": "t",
+                    "name": "temperature",
+                    "type": "Property",
+                    "metadata": {
+                        "unitCode": {
+                            "type": "Text",
+                            "value": "CEL"
+                        }
+                    }
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "controlledAsset",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Building:barn001"
+                }
+            ]
         }
-      ],
-      "static_attributes": [
-        {
-          "name": "controlledAsset",
-          "type": "Relationship",
-          "value": "urn:ngsi-ld:Building:barn001"
-        }
-      ]
-    }
-  ]
-}')
+    ]
+})
 
 
 // You can simulate a dummy IoT device measurement coming from the **Temperature Sensor** device `temperature001`, by
@@ -240,32 +240,35 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "water001",
-      "entity_name": "urn:ngsi-ld:Device:water001",
-      "entity_type": "Device",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/water001",
-      "commands": [ 
+json({
+    "devices": [
         {
-          "name": "on",
-          "type": "command"
-        },
-        {
-          "name": "off",
-          "type": "command"
+            "device_id": "water001",
+            "entity_name": "urn:ngsi-ld:Device:water001",
+            "entity_type": "Device",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/water001",
+            "commands": [
+                {
+                    "name": "on",
+                    "type": "command"
+                },
+                {
+                    "name": "off",
+                    "type": "command"
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "controllingAsset",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Building:barn001"
+                }
+            ]
         }
-       ],
-       "static_attributes": [
-         {"name":"controllingAsset", "type": "Relationship","value": "urn:ngsi-ld:Building:barn001"}
-    	]
-    }
-  ]
-}
-')
+    ]
+})
 
 
 // Before we wire-up the context broker, we can test that a command can be send to a device by making a PATCH request
@@ -283,12 +286,10 @@ PATCH "http://{{iot-agent}}/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water001/attr
 "NGSILD-Path": "/"
 "Content-Type": "application/json"
 "Link": "<{{ngsi-context.jsonld}}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json""
-data('{ 
-
-		"type": "Property", 
-		"value": "x" 
-
-}')
+json({
+    "type": "Property",
+    "value": "x"
+})
 
 
 // Provisioning an actuator is similar to provisioning a sensor. This time an `endpoint` attribute holds the location where
@@ -302,48 +303,51 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "water001",
-      "entity_name": "urn:ngsi-ld:Device:water001",
-      "entity_type": "Device",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/water001",
-      "attributes": [
-          {
-          "name":"on",
-          "type":"Property",
-          "expression": "${@on}",
-          "reverse": [
-            {
-              "object_id":"on",
-              "type": "Property",
-              "expression": "${@on}"
-            }
-          ]
-        },
+json({
+    "devices": [
         {
-          "name":"off",
-          "type":"Property",
-          "expression": "${@off}",
-          "reverse": [
-            {
-              "object_id":"off",
-              "type": "Property",
-              "expression": "${@off}"
-            }
-          ]
+            "device_id": "water001",
+            "entity_name": "urn:ngsi-ld:Device:water001",
+            "entity_type": "Device",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/water001",
+            "attributes": [
+                {
+                    "name": "on",
+                    "type": "Property",
+                    "expression": "${@on}",
+                    "reverse": [
+                        {
+                            "object_id": "on",
+                            "type": "Property",
+                            "expression": "${@on}"
+                        }
+                    ]
+                },
+                {
+                    "name": "off",
+                    "type": "Property",
+                    "expression": "${@off}",
+                    "reverse": [
+                        {
+                            "object_id": "off",
+                            "type": "Property",
+                            "expression": "${@off}"
+                        }
+                    ]
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "controllingAsset",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Building:barn001"
+                }
+            ]
         }
-      ],
-       "static_attributes": [
-         {"name":"controllingAsset", "type": "Relationship","value": "urn:ngsi-ld:Building:barn001"}
-    	]
-    }
-  ]
-}
-')
+    ]
+})
 
 
 // Before we wire-up the context broker, we can test that a command can be send to a device by making a PATCH request
@@ -360,12 +364,10 @@ PATCH "http://{{iot-agent}}/ngsi-ld/v1/entities/urn:ngsi-ld:Device:water001/attr
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{ 
-
-		"type": "Property", 
-		"value": " " 
-
-}')
+json({
+    "type": "Property",
+    "value": " "
+})
 
 
 // Provisioning a device which offers both commands and measurements is merely a matter of making an HTTP POST request with
@@ -377,48 +379,48 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "filling001",
-      "entity_name": "urn:ngsi-ld:Device:filling001",
-      "entity_type": "FillingLevelSensor",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/filling001",
-      "commands": [
+json({
+    "devices": [
         {
-          "name": "add",
-          "type": "command"
-        },
-        {
-          "name": "remove",
-          "type": "command"
+            "device_id": "filling001",
+            "entity_name": "urn:ngsi-ld:Device:filling001",
+            "entity_type": "FillingLevelSensor",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/filling001",
+            "commands": [
+                {
+                    "name": "add",
+                    "type": "command"
+                },
+                {
+                    "name": "remove",
+                    "type": "command"
+                }
+            ],
+            "attributes": [
+                {
+                    "object_id": "f",
+                    "name": "fillingLevel",
+                    "type": "Number",
+                    "metadata": {
+                        "unitCode": {
+                            "type": "Text",
+                            "value": "CAL"
+                        }
+                    }
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "controllingAsset",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Building:barn001"
+                }
+            ]
         }
-      ],
-      "attributes": [
-        {
-          "object_id": "f",
-          "name": "fillingLevel",
-          "type": "Number",
-          "metadata": {
-            "unitCode": {
-              "type": "Text",
-              "value": "CAL"
-            }
-          }
-        }
-      ],
-       "static_attributes": [
-        {
-          "name": "controllingAsset",
-          "type": "Relationship",
-          "value": "urn:ngsi-ld:Building:barn001"
-        }
-      ]
-    }
-  ]
-}')
+    ]
+})
 
 
 // Similarly, a **Tractor** with two commands (`start` and `stop`) and two attributes can be provisioned as follows:
@@ -431,7 +433,7 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
+json({
     "devices": [
         {
             "device_id": "tractor001",
@@ -467,7 +469,7 @@ data('{
             ]
         }
     ]
-}')
+})
 
 
 // This example lists all provisioned devices by making a GET request to the `/iot/devices` endpoint.

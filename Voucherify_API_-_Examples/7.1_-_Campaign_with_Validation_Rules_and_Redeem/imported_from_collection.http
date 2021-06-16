@@ -5,7 +5,7 @@ POST "https://{{url}}/campaigns"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "name": "{{test-campaign-name}}",
     "start_date": "2016-09-26T00:00:00Z",
     "type": "AUTO_UPDATE",
@@ -17,16 +17,16 @@ data('{
             "type": "PERCENT"
         },
         "redemption": {
-          "quantity": 1
+            "quantity": 1
         },
         "code_config": {
             "pattern": "VR-PROMO-#######"
         }
     },
     "metadata": {
-      "test": true
+        "test": true
     }
-}')
+})
 
 
 @name("--- delay ---")
@@ -39,14 +39,17 @@ POST "https://{{url}}/products"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-    "name" : "Apple iPhone 7",
-    "source_id" : "internal_crm_id_{{$timestamp}}",
-    "attributes": [ "color", "memory" ],
+json({
+    "name": "Apple iPhone 7",
+    "source_id": "internal_crm_id_{{$timestamp}}",
+    "attributes": [
+        "color",
+        "memory"
+    ],
     "metadata": {
-      "test": true
+        "test": true
     }
-}')
+})
 
 
 @name("Add SKU")
@@ -54,16 +57,16 @@ POST "https://{{url}}/products/{{product-id}}/skus"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-    "sku" : "APPLE_IPHONE_7",
-    "source_id" : "internal_erp_sku_id_{{$timestamp}}",
+json({
+    "sku": "APPLE_IPHONE_7",
+    "source_id": "internal_erp_sku_id_{{$timestamp}}",
     "currency": "USD",
     "price": 70000,
     "attributes": {
-      "color": "black",
-      "memory": "32"
+        "color": "black",
+        "memory": "32"
     }
-}')
+})
 
 
 @name("Create Validation Rules")
@@ -71,24 +74,30 @@ POST "https://{{url}}/validation-rules"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-	"name": "postman: Required SKU",
-	"rules": {
-		"1": {
-			"name": "sku.id", 
-			"conditions": {
-				"$is":[{ "id": "{{sku-id}}" }]
-			}
-		}, 
-		"2": {
-			"name": "order.items.count",
-			"conditions": {
-				"$more_than": [1]
-			}
-		},
-		"logic": "1 and 2"
-	}
-}')
+json({
+    "name": "postman: Required SKU",
+    "rules": {
+        "1": {
+            "name": "sku.id",
+            "conditions": {
+                "$is": [
+                    {
+                        "id": "{{sku-id}}"
+                    }
+                ]
+            }
+        },
+        "2": {
+            "name": "order.items.count",
+            "conditions": {
+                "$more_than": [
+                    1
+                ]
+            }
+        },
+        "logic": "1 and 2"
+    }
+})
 
 
 @name("Attach Validation rules to Campaign")
@@ -96,9 +105,9 @@ POST "https://{{url}}/validation-rules/{{validation-rule-id}}/assignments"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-	"campaign": "{{test-campaign-name}}"
-}')
+json({
+    "campaign": "{{test-campaign-name}}"
+})
 
 
 @name("Get Validation Rules")
@@ -106,25 +115,29 @@ GET "https://{{url}}/validation-rules/{{validation-rule-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-    "campaign_name" : "{{createdCampaignName}}",
-    "junction" : "AND",
-  "skus": {
-      "junction":"AND",
-      "conditions": {
-          "$is":[
-              { "id": "{{createdSKUId}}" }
-          ]
-      }
-  },
-  "orders": {
-    "junction":"AND",
-    "total_amount":null,
-    "products_count":{
-      "$more_than":[1]
+json({
+    "campaign_name": "{{createdCampaignName}}",
+    "junction": "AND",
+    "skus": {
+        "junction": "AND",
+        "conditions": {
+            "$is": [
+                {
+                    "id": "{{createdSKUId}}"
+                }
+            ]
+        }
+    },
+    "orders": {
+        "junction": "AND",
+        "total_amount": null,
+        "products_count": {
+            "$more_than": [
+                1
+            ]
+        }
     }
-  }
-}')
+})
 
 
 @name("Publish voucher")
@@ -132,10 +145,12 @@ POST "https://{{url}}/vouchers/publish"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "campaign": "{{test-campaign-name}}",
-  "customer": { "source_id": "test@voucherify.io" }
-}')
+json({
+    "campaign": "{{test-campaign-name}}",
+    "customer": {
+        "source_id": "test@voucherify.io"
+    }
+})
 
 
 @name("Redeem try with missing order")
@@ -143,12 +158,12 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "customer": {
-    "source_id": "{{test-customer-email}}",
-    "email": "{{test-customer-email}}"
-  }
-}')
+json({
+    "customer": {
+        "source_id": "{{test-customer-email}}",
+        "email": "{{test-customer-email}}"
+    }
+})
 
 
 @name("Redeem")
@@ -156,18 +171,21 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "customer": {
-    "source_id": "{{test-customer-email}}",
-    "email": "{{test-customer-email}}"
-  },
-  "order": {
-    "amount": 30000,
-    "items": [
-      { "sku_id": "{{sku-id}}", "quantity": 2 }
-    ]
-  }
-}')
+json({
+    "customer": {
+        "source_id": "{{test-customer-email}}",
+        "email": "{{test-customer-email}}"
+    },
+    "order": {
+        "amount": 30000,
+        "items": [
+            {
+                "sku_id": "{{sku-id}}",
+                "quantity": 2
+            }
+        ]
+    }
+})
 
 
 @name("--- delay ---")
@@ -205,25 +223,29 @@ DELETE "https://{{url}}/validation-rules/{{validation-rule-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-    "campaign_name" : "{{createdCampaignName}}",
-    "junction" : "AND",
-  "skus": {
-      "junction":"AND",
-      "conditions": {
-          "$is":[
-              { "id": "{{createdSKUId}}" }
-          ]
-      }
-  },
-  "orders": {
-    "junction":"AND",
-    "total_amount":null,
-    "products_count":{
-      "$more_than":[1]
+json({
+    "campaign_name": "{{createdCampaignName}}",
+    "junction": "AND",
+    "skus": {
+        "junction": "AND",
+        "conditions": {
+            "$is": [
+                {
+                    "id": "{{createdSKUId}}"
+                }
+            ]
+        }
+    },
+    "orders": {
+        "junction": "AND",
+        "total_amount": null,
+        "products_count": {
+            "$more_than": [
+                1
+            ]
+        }
     }
-  }
-}')
+})
 
 
 

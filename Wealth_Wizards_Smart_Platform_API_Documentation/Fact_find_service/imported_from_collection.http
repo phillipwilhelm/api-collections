@@ -6,18 +6,18 @@
 POST "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{JWT_TOKEN}}"
-data('{
-  "source_of_business": "lv",
-  "personal__title": "mr",
-  "personal__first_name": "Bob",
-  "personal__last_name": "Bobbington",
-  "personal__dob": "1960-12-31",
-  "personal__postcode": "CV99 3XX",
-  "personal__ni_number": "1234567890",
-  "active_products": [
-    "rpp"  
-  ]
-}')
+json({
+    "source_of_business": "lv",
+    "personal__title": "mr",
+    "personal__first_name": "Bob",
+    "personal__last_name": "Bobbington",
+    "personal__dob": "1960-12-31",
+    "personal__postcode": "CV99 3XX",
+    "personal__ni_number": "1234567890",
+    "active_products": [
+        "rpp"
+    ]
+})
 
 
 // This endpoint enables us to query for fact finds using GraphQL. This currently integrates with our use of React Apollo on the front end.
@@ -26,16 +26,32 @@ data('{
 POST "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/graphql"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{JWT_TOKEN}}"
-data('{
-  "operationName": "find",
-  "variables": {
-    "query": "",
-    "offset": 0,
-    "limit": 25,
-    "active_products": "rpp"
-  },
-  "query": "query find($query: String!, $offset: Int, $limit: Int, $active_products: String!) {\n  find(query: $query, offset: $offset, limit: $limit, active_products: $active_products) {\n    total\n    factFinds {\n      personal__ni_number\n      first_name\n      last_name\n      postcode\n      _id\n      date_of_birth\n      updated_at\n      __typename\n    }\n    __typename\n  }\n}\n"
-}')
+json({
+    "operationName": "find",
+    "variables": {
+        "query": "",
+        "offset": 0,
+        "limit": 25,
+        "active_products": "rpp"
+    },
+    "query": "query find($query: String!, $offset: Int, $limit: Int, $active_products: String!) {
+  find(query: $query, offset: $offset, limit: $limit, active_products: $active_products) {
+    total
+    factFinds {
+      personal__ni_number
+      first_name
+      last_name
+      postcode
+      _id
+      date_of_birth
+      updated_at
+      __typename
+    }
+    __typename
+  }
+}
+"
+})
 
 
 // Get a fact find by its ID
@@ -73,20 +89,20 @@ data({
 PUT "https://{{NAMESPACE_URL}}{{FACT_FIND_SERVICE_PORT}}/fact-find-service/v1/fact-find/{{FACT_FIND_ID}}"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{JWT_TOKEN}}"
-data('{
-  "source_of_business": "lv",
-  "personal__title": "mr",
-  "personal__first_name": "Bob",
-  "personal__last_name": "Bobbington",
-  "personal__dob": "1960-12-31",
-  "personal__postcode": "CV99 3XX",
-  "personal__ni_number": "1234567890",
-  "active_products": [
-    "rpp",
-    "nas"
-  ],
-  "some_test_question": "some test answer"
-}')
+json({
+    "source_of_business": "lv",
+    "personal__title": "mr",
+    "personal__first_name": "Bob",
+    "personal__last_name": "Bobbington",
+    "personal__dob": "1960-12-31",
+    "personal__postcode": "CV99 3XX",
+    "personal__ni_number": "1234567890",
+    "active_products": [
+        "rpp",
+        "nas"
+    ],
+    "some_test_question": "some test answer"
+})
 
 
 // Delete a fact find by its ID.

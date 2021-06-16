@@ -51,16 +51,16 @@ POST "http://{{iot-agent}}/iot/services"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
- "services": [
-   {
-     "apikey":      "4jggokgpepnvsb2uv4s40d59ov",
-     "cbroker":     "http://orion:1026",
-     "entity_type": "Thing",
-     "resource":    "/iot/json"
-   }
- ]
-}')
+json({
+    "services": [
+        {
+            "apikey": "4jggokgpepnvsb2uv4s40d59ov",
+            "cbroker": "http://orion:1026",
+            "entity_type": "Thing",
+            "resource": "/iot/json"
+        }
+    ]
+})
 
 
 // It is common good practice to use URNs following the NGSI-LD [specification](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.01.01_60/gs_CIM009v010101p.pdf) when creating entities. Furthermore it is easier to understand
@@ -85,23 +85,30 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
- "devices": [
-   {
-     "device_id":   "motion001",
-     "entity_name": "urn:ngsi-ld:Motion:001",
-     "entity_type": "Motion",
-     "timezone":    "Europe/Berlin",
-     "attributes": [
-       { "object_id": "c", "name":"count", "type":"Integer"}
-      ],
-      "static_attributes": [
-         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
-      ]
-   }
- ]
-}
-')
+json({
+    "devices": [
+        {
+            "device_id": "motion001",
+            "entity_name": "urn:ngsi-ld:Motion:001",
+            "entity_type": "Motion",
+            "timezone": "Europe/Berlin",
+            "attributes": [
+                {
+                    "object_id": "c",
+                    "name": "count",
+                    "type": "Integer"
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "refStore",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Store:001"
+                }
+            ]
+        }
+    ]
+})
 
 
 // This example simulates a request coming from the device `motion001`
@@ -118,7 +125,9 @@ POST "http://localhost/iot/json"
 "Content-Type": "application/json"
 ? "k"= "4jggokgpepnvsb2uv4s40d59ov"
 ? "i"= "motion001"
-data('{"c":"1"}')
+json({
+    "c": "1"
+})
 
 
 // This example returns the data for the `Motion` entity with the `id=urn:ngsi-ld:Motion:001` within the context data.
@@ -147,28 +156,31 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "bell001",
-      "entity_name": "urn:ngsi-ld:Bell:001",
-      "entity_type": "Bell",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/bell001",
-      "commands": [ 
+json({
+    "devices": [
         {
-          "name": "ring",
-          "type": "command"
+            "device_id": "bell001",
+            "entity_name": "urn:ngsi-ld:Bell:001",
+            "entity_type": "Bell",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/bell001",
+            "commands": [
+                {
+                    "name": "ring",
+                    "type": "command"
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "refStore",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Store:001"
+                }
+            ]
         }
-       ],
-       "static_attributes": [
-         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
-    	]
-    }
-  ]
-}
-')
+    ]
+})
 
 
 // Before we wire-up the context broker, we can test that a command can be send to a device by making a REST request 
@@ -185,19 +197,19 @@ POST "http://{{iot-agent}}/v2/op/update"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
+json({
     "actionType": "update",
     "entities": [
         {
             "type": "Bell",
             "id": "urn:ngsi-ld:Bell:001",
-            "ring" : {
+            "ring": {
                 "type": "command",
                 "value": ""
             }
         }
     ]
-}')
+})
 
 
 // The result of the command to ring the bell can be read by querying the entity within the Orion Context Broker. 
@@ -221,31 +233,50 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "door001",
-      "entity_name": "urn:ngsi-ld:Door:001",
-      "entity_type": "Door",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/door001",
-      "commands": [ 
-        {"name": "unlock","type": "command"},
-        {"name": "open","type": "command"},
-        {"name": "close","type": "command"},
-        {"name": "lock","type": "command"}
-       ],
-       "attributes": [
-       	{"object_id": "s", "name": "state", "type":"Text"}
-       ],
-       "static_attributes": [
-         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
-       ]
-    }
-  ]
-}
-')
+json({
+    "devices": [
+        {
+            "device_id": "door001",
+            "entity_name": "urn:ngsi-ld:Door:001",
+            "entity_type": "Door",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/door001",
+            "commands": [
+                {
+                    "name": "unlock",
+                    "type": "command"
+                },
+                {
+                    "name": "open",
+                    "type": "command"
+                },
+                {
+                    "name": "close",
+                    "type": "command"
+                },
+                {
+                    "name": "lock",
+                    "type": "command"
+                }
+            ],
+            "attributes": [
+                {
+                    "object_id": "s",
+                    "name": "state",
+                    "type": "Text"
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "refStore",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Store:001"
+                }
+            ]
+        }
+    ]
+})
 
 
 // Provisioning  a device which offers both commands and measurements is merely a matter of making an HTTP POST request
@@ -258,30 +289,47 @@ POST "http://{{iot-agent}}/iot/devices"
 "fiware-service": "openiot"
 "fiware-servicepath": "/"
 "Content-Type": "application/json"
-data('{
-  "devices": [
-    {
-      "device_id": "lamp001",
-      "entity_name": "urn:ngsi-ld:Lamp:001",
-      "entity_type": "Lamp",
-      "protocol": "PDI-IoTA-UltraLight",
-      "transport": "HTTP",
-      "endpoint": "http://context-provider:3001/iot/lamp001",
-      "commands": [ 
-        {"name": "on","type": "command"},
-        {"name": "off","type": "command"}
-       ],
-       "attributes": [
-       	{"object_id": "s", "name": "state", "type":"Text"},
-        {"object_id": "l", "name": "luminosity", "type":"Integer"}
-       ],
-       "static_attributes": [
-         {"name":"refStore", "type": "Relationship","value": "urn:ngsi-ld:Store:001"}
-    	]
-    }
-  ]
-}
-')
+json({
+    "devices": [
+        {
+            "device_id": "lamp001",
+            "entity_name": "urn:ngsi-ld:Lamp:001",
+            "entity_type": "Lamp",
+            "protocol": "PDI-IoTA-UltraLight",
+            "transport": "HTTP",
+            "endpoint": "http://context-provider:3001/iot/lamp001",
+            "commands": [
+                {
+                    "name": "on",
+                    "type": "command"
+                },
+                {
+                    "name": "off",
+                    "type": "command"
+                }
+            ],
+            "attributes": [
+                {
+                    "object_id": "s",
+                    "name": "state",
+                    "type": "Text"
+                },
+                {
+                    "object_id": "l",
+                    "name": "luminosity",
+                    "type": "Integer"
+                }
+            ],
+            "static_attributes": [
+                {
+                    "name": "refStore",
+                    "type": "Relationship",
+                    "value": "urn:ngsi-ld:Store:001"
+                }
+            ]
+        }
+    ]
+})
 
 
 // This example lists all provisioned devices by making a GET request to the `/iot/devices` endpoint.

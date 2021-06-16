@@ -21,38 +21,39 @@ GET "https://{{pd}}/consent/v1/consents/{{consentRecordId}}"
 @name("Create EMR-Access Consent")
 POST "https://{{pd}}/consent/v1/consents"
 "Content-Type": "application/json"
-data('{
-  "status": "accepted",
-  "audience": "AnyHealth-EMR",
-  "definition": {
-    "id": "EMR-Access",
-    "version": "{{consentDefVersion}}",
-    "locale": "en"
-  },
-  "dataText": "{{consentDataText}}",
-  "purposeText": "{{consentDefPurpose}}",
-  "data": {
-     "implicit": [ 
-     	{ 
-     		"relationship": "physician", 
-     		"provider": "EpicFHIR", 
-     		"identifier":"1eaed605-c824-477a-a2ce-9c2a160c170c", 
-     		"timestamp": "{{timestamp}}",
-     		"expires": "{{expires}}"
- 		} ]
-  },
-  "consentContext": {
-	  "captureMethod": "PatientPortal Web",
-	  "subject": {
-	    "userAgent": "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B367 Safari/531.21.10",
-	    "ipAddress": "10.1.0.89"
-	  },
-	  "authorizationService": {
-	    "name": "anyHealth",
-	    "client_id": "PatientPortal"
-	  }
-	}
-}')
+json({
+    "status": "accepted",
+    "audience": "AnyHealth-EMR",
+    "definition": {
+        "id": "EMR-Access",
+        "version": "{{consentDefVersion}}",
+        "locale": "en"
+    },
+    "dataText": "{{consentDataText}}",
+    "purposeText": "{{consentDefPurpose}}",
+    "data": {
+        "implicit": [
+            {
+                "relationship": "physician",
+                "provider": "EpicFHIR",
+                "identifier": "1eaed605-c824-477a-a2ce-9c2a160c170c",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            }
+        ]
+    },
+    "consentContext": {
+        "captureMethod": "PatientPortal Web",
+        "subject": {
+            "userAgent": "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B367 Safari/531.21.10",
+            "ipAddress": "10.1.0.89"
+        },
+        "authorizationService": {
+            "name": "anyHealth",
+            "client_id": "PatientPortal"
+        }
+    }
+})
 
 
 // In this demo, the `data` element is used to provide granular delegation into the FHIR APIs that are being used.
@@ -60,15 +61,33 @@ data('{
 @name("Modify EMR-Access Record - granular Delegated consent")
 PATCH "https://{{pd}}/consent/v1/consents/{{consentRecordId}}"
 "Content-Type": "application/json"
-data('{
-  "data": {
-     "implicit": [ 
-     	{ "relationship": "physician", "provider": "EpicFHIR", "identifier":"1eaed605-c824-477a-a2ce-9c2a160c170c",	"timestamp": "{{timestamp}}", "expires": "{{expires}}" },
-     	{ "relationship": "spouse", "provider": "EpicFHIR", "identifier":"d205f799-210f-4036-8761-bc3d281239aa", "timestamp": "{{timestamp}}", "expires": "{{expires}}" },
-      	{ "relationship": "physician", "provider": "CernerFHIR", "identifier":"1eaed605-c824-477a-a2ce-9c2a160c170c", "timestamp": "{{timestamp}}","expires": "{{expires}}" }
-     	]
-  }
-}')
+json({
+    "data": {
+        "implicit": [
+            {
+                "relationship": "physician",
+                "provider": "EpicFHIR",
+                "identifier": "1eaed605-c824-477a-a2ce-9c2a160c170c",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            },
+            {
+                "relationship": "spouse",
+                "provider": "EpicFHIR",
+                "identifier": "d205f799-210f-4036-8761-bc3d281239aa",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            },
+            {
+                "relationship": "physician",
+                "provider": "CernerFHIR",
+                "identifier": "1eaed605-c824-477a-a2ce-9c2a160c170c",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            }
+        ]
+    }
+})
 
 
 // This call allows you to modify the `status` of the record - enabling global \ coarse-grained changes to the User's consent
@@ -76,9 +95,9 @@ data('{
 @name("Modify EMR-Access Record - Change Status")
 PATCH "https://{{pd}}/consent/v1/consents/{{consentRecordId}}"
 "Content-Type": "application/json"
-data('{
-	"status": "revoked"
-}')
+json({
+    "status": "revoked"
+})
 
 
 // This call shows manipulating the `data` element with different data. The element is a JSON attribute that can contain any JSON object
@@ -86,19 +105,43 @@ data('{
 @name("Modify EMR-Access Record - Allow Specific Record Access")
 PATCH "https://{{pd}}/consent/v1/consents/{{consentRecordId}}"
 "Content-Type": "application/json"
-data('{
-  "data": {
-     "implicit": [ 
-     	{ "relationship": "physician", "provider": "EpicFHIR", "identifier":"1eaed605-c824-477a-a2ce-9c2a160c170c",	"timestamp": "{{timestamp}}", "expires": "{{expires}}" },
-     	{ "relationship": "spouse", "provider": "EpicFHIR", "identifier":"d205f799-210f-4036-8761-bc3d281239aa", "timestamp": "{{timestamp}}", "expires": "{{expires}}" },
-      	{ "relationship": "physician", "provider": "CernerFHIR", "identifier":"1eaed605-c824-477a-a2ce-9c2a160c170c", "timestamp": "{{timestamp}}","expires": "{{expires}}" }
-     	],
-      "explicit": [
-        { "relationship": "radiologist", "identifier": "{{identifier}}", "resourceType": "{{fhirResourceType}}", "recordAccess": "{{fhirRecordId}}",
-        	"timestamp": "{{timestamp}}","expires": "{{expires}}" }
+json({
+    "data": {
+        "implicit": [
+            {
+                "relationship": "physician",
+                "provider": "EpicFHIR",
+                "identifier": "1eaed605-c824-477a-a2ce-9c2a160c170c",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            },
+            {
+                "relationship": "spouse",
+                "provider": "EpicFHIR",
+                "identifier": "d205f799-210f-4036-8761-bc3d281239aa",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            },
+            {
+                "relationship": "physician",
+                "provider": "CernerFHIR",
+                "identifier": "1eaed605-c824-477a-a2ce-9c2a160c170c",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            }
+        ],
+        "explicit": [
+            {
+                "relationship": "radiologist",
+                "identifier": "{{identifier}}",
+                "resourceType": "{{fhirResourceType}}",
+                "recordAccess": "{{fhirRecordId}}",
+                "timestamp": "{{timestamp}}",
+                "expires": "{{expires}}"
+            }
         ]
-  }
-}')
+    }
+})
 
 
 // This call shows a Record DELETE request.

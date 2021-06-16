@@ -3,51 +3,56 @@
 @name("Last Login")
 POST "https://{{apic}}/api/uni/aaaLogin.json"
 "Content-Type": "application/json"
-data('{
-
-    "aaaUser" : {
-
-        "attributes" : {
-
-            "name" : "{{user}}",
-
-            "pwd" : "{{password}}"
-
+json({
+    "aaaUser": {
+        "attributes": {
+            "name": "{{user}}",
+            "pwd": "{{password}}"
         }
-
     }
-
-}')
+})
 
 
 @name("create new tenant")
 POST "https://{{apic}}/api/node/mo/uni/tn-tenant-1.json"
 "Content-Type": "application/json"
-data('{"fvTenant":{"attributes":{"dn":"uni/tn-tenant-1","name":"tenant-1","rn":"tn-tenant-1","status":"created"},"children":[]}}')
+json({
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-tenant-1",
+            "name": "tenant-1",
+            "rn": "tn-tenant-1",
+            "status": "created"
+        },
+        "children": []
+    }
+})
 
 
 @name("create multiple EPGs")
 POST "https://{{apic}}/api/node/mo/uni/tn-tenant-1/ap-test-ap/epg-{{epgname}}.json"
 "Content-Type": "application/json"
-data('{
-  "fvAEPg": {
-    "attributes": {
-      "dn": "uni/tn-tenant-1/ap-test-ap/epg-{{epgname}}",
-      "name": "{{epgname}}",
-      "rn": "epg-{{epgname}}",
-      "status": "created"
-    },
-    "children": [{
-      "fvRsBd": {
+json({
+    "fvAEPg": {
         "attributes": {
-          "tnFvBDName": "BD-sample",
-          "status": "created,modified"
+            "dn": "uni/tn-tenant-1/ap-test-ap/epg-{{epgname}}",
+            "name": "{{epgname}}",
+            "rn": "epg-{{epgname}}",
+            "status": "created"
         },
-        "children": []
-      }
-    }]
-  }
-}')
+        "children": [
+            {
+                "fvRsBd": {
+                    "attributes": {
+                        "tnFvBDName": "BD-sample",
+                        "status": "created,modified"
+                    },
+                    "children": []
+                }
+            }
+        ]
+    }
+})
 
 
 // EPG Static Binding
@@ -55,7 +60,7 @@ data('{
 @name("EPG Static Binding")
 POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
 "Content-Type": "application/json"
-data('{
+json({
     "fvRsPathAtt": {
         "attributes": {
             "encap": "vlan-{{vlan}}",
@@ -64,13 +69,13 @@ data('{
         },
         "children": []
     }
-}')
+})
 
 
 @name("Create Bridge Domain")
 POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/BD-{{bdname}}.json"
 "Content-Type": "application/json"
-data('{
+json({
     "fvBD": {
         "attributes": {
             "dn": "uni/tn-{{tenant}}/BD-{{bdname}}",
@@ -90,37 +95,39 @@ data('{
             }
         ]
     }
-}')
+})
 
 
 @name("Create EPG")
 POST "https://{{apic}}/api/node/mo/uni/tn-TE/ap-{{approfile}}/epg-{{epgname}}.json"
 "Content-Type": "application/json"
-data('{
-  "fvAEPg": {
-    "attributes": {
-      "dn": "uni/tn-TE/ap-{{approfile}}/epg-{{epgname}}",
-      "name": "{{epgname}}",
-      "rn": "{{epgname}}-EPG",
-      "status": "created"
-    },
-    "children": [{
-      "fvRsBd": {
+json({
+    "fvAEPg": {
         "attributes": {
-          "tnFvBDName": "{{bdname}}",
-          "status": "created,modified"
+            "dn": "uni/tn-TE/ap-{{approfile}}/epg-{{epgname}}",
+            "name": "{{epgname}}",
+            "rn": "{{epgname}}-EPG",
+            "status": "created"
         },
-        "children": []
-      }
-    }]
-  }
-}')
+        "children": [
+            {
+                "fvRsBd": {
+                    "attributes": {
+                        "tnFvBDName": "{{bdname}}",
+                        "status": "created,modified"
+                    },
+                    "children": []
+                }
+            }
+        ]
+    }
+})
 
 
 @name("Create Application Profiles")
 POST "https://{{apic}}/api/node/mo/uni/tn-TE.json"
 "Content-Type": "application/json"
-data('{
+json({
     "fvAp": {
         "attributes": {
             "dn": "uni/tn-TE/ap-{{approfile}}",
@@ -130,7 +137,7 @@ data('{
         },
         "children": []
     }
-}')
+})
 
 
 @name("show VRFs")
@@ -1578,7 +1585,7 @@ data('        {
 @name("EPG Static Binding (VPC)")
 POST "https://{{apic}}/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
 "Content-Type": "application/json"
-data('{
+json({
     "fvRsPathAtt": {
         "attributes": {
             "encap": "vlan-{{vlan}}",
@@ -1587,7 +1594,7 @@ data('{
         },
         "children": []
     }
-}')
+})
 
 
 // gg
@@ -1642,15 +1649,15 @@ GET "https://10.31.32.201/api/node/class/faultInst.json"
 @name("assign EGP to Physical Domain")
 POST "https://10.31.32.201/api/node/mo/uni/tn-{{tenant}}/ap-{{approfile}}/epg-{{epgname}}.json"
 "Content-Type": "application/json"
-data('{
-	"fvRsDomAtt": {
-		"attributes": {
-			"tDn": "uni/phys-{{PHYSICALDOM}}",
-			"status": "created"
-		},
-		"children": []
-	}
-}')
+json({
+    "fvRsDomAtt": {
+        "attributes": {
+            "tDn": "uni/phys-{{PHYSICALDOM}}",
+            "status": "created"
+        },
+        "children": []
+    }
+})
 
 
 @name("query BD")

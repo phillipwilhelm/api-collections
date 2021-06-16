@@ -34,7 +34,7 @@ GET "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/acc
 POST "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/accesspolicies/{{fmc_policy}}/accessrules"
 "Content-Type": "application/json"
 "x-auth-access-token": "{{fmc_token}}"
-data('{
+json({
     "action": "ALLOW",
     "enabled": true,
     "type": "AccessRule",
@@ -42,10 +42,10 @@ data('{
     "vlanTags": {},
     "destinationNetworks": {
         "literals": [
-          {
-            "type": "Network",
-            "value": "10.1.1.0/24"
-          }
+            {
+                "type": "Network",
+                "value": "10.1.1.0/24"
+            }
         ]
     },
     "variableSet": {
@@ -53,7 +53,7 @@ data('{
         "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
         "type": "VariableSet"
     },
-     "ipsPolicy": {
+    "ipsPolicy": {
         "name": "Balanced Security and Connectivity",
         "id": "abba00a0-cf29-425c-9d75-49699aadc898",
         "type": "IntrusionPolicy"
@@ -62,7 +62,7 @@ data('{
     "logEnd": true,
     "logFiles": false,
     "name": "_sevt2018-api-rule"
-    }')
+})
 
 
 // REST call to make a new Access rule inside a policy in bulk
@@ -73,66 +73,66 @@ POST "https://{{fmc_hostname}}/api/fmc_config/v1/domain/{{fmc_domain}}/policy/ac
 "x-auth-access-token": "{{fmc_token}}"
 ? "bulk"= "true"
 ? "section"= "mandatory"
-data('[
-	{
-    "action": "ALLOW",
-    "enabled": true,
-    "type": "AccessRule",
-    "sendEventsToFMC": true,
-    "vlanTags": {},
-    "destinationNetworks": {
-        "literals": [
-          {
-            "type": "Network",
-            "value": "10.1.1.0/24"
-          }
-        ]
+json([
+    {
+        "action": "ALLOW",
+        "enabled": true,
+        "type": "AccessRule",
+        "sendEventsToFMC": true,
+        "vlanTags": {},
+        "destinationNetworks": {
+            "literals": [
+                {
+                    "type": "Network",
+                    "value": "10.1.1.0/24"
+                }
+            ]
+        },
+        "variableSet": {
+            "name": "Default-Set",
+            "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+            "type": "VariableSet"
+        },
+        "ipsPolicy": {
+            "name": "Balanced Security and Connectivity",
+            "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+            "type": "IntrusionPolicy"
+        },
+        "logBegin": false,
+        "logEnd": true,
+        "logFiles": false,
+        "name": "_sevt2018-api-rule-1"
     },
-    "variableSet": {
-        "name": "Default-Set",
-        "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
-        "type": "VariableSet"
-    },
-     "ipsPolicy": {
-        "name": "Balanced Security and Connectivity",
-        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
-        "type": "IntrusionPolicy"
-    },
-    "logBegin": false,
-    "logEnd": true,
-    "logFiles": false,
-    "name": "_sevt2018-api-rule-1"
-    },
-   	{
-    "action": "ALLOW",
-    "enabled": true,
-    "type": "AccessRule",
-    "sendEventsToFMC": true,
-    "vlanTags": {},
-    "destinationNetworks": {
-        "literals": [
-          {
-            "type": "Network",
-            "value": "10.2.1.0/24"
-          }
-        ]
-    },
-    "variableSet": {
-        "name": "Default-Set",
-        "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
-        "type": "VariableSet"
-    },
-     "ipsPolicy": {
-        "name": "Balanced Security and Connectivity",
-        "id": "abba00a0-cf29-425c-9d75-49699aadc898",
-        "type": "IntrusionPolicy"
-    },
-    "logBegin": false,
-    "logEnd": true,
-    "logFiles": false,
-    "name": "_sevt2018-api-rule-2"
+    {
+        "action": "ALLOW",
+        "enabled": true,
+        "type": "AccessRule",
+        "sendEventsToFMC": true,
+        "vlanTags": {},
+        "destinationNetworks": {
+            "literals": [
+                {
+                    "type": "Network",
+                    "value": "10.2.1.0/24"
+                }
+            ]
+        },
+        "variableSet": {
+            "name": "Default-Set",
+            "id": "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+            "type": "VariableSet"
+        },
+        "ipsPolicy": {
+            "name": "Balanced Security and Connectivity",
+            "id": "abba00a0-cf29-425c-9d75-49699aadc898",
+            "type": "IntrusionPolicy"
+        },
+        "logBegin": false,
+        "logEnd": true,
+        "logFiles": false,
+        "name": "_sevt2018-api-rule-2"
     }
-]')
+])
 
 
 // REST call to get all configurted CTID feeds in FMC
@@ -149,27 +149,27 @@ GET "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
 POST "https://{{fmc_hostname}}/api/fmc_tid/v1/domain/{{fmc_domain}}/tid/source"
 "X-auth-access-token": "{{fmc_token}}"
 "Content-Type": "application/json"
-data('{
-  "startHour": 2,
-  "name": "SANS Suspicious Domains",
-  "description": "SANS medium sensitivity domain listing",
-  "feedType": "flatfile",
-  "feedContent": "DomainNameObjectType",
-  "delivery": "url",
-  "uri": "https://isc.sans.edu/feeds/suspiciousdomains_Medium.txt",
-  "refresh": 1440,
-  "version": "1.0.0",
-  "downloadOn": true,
-  "params": {
-    "selfSignedServerCertificate": "true",
-    "hostnameVerifier": "allow_all"
-  },
-  "property": {
-    "ttl": 90,
-    "publish": true,
-    "action": "block"
-  }
-}')
+json({
+    "startHour": 2,
+    "name": "SANS Suspicious Domains",
+    "description": "SANS medium sensitivity domain listing",
+    "feedType": "flatfile",
+    "feedContent": "DomainNameObjectType",
+    "delivery": "url",
+    "uri": "https://isc.sans.edu/feeds/suspiciousdomains_Medium.txt",
+    "refresh": 1440,
+    "version": "1.0.0",
+    "downloadOn": true,
+    "params": {
+        "selfSignedServerCertificate": "true",
+        "hostnameVerifier": "allow_all"
+    },
+    "property": {
+        "ttl": 90,
+        "publish": true,
+        "action": "block"
+    }
+})
 
 
 

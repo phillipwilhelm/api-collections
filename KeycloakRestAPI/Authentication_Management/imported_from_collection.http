@@ -61,7 +61,7 @@ GET "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/executions/{
 @name("Update authentication execution [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/executions/{{executionId}}"
 "Content-Type": "application/json"
-data('{
+json({
     "id": "23e192b0-2811-4441-9f66-99bd1c4687f6",
     "authenticator": "auth-cookie",
     "authenticatorFlow": false,
@@ -73,7 +73,7 @@ data('{
     "required": false,
     "conditional": false,
     "disabled": false
-}')
+})
 
 
 // Lower execution’s priority
@@ -95,43 +95,43 @@ POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/executions/
 @name("Create a new authentication flow [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows"
 "Content-Type": "application/json"
-data('{
-        "alias": "browser-for-fun",
-        "description": "browser based authentication",
-        "providerId": "basic-flow",
-        "topLevel": true,
-        "builtIn": true,
-        "authenticationExecutions": [
-            {
-                "authenticator": "auth-cookie",
-                "requirement": "ALTERNATIVE",
-                "priority": 10,
-                "userSetupAllowed": false,
-                "autheticatorFlow": false
-            },
-            {
-                "authenticator": "auth-spnego",
-                "requirement": "DISABLED",
-                "priority": 20,
-                "userSetupAllowed": false,
-                "autheticatorFlow": false
-            },
-            {
-                "authenticator": "identity-provider-redirector",
-                "requirement": "ALTERNATIVE",
-                "priority": 25,
-                "userSetupAllowed": false,
-                "autheticatorFlow": false
-            },
-            {
-                "requirement": "ALTERNATIVE",
-                "priority": 30,
-                "flowAlias": "forms",
-                "userSetupAllowed": false,
-                "autheticatorFlow": true
-            }
-        ]
-    }')
+json({
+    "alias": "browser-for-fun",
+    "description": "browser based authentication",
+    "providerId": "basic-flow",
+    "topLevel": true,
+    "builtIn": true,
+    "authenticationExecutions": [
+        {
+            "authenticator": "auth-cookie",
+            "requirement": "ALTERNATIVE",
+            "priority": 10,
+            "userSetupAllowed": false,
+            "autheticatorFlow": false
+        },
+        {
+            "authenticator": "auth-spnego",
+            "requirement": "DISABLED",
+            "priority": 20,
+            "userSetupAllowed": false,
+            "autheticatorFlow": false
+        },
+        {
+            "authenticator": "identity-provider-redirector",
+            "requirement": "ALTERNATIVE",
+            "priority": 25,
+            "userSetupAllowed": false,
+            "autheticatorFlow": false
+        },
+        {
+            "requirement": "ALTERNATIVE",
+            "priority": 30,
+            "flowAlias": "forms",
+            "userSetupAllowed": false,
+            "autheticatorFlow": true
+        }
+    ]
+})
 
 
 // Copy existing authentication flow under a new name The new name is given as 'newName' attribute of the passed JSON object
@@ -139,9 +139,9 @@ data('{
 @name("Copy existing authentication flow [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{LowerCaseAliasFlow}}/copy"
 "Content-Type": "application/json"
-data('{
-	"newName": "newName"
-}')
+json({
+    "newName": "newName"
+})
 
 
 // Get authentication flows Returns a list of authentication flows.
@@ -170,13 +170,13 @@ GET "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{flow
 @name("Update an authentication flow [SAT]")
 PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{flowId}}"
 "Content-Type": "application/json"
-data('{
+json({
     "alias": "browser",
     "description": "browser based authentication - still getting error, but updates me",
     "providerId": "basic-flow",
     "topLevel": true,
     "builtIn": true
-}')
+})
 
 
 // Delete an authentication flow
@@ -193,20 +193,20 @@ DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{d
 @name("Update authentication executions of a flow [SAT]")
 PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{LowerCaseAliasFlow}}/executions"
 "Content-Type": "application/json"
-data('	{
-        "id": "23e192b0-2811-4441-9f66-99bd1c4687f6",
-        "requirement": "ALTERNATIVE",
-        "displayName": "Cookie",
-        "requirementChoices": [
-            "REQUIRED",
-            "ALTERNATIVE",
-            "DISABLED"
-        ],
-        "configurable": false,
-        "providerId": "auth-cookie",
-        "level": 0,
-        "index": 0
-    }')
+json({
+    "id": "23e192b0-2811-4441-9f66-99bd1c4687f6",
+    "requirement": "ALTERNATIVE",
+    "displayName": "Cookie",
+    "requirementChoices": [
+        "REQUIRED",
+        "ALTERNATIVE",
+        "DISABLED"
+    ],
+    "configurable": false,
+    "providerId": "auth-cookie",
+    "level": 0,
+    "index": 0
+})
 
 
 // Add new authentication execution to a flow
@@ -215,7 +215,9 @@ data('	{
 @name("Add new authentication executions to a flow [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{LowerCaseAliasFlow}}/executions/execution"
 "Content-Type": "application/json"
-data('{"provider":"reset-password"}')
+json({
+    "provider": "reset-password"
+})
 
 
 // Register a new required actions
@@ -223,10 +225,10 @@ data('{"provider":"reset-password"}')
 @name("Register a new required actions [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/register-required-action"
 "Content-Type": "application/json"
-data('{
-	"providerId":"reset-password",
-	"name": "new-reset-password"
-}')
+json({
+    "providerId": "reset-password",
+    "name": "new-reset-password"
+})
 
 
 // Get required actions Returns a list of required actions.
@@ -262,15 +264,15 @@ POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/required-ac
 @name("Update required action [SAT]")
 PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/required-actions/{{aliasRequiredAction}}"
 "Content-Type": "application/json"
-data('    {
-    	"alias": "UPDATE_PASSWORD",
-        "name": "Update Password +",
-        "providerId": "UPDATE_PASSWORD",
-        "enabled": true,
-        "defaultAction": false,
-        "priority": 30,
-        "config": {}
-    }')
+json({
+    "alias": "UPDATE_PASSWORD",
+    "name": "Update Password +",
+    "providerId": "UPDATE_PASSWORD",
+    "enabled": true,
+    "defaultAction": false,
+    "priority": 30,
+    "config": {}
+})
 
 
 // Delete required action
@@ -292,11 +294,12 @@ GET "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/required-act
 @name("Add new flow with new execution to existing flow [SAT]")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/flows/{{LowerCaseAliasFlow}}/executions/flow"
 "Content-Type": "application/json"
-data('{"provider":"reset-password",
-	"alias": "bff",
-	"type": "generic",
-	"description": "new flow bff"
-}')
+json({
+    "provider": "reset-password",
+    "alias": "bff",
+    "type": "generic",
+    "description": "new flow bff"
+})
 
 
 // Delete execution
@@ -311,11 +314,11 @@ DELETE "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/execution
 @name("Update authenticator configuration [SAT]")
 PUT "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/config/{{configurationId}}"
 "Content-Type": "application/json"
-data('{
-"config": {
+json({
+    "config": {
         "update.profile.on.first.login": "on"
     }
-}')
+})
 
 
 // Add new authentication execution
@@ -323,11 +326,11 @@ data('{
 @name("Add authenticator configuration [SAT] Copy")
 POST "https://{{keycloak_url}}/admin/realms/{{realm}}/authentication/config/{{configurationId}}"
 "Content-Type": "application/json"
-data('{
-"config": {
+json({
+    "config": {
         "update.profile.on.first.login": "on"
     }
-}')
+})
 
 
 // Delete authenticator configuration

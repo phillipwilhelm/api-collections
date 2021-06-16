@@ -27,22 +27,22 @@ GET "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/acti
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "priority": 10,
     "type": "LOGIN",
     "condition": {
         "not": {
-        "ipRange": [
-            "10.1.1.1/8",
-            "10.0.0.0/8"
-        ],
-        "contains": "${flow.request.http.remoteIp}"
-     }
+            "ipRange": [
+                "10.1.1.1/8",
+                "10.0.0.0/8"
+            ],
+            "contains": "${flow.request.http.remoteIp}"
+        }
     },
     "recovery": {
-    	"enabled": true
+        "enabled": true
     }
-}')
+})
 
 
 // The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
@@ -58,35 +58,37 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
-  "priority": 30,
-  "type": "MULTI_FACTOR_AUTHENTICATION",
-  "condition": {
-    "anonymousNetwork" : ["1.1.1.1/10"],
-    "valid": "${flow.request.http.remoteIp}"
+json({
+    "priority": 30,
+    "type": "MULTI_FACTOR_AUTHENTICATION",
+    "condition": {
+        "anonymousNetwork": [
+            "1.1.1.1/10"
+        ],
+        "valid": "${flow.request.http.remoteIp}"
     },
-  "recovery": {
-    "enabled": false
-  },
-  "sms": {
-    "enabled": true
-  },
-  "email": {
-    "enabled": true
-  },
-  "applications": [
-    {
-      "id": "{{appID}}",
-      "autoEnrollment": {
+    "recovery": {
+        "enabled": false
+    },
+    "sms": {
         "enabled": true
-      },
-      "deviceAuthorization": {
-        "enabled": true,
-        "extraVerification": "permissive"
-      }
-    }
-  ]
-}')
+    },
+    "email": {
+        "enabled": true
+    },
+    "applications": [
+        {
+            "id": "{{appID}}",
+            "autoEnrollment": {
+                "enabled": true
+            },
+            "deviceAuthorization": {
+                "enabled": true,
+                "extraVerification": "permissive"
+            }
+        }
+    ]
+})
 
 
 // The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
@@ -103,7 +105,7 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "type": "IDENTIFIER_FIRST",
     "condition": {
         "greater": 600,
@@ -124,7 +126,7 @@ data('{
             "id": "{{providerID}}"
         }
     ]
-}')
+})
 
 
 // The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates a new sign-on policy action resource. The `priority` property specifies the order in which this action (and its conditions) is evaluated when evaluating the policy. Property values range from `1` to `{maxInt}`. The action with a `priority` value of `1` is evaluated first.
@@ -144,21 +146,21 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "priority": 40,
     "type": "PROGRESSIVE_PROFILING",
     "condition": {
-                "or": [
-                    {
-                        "value": "${user.population.id}",
-                        "equals": "{{popID}}"
-                    },
-                    {
-                        "value": "${user.type}",
-                        "equals": "Customer"
-                    }
-                ]
+        "or": [
+            {
+                "value": "${user.population.id}",
+                "equals": "{{popID}}"
             },
+            {
+                "value": "${user.type}",
+                "equals": "Customer"
+            }
+        ]
+    },
     "promptText": "For the best experience, we need a couple things from you.",
     "promptIntervalSeconds": 3600,
     "preventMultiplePromptsPerFlow": false,
@@ -168,7 +170,7 @@ data('{
             "required": false
         }
     ]
-}')
+})
 
 
 // The `PUT /environments/{environmentId}/signOnPolicies/{policyId}/actions/{actionId}` operation updates the sign-on policy action resource specified by its ID in the request URL.
@@ -178,48 +180,47 @@ data('{
 PUT "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions/{{actionID}}"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
-  "priority": 2,
-  "condition": {
-    "or": [
-      {
-        "not": {
-          "ipRange": [
-            "10.5.3.72/24"
-          ],
-          "contains": "${flow.request.http.remoteIp}"
-        }
-      },
-      {
-        "secondsSince": "${session.lastSignOn.withAuthenticator.pwd.at}",
-        "greater": 50400
-      },
-      {
-        "value": "${user.population.id}",
-        "equals": "3985fb03-df09-4b00-a01f-89fd529c9de2"
-      },
-      {
-        "value": "${user.email}",
-        "equals": "joe@pingidentity.com"
-      },
-      {
-        "ipRisk": {
-          "minScore": 80,
-          "maxScore": 100
-        },
-        "valid": "${flow.request.http.remoteIp}"
-      },
-      {
-        "geoVelocity": "${flow.request.http.remoteIp}",
-        "valid": {
-          "previousSuccessfulAuthenticationTime": "${user.lastSignOn.at}",
-          "previousSuccessfulAuthenticationIp": "${user.lastSignOn.remoteIp}"
-        }
-      }
-    ]
-  }
-}
-')
+json({
+    "priority": 2,
+    "condition": {
+        "or": [
+            {
+                "not": {
+                    "ipRange": [
+                        "10.5.3.72/24"
+                    ],
+                    "contains": "${flow.request.http.remoteIp}"
+                }
+            },
+            {
+                "secondsSince": "${session.lastSignOn.withAuthenticator.pwd.at}",
+                "greater": 50400
+            },
+            {
+                "value": "${user.population.id}",
+                "equals": "3985fb03-df09-4b00-a01f-89fd529c9de2"
+            },
+            {
+                "value": "${user.email}",
+                "equals": "joe@pingidentity.com"
+            },
+            {
+                "ipRisk": {
+                    "minScore": 80,
+                    "maxScore": 100
+                },
+                "valid": "${flow.request.http.remoteIp}"
+            },
+            {
+                "geoVelocity": "${flow.request.http.remoteIp}",
+                "valid": {
+                    "previousSuccessfulAuthenticationTime": "${user.lastSignOn.at}",
+                    "previousSuccessfulAuthenticationIp": "${user.lastSignOn.remoteIp}"
+                }
+            }
+        ]
+    }
+})
 
 
 // The following sample shows the `DELETE /environments/{environmentId}/signOnPolicies/{policyId}/actions/{actionId}` operation to delete the sign-on policy action.

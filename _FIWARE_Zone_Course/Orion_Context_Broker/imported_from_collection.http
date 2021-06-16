@@ -27,23 +27,22 @@ POST "https://{{host}}/v2/entities"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-	"id": "myEntity",
-	"type": "myType",
-	"description": {
-		"value": "My happy entity",
-		"type": "Text"
-	},
-	"online": {
-		"value": true,
-		"type": "Boolean"
-	},
-	"temperature": {
-		"value": 42.3,
-		"type": "Number"
-	}
-}
-		')
+json({
+    "id": "myEntity",
+    "type": "myType",
+    "description": {
+        "value": "My happy entity",
+        "type": "Text"
+    },
+    "online": {
+        "value": true,
+        "type": "Boolean"
+    },
+    "temperature": {
+        "value": 42.3,
+        "type": "Number"
+    }
+})
 
 
 @name("Get a single entity")
@@ -59,13 +58,12 @@ POST "https://{{host}}/v2/entities/myEntity/attrs"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-	"online": {
-		"value": false,
-		"type": "Boolean"
-	}
-}
-		')
+json({
+    "online": {
+        "value": false,
+        "type": "Boolean"
+    }
+})
 
 
 @name("Update entity attributes (strict update)")
@@ -74,13 +72,12 @@ PATCH "https://{{host}}/v2/entities/myEntity/attrs"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-	"online": {
-		"value": false,
-		"type": "Boolean"
-	}
-}
-		')
+json({
+    "online": {
+        "value": false,
+        "type": "Boolean"
+    }
+})
 
 
 @name("Update entity attributes (replace)")
@@ -89,20 +86,20 @@ PUT "https://{{host}}/v2/entities/myEntity/attrs"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-	"description": {
-		"value": "My even more happy entity",
-		"type": "Text"
-	},
-	"status": {
-		"value": "active",
-		"type": "Text"
-	},
-	"humidity": {
-		"value": 61.23,
-		"type": "Number"
-	}
-}		')
+json({
+    "description": {
+        "value": "My even more happy entity",
+        "type": "Text"
+    },
+    "status": {
+        "value": "active",
+        "type": "Text"
+    },
+    "humidity": {
+        "value": 61.23,
+        "type": "Number"
+    }
+})
 
 
 @name("Delete a single entity")
@@ -126,10 +123,10 @@ PUT "https://{{host}}/v2/entities/myEntity/attrs/temperature"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "type": "Number",
     "value": -10.2
-}')
+})
 
 
 @name("Delete attribute")
@@ -169,28 +166,28 @@ POST "https://{{host}}/v2/subscriptions"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-  "description": "A subscription to get info about myEntity",
-  "subject": {
-    "entities": [
-      {
-        "id": "myEntity",
-        "type": "myType"
-      }
-    ],
-    "condition": {
-      "attrs": [ ]
-    }
-  },
-  "notification": {
-    "http": {
-      "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1"
+json({
+    "description": "A subscription to get info about myEntity",
+    "subject": {
+        "entities": [
+            {
+                "id": "myEntity",
+                "type": "myType"
+            }
+        ],
+        "condition": {
+            "attrs": []
+        }
     },
-    "attrs": [
-      "temperature"
-    ]
-  }
-}')
+    "notification": {
+        "http": {
+            "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1"
+        },
+        "attrs": [
+            "temperature"
+        ]
+    }
+})
 
 
 @name("Create subscription with conditions")
@@ -199,24 +196,33 @@ POST "https://{{host}}/v2/subscriptions"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-  "description": "A subscription to get info about myEntity with conditions",
-  "subject": {
-    "entities": [{ 
-  "id": "myEntity",
-  "type": "myType"
-}],
-    "condition": {
-      "attrs": ["temperature"],
-      "expression": {"q": "temperature<10;temperature>0"}
+json({
+    "description": "A subscription to get info about myEntity with conditions",
+    "subject": {
+        "entities": [
+            {
+                "id": "myEntity",
+                "type": "myType"
+            }
+        ],
+        "condition": {
+            "attrs": [
+                "temperature"
+            ],
+            "expression": {
+                "q": "temperature<10;temperature>0"
+            }
+        }
+    },
+    "notification": {
+        "http": {
+            "url": "https://putsreq.com/aVGLyszHUMDEHgtUe9C6"
+        },
+        "attrs": [
+            "temperature"
+        ]
     }
-  },
-  "notification": {
-    "http": {"url": "https://putsreq.com/aVGLyszHUMDEHgtUe9C6"},
-    "attrs": ["temperature"]
-  }
-}
-')
+})
 
 
 @name("Create subscription (custom notification)")
@@ -225,36 +231,36 @@ POST "https://{{host}}/v2/subscriptions"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-  "description": "A subscription to get info about myEntity",
-  "subject": {
-    "entities": [
-      {
-        "id": "myEntity",
-        "type": "myType"
-      }
-    ],
-    "condition": {
-      "attrs": [ ]
-    }
-  },
-  "notification": {
-    "httpCustom": {
-      "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1",
-      "headers": {
-      	"Content-Type": "application/xml",
-      	"X-EntityType": "${type}"
-      },
-      "qs": {
-      	"entityId": "${id}"
-      },
-      "payload": "%3Ctemperature%3E${temperature}%3C/temperature%3E"
+json({
+    "description": "A subscription to get info about myEntity",
+    "subject": {
+        "entities": [
+            {
+                "id": "myEntity",
+                "type": "myType"
+            }
+        ],
+        "condition": {
+            "attrs": []
+        }
     },
-    "attrs": [
-      "temperature"
-    ]
-  }
-}')
+    "notification": {
+        "httpCustom": {
+            "url": "http://putsreq.com/aGSZ2hnoTXRaO4JHZNY1",
+            "headers": {
+                "Content-Type": "application/xml",
+                "X-EntityType": "${type}"
+            },
+            "qs": {
+                "entityId": "${id}"
+            },
+            "payload": "%3Ctemperature%3E${temperature}%3C/temperature%3E"
+        },
+        "attrs": [
+            "temperature"
+        ]
+    }
+})
 
 
 @name("Get a single subscription")
@@ -270,9 +276,9 @@ PATCH "https://{{host}}/v2/subscriptions/59e8c603779d7a40b18c714d"
 "Fiware-ServicePath": "{{subservice}}"
 "X-Auth-Token": "{{token}}"
 "Content-Type": "application/json"
-data('{
-	"status": "inactive"
-}')
+json({
+    "status": "inactive"
+})
 
 
 @name("Delete a single subscription")

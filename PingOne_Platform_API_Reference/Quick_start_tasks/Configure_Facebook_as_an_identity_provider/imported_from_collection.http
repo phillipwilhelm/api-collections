@@ -18,14 +18,14 @@
 POST "https://{{apiPath}}/environments/{{envID}}/identityProviders"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
-  "name": "FacebookIdP",
-  "description": "Facebook social media identity provider.",
-  "enabled": true,
-  "type": "FACEBOOK",
-  "appId" : "{facebookAppId}",
-  "appSecret": "{facebookAppSecret}"
-}')
+json({
+    "name": "FacebookIdP",
+    "description": "Facebook social media identity provider.",
+    "enabled": true,
+    "type": "FACEBOOK",
+    "appId": "{facebookAppId}",
+    "appSecret": "{facebookAppSecret}"
+})
 
 
 // The `POST /environments/{environmentId}/identityProviders/{providerId}/attribute` endpoint creates the identity provider attribute mappings. The `attributes` HAL link returned in the Step 1 response provides the URL for the request.
@@ -44,11 +44,11 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/identityProviders/{{idpID}}/attributes"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "name": "email",
     "update": "EMPTY_ONLY",
     "value": "${providerAttributes.email}"
-}')
+})
 
 
 // You can use the `POST /environments/{environmentId}/signOnPolicies` endpoint to create the new sign-on policy.
@@ -64,10 +64,10 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
-  "name": "FacebookPolicy",
-  "description": "A sign-on policy for the Facebook identity provider."
-}')
+json({
+    "name": "FacebookPolicy",
+    "description": "A sign-on policy for the Facebook identity provider."
+})
 
 
 // This step associates a sign-on policy action with the new sign-on policy you created in Step 3. The `POST /environments/{environmentId}/signOnPolicies/{policyId}/actions` operation creates the sign-on policy action resource, which is associated with the sign-on policy (`{policyId}`) specified in the request URL.
@@ -114,7 +114,7 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/signOnPolicies/{{policyID}}/actions"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "environment": {
         "id": "{{envID}}"
     },
@@ -124,16 +124,16 @@ data('{
     "priority": 1,
     "type": "LOGIN",
     "socialProviders.id": "{{idpID}}",
-    "registration" : {
-      "enabled" : true,
-      "population" : {
-        "id" : "{{PopID}}"
-      }
+    "registration": {
+        "enabled": true,
+        "population": {
+            "id": "{{PopID}}"
+        }
     },
-    "recovery" : {
-      "enabled" : true
+    "recovery": {
+        "enabled": true
     }
-}')
+})
 
 
 // To use the new sign-on policy, the `POST /environments/{environmentId}/applications/{applicationId}/signOnPolicyAssignments` operation assigns the new sign-on policy to the application designated by its ID in the request URL. The request body requires the sign-on policy property `id` and an integer value for the `priority` property.
@@ -142,12 +142,12 @@ data('{
 POST "https://{{apiPath}}/environments/{{envID}}/applications/{{appID}}/signOnPolicyAssignments"
 "Content-Type": "application/json"
 "Authorization": "Bearer {{jwtToken}}"
-data('{
+json({
     "signOnPolicy": {
-      "id": "5edef002-3f1f-4e00-a4db-130807f41234"
+        "id": "5edef002-3f1f-4e00-a4db-130807f41234"
     },
     "priority": 1
-}')
+})
 
 
 

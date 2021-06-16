@@ -7,18 +7,20 @@ POST "https://{{url}}/validation-rules"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "name": "postman: Order Amount greater than 9.99$",
     "rules": {
-    	"1": {
-    		"name": "order.amount",
-    		"conditions": {
-    			"$more_than": [999]
-    		}
-    	},
-    	"logic": "1"
+        "1": {
+            "name": "order.amount",
+            "conditions": {
+                "$more_than": [
+                    999
+                ]
+            }
+        },
+        "logic": "1"
     }
-}')
+})
 
 
 // Create discount voucher without code
@@ -28,18 +30,20 @@ POST "https://{{url}}/vouchers"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
+json({
     "type": "DISCOUNT_VOUCHER",
     "discount": {
         "percent_off": "10.0",
         "type": "PERCENT"
     },
     "redemption": {
-        "quantity": "2" 
+        "quantity": "2"
     },
     "category": "postman",
-    "validation_rules": ["{{validation-rule-id}}"]
-}')
+    "validation_rules": [
+        "{{validation-rule-id}}"
+    ]
+})
 
 
 @name("Validate")
@@ -47,15 +51,27 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/validate"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "order":{
-    "amount":1000000,
-    "items":[
-      {"quantity": 20, "amount": 10000, "source_id": "internal_crm_id_1498629107", "related_object": "product", "price": 230 },
-      {"quantity": 20, "amount": 10000, "source_id": "internal_crm_id_1498632066", "related_object": "product", "price": 9000 }
-      ]
-  }
-}')
+json({
+    "order": {
+        "amount": 1000000,
+        "items": [
+            {
+                "quantity": 20,
+                "amount": 10000,
+                "source_id": "internal_crm_id_1498629107",
+                "related_object": "product",
+                "price": 230
+            },
+            {
+                "quantity": 20,
+                "amount": 10000,
+                "source_id": "internal_crm_id_1498632066",
+                "related_object": "product",
+                "price": 9000
+            }
+        ]
+    }
+})
 
 
 @name("Redeem")
@@ -63,15 +79,23 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "customer": {
-    "source_id": "tom+test@sikora.im", "metadata": {"a": 2}
-  },
-  "order": {
-    "amount": 10000,
-    "items": [{"quantity": 1, "amount": 10000}]
-  }
-}')
+json({
+    "customer": {
+        "source_id": "tom+test@sikora.im",
+        "metadata": {
+            "a": 2
+        }
+    },
+    "order": {
+        "amount": 10000,
+        "items": [
+            {
+                "quantity": 1,
+                "amount": 10000
+            }
+        ]
+    }
+})
 
 
 @name("--- delay ---")
@@ -84,7 +108,7 @@ GET "https://{{url}}/orders/{{order-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{}')
+
 
 
 @name("Redeem - client side")
@@ -94,15 +118,15 @@ POST "https://{{clientUrl}}/redeem"
 "Content-Type": "application/json"
 "Origin": "origin"
 ? "code"= "{{voucher-code}}"
-data('{
-  "customer": {
-    "source_id": "{{test-customer-email}}",
-    "email": "{{test-customer-email}}"
-  },
-  "order": {
-    "amount": 10000
-  }
-}')
+json({
+    "customer": {
+        "source_id": "{{test-customer-email}}",
+        "email": "{{test-customer-email}}"
+    },
+    "order": {
+        "amount": 10000
+    }
+})
 
 
 @name("--- delay ---")
@@ -115,7 +139,7 @@ GET "https://{{url}}/redemptions/{{redemption-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{}')
+
 
 
 @name("Validate - quantity exceeded")
@@ -123,11 +147,11 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/validate"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "order": {
-    "amount": 10000
-  }
-}')
+json({
+    "order": {
+        "amount": 10000
+    }
+})
 
 
 // Should fail because the redemption limit is set to 2
@@ -137,12 +161,12 @@ POST "https://{{url}}/vouchers/{{voucher-code}}/redemption"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-  "order": {
-  	"source_id": "{{test-order-source-id}}",
-    "amount": 10000
-  }
-}')
+json({
+    "order": {
+        "source_id": "{{test-order-source-id}}",
+        "amount": 10000
+    }
+})
 
 
 @name("--- delay ---")
@@ -155,7 +179,7 @@ GET "https://{{url}}/orders/{{test-order-source-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{}')
+
 
 
 @name("Get voucher  redemptions")
@@ -163,7 +187,7 @@ GET "https://{{url}}/vouchers/{{voucher-code}}/redemption"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{}')
+
 
 
 @name("List success redemptions for customer")
@@ -177,7 +201,7 @@ GET "https://{{url}}/redemptions"
 ? "page"= "1"
 ? "[created_at][after]"= "2017"
 ? "campaign"= "Test - 5"
-data('{}')
+
 
 
 @name("Validate - client side")
@@ -212,10 +236,10 @@ DELETE "https://{{url}}/customers/{{customer-id}}"
 "X-App-Id": "{{X-App-Id}}"
 "X-App-Token": "{{X-App-Token}}"
 "Content-Type": "application/json"
-data('{
-    "name" : "Jan Kowalski",
-    "email" : "jan{{$timestamp}}@kowalski.pl"
-}')
+json({
+    "name": "Jan Kowalski",
+    "email": "jan{{$timestamp}}@kowalski.pl"
+})
 
 
 

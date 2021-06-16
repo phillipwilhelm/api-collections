@@ -41,11 +41,16 @@ GET "https://10.170.0.100/_cat/indices"
 @name("Alias para indices")
 POST "https://10.170.0.100/_aliases"
 "Content-Type": "application/json"
-data('{
+json({
     "actions": [
-        {"add": {"index": "groupandcontacts", "alias": "groupandcontacts_alias"}}
+        {
+            "add": {
+                "index": "groupandcontacts",
+                "alias": "groupandcontacts_alias"
+            }
+        }
     ]
-}')
+})
 
 
 // <strong>Esquema: </strong>
@@ -71,11 +76,11 @@ data('{
 @name("modificar index")
 PUT "https://10.170.0.100/groupandcontacts/_settings"
 "Content-Type": "application/json"
-data('{
+json({
     "index": {
         "number_of_replicas": 2
     }
-}')
+})
 
 
 // <strong>Esquema: </strong>
@@ -119,31 +124,29 @@ GET "https://10.170.0.100/groupandcontacts/_recovery"
 @name("crear documentos")
 PUT "https://10.170.0.100/clientes/_doc/4"
 "Content-Type": "application/json"
-data('{
-  "name" :"documento de pruebas _ version_3",
-  "createdOn": "2019-04-08T11:28:20.906+0000",
-  "startDate": "2019-04-08T11:28:20.906+0000"
-}')
+json({
+    "name": "documento de pruebas _ version_3",
+    "createdOn": "2019-04-08T11:28:20.906+0000",
+    "startDate": "2019-04-08T11:28:20.906+0000"
+})
 
 
 @name("crear documentos sin id")
 POST "https://10.170.0.100/clientes/_doc"
 "Content-Type": "application/json"
-data('{ 
-"account_number" : 0 , 
-"balance" : 16623 ,
-"firstname" : "Bradshaw" ,
-"lastname" : "Mckenzie" ,
-"age" : 29 ,
-"gender" : "F" , 
-"address" : "244 Columbus Lugar " ,
-" empleador " : " Euron " ,
-" correo electrónico " : " bradshawmckenzie@euron.com " ,
-" ciudad " : " Hobucken " ,
-"estado" : "CO" 
-	
-}
-     ')
+json({
+    "account_number": 0,
+    "balance": 16623,
+    "firstname": "Bradshaw",
+    "lastname": "Mckenzie",
+    "age": 29,
+    "gender": "F",
+    "address": "244 Columbus Lugar ",
+    " empleador ": " Euron ",
+    " correo electrónico ": " bradshawmckenzie@euron.com ",
+    " ciudad ": " Hobucken ",
+    "estado": "CO"
+})
 
 
 @name("cosultar  documento")
@@ -178,15 +181,15 @@ GET "https://10.170.0.100/clientes/_doc/1"
 @name("modificar documentos ")
 POST "https://10.170.0.100/clientes/_doc/2/_update"
 "Content-Type": "application/json"
-data('{
-	"doc":{
-  "name" :"Jane Doe",
-  "last_name":"quintero",
-  "script":"ctx._source.age + = 5",
-  "createdOn": "2019-04-08T11:28:20.906+0000",
-  "startDate": "2019-04-08T11:28:20.906+0000"
-	}
-}')
+json({
+    "doc": {
+        "name": "Jane Doe",
+        "last_name": "quintero",
+        "script": "ctx._source.age + = 5",
+        "createdOn": "2019-04-08T11:28:20.906+0000",
+        "startDate": "2019-04-08T11:28:20.906+0000"
+    }
+})
 
 
 // <strong>Esquema: </strong>
@@ -255,16 +258,24 @@ DELETE "https://10.170.0.100/customer/_doc/2"
 @name("busqueda de datos")
 GET "https://10.170.0.100/clientes/_search"
 "Content-Type": "application/json"
-data('{
-  "query": {
-    "bool": {
-      "must_not": [
-        { "match": { "address": "mill" } },
-        { "match": { "address": "lane" } }
-      ]
+json({
+    "query": {
+        "bool": {
+            "must_not": [
+                {
+                    "match": {
+                        "address": "mill"
+                    }
+                },
+                {
+                    "match": {
+                        "address": "lane"
+                    }
+                }
+            ]
+        }
     }
-  }
-}')
+})
 
 
 // 1. configurar el servidor    (/tmp/elastic/bk/)
@@ -293,13 +304,13 @@ data('{
 @name("repositorio")
 PUT "https://10.170.0.100/_snapshot/my_backup"
 "Content-Type": "application/json"
-data('{
-  "type": "fs",
-  "settings": {
-    "location": "/tmp/elastic/bk/",
-    "compress" : true
-  }
-}')
+json({
+    "type": "fs",
+    "settings": {
+        "location": "/tmp/elastic/bk/",
+        "compress": true
+    }
+})
 
 
 // Cuando se registra un repositorio, se verifica de inmediato en todos los nodos maestros y de datos para asegurarse de que funciona en todos los nodos actualmente presentes en el clúster

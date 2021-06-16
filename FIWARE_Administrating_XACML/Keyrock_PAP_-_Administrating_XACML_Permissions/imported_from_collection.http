@@ -9,10 +9,10 @@
 POST "http://{{keyrock}}/v1/auth/tokens"
 "Accept": "application/json"
 "Content-Type": "application/json"
-data('{
-  "name": "alice-the-admin@test.com",
-  "password": "test"
-}')
+json({
+    "name": "alice-the-admin@test.com",
+    "password": "test"
+})
 
 
 // The `/applications/{{app-id}}/permissions/{permission-id}}` endpoint will return the permission
@@ -75,13 +75,89 @@ PATCH "http://{{keyrock}}/v1/applications/{{app-id}}/permissions/alrmbell-ring-2
 "Accept": "application/json"
 "Content-Type": "application/json"
 "X-Auth-token": "{{X-Auth-token}}"
-data('{
-	"permission": {
+json({
+    "permission": {
         "action": "",
         "resource": "",
-        "xml": "<Rule RuleId=\"alrmbell-ring-only-000000000000\" Effect=\"Permit\">\n<Description>Allow Full Access to Charlie the Security Manager</Description>\n<Target>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">/bell/ring</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" AttributeId=\"urn:thales:xacml:2.0:resource:sub-resource-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">POST</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">charlie</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n</Target>\n</Rule>\n<Rule RuleId=\"alrmbell-ring-24hr-hours-000000000000\" Effect=\"Permit\">\n<Description>Ring Alarm Bell (Outside Core Hours)</Description>\n<Target>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">/bell/ring</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" AttributeId=\"urn:thales:xacml:2.0:resource:sub-resource-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">POST</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n<AnyOf>\n<AllOf>\n<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">security-role-0000-0000-000000000000</AttributeValue>\n<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" AttributeId=\"urn:oasis:names:tc:xacml:2.0:subject:role\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />\n</Match>\n</AllOf>\n</AnyOf>\n</Target>\n<Condition>\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:not\">\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:2.0:function:time-in-range\">\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">\n<AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:current-time\" DataType=\"http://www.w3.org/2001/XMLSchema#time\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:environment\" MustBePresent=\"false\"></AttributeDesignator>\n</Apply>\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-bag\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#time\">08:00:00</AttributeValue>\n</Apply>\n</Apply>\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">\n<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-bag\">\n<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#time\">17:00:00</AttributeValue>\n</Apply>\n</Apply>\n</Apply>\n</Apply>\n</Condition>\n</Rule>"
-	}
-}')
+        "xml": "<Rule RuleId=\"alrmbell-ring-only-000000000000\" Effect=\"Permit\">
+<Description>Allow Full Access to Charlie the Security Manager</Description>
+<Target>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">/bell/ring</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" AttributeId=\"urn:thales:xacml:2.0:resource:sub-resource-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">POST</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">charlie</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:subject:subject-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+</Target>
+</Rule>
+<Rule RuleId=\"alrmbell-ring-24hr-hours-000000000000\" Effect=\"Permit\">
+<Description>Ring Alarm Bell (Outside Core Hours)</Description>
+<Target>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">/bell/ring</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:resource\" AttributeId=\"urn:thales:xacml:2.0:resource:sub-resource-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">POST</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:action\" AttributeId=\"urn:oasis:names:tc:xacml:1.0:action:action-id\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+<AnyOf>
+<AllOf>
+<Match MatchId=\"urn:oasis:names:tc:xacml:1.0:function:string-equal\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#string\">security-role-0000-0000-000000000000</AttributeValue>
+<AttributeDesignator Category=\"urn:oasis:names:tc:xacml:1.0:subject-category:access-subject\" AttributeId=\"urn:oasis:names:tc:xacml:2.0:subject:role\" DataType=\"http://www.w3.org/2001/XMLSchema#string\" MustBePresent=\"true\" />
+</Match>
+</AllOf>
+</AnyOf>
+</Target>
+<Condition>
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:not\">
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:2.0:function:time-in-range\">
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">
+<AttributeDesignator AttributeId=\"urn:oasis:names:tc:xacml:1.0:environment:current-time\" DataType=\"http://www.w3.org/2001/XMLSchema#time\" Category=\"urn:oasis:names:tc:xacml:3.0:attribute-category:environment\" MustBePresent=\"false\"></AttributeDesignator>
+</Apply>
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-bag\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#time\">08:00:00</AttributeValue>
+</Apply>
+</Apply>
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-one-and-only\">
+<Apply FunctionId=\"urn:oasis:names:tc:xacml:1.0:function:time-bag\">
+<AttributeValue DataType=\"http://www.w3.org/2001/XMLSchema#time\">17:00:00</AttributeValue>
+</Apply>
+</Apply>
+</Apply>
+</Apply>
+</Condition>
+</Rule>"
+    }
+})
 
 
 @name("Delete Role-Permission Association")
